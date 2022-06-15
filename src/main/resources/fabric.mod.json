@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "entity_model_features",
+  "version": "${version}",
+
+  "name": "0-entity_model_features",
+  "description": "",
+  "authors": [],
+  "contact": {},
+
+  "license": "LGPL-3.0",
+  "icon": "icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "traben.entity_model_features.client.Entity_model_featuresClient"
+    ],
+    "modmenu": [
+      "traben.entity_model_features.config.modMenu"
+    ]
+  },
+
+  "mixins": [
+        "entity_model_features.mixins.json"
+      ],
+  "accessWidener" : "entity_model_features.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.14",
+              "fabric": "*",
+          "minecraft": "1.19"
+  }
+}

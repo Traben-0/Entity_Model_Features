@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "traben.entity_model_features.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "BipedEntityModelAccessor",
+    "QuadrupedEntityModelAccessor"
+  ],
+  "client": [
+    "MixinLivingEntityRenderer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
