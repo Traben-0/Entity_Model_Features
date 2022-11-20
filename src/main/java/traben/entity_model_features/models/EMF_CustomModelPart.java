@@ -52,9 +52,9 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             ModelPart vanilla = vanillaParts.get(selfModelData.part);
             //copyTransform(vanilla);
             rotateZ = vanilla.roll +(selfModelData.rotate[2]*0.01745329251f);
-            rotateX = vanilla.pitch+(selfModelData.rotate[0]*0.01745329251f);
+            rotateX = -vanilla.pitch+(selfModelData.rotate[0]*0.01745329251f);
             rotateY = vanilla.yaw+(selfModelData.rotate[1]*0.01745329251f);
-
+            System.out.println("rotate="+vanilla +", "+ vanilla.roll+", "+vanilla.pitch+", "+vanilla.yaw);
 
         }else{
             rotateZ = selfModelData.rotate[2]*0.01745329251f;
@@ -77,12 +77,14 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
             matrices.translate(selfModelData.translate[0] / -16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
             //rotate only for this
-            rotate(matrices,rotateX,rotateY,rotateZ);
+            if(!cuboids.isEmpty())
+                rotate(matrices,rotateX,rotateY,rotateZ);
             //matrices.scale(-1,-1,-1);
             for (Cuboid cube :
                     cuboids) {
-
-                cube.renderCuboid(matrices.peek(), vertices, light, overlay, red, green, blue, alpha);
+                //hide leg 1 for testing
+                if(!this.selfModelData.part.equals("leg1"))
+                    cube.renderCuboid(matrices.peek(), vertices, light, overlay, red, green, blue, alpha);
 
             }
             matrices.pop();
@@ -93,7 +95,8 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             //}else{
                 matrices.translate(selfModelData.translate[0] / -16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
             //}
-            rotate(matrices,rotateX,rotateY,rotateZ);
+            if(!cuboids.isEmpty())
+                rotate(matrices,rotateX,rotateY,rotateZ);
             for (String key :
                     children.keySet()) {
                 children.get(key).render(parentCount + 1, vanillaParts, matrices, vertices, light, overlay, red, green, blue, alpha);
@@ -104,22 +107,22 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
     }
 
 
-    private double constrainrotationTo180(double given) {
-        double adjust = 1;// 1.57079632679f
-        if (given >= 360*adjust) {
-            given = given % (360*adjust);
-            if (given >= 180*adjust) {
-                given -= 360*adjust;
-            }
-        }
-        if (given < 0) {
-            given = given % (-360*adjust);
-            if (given <= -180*adjust) {
-                given += 360*adjust;
-            }
-        }
-        return given;
-    }
+//    private double constrainrotationTo180(double given) {
+//        double adjust = 1;// 1.57079632679f
+//        if (given >= 360*adjust) {
+//            given = given % (360*adjust);
+//            if (given >= 180*adjust) {
+//                given -= 360*adjust;
+//            }
+//        }
+//        if (given < 0) {
+//            given = given % (-360*adjust);
+//            if (given <= -180*adjust) {
+//                given += 360*adjust;
+//            }
+//        }
+//        return given;
+//    }
 
 
     public EMF_CustomModelPart(int parentNumber,
@@ -215,13 +218,15 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         //this number below is so important, it will take the rotations in degrees and turn it into what the multiply method wants
 //// number for degrees to rotation for quart     0.01745329251
 
-        if (constrainrotationTo180(/*this.roll+*/selfModelData.rotate[2] ) != 0.0f) {
+        if (/*constrainrotationTo180(this.roll+selfModelData.rotate[2]*/ rotateZ != 0.0f) {
             matrices.multiply(Vec3f.POSITIVE_Z.getRadialQuaternion(/*this.roll+*/rotateZ));
         }
-        if (constrainrotationTo180(/*this.yaw+*/selfModelData.rotate[1] ) != 0.0f) {
+        if (/*constrainrotationTo180(this.yaw+selfModelData.rotate[1]*/ rotateY != 0.0f) {
             matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(/*this.yaw+*/rotateY));
         }
-        if (constrainrotationTo180(/*this.pitch+*/selfModelData.rotate[0] ) != 0.0f) {
+
+        //this is inverted for some reason
+        if (/*constrainrotationTo180(this.pitch+selfModelData.rotate[0]*/ rotateX != 0.0f) {
             matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion(/*this.pitch+*/-rotateX));
         }
 
@@ -389,15 +394,19 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
             //altered custom uv quads see working out below
             //probably needs to be adjusted but thats later me problem
-            this.sides[2] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex6, vertex5, vertex, vertex2},
+
+            //vertexes ordering format
+            // 1 2
+            // 4 3
+            this.sides[2] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{ vertex, vertex2, vertex6, vertex5},//actually up
                     uvUp[0], uvUp[1], uvUp[2], uvUp[3], textureWidth, textureHeight, mirrorUV, Direction.DOWN);
-            this.sides[3] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex3, vertex4, vertex8, vertex7},
-                    uvDown[0], uvDown[3], uvDown[2], uvDown[1], textureWidth, textureHeight, mirrorUV, Direction.UP);
-            this.sides[1] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex, vertex5, vertex8, vertex4},
+            this.sides[3] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex8, vertex7, vertex3, vertex4},//actually down
+                    uvDown[0], uvDown[1], uvDown[2], uvDown[3], textureWidth, textureHeight, mirrorUV, Direction.UP);
+            this.sides[1] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex6, vertex2, vertex3, vertex7},
                     uvWest[0], uvWest[1], uvWest[2], uvWest[3], textureWidth, textureHeight, mirrorUV, Direction.WEST);
             this.sides[4] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex2, vertex, vertex4, vertex3},
                     uvNorth[0], uvNorth[1], uvNorth[2], uvNorth[3], textureWidth, textureHeight, mirrorUV, Direction.NORTH);
-            this.sides[0] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex6, vertex2, vertex3, vertex7},
+            this.sides[0] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex, vertex5, vertex8, vertex4},
                     uvEast[0], uvEast[1], uvEast[2], uvEast[3], textureWidth, textureHeight, mirrorUV, Direction.EAST);
             this.sides[5] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex5, vertex6, vertex7, vertex8},
                     uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3], textureWidth, textureHeight, mirrorUV, Direction.SOUTH);

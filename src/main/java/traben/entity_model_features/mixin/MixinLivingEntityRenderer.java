@@ -15,7 +15,9 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.QuadrupedEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.SheepEntity;
+import net.minecraft.entity.passive.VillagerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -52,7 +54,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             , locals = LocalCapture.CAPTURE_FAILSOFT)
     private void injected(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci, float h, float j, float k, float m, float l, float n, float o) {
         //here can redirect model rendering
-        if (livingEntity instanceof SheepEntity){
+        if (livingEntity instanceof SheepEntity || livingEntity instanceof VillagerEntity){
             String entityTypeName =livingEntity.getType().getName().getString().toLowerCase().replace("\s","_");
             String modelID = "optifine/cem/"+entityTypeName+".jem";
 
@@ -72,7 +74,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                     //System.out.println("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\jemJsonObjects ");
 
                 }catch(Exception e){
-                    EMFUtils.EMF_modMessage("failed "+e,false);
+                    EMFUtils.EMF_modMessage("failed for "+modelID+e,false);
+                    JEMPATH_CustomModel.put(modelID,null);
                 }
 
                 //temp while testing so only runs once
@@ -100,15 +103,16 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
 
 
-            if(vanillaModel == null) {
-                vanillaModel = instance;
+           // if(vanillaModel == null) {
+               // vanillaModel = instance;
                 vanillaParts.clear();
-                System.out.println("is quadped = "+(instance instanceof QuadrupedEntityModel));
+                //System.out.println("is quadped = "+(instance instanceof QuadrupedEntityModel));
                 if (instance instanceof QuadrupedEntityModel quadped) {
                     ArrayList<ModelPart> bodyParts = new ArrayList<>();
                     Iterable<ModelPart> hed = ((QuadrupedEntityModelAccessor) quadped).callGetHeadParts();
                     for (ModelPart part : hed) {
                         vanillaParts.put("head",part);
+                        break;
                     }
 
                     hed = ((QuadrupedEntityModelAccessor) quadped).callGetBodyParts();
@@ -122,9 +126,11 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                     vanillaParts.put("leg4",bodyParts.get(4));
 
 
+                }else{
+                    //non quadrapeds
                 }
-                System.out.println(vanillaParts);
-            }
+                //System.out.println(vanillaParts);
+           // }
             for (ModelPart part: vanillaParts.values()) {
                 part.visible = false;
             }
@@ -133,6 +139,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
     }
 
-    EntityModel<T> vanillaModel = null;
+  //  EntityModel<T> vanillaModel = null;
     HashMap<String,ModelPart> vanillaParts = new HashMap<>();
 }
