@@ -28,6 +28,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
                 jemData.models) {
             children.put(sub.id,new EMF_CustomModelPart<T>(0,sub,new ArrayList<EMF_ModelData>()));
         }
+
     }
 
 
@@ -45,7 +46,10 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
     public void render(HashMap<String,ModelPart> vanillaParts,MatrixStack herematrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         for (String key:
                 children.keySet()) {
+            herematrices.push();
+            //herematrices.translate(0,16,0);
             children.get(key).render(0,vanillaParts,herematrices,vertices,light,overlay,red,green,blue,alpha);
+            herematrices.pop();
         }
     }
 

@@ -48,13 +48,13 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         float rotateY;
         float rotateZ;
 
-        if (vanillaParts.containsKey(selfModelData.part)) {
+        if (vanillaParts.containsKey(selfModelData.part) && !cuboids.isEmpty()) {
             ModelPart vanilla = vanillaParts.get(selfModelData.part);
             //copyTransform(vanilla);
             rotateZ = vanilla.roll +(selfModelData.rotate[2]*0.01745329251f);
             rotateX = -vanilla.pitch+(selfModelData.rotate[0]*0.01745329251f);
             rotateY = vanilla.yaw+(selfModelData.rotate[1]*0.01745329251f);
-            System.out.println("rotate="+vanilla +", "+ vanilla.roll+", "+vanilla.pitch+", "+vanilla.yaw);
+            //System.out.println("rotate="+vanilla +", "+ vanilla.roll+", "+vanilla.pitch+", "+vanilla.yaw);
 
         }else{
             rotateZ = selfModelData.rotate[2]*0.01745329251f;
@@ -65,6 +65,14 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         if (selfModelData.id.equals("baby_head")) {
             visible = false;
         }
+//  todo testing head rotation
+        if (selfModelData.id.equals("head2") && vanillaParts.containsKey("leg1")) {
+            ModelPart vanilla = vanillaParts.get("leg1");
+            //copyTransform(vanilla);
+            rotateZ = vanilla.roll +(selfModelData.rotate[2]*0.01745329251f);
+            rotateX = -vanilla.pitch+(selfModelData.rotate[0]*0.01745329251f);
+            rotateY = vanilla.yaw+(selfModelData.rotate[1]*0.01745329251f);
+        }
 
         matrices.push();
         if (visible) {
@@ -74,11 +82,18 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             //TODO RETURN TO
             // matrices.scale(selfModelData.scale, selfModelData.scale, selfModelData.scale);
             matrices.push();
+            if(parentCount == 0){
+                matrices.translate(selfModelData.translate[0] / 16.0f, selfModelData.translate[1] / 16.0f, selfModelData.translate[2] / -16.0f);
+            }else{
+                matrices.translate(selfModelData.translate[0] / -16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
+            }
 
-            matrices.translate(selfModelData.translate[0] / -16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
+            //matrices.translate(selfModelData.translate[0] / 16.0f, selfModelData.translate[1] / 16.0f, selfModelData.translate[2] / -16.0f);
             //rotate only for this
-            if(!cuboids.isEmpty())
+           // if(!cuboids.isEmpty())
                 rotate(matrices,rotateX,rotateY,rotateZ);
+
+
             //matrices.scale(-1,-1,-1);
             for (Cuboid cube :
                     cuboids) {
@@ -89,14 +104,25 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             }
             matrices.pop();
 
-            //if(parentModelData.size() < 1){
+           // if(parentModelData.size() < 1){
                 //remove first models translate
                 //matrices.translate(-(selfModelData.translate[0] / 16.0f), -(selfModelData.translate[1] / 16.0f), -(selfModelData.translate[2] / 16.0f));
-            //}else{
-                matrices.translate(selfModelData.translate[0] / -16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
-            //}
+           // }else{
+           // somethign with these or cuboid creation affetcing pivots...
+            if(!cuboids.isEmpty())
+            //if(parentCount == 0)
+                if(parentCount == 0){
+                    matrices.translate(selfModelData.translate[0] / 16.0f, selfModelData.translate[1] / 16.0f, selfModelData.translate[2] / -16.0f);
+                }else{
+                    matrices.translate(selfModelData.translate[0] / -16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
+                }
+           // matrices.translate(selfModelData.translate[0] / 16.0f, selfModelData.translate[1] / 16.0f, selfModelData.translate[2] / -16.0f);
+           // }
             if(!cuboids.isEmpty())
                 rotate(matrices,rotateX,rotateY,rotateZ);
+
+
+
             for (String key :
                     children.keySet()) {
                 children.get(key).render(parentCount + 1, vanillaParts, matrices, vertices, light, overlay, red, green, blue, alpha);
@@ -127,7 +153,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
     public EMF_CustomModelPart(int parentNumber,
                                EMF_ModelData EMFmodelData,
-                               ArrayList<EMF_ModelData> parentEMFmodelData) {
+                               ArrayList<EMF_ModelData> parentEMFmodelData){//,//float[] parentalTransforms) {
 
         super(new ArrayList<>(), new HashMap<>());
         selfModelData = EMFmodelData;
@@ -137,17 +163,24 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         pivotY = 0;// selfModelData.translate[1];
         pivotZ = 0;// selfModelData.translate[2];
 
-        boolean[] invertFirst = new boolean[]{false,false,false};
-        if(parentModelData.size() == 0){
-            //invert y & z for some reason for first model
-            selfModelData.translate[0] =0;// -selfModelData.translate[0];
-            selfModelData.translate[1] =0;// -selfModelData.translate[1];
-            selfModelData.translate[2] =0;// -selfModelData.translate[2]; // forward
+        boolean[] invertFirst = new boolean[]{true,true,false};
+//        if(parentModelData.size() == 0){
+//            //invert y & z for some reason for first model
+//            selfModelData.translate[0] =0;// -selfModelData.translate[0];
+//            selfModelData.translate[1] =0;// -selfModelData.translate[1];
+//            selfModelData.translate[2] =0;// -selfModelData.translate[2]; // forward
+//
+//        }
+//        if(selfModelData.boxes.length > 0)
+//            parentalTransforms = new float[]{
+//                parentalTransforms[0] + selfModelData.translate[0],
+//                parentalTransforms[1] + selfModelData.translate[1],
+//                parentalTransforms[2] + selfModelData.translate[2]};
 
-        }
+        //might be either any model with a vanilla part or any top layer model
+        boolean removePivotValue = parentNumber == 0;
 
-
-        createCuboidsFromBoxData(invertFirst);
+        createCuboidsFromBoxData(invertFirst,removePivotValue);
         System.out.println("data = " + selfModelData.toString(false));
         for (EMF_ModelData sub : selfModelData.submodels) {
             ArrayList<EMF_ModelData> hold = new ArrayList<>(parentEMFmodelData);
@@ -157,7 +190,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
     }
 
 
-    private void createCuboidsFromBoxData(boolean[] invertAxis) {
+    private void createCuboidsFromBoxData(boolean[] invertAxis, boolean removePivotValue) {
         if (selfModelData.boxes.length > 0) {
             try {
                 for (EMF_BoxData box :
@@ -184,7 +217,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
                                 box.coordinates[3], box.coordinates[4], box.coordinates[5],
                                 box.sizeAdd, box.sizeAdd, box.sizeAdd,
                                 new boolean[]{selfModelData.mirrorTexture.contains("u"), selfModelData.mirrorTexture.contains("v")},
-                                selfModelData.textureSize[0], selfModelData.textureSize[1], invertAxis);//selfModelData.invertAxis);
+                                selfModelData.textureSize[0], selfModelData.textureSize[1], invertAxis, removePivotValue);//selfModelData.invertAxis);
                     }
                     cuboids.add(cube);
                 }
@@ -199,6 +232,10 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
     public void rotate(MatrixStack matrices,float rotateX,float rotateY,float rotateZ) {
         //matrices.translate((this.pivotX+adjustPivotX) / 16.0f, (this.pivotY+adjustPivotY) / 16.0f, (this.pivotZ+adjustPivotZ) / 16.0f);
+        //matrices.translate(selfModelData.[0] / -16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
+
+        ///////////////matrices.translate((double)(this.pivotX / 16.0F), (double)(this.pivotY / 16.0F), (double)(this.pivotZ / 16.0F));
+
 //        System.out.println("id="+selfModelData.id);
 //        System.out.println("roll="+this.roll+"-"+selfModelData.rotate[2]);
 //        System.out.println("yaw="+this.yaw+"-"+selfModelData.rotate[1]);
@@ -217,7 +254,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
         //this number below is so important, it will take the rotations in degrees and turn it into what the multiply method wants
 //// number for degrees to rotation for quart     0.01745329251
-
+        //matrices.translate(selfModelData.translate[0] / 16.0f, selfModelData.translate[1] / 16.0f, selfModelData.translate[2] / -16.0f);
         if (/*constrainrotationTo180(this.roll+selfModelData.rotate[2]*/ rotateZ != 0.0f) {
             matrices.multiply(Vec3f.POSITIVE_Z.getRadialQuaternion(/*this.roll+*/rotateZ));
         }
@@ -336,25 +373,38 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
                       float extraX, float extraY, float extraZ,
                       boolean[] mirrorUV,
                       float textureWidth, float textureHeight,
-                      boolean[] invertAxis) {
-            if (invertAxis[0]) {
-                cubeX = -cubeX;
-                sizeX = -sizeX;
-                extraX = -extraX;
+                      boolean[] invertAxis,
+                      boolean removePivotValue) {
+           // this should not be seperate
+             //       maybe more inversion needs to happen as translates of ++- work better
+            if(removePivotValue) {
+                if (invertAxis[0]) {
+//                cubeX = -cubeX;
+//                sizeX = -sizeX;
+//                extraX = -extraX;
+                    cubeX -= selfModelData.translate[0];
+                } else {
+                    cubeX += selfModelData.translate[0];
+                }
+                if (invertAxis[1]) {
+//                cubeY = -cubeY;
+//                sizeY = -sizeY;
+//                extraY = -extraY;
+                    cubeY -= selfModelData.translate[1];
+                } else {
+                    cubeY += selfModelData.translate[1];
+                }
+                if (invertAxis[2]) {
+//                cubeZ = -cubeZ;
+//                sizeZ = -sizeZ;
+//                extraZ = -extraZ;
+                    cubeZ -= selfModelData.translate[2];
+                } else {
+                    cubeZ += selfModelData.translate[2];
+                }
             }
-            if (invertAxis[1]) {
-                cubeY = -cubeY;
-                sizeY = -sizeY;
-                extraY = -extraY;
-            }
-            if (invertAxis[2]) {
-                cubeZ = -cubeZ;
-                sizeZ = -sizeZ;
-                extraZ = -extraZ;
-            }
-            //cubeX += selfModelData.translate[0];
-            //cubeY += selfModelData.translate[1];
-            //cubeZ += selfModelData.translate[2];
+
+
 
 
             this.minX = cubeX;
