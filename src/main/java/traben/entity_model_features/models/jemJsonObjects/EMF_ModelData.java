@@ -1,17 +1,13 @@
 package traben.entity_model_features.models.jemJsonObjects;
 
-import net.minecraft.client.model.*;
-import traben.entity_model_features.models.EMF_CustomModelPart;
-
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 public class EMF_ModelData {
 
     public String texture = "";
-    public int[] textureSize = {64,32};
+    public int[] textureSize = null;
     public String invertAxis = "";
     public float[] translate = {0,0,0};
     public float[] rotate = {0,0,0};
@@ -24,14 +20,17 @@ public class EMF_ModelData {
     public String baseId = "";  //- Model parent ID, all parent properties are inherited
     public String model = "";  //- Part model jemJsonObjects, from which to load the part model definition
     public String id = "";            //- Model ID, can be used to reference the model as parent
-    public String part = "!!!!!";     //- Entity part to which the part model is atached
+    public String part = null;//"!!!!!";     //- Entity part to which the part model is atached
     public boolean attach = false; //- True: attach to the entity part, False: replace it
     public float scale = 1.0f;
 
 
     public Properties[] animations = {};
 
-    public void prepare(Map<String, String> animationInstructionList){
+    public void prepare(Map<String, String> animationInstructionList, int[] textureSize){
+
+        if(this.textureSize == null) this.textureSize = textureSize;
+
 
         //rotate[0] = rotate[0] /1.57079632679f;
         //rotate[1] = rotate[1] /1.57079632679f;
@@ -58,11 +57,11 @@ public class EMF_ModelData {
             sprite.prepare();
         }
         if (submodel !=null){
-            submodel.prepare(animationInstructionList);
+            submodel.prepare(animationInstructionList, textureSize);
         }
         for (EMF_ModelData model:
                 submodels) {
-            model.prepare(animationInstructionList);
+            model.prepare(animationInstructionList, textureSize);
         }
     }
 

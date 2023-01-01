@@ -16,9 +16,7 @@
     "client": [
       "traben.entity_model_features.client.Entity_model_featuresClient"
     ],
-    "modmenu": [
-      "traben.entity_model_features.config.modMenu"
-    ]
+    "modmenu": []
   },
 
   "mixins": [
@@ -28,6 +26,6 @@
   "depends": {
     "fabricloader": ">=0.14",
               "fabric": "*",
-          "minecraft": "1.19"
+          "minecraft": "1.19.3"
   }
 }

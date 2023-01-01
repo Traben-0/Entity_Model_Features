@@ -1,6 +1,7 @@
 package traben.entity_model_features.mixin;
 
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -11,8 +12,10 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.QuadrupedEntityModel;
+import net.minecraft.client.render.entity.model.VillagerResemblingModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.PassiveEntity;
@@ -54,11 +57,11 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             , locals = LocalCapture.CAPTURE_FAILSOFT)
     private void injected(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci, float h, float j, float k, float m, float l, float n, float o) {
         //here can redirect model rendering
-        if (livingEntity instanceof SheepEntity || livingEntity instanceof VillagerEntity){
+        if (true/*livingEntity instanceof SheepEntity || livingEntity instanceof VillagerEntity*/){
             String entityTypeName =livingEntity.getType().getName().getString().toLowerCase().replace("\s","_");
             String modelID = "optifine/cem/"+entityTypeName+".jem";
 
-            VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(RenderLayer.getEntityCutout(getTexture(livingEntity)));
+            VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(RenderLayer.getEntityCutoutNoCull(getTexture(livingEntity)));
 
             if (!JEMPATH_CustomModel.containsKey(modelID)){
                 System.out.println("checking "+modelID);
@@ -126,8 +129,38 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                     vanillaParts.put("leg4",bodyParts.get(4));
 
 
-                }else{
-                    //non quadrapeds
+                }else if(instance instanceof BipedEntityModel<T> biped){
+                    ArrayList<ModelPart> bodyParts = new ArrayList<>();
+                    Iterable<ModelPart> hed = ((BipedEntityModelAccessor) biped).callGetHeadParts();
+                    for (ModelPart part : hed) {
+                        vanillaParts.put("head",part);
+                        break;
+                    }
+                    //ImmutableList.of(this.body, this.rightArm, this.leftArm, this.rightLeg, this.leftLeg, this.hat);
+                    hed = ((BipedEntityModelAccessor) biped).callGetBodyParts();
+                    for (ModelPart part : hed) {
+                        bodyParts.add(part);
+                    }
+                    vanillaParts.put("body",bodyParts.get(0));
+                    vanillaParts.put("right_arm",bodyParts.get(1));
+                    vanillaParts.put("left_arm",bodyParts.get(2));
+                    vanillaParts.put("right_leg",bodyParts.get(3));
+                    vanillaParts.put("left_leg",bodyParts.get(4));
+                    vanillaParts.put("headwear",bodyParts.get(5));
+                }else if(instance instanceof VillagerResemblingModel<T> villager){
+                   // ArrayList<ModelPart> bodyParts = new ArrayList<>();
+                    ModelPart villagerRoot = villager.getPart();
+                    vanillaParts.put("head",villagerRoot.getChild("head"));
+                    vanillaParts.put("headwear",villagerRoot.getChild("head").getChild("hat"));
+                    vanillaParts.put("headwear2",villagerRoot.getChild("head").getChild("hat").getChild("hat_rim"));
+                    vanillaParts.put("body",villagerRoot.getChild("body"));
+                    vanillaParts.put("bodywear",villagerRoot.getChild("body").getChild("jacket"));
+                    vanillaParts.put("arms",villagerRoot.getChild("arms"));
+                    vanillaParts.put("left_leg",villagerRoot.getChild("left_leg"));
+                    vanillaParts.put("right_leg",villagerRoot.getChild("right_leg"));
+                    vanillaParts.put("nose",villagerRoot.getChild("head").getChild("nose"));
+                }{
+
                 }
                 //System.out.println(vanillaParts);
            // }

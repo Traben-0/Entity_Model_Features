@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class EMF_JemData {
     public String texture = "";
-    public int[] textureSize = {64,32};
+    public int[] textureSize = null;
     public double shadow_size = 1.0;
     public EMF_ModelData[] models = {};
     private final Map<String, String> animationInstructionList = new HashMap<>();
@@ -15,7 +15,7 @@ public class EMF_JemData {
     public void prepare(){
         for (EMF_ModelData model:
              models) {
-            model.prepare(animationInstructionList);
+            model.prepare(animationInstructionList,textureSize);
         }
     }
 
