@@ -167,7 +167,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             for (ModelPart part: vanillaParts.values()) {
                 part.visible = false;
             }
-            if (vanillaParts.get("head") != null ) vanillaParts.get("head").visible = true;
+           // if (vanillaParts.get("head") != null ) vanillaParts.get("head").visible = true;
             instance.render(matrixStack, vertexConsumer, i, j, k, l, m, n);
 
 

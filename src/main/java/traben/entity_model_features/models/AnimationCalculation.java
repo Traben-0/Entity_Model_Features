@@ -36,7 +36,9 @@ class AnimationCalculation {
     public boolean isChild() {
         return entity != null && entity.isBaby();
     }
-
+    public boolean isOnGround() {
+        return entity != null && entity.isOnGround();
+    }
     public float getSwingProgress() {
         return  entity == null ? 0 : entity.getHandSwingProgress(tickDelta);
     }
@@ -124,7 +126,8 @@ class AnimationCalculation {
 
     public void calculateAndSet(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
         double result = getResultOnly( entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0);
-        varToChange.set(modelPart, Double.isNaN(result) ? null : result);
+        if(modelPart != null)
+            varToChange.set(modelPart, Double.isNaN(result) ? null : result);
 
     }
 
@@ -193,6 +196,9 @@ class AnimationCalculation {
         }
         if (expressionString.contains("is_riding")) {
             calculator.addConstants(constantOfBoolean("is_riding", this::isRiding));
+        }
+        if (expressionString.contains("is_on_ground")) {
+            calculator.addConstants(constantOfBoolean("is_on_ground", this::isOnGround));
         }
         //todo extend these
 

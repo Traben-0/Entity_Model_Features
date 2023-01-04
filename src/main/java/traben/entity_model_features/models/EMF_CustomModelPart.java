@@ -51,51 +51,113 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         //       copyTransform(vanillaParts.get(selfModelData.baseId));
         //}
 
+
+
+        float scaleX;
+        if (sx != null) {
+            scaleX = ( (sx.floatValue() ));
+//            }
+        }else{
+            scaleX = ( ( selfModelData.scale));
+        }
+        float scaleY;
+        if (sy != null) {
+            scaleY = ( (sy.floatValue() ));
+//            }
+        }else{
+            scaleY = ( ( selfModelData.scale));
+        }
+        float scaleZ;
+        if (sz != null) {
+            scaleZ = ( (sz.floatValue() ));
+//            }
+        }else{
+            scaleZ = ( ( selfModelData.scale));
+        }
+
+        boolean doParentTranslate;
         float translateX;
         float translateY;
         float translateZ;
-        if (tx != null && ty != null && tz != null) {// && !cuboids.isEmpty()) {
+        if (tx != null) {// && !cuboids.isEmpty()) {
+            //System.out.println("was translated");
+            translateX = ( (tx.floatValue() ) / 16.0f);
+//            if(parentCount != 0){
+//                translateX += ( ( selfModelData.translate[0]) / 16.0f);
+//            }
+            doParentTranslate =true;
+        }else{
+            translateX = ( ( selfModelData.translate[0]) / 16.0f);
+            doParentTranslate = false;
+        }
+        if (ty != null) {// && !cuboids.isEmpty()) {
+            //System.out.println("was translated");
+            translateY = ( (ty.floatValue() ) / 16.0f);
+//            if(parentCount != 0){
+//                translateY += ( ( selfModelData.translate[1]) / 16.0f);
+//            }
+            doParentTranslate =true;
+        }else{
+            translateY = ( ( selfModelData.translate[1]) / 16.0f);
+            doParentTranslate =false;
+        }
+        if (tz != null) {// && !cuboids.isEmpty()) {
             //System.out.println("was translated");
             translateZ = ( (tz.floatValue() ) / 16.0f);
-            translateX = ( (tx.floatValue() ) / 16.0f);
-            translateY = ( (ty.floatValue() ) / 16.0f);
+//            if(parentCount != 0){
+//                translateZ += ( ( selfModelData.translate[2]) / 16.0f);
+//            }
+            doParentTranslate =true;
         }else{
             translateZ = ( ( selfModelData.translate[2]) / 16.0f);
-            translateX = ( ( selfModelData.translate[0]) / 16.0f);
-            translateY = ( ( selfModelData.translate[1]) / 16.0f);
+            doParentTranslate =false;
         }
 
+        //boolean doParentRotate ;
         float rotateX;
         float rotateY;
         float rotateZ;
 
-        if (rx != null && ry != null && rz != null) {// && !cuboids.isEmpty()) {
-
-           // System.out.println("was rotated");
-            rotateZ = rz.floatValue() +((float) Math.toRadians( selfModelData.rotate[2]));
+        if (rx != null) {
             rotateX = -rx.floatValue() +((float) Math.toRadians( selfModelData.rotate[0]));
-            rotateY = ry.floatValue() +((float) Math.toRadians( selfModelData.rotate[1]));
-
-
-        }else if (vanillaParts.containsKey(selfModelData.part)) {// && !cuboids.isEmpty()) {
-            ModelPart vanilla = vanillaParts.get(selfModelData.part);
-            //System.out.println("head is null? "+ vanilla == null);
-            //copyTransform(vanilla);
-            rotateZ = vanilla.roll +((float) Math.toRadians( selfModelData.rotate[2]));
-            rotateX = -vanilla.pitch+((float) Math.toRadians( selfModelData.rotate[0]));
-            rotateY = vanilla.yaw+((float) Math.toRadians( selfModelData.rotate[1]));
-            //System.out.println("rotate="+vanilla +", "+ vanilla.roll+", "+vanilla.pitch+", "+vanilla.yaw);
-
+            //doParentRotate = true;
+//        }else if (vanillaParts.containsKey(selfModelData.part)) {
+//            ModelPart vanilla = vanillaParts.get(selfModelData.part);
+//            rotateX = -vanilla.pitch+((float) Math.toRadians( selfModelData.rotate[0]));
+//            doParentRotate = false;
         }else{
-           // System.out.println("head fail");
-            rotateZ = (float) Math.toRadians( selfModelData.rotate[2]);
             rotateX = (float) Math.toRadians( selfModelData.rotate[0]);
+            //doParentRotate = true;
+        }
+        if (ry != null) {
+            rotateY = ry.floatValue() +((float) Math.toRadians( selfModelData.rotate[1]));
+          //  doParentRotate = true;
+//        }else if (vanillaParts.containsKey(selfModelData.part)) {
+//            ModelPart vanilla = vanillaParts.get(selfModelData.part);
+//            rotateY = vanilla.yaw+((float) Math.toRadians( selfModelData.rotate[1]));
+//            doParentRotate = false;
+        }else{
             rotateY = (float) Math.toRadians( selfModelData.rotate[1]);
+          // doParentRotate = true;
+        }
+        if (rz != null) {
+            rotateZ = rz.floatValue() +((float) Math.toRadians( selfModelData.rotate[2]));
+          //  doParentRotate = true;
+//        }else if (vanillaParts.containsKey(selfModelData.part)) {
+//            ModelPart vanilla = vanillaParts.get(selfModelData.part);
+//            rotateZ = vanilla.roll +((float) Math.toRadians( selfModelData.rotate[2]));
+//            doParentRotate = false;
+        }else{
+            rotateZ = (float) Math.toRadians( selfModelData.rotate[2]);
+          //  doParentRotate = true;
         }
         //rotateZ = 2;
         //todo remove after animation support
-        if (selfModelData.id.equals("baby_head")) {
+        if (selfModelData.id.equals("baby_head") || selfModelData.id.equals("leg1")) {
             visible = false;
+        }
+        if (selfModelData.id.equals("headwear")) {
+            System.out.println("headwear= "+rx+", "+ry+", "+rz+", "+tx+", "+ty+", "+tz);
         }
 //  todo testing head rotation
 //        if (selfModelData.id.equals("head2") && vanillaParts.containsKey("leg1")) {
@@ -109,23 +171,81 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         matrices.push();
         if (visible) {
 
+          //  if(parentCount == 0) {
+//                matrices.translate(-translateX, -translateY, translateZ);
+//
+//                matrices.translate(translateX, translateY, translateZ);
+//                matrices.translate(translateX, translateY, translateZ);
+
+//            if(parentCount == 0){
+//                matrices.translate(-translateX, -translateY, translateZ);
+//            }
+//      DONOTDO      if (selfModelData.part != null) {
+//                matrices.translate(translateX, translateY, translateZ);
+//            } else {
+//                matrices.translate(translateX, translateY, translateZ);
+//            }
+
+
+          //  }else if(selfModelData.part != null) {
+
+            //    matrices.translate(translateX, translateY, -translateZ);
+           // }
+
+
             //translate affects children
+
 
             //TODO RETURN TO
             // matrices.scale(selfModelData.scale, selfModelData.scale, selfModelData.scale);
             matrices.push();
-            //if(parentCount == 0)
-            if(selfModelData.part != null){
-                matrices.translate(translateX , translateY , -translateZ );
+
+
+
+            if(parentCount == 0) {
+                /////CORRECT
+                matrices.scale(scaleX, scaleY, scaleZ);
+                if(doParentTranslate) {
+                    matrices.translate(translateX, translateY, translateZ );
+                }else{
+                    matrices.translate(-translateX, translateY, -translateZ);
+                }
+                rotate(matrices, rotateX, rotateY, rotateZ);
+                //matrices.translate(0 , -translateY , 0 );
+                /////
             }else{
-                matrices.translate(-translateX , -translateY , translateZ );
+                matrices.scale(scaleX, scaleY, scaleZ);
+                //if(doParentTranslate)
+                    matrices.translate(-translateX,-translateY, translateZ);
+                rotate(matrices, rotateX, rotateY, rotateZ);
+
+
             }
+
+
+
+
+//            if(parentCount != 0) {
+//                matrices.translate(-translateX, -translateY, translateZ);
+//                rotate(matrices, rotateX, rotateY, rotateZ);
+//            }
+//            else{
+//                matrices.translate(-translateX, -translateY, -translateZ);
+//                rotate(matrices, rotateX, rotateY, rotateZ);
+//               // matrices.translate(translateX , translateY , -translateZ );
+//            }
+            //if(parentCount == 0)
+        ///    if(selfModelData.part != null){
+        ///        matrices.translate(translateX , translateY , -translateZ );
+        ///    }else{
+        ///        matrices.translate(-translateX , -translateY , translateZ );
+        ///    }
 //            if(selfModelData.id.equals("mirrored"))
 //                matrices.translate(0, 8 / 16.0f, 0);
             //rotate only for this
            // if(!cuboids.isEmpty())
 
-            rotate(matrices,rotateX,rotateY,rotateZ);
+        ///    rotate(matrices,rotateX,rotateY,rotateZ);
 
 
             //matrices.scale(-1,-1,-1);
@@ -138,6 +258,59 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             }
             matrices.pop();
 
+
+
+            /////CORRECT??
+            if(parentCount == 0) {
+
+                if(doParentTranslate) {
+                    matrices.translate(translateX, translateY, -translateZ);
+                    rotate(matrices, rotateX, rotateY, rotateZ);
+                    matrices.translate(translateX, -translateY, translateZ);
+                    //matrices.translate(translateX, translateY, translateZ );
+                }else{
+                  //  matrices.translate(translateX, translateY, -translateZ);
+                }
+
+            }else {
+                //matrices.scale(scaleX, scaleY, scaleZ);
+                //matrices.translate(translateX, translateY, translateZ);
+                //rotate(matrices, rotateX, rotateY, rotateZ);
+                if(!doParentTranslate)
+                    matrices.translate(-translateX, -translateY, translateZ);
+
+                rotate(matrices, rotateX, rotateY, rotateZ);
+
+            }
+
+            //matrices.translate(1,0,0);
+            /////
+
+//                 if(parentCount != 0 ){//&& !selfModelData.id.equals("arms")) {
+//                     if (selfModelData.part != null) {
+//                         matrices.translate(translateX , translateY , -translateZ );
+//                     } else {
+//                         matrices.translate(-translateX , -translateY , translateZ );
+//                     }
+//                     rotate(matrices,rotateX,rotateY,rotateZ);
+//                 }else {
+//                     if ( selfModelData.part != null){
+//                         matrices.translate(translateX, translateY, -translateZ);
+//                         rotate(matrices, rotateX, rotateY, rotateZ);
+//                         matrices.translate(-translateX, -translateY, translateZ);
+//                     }else{
+//
+//                         rotate(matrices, rotateX, rotateY, rotateZ);
+//                         //matrices.translate(-translateX, -translateY, translateZ);
+//                        // matrices.translate(-translateX, -translateY, translateZ);
+//                     }
+//
+//
+//
+//
+//                 }
+
+
            // if(parentModelData.size() < 1){
                 //remove first models translate
                 //matrices.translate(-(selfModelData.translate[0] / 16.0f), -(selfModelData.translate[1] / 16.0f), -(selfModelData.translate[2] / 16.0f));
@@ -145,26 +318,25 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
            // somethign with these or cuboid creation affetcing pivots...
             //if(!cuboids.isEmpty())
             //if(parentCount == 0)
-            if(parentCount != 0 ){//&& !selfModelData.id.equals("arms")) {
-                if (selfModelData.part != null) {
-                    matrices.translate(translateX , translateY , -translateZ );
-                } else {
-                    matrices.translate(-translateX , -translateY , translateZ );
-                }
-            }
-
+       ///     if(parentCount != 0 ){//&& !selfModelData.id.equals("arms")) {
+       ///         if (selfModelData.part != null) {
+       ///             matrices.translate(translateX , translateY , -translateZ );
+       ///         } else {
+       ///             matrices.translate(-translateX , -translateY , translateZ );
+       ///         }
+       ///     }
            // matrices.translate(selfModelData.translate[0] / 16.0f, selfModelData.translate[1] / 16.0f, selfModelData.translate[2] / -16.0f);
            // }
             //if(selfModelData.id.equals("arms"))
-            if(parentCount == 0 && selfModelData.part != null)
-                matrices.translate(translateX , translateY , -translateZ );
-            if(!cuboids.isEmpty())// && !selfModelData.id.equals("arms"))
+     ///       if(parentCount == 0 && selfModelData.part != null)
+     ///           matrices.translate(translateX , translateY , -translateZ );
+            //if(!cuboids.isEmpty())// && !selfModelData.id.equals("arms"))
             //if(parentCount != 0 || selfModelData.part == null)
             //if(selfModelData.part != null)
-                rotate(matrices,rotateX,rotateY,rotateZ);
+     ///       rotate(matrices,rotateX,rotateY,rotateZ);
            // if(selfModelData.id.equals("arms"))
-            if(parentCount == 0 && selfModelData.part != null)
-                matrices.translate(-translateX , -translateY , translateZ );
+     ///       if(parentCount == 0 && selfModelData.part != null)
+     ///           matrices.translate(-translateX , -translateY , translateZ );
 //            if(selfModelData.id.equals("arms"))
 //                matrices.translate(selfModelData.translate[0] / 16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
 
@@ -223,7 +395,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 //                parentalTransforms[2] + selfModelData.translate[2]};
 
         //might be either any model with a vanilla part or any top layer model
-        boolean removePivotValue =  parentNumber == 0;
+        boolean removePivotValue = parentNumber == 0;
 
         //if (selfModelData.id.equals("mirrored")){ removePivotValue = false; invertFirst =new boolean[]{false,false,false};}
         createCuboidsFromBoxData(invertFirst,removePivotValue);
