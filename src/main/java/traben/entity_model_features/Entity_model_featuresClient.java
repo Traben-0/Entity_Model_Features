@@ -1,7 +1,8 @@
-package traben.entity_model_features.client;
+package traben.entity_model_features;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -10,6 +11,7 @@ import net.minecraft.entity.LivingEntity;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMF_CustomModel;
+import traben.entity_model_features.utils.EMFUtils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -21,7 +23,7 @@ public class Entity_model_featuresClient implements ClientModInitializer {
 
     public static EMFConfig EMFConfigData;
 
-    public static HashMap<String, EMF_CustomModel<LivingEntity>> JEMPATH_CustomModel = new HashMap<>();
+    public static Int2ObjectOpenHashMap<EMF_CustomModel<LivingEntity>> JEMPATH_CustomModel = new Int2ObjectOpenHashMap<>();
 
     //public static HashMap<String, EntityModel> ENTITYNAME_VanillaModel = new HashMap<>();
 

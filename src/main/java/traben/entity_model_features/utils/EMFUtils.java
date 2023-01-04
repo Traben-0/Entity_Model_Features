@@ -1,4 +1,4 @@
-package traben.entity_model_features.client;
+package traben.entity_model_features.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,7 +14,7 @@ import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import java.io.*;
 import java.util.Properties;
 
-import static traben.entity_model_features.client.Entity_model_featuresClient.EMFConfigData;
+import static traben.entity_model_features.Entity_model_featuresClient.EMFConfigData;
 
 public class EMFUtils {
 

@@ -1,6 +1,7 @@
 package traben.entity_model_features.models;
 
 
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
@@ -9,16 +10,13 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.*;
 import org.joml.*;
-import traben.entity_model_features.client.EMFUtils;
+import traben.entity_model_features.utils.AnimationValues;
+import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.jemJsonObjects.EMF_BoxData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static traben.entity_model_features.client.Entity_model_featuresClient.EMFConfigData;
+import java.lang.Math;
+import java.util.*;
 
 @Environment(value = EnvType.CLIENT)
 public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
@@ -26,7 +24,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
     //todo probably needs parent offset but could be calculated before render
 
 
-    public boolean visible = true;
+
 
     private final List<EMF_CustomModelPart.Cuboid> cuboids = new ArrayList<>();
     private final Map<String, EMF_CustomModelPart<T>> children = new HashMap<>();
@@ -35,7 +33,15 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
     public final EMF_ModelData selfModelData;
     public final ArrayList<EMF_ModelData> parentModelData;
 
-    public void render(int parentCount, HashMap<String, ModelPart> vanillaParts, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public Double rx, ry, rz;
+    public Double tx, ty, tz;
+    public Double sx, sy, sz;
+    public boolean visible_boxes = true;
+    public boolean visible = true;
+
+
+
+    public void render( int parentCount,HashMap<String, ModelPart> vanillaParts, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 
         //matrices.scale(5,2,5);
 
@@ -45,23 +51,48 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         //       copyTransform(vanillaParts.get(selfModelData.baseId));
         //}
 
+        float translateX;
+        float translateY;
+        float translateZ;
+        if (tx != null && ty != null && tz != null) {// && !cuboids.isEmpty()) {
+            //System.out.println("was translated");
+            translateZ = ( (tz.floatValue() ) / 16.0f);
+            translateX = ( (tx.floatValue() ) / 16.0f);
+            translateY = ( (ty.floatValue() ) / 16.0f);
+        }else{
+            translateZ = ( ( selfModelData.translate[2]) / 16.0f);
+            translateX = ( ( selfModelData.translate[0]) / 16.0f);
+            translateY = ( ( selfModelData.translate[1]) / 16.0f);
+        }
+
         float rotateX;
         float rotateY;
         float rotateZ;
 
-        if (vanillaParts.containsKey(selfModelData.part) && !cuboids.isEmpty()) {
+        if (rx != null && ry != null && rz != null) {// && !cuboids.isEmpty()) {
+
+           // System.out.println("was rotated");
+            rotateZ = rz.floatValue() +((float) Math.toRadians( selfModelData.rotate[2]));
+            rotateX = -rx.floatValue() +((float) Math.toRadians( selfModelData.rotate[0]));
+            rotateY = ry.floatValue() +((float) Math.toRadians( selfModelData.rotate[1]));
+
+
+        }else if (vanillaParts.containsKey(selfModelData.part)) {// && !cuboids.isEmpty()) {
             ModelPart vanilla = vanillaParts.get(selfModelData.part);
+            //System.out.println("head is null? "+ vanilla == null);
             //copyTransform(vanilla);
-            rotateZ = vanilla.roll +(selfModelData.rotate[2]*0.01745329251f);
-            rotateX = -vanilla.pitch+(selfModelData.rotate[0]*0.01745329251f);
-            rotateY = vanilla.yaw+(selfModelData.rotate[1]*0.01745329251f);
+            rotateZ = vanilla.roll +((float) Math.toRadians( selfModelData.rotate[2]));
+            rotateX = -vanilla.pitch+((float) Math.toRadians( selfModelData.rotate[0]));
+            rotateY = vanilla.yaw+((float) Math.toRadians( selfModelData.rotate[1]));
             //System.out.println("rotate="+vanilla +", "+ vanilla.roll+", "+vanilla.pitch+", "+vanilla.yaw);
 
         }else{
-            rotateZ = selfModelData.rotate[2]*0.01745329251f;
-            rotateX = selfModelData.rotate[0]*0.01745329251f;
-            rotateY = selfModelData.rotate[1]*0.01745329251f;
+           // System.out.println("head fail");
+            rotateZ = (float) Math.toRadians( selfModelData.rotate[2]);
+            rotateX = (float) Math.toRadians( selfModelData.rotate[0]);
+            rotateY = (float) Math.toRadians( selfModelData.rotate[1]);
         }
+        //rotateZ = 2;
         //todo remove after animation support
         if (selfModelData.id.equals("baby_head")) {
             visible = false;
@@ -85,9 +116,9 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             matrices.push();
             //if(parentCount == 0)
             if(selfModelData.part != null){
-                matrices.translate(selfModelData.translate[0] / 16.0f, selfModelData.translate[1] / 16.0f, selfModelData.translate[2] / -16.0f);
+                matrices.translate(translateX , translateY , -translateZ );
             }else{
-                matrices.translate(selfModelData.translate[0] / -16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
+                matrices.translate(-translateX , -translateY , translateZ );
             }
 //            if(selfModelData.id.equals("mirrored"))
 //                matrices.translate(0, 8 / 16.0f, 0);
@@ -116,9 +147,9 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             //if(parentCount == 0)
             if(parentCount != 0 ){//&& !selfModelData.id.equals("arms")) {
                 if (selfModelData.part != null) {
-                    matrices.translate(selfModelData.translate[0] / 16.0f, selfModelData.translate[1] / 16.0f, selfModelData.translate[2] / -16.0f);
+                    matrices.translate(translateX , translateY , -translateZ );
                 } else {
-                    matrices.translate(selfModelData.translate[0] / -16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
+                    matrices.translate(-translateX , -translateY , translateZ );
                 }
             }
 
@@ -126,12 +157,14 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
            // }
             //if(selfModelData.id.equals("arms"))
             if(parentCount == 0 && selfModelData.part != null)
-                matrices.translate(selfModelData.translate[0] / 16.0f, selfModelData.translate[1] / 16.0f, selfModelData.translate[2] / -16.0f);
+                matrices.translate(translateX , translateY , -translateZ );
             if(!cuboids.isEmpty())// && !selfModelData.id.equals("arms"))
+            //if(parentCount != 0 || selfModelData.part == null)
+            //if(selfModelData.part != null)
                 rotate(matrices,rotateX,rotateY,rotateZ);
            // if(selfModelData.id.equals("arms"))
             if(parentCount == 0 && selfModelData.part != null)
-                matrices.translate(selfModelData.translate[0] / -16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
+                matrices.translate(-translateX , -translateY , translateZ );
 //            if(selfModelData.id.equals("arms"))
 //                matrices.translate(selfModelData.translate[0] / 16.0f, selfModelData.translate[1] / -16.0f, selfModelData.translate[2] / 16.0f);
 
@@ -671,5 +704,15 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
                 this.direction.mul(1.0f, -1.0f, 1.0f);
             }
         }
+    }
+
+    public Object2ReferenceOpenHashMap<String,EMF_CustomModelPart<T>> getAllParts(){
+        Object2ReferenceOpenHashMap<String,EMF_CustomModelPart<T>> list = new Object2ReferenceOpenHashMap<String,EMF_CustomModelPart<T>>();
+        for (EMF_CustomModelPart<T> part :
+                children.values()) {
+            list.put(part.selfModelData.id,part);
+            list.putAll(part.getAllParts());
+        }
+        return list;
     }
 }

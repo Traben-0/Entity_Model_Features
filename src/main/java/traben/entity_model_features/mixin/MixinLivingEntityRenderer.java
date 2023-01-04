@@ -1,7 +1,6 @@
 package traben.entity_model_features.mixin;
 
 
-import com.google.common.collect.ImmutableList;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
@@ -12,15 +11,9 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.client.render.entity.model.QuadrupedEntityModel;
-import net.minecraft.client.render.entity.model.VillagerResemblingModel;
+import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.PassiveEntity;
-import net.minecraft.entity.passive.SheepEntity;
-import net.minecraft.entity.passive.VillagerEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,7 +22,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import traben.entity_model_features.client.EMFUtils;
+import traben.entity_model_features.utils.EMFAnimationProcessor;
+import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.EMF_CustomModel;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 
@@ -38,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
-import static traben.entity_model_features.client.Entity_model_featuresClient.JEMPATH_CustomModel;
+import static traben.entity_model_features.Entity_model_featuresClient.JEMPATH_CustomModel;
 
 @Mixin(LivingEntityRenderer.class)
 public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements FeatureRendererContext<T, M> {
@@ -58,17 +52,18 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     private void injected(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci, float h, float j, float k, float m, float l, float n, float o) {
         //here can redirect model rendering
         if (true/*livingEntity instanceof SheepEntity || livingEntity instanceof VillagerEntity*/){
-            String entityTypeName =livingEntity.getType().getName().getString().toLowerCase().replace("\s","_");
-            String modelID = "optifine/cem/"+entityTypeName+".jem";
 
+            int typeHash = livingEntity.getType().hashCode();
             VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(RenderLayer.getEntityCutoutNoCull(getTexture(livingEntity)));
 
-            if (!JEMPATH_CustomModel.containsKey(modelID)){
+            if (!JEMPATH_CustomModel.containsKey(typeHash)){
+                String entityTypeName =livingEntity.getType().getName().getString().toLowerCase().replace("\s","_");
+                String modelID = "optifine/cem/"+entityTypeName+".jem";
                 System.out.println("checking "+modelID);
                 try {
                     EMF_JemData jem = EMFUtils.EMF_readJemData(modelID);
                     EMF_CustomModel<T> model = new EMF_CustomModel<>(jem);
-                    JEMPATH_CustomModel.put(modelID, (EMF_CustomModel<LivingEntity>) model);
+                    JEMPATH_CustomModel.put(typeHash, (EMF_CustomModel<LivingEntity>) model);
 
                     //todo construct the animations processor
                     //todo render logic
@@ -78,20 +73,25 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
                 }catch(Exception e){
                     EMFUtils.EMF_modMessage("failed for "+modelID+e,false);
-                    JEMPATH_CustomModel.put(modelID,null);
+                    e.printStackTrace();
+                    JEMPATH_CustomModel.put(typeHash,null);
                 }
 
                 //temp while testing so only runs once
                 //JEMPATH_CustomModel.put(entityTypeName,null);
             }
-            if (JEMPATH_CustomModel.containsKey(modelID)){
-                if (JEMPATH_CustomModel.get(modelID) != null){
+            if (JEMPATH_CustomModel.containsKey(typeHash)){
+                if (JEMPATH_CustomModel.get(typeHash) != null){
 
                     //render model,
                     //System.out.println("rendering");
                     //JEMPATH_CustomModel.get(modelID).animate();
                     if (vanillaParts != null) {
-                        JEMPATH_CustomModel.get(modelID).render(vanillaParts,matrixStack, vertexConsumer, i, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
+                        EMF_CustomModel<LivingEntity> model =JEMPATH_CustomModel.get(typeHash);
+                        //EMFAnimationProcessor.animateThisModel(vanillaParts,model,livingEntity);
+                        model.animateModel(livingEntity, o, n, g);
+                        model.setAngles(livingEntity, o, n, l, k, m);
+                        model.render(vanillaParts,matrixStack, vertexConsumer, i, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
                     }
                 }
             }
@@ -167,6 +167,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             for (ModelPart part: vanillaParts.values()) {
                 part.visible = false;
             }
+            if (vanillaParts.get("head") != null ) vanillaParts.get("head").visible = true;
             instance.render(matrixStack, vertexConsumer, i, j, k, l, m, n);
 
 

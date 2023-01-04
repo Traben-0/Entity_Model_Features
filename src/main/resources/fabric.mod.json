@@ -14,7 +14,7 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "traben.entity_model_features.client.Entity_model_featuresClient"
+      "traben.entity_model_features.Entity_model_featuresClient"
     ],
     "modmenu": []
   },
