@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.ZombieEntity;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 
@@ -149,7 +150,8 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
         //process all animation states for all parts
         for (AnimationCalculation calculator:
         animationKeyToCalculatorObject.values()) {
-            calculator.calculateAndSet((LivingEntity) entity,limbAngle,limbDistance,animationProgress,headYaw,headPitch,tickDelta);
+           // if (entity instanceof ZombieEntity)
+               // calculator.calculateAndSet((LivingEntity) entity,limbAngle,limbDistance,animationProgress,headYaw,headPitch,tickDelta);
         }
         //that's it????
     }

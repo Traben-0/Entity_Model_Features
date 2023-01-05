@@ -4,11 +4,13 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "BipedEntityModelAccessor",
-    "QuadrupedEntityModelAccessor"
+
   ],
   "client": [
-    "MixinLivingEntityRenderer"
+    "MixinLivingEntityRenderer",
+    "BipedEntityModelAccessor",
+    "MixinSimpleResourceReload",
+    "QuadrupedEntityModelAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

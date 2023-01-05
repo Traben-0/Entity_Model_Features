@@ -136,6 +136,9 @@ class AnimationCalculation {
         if(!valid) {
             calculator.setVerboseMode();
             mXparser.consolePrintln("EMF Animation syntax error:" );
+
+            System.out.println(this.animKey +"="+ this.calculator.getExpressionString());
+
             this.calculator.checkSyntax();
 
             mXparser.consolePrintln(this.calculator.getErrorMessage());
@@ -164,6 +167,12 @@ class AnimationCalculation {
         if (expressionString.contains("torad(")) {
             calculator.addFunctions(new Function("torad(x) = x * 0.01745329251"));
         }
+//        if (expressionString.contains("if(")) {
+//            calculator.addFunctions(new Function("if(x,y,z,a,b) = iff(x,y;z,a;b)"));
+//        }
+//        if (expressionString.contains("if(")) {
+//            calculator.addFunctions(new Function("if(x,y,z,a,b,c,d) = iff(x,y;z,a;b,c;d)"));
+//        }
         if (expressionString.contains("clamp(")) {
             calculator.addFunctions(new Function("clamp(x,y,z) = if(x > y, if(x < z, x, z) ,y)"));
         }

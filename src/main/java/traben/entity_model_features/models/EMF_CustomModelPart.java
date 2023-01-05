@@ -94,7 +94,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             //System.out.println("was translated");
             translateY = ( (ty.floatValue() ) / 16.0f);
 //            if(parentCount != 0){
-//                translateY += ( ( selfModelData.translate[1]) / 16.0f);
+//                translateY -= ( ( selfModelData.translate[1]) / 16.0f);
 //            }
             doParentTranslate =true;
         }else{
@@ -156,9 +156,9 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         if (selfModelData.id.equals("baby_head") || selfModelData.id.equals("leg1")) {
             visible = false;
         }
-        if (selfModelData.id.equals("headwear")) {
-            System.out.println("headwear= "+rx+", "+ry+", "+rz+", "+tx+", "+ty+", "+tz);
-        }
+//        if (selfModelData.id.equals("headwear")) {
+//            System.out.println("headwear= "+rx+", "+ry+", "+rz+", "+tx+", "+ty+", "+tz);
+//        }
 //  todo testing head rotation
 //        if (selfModelData.id.equals("head2") && vanillaParts.containsKey("leg1")) {
 //            ModelPart vanilla = vanillaParts.get("leg1");
@@ -206,9 +206,9 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
                 /////CORRECT
                 matrices.scale(scaleX, scaleY, scaleZ);
                 if(doParentTranslate) {
-                    matrices.translate(translateX, translateY, translateZ );
+                     matrices.translate(translateX, translateY, translateZ );
                 }else{
-                    matrices.translate(-translateX, translateY, -translateZ);
+                    matrices.translate(translateX, translateY, -translateZ);//todo possible -X here investigate later?
                 }
                 rotate(matrices, rotateX, rotateY, rotateZ);
                 //matrices.translate(0 , -translateY , 0 );
@@ -395,7 +395,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 //                parentalTransforms[2] + selfModelData.translate[2]};
 
         //might be either any model with a vanilla part or any top layer model
-        boolean removePivotValue = parentNumber == 0;
+        boolean removePivotValue = parentNumber == 0;//something about zombie headwear doesn't need this' also i tried iff
 
         //if (selfModelData.id.equals("mirrored")){ removePivotValue = false; invertFirst =new boolean[]{false,false,false};}
         createCuboidsFromBoxData(invertFirst,removePivotValue);
