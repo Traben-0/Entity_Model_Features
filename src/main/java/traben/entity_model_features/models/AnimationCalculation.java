@@ -138,16 +138,16 @@ class AnimationCalculation {
     float headPitch=0;
     float tickDelta=0;
 
-    private final EMF_CustomModelPart<LivingEntity> modelPart;
+    private final EMF_CustomModelPart<?> modelPart;
 
-    private final EMF_CustomModel<LivingEntity> parent;
+    private final EMF_CustomModel<?> parent;
     private final AnimVar varToChange;
     private final String animKey;
 
     private final ObjectOpenHashSet<String> animKeysThatAreNeeded = new ObjectOpenHashSet<>();
 
     //private final String expressionString;
-    AnimationCalculation(EMF_CustomModel<LivingEntity> parent,EMF_CustomModelPart<LivingEntity> part, AnimVar varToChange,String animKey,String initialExpression) {
+    AnimationCalculation(EMF_CustomModel<?> parent,EMF_CustomModelPart<?> part, AnimVar varToChange,String animKey,String initialExpression) {
         //expressionString = ;
         this.animKey = animKey;
         this.parent = parent;

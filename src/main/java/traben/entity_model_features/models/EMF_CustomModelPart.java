@@ -157,9 +157,9 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         if (selfModelData.id.equals("baby_head") || selfModelData.id.equals("leg1")) {
             visible = false;
         }
-//        if (selfModelData.id.equals("headwear")) {
-//            System.out.println("headwear= "+rx+", "+ry+", "+rz+", "+tx+", "+ty+", "+tz);
-//        }
+        if (selfModelData.id.equals("rotation")) {
+            System.out.println("rotation= "+rx+", "+ry+", "+rz+", "+tx+", "+ty+", "+tz);
+        }
 //  todo testing head rotation
 //        if (selfModelData.id.equals("head2") && vanillaParts.containsKey("leg1")) {
 //            ModelPart vanilla = vanillaParts.get("leg1");
@@ -266,7 +266,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             if(parentCount == 0) {
 
                 if(doParentTranslate) {
-                    if(cuboids.isEmpty()){
+                    if(cuboids.isEmpty()){//captures zombie heads scanrio
                         //translateX += ( ( selfModelData.translate[0]) / 16.0f);
                         //matrices.translate(-(translateX + (selfModelData.translate[0]/16)), -(translateY + (selfModelData.translate[1]/16)), -(translateZ + (selfModelData.translate[2]/16)));
 
@@ -280,18 +280,34 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
                         matrices.translate(translateX, -translateY, translateZ);
                     }
                     //matrices.translate(translateX, translateY, translateZ );
-                }else{
-                  //  matrices.translate(translateX, translateY, -translateZ);
+                }else{//capture sheep rotation body
+                    somewhere south of here animation carry over error possibly like empty cuboid above
+                    if(cuboids.isEmpty()){//sheep rot body and villager legs
+                        //translateX += ( ( selfModelData.translate[0]) / 16.0f);
+                        //matrices.translate(-(translateX + (selfModelData.translate[0]/16)), -(translateY + (selfModelData.translate[1]/16)), -(translateZ + (selfModelData.translate[2]/16)));
+                        rotate(matrices, rotateX, rotateY, rotateZ);
+                        matrices.translate(-(translateX + (selfModelData.translate[0]/16)), -(-translateY + (selfModelData.translate[1]/16)), (translateZ + -(selfModelData.translate[2]/16)));
+
+
+                        //matrices.translate(-translateX, -translateY, -translateZ);
+                    }else {
+//                        matrices.translate(translateX, translateY, -translateZ);
+//                        rotate(matrices, rotateX, rotateY, rotateZ);
+//                        matrices.translate(translateX, -translateY, translateZ);
+                    }
+                   //matrices.translate(0, 2, -0);
+                    //rotate(matrices, rotateX, rotateY, rotateZ);
                 }
 
             }else {
                 //matrices.scale(scaleX, scaleY, scaleZ);
                 //matrices.translate(translateX, translateY, translateZ);
                 //rotate(matrices, rotateX, rotateY, rotateZ);
-                if(!doParentTranslate)
-                    matrices.translate(-translateX, -translateY, translateZ);
 
-                rotate(matrices, rotateX, rotateY, rotateZ);
+                    if (!doParentTranslate)
+                        matrices.translate(-translateX, -translateY, translateZ);
+
+                    rotate(matrices, rotateX, rotateY, rotateZ);
 
             }
 

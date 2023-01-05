@@ -3,6 +3,7 @@ package traben.entity_model_features.models;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
@@ -14,6 +15,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.passive.SheepEntity;
+import net.minecraft.entity.passive.VillagerEntity;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 
@@ -23,7 +25,7 @@ import java.util.*;
 public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
 
     private final EMF_JemData jemData;
-    private final Object2ObjectOpenHashMap<String, EMF_CustomModelPart<T>> childrenMap = new Object2ObjectOpenHashMap<>();
+    private final Reference2ObjectOpenHashMap<String, EMF_CustomModelPart<T>> childrenMap = new Reference2ObjectOpenHashMap<>();
 
     private final Object2ObjectOpenHashMap<String,AnimationCalculation> animationKeyToCalculatorObject = new Object2ObjectOpenHashMap<>();
 
@@ -45,10 +47,12 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
 
     private void preprocessAnimationStrings(){
         ///animation processing/////////////
+
+        Object2ReferenceOpenHashMap<String, EMF_CustomModelPart<T>> parts = getAllParts();
         ObjectOpenHashSet<Properties> allProperties = new ObjectOpenHashSet<>() {
         };
         for (EMF_CustomModelPart<T> part :
-                childrenMap.values()) {
+                parts.values()) {
             if (part.selfModelData.animations.length != 0) {
                 //todo replace 'this' to represent actual model part
                 allProperties.addAll(Arrays.asList(part.selfModelData.animations));
@@ -82,21 +86,25 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
                     thisVariable = AnimationCalculation.AnimVar.valueOf(modelVariable);
                 }catch (IllegalArgumentException e){
                     //todo custom variable
+                    System.out.println("UNKOWN VARIABLE VALUE"+modelVariable +" in "+animKey+" = "+ e);
                 }
-                EMF_CustomModelPart<T> thisPart = childrenMap.get(modelId);
+                EMF_CustomModelPart<T> thisPart = parts.get(modelId);
                 if (thisPart == null){
                     //todo must be vanilla model or stupid custom variable figure out
+                    System.out.println("part was null in animation setup: "+animKey+", "+modelId + ", in? "+childrenMap.keySet());
                 }
 
 
                 AnimationCalculation thisCalculator = new AnimationCalculation(
-                        (EMF_CustomModel<LivingEntity>) this,
-                        (EMF_CustomModelPart<LivingEntity>) thisPart,
+                         this,
+                         thisPart,
                         thisVariable,
                         animKey,
                         animationExpression);
                 if(thisCalculator.isValid()){
                     animationKeyToCalculatorObject.put(animKey,thisCalculator);
+                }else{
+                    System.out.println("invalid animation = "+animKey+"="+ animationExpression);
                 }
                 //here we have a set of animation objects that only need to be iterated over and run
 
@@ -155,7 +163,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
         //process all animation states for all parts
         for (AnimationCalculation calculator:
         animationKeyToCalculatorObject.values()) {
-            if (entity instanceof ZombieEntity || entity instanceof SheepEntity)
+            if (entity instanceof ZombieEntity || entity instanceof SheepEntity || entity instanceof VillagerEntity)
                 calculator.calculateAndSet((LivingEntity) entity,limbAngle,limbDistance,animationProgress,headYaw,headPitch,tickDelta);
         }
         //that's it????
