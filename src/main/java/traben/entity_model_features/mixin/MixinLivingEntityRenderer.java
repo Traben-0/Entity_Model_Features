@@ -63,7 +63,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                 System.out.println("checking "+modelID);
                 try {
                     EMF_JemData jem = EMFUtils.EMF_readJemData(modelID);
-                    EMF_CustomModel<T> model = new EMF_CustomModel<>(jem);
+                    EMF_CustomModel<T> model = new EMF_CustomModel<>(jem,modelID);
                     JEMPATH_CustomModel.put(typeHash, (EMF_CustomModel<LivingEntity>) model);
 
                     //todo construct the animations processor

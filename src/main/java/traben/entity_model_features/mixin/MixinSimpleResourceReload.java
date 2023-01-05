@@ -19,6 +19,7 @@ public abstract class MixinSimpleResourceReload {
             if (etf$falseAfterFirstRun) {
                 etf$falseAfterFirstRun = false;
                 //do reset
+                System.out.println("resetting emf");
                 Entity_model_featuresClient.JEMPATH_CustomModel = new Int2ObjectOpenHashMap<>();
             }
         } else {

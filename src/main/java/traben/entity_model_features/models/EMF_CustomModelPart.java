@@ -82,19 +82,20 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         if (tx != null) {// && !cuboids.isEmpty()) {
             //System.out.println("was translated");
             translateX = ( (tx.floatValue() ) / 16.0f);
-//            if(parentCount != 0){
+//            if(parentCount == 0 && cuboids.isEmpty()){
 //                translateX += ( ( selfModelData.translate[0]) / 16.0f);
 //            }
             doParentTranslate =true;
         }else{
             translateX = ( ( selfModelData.translate[0]) / 16.0f);
+
             doParentTranslate = false;
         }
         if (ty != null) {// && !cuboids.isEmpty()) {
             //System.out.println("was translated");
             translateY = ( (ty.floatValue() ) / 16.0f);
-//            if(parentCount != 0){
-//                translateY -= ( ( selfModelData.translate[1]) / 16.0f);
+//            if(parentCount == 0 && cuboids.isEmpty()){
+//                translateY += ( ( selfModelData.translate[1]) / 16.0f);
 //            }
             doParentTranslate =true;
         }else{
@@ -104,7 +105,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         if (tz != null) {// && !cuboids.isEmpty()) {
             //System.out.println("was translated");
             translateZ = ( (tz.floatValue() ) / 16.0f);
-//            if(parentCount != 0){
+//            if(parentCount == 0 && cuboids.isEmpty()){
 //                translateZ += ( ( selfModelData.translate[2]) / 16.0f);
 //            }
             doParentTranslate =true;
@@ -261,12 +262,23 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
 
             /////CORRECT??
+            matrices.scale(scaleX,scaleY,scaleZ);
             if(parentCount == 0) {
 
                 if(doParentTranslate) {
-                    matrices.translate(translateX, translateY, -translateZ);
-                    rotate(matrices, rotateX, rotateY, rotateZ);
-                    matrices.translate(translateX, -translateY, translateZ);
+                    if(cuboids.isEmpty()){
+                        //translateX += ( ( selfModelData.translate[0]) / 16.0f);
+                        //matrices.translate(-(translateX + (selfModelData.translate[0]/16)), -(translateY + (selfModelData.translate[1]/16)), -(translateZ + (selfModelData.translate[2]/16)));
+
+                        rotate(matrices, rotateX, rotateY, rotateZ);
+                        matrices.translate((translateX + (selfModelData.translate[0]/16)), -(-translateY + (selfModelData.translate[1]/16)), (translateZ + (selfModelData.translate[2]/16)));
+
+                        //matrices.translate(-translateX, -translateY, -translateZ);
+                    }else {
+                        matrices.translate(translateX, translateY, -translateZ);
+                        rotate(matrices, rotateX, rotateY, rotateZ);
+                        matrices.translate(translateX, -translateY, translateZ);
+                    }
                     //matrices.translate(translateX, translateY, translateZ );
                 }else{
                   //  matrices.translate(translateX, translateY, -translateZ);

@@ -8,10 +8,12 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.EntityModel;
+import net.minecraft.client.render.entity.model.SheepEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.entity.passive.SheepEntity;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 
@@ -26,15 +28,18 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
     private final Object2ObjectOpenHashMap<String,AnimationCalculation> animationKeyToCalculatorObject = new Object2ObjectOpenHashMap<>();
 
    // private final Properties animationPropertiesOfAll;
+    final String modelPathIdentifier;
 
-    public EMF_CustomModel(EMF_JemData jem){
+    public EMF_CustomModel(EMF_JemData jem, String modelPath){
+        modelPathIdentifier = modelPath;
         jemData = jem;
         for (EMF_ModelData sub:
                 jemData.models) {
             childrenMap.put(sub.id,new EMF_CustomModelPart<T>(0,sub,new ArrayList<EMF_ModelData>()));
         }
-
+        System.out.println("start anim creation for "+modelPathIdentifier);
         preprocessAnimationStrings();
+        System.out.println("end anim creation for "+modelPathIdentifier);
     }
 
 
@@ -67,7 +72,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
                 String animationExpression = combinedProperties.getProperty((String) modelVariableObject);
 
                 //insert constants
-                animationExpression = animationExpression.replaceAll("(?=[a-zA-Z_])pi(?=[^a-zA-Z_])", String.valueOf(Math.PI));
+               ///// animationExpression = animationExpression.replaceAll("(?=[^a-zA-Z_])pi(?=[^a-zA-Z_])", String.valueOf(Math.PI));
                 //animationExpression = animationExpression.replaceAll("true", "1");
                 //animationExpression = animationExpression.replaceAll("false", "0");
 
@@ -150,8 +155,8 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
         //process all animation states for all parts
         for (AnimationCalculation calculator:
         animationKeyToCalculatorObject.values()) {
-           // if (entity instanceof ZombieEntity)
-               // calculator.calculateAndSet((LivingEntity) entity,limbAngle,limbDistance,animationProgress,headYaw,headPitch,tickDelta);
+            if (entity instanceof ZombieEntity || entity instanceof SheepEntity)
+                calculator.calculateAndSet((LivingEntity) entity,limbAngle,limbDistance,animationProgress,headYaw,headPitch,tickDelta);
         }
         //that's it????
     }
