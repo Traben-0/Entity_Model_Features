@@ -9,40 +9,45 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.client.render.entity.model.SheepEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.ZombieEntity;
-import net.minecraft.entity.passive.SheepEntity;
-import net.minecraft.entity.passive.VillagerEntity;
+import net.minecraft.entity.passive.*;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 @Environment(value= EnvType.CLIENT)
 public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
 
     private final EMF_JemData jemData;
     private final Reference2ObjectOpenHashMap<String, EMF_CustomModelPart<T>> childrenMap = new Reference2ObjectOpenHashMap<>();
-
     private final Object2ObjectOpenHashMap<String,AnimationCalculation> animationKeyToCalculatorObject = new Object2ObjectOpenHashMap<>();
+
+    private HashMap<String,ModelPart> vanillaModelPartsById;
 
    // private final Properties animationPropertiesOfAll;
     final String modelPathIdentifier;
 
-    public EMF_CustomModel(EMF_JemData jem, String modelPath){
+    public EMF_CustomModel(EMF_JemData jem, String modelPath,HashMap<String,ModelPart> vanModelParts){
+        vanillaModelPartsById = vanModelParts;
         modelPathIdentifier = modelPath;
         jemData = jem;
         for (EMF_ModelData sub:
                 jemData.models) {
-            childrenMap.put(sub.id,new EMF_CustomModelPart<T>(0,sub,new ArrayList<EMF_ModelData>()));
+          childrenMap.put(sub.id,new EMF_CustomModelPart<T>(0,sub,new ArrayList<EMF_ModelData>(),new float[]{}));
+
         }
-        System.out.println("start anim creation for "+modelPathIdentifier);
+      //  System.out.println("start anim creation for "+modelPathIdentifier);
         preprocessAnimationStrings();
-        System.out.println("end anim creation for "+modelPathIdentifier);
+       // System.out.println("end anim creation for "+modelPathIdentifier);
     }
+
+
 
 
     private void preprocessAnimationStrings(){
@@ -70,6 +75,8 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
 
             for (Object modelVariableObject :
                     combinedProperties.keySet()) {
+
+              //  System.out.println("processing animation:" +modelVariableObject.toString()+" in "+this.modelPathIdentifier);
                 String animKey = modelVariableObject.toString();
                 String modelId = animKey.split("\\.")[0];
                 String modelVariable = animKey.split("\\.")[1];
@@ -89,19 +96,34 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
                     System.out.println("UNKOWN VARIABLE VALUE"+modelVariable +" in "+animKey+" = "+ e);
                 }
                 EMF_CustomModelPart<T> thisPart = parts.get(modelId);
-                if (thisPart == null){
-                    //todo must be vanilla model or stupid custom variable figure out
-                    System.out.println("part was null in animation setup: "+animKey+", "+modelId + ", in? "+childrenMap.keySet());
+                AnimationCalculation thisCalculator = null;
+
+                if (thisPart != null){
+                    thisCalculator = new AnimationCalculation(
+                            this,
+                            thisPart,
+                            thisVariable,
+                            animKey,
+                            animationExpression);
+                }else if(vanillaModelPartsById.containsKey(modelId)){
+                    thisCalculator = new AnimationCalculation(
+                            this,
+                            vanillaModelPartsById.get(modelId),
+                            thisVariable,
+                            animKey,
+                            animationExpression);
+                }else{
+                    //not a custom model or vanilla must be a custom variable
+                    thisCalculator = new AnimationCalculation(
+                            this,
+                            null,
+                            thisVariable,
+                            animKey,
+                            animationExpression);
                 }
 
-
-                AnimationCalculation thisCalculator = new AnimationCalculation(
-                         this,
-                         thisPart,
-                        thisVariable,
-                        animKey,
-                        animationExpression);
                 if(thisCalculator.isValid()){
+                  //  System.out.println("found and added valid animation: "+animKey+"="+animationExpression);
                     animationKeyToCalculatorObject.put(animKey,thisCalculator);
                 }else{
                     System.out.println("invalid animation = "+animKey+"="+ animationExpression);
@@ -113,9 +135,56 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
         }
     }
 
-    public double getAnimationResultOfKey(String key,LivingEntity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch,float tickDelta){
-        if(!animationKeyToCalculatorObject.containsKey(key))
-            return 0;
+    public double getAnimationResultOfKey(String key,
+                                          Supplier<Entity> entitySupplier,
+                                          Supplier<Float> limbAngleSupplier,
+                                          Supplier<Float> limbDistanceSupplier,
+                                          Supplier<Float> animationProgressSupplier,
+                                          Supplier<Float> headYawSupplier,
+                                          Supplier<Float> headPitchSupplier,
+                                          Supplier<Float> tickDeltaSupplier){
+
+        LivingEntity entity = (LivingEntity) entitySupplier.get();
+        float limbAngle = limbAngleSupplier.get();
+        float limbDistance = limbDistanceSupplier.get();
+        float animationProgress = animationProgressSupplier.get();
+        float headYaw = headYawSupplier.get();
+        float headPitch = headPitchSupplier.get();
+        float tickDelta = tickDeltaSupplier.get();
+
+
+
+        //if(key.equals("head.ty")) return -0.5;
+        if(!animationKeyToCalculatorObject.containsKey(key)) {
+            String partName = key.split("\\.")[0];
+            if(getAllParts().containsKey(partName)){
+                AnimationCalculation.AnimVar variableToGet;
+                try {
+                    variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
+                    return variableToGet.getFromEMFModel(getAllParts().get(partName));
+                }catch(IllegalArgumentException e){
+                    System.out.println("no animation expression part variable value found for: "+key);
+                    return 0;
+                }
+            }else {
+                if(vanillaModelPartsById.containsKey(partName)){
+                    AnimationCalculation.AnimVar variableToGet;
+                    try {
+                        variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
+                        return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName));
+                    }catch(IllegalArgumentException e){
+                        System.out.println("no animation expression part variable value found for: "+key);
+                        return 0;
+                    }
+                }else {
+                    System.out.println("no animation expression value found for: " + key);
+                    System.out.println(animationKeyToCalculatorObject.keySet());
+                    System.out.println(vanillaModelPartsById.keySet());
+                    return 0;
+                }
+            }
+        }
+
         return animationKeyToCalculatorObject.get(key).getResultOnly( entity,  limbAngle,  limbDistance,  animationProgress,  headYaw,  headPitch,tickDelta);
     }
 
@@ -132,8 +201,9 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
         for (String key:
                 childrenMap.keySet()) {
             herematrices.push();
-            //herematrices.translate(0,16,0);
-            childrenMap.get(key).render(0,vanillaParts,herematrices,vertices,light,overlay,red,green,blue,alpha);
+            //herematrices.translate(0,24/16f,0);
+            childrenMap.get(key).render(0,herematrices,vertices,light,overlay,red,green,blue,alpha);
+           // childrenMap.get(key).render(  herematrices,  vertices,  light,  overlay);
             herematrices.pop();
         }
     }
@@ -154,19 +224,42 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
     @Override
     public void animateModel(T entity, float limbAngle, float limbDistance, float tickDelta) {
        // super.animateModel(entity, limbAngle, limbDistance, tickDelta);
-        this.tickDelta = tickDelta;
+       // this.tickDelta = tickDelta;
     }
-    float tickDelta = Float.NaN;
+//    float tickDelta = Float.NaN;
 
-    @Override
-    public void setAngles(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+
+    public void setAnglesEMF(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch,float tickDelta,HashMap<String,ModelPart> vanillaPartList) {
+        vanillaModelPartsById = vanillaPartList;
         //process all animation states for all parts
+//        System.out.println("hpy="+headPitch+", "+headYaw);
+//        headPitch = (float) Math.toDegrees(headPitch);
+//        headYaw = (float) Math.toDegrees(headYaw);
+//        System.out.println("hpy="+headPitch+", "+headYaw);
         for (AnimationCalculation calculator:
         animationKeyToCalculatorObject.values()) {
-            if (entity instanceof ZombieEntity || entity instanceof SheepEntity || entity instanceof VillagerEntity)
-                calculator.calculateAndSet((LivingEntity) entity,limbAngle,limbDistance,animationProgress,headYaw,headPitch,tickDelta);
+            if (entity instanceof ZombieEntity
+                    || entity instanceof SheepEntity
+                    || entity instanceof VillagerEntity
+                    || entity instanceof CreeperEntity
+                    || entity instanceof PigEntity
+                    || entity instanceof IronGolemEntity) {
+
+//                if (vanillaPartList.containsKey("head")) {
+//                    ModelPart head = vanillaPartList.get("head");
+//                    headPitch = head.pitch;
+//                    headYaw = head.yaw;
+//                }
+
+
+                calculator.calculateAndSet((LivingEntity) entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
+            }
         }
         //that's it????
     }
 
+    @Override
+    public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+
+    }
 }

@@ -23,7 +23,6 @@ public class Entity_model_featuresClient implements ClientModInitializer {
 
     public static EMFConfig EMFConfigData;
 
-    public static Int2ObjectOpenHashMap<EMF_CustomModel<LivingEntity>> JEMPATH_CustomModel = new Int2ObjectOpenHashMap<>();
 
     //public static HashMap<String, EntityModel> ENTITYNAME_VanillaModel = new HashMap<>();
 
