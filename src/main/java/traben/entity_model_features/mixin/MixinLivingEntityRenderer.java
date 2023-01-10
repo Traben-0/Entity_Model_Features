@@ -107,7 +107,22 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     private HashMap<String,ModelPart> getVanillaModelParts(M vanillaModel){
         HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
 
-        if (vanillaModel instanceof SpiderEntityModel spider) {
+        if (vanillaModel instanceof WitchEntityModel witch) {
+
+            ModelPart root = witch.getPart();
+            vanillaPartsList.put("head",root.getChild("head"));
+            vanillaPartsList.put("headwear",root.getChild("head").getChild("hat"));
+            vanillaPartsList.put("headwear2",root.getChild("head").getChild("hat").getChild("hat_rim"));
+            vanillaPartsList.put("body",root.getChild("body"));
+            vanillaPartsList.put("bodywear",root.getChild("body").getChild("jacket"));
+            vanillaPartsList.put("arms",root.getChild("arms"));
+            vanillaPartsList.put("left_leg",root.getChild("left_leg"));
+            vanillaPartsList.put("right_leg",root.getChild("right_leg"));
+            vanillaPartsList.put("nose",root.getChild("head").getChild("nose"));
+            vanillaPartsList.put("mole",root.getChild("head").getChild("nose").getChild("mole"));
+
+
+        }else if (vanillaModel instanceof SpiderEntityModel spider) {
 
             ModelPart root = spider.getPart();
             vanillaPartsList.put("head",root.getChild("head"));

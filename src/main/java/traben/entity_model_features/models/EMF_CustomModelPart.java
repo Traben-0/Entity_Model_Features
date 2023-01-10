@@ -79,7 +79,10 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         //if(parentCount == 0)
            // matrices.translate(getDefaultTransform().pivotX / -16.0F, getDefaultTransform().pivotY / -16.0F, getDefaultTransform().pivotZ / -16.0F);
 
-            matrices.translate(this.pivotX / 16.0F, this.pivotY / 16.0F, this.pivotZ / 16.0F);
+        matrices.translate(
+                (this.pivotX ) / 16.0F,
+                (this.pivotY ) / 16.0F,
+                (this.pivotZ ) / 16.0F);
         //}
 
         //add rotation always?
@@ -126,14 +129,17 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 //        if(parentOnePivotYOverride != 0)
 //            this.pivotY = (invY? val : -val) + parentOnePivotYOverride;
 //        else
-            this.pivotY = val  + parentOnePivotYOverride;
+            this.pivotY = val  + parentOnePivotYOverride; //TODO THIS DOES NOT APPLY TO WITCH HAT, find out why??
+        running theory is animation gets will remove the parentonepivot figure as witch hat calls it
     }
     public void setAnimPivotZ(float val){
 //        if(parentOnePivotZOverride != 0)
 //            this.pivotZ = (invZ? val : -val) + parentOnePivotZOverride;
 //        else
-            this.pivotZ = val + parentOnePivotZOverride;
+        this.pivotZ = val + parentOnePivotZOverride;
     }
+
+
     private float parentOnePivotXOverride = 0;
     private float parentOnePivotYOverride = 0;
     private float parentOnePivotZOverride = 0;
@@ -459,6 +465,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 //                pivotY = defaults.pivotY + (stanceWidthMaybe / 4);//+2;
 //                pivotZ = (float) (defaults.pivotZ + (stanceWidthMaybe * 1.8));//+20;
 
+                //nvm lol had something else disabled while testing
                 pivotX = defaults.pivotX;
                 pivotY = defaults.pivotY;
                 pivotZ = defaults.pivotZ;
