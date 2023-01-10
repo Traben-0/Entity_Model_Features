@@ -80,7 +80,7 @@ class AnimationCalculation {
 
     //long changed to float... should be fine tbh
     public float getTime() {
-        return entity == null || entity.getWorld() == null ? 0 : entity.getWorld().getTime();
+        return entity == null || entity.getWorld() == null ? 0 : entity.getWorld().getTime() + tickDelta;
     }
 
     public float getHealth() {
@@ -763,7 +763,7 @@ class AnimationCalculation {
 
         public void set(EMF_CustomModelPart<?> part, Double value) {
             if (value == null){
-                System.out.println("this model couldn't be set as the calculation returned null");
+                System.out.println("this model couldn't be set as the calculation returned null: "+part.selfModelData.id+"."+this);
                 return;
             }
             switch (this){

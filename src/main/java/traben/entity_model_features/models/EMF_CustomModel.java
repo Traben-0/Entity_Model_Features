@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.util.math.MatrixStack;
@@ -15,6 +16,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.passive.*;
+import org.joml.Quaternionf;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 
@@ -37,9 +39,12 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
         vanillaModelPartsById = vanModelParts;
         modelPathIdentifier = modelPath;
         jemData = jem;
+
+
         for (EMF_ModelData sub:
                 jemData.models) {
-          childrenMap.put(sub.id,new EMF_CustomModelPart<T>(0,sub,new ArrayList<EMF_ModelData>(),new float[]{}));
+            ModelPart vanillaPart = sub.part == null? null : vanModelParts.getOrDefault(sub.part, null);
+            childrenMap.put(sub.id,new EMF_CustomModelPart<T>(0,sub,new ArrayList<EMF_ModelData>(),new float[]{},vanillaPart));
 
         }
       //  System.out.println("start anim creation for "+modelPathIdentifier);
@@ -202,7 +207,29 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
                 childrenMap.keySet()) {
             herematrices.push();
             //herematrices.translate(0,24/16f,0);
-            childrenMap.get(key).render(0,herematrices,vertices,light,overlay,red,green,blue,alpha);
+            EMF_CustomModelPart<T> emfPart = childrenMap.get(key);
+//            if (emfPart.selfModelData.part != null
+//                   // && emfPart.selfModelData.part.equals("body")
+//                    && vanillaParts.containsKey(emfPart.selfModelData.part)){
+//                ModelPart vanilla = vanillaParts.get(emfPart.selfModelData.part);
+//                if(vanilla != null){
+//                    ModelTransform defaults =vanilla.getDefaultTransform();
+//                    float roll = defaults.roll;
+//                    float yaw = defaults.yaw;
+//                    float pitch = defaults.pitch;
+//                    float pivotX = defaults.pivotX;
+//                    float pivotY = defaults.pivotY;
+//                    float pivotZ = defaults.pivotZ;
+//
+//                    herematrices.translate(pivotX / 16.0F, pivotY / 16.0F, pivotZ / 16.0F);
+//                    herematrices.multiply((new Quaternionf()).rotationZYX(roll, yaw, pitch));
+//                }else{
+//                    System.out.println("vanilla part ["+emfPart.selfModelData.part+"] was null in vanilla parts map");
+//                }
+//
+//
+//            }
+            emfPart.render(0,herematrices,vertices,light,overlay,red,green,blue,alpha);
            // childrenMap.get(key).render(  herematrices,  vertices,  light,  overlay);
             herematrices.pop();
         }
@@ -238,12 +265,13 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
 //        System.out.println("hpy="+headPitch+", "+headYaw);
         for (AnimationCalculation calculator:
         animationKeyToCalculatorObject.values()) {
-            if (entity instanceof ZombieEntity
-                    || entity instanceof SheepEntity
-                    || entity instanceof VillagerEntity
-                    || entity instanceof CreeperEntity
-                    || entity instanceof PigEntity
-                    || entity instanceof IronGolemEntity) {
+//            if (entity instanceof ZombieEntity
+//                    || entity instanceof SheepEntity
+//                    || entity instanceof VillagerEntity
+//                    || entity instanceof CreeperEntity
+//                    || entity instanceof PigEntity
+//                    || entity instanceof IronGolemEntity
+//                    || entity instanceof ChickenEntity) {
 
 //                if (vanillaPartList.containsKey("head")) {
 //                    ModelPart head = vanillaPartList.get("head");
@@ -253,7 +281,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
 
 
                 calculator.calculateAndSet((LivingEntity) entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
-            }
+           // }
         }
         //that's it????
     }

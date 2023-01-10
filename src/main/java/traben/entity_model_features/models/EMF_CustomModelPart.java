@@ -37,6 +37,10 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
     public boolean visible_boxes = true;
     public boolean visible = true;
 
+    private boolean invX = false;
+    private boolean invY = false;
+    private boolean invZ = false;
+
 
 
     public void render( int parentCount, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
@@ -104,22 +108,31 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
     }
 
     public void setAnimPitch(float newPitch){
-        this.pitch = newPitch + getDefaultTransform().pitch;
+        this.pitch = newPitch;// + getDefaultTransform().pitch;
     }
     public void setAnimYaw(float newYaw){
-        this.yaw = newYaw + getDefaultTransform().yaw;
+        this.yaw = newYaw;// + getDefaultTransform().yaw;
     }
     public void setAnimRoll(float newRoll){
-        this.roll = newRoll + getDefaultTransform().roll;
+        this.roll = newRoll;// + getDefaultTransform().roll;
     }
     public void setAnimPivotX(float val){
-        this.pivotX = val + parentOnePivotXOverride;
+//        if(parentOnePivotXOverride != 0)
+//            this.pivotX = (invX? val : -val) + parentOnePivotXOverride;
+//        else
+            this.pivotX = val  + parentOnePivotXOverride;
     }
     public void setAnimPivotY(float val){
-        this.pivotY = val + parentOnePivotYOverride;
+//        if(parentOnePivotYOverride != 0)
+//            this.pivotY = (invY? val : -val) + parentOnePivotYOverride;
+//        else
+            this.pivotY = val  + parentOnePivotYOverride;
     }
     public void setAnimPivotZ(float val){
-        this.pivotZ = val + parentOnePivotZOverride;
+//        if(parentOnePivotZOverride != 0)
+//            this.pivotZ = (invZ? val : -val) + parentOnePivotZOverride;
+//        else
+            this.pivotZ = val + parentOnePivotZOverride;
     }
     private float parentOnePivotXOverride = 0;
     private float parentOnePivotYOverride = 0;
@@ -361,7 +374,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
     public EMF_CustomModelPart(int parentNumber,
                                EMF_ModelData EMFmodelData,
-                               ArrayList<EMF_ModelData> parentEMFmodelData, float[] pivotModifyForParNum1Only){//,//float[] parentalTransforms) {
+                               ArrayList<EMF_ModelData> parentEMFmodelData, float[] pivotModifyForParNum1Only, ModelPart vanillaPartOfThis){//,//float[] parentalTransforms) {
 
         super(new ArrayList<>(), new HashMap<>());
         selfModelData = EMFmodelData;
@@ -371,6 +384,10 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         boolean invX = selfModelData.invertAxis.contains("x");
         boolean invY = selfModelData.invertAxis.contains("y");
         boolean invZ = selfModelData.invertAxis.contains("z");
+
+        this.invX = invX;
+        this.invY = invY;
+        this.invZ = invZ;
         //selfModelData.
 
         //these ones need to change due to some unknown bullshit
@@ -396,6 +413,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             rotateZ = -rotateZ;
             translateZ = -translateZ;
         }
+
 
         float[] sendToFirstChild = {0,0,0};
         // this if statement aged me by like 5 years to brute force figure out
@@ -423,6 +441,30 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             pivotZ = translateZ;
         }
 
+        //this seems to fix the issue with sheep cows pigs etc where the body emf part isn't aligned right when not animated
+        // this attempts to copy over model default transforms from vanilla parts
+        if (vanillaPartOfThis != null ){
+
+            ModelTransform defaults = vanillaPartOfThis.getDefaultTransform();
+            if(defaults.pitch != 0 || defaults.yaw != 0 || defaults.roll != 0) {
+                rotateX += defaults.pitch;
+                rotateY += defaults.yaw;
+                rotateZ += defaults.roll;
+
+                // seems this is a factor as it has proved functional for pigs sheep and cows despite their varied offsets
+//                float stanceWidthMaybe = -defaults.pivotY + 15;
+//                //sheep 10   pig 4
+//
+//                pivotX = defaults.pivotX;
+//                pivotY = defaults.pivotY + (stanceWidthMaybe / 4);//+2;
+//                pivotZ = (float) (defaults.pivotZ + (stanceWidthMaybe * 1.8));//+20;
+
+                pivotX = defaults.pivotX;
+                pivotY = defaults.pivotY;
+                pivotZ = defaults.pivotZ;
+            }
+        }
+
         //try the vanilla model values
 
         pitch = (float) rotateX;
@@ -444,7 +486,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             //seems like i need to alter parentcount 1's pivots
             ArrayList<EMF_ModelData> hold = new ArrayList<>(parentEMFmodelData);
             hold.add(selfModelData);
-            children.put(sub.id, new EMF_CustomModelPart<T>(parentNumber + 1, sub, hold,sendToFirstChild));
+            children.put(sub.id, new EMF_CustomModelPart<T>(parentNumber + 1, sub, hold,sendToFirstChild,null));
         }
 
 //        if(parentModelData.size() == 0){
@@ -957,12 +999,12 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 //            }
             this.direction = direction.getUnitVector();
             //todo check this
-            if (mirrorUV[0]) {
-                this.direction.mul(-1.0f, 1.0f, 1.0f);
-            }
-            if (mirrorUV[1]) {
-                this.direction.mul(1.0f, -1.0f, 1.0f);
-            }
+//            if (mirrorUV[0]) {
+//                this.direction.mul(-1.0f, 1.0f, 1.0f);
+//            }
+//            if (mirrorUV[1]) {
+//                this.direction.mul(1.0f, -1.0f, 1.0f);
+//            }
         }
     }
 
