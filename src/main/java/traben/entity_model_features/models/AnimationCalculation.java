@@ -7,19 +7,15 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Tameable;
 import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.passive.*;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.dimension.DimensionTypes;
 import org.mariuszgromada.math.mxparser.Constant;
 import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.Function;
 import org.mariuszgromada.math.mxparser.mXparser;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -213,7 +209,7 @@ class AnimationCalculation {
     private  EMF_CustomModelPart<?> modelPart = null;
     private  ModelPart vanillaModelPart = null;
 
-    private final EMF_CustomModel<?> parent;
+    private final EMF_CustomModel<?> parentModel;
     private final AnimVar varToChange;
     private final String animKey;
 
@@ -223,7 +219,7 @@ class AnimationCalculation {
     AnimationCalculation(EMF_CustomModel<?> parent,EMF_CustomModelPart<?> part, AnimVar varToChange,String animKey,String initialExpression) {
         //expressionString = ;
         this.animKey = animKey;
-        this.parent = parent;
+        this.parentModel = parent;
         this.varToChange = varToChange;
         this.modelPart = part;
         //calculator = new Expression(initialExpression);
@@ -233,7 +229,7 @@ class AnimationCalculation {
     AnimationCalculation(EMF_CustomModel<?> parent,ModelPart part, AnimVar varToChange,String animKey,String initialExpression) {
         //expressionString = ;
         this.animKey = animKey;
-        this.parent = parent;
+        this.parentModel = parent;
         this.varToChange = varToChange;
         this.vanillaModelPart = part;
         //calculator = new Expression(initialExpression);
@@ -632,24 +628,34 @@ class AnimationCalculation {
                     });
 
                 } else {
-                    AnimationCalculation instance = this;
+                    //AnimationCalculation instance = this;
                     calculator.addConstants(new Constant(otherKeyReplace + " = 0") {
                         @Override
                         public double getConstantValue() {
 
-                            double returned = parent.getAnimationResultOfKey(otherKey,
-                                    instance::getEntity,
-                                    instance::getLimbAngle,
-                                    instance::getLimbDistance,
-                                    instance::getAnimationProgress,
-                                    instance::getHeadYaw,
-                                    instance::getHeadPitch,
-                                    instance::getTickDelta);
+                            //                            instance::getEntity,
+//                                    instance::getLimbAngle,
+//                                    instance::getLimbDistance,
+//                                    instance::getAnimationProgress,
+//                                    instance::getHeadYaw,
+//                                    instance::getHeadPitch,
+//                                    instance::getTickDelta);
                             //if(otherKey.contains("head.")){
 
                                // System.out.println("get other key value returns ="+ otherKey+" = " + returned);
                             //}
-                            return returned;
+
+                            EMF_CustomModelPart<?> partParent = modelPart == null? null : modelPart.parent;
+
+                            return parentModel.getAnimationResultOfKey(partParent
+                                    ,otherKey,
+                                    getEntity(),
+                                    getLimbAngle(),
+                                    getLimbDistance(),
+                                    getAnimationProgress(),
+                                    getHeadYaw(),
+                                    getHeadPitch(),
+                                    getTickDelta());
                         }
                     });
                 }
@@ -667,18 +673,21 @@ class AnimationCalculation {
                 String varKeyReplace = varKey.replace(".", "_");
 
                 newExpressionString = newExpressionString.replaceAll(varKey, varKeyReplace);
-                AnimationCalculation instance = this;
+                //AnimationCalculation instance = this;
                 calculator.addConstants(new Constant(varKeyReplace + " = 0") {
                     @Override
                     public double getConstantValue() {
-                        return parent.getAnimationResultOfKey(varKey,
-                                instance::getEntity,
-                                instance::getLimbAngle,
-                                instance::getLimbDistance,
-                                instance::getAnimationProgress,
-                                instance::getHeadYaw,
-                                instance::getHeadPitch,
-                                instance::getTickDelta);
+                        EMF_CustomModelPart<?> partParent = modelPart == null? null : modelPart.parent;
+
+                        return parentModel.getAnimationResultOfKey(partParent
+                                ,varKey,
+                                getEntity(),
+                                getLimbAngle(),
+                                getLimbDistance(),
+                                getAnimationProgress(),
+                                getHeadYaw(),
+                                getHeadPitch(),
+                                getTickDelta());
                     }
                 });
             }
@@ -696,18 +705,21 @@ class AnimationCalculation {
                 String varKeyReplace = varKey.replace(".", "_");
 
                 newExpressionString = newExpressionString.replaceAll(varKey, varKeyReplace);
-                AnimationCalculation instance = this;
+                //AnimationCalculation instance = this;
                 calculator.addConstants(new Constant(varKeyReplace + " = 0") {
                     @Override
                     public double getConstantValue() {
-                        return parent.getAnimationResultOfKey(varKey,
-                                instance::getEntity,
-                                instance::getLimbAngle,
-                                instance::getLimbDistance,
-                                instance::getAnimationProgress,
-                                instance::getHeadYaw,
-                                instance::getHeadPitch,
-                                instance::getTickDelta) == 0? 0: 1;//todo actually test this
+                        EMF_CustomModelPart<?> partParent = modelPart == null? null : modelPart.parent;
+
+                        return parentModel.getAnimationResultOfKey(partParent
+                                ,varKey,
+                                getEntity(),
+                                getLimbAngle(),
+                                getLimbDistance(),
+                                getAnimationProgress(),
+                                getHeadYaw(),
+                                getHeadPitch(),
+                                getTickDelta()) == 0? 0: 1;//todo actually test this
                     }
                 });
             }
@@ -811,8 +823,10 @@ class AnimationCalculation {
                 }
             }
         }
-
         public float getFromEMFModel(EMF_CustomModelPart<?> modelPart) {
+            return getFromEMFModel(modelPart,false);
+        }
+        public float getFromEMFModel(EMF_CustomModelPart<?> modelPart, boolean isSibling) {
             if(modelPart == null){
                 System.out.println("EMF model part was null cannot get its value");
                 return 0;
@@ -820,15 +834,17 @@ class AnimationCalculation {
             switch (this){
                 case tx -> {
                     //return modelPart.tx.floatValue();
-                    return modelPart.pivotX;
+                    //sibling check is required to remove parent offsets if they are from the same parent
+                    //todo this might actually be required on every single get call to a parent num == 1 part, i have only seen the issue on parts matching parents, check this
+                    return isSibling ? modelPart.getAnimPivotXSibling() : modelPart.getAnimPivotX();
                 }
                 case ty -> {
                     //return modelPart.ty.floatValue();
-                    return modelPart.pivotY;
+                    return isSibling ? modelPart.getAnimPivotYSibling() : modelPart.getAnimPivotY();
                 }
                 case tz -> {
                     //return modelPart.tz.floatValue();
-                    return modelPart.pivotZ;
+                    return isSibling ? modelPart.getAnimPivotZSibling() : modelPart.getAnimPivotZ();
                 }
                 case rx -> {
                     //return modelPart.rx.floatValue();

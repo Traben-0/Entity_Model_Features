@@ -44,7 +44,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
         for (EMF_ModelData sub:
                 jemData.models) {
             ModelPart vanillaPart = sub.part == null? null : vanModelParts.getOrDefault(sub.part, null);
-            childrenMap.put(sub.id,new EMF_CustomModelPart<T>(0,sub,new ArrayList<EMF_ModelData>(),new float[]{},vanillaPart));
+            childrenMap.put(sub.id,new EMF_CustomModelPart<T>(null,0,sub,new ArrayList<EMF_ModelData>(),new float[]{},vanillaPart));
 
         }
       //  System.out.println("start anim creation for "+modelPathIdentifier);
@@ -140,22 +140,32 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
         }
     }
 
-    public double getAnimationResultOfKey(String key,
-                                          Supplier<Entity> entitySupplier,
-                                          Supplier<Float> limbAngleSupplier,
-                                          Supplier<Float> limbDistanceSupplier,
-                                          Supplier<Float> animationProgressSupplier,
-                                          Supplier<Float> headYawSupplier,
-                                          Supplier<Float> headPitchSupplier,
-                                          Supplier<Float> tickDeltaSupplier){
+    public double getAnimationResultOfKey(
+            EMF_CustomModelPart<?> parentForCheck,
+            String key,
+            Entity entity,
+            float limbAngle,
+            float limbDistance,
+            float animationProgress,
+            float headYaw,
+            float headPitch,
+            float tickDelta){
+//    },
+//                                          Supplier<Entity> entitySupplier,
+//                                          Supplier<Float> limbAngleSupplier,
+//                                          Supplier<Float> limbDistanceSupplier,
+//                                          Supplier<Float> animationProgressSupplier,
+//                                          Supplier<Float> headYawSupplier,
+//                                          Supplier<Float> headPitchSupplier,
+//                                          Supplier<Float> tickDeltaSupplier){
 
-        LivingEntity entity = (LivingEntity) entitySupplier.get();
-        float limbAngle = limbAngleSupplier.get();
-        float limbDistance = limbDistanceSupplier.get();
-        float animationProgress = animationProgressSupplier.get();
-        float headYaw = headYawSupplier.get();
-        float headPitch = headPitchSupplier.get();
-        float tickDelta = tickDeltaSupplier.get();
+//        LivingEntity entity = (LivingEntity) entitySupplier.get();
+//        float limbAngle = limbAngleSupplier.get();
+//        float limbDistance = limbDistanceSupplier.get();
+//        float animationProgress = animationProgressSupplier.get();
+//        float headYaw = headYawSupplier.get();
+//        float headPitch = headPitchSupplier.get();
+//        float tickDelta = tickDeltaSupplier.get();
 
 
 
@@ -164,9 +174,15 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
             String partName = key.split("\\.")[0];
             if(getAllParts().containsKey(partName)){
                 AnimationCalculation.AnimVar variableToGet;
+                EMF_CustomModelPart<T> otherPart = getAllParts().get(partName);
                 try {
                     variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
-                    return variableToGet.getFromEMFModel(getAllParts().get(partName));
+                    if(parentForCheck != null && parentForCheck.equals(otherPart.parent)){
+                        return variableToGet.getFromEMFModel(otherPart,true);
+                    }else{
+                        return variableToGet.getFromEMFModel(otherPart);
+                    }
+
                 }catch(IllegalArgumentException e){
                     System.out.println("no animation expression part variable value found for: "+key);
                     return 0;
@@ -190,7 +206,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
             }
         }
 
-        return animationKeyToCalculatorObject.get(key).getResultOnly( entity,  limbAngle,  limbDistance,  animationProgress,  headYaw,  headPitch,tickDelta);
+        return animationKeyToCalculatorObject.get(key).getResultOnly((LivingEntity) entity,  limbAngle,  limbDistance,  animationProgress,  headYaw,  headPitch,tickDelta);
     }
 
 
