@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin;
+package traben.entity_model_features.mixin.accessor;
 
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.BipedEntityModel;

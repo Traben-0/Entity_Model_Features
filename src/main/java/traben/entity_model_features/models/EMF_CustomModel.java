@@ -9,22 +9,24 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.EntityModel;
+import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.CreeperEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import net.minecraft.entity.passive.*;
+import net.minecraft.util.Arm;
 import org.joml.Quaternionf;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
+import traben.entity_model_features.vanilla_part_mapping.VanillaMappings;
 
 import java.util.*;
 import java.util.function.Supplier;
 
 @Environment(value= EnvType.CLIENT)
-public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
+public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements ModelWithHat, ModelWithWaterPatch, ModelWithArms, ModelWithHead {
 
     private final EMF_JemData jemData;
     private final Reference2ObjectOpenHashMap<String, EMF_CustomModelPart<T>> childrenMap = new Reference2ObjectOpenHashMap<>();
@@ -34,8 +36,11 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
 
    // private final Properties animationPropertiesOfAll;
     final String modelPathIdentifier;
+    final EntityModel<T> vanillaModel;
 
-    public EMF_CustomModel(EMF_JemData jem, String modelPath,HashMap<String,ModelPart> vanModelParts){
+    public EMF_CustomModel(EMF_JemData jem, String modelPath, VanillaMappings.VanillaMapper vanillaPartSupplier,EntityModel<T> vanillaModel){
+        HashMap<String,ModelPart> vanModelParts = vanillaPartSupplier.getVanillaModelPartsMapFromModel(vanillaModel);
+        this.vanillaModel = vanillaModel;
         vanillaModelPartsById = vanModelParts;
         modelPathIdentifier = modelPath;
         jemData = jem;
@@ -214,11 +219,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
 
 
     @Override
-    public void render(MatrixStack herematrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-
-    }
-
-    public void render( HashMap<String,ModelPart> vanillaParts, MatrixStack herematrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public void render( MatrixStack herematrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         for (String key:
                 childrenMap.keySet()) {
             herematrices.push();
@@ -267,13 +268,17 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
     @Override
     public void animateModel(T entity, float limbAngle, float limbDistance, float tickDelta) {
        // super.animateModel(entity, limbAngle, limbDistance, tickDelta);
-       // this.tickDelta = tickDelta;
+        this.tickDelta = tickDelta;
+        vanillaModel.animateModel(entity,limbAngle,limbDistance,tickDelta);
     }
-//    float tickDelta = Float.NaN;
+    float tickDelta = Float.NaN;
 
 
-    public void setAnglesEMF(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch,float tickDelta,HashMap<String,ModelPart> vanillaPartList) {
-        vanillaModelPartsById = vanillaPartList;
+    @Override
+    public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch){//, VanillaMappings.VanillaMapper vanillaPartSupplier,EntityModel<T> vanillaModel){
+        vanillaModel.setAngles( entity,limbAngle,limbDistance,animationProgress,headYaw,headPitch);
+        //todo check if needs running supplier on each render or only once at init
+       // vanillaModelPartsById = vanillaPartSupplier.getVanillaModelPartsMapFromModel(vanillaModel);
         //process all animation states for all parts
 //        System.out.println("hpy="+headPitch+", "+headYaw);
 //        headPitch = (float) Math.toDegrees(headPitch);
@@ -302,8 +307,24 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T>  {
         //that's it????
     }
 
-    @Override
-    public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 
+    @Override
+    public void setArmAngle(Arm arm, MatrixStack matrices) {
+        ((ModelWithArms)vanillaModel).setArmAngle(arm,matrices);
+    }
+
+    @Override
+    public void setHatVisible(boolean visible) {
+        ((ModelWithHat)vanillaModel).setHatVisible(visible);
+    }
+
+    @Override
+    public ModelPart getHead() {
+        return((ModelWithHead) vanillaModel).getHead();
+    }
+
+    @Override
+    public ModelPart getWaterPatch() {
+        return ((ModelWithWaterPatch) vanillaModel).getWaterPatch();
     }
 }

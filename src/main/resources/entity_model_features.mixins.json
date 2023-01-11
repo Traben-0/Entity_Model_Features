@@ -4,13 +4,16 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-
+    "accessor.AnimalModelAccessor",
+    "accessor.LivingEntityRendererAccessor",
+    "accessor.ModelPartAccessor"
   ],
   "client": [
-    "MixinLivingEntityRenderer",
-    "BipedEntityModelAccessor",
     "MixinSimpleResourceReload",
-    "QuadrupedEntityModelAccessor"
+    "accessor.BipedEntityModelAccessor",
+    "accessor.QuadrupedEntityModelAccessor",
+    "renderers.MixinLivingEntityRenderer",
+    "renderers.features.MixinSheepWoolFeatureRenderer"
   ],
   "injectors": {
     "defaultRequire": 1
