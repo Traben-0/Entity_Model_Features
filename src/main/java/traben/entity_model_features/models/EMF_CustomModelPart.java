@@ -26,7 +26,6 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
 
 
-
     private final List<EMF_CustomModelPart.Cuboid> cuboids = new ArrayList<>();
     private final Map<String, EMF_CustomModelPart<T>> children = new HashMap<>();
 
@@ -52,11 +51,9 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
                 if (!this.hidden) {
                     for (Cuboid cube :
                             cuboids) {
-
-                        if(cube != null)
+                        if(cube != null) {
                             cube.renderCuboid(matrices.peek(), vertices, light, overlay, red, green, blue, alpha);
-
-
+                        }
                     }
                 }
                 Iterator<EMF_CustomModelPart<T>> var9 = this.children.values().iterator();
@@ -164,238 +161,23 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
     private float parentOnePivotZOverride = 0;
 
 
-//    public void oldTestRender( int parentCount,HashMap<String, ModelPart> vanillaParts, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha){
-//        //matrices.scale(5,2,5);
-//
-//        //boolean skip = false;
-//        //System.out.println("parent check for base model" + selfModelData.baseId + vanillaParts.containsKey(selfModelData.baseId));
-//        //if(vanillaParts.containsKey(selfModelData.baseId)) {
-//        //       copyTransform(vanillaParts.get(selfModelData.baseId));
-//        //}
-//
-//
-//
-//        float scaleX;
-//        if (sx != null) {
-//            scaleX = ( (sx.floatValue() ));
-////            }
-//        }else{
-//            scaleX = ( ( selfModelData.scale));
-//        }
-//        float scaleY;
-//        if (sy != null) {
-//            scaleY = ( (sy.floatValue() ));
-////            }
-//        }else{
-//            scaleY = ( ( selfModelData.scale));
-//        }
-//        float scaleZ;
-//        if (sz != null) {
-//            scaleZ = ( (sz.floatValue() ));
-////            }
-//        }else{
-//            scaleZ = ( ( selfModelData.scale));
-//        }
-//
-//       // boolean doParentTranslate;
-//        float translateX;
-//        float translateY;
-//        float translateZ;
-//        if (tx != null) {// && !cuboids.isEmpty()) {
-//            //System.out.println("was translated");
-//            translateX = ( (tx.floatValue() ) / 16.0f);
-////            if(parentCount != 0){
-////                translateX += ( ( selfModelData.translate[0]) / 16.0f);
-////            }
-////            doParentTranslate =true;
-//        }else{
-//            translateX = ( ( selfModelData.translate[0]) / 16.0f);
-//
-//        //    doParentTranslate = false;
-//        }
-//        if (ty != null) {// && !cuboids.isEmpty()) {
-//            //System.out.println("was translated");
-//            translateY = ( (ty.floatValue() ) / 16.0f);
-//            if(parentCount != 0){
-//                translateY += ( ( selfModelData.translate[1]) / 16.0f);
-//            }
-//          //  doParentTranslate =true;
-//        }else{
-//
-//            translateY = ( ( selfModelData.translate[1]) / 16.0f);
-//          //  doParentTranslate =false;
-//        }
-//        if (tz != null) {// && !cuboids.isEmpty()) {
-//            //System.out.println("was translated");
-//            translateZ = ( (tz.floatValue() ) / 16.0f);
-//            if(parentCount != 0){
-//                translateZ += ( ( selfModelData.translate[2]) / 16.0f);
-//            }
-//           // doParentTranslate =true;
-//        }else{
-//            translateZ = ( ( selfModelData.translate[2]) / 16.0f);
-//           // doParentTranslate =false;
-//        }
-//
-//      //  boolean doParentRotate ;
-//        float rotateX;
-//        float rotateY;
-//        float rotateZ;
-//
-//        if (rx != null) {
-//            rotateX = -rx.floatValue() +((float) Math.toRadians( selfModelData.rotate[0]));
-//            //doParentRotate = true;
-////        }else if (vanillaParts.containsKey(selfModelData.part)) {
-////            ModelPart vanilla = vanillaParts.get(selfModelData.part);
-////            rotateX = -vanilla.pitch+((float) Math.toRadians( selfModelData.rotate[0]));
-//          //  doParentRotate = true;
-//        }else{
-//            rotateX = (float) Math.toRadians( selfModelData.rotate[0]);
-//           // doParentRotate = false;
-//        }
-//        if (ry != null) {
-//            rotateY = ry.floatValue() +((float) Math.toRadians( selfModelData.rotate[1]));
-//          //  doParentRotate = true;
-////        }else if (vanillaParts.containsKey(selfModelData.part)) {
-////            ModelPart vanilla = vanillaParts.get(selfModelData.part);
-////            rotateY = vanilla.yaw+((float) Math.toRadians( selfModelData.rotate[1]));
-////            doParentRotate = false;
-//        }else{
-//            rotateY = (float) Math.toRadians( selfModelData.rotate[1]);
-//         //  doParentRotate = false;
-//        }
-//        if (rz != null) {
-//            rotateZ = rz.floatValue() +((float) Math.toRadians( selfModelData.rotate[2]));
-//         //   doParentRotate = true;
-////        }else if (vanillaParts.containsKey(selfModelData.part)) {
-////            ModelPart vanilla = vanillaParts.get(selfModelData.part);
-////            rotateZ = vanilla.roll +((float) Math.toRadians( selfModelData.rotate[2]));
-////            doParentRotate = false;
-//        }else{
-//            rotateZ = (float) Math.toRadians( selfModelData.rotate[2]);
-//           // doParentRotate = false;
-//        }
-//        //rotateZ = 2;
-//        //todo remove after animation support
-//        if (selfModelData.id.equals("baby_head") || selfModelData.id.equals("leg1")) {
-//            visible = false;
-//        }
-////        if (selfModelData.id.equals("rotation")) {
-////            System.out.println("rotation= "+rx+", "+ry+", "+rz+", "+tx+", "+ty+", "+tz);
-////        }
-////  todo testing head rotation
-////        if (selfModelData.id.equals("head2") && vanillaParts.containsKey("leg1")) {
-////            ModelPart vanilla = vanillaParts.get("leg1");
-////            //copyTransform(vanilla);
-////            rotateZ = vanilla.roll +(selfModelData.rotate[2]*0.01745329251f);
-////            rotateX = -vanilla.pitch+(selfModelData.rotate[0]*0.01745329251f);
-////            rotateY = vanilla.yaw+(selfModelData.rotate[1]*0.01745329251f);
-////        }
-//        //rotate(matrices, (float) Math.toRadians(15), (float) Math.toRadians(15),(float) Math.toRadians(15));
-//       // if(selfModelData.id.equals("head2"))
-//         //   rotateX = (float) Math.toRadians(new Random().nextInt(45));
-//        matrices.push();
-//        if (visible) {
-//
-//
-//
-//          //  if(parentCount == 0) {
-////                matrices.translate(-translateX, -translateY, translateZ);
-////
-////                matrices.translate(translateX, translateY, translateZ);
-////                matrices.translate(translateX, translateY, translateZ);
-//
-////            if(parentCount == 0){
-////                matrices.translate(-translateX, -translateY, translateZ);
-////            }
-////      DONOTDO      if (selfModelData.part != null) {
-////                matrices.translate(translateX, translateY, translateZ);
-////            } else {
-////                matrices.translate(translateX, translateY, translateZ);
-////            }
-//
-//
-//          //  }else if(selfModelData.part != null) {
-//
-//            //    matrices.translate(translateX, translateY, -translateZ);
-//           // }
-//
-//
-//            float jemRotx = (float) Math.toRadians( selfModelData.rotate[0]);
-//            float jemRoty = (float) Math.toRadians( selfModelData.rotate[1]);
-//            float jemRotz = (float) Math.toRadians( selfModelData.rotate[2]);
-//
-//            float jemTranx = ( ( selfModelData.translate[0]) / 16.0f);
-//            float jemTrany = ( ( selfModelData.translate[1]) / 16.0f);
-//            float jemTranz = ( ( selfModelData.translate[2]) / 16.0f);
-//
-//            if(children.isEmpty()){
-//                 jemTranx = 0;
-//                 jemTrany = 0;
-//                 jemTranz = 0;
-//            }
-//
-//            double TX = tx == null? 0 : tx/ 16.0f;
-//            double TY = ty == null? 0 : ty/ 16.0f;
-//            double TZ = tz == null? 0 : tz/ 16.0f;
-//
-//            double RX = rx == null? 0 : rx;
-//            double RY = ry == null? 0 : ry;
-//            double RZ = rz == null? 0 : rz;
-//
-//
-//            //translate affects children
-////            if(children.isEmpty()) {
-////                matrices.translate(jemTranx + TX, jemTrany + TY, jemTranz + TZ);
-////                rotate(matrices, (float) -(jemRotx+RX), (float) -(jemRoty+RY), (float) -(jemRotz+RZ));
-////            }else {
-////                rotate(matrices, (float) -(jemRotx+RX), (float) -(jemRoty+RY), (float) -(jemRotz+RZ));
-////                matrices.translate(-(jemTranx - TX), -(jemTrany - TY), -(jemTranz - TZ));
-////            }
-//
-//
-//
-//            //TODO RETURN TO
-//            // matrices.scale(selfModelData.scale, selfModelData.scale, selfModelData.scale);
-//            matrices.push();
-//            //matrices.scale(-1,-1,-1);
-//            for (Cuboid cube :
-//                    cuboids) {
-//                //hide leg 1 for testing
-//                //if(!"leg1".equals(this.selfModelData.part))
-//                    cube.renderCuboid(matrices.peek(), vertices, light, overlay, red, green, blue, alpha);
-//
-//            }
-//            matrices.pop();
-//
-//
-//            for (String key :
-//                    children.keySet()) {
-//                children.get(key).render(parentCount + 1, matrices, vertices, light, overlay, red, green, blue, alpha);
-//            }
-//
-//        }
-//        matrices.pop();
+//    public EMF_CustomModelPart<T> copyOf(){
+//        return new EMF_CustomModelPart<>(this);
 //    }
-
-
-//    private double constrainrotationTo180(double given) {
-//        double adjust = 1;// 1.57079632679f
-//        if (given >= 360*adjust) {
-//            given = given % (360*adjust);
-//            if (given >= 180*adjust) {
-//                given -= 360*adjust;
-//            }
+//
+//    private EMF_CustomModelPart(EMF_CustomModelPart<T> copyFrom){
+//        super(new ArrayList<>(), new HashMap<>());
+//        setDefaultTransform(copyFrom.getDefaultTransform());
+//        copyTransform(copyFrom);
+//        for (Map.Entry<String, EMF_CustomModelPart<T>> entry:
+//                copyFrom.children.entrySet()) {
+//                children.put(entry.getKey(), entry.getValue().copyOf());
 //        }
-//        if (given < 0) {
-//            given = given % (-360*adjust);
-//            if (given <= -180*adjust) {
-//                given += 360*adjust;
-//            }
+//        for (Cuboid entry:
+//                copyFrom.cuboids) {
+//            cuboids.add( entry.copyOf());
 //        }
-//        return given;
 //    }
-
 
     public EMF_CustomModelPart(EMF_CustomModelPart<T> parent,int parentNumber,
                                EMF_ModelData EMFmodelData,
@@ -643,7 +425,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
         //cuboid without custom UVs
         public Cuboid(EMF_ModelData selfModelData
-                , int textureU, int textureV,
+                , float textureU, float textureV,
                       float cubeX, float cubeY, float cubeZ,
                       float sizeX, float sizeY, float sizeZ,
                       float extraX, float extraY, float extraZ,
@@ -719,7 +501,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
         //Cuboid with custom UVs
         public Cuboid(EMF_ModelData selfModelData,
-                      int[] uvDown, int[] uvUp, int[] uvNorth, int[] uvSouth, int[] uvWest, int[] uvEast,
+                      float[] uvDown, float[] uvUp, float[] uvNorth, float[] uvSouth, float[] uvWest, float[] uvEast,
                       float cubeX, float cubeY, float cubeZ,
                       float sizeX, float sizeY, float sizeZ,
                       float extraX, float extraY, float extraZ,
@@ -851,6 +633,8 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 //                    vertexConsumer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.u, vertex.v, overlay, light, f, g, h);
 //                }
 //            }
+
+
             Matrix4f matrix4f = entry.getPositionMatrix();
             Matrix3f matrix3f = entry.getNormalMatrix();
             EMF_CustomModelPart.Quad[] var11 = this.sides;
@@ -979,4 +763,6 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         }
         return list;
     }
+
+
 }

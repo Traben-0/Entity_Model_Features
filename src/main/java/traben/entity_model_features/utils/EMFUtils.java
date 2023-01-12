@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 
 import java.io.*;
+import java.util.Optional;
 import java.util.Properties;
 
 import static traben.entity_model_features.Entity_model_featuresClient.EMFConfigData;
@@ -118,7 +119,9 @@ public class EMFUtils {
     public static EMF_JemData EMF_readJemData(String pathOfJem){
         //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
         try {
-            Resource jemResource = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem)).get();
+            Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
+            //if(res.isEmpty()) return null;
+            Resource jemResource = res.get();
             //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             //System.out.println("jem exists "+ jemFile.exists());
@@ -131,11 +134,13 @@ public class EMFUtils {
                 jem.prepare();
                 return jem;
             //}
-        } catch (IOException e) {
+        } catch (Exception e) {
             EMF_modMessage("jem failed "+e, false);
         }
         return null;
     }
+
+
 
 
 }

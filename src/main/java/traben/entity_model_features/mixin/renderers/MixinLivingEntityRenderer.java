@@ -1,22 +1,18 @@
 package traben.entity_model_features.mixin.renderers;
 
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
+import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.SpiderEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,16 +20,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.EMF_CustomModel;
-import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
-import traben.entity_model_features.vanilla_part_mapping.VanillaMappings;
+import traben.entity_model_features.models.features.EMFArmorFeatureRenderer;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -111,6 +103,18 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                     emf$originalModel = this.model;
                     emf$newModel = (M)emf;
 
+                    for (FeatureRenderer<?,?> feature:
+                         features) {
+                        if(feature instanceof ArmorFeatureRenderer<?,?,?>){
+                            features.remove(feature);
+                            EMF_CustomModel<?> inner = emf.getArmourModel(true);
+                            EMF_CustomModel<?> outer = emf.getArmourModel(false);
+                            if(inner != null && outer != null) {
+                                features.add(new EMFArmorFeatureRenderer<T, M>(this, inner, outer));
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -124,6 +128,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             this.model =  emf$originalModel;
         }
     }
+
 
     private M emf$originalModel = null;
     private M emf$newModel = null;

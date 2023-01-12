@@ -6,14 +6,14 @@ public class EMF_BoxData {
 
    // https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_part.txt#L15
 
-    public int[] textureOffset = {};
-    public int[] uvDown = {};
-    public int[] uvUp = {};
+    public float[] textureOffset = {};
+    public float[] uvDown = {};
+    public float[] uvUp = {};
 
-    public int[] uvNorth, uvFront = {};
-    public int[] uvSouth, uvBack = {};
-    public int[] uvWest, uvLeft = {};
-    public int[] uvEast, uvRight = {};
+    public float[] uvNorth, uvFront = {};
+    public float[] uvSouth, uvBack = {};
+    public float[] uvWest, uvLeft = {};
+    public float[] uvEast, uvRight = {};
 
     public float[] coordinates = {};
     public float sizeAdd = 0.0f; // just part dilation lol
