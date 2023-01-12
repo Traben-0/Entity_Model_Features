@@ -10,6 +10,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.passive.*;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.dimension.DimensionTypes;
 import org.mariuszgromada.math.mxparser.Constant;
 import org.mariuszgromada.math.mxparser.Expression;
@@ -247,7 +248,7 @@ class AnimationCalculation {
         }
         UUID id = entity0.getUuid();
         //if we haven't already calculated a result this frame get another
-        if (animationProgress0 != prevResultsTick.getFloat(id)){
+        if (animationProgress0 >= prevResultsTick.getFloat(id) +1){//TODO 1 to be replace by interpolation setting
             entity = entity0;
             limbAngle = limbAngle0;
             limbDistance = limbDistance0;
@@ -257,8 +258,13 @@ class AnimationCalculation {
             tickDelta = tickDelta0;
             prevResultsTick.put(id ,animationProgress0);
             double result = calculator.calculate();
+            double oldResult = prevResults.getDouble(id);
+            prevPrevResults.put(id,oldResult);
             prevResults.put(id,result);
-            return result;
+            return oldResult;
+        }else if(prevPrevResults.containsKey(id)){
+            float delta = (animationProgress0 - prevResultsTick.getFloat(id) ) / 1;//TODO 1 to be replace by interpolation setting
+            return MathHelper.lerp(delta,prevPrevResults.getDouble(id), prevResults.getDouble(id));
         }
         return prevResults.getDouble(id);
     }
@@ -269,6 +275,7 @@ class AnimationCalculation {
     public float getLastResultTick() {
         return getEntity() != null ? 0 : prevResultsTick.getFloat(getEntity().getUuid());
     }
+    private Object2DoubleOpenHashMap<UUID> prevPrevResults = new Object2DoubleOpenHashMap<>();
     private Object2DoubleOpenHashMap<UUID> prevResults = new Object2DoubleOpenHashMap<>();
     private Object2FloatOpenHashMap<UUID> prevResultsTick = new Object2FloatOpenHashMap<>();
     //private double lastResult = 0;
