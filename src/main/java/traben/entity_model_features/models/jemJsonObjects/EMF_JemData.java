@@ -15,7 +15,7 @@ public class EMF_JemData {
     public void prepare(){
         for (EMF_ModelData model:
              models) {
-            model.prepare(animationInstructionList,textureSize);
+            model.prepare( 0,animationInstructionList,textureSize,"");
         }
     }
 

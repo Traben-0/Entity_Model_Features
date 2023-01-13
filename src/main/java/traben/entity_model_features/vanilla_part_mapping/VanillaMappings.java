@@ -34,7 +34,9 @@ public class VanillaMappings {
 //        if (vanillaModel instanceof AllayEntityModel) {
 //            return VanillaMappings::getAllayMap;
 //        }
-        if (vanillaModel instanceof ChickenEntityModel<?>) {
+        if (vanillaModel instanceof CreeperEntityModel<?>) {
+            return VanillaMappings::getCreeperMap;
+        }if (vanillaModel instanceof ChickenEntityModel<?>) {
             return VanillaMappings::getChickenMap;
         }
         if (vanillaModel instanceof OcelotEntityModel<?>) {
@@ -147,7 +149,14 @@ public class VanillaMappings {
 
 
 
-
+    private static HashMap<String, ModelPart> getCreeperMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelPart> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        vanillaPartsList.put("leg1",vanillaPartsList.get("right_hind_leg"));
+        vanillaPartsList.put("leg2",vanillaPartsList.get("left_hind_leg"));
+        vanillaPartsList.put("leg3",vanillaPartsList.get("right_front_leg"));
+        vanillaPartsList.put("leg4",vanillaPartsList.get("left_front_leg"));
+        return vanillaPartsList;
+    }
     private static HashMap<String, ModelPart> getBlazeMap(EntityModel<?> vanillaModel){
         HashMap<String,ModelPart> vanillaPartsList = getSinglePartModelMap(vanillaModel);
         vanillaPartsList.put("stick1",vanillaPartsList.get("part0"));

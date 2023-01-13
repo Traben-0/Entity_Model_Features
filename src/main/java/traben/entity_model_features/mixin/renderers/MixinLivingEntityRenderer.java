@@ -119,6 +119,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             }
         }
         if(emf$newModel != null){
+            ((EMF_CustomModel<?>)emf$newModel).currentVertexProvider = vertexConsumerProvider;
             this.model =  emf$newModel;
         }
     }

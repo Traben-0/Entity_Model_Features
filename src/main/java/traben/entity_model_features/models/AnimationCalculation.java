@@ -256,12 +256,16 @@ class AnimationCalculation {
             headYaw = headYaw0;
             headPitch = headPitch0;
             tickDelta = tickDelta0;
-            prevResultsTick.put(id ,animationProgress0);
+            prevResultsTick.put(id ,getAge());
             double result = calculator.calculate();
             double oldResult = prevResults.getDouble(id);
             prevPrevResults.put(id,oldResult);
             prevResults.put(id,result);
             return oldResult;
+        }else if(animationProgress0 < prevResultsTick.getFloat(id) -100){//TODO possibly tie 100 to interp setting it must always be larger
+            //this is required as animation progress resets with the entity entering render distance
+            //todo possibly use world time ticks instead ??
+            prevResultsTick.put(id,-100);
         }else if(prevPrevResults.containsKey(id)){
             float delta = (animationProgress0 - prevResultsTick.getFloat(id) ) / 1;//TODO 1 to be replace by interpolation setting
             return MathHelper.lerp(delta,prevPrevResults.getDouble(id), prevResults.getDouble(id));

@@ -4,11 +4,13 @@ package traben.entity_model_features.models;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import org.joml.*;
 import traben.entity_model_features.utils.EMFUtils;
@@ -42,12 +44,25 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
     private boolean invZ = false;
 
 
+    @Override
+    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay) {
+        render(matrices,vertices,light,overlay, 1,1,1,1);
+    }
 
-    public void render( int parentCount, MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+
+
+    @Override
+    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         if (this.visible) {
             if (!this.cuboids.isEmpty() || !this.children.isEmpty()) {
                 matrices.push();
-                this.rotateV2(matrices,parentCount);
+                this.rotateV2(matrices);
+                // override texture if needed
+                // this is not recommended for ETF support but is very useful for .jpms
+                if(this.customTexture != null && this.thisModel.currentVertexProvider != null && this.thisModel.vanillaModel != null){
+                    vertices = this.thisModel.currentVertexProvider.getBuffer(this.thisModel.vanillaModel.getLayer(this.customTexture));
+                }
+
                 if (!this.hidden) {
                     for (Cuboid cube :
                             cuboids) {
@@ -60,7 +75,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
                 while(var9.hasNext()) {
                     EMF_CustomModelPart<T> modelPart = var9.next();
-                    modelPart.render(parentCount++,matrices, vertices, light, overlay, red, green, blue, alpha);
+                    modelPart.render(matrices, vertices, light, overlay, red, green, blue, alpha);
                 }
 
                 matrices.pop();
@@ -68,65 +83,49 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         }
     }
 
-    public void rotateV2(MatrixStack matrices, int parentCount) {
-//        if(selfModelData.id.equals("rotation"))
-//            System.out.println("piv= "+pivotX+", "+pivotY+", "+pivotZ+", "+pitch+", "+yaw+", "+roll);
-//        if(selfModelData.part != null && cuboids.isEmpty()){
-//            //matrices.translate(this.pivotX / -16.0F, this.pivotY / -16.0F, this.pivotZ / -16.0F);
-//        }else {
-        //if(parentCount == 0)
-           // matrices.translate(getDefaultTransform().pivotX / -16.0F, getDefaultTransform().pivotY / -16.0F, getDefaultTransform().pivotZ / -16.0F);
-
+    public void rotateV2(MatrixStack matrices) {
         matrices.translate(
-                (this.pivotX ) / 16.0F,
+                ( this.pivotX ) / 16.0F,
                 (this.pivotY ) / 16.0F,
                 (this.pivotZ ) / 16.0F);
-        //}
 
-        //add rotation always?
-//        float resultPitch = this.pitch + getDefaultTransform().pitch;
-//        float resultYaw = this.yaw + getDefaultTransform().yaw;
-//        float resultRoll = this.roll + getDefaultTransform().roll;
-
-       // if (pitch != 0.0F || yaw != 0.0F || roll != 0.0F) {
+        if (!thisModel.isAnimated && vanillaPart != null) {
+            matrices.multiply((new Quaternionf()).rotationZYX(
+                    (didAnimrz ? this.roll : getDefaultTransform().roll + vanillaPart.roll),
+                    (didAnimry ? this.yaw : getDefaultTransform().yaw + vanillaPart.yaw),
+                    (didAnimrx ? this.pitch : getDefaultTransform().pitch + vanillaPart.pitch)));
+        } else {
             matrices.multiply((new Quaternionf()).rotationZYX(roll, yaw, pitch));
-      //  }
-
-
-
+        }
         if (this.xScale != 1.0F || this.yScale != 1.0F || this.zScale != 1.0F) {
             matrices.scale(this.xScale, this.yScale, this.zScale);
         }
-
-        //            if(children.isEmpty()) {
-//                matrices.translate(jemTranx + TX, jemTrany + TY, jemTranz + TZ);
-//                rotate(matrices, (float) -(jemRotx+RX), (float) -(jemRoty+RY), (float) -(jemRotz+RZ));
-//            }else {
-//                rotate(matrices, (float) -(jemRotx+RX), (float) -(jemRoty+RY), (float) -(jemRotz+RZ));
-//                matrices.translate(-(jemTranx - TX), -(jemTrany - TY), -(jemTranz - TZ));
-//            }
-
     }
 
     public void setAnimPitch(float newPitch){
+        didAnimrx = true;
         this.pitch = newPitch;// + getDefaultTransform().pitch;
     }
     public void setAnimYaw(float newYaw){
+        didAnimry = true;
         this.yaw = newYaw;// + getDefaultTransform().yaw;
     }
     public void setAnimRoll(float newRoll){
+        didAnimrz = true;
         this.roll = newRoll;// + getDefaultTransform().roll;
     }
     public void setAnimPivotX(float val){
 //        if(parentOnePivotXOverride != 0)
 //            this.pivotX = (invX? val : -val) + parentOnePivotXOverride;
 //        else
+        didAnimtx = true;
             this.pivotX = val  + parentOnePivotXOverride;
     }
     public void setAnimPivotY(float val){
 //        if(parentOnePivotYOverride != 0)
 //            this.pivotY = (invY? val : -val) + parentOnePivotYOverride;
 //        else
+        didAnimty = true;
             this.pivotY = val  + parentOnePivotYOverride; //TODO THIS DOES NOT APPLY TO WITCH HAT, find out why??
         //running theory is animation gets will remove the parentonepivot figure as witch hat calls it
     }
@@ -134,6 +133,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 //        if(parentOnePivotZOverride != 0)
 //            this.pivotZ = (invZ? val : -val) + parentOnePivotZOverride;
 //        else
+        didAnimtz = true;
         this.pivotZ = val + parentOnePivotZOverride;
     }
     public float getAnimPivotX(){
@@ -150,10 +150,17 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
     }
     public float getAnimPivotYSibling(){
         return pivotY - parentOnePivotYOverride;
-    } public float getAnimPivotZSibling(){
+    }
+    public float getAnimPivotZSibling(){
         return pivotZ - parentOnePivotZOverride;
     }
 
+    boolean didAnimtx = false;
+    boolean didAnimty = false;
+    boolean didAnimtz = false;
+    boolean didAnimrx = false;
+    boolean didAnimry = false;
+    boolean didAnimrz = false;
 
 
     private float parentOnePivotXOverride = 0;
@@ -178,16 +185,35 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 //            cuboids.add( entry.copyOf());
 //        }
 //    }
-
+    private final EMF_CustomModel<?> thisModel;
+     final Identifier customTexture;
+     public final ModelPart vanillaPart;
     public EMF_CustomModelPart(EMF_CustomModelPart<T> parent,int parentNumber,
                                EMF_ModelData EMFmodelData,
-                               ArrayList<EMF_ModelData> parentEMFmodelData, float[] pivotModifyForParNum1Only, ModelPart vanillaPartOfThis){//,//float[] parentalTransforms) {
+                               ArrayList<EMF_ModelData> parentEMFmodelData,
+                               float[] pivotModifyForParNum1Only,
+                               ModelPart vanillaPartOfThis,
+                               EMF_CustomModel<?> thisModel){//,//float[] parentalTransforms) {
 
         super(new ArrayList<>(), new HashMap<>());
-
+        this.thisModel = thisModel;
         this.parent = parent;
         selfModelData = EMFmodelData;
         parentModelData = parentEMFmodelData;
+        vanillaPart = vanillaPartOfThis;
+
+        //check if texture ovvveride needs to happen
+        // i am keeping it an identifier as opposed to storing a renderlayer to allow future etf api support
+        if (!selfModelData.texture.isEmpty()){
+            Identifier texture =new Identifier( selfModelData.texture);
+            if(MinecraftClient.getInstance().getResourceManager().getResource(texture).isPresent()){
+                customTexture = texture;
+            }else{
+                customTexture = null;
+            }
+        }else{
+            customTexture = null;
+        }
 
         //grab booleans to avoid further contains checks
         boolean invX = selfModelData.invertAxis.contains("x");
@@ -203,9 +229,24 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         float translateX= selfModelData.translate[0];
         float translateY= selfModelData.translate[1];
         float translateZ= selfModelData.translate[2];
+
         double rotateX= Math.toRadians( selfModelData.rotate[0]);
         double rotateY= Math.toRadians(selfModelData.rotate[1]);
         double rotateZ= Math.toRadians(selfModelData.rotate[2]);
+
+
+//        if (vanillaPartOfThis != null && selfModelData.attach) {
+//            System.out.println("ran");
+//            ModelTransform def = vanillaPartOfThis.getTransform();
+//            translateX= def.pivotX*2;
+//            translateY= def.pivotY*2;
+//            translateZ= def.pivotZ*2;
+//
+//            rotateX= def.pitch;
+//            rotateY= def.yaw;
+//            rotateZ= def.roll;
+//
+//        }
 
         //figure out the bullshit
         if( invX){
@@ -234,7 +275,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             pivotX = translateX;//0;
             pivotY = 24 - translateY ;//24;//0; 24 makes it look nice normally but animations need to include it separately
             pivotZ = translateZ;//0;
-        }else if(parentNumber == 1){
+        }else if(parentNumber == 1 ){
             float parent0sTX = pivotModifyForParNum1Only[0];
             float parent0sTY = pivotModifyForParNum1Only[1];
             float parent0sTZ = pivotModifyForParNum1Only[2];
@@ -296,7 +337,10 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             //seems like i need to alter parentcount 1's pivots
             ArrayList<EMF_ModelData> hold = new ArrayList<>(parentEMFmodelData);
             hold.add(selfModelData);
-            children.put(sub.id, new EMF_CustomModelPart<T>(this,parentNumber + 1, sub, hold,sendToFirstChild,null));
+            while(children.containsKey(sub.id)){
+                sub.id = sub.id+"-";
+            }
+            children.put(sub.id, new EMF_CustomModelPart<T>(this,parentNumber + 1, sub, hold,sendToFirstChild,null,this.thisModel));
         }
 
     }
@@ -547,26 +591,26 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             // 1 2
             // 4 3
             try {
-                this.sides[2] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex, vertex2, vertex6, vertex5},//actually up
-                        uvUp[0], uvUp[1], uvUp[2], uvUp[3], textureWidth, textureHeight, Direction.DOWN);
+                this.sides[2] = new Quad(new Vertex[]{vertex, vertex2, vertex6, vertex5},//actually up
+                        uvUp[0], uvUp[1], uvUp[2], uvUp[3], textureWidth, textureHeight,  Direction.DOWN);
             }catch (Exception e){
                 System.out.println("uv-up failed for "+selfModelData.id);
             }
             try {
                 this.sides[3] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex8, vertex7, vertex3, vertex4},//actually down
-                        uvDown[0], uvDown[1], uvDown[2], uvDown[3], textureWidth, textureHeight, Direction.UP);
+                        uvDown[0], uvDown[1], uvDown[2], uvDown[3], textureWidth, textureHeight,  Direction.UP);
             }catch (Exception e){
                 System.out.println("uv-down failed for "+selfModelData.id);
             }
             try {
                 this.sides[1] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex6, vertex2, vertex3, vertex7},
-                        uvWest[0], uvWest[1], uvWest[2], uvWest[3], textureWidth, textureHeight, Direction.EAST);
+                        uvWest[0], uvWest[1], uvWest[2], uvWest[3], textureWidth, textureHeight,  Direction.EAST);
             }catch (Exception e){
                 System.out.println("uv-west failed for "+selfModelData.id);
             }
             try {
                 this.sides[4] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex2, vertex, vertex4, vertex3},
-                        uvNorth[0], uvNorth[1], uvNorth[2], uvNorth[3], textureWidth, textureHeight, Direction.NORTH);
+                        uvNorth[0], uvNorth[1], uvNorth[2], uvNorth[3], textureWidth, textureHeight,  Direction.NORTH);
             }catch (Exception e){
                     System.out.println("uv-north failed for "+selfModelData.id);
                 }
@@ -691,15 +735,6 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
         public Quad(EMF_CustomModelPart.Vertex[] vertices, float u1, float v1, float u2, float v2, float squishU, float squishV, Direction direction) {
 
-            //64 x 32
-
-//            if(squishU/2 != squishV){
-//                if(squishV == squishU){
-//                    squishV = squishV / 2;
-//                }
-//            }
-           // squishV = squishV * 2;
-            //System.out.println("v"+squishV);
 
 
 
@@ -711,38 +746,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             vertices[2] = vertices[2].remap(u1 / squishU + f, v2 / squishV - g);
             vertices[3] = vertices[3].remap(u2 / squishU - f, v2 / squishV - g);
 
-//            if (true) {
-//                int i = vertices.length;
-//
-//                for(int j = 0; j < i / 2; ++j) {
-//                    EMF_CustomModelPart.Vertex vertex = vertices[j];
-//                    vertices[j] = vertices[i - 1 - j];
-//                    vertices[i - 1 - j] = vertex;
-//                }
-//            }
 
-//            if (mirrorUV[0]) {
-//                //left right invert
-//                //12  >  21
-//                //03  >  30
-//                int i = vertices.length;
-//                for (int j = 0; j < i / 2; ++j) {
-//                    EMF_CustomModelPart.Vertex vertex = vertices[j];
-//                    vertices[j] = vertices[i - 1 - j];
-//                    vertices[i - 1 - j] = vertex;
-//                }
-//            }
-//            if (mirrorUV[1]) {
-//                //manually inverting vertical
-//                //12  >  03
-//                //03  >  12
-//                EMF_CustomModelPart.Vertex vertex = vertices[0];
-//                vertices[0] = vertices[1];
-//                vertices[1] = vertex;
-//                vertex = vertices[3];
-//                vertices[3] = vertices[2];
-//                vertices[2] = vertex;
-//            }
             this.direction = direction.getUnitVector();
             //todo check this
 //            if (mirrorUV[0]) {

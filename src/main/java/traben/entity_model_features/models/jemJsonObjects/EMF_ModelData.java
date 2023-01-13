@@ -1,5 +1,9 @@
 package traben.entity_model_features.models.jemJsonObjects;
 
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.mob.CreeperEntity;
+import traben.entity_model_features.utils.EMFUtils;
+
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
@@ -27,10 +31,50 @@ public class EMF_ModelData {
 
     public Properties[] animations = {};
 
-    public void prepare(Map<String, String> animationInstructionList, int[] textureSize){
+    private void copyFrom(EMF_ModelData jpmModel){
+        this.submodels = jpmModel.submodels;
+        this.submodel = jpmModel.submodel;
+        this.textureSize = jpmModel.textureSize;
+        this.texture = jpmModel.texture;
+        this.invertAxis = jpmModel.invertAxis;
+        this.translate = jpmModel.translate;
+        this.rotate = jpmModel.rotate;
+        this.mirrorTexture = jpmModel.mirrorTexture;
+        this.boxes = jpmModel.boxes;
+        this.sprites = jpmModel.sprites;
+        this.scale = jpmModel.scale;
+        this.animations = jpmModel.animations;
+
+        this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
+    }
+
+    public void prepare(int parentCount,Map<String, String> animationInstructionList, int[] textureSize, String texture){
+
+        //check if we need to load a .jpm into this object
+        if(!this.model.isEmpty()){
+            EMF_ModelData jpmModel = EMFUtils.EMF_readModelPart(this.model);
+            if(jpmModel != null){
+                copyFrom(jpmModel);
+
+               // EntityType.CREEPER.getHeight()
+                //this object is now filled with data from the .JPM
+//                    if (this.translate.length == 3) {
+//                        this.translate[1] = this.translate[1] - 24;
+//                    } else {
+//                        this.translate = new float[]{0, 24, 0};
+//                    }
+            }
+        }
+
 
         if(this.textureSize == null) this.textureSize = textureSize;
-
+        if(this.texture.isEmpty()){
+            this.texture = texture;
+        }else{
+            if(!this.texture.contains(".png")) this.texture = this.texture + ".png";
+            //if no folder parenting assume it is relative to model
+            if(!this.texture.contains("/")) this.texture = "optifine/cem/" + this.texture;
+        }
 
         //rotate[0] = rotate[0] /1.57079632679f;
         //rotate[1] = rotate[1] /1.57079632679f;
@@ -57,11 +101,11 @@ public class EMF_ModelData {
             sprite.prepare();
         }
         if (submodel !=null){
-            submodel.prepare(animationInstructionList, textureSize);
+            submodel.prepare(parentCount+1,animationInstructionList, this.textureSize, this.texture);
         }
         for (EMF_ModelData model:
                 submodels) {
-            model.prepare(animationInstructionList, textureSize);
+            model.prepare(parentCount+1,animationInstructionList, this.textureSize, this.texture);
         }
     }
 

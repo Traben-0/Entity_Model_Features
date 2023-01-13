@@ -9,7 +9,9 @@ import net.minecraft.resource.Resource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
+import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 
 import java.io.*;
 import java.util.Optional;
@@ -115,12 +117,15 @@ public class EMFUtils {
             EMF_modMessage("Config could not be saved", false);
         }
     }
-
+    @Nullable
     public static EMF_JemData EMF_readJemData(String pathOfJem){
         //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
         try {
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
-            //if(res.isEmpty()) return null;
+            if(res.isEmpty()){
+                EMF_modMessage("jem failed "+pathOfJem+" does not exist", false);
+                return null;
+            }
             Resource jemResource = res.get();
             //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -139,8 +144,34 @@ public class EMFUtils {
         }
         return null;
     }
+    @Nullable
+    public static EMF_ModelData EMF_readModelPart(String pathOfJpm){
+        //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
+        pathOfJpm = "optifine/cem/"+ pathOfJpm;
+        try {
+            Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJpm));
+            if(res.isEmpty()){
+                EMF_modMessage("jpm failed "+pathOfJpm+" does not exist", false);
+                return null;
+            }
+            Resource jpmResource = res.get();
+            //File jemFile = new File(pathOfJem);
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            //System.out.println("jem exists "+ jemFile.exists());
+            //if (jemFile.exists()) {
+            //FileReader fileReader = new FileReader(jemFile);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(jpmResource.getInputStream()));
 
-
+            EMF_ModelData jpm = gson.fromJson(reader, EMF_ModelData.class);
+            reader.close();
+            //jpm.prepare();
+            return jpm;
+            //}
+        } catch (Exception e) {
+            EMF_modMessage("jpm failed "+e, false);
+        }
+        return null;
+    }
 
 
 }
