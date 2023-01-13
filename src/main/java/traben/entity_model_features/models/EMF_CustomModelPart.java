@@ -13,13 +13,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import org.joml.*;
+import traben.entity_model_features.mixin.CuboidAccessor;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.jemJsonObjects.EMF_BoxData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 
 import java.lang.Math;
 import java.util.*;
-import java.util.Random;
 
 @Environment(value = EnvType.CLIENT)
 public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
@@ -28,7 +28,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
 
 
-    private final List<EMF_CustomModelPart.Cuboid> cuboids = new ArrayList<>();
+    private final List<EMFCuboid> cuboids = new ArrayList<>();
     private final Map<String, EMF_CustomModelPart<T>> children = new HashMap<>();
 
 
@@ -64,7 +64,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
                 }
 
                 if (!this.hidden) {
-                    for (Cuboid cube :
+                    for (EMFCuboid cube :
                             cuboids) {
                         if(cube != null) {
                             cube.renderCuboid(matrices.peek(), vertices, light, overlay, red, green, blue, alpha);
@@ -350,7 +350,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             try {
                 for (EMF_BoxData box :
                         selfModelData.boxes) {
-                    Cuboid cube;
+                    EMFCuboid cube;
 
                     //already figures this out in v1
                     //figures it would match to the invert values fml...
@@ -382,7 +382,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 
                     if (box.textureOffset.length == 2) {
                         //System.out.println("non custom uv box ignoring for now");
-                        cube = new Cuboid(selfModelData,
+                        cube = new EMFCuboid(selfModelData,
                                 box.textureOffset[0],box.textureOffset[1],
                                 coOrds[0],coOrds[1],coOrds[2],
                                 coOrds[3], coOrds[4], coOrds[5],
@@ -390,7 +390,7 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
                                 selfModelData.textureSize[0], selfModelData.textureSize[1]);//selfModelData.invertAxis);
                     } else {
                         //create a custom uv cuboid
-                        cube = new Cuboid(selfModelData,
+                        cube = new EMFCuboid(selfModelData,
                                 box.uvDown, box.uvUp, box.uvNorth,
                                 box.uvSouth, box.uvWest, box.uvEast,
                                 coOrds[0],coOrds[1],coOrds[2],
@@ -454,34 +454,42 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
     @FunctionalInterface
     @Environment(value = EnvType.CLIENT)
     public static interface CuboidConsumer {
-        public void accept(MatrixStack.Entry var1, String var2, int var3, EMF_CustomModelPart.Cuboid var4);
+        public void accept(MatrixStack.Entry var1, String var2, int var3, EMFCuboid var4);
     }
 
     @Environment(value = EnvType.CLIENT)
-    public static class Cuboid {
-        private final EMF_CustomModelPart.Quad[] sides;
-        public final float minX;
-        public final float minY;
-        public final float minZ;
-        public final float maxX;
-        public final float maxY;
-        public final float maxZ;
+    public static class EMFCuboid extends Cuboid{
+//        private final EMF_CustomModelPart.Quad[] sides;
+//        public final float minX;
+//        public final float minY;
+//        public final float minZ;
+//        public final float maxX;
+//        public final float maxY;
+//        public final float maxZ;
 
         //cuboid without custom UVs
-        public Cuboid(EMF_ModelData selfModelData
+        public EMFCuboid(EMF_ModelData selfModelData
                 , float textureU, float textureV,
-                      float cubeX, float cubeY, float cubeZ,
-                      float sizeX, float sizeY, float sizeZ,
-                      float extraX, float extraY, float extraZ,
-                      float textureWidth, float textureHeight) {
+                         float cubeX, float cubeY, float cubeZ,
+                         float sizeX, float sizeY, float sizeZ,
+                         float extraX, float extraY, float extraZ,
+                         float textureWidth, float textureHeight) {
 
-            this.minX = cubeX;
-            this.minY = cubeY;
-            this.minZ = cubeZ;
-            this.maxX = cubeX + sizeX;
-            this.maxY = cubeY + sizeY;
-            this.maxZ = cubeZ + sizeZ;
-            this.sides = new EMF_CustomModelPart.Quad[6];
+            super((int) textureU, (int) textureV,
+             cubeX,  cubeY,  cubeZ,
+             sizeX,  sizeY,  sizeZ,
+             extraX,  extraY,  extraZ,false,
+             textureWidth,  textureHeight);
+
+            CuboidAccessor accessor = (CuboidAccessor) this;
+            accessor.setMinX(cubeX);//this.minX = cubeX;
+            accessor.setMinY(cubeY);//this.minY = cubeY;
+            accessor.setMinZ(cubeZ);//this.minZ = cubeZ;
+            accessor.setMaxX(cubeX + sizeX);//this.maxX = cubeX + sizeX;
+            accessor.setMaxY(cubeY + sizeY);//this.maxY = cubeY + sizeY;
+            accessor.setMaxZ(cubeZ + sizeZ);//this.maxZ = cubeZ + sizeZ;
+            //Quad[] sides = new Quad[6];
+            ArrayList<Quad> sides = new ArrayList<>();
             float cubeX2 = cubeX + sizeX;
             float cubeY2 = cubeY + sizeY;
             float cubeZ2 = cubeZ + sizeZ;
@@ -492,14 +500,14 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             cubeY2 += extraY;
             cubeZ2 += extraZ;
 
-            EMF_CustomModelPart.Vertex vertex = new EMF_CustomModelPart.Vertex(cubeX, cubeY, cubeZ, 0.0f, 0.0f);
-            EMF_CustomModelPart.Vertex vertex2 = new EMF_CustomModelPart.Vertex(cubeX2, cubeY, cubeZ, 0.0f, 8.0f);
-            EMF_CustomModelPart.Vertex vertex3 = new EMF_CustomModelPart.Vertex(cubeX2, cubeY2, cubeZ, 8.0f, 8.0f);
-            EMF_CustomModelPart.Vertex vertex4 = new EMF_CustomModelPart.Vertex(cubeX, cubeY2, cubeZ, 8.0f, 0.0f);
-            EMF_CustomModelPart.Vertex vertex5 = new EMF_CustomModelPart.Vertex(cubeX, cubeY, cubeZ2, 0.0f, 0.0f);
-            EMF_CustomModelPart.Vertex vertex6 = new EMF_CustomModelPart.Vertex(cubeX2, cubeY, cubeZ2, 0.0f, 8.0f);
-            EMF_CustomModelPart.Vertex vertex7 = new EMF_CustomModelPart.Vertex(cubeX2, cubeY2, cubeZ2, 8.0f, 8.0f);
-            EMF_CustomModelPart.Vertex vertex8 = new EMF_CustomModelPart.Vertex(cubeX, cubeY2, cubeZ2, 8.0f, 0.0f);
+            Vertex vertex = new Vertex(cubeX, cubeY, cubeZ, 0.0f, 0.0f);
+            Vertex vertex2 = new Vertex(cubeX2, cubeY, cubeZ, 0.0f, 8.0f);
+            Vertex vertex3 = new Vertex(cubeX2, cubeY2, cubeZ, 8.0f, 8.0f);
+            Vertex vertex4 = new Vertex(cubeX, cubeY2, cubeZ, 8.0f, 0.0f);
+            Vertex vertex5 = new Vertex(cubeX, cubeY, cubeZ2, 0.0f, 0.0f);
+            Vertex vertex6 = new Vertex(cubeX2, cubeY, cubeZ2, 0.0f, 8.0f);
+            Vertex vertex7 = new Vertex(cubeX2, cubeY2, cubeZ2, 8.0f, 8.0f);
+            Vertex vertex8 = new Vertex(cubeX, cubeY2, cubeZ2, 8.0f, 0.0f);
             float j = textureU;
             float k = (float) textureU + sizeZ;
             float l = (float) textureU + sizeZ + sizeX;
@@ -511,54 +519,64 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             float r = (float) textureV + sizeZ + sizeY;
 
             try {
-                this.sides[2] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex6, vertex5, vertex, vertex2}, k, p, l, q, textureWidth, textureHeight, Direction.DOWN);
+               // sides[2] = new Quad(new Vertex[]{vertex6, vertex5, vertex, vertex2}, k, p, l, q, textureWidth, textureHeight,false, Direction.DOWN);
+                sides.add( new Quad(new Vertex[]{vertex6, vertex5, vertex, vertex2}, k, p, l, q, textureWidth, textureHeight,false, Direction.DOWN));
             }catch (Exception e){
                 System.out.println("uv-dwn failed for "+selfModelData.id);
             }
             try {
-                this.sides[3] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex3, vertex4, vertex8, vertex7}, l, q, m, p, textureWidth, textureHeight, Direction.UP);
+                sides.add(  new Quad(new Vertex[]{vertex3, vertex4, vertex8, vertex7}, l, q, m, p, textureWidth, textureHeight,false, Direction.UP));
             }catch (Exception e){
                 System.out.println("uv-up failed for "+selfModelData.id);
             }
             try {
-                this.sides[1] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex, vertex5, vertex8, vertex4}, j, q, k, r, textureWidth, textureHeight, Direction.WEST);
+                sides.add(  new Quad(new Vertex[]{vertex, vertex5, vertex8, vertex4}, j, q, k, r, textureWidth, textureHeight,false, Direction.WEST));
             }catch (Exception e){
                 System.out.println("uv-west failed for "+selfModelData.id);
             }
             try {
-                this.sides[4] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex2, vertex, vertex4, vertex3}, k, q, l, r, textureWidth, textureHeight, Direction.NORTH);
+                sides.add(  new Quad(new Vertex[]{vertex2, vertex, vertex4, vertex3}, k, q, l, r, textureWidth, textureHeight,false, Direction.NORTH));
             }catch (Exception e){
                 System.out.println("uv-nrth failed for "+selfModelData.id);
             }
             try {
-                this.sides[0] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex6, vertex2, vertex3, vertex7}, l, q, n, r, textureWidth, textureHeight, Direction.EAST);
+                sides.add(  new Quad(new Vertex[]{vertex6, vertex2, vertex3, vertex7}, l, q, n, r, textureWidth, textureHeight,false, Direction.EAST));
             }catch (Exception e){
                 System.out.println("uv-east failed for "+selfModelData.id);
             }
             try {
-                this.sides[5] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex5, vertex6, vertex7, vertex8}, n, q, o, r, textureWidth, textureHeight, Direction.SOUTH);
+                sides.add(  new Quad(new Vertex[]{vertex5, vertex6, vertex7, vertex8}, n, q, o, r, textureWidth, textureHeight,false, Direction.SOUTH));
             }catch (Exception e){
                 System.out.println("uv-sth failed for "+selfModelData.id);
             }
-
+            ((CuboidAccessor) this).setSides(sides.toArray(new Quad[0]));
         }
 
+       // private static final Quad blankQuad = new Quad(new Vertex[]{0, 0, 0, 0}, 0, 0, 0, 0, 0, 0,false, Direction.NORTH);
+
         //Cuboid with custom UVs
-        public Cuboid(EMF_ModelData selfModelData,
-                      float[] uvDown, float[] uvUp, float[] uvNorth, float[] uvSouth, float[] uvWest, float[] uvEast,
-                      float cubeX, float cubeY, float cubeZ,
-                      float sizeX, float sizeY, float sizeZ,
-                      float extraX, float extraY, float extraZ,
-                      float textureWidth, float textureHeight) {
+        public EMFCuboid(EMF_ModelData selfModelData,
+                         float[] uvDown, float[] uvUp, float[] uvNorth, float[] uvSouth, float[] uvWest, float[] uvEast,
+                         float cubeX, float cubeY, float cubeZ,
+                         float sizeX, float sizeY, float sizeZ,
+                         float extraX, float extraY, float extraZ,
+                         float textureWidth, float textureHeight) {
 
+            super( 0,  0,
+                    cubeX,  cubeY,  cubeZ,
+                    sizeX,  sizeY,  sizeZ,
+                    extraX,  extraY,  extraZ,false,
+                    textureWidth,  textureHeight);
 
-            this.minX = cubeX;
-            this.minY = cubeY;
-            this.minZ = cubeZ;
-            this.maxX = cubeX + sizeX;
-            this.maxY = cubeY + sizeY;
-            this.maxZ = cubeZ + sizeZ;
-            this.sides = new EMF_CustomModelPart.Quad[6];
+            CuboidAccessor accessor = (CuboidAccessor) this;
+            accessor.setMinX(cubeX);//this.minX = cubeX;
+            accessor.setMinY(cubeY);//this.minY = cubeY;
+            accessor.setMinZ(cubeZ);//this.minZ = cubeZ;
+            accessor.setMaxX(cubeX + sizeX);//this.maxX = cubeX + sizeX;
+            accessor.setMaxY(cubeY + sizeY);//this.maxY = cubeY + sizeY;
+            accessor.setMaxZ(cubeZ + sizeZ);//this.maxZ = cubeZ + sizeZ;
+            //Quad[] sides = new Quad[6];
+            ArrayList<Quad> sides = new ArrayList<>();
 
             float cubeX2 = cubeX + sizeX;
             float cubeY2 = cubeY + sizeY;
@@ -573,14 +591,14 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             cubeZ2 += extraZ;
 
 
-            EMF_CustomModelPart.Vertex vertex = new EMF_CustomModelPart.Vertex(cubeX, cubeY, cubeZ, 0.0f, 0.0f);
-            EMF_CustomModelPart.Vertex vertex2 = new EMF_CustomModelPart.Vertex(cubeX2, cubeY, cubeZ, 0.0f, 8.0f);
-            EMF_CustomModelPart.Vertex vertex3 = new EMF_CustomModelPart.Vertex(cubeX2, cubeY2, cubeZ, 8.0f, 8.0f);
-            EMF_CustomModelPart.Vertex vertex4 = new EMF_CustomModelPart.Vertex(cubeX, cubeY2, cubeZ, 8.0f, 0.0f);
-            EMF_CustomModelPart.Vertex vertex5 = new EMF_CustomModelPart.Vertex(cubeX, cubeY, cubeZ2, 0.0f, 0.0f);
-            EMF_CustomModelPart.Vertex vertex6 = new EMF_CustomModelPart.Vertex(cubeX2, cubeY, cubeZ2, 0.0f, 8.0f);
-            EMF_CustomModelPart.Vertex vertex7 = new EMF_CustomModelPart.Vertex(cubeX2, cubeY2, cubeZ2, 8.0f, 8.0f);
-            EMF_CustomModelPart.Vertex vertex8 = new EMF_CustomModelPart.Vertex(cubeX, cubeY2, cubeZ2, 8.0f, 0.0f);
+            Vertex vertex = new Vertex(cubeX, cubeY, cubeZ, 0.0f, 0.0f);
+            Vertex vertex2 = new Vertex(cubeX2, cubeY, cubeZ, 0.0f, 8.0f);
+            Vertex vertex3 = new Vertex(cubeX2, cubeY2, cubeZ, 8.0f, 8.0f);
+            Vertex vertex4 = new Vertex(cubeX, cubeY2, cubeZ, 8.0f, 0.0f);
+            Vertex vertex5 = new Vertex(cubeX, cubeY, cubeZ2, 0.0f, 0.0f);
+            Vertex vertex6 = new Vertex(cubeX2, cubeY, cubeZ2, 0.0f, 8.0f);
+            Vertex vertex7 = new Vertex(cubeX2, cubeY2, cubeZ2, 8.0f, 8.0f);
+            Vertex vertex8 = new Vertex(cubeX, cubeY2, cubeZ2, 8.0f, 0.0f);
 
             //altered custom uv quads see working out below
             //probably needs to be adjusted but thats later me problem
@@ -591,41 +609,41 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             // 1 2
             // 4 3
             try {
-                this.sides[2] = new Quad(new Vertex[]{vertex, vertex2, vertex6, vertex5},//actually up
-                        uvUp[0], uvUp[1], uvUp[2], uvUp[3], textureWidth, textureHeight,  Direction.DOWN);
+                sides.add( new Quad(new Vertex[]{vertex, vertex2, vertex6, vertex5},uvUp[0], uvUp[1], uvUp[2], uvUp[3], textureWidth, textureHeight,false,  Direction.DOWN));
             }catch (Exception e){
                 System.out.println("uv-up failed for "+selfModelData.id);
             }
             try {
-                this.sides[3] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex8, vertex7, vertex3, vertex4},//actually down
-                        uvDown[0], uvDown[1], uvDown[2], uvDown[3], textureWidth, textureHeight,  Direction.UP);
+                sides.add( new Quad(new Vertex[]{vertex8, vertex7, vertex3, vertex4},//actually down
+                        uvDown[0], uvDown[1], uvDown[2], uvDown[3], textureWidth, textureHeight, false, Direction.UP));
             }catch (Exception e){
                 System.out.println("uv-down failed for "+selfModelData.id);
             }
             try {
-                this.sides[1] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex6, vertex2, vertex3, vertex7},
-                        uvWest[0], uvWest[1], uvWest[2], uvWest[3], textureWidth, textureHeight,  Direction.EAST);
+                sides.add( new Quad(new Vertex[]{vertex6, vertex2, vertex3, vertex7},
+                        uvWest[0], uvWest[1], uvWest[2], uvWest[3], textureWidth, textureHeight,false,  Direction.EAST));
             }catch (Exception e){
                 System.out.println("uv-west failed for "+selfModelData.id);
             }
             try {
-                this.sides[4] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex2, vertex, vertex4, vertex3},
-                        uvNorth[0], uvNorth[1], uvNorth[2], uvNorth[3], textureWidth, textureHeight,  Direction.NORTH);
+                sides.add( new Quad(new Vertex[]{vertex2, vertex, vertex4, vertex3},
+                        uvNorth[0], uvNorth[1], uvNorth[2], uvNorth[3], textureWidth, textureHeight,false, Direction.NORTH));
             }catch (Exception e){
                     System.out.println("uv-north failed for "+selfModelData.id);
                 }
             try {
-                this.sides[0] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex, vertex5, vertex8, vertex4},
-                        uvEast[0], uvEast[1], uvEast[2], uvEast[3], textureWidth, textureHeight, Direction.WEST);
+                sides.add( new Quad(new Vertex[]{vertex, vertex5, vertex8, vertex4},
+                        uvEast[0], uvEast[1], uvEast[2], uvEast[3], textureWidth, textureHeight,false, Direction.WEST));
             }catch (Exception e){
                 System.out.println("uv-east failed for "+selfModelData.id);
             }
             try {
-                this.sides[5] = new EMF_CustomModelPart.Quad(new EMF_CustomModelPart.Vertex[]{vertex5, vertex6, vertex7, vertex8},
-                        uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3], textureWidth, textureHeight, Direction.SOUTH);
+                sides.add( new Quad(new Vertex[]{vertex5, vertex6, vertex7, vertex8},
+                        uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3], textureWidth, textureHeight,false,Direction.SOUTH));
             }catch (Exception e){
                 System.out.println("uv-south failed for "+selfModelData.id);
             }
+            ((CuboidAccessor) this).setSides(sides.toArray(new Quad[0]));
 
 
             //looks like this next block calculates model box uvs
@@ -659,104 +677,104 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
         }
 
 
-        public void renderCuboid(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
+//        public void renderCuboid(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
+////            Matrix4f matrix4f = entry.getPositionMatrix();
+////            Matrix3f matrix3f = entry.getNormalMatrix();
+////            for (EMF_CustomModelPart.Quad quad : this.sides) {
+////                Vector3f vec3f = quad.direction.copy();
+////                vec3f.transform(matrix3f);
+////                float f = vec3f.x();
+////                float g = vec3f.y();
+////                float h = vec3f.z();
+////                for (EMF_CustomModelPart.Vertex vertex : quad.vertices) {
+////                    float i = vertex.pos.x() / 16.0f;
+////                    float j = vertex.pos.y() / 16.0f;
+////                    float k = vertex.pos.z() / 16.0f;
+////                    Vector4f vector4f = new Vector4f(i, j, k, 1.0f);
+////                    vector4f.transform(matrix4f);
+////                    vertexConsumer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.u, vertex.v, overlay, light, f, g, h);
+////                }
+////            }
+//
+//
 //            Matrix4f matrix4f = entry.getPositionMatrix();
 //            Matrix3f matrix3f = entry.getNormalMatrix();
-//            for (EMF_CustomModelPart.Quad quad : this.sides) {
-//                Vector3f vec3f = quad.direction.copy();
-//                vec3f.transform(matrix3f);
-//                float f = vec3f.x();
-//                float g = vec3f.y();
-//                float h = vec3f.z();
-//                for (EMF_CustomModelPart.Vertex vertex : quad.vertices) {
-//                    float i = vertex.pos.x() / 16.0f;
-//                    float j = vertex.pos.y() / 16.0f;
-//                    float k = vertex.pos.z() / 16.0f;
-//                    Vector4f vector4f = new Vector4f(i, j, k, 1.0f);
-//                    vector4f.transform(matrix4f);
-//                    vertexConsumer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.u, vertex.v, overlay, light, f, g, h);
+//            EMF_CustomModelPart.Quad[] var11 = ((CuboidAccessor)this).getSides();
+//            int var12 = var11.length;
+//
+//            for(int ij = 0; ij < var12; ++ij) {
+//                EMF_CustomModelPart.Quad quad = var11[ij];
+//                if (quad != null) {
+//                    Vector3f vector3f = matrix3f.transform(new Vector3f(quad.direction));
+//                    float f = vector3f.x();
+//                    float g = vector3f.y();
+//                    float h = vector3f.z();
+//                    EMF_CustomModelPart.Vertex[] var19 = quad.vertices;
+//                    int var20 = var19.length;
+//
+//                    for (int ii = 0; ii < var20; ++ii) {
+//                        EMF_CustomModelPart.Vertex vertex = var19[ii];
+//                        float i = vertex.pos.x() / 16.0F;
+//                        float j = vertex.pos.y() / 16.0F;
+//                        float k = vertex.pos.z() / 16.0F;
+//                        Vector4f vector4f = matrix4f.transform(new Vector4f(i, j, k, 1.0F));
+//                        vertexConsumer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.u, vertex.v, overlay, light, f, g, h);
+//                    }
 //                }
 //            }
-
-
-            Matrix4f matrix4f = entry.getPositionMatrix();
-            Matrix3f matrix3f = entry.getNormalMatrix();
-            EMF_CustomModelPart.Quad[] var11 = this.sides;
-            int var12 = var11.length;
-
-            for(int ij = 0; ij < var12; ++ij) {
-                EMF_CustomModelPart.Quad quad = var11[ij];
-                if (quad != null) {
-                    Vector3f vector3f = matrix3f.transform(new Vector3f(quad.direction));
-                    float f = vector3f.x();
-                    float g = vector3f.y();
-                    float h = vector3f.z();
-                    EMF_CustomModelPart.Vertex[] var19 = quad.vertices;
-                    int var20 = var19.length;
-
-                    for (int ii = 0; ii < var20; ++ii) {
-                        EMF_CustomModelPart.Vertex vertex = var19[ii];
-                        float i = vertex.pos.x() / 16.0F;
-                        float j = vertex.pos.y() / 16.0F;
-                        float k = vertex.pos.z() / 16.0F;
-                        Vector4f vector4f = matrix4f.transform(new Vector4f(i, j, k, 1.0F));
-                        vertexConsumer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertex.u, vertex.v, overlay, light, f, g, h);
-                    }
-                }
-            }
-        }
+//        }
     }
 
-    @Environment(value = EnvType.CLIENT)
-    static class Vertex {
-        public final Vector3f pos;
-        public final float u;
-        public final float v;
+//    @Environment(value = EnvType.CLIENT)
+//    static class Vertex {
+//        public final Vector3f pos;
+//        public final float u;
+//        public final float v;
+//
+//        public Vertex(float x, float y, float z, float u, float v) {
+//            this(new Vector3f(x, y, z), u, v);
+//        }
+//
+//        public EMF_CustomModelPart.Vertex remap(float u, float v) {
+//            return new EMF_CustomModelPart.Vertex(this.pos, u, v);
+//        }
+//
+//        public Vertex(Vector3f pos, float u, float v) {
+//            this.pos = pos;
+//            this.u = u;
+//            this.v = v;
+//        }
+//    }
 
-        public Vertex(float x, float y, float z, float u, float v) {
-            this(new Vector3f(x, y, z), u, v);
-        }
-
-        public EMF_CustomModelPart.Vertex remap(float u, float v) {
-            return new EMF_CustomModelPart.Vertex(this.pos, u, v);
-        }
-
-        public Vertex(Vector3f pos, float u, float v) {
-            this.pos = pos;
-            this.u = u;
-            this.v = v;
-        }
-    }
-
-    @Environment(value = EnvType.CLIENT)
-    static class Quad {
-        public final EMF_CustomModelPart.Vertex[] vertices;
-        public final Vector3f direction;
-
-        public Quad(EMF_CustomModelPart.Vertex[] vertices, float u1, float v1, float u2, float v2, float squishU, float squishV, Direction direction) {
-
-
-
-
-            this.vertices = vertices;
-            float f = 0.0f / squishU;
-            float g = 0.0f / squishV;
-            vertices[0] = vertices[0].remap(u2 / squishU - f, v1 / squishV + g);
-            vertices[1] = vertices[1].remap(u1 / squishU + f, v1 / squishV + g);
-            vertices[2] = vertices[2].remap(u1 / squishU + f, v2 / squishV - g);
-            vertices[3] = vertices[3].remap(u2 / squishU - f, v2 / squishV - g);
-
-
-            this.direction = direction.getUnitVector();
-            //todo check this
-//            if (mirrorUV[0]) {
-//                this.direction.mul(-1.0f, 1.0f, 1.0f);
-//            }
-//            if (mirrorUV[1]) {
-//                this.direction.mul(1.0f, -1.0f, 1.0f);
-//            }
-        }
-    }
+//    @Environment(value = EnvType.CLIENT)
+//    static class Quad {
+//        public final EMF_CustomModelPart.Vertex[] vertices;
+//        public final Vector3f direction;
+//
+//        public Quad(EMF_CustomModelPart.Vertex[] vertices, float u1, float v1, float u2, float v2, float squishU, float squishV, Direction direction) {
+//
+//
+//
+//
+//            this.vertices = vertices;
+//            float f = 0.0f / squishU;
+//            float g = 0.0f / squishV;
+//            vertices[0] = vertices[0].remap(u2 / squishU - f, v1 / squishV + g);
+//            vertices[1] = vertices[1].remap(u1 / squishU + f, v1 / squishV + g);
+//            vertices[2] = vertices[2].remap(u1 / squishU + f, v2 / squishV - g);
+//            vertices[3] = vertices[3].remap(u2 / squishU - f, v2 / squishV - g);
+//
+//
+//            this.direction = direction.getUnitVector();
+//            //todo check this
+////            if (mirrorUV[0]) {
+////                this.direction.mul(-1.0f, 1.0f, 1.0f);
+////            }
+////            if (mirrorUV[1]) {
+////                this.direction.mul(1.0f, -1.0f, 1.0f);
+////            }
+//        }
+//    }
 
     public Object2ReferenceOpenHashMap<String,EMF_CustomModelPart<T>> getAllParts(){
         Object2ReferenceOpenHashMap<String,EMF_CustomModelPart<T>> list = new Object2ReferenceOpenHashMap<String,EMF_CustomModelPart<T>>();

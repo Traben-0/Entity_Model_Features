@@ -248,7 +248,19 @@ class AnimationCalculation {
         }
         UUID id = entity0.getUuid();
         //if we haven't already calculated a result this frame get another
-        if (animationProgress0 >= prevResultsTick.getFloat(id) +1){//TODO 1 to be replace by interpolation setting
+        double interpolationLength = prevInterp.getOrDefault(id,1);
+
+
+
+        if (animationProgress0 >= prevResultsTick.getFloat(id) +interpolationLength){//TODO 1 to be replace by interpolation setting
+            if (getEntity() != null && MinecraftClient.getInstance().player != null) {
+                double val =(getEntity().distanceTo(MinecraftClient.getInstance().player )- 24 );
+                distances seem wrong check them
+                prevInterp.put(id, 1 + (val> 0 ? val  : 0 ));
+            } else {
+                prevInterp.put(id, 1);
+            }
+
             entity = entity0;
             limbAngle = limbAngle0;
             limbDistance = limbDistance0;
@@ -262,12 +274,13 @@ class AnimationCalculation {
             prevPrevResults.put(id,oldResult);
             prevResults.put(id,result);
             return oldResult;
-        }else if(animationProgress0 < prevResultsTick.getFloat(id) -100){//TODO possibly tie 100 to interp setting it must always be larger
+
+        }else if(animationProgress0 < prevResultsTick.getFloat(id) -100-interpolationLength){//TODO possibly tie 100 to interp setting it must always be larger
             //this is required as animation progress resets with the entity entering render distance
             //todo possibly use world time ticks instead ??
             prevResultsTick.put(id,-100);
         }else if(prevPrevResults.containsKey(id)){
-            float delta = (animationProgress0 - prevResultsTick.getFloat(id) ) / 1;//TODO 1 to be replace by interpolation setting
+            float delta = (float) ((animationProgress0 - prevResultsTick.getFloat(id) ) / interpolationLength);//TODO 1 to be replace by interpolation setting
             return MathHelper.lerp(delta,prevPrevResults.getDouble(id), prevResults.getDouble(id));
         }
         return prevResults.getDouble(id);
@@ -279,6 +292,7 @@ class AnimationCalculation {
     public float getLastResultTick() {
         return getEntity() != null ? 0 : prevResultsTick.getFloat(getEntity().getUuid());
     }
+    private Object2DoubleOpenHashMap<UUID> prevInterp = new Object2DoubleOpenHashMap<>();
     private Object2DoubleOpenHashMap<UUID> prevPrevResults = new Object2DoubleOpenHashMap<>();
     private Object2DoubleOpenHashMap<UUID> prevResults = new Object2DoubleOpenHashMap<>();
     private Object2FloatOpenHashMap<UUID> prevResultsTick = new Object2FloatOpenHashMap<>();
