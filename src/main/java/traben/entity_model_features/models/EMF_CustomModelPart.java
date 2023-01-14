@@ -342,9 +342,18 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             }
             children.put(sub.id, new EMF_CustomModelPart<T>(this,parentNumber + 1, sub, hold,sendToFirstChild,null,this.thisModel));
         }
-
+        boolean emptyChildren = true;
+        for (EMF_CustomModelPart<?> child:
+             children.values()) {
+            if(!child.isEmptyPart){
+                emptyChildren = false;
+                break;
+            }
+        }
+        isEmptyPart = cuboids.isEmpty() && emptyChildren;
     }
 
+    public boolean isEmptyPart = false;
     private void createCuboidsFromBoxDataV2(boolean invX, boolean invY, boolean invZ, boolean parentZero) {
         if (selfModelData.boxes.length > 0) {
             try {

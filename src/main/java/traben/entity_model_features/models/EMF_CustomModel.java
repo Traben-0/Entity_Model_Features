@@ -30,7 +30,7 @@ import java.util.*;
 public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements ModelWithHat, ModelWithWaterPatch, ModelWithArms, ModelWithHead {
 
     private final EMF_JemData jemData;
-    private final Object2ObjectOpenHashMap<String, EMF_CustomModelPart<T>> childrenMap = new Object2ObjectOpenHashMap<>();
+    public final Object2ObjectOpenHashMap<String, EMF_CustomModelPart<T>> childrenMap = new Object2ObjectOpenHashMap<>();
     private final Object2ObjectOpenHashMap<String,AnimationCalculation> animationKeyToCalculatorObject = new Object2ObjectOpenHashMap<>();
 
 

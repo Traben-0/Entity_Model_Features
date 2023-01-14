@@ -2,6 +2,7 @@ package traben.entity_model_features.mixin.renderers;
 
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -22,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import traben.entity_model_features.EMFData;
+import traben.entity_model_features.models.EMFCustomBipedModel;
 import traben.entity_model_features.models.EMF_CustomModel;
 import traben.entity_model_features.models.features.EMFArmorFeatureRenderer;
 
@@ -99,27 +101,40 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                 if (emfData.JEMPATH_CustomModel.get(typeHash) != null) {
 
                     //might cause compat issues
-                    EMF_CustomModel<LivingEntity> emf = emfData.JEMPATH_CustomModel.get(typeHash);
+                    EMF_CustomModel<T> emf = (EMF_CustomModel<T>) emfData.JEMPATH_CustomModel.get(typeHash);
                     emf$originalModel = this.model;
-                    emf$newModel = (M)emf;
-
-                    for (FeatureRenderer<?,?> feature:
-                         features) {
-                        if(feature instanceof ArmorFeatureRenderer<?,?,?>){
-                            features.remove(feature);
-                            EMF_CustomModel<?> inner = emf.getArmourModel(true);
-                            EMF_CustomModel<?> outer = emf.getArmourModel(false);
-                            if(inner != null && outer != null) {
-                                features.add(new EMFArmorFeatureRenderer<T, M>(this, inner, outer));
-                            }
-                            break;
-                        }
+                    if(this.model instanceof BipedEntityModel<?>){
+                        EMFCustomBipedModel<T> biped = new EMFCustomBipedModel<>(BipedEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
+                        biped.setEMFModel(emf);
+                        emf$newModel = (M) biped;
+                    }else{
+                        emf$newModel = (M)emf;
                     }
+
+
+
+//                    for (FeatureRenderer<?,?> feature:
+//                         features) {
+//                        if(feature instanceof ArmorFeatureRenderer<?,?,?>){
+//                            features.remove(feature);
+//                            EMF_CustomModel<?> inner = emf.getArmourModel(true);
+//                            EMF_CustomModel<?> outer = emf.getArmourModel(false);
+//                            if(inner != null && outer != null) {
+//                                features.add(new EMFArmorFeatureRenderer<T, M>(this, inner, outer));
+//                            }
+//                            break;
+//                        }
+//                    }
                 }
             }
         }
         if(emf$newModel != null){
-            ((EMF_CustomModel<?>)emf$newModel).currentVertexProvider = vertexConsumerProvider;
+            if(emf$newModel instanceof EMFCustomBipedModel<?>){
+                ((EMFCustomBipedModel<?>)emf$newModel).thisEMFModel.currentVertexProvider = vertexConsumerProvider;
+            }else{
+                ((EMF_CustomModel<?>)emf$newModel).currentVertexProvider = vertexConsumerProvider;
+            }
+
             this.model =  emf$newModel;
         }
     }
