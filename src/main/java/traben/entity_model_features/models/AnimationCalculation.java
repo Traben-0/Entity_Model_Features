@@ -16,8 +16,10 @@ import org.mariuszgromada.math.mxparser.Constant;
 import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.Function;
 import org.mariuszgromada.math.mxparser.mXparser;
+import traben.entity_model_features.EMFData;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -219,6 +221,7 @@ class AnimationCalculation {
     //private final String expressionString;
     AnimationCalculation(EMF_CustomModel<?> parent,EMF_CustomModelPart<?> part, AnimVar varToChange,String animKey,String initialExpression) {
         //expressionString = ;
+        prevInterp.defaultReturnValue(EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
         this.animKey = animKey;
         this.parentModel = parent;
         this.varToChange = varToChange;
@@ -228,6 +231,7 @@ class AnimationCalculation {
     }
 
     AnimationCalculation(EMF_CustomModel<?> parent,ModelPart part, AnimVar varToChange,String animKey,String initialExpression) {
+        prevInterp.defaultReturnValue(EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
         //expressionString = ;
         this.animKey = animKey;
         this.parentModel = parent;
@@ -247,18 +251,25 @@ class AnimationCalculation {
             return 0;
         }
         UUID id = entity0.getUuid();
+
         //if we haven't already calculated a result this frame get another
-        double interpolationLength = prevInterp.getOrDefault(id,1);
+
+        double interpolationLength = prevInterp.getDouble(id);//todo 1 here is minimum calculation frequency, assign config here
 
 
 
-        if (animationProgress0 >= prevResultsTick.getFloat(id) +interpolationLength){//TODO 1 to be replace by interpolation setting
+        if (animationProgress0 >= prevResultsTick.getFloat(id) +interpolationLength){
+
+            //vary interpolation length by distance from client
             if (getEntity() != null && MinecraftClient.getInstance().player != null) {
-                double val =(getEntity().distanceTo(MinecraftClient.getInstance().player )- 24 );
-                distances seem wrong check them
-                prevInterp.put(id, 1 + (val> 0 ? val  : 0 ));
+                double val =((entity0.distanceTo(MinecraftClient.getInstance().player ) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff)
+                        / EMFData.getInstance().getConfig().animationRateDistanceDropOffRate );// LOWER == lower quality
+                //if((new Random()).nextInt(400) == 1)
+                   // System.out.println("val="+val);
+                //distances seem wrong check them
+                prevInterp.put(id, EMFData.getInstance().getConfig().minimunAnimationCalculationRate + (val> 0 ? val  : 0 ));
             } else {
-                prevInterp.put(id, 1);
+                prevInterp.put(id, EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
             }
 
             entity = entity0;
@@ -275,12 +286,12 @@ class AnimationCalculation {
             prevResults.put(id,result);
             return oldResult;
 
-        }else if(animationProgress0 < prevResultsTick.getFloat(id) -100-interpolationLength){//TODO possibly tie 100 to interp setting it must always be larger
+        }else if(animationProgress0 < prevResultsTick.getFloat(id) -100-interpolationLength){
             //this is required as animation progress resets with the entity entering render distance
             //todo possibly use world time ticks instead ??
             prevResultsTick.put(id,-100);
         }else if(prevPrevResults.containsKey(id)){
-            float delta = (float) ((animationProgress0 - prevResultsTick.getFloat(id) ) / interpolationLength);//TODO 1 to be replace by interpolation setting
+            float delta = (float) ((animationProgress0 - prevResultsTick.getFloat(id) ) / interpolationLength);
             return MathHelper.lerp(delta,prevPrevResults.getDouble(id), prevResults.getDouble(id));
         }
         return prevResults.getDouble(id);
@@ -292,10 +303,10 @@ class AnimationCalculation {
     public float getLastResultTick() {
         return getEntity() != null ? 0 : prevResultsTick.getFloat(getEntity().getUuid());
     }
-    private Object2DoubleOpenHashMap<UUID> prevInterp = new Object2DoubleOpenHashMap<>();
+    private  Object2DoubleOpenHashMap<UUID> prevInterp = new Object2DoubleOpenHashMap<>();
     private Object2DoubleOpenHashMap<UUID> prevPrevResults = new Object2DoubleOpenHashMap<>();
     private Object2DoubleOpenHashMap<UUID> prevResults = new Object2DoubleOpenHashMap<>();
-    private Object2FloatOpenHashMap<UUID> prevResultsTick = new Object2FloatOpenHashMap<>();
+    private  Object2FloatOpenHashMap<UUID> prevResultsTick = new Object2FloatOpenHashMap<>();
     //private double lastResult = 0;
    // private float lastResultTick = -1000;
 

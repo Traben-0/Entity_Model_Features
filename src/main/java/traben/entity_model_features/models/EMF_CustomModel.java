@@ -17,6 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
+import traben.entity_model_features.mixin.accessor.AnimalModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
@@ -228,32 +229,17 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
 
     @Override
     public void render( MatrixStack herematrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+        herematrices.push();
+        if (this.child && vanillaModel instanceof AnimalModel animal) {
+            float f = 1.0F / ((AnimalModelAccessor)animal).getInvertedChildBodyScale();
+            herematrices.scale(f, f, f);
+            herematrices.translate(0.0F, ((AnimalModelAccessor)animal).getChildBodyYOffset() / 16.0F, 0.0F);
+        }
         for (String key:
                 childrenMap.keySet()) {
             herematrices.push();
             //herematrices.translate(0,24/16f,0);
             EMF_CustomModelPart<T> emfPart = childrenMap.get(key);
-//            if (emfPart.selfModelData.part != null
-//                   // && emfPart.selfModelData.part.equals("body")
-//                    && vanillaParts.containsKey(emfPart.selfModelData.part)){
-//                ModelPart vanilla = vanillaParts.get(emfPart.selfModelData.part);
-//                if(vanilla != null){
-//                    ModelTransform defaults =vanilla.getDefaultTransform();
-//                    float roll = defaults.roll;
-//                    float yaw = defaults.yaw;
-//                    float pitch = defaults.pitch;
-//                    float pivotX = defaults.pivotX;
-//                    float pivotY = defaults.pivotY;
-//                    float pivotZ = defaults.pivotZ;
-//
-//                    herematrices.translate(pivotX / 16.0F, pivotY / 16.0F, pivotZ / 16.0F);
-//                    herematrices.multiply((new Quaternionf()).rotationZYX(roll, yaw, pitch));
-//                }else{
-//                    System.out.println("vanilla part ["+emfPart.selfModelData.part+"] was null in vanilla parts map");
-//                }
-//
-//
-//            }
             if(emfPart.selfModelData.attach
                     && emfPart.selfModelData.translate[0] == 0
                     && emfPart.selfModelData.translate[1] == 0
@@ -268,9 +254,9 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
             }else {
                 emfPart.render(herematrices, vertices, light, overlay, red, green, blue, alpha);
             }
-           // childrenMap.get(key).render(  herematrices,  vertices,  light,  overlay);
             herematrices.pop();
         }
+        herematrices.pop();
     }
 
 
@@ -291,10 +277,16 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
        // super.animateModel(entity, limbAngle, limbDistance, tickDelta);
         this.tickDelta = tickDelta;
         vanillaModel.animateModel(entity,limbAngle,limbDistance,tickDelta);
-        handSwingProgress =  ((LivingEntity)entity).getHandSwingProgress(tickDelta);
-        riding = entity.hasVehicle();
-        child = ((LivingEntity)entity).isBaby();
-        sneaking = entity.isSneaking();
+        vanillaModel.child = child;
+        vanillaModel.handSwingProgress = handSwingProgress;
+        vanillaModel.riding=riding;
+        if(vanillaModel instanceof BipedEntityModel biped){
+            biped.sneaking = sneaking;
+        }
+//        handSwingProgress =  ((LivingEntity)entity).getHandSwingProgress(tickDelta);
+//        riding = entity.hasVehicle();
+//        child = ((LivingEntity)entity).isBaby();
+//        sneaking = entity.isSneaking();
     }
     float tickDelta = Float.NaN;
     boolean sneaking = false;

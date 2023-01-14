@@ -2,7 +2,6 @@ package traben.entity_model_features.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.resource.Resource;
@@ -17,7 +16,6 @@ import java.io.*;
 import java.util.Optional;
 import java.util.Properties;
 
-import static traben.entity_model_features.Entity_model_featuresClient.EMFConfigData;
 
 public class EMFUtils {
 
@@ -102,21 +100,6 @@ public class EMFUtils {
         return props;
     }
 
-    public static void EMF_saveConfig() {
-        File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        if (!config.getParentFile().exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            config.getParentFile().mkdir();
-        }
-        try {
-            FileWriter fileWriter = new FileWriter(config);
-            fileWriter.write(gson.toJson(EMFConfigData));
-            fileWriter.close();
-        } catch (IOException e) {
-            EMF_modMessage("Config could not be saved", false);
-        }
-    }
     @Nullable
     public static EMF_JemData EMF_readJemData(String pathOfJem){
         //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
