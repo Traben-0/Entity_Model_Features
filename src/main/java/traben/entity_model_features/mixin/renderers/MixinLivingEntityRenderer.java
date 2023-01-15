@@ -1,9 +1,6 @@
 package traben.entity_model_features.mixin.renderers;
 
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.model.Dilation;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -11,23 +8,25 @@ import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
+import net.minecraft.client.render.entity.feature.SaddleFeatureRenderer;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.Saddleable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.models.EMFCustomBipedModel;
-import traben.entity_model_features.models.EMF_CustomModel;
+import traben.entity_model_features.mixin.SaddleFeatureRendererAccessor;
+import traben.entity_model_features.models.EMFArmorableModel;
+import traben.entity_model_features.models.EMFCustomModel;
+import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.features.EMFArmorFeatureRenderer;
+import traben.entity_model_features.models.vanilla_model_children.EMFCustomBipedModel;
 
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -88,9 +87,10 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("HEAD"))
     private void emf$InjectModel(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        if(!emf$checked) {
-            emf$checked = true;
+        if(!EMFData.getInstance().alreadyCalculatedForRenderer.get(hashCode())) {
+
             EMFData emfData = EMFData.getInstance();
+            emfData.alreadyCalculatedForRenderer.put(hashCode(), true);
             int typeHash = this.hashCode(); // livingEntity.getType().hashCode();
 
             if (!emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
@@ -99,56 +99,56 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             }
             if (emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
                 if (emfData.JEMPATH_CustomModel.get(typeHash) != null) {
-
-                    //might cause compat issues
-                    EMF_CustomModel<T> emf = (EMF_CustomModel<T>) emfData.JEMPATH_CustomModel.get(typeHash);
                     emf$originalModel = this.model;
-                    if(this.model instanceof BipedEntityModel<?>){
-                        EMFCustomBipedModel<T> biped = new EMFCustomBipedModel<>(BipedEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
-                        biped.setEMFModel(emf);
-                        emf$newModel = (M) biped;
-                    }else{
-                        emf$newModel = (M)emf;
+                    EMF_EntityModel<T> emfSubmodel = (EMF_EntityModel<T>) emfData.JEMPATH_CustomModel.get(typeHash);
+                    /*EMFCustomModel<T>*/ emf$newModel = EMFData.getInstance().getCustomModelForRenderer(emfSubmodel,this.model);
+
+                    if (emf$newModel instanceof EMFArmorableModel armored) {
+                        for (FeatureRenderer<?, ?> feature :
+                                features) {
+                            if (feature instanceof ArmorFeatureRenderer<?, ?, ?>) {
+                                EMF_EntityModel<?> inner = armored.getArmourModel(true);
+                                EMF_EntityModel<?> outer = armored.getArmourModel(false);
+                                if (inner != null && outer != null) {
+                                    features.remove(feature);
+                                    features.add(new EMFArmorFeatureRenderer<T, M>(this, inner, outer));
+                                }
+                                break;
+                            }
+                        }
                     }
-
-
-
-//                    for (FeatureRenderer<?,?> feature:
-//                         features) {
-//                        if(feature instanceof ArmorFeatureRenderer<?,?,?>){
-//                            features.remove(feature);
-//                            EMF_CustomModel<?> inner = emf.getArmourModel(true);
-//                            EMF_CustomModel<?> outer = emf.getArmourModel(false);
-//                            if(inner != null && outer != null) {
-//                                features.add(new EMFArmorFeatureRenderer<T, M>(this, inner, outer));
-//                            }
-//                            break;
-//                        }
-//                    }
+                    if(livingEntity instanceof Saddleable){
+                        for (FeatureRenderer<?, ?> feature :
+                                features) {
+                            if (feature instanceof SaddleFeatureRenderer saddle) {
+                                ((SaddleFeatureRendererAccessor<T,M>)saddle).setModel(emf$newModel);
+                                break;
+                            }
+                        }
+                    }
+                    this.model =  emf$newModel;
                 }
             }
-        }
-        if(emf$newModel != null){
-            if(emf$newModel instanceof EMFCustomBipedModel<?>){
-                ((EMFCustomBipedModel<?>)emf$newModel).thisEMFModel.currentVertexProvider = vertexConsumerProvider;
-            }else{
-                ((EMF_CustomModel<?>)emf$newModel).currentVertexProvider = vertexConsumerProvider;
+        }else if (emf$newModel != null) {
+            ((EMFCustomModel<?>) emf$newModel).getThisEMFModel().currentVertexProvider = vertexConsumerProvider;
+            if (((EMFCustomModel<?>) emf$newModel).doesThisModelNeedToBeReset()) {
+                this.model = emf$newModel;
             }
-
-            this.model =  emf$newModel;
         }
+
     }
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("TAIL"))
     private void emf$ReturnModel(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        if(emf$originalModel != null){
+
+        if(emf$newModel != null && ((EMFCustomModel<?>)emf$newModel).doesThisModelNeedToBeReset()){
             this.model =  emf$originalModel;
         }
     }
 
 
     private M emf$originalModel = null;
+    //must be instance of EMFCustomModel<T>
     private M emf$newModel = null;
-    private boolean emf$checked = false;
 
 //    @Inject(method = "getModel", at = @At("RETURN"), cancellable = true)
 //    private void injected(CallbackInfoReturnable<M> cir) {

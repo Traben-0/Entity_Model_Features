@@ -19,7 +19,6 @@ import org.mariuszgromada.math.mxparser.mXparser;
 import traben.entity_model_features.EMFData;
 
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -209,17 +208,17 @@ class AnimationCalculation {
     float headPitch=0;
     float tickDelta=0;
 
-    private  EMF_CustomModelPart<?> modelPart = null;
+    private EMF_ModelPart modelPart = null;
     private  ModelPart vanillaModelPart = null;
 
-    private final EMF_CustomModel<?> parentModel;
+    private final EMF_EntityModel<?> parentModel;
     private final AnimVar varToChange;
     private final String animKey;
 
     private final ObjectOpenHashSet<String> animKeysThatAreNeeded = new ObjectOpenHashSet<>();
 
     //private final String expressionString;
-    AnimationCalculation(EMF_CustomModel<?> parent,EMF_CustomModelPart<?> part, AnimVar varToChange,String animKey,String initialExpression) {
+    AnimationCalculation(EMF_EntityModel<?> parent, EMF_ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
         //expressionString = ;
         prevInterp.defaultReturnValue(EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
         this.animKey = animKey;
@@ -230,7 +229,7 @@ class AnimationCalculation {
         addRequiredLogic(initialExpression);
     }
 
-    AnimationCalculation(EMF_CustomModel<?> parent,ModelPart part, AnimVar varToChange,String animKey,String initialExpression) {
+    AnimationCalculation(EMF_EntityModel<?> parent, ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
         prevInterp.defaultReturnValue(EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
         //expressionString = ;
         this.animKey = animKey;
@@ -681,7 +680,7 @@ class AnimationCalculation {
                                // System.out.println("get other key value returns ="+ otherKey+" = " + returned);
                             //}
 
-                            EMF_CustomModelPart<?> partParent = modelPart == null? null : modelPart.parent;
+                            EMF_ModelPart partParent = modelPart == null? null : modelPart.parent;
 
                             return parentModel.getAnimationResultOfKey(partParent
                                     ,otherKey,
@@ -713,7 +712,7 @@ class AnimationCalculation {
                 calculator.addConstants(new Constant(varKeyReplace + " = 0") {
                     @Override
                     public double getConstantValue() {
-                        EMF_CustomModelPart<?> partParent = modelPart == null? null : modelPart.parent;
+                        EMF_ModelPart partParent = modelPart == null? null : modelPart.parent;
 
                         return parentModel.getAnimationResultOfKey(partParent
                                 ,varKey,
@@ -745,7 +744,7 @@ class AnimationCalculation {
                 calculator.addConstants(new Constant(varKeyReplace + " = 0") {
                     @Override
                     public double getConstantValue() {
-                        EMF_CustomModelPart<?> partParent = modelPart == null? null : modelPart.parent;
+                        EMF_ModelPart partParent = modelPart == null? null : modelPart.parent;
 
                         return parentModel.getAnimationResultOfKey(partParent
                                 ,varKey,
@@ -809,7 +808,7 @@ class AnimationCalculation {
         CUSTOM();
 
 
-        public void set(EMF_CustomModelPart<?> part, Double value) {
+        public void set(EMF_ModelPart part, Double value) {
             if (value == null){
                 System.out.println("this model couldn't be set as the calculation returned null: "+part.selfModelData.id+"."+this);
                 return;
@@ -859,10 +858,10 @@ class AnimationCalculation {
                 }
             }
         }
-        public float getFromEMFModel(EMF_CustomModelPart<?> modelPart) {
+        public float getFromEMFModel(EMF_ModelPart modelPart) {
             return getFromEMFModel(modelPart,false);
         }
-        public float getFromEMFModel(EMF_CustomModelPart<?> modelPart, boolean isSibling) {
+        public float getFromEMFModel(EMF_ModelPart modelPart, boolean isSibling) {
             if(modelPart == null){
                 System.out.println("EMF model part was null cannot get its value");
                 return 0;

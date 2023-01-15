@@ -2,13 +2,19 @@ package traben.entity_model_features;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.unimi.dsi.fastutil.ints.Int2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.passive.IronGolemEntity;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.models.EMF_CustomModel;
+import traben.entity_model_features.models.vanilla_model_children.EMFCustomBipedModel;
+import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
+import traben.entity_model_features.models.vanilla_model_children.EMFCustomIronGolemModel;
+import traben.entity_model_features.models.vanilla_model_children.EMFCustomPlayerModel;
+import traben.entity_model_features.models.vanilla_model_children.EMFCustomQuadrapedModel;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.vanilla_part_mapping.VanillaMappings;
 
@@ -28,8 +34,10 @@ public class EMFData {
         }
         return EMFConfigData;
     }
-    public  Int2ObjectOpenHashMap<EMF_CustomModel<LivingEntity>> JEMPATH_CustomModel = new Int2ObjectOpenHashMap<>();
+    public  Int2BooleanOpenHashMap alreadyCalculatedForRenderer = new Int2BooleanOpenHashMap();
+    public  Int2ObjectOpenHashMap<EMF_EntityModel<LivingEntity>> JEMPATH_CustomModel = new Int2ObjectOpenHashMap<>();
     private EMFData(){
+        alreadyCalculatedForRenderer.defaultReturnValue(false);
         getConfig();
     }
 
@@ -85,7 +93,7 @@ public class EMFData {
         }
     }
 
-    public void createEMFModel(String modelJemName, int hashKeyTypicallyEntityType, EntityModel<?> vanillaModel){
+    public<T extends LivingEntity> void createEMFModel(String modelJemName, int hashKeyTypicallyEntityType, EntityModel<T> vanillaModel){
 
         String modelID = "optifine/cem/"+modelJemName+".jem";
         System.out.println("checking "+modelID);
@@ -93,8 +101,8 @@ public class EMFData {
             EMF_JemData jem = EMFUtils.EMF_readJemData(modelID);
             VanillaMappings.VanillaMapper vanillaPartSupplier = VanillaMappings.getVanillaModelPartsMapSupplier(hashKeyTypicallyEntityType,vanillaModel);
             //vanillaPartsByType.put(typeHash,vanillaPartList);
-            EMF_CustomModel<?> model = new EMF_CustomModel<>(jem,modelID,vanillaPartSupplier,vanillaModel);
-            JEMPATH_CustomModel.put(hashKeyTypicallyEntityType, (EMF_CustomModel<LivingEntity>) model);
+            EMF_EntityModel<T> model = new EMF_EntityModel<>(jem,modelID,vanillaPartSupplier,vanillaModel);
+            JEMPATH_CustomModel.put(hashKeyTypicallyEntityType, (EMF_EntityModel<LivingEntity>) model);
             System.out.println("put emfpart in data ="+ model.toString());
 
         }catch(Exception e){
@@ -105,7 +113,27 @@ public class EMFData {
 
     }
 
+    public<T extends LivingEntity, M extends EntityModel<T>> M getCustomModelForRenderer(EMF_EntityModel<T> alreadyBuiltSubmodel,M vanillaModelForInstanceCheck){
+        //figure out whether to send a vanilla child model or a direct EMF custom model
 
+        if(vanillaModelForInstanceCheck instanceof PlayerEntityModel){
+            return (M) new EMFCustomPlayerModel<T>(alreadyBuiltSubmodel);
+        }
+        //this for instance allows vanilla features like non custom armour and hand held items to work for bipeds
+        if(vanillaModelForInstanceCheck instanceof BipedEntityModel){
+            return (M) new EMFCustomBipedModel<T>(alreadyBuiltSubmodel);
+        }
+        if(vanillaModelForInstanceCheck instanceof QuadrupedEntityModel){
+            return (M) new EMFCustomQuadrapedModel<T>(alreadyBuiltSubmodel);
+        }
+        //this for instance allows vanilla features like flower holding to work
+        if(vanillaModelForInstanceCheck instanceof IronGolemEntityModel){
+            return (M) new EMFCustomIronGolemModel<T,IronGolemEntity>(alreadyBuiltSubmodel);
+        }
+
+        return (M) alreadyBuiltSubmodel;
+
+    }
 
 
 

@@ -1,9 +1,7 @@
 package traben.entity_model_features.models;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
@@ -18,7 +16,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.mixin.accessor.AnimalModelAccessor;
-import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 import traben.entity_model_features.utils.EMFUtils;
@@ -27,10 +24,10 @@ import traben.entity_model_features.vanilla_part_mapping.VanillaMappings;
 import java.util.*;
 
 @Environment(value= EnvType.CLIENT)
-public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements ModelWithHat, ModelWithWaterPatch, ModelWithArms, ModelWithHead {
+public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> implements ModelWithHat, ModelWithWaterPatch, ModelWithArms, ModelWithHead, EMFCustomModel<T> {
 
     private final EMF_JemData jemData;
-    public final Object2ObjectOpenHashMap<String, EMF_CustomModelPart<T>> childrenMap = new Object2ObjectOpenHashMap<>();
+    public final Object2ObjectOpenHashMap<String, EMF_ModelPart> childrenMap = new Object2ObjectOpenHashMap<>();
     private final Object2ObjectOpenHashMap<String,AnimationCalculation> animationKeyToCalculatorObject = new Object2ObjectOpenHashMap<>();
 
 
@@ -39,13 +36,13 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
 
    // private final Properties animationPropertiesOfAll;
     final String modelPathIdentifier;
-    final EntityModel<T> vanillaModel;
+    public final EntityModel<T> vanillaModel;
 
     public VertexConsumerProvider currentVertexProvider = null;
 
     public boolean isAnimated = false;
 
-    public EMF_CustomModel(EMF_JemData jem, String modelPath, VanillaMappings.VanillaMapper vanillaPartSupplier,EntityModel<T> vanillaModel){
+    public EMF_EntityModel(EMF_JemData jem, String modelPath, VanillaMappings.VanillaMapper vanillaPartSupplier, EntityModel<T> vanillaModel){
         HashMap<String,ModelPart> vanModelParts = vanillaPartSupplier.getVanillaModelPartsMapFromModel(vanillaModel);
         this.vanillaModel = vanillaModel;
         vanillaModelPartsById = vanModelParts;
@@ -57,7 +54,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
         for (EMF_ModelData sub:
                 jemData.models) {
             ModelPart vanillaPart = sub.part == null? null : vanModelParts.getOrDefault(sub.part, null);
-            childrenMap.put(sub.id, new EMF_CustomModelPart<T>(null, 0, sub, new ArrayList<EMF_ModelData>(), new float[]{}, vanillaPart, this));
+            childrenMap.put(sub.id, new EMF_ModelPart(null, 0, sub, new ArrayList<EMF_ModelData>(), new float[]{}, vanillaPart, this));
 
         }
       //  System.out.println("start anim creation for "+modelPathIdentifier);
@@ -72,10 +69,10 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
     private void preprocessAnimationStrings(){
         ///animation processing/////////////
 
-        Object2ObjectOpenHashMap<String, EMF_CustomModelPart<T>> parts = getAllParts();
+        Object2ObjectOpenHashMap<String, EMF_ModelPart> parts = getAllParts();
         ObjectOpenHashSet<Properties> allProperties = new ObjectOpenHashSet<>() {
         };
-        for (EMF_CustomModelPart<T> part :
+        for (EMF_ModelPart part :
                 parts.values()) {
             if (part.selfModelData.animations.length != 0) {
                 //todo replace 'this' to represent actual model part
@@ -114,7 +111,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
                     //todo custom variable
                     System.out.println("UNKOWN VARIABLE VALUE"+modelVariable +" in "+animKey+" = "+ e);
                 }
-                EMF_CustomModelPart<T> thisPart = parts.get(modelId);
+                EMF_ModelPart thisPart = parts.get(modelId);
                 AnimationCalculation thisCalculator = null;
 
                 if (thisPart != null){
@@ -155,7 +152,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
     }
 
     public double getAnimationResultOfKey(
-            EMF_CustomModelPart<?> parentForCheck,
+            EMF_ModelPart parentForCheck,
             String key,
             Entity entity,
             float limbAngle,
@@ -188,7 +185,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
             String partName = key.split("\\.")[0];
             if(getAllParts().containsKey(partName)){
                 AnimationCalculation.AnimVar variableToGet;
-                EMF_CustomModelPart<T> otherPart = getAllParts().get(partName);
+                EMF_ModelPart otherPart = getAllParts().get(partName);
                 try {
                     variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
                     if(parentForCheck != null && parentForCheck.equals(otherPart.parent)){
@@ -224,8 +221,15 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
     }
 
 
+    @Override
+    public EMF_EntityModel<T> getThisEMFModel() {
+        return this;
+    }
 
-
+    @Override
+    public boolean doesThisModelNeedToBeReset() {
+        return true;
+    }
 
     @Override
     public void render( MatrixStack herematrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
@@ -239,7 +243,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
                 childrenMap.keySet()) {
             herematrices.push();
             //herematrices.translate(0,24/16f,0);
-            EMF_CustomModelPart<T> emfPart = childrenMap.get(key);
+            EMF_ModelPart emfPart = childrenMap.get(key);
             if(emfPart.selfModelData.attach
                     && emfPart.selfModelData.translate[0] == 0
                     && emfPart.selfModelData.translate[1] == 0
@@ -260,9 +264,9 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
     }
 
 
-    public Object2ObjectOpenHashMap<String,EMF_CustomModelPart<T>> getAllParts(){
-        Object2ObjectOpenHashMap<String,EMF_CustomModelPart<T>> list = new Object2ObjectOpenHashMap<String,EMF_CustomModelPart<T>>();
-        for (EMF_CustomModelPart<T> part :
+    public Object2ObjectOpenHashMap<String, EMF_ModelPart> getAllParts(){
+        Object2ObjectOpenHashMap<String, EMF_ModelPart> list = new Object2ObjectOpenHashMap<String, EMF_ModelPart>();
+        for (EMF_ModelPart part :
                 childrenMap.values()) {
             list.put(part.selfModelData.id,part);
             list.putAll(part.getAllParts());
@@ -289,7 +293,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
 //        sneaking = entity.isSneaking();
     }
     float tickDelta = Float.NaN;
-    boolean sneaking = false;
+    public boolean sneaking = false;
 
     @Override
     public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch){//, VanillaMappings.VanillaMapper vanillaPartSupplier,EntityModel<T> vanillaModel){
@@ -346,20 +350,20 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
     }
 
 
-    public void copyStateToEMF(EMF_CustomModel<?> copy) {
+    public void copyStateToEMF(EMF_EntityModel<?> copy) {
         try {
             super.copyStateTo((EntityModel<T>) copy);
         }catch (Exception ignored){}
        // if(copy instanceof EMF_CustomModel<?> emf){
-        Object2ObjectOpenHashMap<String, ? extends EMF_CustomModelPart<?>> copyParts = copy.getAllParts();
-        Object2ObjectOpenHashMap<String, ? extends EMF_CustomModelPart<?>> thisParts = this.getAllParts();
+        Object2ObjectOpenHashMap<String, ? extends EMF_ModelPart> copyParts = copy.getAllParts();
+        Object2ObjectOpenHashMap<String, ? extends EMF_ModelPart> thisParts = this.getAllParts();
         //System.out.println(copyParts);
         //System.out.println(thisParts);
-            for (Map.Entry<String, ? extends EMF_CustomModelPart<?>> entry:
+            for (Map.Entry<String, ? extends EMF_ModelPart> entry:
                  copyParts.entrySet()) {
 
                 if(thisParts.containsKey(entry.getKey())){
-                    EMF_CustomModelPart<?> thisPart = thisParts.get(entry.getKey());
+                    EMF_ModelPart thisPart = thisParts.get(entry.getKey());
                     if(thisPart != null && entry.getValue() != null)
                         entry.getValue().copyTransform(thisPart);
                 }
@@ -370,7 +374,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
 
 
     public void setVisibleToplvl(boolean setTo){
-        for (EMF_CustomModelPart<T> part:
+        for (EMF_ModelPart part:
                 this.childrenMap.values()) {
             part.visible = setTo;
         }
@@ -383,7 +387,7 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
             //System.out.println("matcching:"+name+", "+childrenMap.keySet());
             if(childrenMap.containsKey(name)){
                 //System.out.println("match");
-                EMF_CustomModelPart<?> part = childrenMap.get(name);
+                EMF_ModelPart part = childrenMap.get(name);
 
                 if(part != null)
                     part.visible = setTo;
@@ -391,19 +395,19 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
         }
     }
 
-    public EMF_CustomModel<T> getArmourModel(boolean getInner){
+    public EMF_EntityModel<T> getArmourModel(boolean getInner){
         if(getInner){
             if(innerArmor== null){
                 String path = modelPathIdentifier.replace(".jem", "_armor_inner.jem");
                 EMF_JemData jem = EMFUtils.EMF_readJemData(path);
                 if(jem != null) {
-                    innerArmor = new EMF_CustomModel<>(jem, path, this::supplierCopy, vanillaModel);
+                    innerArmor = new EMF_EntityModel<>(jem, path, this::supplierCopy, vanillaModel);
                     innerArmor.isAnimated = this.isAnimated;
                 }else{
                     String path2 = "optifine/cem/biped_armor_inner.jem";
                     EMF_JemData jem2 = EMFUtils.EMF_readJemData(path2);
                     if(jem2 != null) {
-                        innerArmor = new EMF_CustomModel<>(jem2, path2, this::supplierCopy, vanillaModel);
+                        innerArmor = new EMF_EntityModel<>(jem2, path2, this::supplierCopy, vanillaModel);
                         innerArmor.isAnimated = this.isAnimated;
                     }
                 }
@@ -415,13 +419,13 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
                 String path = modelPathIdentifier.replace(".jem", "_armor_outer.jem");
                 EMF_JemData jem = EMFUtils.EMF_readJemData(path);
                 if(jem != null) {
-                    outerArmor = new EMF_CustomModel<>(jem, path, this::supplierCopy, vanillaModel);
+                    outerArmor = new EMF_EntityModel<>(jem, path, this::supplierCopy, vanillaModel);
                     outerArmor.isAnimated = this.isAnimated;
                 }else{
                     String path2 = "optifine/cem/biped_armor_outer.jem";
                     EMF_JemData jem2 = EMFUtils.EMF_readJemData(path2);
                     if(jem2 != null) {
-                        outerArmor = new EMF_CustomModel<>(jem2, path2, this::supplierCopy, vanillaModel);
+                        outerArmor = new EMF_EntityModel<>(jem2, path2, this::supplierCopy, vanillaModel);
                         outerArmor.isAnimated = this.isAnimated;
                     }
                 }
@@ -435,9 +439,9 @@ public class EMF_CustomModel<T extends Entity> extends EntityModel<T> implements
         return vanillaModelPartsById;
     }
 
-    private EMF_CustomModel<T> innerArmor = null;
+    private EMF_EntityModel<T> innerArmor = null;
 
-    private EMF_CustomModel<T> outerArmor = null;
+    private EMF_EntityModel<T> outerArmor = null;
 
     public interface ModelRenderLayerSupplier{
         RenderLayer getLayer(Identifier id);

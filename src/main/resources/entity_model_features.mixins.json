@@ -5,9 +5,12 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "CuboidAccessor",
+    "IronGolemEntityModelAccessor",
+    "SaddleFeatureRendererAccessor",
     "accessor.AnimalModelAccessor",
     "accessor.LivingEntityRendererAccessor",
-    "accessor.ModelPartAccessor"
+    "accessor.ModelPartAccessor",
+    "accessor.PlayerEntityModelAccessor"
   ],
   "client": [
     "MixinSimpleResourceReload",

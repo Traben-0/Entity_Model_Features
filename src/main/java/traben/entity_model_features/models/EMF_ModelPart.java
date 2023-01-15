@@ -22,19 +22,19 @@ import java.lang.Math;
 import java.util.*;
 
 @Environment(value = EnvType.CLIENT)
-public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
+public class EMF_ModelPart extends ModelPart  {
 
     //todo probably needs parent offset but could be calculated before render
 
 
 
     private final List<EMFCuboid> cuboids = new ArrayList<>();
-    private final Map<String, EMF_CustomModelPart<T>> children = new HashMap<>();
+    private final Map<String, EMF_ModelPart> children = new HashMap<>();
 
 
     public final EMF_ModelData selfModelData;
     public final ArrayList<EMF_ModelData> parentModelData;
-    public final EMF_CustomModelPart<T> parent;
+    public final EMF_ModelPart parent;
 
     public boolean visible_boxes = true;
     public boolean visible = true;
@@ -71,10 +71,10 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
                         }
                     }
                 }
-                Iterator<EMF_CustomModelPart<T>> var9 = this.children.values().iterator();
+                Iterator<EMF_ModelPart> var9 = this.children.values().iterator();
 
                 while(var9.hasNext()) {
-                    EMF_CustomModelPart<T> modelPart = var9.next();
+                    EMF_ModelPart modelPart = var9.next();
                     modelPart.render(matrices, vertices, light, overlay, red, green, blue, alpha);
                 }
 
@@ -185,15 +185,15 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 //            cuboids.add( entry.copyOf());
 //        }
 //    }
-    private final EMF_CustomModel<?> thisModel;
+    private final EMF_EntityModel<?> thisModel;
      final Identifier customTexture;
      public final ModelPart vanillaPart;
-    public EMF_CustomModelPart(EMF_CustomModelPart<T> parent,int parentNumber,
-                               EMF_ModelData EMFmodelData,
-                               ArrayList<EMF_ModelData> parentEMFmodelData,
-                               float[] pivotModifyForParNum1Only,
-                               ModelPart vanillaPartOfThis,
-                               EMF_CustomModel<?> thisModel){//,//float[] parentalTransforms) {
+    public EMF_ModelPart(EMF_ModelPart parent, int parentNumber,
+                         EMF_ModelData EMFmodelData,
+                         ArrayList<EMF_ModelData> parentEMFmodelData,
+                         float[] pivotModifyForParNum1Only,
+                         ModelPart vanillaPartOfThis,
+                         EMF_EntityModel<?> thisModel){//,//float[] parentalTransforms) {
 
         super(new ArrayList<>(), new HashMap<>());
         this.thisModel = thisModel;
@@ -340,10 +340,10 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
             while(children.containsKey(sub.id)){
                 sub.id = sub.id+"-";
             }
-            children.put(sub.id, new EMF_CustomModelPart<T>(this,parentNumber + 1, sub, hold,sendToFirstChild,null,this.thisModel));
+            children.put(sub.id, new EMF_ModelPart(this,parentNumber + 1, sub, hold,sendToFirstChild,null,this.thisModel));
         }
         boolean emptyChildren = true;
-        for (EMF_CustomModelPart<?> child:
+        for (EMF_ModelPart child:
              children.values()) {
             if(!child.isEmptyPart){
                 emptyChildren = false;
@@ -785,9 +785,9 @@ public class EMF_CustomModelPart<T extends Entity> extends ModelPart  {
 //        }
 //    }
 
-    public Object2ReferenceOpenHashMap<String,EMF_CustomModelPart<T>> getAllParts(){
-        Object2ReferenceOpenHashMap<String,EMF_CustomModelPart<T>> list = new Object2ReferenceOpenHashMap<String,EMF_CustomModelPart<T>>();
-        for (EMF_CustomModelPart<T> part :
+    public Object2ReferenceOpenHashMap<String, EMF_ModelPart> getAllParts(){
+        Object2ReferenceOpenHashMap<String, EMF_ModelPart> list = new Object2ReferenceOpenHashMap<>();
+        for (EMF_ModelPart part :
                 children.values()) {
             list.put(part.selfModelData.id,part);
             list.putAll(part.getAllParts());
