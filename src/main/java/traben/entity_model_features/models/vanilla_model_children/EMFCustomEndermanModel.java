@@ -2,11 +2,10 @@ package traben.entity_model_features.models.vanilla_model_children;
 
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.entity.model.EndermanEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import traben.entity_model_features.mixin.accessor.BipedEntityModelAccessor;
-import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
@@ -14,7 +13,7 @@ import traben.entity_model_features.models.EMF_ModelPart;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EMFCustomBipedModel<T extends LivingEntity> extends BipedEntityModel<T> implements EMFCustomModel<T>, EMFArmorableModel {
+public class EMFCustomEndermanModel<T extends LivingEntity> extends EndermanEntityModel<T> implements EMFCustomModel<T> {
 
     public EMF_EntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -27,8 +26,8 @@ public class EMFCustomBipedModel<T extends LivingEntity> extends BipedEntityMode
     private final  EMF_EntityModel<T> thisEMFModel;
 
 
-    public EMFCustomBipedModel(EMF_EntityModel<T> model) {
-        super(BipedEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
+    public EMFCustomEndermanModel(EMF_EntityModel<T> model) {
+        super(EndermanEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
         thisEMFModel=model;
 
         List<EMF_ModelPart> headWearCandidates = new ArrayList<>();
@@ -117,9 +116,4 @@ public class EMFCustomBipedModel<T extends LivingEntity> extends BipedEntityMode
 
     }
 
-
-    @Override
-    public EMF_EntityModel<?> getArmourModel(boolean getInner) {
-        return thisEMFModel.getArmourModel(getInner);
-    }
 }

@@ -43,7 +43,7 @@ public class EMFCustomIronGolemModel<T extends LivingEntity, M extends IronGolem
                 rArmCandidates.add(part);
             }
         }
-        setPart(rArmCandidates,((IronGolemEntityModelAccessor)this)::setRightArm);
+        setNonEmptyPart(rArmCandidates,((IronGolemEntityModelAccessor)this)::setRightArm);
     }
 
 

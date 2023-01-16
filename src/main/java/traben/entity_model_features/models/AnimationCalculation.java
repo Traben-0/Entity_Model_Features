@@ -315,12 +315,17 @@ class AnimationCalculation {
 //            System.out.println("headyaw="+headYaw0);
 //            System.out.println("animated sheep rx head =\n"+this.calculator.getExpressionString()+"\n="+ result);
 //        }
-        if(modelPart == null){
+        if(Double.isNaN(result)){
+            //System.out.println(isRidden()+", "+isChild());
+            //System.out.println("result was NaN from: "+animKey+"="+calculator.getExpressionString());
+            varToChange.set(modelPart, -999D);
+            //isValid();
+        }else if(modelPart == null){
           //  if(vanillaModelPart != null) {
                // varToChange.setValueInVanillaModel(vanillaModelPart,result);
            // }
         }else {
-            varToChange.set(modelPart, Double.isNaN(result) ? null : result);
+            varToChange.set(modelPart, result);
         }
 
     }

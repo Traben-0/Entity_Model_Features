@@ -5,14 +5,13 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
-import net.minecraft.client.render.entity.feature.FeatureRenderer;
-import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.feature.SaddleFeatureRenderer;
+import net.minecraft.client.render.entity.feature.*;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Saddleable;
+import net.minecraft.entity.passive.AbstractHorseEntity;
+import net.minecraft.entity.passive.HorseEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,11 +20,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFData;
 import traben.entity_model_features.mixin.SaddleFeatureRendererAccessor;
+import traben.entity_model_features.mixin.accessor.HorseArmorFeatureRendererAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.features.EMFArmorFeatureRenderer;
 import traben.entity_model_features.models.vanilla_model_children.EMFCustomBipedModel;
+import traben.entity_model_features.models.vanilla_model_children.EMFCustomHorseModel;
 
 import java.util.List;
 
@@ -93,42 +94,58 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             emfData.alreadyCalculatedForRenderer.put(hashCode(), true);
             int typeHash = this.hashCode(); // livingEntity.getType().hashCode();
 
-            if (!emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
+            //if (!emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
                 String entityTypeName = livingEntity.getType().getName().getString().toLowerCase().replace("\s", "_");
-                emfData.createEMFModel(entityTypeName, typeHash, getModel());
-            }
-            if (emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
-                if (emfData.JEMPATH_CustomModel.get(typeHash) != null) {
-                    emf$originalModel = this.model;
-                    EMF_EntityModel<T> emfSubmodel = (EMF_EntityModel<T>) emfData.JEMPATH_CustomModel.get(typeHash);
-                    /*EMFCustomModel<T>*/ emf$newModel = EMFData.getInstance().getCustomModelForRenderer(emfSubmodel,this.model);
 
-                    if (emf$newModel instanceof EMFArmorableModel armored) {
-                        for (FeatureRenderer<?, ?> feature :
-                                features) {
-                            if (feature instanceof ArmorFeatureRenderer<?, ?, ?>) {
-                                EMF_EntityModel<?> inner = armored.getArmourModel(true);
-                                EMF_EntityModel<?> outer = armored.getArmourModel(false);
-                                if (inner != null && outer != null) {
-                                    features.remove(feature);
-                                    features.add(new EMFArmorFeatureRenderer<T, M>(this, inner, outer));
+            //}
+           // if (emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
+               // if (emfData.JEMPATH_CustomModel.get(typeHash) != null) {
+                    emf$originalModel = this.model;
+                    EMF_EntityModel<T> emfSubmodel = emfData.createEMFModel(entityTypeName, typeHash, getModel());
+                    if(emfSubmodel!= null) {
+                        /*EMFCustomModel<T>*/
+                        emf$newModel = EMFData.getInstance().getCustomModelForRenderer(emfSubmodel, this.model);
+
+                        if (emf$newModel instanceof EMFArmorableModel armored) {
+                            for (FeatureRenderer<?, ?> feature :
+                                    features) {
+                                if (feature instanceof ArmorFeatureRenderer<?, ?, ?>) {
+                                    EMF_EntityModel<?> inner = armored.getArmourModel(true);
+                                    EMF_EntityModel<?> outer = armored.getArmourModel(false);
+                                    if (inner != null && outer != null) {
+                                        features.remove(feature);
+                                        features.add(new EMFArmorFeatureRenderer<T, M>(this, inner, outer));
+                                    }
+                                    break;
                                 }
-                                break;
                             }
                         }
-                    }
-                    if(livingEntity instanceof Saddleable){
-                        for (FeatureRenderer<?, ?> feature :
-                                features) {
-                            if (feature instanceof SaddleFeatureRenderer saddle) {
-                                ((SaddleFeatureRendererAccessor<T,M>)saddle).setModel(emf$newModel);
-                                break;
+                        if (livingEntity instanceof Saddleable) {
+                            for (FeatureRenderer<?, ?> feature :
+                                    features) {
+                                if (feature instanceof SaddleFeatureRenderer saddle) {
+                                    ((SaddleFeatureRendererAccessor<T, M>) saddle).setModel(emf$newModel);
+                                    break;
+                                }
                             }
                         }
+                        if (livingEntity instanceof AbstractHorseEntity && emf$newModel instanceof EMFCustomHorseModel) {
+                            for (FeatureRenderer<?, ?> feature :
+                                    features) {
+                                if (feature instanceof HorseArmorFeatureRenderer armr) {
+                                    EMF_EntityModel<T> horseArmor = emfData.createEMFModel("horse_armor", feature.hashCode(), getModel());
+                                    if (horseArmor != null) {
+                                        M model = EMFData.getInstance().getCustomModelForRenderer(horseArmor, this.model);
+                                        ((HorseArmorFeatureRendererAccessor) armr).setModel((HorseEntityModel<HorseEntity>) model);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        this.model = emf$newModel;
                     }
-                    this.model =  emf$newModel;
-                }
-            }
+                //}
+           // }
         }else if (emf$newModel != null) {
             ((EMFCustomModel<?>) emf$newModel).getThisEMFModel().currentVertexProvider = vertexConsumerProvider;
             if (((EMFCustomModel<?>) emf$newModel).doesThisModelNeedToBeReset()) {

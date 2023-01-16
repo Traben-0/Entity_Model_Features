@@ -2,7 +2,6 @@ package traben.entity_model_features.models.vanilla_model_children;
 
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
@@ -14,9 +13,7 @@ import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class EMFCustomPlayerModel<T extends LivingEntity> extends PlayerEntityModel<T> implements EMFCustomModel<T>, EMFArmorableModel {
 
@@ -113,22 +110,22 @@ public class EMFCustomPlayerModel<T extends LivingEntity> extends PlayerEntityMo
             headCandidates = headWearCandidates;
         }
 
-        setPart(headWearCandidates,((BipedEntityModelAccessor)this)::setHat);
-        setPart(headCandidates,((BipedEntityModelAccessor)this)::setHead);
-        setPart(bodyCandidates,((BipedEntityModelAccessor)this)::setBody);
-        setPart(lArmCandidates,((BipedEntityModelAccessor)this)::setLeftArm);
-        setPart(lLegCandidates,((BipedEntityModelAccessor)this)::setLeftLeg);
-        setPart(rArmCandidates,((BipedEntityModelAccessor)this)::setRightArm);
-        setPart(rLegCandidates,((BipedEntityModelAccessor)this)::setRightLeg);
+        setNonEmptyPart(headWearCandidates,((BipedEntityModelAccessor)this)::setHat);
+        setNonEmptyPart(headCandidates,((BipedEntityModelAccessor)this)::setHead);
+        setNonEmptyPart(bodyCandidates,((BipedEntityModelAccessor)this)::setBody);
+        setNonEmptyPart(lArmCandidates,((BipedEntityModelAccessor)this)::setLeftArm);
+        setNonEmptyPart(lLegCandidates,((BipedEntityModelAccessor)this)::setLeftLeg);
+        setNonEmptyPart(rArmCandidates,((BipedEntityModelAccessor)this)::setRightArm);
+        setNonEmptyPart(rLegCandidates,((BipedEntityModelAccessor)this)::setRightLeg);
 
-        setPart(bodyXCandidates,((PlayerEntityModelAccessor)this)::setJacket);
-        setPart(lArmXCandidates,((PlayerEntityModelAccessor)this)::setLeftSleeve);
-        setPart(lLegXCandidates,((PlayerEntityModelAccessor)this)::setLeftPants);
-        setPart(rArmXCandidates,((PlayerEntityModelAccessor)this)::setRightSleeve);
-        setPart(rLegXCandidates,((PlayerEntityModelAccessor)this)::setRightPants);
+        setNonEmptyPart(bodyXCandidates,((PlayerEntityModelAccessor)this)::setJacket);
+        setNonEmptyPart(lArmXCandidates,((PlayerEntityModelAccessor)this)::setLeftSleeve);
+        setNonEmptyPart(lLegXCandidates,((PlayerEntityModelAccessor)this)::setLeftPants);
+        setNonEmptyPart(rArmXCandidates,((PlayerEntityModelAccessor)this)::setRightSleeve);
+        setNonEmptyPart(rLegXCandidates,((PlayerEntityModelAccessor)this)::setRightPants);
 
-        setPart(capeCandidates,((PlayerEntityModelAccessor)this)::setCloak);
-        setPart(earsCandidates,((PlayerEntityModelAccessor)this)::setEar);
+        setNonEmptyPart(capeCandidates,((PlayerEntityModelAccessor)this)::setCloak);
+        setNonEmptyPart(earsCandidates,((PlayerEntityModelAccessor)this)::setEar);
 
     }
 

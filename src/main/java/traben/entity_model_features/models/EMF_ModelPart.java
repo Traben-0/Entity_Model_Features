@@ -53,6 +53,10 @@ public class EMF_ModelPart extends ModelPart  {
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+        if(vanillaPart != null){
+            this.visible = vanillaPart.visible;
+            this.hidden = vanillaPart.hidden;
+        }
         if (this.visible) {
             if (!this.cuboids.isEmpty() || !this.children.isEmpty()) {
                 matrices.push();

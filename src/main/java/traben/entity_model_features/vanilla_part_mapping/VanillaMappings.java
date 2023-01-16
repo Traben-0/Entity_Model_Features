@@ -34,15 +34,19 @@ public class VanillaMappings {
 //        if (vanillaModel instanceof AllayEntityModel) {
 //            return VanillaMappings::getAllayMap;
 //        }
-        if (vanillaModel instanceof CreeperEntityModel<?>) {
+        if (vanillaModel instanceof HorseEntityModel) {
+            return VanillaMappings::getHorseMap;
+        }
+        if (vanillaModel instanceof CreeperEntityModel) {
             return VanillaMappings::getCreeperMap;
-        }if (vanillaModel instanceof ChickenEntityModel<?>) {
+        }
+        if (vanillaModel instanceof ChickenEntityModel) {
             return VanillaMappings::getChickenMap;
         }
-        if (vanillaModel instanceof OcelotEntityModel<?>) {
+        if (vanillaModel instanceof OcelotEntityModel) {
             return VanillaMappings::getGenericOcelotMap;
         }
-        if (vanillaModel instanceof BlazeEntityModel<?>) {
+        if (vanillaModel instanceof BlazeEntityModel) {
             return VanillaMappings::getBlazeMap;
         }
         if (vanillaModel instanceof BeeEntityModel) {
@@ -148,7 +152,72 @@ public class VanillaMappings {
 
 
 
+    private static HashMap<String, ModelPart> getHorseMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+        if (vanillaModel instanceof AnimalModel horse) {
+            ArrayList<ModelPart> bodyParts = new ArrayList<>();
+            Iterable<ModelPart> hed = ((AnimalModelAccessor) horse).callGetHeadParts();
+            ModelPart neck = null;
+            if(hed.iterator().hasNext()) {
+                 neck =hed.iterator().next();
+                    vanillaPartsList.put("neck", neck);
+            }
+            if(neck!= null) {
+                Map<String, ModelPart> head_parts = ((ModelPartAccessor) neck).getChildren();
 
+                if (head_parts.containsKey("head")) {
+                    ModelPart head = head_parts.get("head");
+                    vanillaPartsList.put("head", head);
+                    Map<String, ModelPart> headSub_parts = ((ModelPartAccessor) head).getChildren();
+                    if(headSub_parts.containsKey("left_ear"))
+                        vanillaPartsList.put("left_ear", headSub_parts.get("left_ear"));
+                    if(headSub_parts.containsKey("right_ear"))
+                        vanillaPartsList.put("right_ear", headSub_parts.get("right_ear"));
+                }
+                if (head_parts.containsKey("mane"))
+                    vanillaPartsList.put("mane",head_parts.get("mane"));
+                if (head_parts.containsKey("mouth"))
+                    vanillaPartsList.put("mouth",head_parts.get("mouth"));
+
+                if (head_parts.containsKey("head_saddle"))
+                    vanillaPartsList.put("headpiece",head_parts.get("head_saddle"));
+                if (head_parts.containsKey("mouth_saddle_wrap"))
+                    vanillaPartsList.put("nose_band",head_parts.get("mouth_saddle_wrap"));
+
+                if (head_parts.containsKey("left_saddle_mouth"))
+                    vanillaPartsList.put("left_bit",head_parts.get("left_saddle_mouth"));
+                if (head_parts.containsKey("right_saddle_mouth"))
+                    vanillaPartsList.put("right_bit",head_parts.get("right_saddle_mouth"));
+                if (head_parts.containsKey("left_saddle_line"))
+                    vanillaPartsList.put("left_rein",head_parts.get("left_saddle_line"));
+                if (head_parts.containsKey("right_saddle_line"))
+                    vanillaPartsList.put("right_rein",head_parts.get("right_saddle_line"));
+
+                for (ModelPart part : ((AnimalModelAccessor) horse).callGetBodyParts()) {
+                    bodyParts.add(part);
+                }
+                Map<String, ModelPart> body_parts = ((ModelPartAccessor) bodyParts.get(0)).getChildren();
+                if (body_parts.containsKey("tail"))
+                    vanillaPartsList.put("tail",body_parts.get("tail"));
+                if (body_parts.containsKey("saddle"))
+                    vanillaPartsList.put("saddle",body_parts.get("saddle"));
+
+
+                vanillaPartsList.put("body", bodyParts.get(0));
+                vanillaPartsList.put("back_right_leg", bodyParts.get(1));
+                vanillaPartsList.put("back_left_leg", bodyParts.get(2));
+                vanillaPartsList.put("front_right_leg", bodyParts.get(3));
+                vanillaPartsList.put("front_left_leg", bodyParts.get(4));
+
+                vanillaPartsList.put("child_back_right_leg", bodyParts.get(5));
+                vanillaPartsList.put("child_back_left_leg", bodyParts.get(6));
+                vanillaPartsList.put("child_front_right_leg", bodyParts.get(7));
+                vanillaPartsList.put("child_front_left_leg", bodyParts.get(8));
+
+            }
+        }
+        return vanillaPartsList;
+    }
     private static HashMap<String, ModelPart> getCreeperMap(EntityModel<?> vanillaModel){
         HashMap<String,ModelPart> vanillaPartsList = getSinglePartModelMap(vanillaModel);
         vanillaPartsList.put("leg1",vanillaPartsList.get("right_hind_leg"));

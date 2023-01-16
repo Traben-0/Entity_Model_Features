@@ -1,11 +1,8 @@
 package traben.entity_model_features.models;
 
-import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import traben.entity_model_features.mixin.accessor.BipedEntityModelAccessor;
 
 import java.util.List;
 
@@ -23,7 +20,7 @@ public interface EMFCustomModel<T extends LivingEntity> {
 
     void animateModel(T livingEntity, float f, float g, float h);
 
-    default void setPart(List<EMF_ModelPart> parts, PartSetter setter){
+    default void setNonEmptyPart(List<EMF_ModelPart> parts, PartSetter setter){
         for (EMF_ModelPart part:
                 parts) {
             if(!part.isEmptyPart){
@@ -32,6 +29,19 @@ public interface EMFCustomModel<T extends LivingEntity> {
                 break;
             }
         }
+    }
+
+    default EMF_ModelPart getNonEmptyPart(List<EMF_ModelPart> parts){
+        for (EMF_ModelPart part:
+                parts) {
+            if(!part.isEmptyPart){
+                return part;
+                //setter.setPart(part);
+                //((BipedEntityModelAccessor)this).setHat(part);
+                //break;
+            }
+        }
+        return null;
     }
 
     interface PartSetter{

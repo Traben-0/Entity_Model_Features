@@ -2,13 +2,10 @@ package traben.entity_model_features.models.vanilla_model_children;
 
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.QuadrupedEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import traben.entity_model_features.mixin.accessor.BipedEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.QuadrupedEntityModelAccessor;
-import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
@@ -68,12 +65,12 @@ public class EMFCustomQuadrapedModel<T extends LivingEntity> extends QuadrupedEn
             }
         }
 
-        setPart(headCandidates,((QuadrupedEntityModelAccessor)this)::setHead);
-        setPart(bodyCandidates,((QuadrupedEntityModelAccessor)this)::setBody);
-        setPart(lFLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftFrontLeg);
-        setPart(lBLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftHindLeg);
-        setPart(rFLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightFrontLeg);
-        setPart(rBLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightHindLeg);
+        setNonEmptyPart(headCandidates,((QuadrupedEntityModelAccessor)this)::setHead);
+        setNonEmptyPart(bodyCandidates,((QuadrupedEntityModelAccessor)this)::setBody);
+        setNonEmptyPart(lFLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftFrontLeg);
+        setNonEmptyPart(lBLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftHindLeg);
+        setNonEmptyPart(rFLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightFrontLeg);
+        setNonEmptyPart(rBLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightHindLeg);
     }
 
     @Override

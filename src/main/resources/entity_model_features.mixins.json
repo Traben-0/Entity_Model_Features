@@ -8,6 +8,8 @@
     "IronGolemEntityModelAccessor",
     "SaddleFeatureRendererAccessor",
     "accessor.AnimalModelAccessor",
+    "accessor.HorseArmorFeatureRendererAccessor",
+    "accessor.HorseEntityModelAccessor",
     "accessor.LivingEntityRendererAccessor",
     "accessor.ModelPartAccessor",
     "accessor.PlayerEntityModelAccessor"
