@@ -253,9 +253,7 @@ class AnimationCalculation {
 
         //if we haven't already calculated a result this frame get another
 
-        double interpolationLength = prevInterp.getDouble(id);//todo 1 here is minimum calculation frequency, assign config here
-
-
+        double interpolationLength = prevInterp.getDouble(id);
 
         if (animationProgress0 >= prevResultsTick.getFloat(id) +interpolationLength){
 

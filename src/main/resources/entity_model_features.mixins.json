@@ -6,11 +6,14 @@
   "mixins": [
     "CuboidAccessor",
     "IronGolemEntityModelAccessor",
+    "LlamaDecorFeatureRendererAccessor",
     "SaddleFeatureRendererAccessor",
     "accessor.AnimalModelAccessor",
+    "accessor.FoxEntityModelAccessor",
     "accessor.HorseArmorFeatureRendererAccessor",
     "accessor.HorseEntityModelAccessor",
     "accessor.LivingEntityRendererAccessor",
+    "accessor.LlamaEntityModelAccessor",
     "accessor.ModelPartAccessor",
     "accessor.PlayerEntityModelAccessor"
   ],

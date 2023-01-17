@@ -32,107 +32,107 @@ public class EMFCustomHorseModel<T extends LivingEntity, M extends AbstractHorse
         super(HorseEntityModel.getModelData(Dilation.NONE).getRoot().createPart(0, 0));
         thisEMFModel = model;
 
-        List<EMF_ModelPart> headCandidates = new ArrayList<>();
-        List<EMF_ModelPart> bodyCandidates = new ArrayList<>();
-        List<EMF_ModelPart> neckCandidates = new ArrayList<>();
-        List<EMF_ModelPart> blLegCandidates = new ArrayList<>();
-        List<EMF_ModelPart> brLegCandidates = new ArrayList<>();
-        List<EMF_ModelPart> flLegCandidates = new ArrayList<>();
-        List<EMF_ModelPart> frLegCandidates = new ArrayList<>();
-        List<EMF_ModelPart> tailCandidates = new ArrayList<>();
-        List<EMF_ModelPart> saddleCandidates = new ArrayList<>();
-        List<EMF_ModelPart> maneCandidates = new ArrayList<>();
-        List<EMF_ModelPart> mouthCandidates = new ArrayList<>();
-        List<EMF_ModelPart> lEarCandidates = new ArrayList<>();
-        List<EMF_ModelPart> rEarCandidates = new ArrayList<>();
-        List<EMF_ModelPart> lBitCandidates = new ArrayList<>();
-        List<EMF_ModelPart> rBitCandidates = new ArrayList<>();
-        List<EMF_ModelPart> lReinCandidates = new ArrayList<>();
-        List<EMF_ModelPart> rReinCandidates = new ArrayList<>();
-        List<EMF_ModelPart> headPieceCandidates = new ArrayList<>();
-        List<EMF_ModelPart> noseBandCandidates = new ArrayList<>();
-        List<EMF_ModelPart> BblLegCandidates = new ArrayList<>();
-        List<EMF_ModelPart> BbrLegCandidates = new ArrayList<>();
-        List<EMF_ModelPart> BflLegCandidates = new ArrayList<>();
-        List<EMF_ModelPart> BfrLegCandidates = new ArrayList<>();
-
-        for (EMF_ModelPart part :
-                thisEMFModel.childrenMap.values()) {
-            switch (part.selfModelData.part) {
-                case "head" -> {
-                    headCandidates.add(part);
-                }
-                case "body" -> {
-                    bodyCandidates.add(part);
-                }
-                case "neck" -> {
-                    neckCandidates.add(part);
-                }
-                case "back_left_leg" -> {
-                    blLegCandidates.add(part);
-                }
-                case "back_right_leg" -> {
-                    brLegCandidates.add(part);
-                }
-                case "front_left_leg" -> {
-                    flLegCandidates.add(part);
-                }
-                case "front_right_leg" -> {
-                    frLegCandidates.add(part);
-                }
-                case "tail" -> {
-                    tailCandidates.add(part);
-                }
-                case "saddle" -> {
-                    saddleCandidates.add(part);
-                }
-                case "mane" -> {
-                    maneCandidates.add(part);
-                }
-                case "mouth" -> {
-                    mouthCandidates.add(part);
-                }
-                case "left_ear" -> {
-                    lEarCandidates.add(part);
-                }
-                case "right_ear" -> {
-                    rEarCandidates.add(part);
-                }
-                case "left_bit" -> {
-                    lBitCandidates.add(part);
-                }
-                case "right_bit" -> {
-                    rBitCandidates.add(part);
-                }
-                case "right_rein" -> {
-                    rReinCandidates.add(part);
-                }
-                case "left_rein" -> {
-                    lReinCandidates.add(part);
-                }
-                case "headpiece" -> {
-                    headPieceCandidates.add(part);
-                }
-                case "noseband" -> {
-                    noseBandCandidates.add(part);
-                }
-                case "child_back_left_leg" -> {
-                    BblLegCandidates.add(part);
-                }
-                case "child_back_right_leg" -> {
-                    BbrLegCandidates.add(part);
-                }
-                case "child_front_left_leg" -> {
-                    BflLegCandidates.add(part);
-                }
-                case "child_front_right_leg" -> {
-                    BfrLegCandidates.add(part);
-                }
-                default -> {
-
-                }
-            }
-        }
+//        List<EMF_ModelPart> headCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> bodyCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> neckCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> blLegCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> brLegCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> flLegCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> frLegCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> tailCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> saddleCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> maneCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> mouthCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> lEarCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> rEarCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> lBitCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> rBitCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> lReinCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> rReinCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> headPieceCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> noseBandCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> BblLegCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> BbrLegCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> BflLegCandidates = new ArrayList<>();
+//        List<EMF_ModelPart> BfrLegCandidates = new ArrayList<>();
+//
+//        for (EMF_ModelPart part :
+//                thisEMFModel.childrenMap.values()) {
+//            switch (part.selfModelData.part) {
+//                case "head" -> {
+//                    headCandidates.add(part);
+//                }
+//                case "body" -> {
+//                    bodyCandidates.add(part);
+//                }
+//                case "neck" -> {
+//                    neckCandidates.add(part);
+//                }
+//                case "back_left_leg" -> {
+//                    blLegCandidates.add(part);
+//                }
+//                case "back_right_leg" -> {
+//                    brLegCandidates.add(part);
+//                }
+//                case "front_left_leg" -> {
+//                    flLegCandidates.add(part);
+//                }
+//                case "front_right_leg" -> {
+//                    frLegCandidates.add(part);
+//                }
+//                case "tail" -> {
+//                    tailCandidates.add(part);
+//                }
+//                case "saddle" -> {
+//                    saddleCandidates.add(part);
+//                }
+//                case "mane" -> {
+//                    maneCandidates.add(part);
+//                }
+//                case "mouth" -> {
+//                    mouthCandidates.add(part);
+//                }
+//                case "left_ear" -> {
+//                    lEarCandidates.add(part);
+//                }
+//                case "right_ear" -> {
+//                    rEarCandidates.add(part);
+//                }
+//                case "left_bit" -> {
+//                    lBitCandidates.add(part);
+//                }
+//                case "right_bit" -> {
+//                    rBitCandidates.add(part);
+//                }
+//                case "right_rein" -> {
+//                    rReinCandidates.add(part);
+//                }
+//                case "left_rein" -> {
+//                    lReinCandidates.add(part);
+//                }
+//                case "headpiece" -> {
+//                    headPieceCandidates.add(part);
+//                }
+//                case "noseband" -> {
+//                    noseBandCandidates.add(part);
+//                }
+//                case "child_back_left_leg" -> {
+//                    BblLegCandidates.add(part);
+//                }
+//                case "child_back_right_leg" -> {
+//                    BbrLegCandidates.add(part);
+//                }
+//                case "child_front_left_leg" -> {
+//                    BflLegCandidates.add(part);
+//                }
+//                case "child_front_right_leg" -> {
+//                    BfrLegCandidates.add(part);
+//                }
+//                default -> {
+//
+//                }
+//            }
+//        }
 
 //        setNonEmptyPart(neckCandidates, ((HorseEntityModelAccessor) this)::setHead);
 //        setNonEmptyPart(bodyCandidates, ((HorseEntityModelAccessor) this)::setBody);

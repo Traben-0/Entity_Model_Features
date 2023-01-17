@@ -12,6 +12,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Saddleable;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.passive.HorseEntity;
+import net.minecraft.entity.passive.LlamaEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFData;
+import traben.entity_model_features.mixin.LlamaDecorFeatureRendererAccessor;
 import traben.entity_model_features.mixin.SaddleFeatureRendererAccessor;
 import traben.entity_model_features.mixin.accessor.HorseArmorFeatureRendererAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
@@ -27,6 +29,7 @@ import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.features.EMFArmorFeatureRenderer;
 import traben.entity_model_features.models.vanilla_model_children.EMFCustomBipedModel;
 import traben.entity_model_features.models.vanilla_model_children.EMFCustomHorseModel;
+import traben.entity_model_features.models.vanilla_model_children.EMFCustomLlamaModel;
 
 import java.util.List;
 
@@ -137,6 +140,19 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                                     if (horseArmor != null) {
                                         M model = EMFData.getInstance().getCustomModelForRenderer(horseArmor, this.model);
                                         ((HorseArmorFeatureRendererAccessor) armr).setModel((HorseEntityModel<HorseEntity>) model);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (livingEntity instanceof LlamaEntity && emf$newModel instanceof EMFCustomLlamaModel) {
+                            for (FeatureRenderer<?, ?> feature :
+                                    features) {
+                                if (feature instanceof LlamaDecorFeatureRenderer decor) {
+                                    EMF_EntityModel<T> llama_decor = emfData.createEMFModel("llama_decor", feature.hashCode(), getModel());
+                                    if (llama_decor != null) {
+                                        M model = EMFData.getInstance().getCustomModelForRenderer(llama_decor, this.model);
+                                        ((LlamaDecorFeatureRendererAccessor) decor).setModel((LlamaEntityModel<LlamaEntity>) model);
                                         break;
                                     }
                                 }

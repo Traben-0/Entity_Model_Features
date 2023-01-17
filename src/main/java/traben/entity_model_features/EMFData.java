@@ -7,9 +7,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.AbstractHorseEntity;
-import net.minecraft.entity.passive.HorseEntity;
-import net.minecraft.entity.passive.IronGolemEntity;
+import net.minecraft.entity.passive.*;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.vanilla_model_children.*;
 import traben.entity_model_features.models.EMF_EntityModel;
@@ -115,6 +113,15 @@ public class EMFData {
 
     public<T extends LivingEntity, M extends EntityModel<T>> M getCustomModelForRenderer(EMF_EntityModel<T> alreadyBuiltSubmodel,M vanillaModelForInstanceCheck){
         //figure out whether to send a vanilla child model or a direct EMF custom model
+        if(vanillaModelForInstanceCheck instanceof CowEntityModel<?>){
+            return (M) new EMFCustomCowModel<T>(alreadyBuiltSubmodel);
+        }
+        if(vanillaModelForInstanceCheck instanceof LlamaEntityModel){
+            return (M) new EMFCustomLlamaModel<T, LlamaEntity>(alreadyBuiltSubmodel);
+        }
+        if(vanillaModelForInstanceCheck instanceof FoxEntityModel){
+            return (M) new EMFCustomFoxModel<T, FoxEntity>(alreadyBuiltSubmodel);
+        }
         if(vanillaModelForInstanceCheck instanceof EndermanEntityModel){
             return (M) new EMFCustomEndermanModel<T>(alreadyBuiltSubmodel);
         }
