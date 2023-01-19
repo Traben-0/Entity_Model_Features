@@ -15,7 +15,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
+import traben.entity_model_features.EMFData;
 import traben.entity_model_features.mixin.accessor.AnimalModelAccessor;
+import traben.entity_model_features.models.anim.AnimationCalculation;
+import traben.entity_model_features.models.anim.AnimationCalculationEMFParser;
+import traben.entity_model_features.models.anim.AnimationCalculationMXParser;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 import traben.entity_model_features.utils.EMFUtils;
@@ -35,12 +39,18 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     private HashMap<String,ModelPart> vanillaModelPartsById;
 
    // private final Properties animationPropertiesOfAll;
-    final String modelPathIdentifier;
+    public final String modelPathIdentifier;
     public final EntityModel<T> vanillaModel;
 
     public VertexConsumerProvider currentVertexProvider = null;
 
     public boolean isAnimated = false;
+
+    public EMF_EntityModel(String WARNING_ONLY_FOR_TEST){
+        modelPathIdentifier = WARNING_ONLY_FOR_TEST;
+        vanillaModel = null;
+        jemData = null;
+    }
 
     public EMF_EntityModel(EMF_JemData jem, String modelPath, VanillaMappings.VanillaMapper vanillaPartSupplier, EntityModel<T> vanillaModel){
         HashMap<String,ModelPart> vanModelParts = vanillaPartSupplier.getVanillaModelPartsMapFromModel(vanillaModel);
@@ -115,27 +125,52 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 AnimationCalculation thisCalculator = null;
 
                 if (thisPart != null){
-                    thisCalculator = new AnimationCalculation(
-                            this,
-                            thisPart,
-                            thisVariable,
-                            animKey,
-                            animationExpression);
+
+                    thisCalculator = EMFData.getInstance().getConfig().useMXParser ?
+                            new AnimationCalculationMXParser(
+                                this,
+                                thisPart,
+                                thisVariable,
+                                animKey,
+                                animationExpression)
+                    :
+                            new AnimationCalculationEMFParser(
+                                    this,
+                                    thisPart,
+                                    thisVariable,
+                                    animKey,
+                                    animationExpression);
                 }else if(vanillaModelPartsById.containsKey(modelId)){
-                    thisCalculator = new AnimationCalculation(
-                            this,
-                            vanillaModelPartsById.get(modelId),
-                            thisVariable,
-                            animKey,
-                            animationExpression);
+                    thisCalculator = EMFData.getInstance().getConfig().useMXParser ?
+                            new AnimationCalculationMXParser(
+                                this,
+                                vanillaModelPartsById.get(modelId),
+                                thisVariable,
+                                animKey,
+                                animationExpression)
+                    :
+                            new AnimationCalculationEMFParser(
+                                    this,
+                                    vanillaModelPartsById.get(modelId),
+                                    thisVariable,
+                                    animKey,
+                                    animationExpression);
                 }else{
                     //not a custom model or vanilla must be a custom variable
-                    thisCalculator = new AnimationCalculation(
-                            this,
-                            null,
-                            thisVariable,
-                            animKey,
-                            animationExpression);
+                    thisCalculator = EMFData.getInstance().getConfig().useMXParser ?
+                            new AnimationCalculationMXParser(
+                                this,
+                                null,
+                                thisVariable,
+                                animKey,
+                                animationExpression)
+                    :
+                            new AnimationCalculationEMFParser(
+                                    this,
+                                    null,
+                                    thisVariable,
+                                    animKey,
+                                    animationExpression);
                 }
 
                 if(thisCalculator.isValid()){

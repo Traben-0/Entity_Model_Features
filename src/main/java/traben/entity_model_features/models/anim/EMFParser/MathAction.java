@@ -1,4 +1,4 @@
-package traben.entity_model_features.utils.EMFParser;
+package traben.entity_model_features.models.anim.EMFParser;
 
 public enum MathAction  implements MathComponent{
     add,
@@ -10,7 +10,17 @@ public enum MathAction  implements MathComponent{
     comma,
     openBracket,
     closedBracket,
-    none;
+    none,
+    and,
+    or,
+    largerThan,
+    smallerThan,
+
+    largerThanOrEquals,
+    smallerThanOrEquals,
+    equals,
+    notEquals,
+    BOOLEAN_CHAR;
 
     public static MathAction getAction(char ch){
         return switch (ch){
@@ -23,6 +33,7 @@ public enum MathAction  implements MathComponent{
             case '(' -> openBracket;
             case ')' -> closedBracket;
             case '%' -> divisionRemainder;
+            case '&', '|', '>', '<', '=', '!' -> BOOLEAN_CHAR;
             default -> none;
         };
     }

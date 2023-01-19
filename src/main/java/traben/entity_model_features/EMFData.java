@@ -69,24 +69,28 @@ public class EMFData {
     // https://github.com/juancarloscp52/BedrockIfy/blob/1.17.x/src/main/java/me/juancarloscp52/bedrockify/Bedrockify.java
     // https://github.com/wutdahack/ActuallyUnbreakingFabric/blob/1.18.1/src/main/java/wutdahack/actuallyunbreaking/ActuallyUnbreaking.java
     public void loadConfig() {
-        File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_model_features.json");
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        if (config.exists()) {
-            try {
-                FileReader fileReader = new FileReader(config);
-                EMFConfigData = gson.fromJson(fileReader, EMFConfig.class);
-                fileReader.close();
+        try {
+            File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_model_features.json");
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            if (config.exists()) {
+                try {
+                    FileReader fileReader = new FileReader(config);
+                    EMFConfigData = gson.fromJson(fileReader, EMFConfig.class);
+                    fileReader.close();
+                    EMF_saveConfig();
+                } catch (IOException e) {
+                    EMFUtils.EMF_modMessage("Config could not be loaded, using defaults", false);
+                }
+            } else {
+                EMFConfigData = new EMFConfig();
                 EMF_saveConfig();
-            } catch (IOException e) {
-                EMFUtils.EMF_modMessage("Config could not be loaded, using defaults", false);
             }
-        } else {
+            if (EMFConfigData == null) {
+                EMFConfigData = new EMFConfig();
+                EMF_saveConfig();
+            }
+        }catch (Exception e){
             EMFConfigData = new EMFConfig();
-            EMF_saveConfig();
-        }
-        if(EMFConfigData == null){
-            EMFConfigData = new EMFConfig();
-            EMF_saveConfig();
         }
     }
 
