@@ -46,9 +46,102 @@ public class MathMethod extends MathValue implements MathComponent{
 
         supplier = switch (methodName){
             case "if" -> EMF_IF(argsList);
+            case "sin" -> SIN(argsList);
+            case "asin" -> ASIN(argsList);
+            case "cos" -> COS(argsList);
+            case "acos" -> ACOS(argsList);
+            case "tan" -> TAN(argsList);
+            case "atan" -> ATAN(argsList);
+            case "atan2" -> ATAN2(argsList);
+            case "torad" -> TORAD(argsList);
+            case "todeg" -> TODEG(argsList);
+            case "min" -> MIN(argsList);
+            case "max" -> MAX(argsList);
             default -> ()-> 0d;
         };
 
+    }
+    private Supplier<Double> TORAD(List<String> args) throws EMFMathException {
+        if(args.size() == 1){
+            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
+            return ()-> Math.toRadians(arg.get());
+        }
+        String s = "ERROR: wrong number of arguments "+ args +" in TORAD statement for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        System.out.println(s);
+        throw new EMFMathException(s);
+    }
+    private Supplier<Double> TODEG(List<String> args) throws EMFMathException {
+        if(args.size() == 1){
+            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
+            return ()-> Math.toDegrees(arg.get());
+        }
+        String s = "ERROR: wrong number of arguments "+ args +" in TODEG statement for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        System.out.println(s);
+        throw new EMFMathException(s);
+    }
+    private Supplier<Double> SIN(List<String> args) throws EMFMathException {
+        if(args.size() == 1){
+            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
+            return ()-> Math.sin(arg.get());
+        }
+        String s = "ERROR: wrong number of arguments "+ args +" in SIN statement for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        System.out.println(s);
+        throw new EMFMathException(s);
+    }
+    private Supplier<Double> ASIN(List<String> args) throws EMFMathException {
+        if(args.size() == 1){
+            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
+            return ()-> Math.asin(arg.get());
+        }
+        String s = "ERROR: wrong number of arguments "+ args +" in ASIN statement for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        System.out.println(s);
+        throw new EMFMathException(s);
+    }
+    private Supplier<Double> COS(List<String> args) throws EMFMathException {
+        if(args.size() == 1){
+            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
+            return ()-> Math.cos(arg.get());
+        }
+        String s = "ERROR: wrong number of arguments "+ args +" in COS statement for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        System.out.println(s);
+        throw new EMFMathException(s);
+    }
+    private Supplier<Double> ACOS(List<String> args) throws EMFMathException {
+        if(args.size() == 1){
+            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
+            return ()-> Math.acos(arg.get());
+        }
+        String s = "ERROR: wrong number of arguments "+ args +" in ACOS statement for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        System.out.println(s);
+        throw new EMFMathException(s);
+    }
+    private Supplier<Double> TAN(List<String> args) throws EMFMathException {
+        if(args.size() == 1){
+            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
+            return ()-> Math.tan(arg.get());
+        }
+        String s = "ERROR: wrong number of arguments "+ args +" in TAN statement for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        System.out.println(s);
+        throw new EMFMathException(s);
+    }
+    private Supplier<Double> ATAN(List<String> args) throws EMFMathException {
+        if(args.size() == 1){
+            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
+            return ()-> Math.atan(arg.get());
+        }
+        String s = "ERROR: wrong number of arguments "+ args +" in ATAN statement for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        System.out.println(s);
+        throw new EMFMathException(s);
+    }
+    private Supplier<Double> ATAN2(List<String> args) throws EMFMathException {
+        if(args.size() == 2){
+            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
+            MathExpression arg2 = new MathExpression(args.get(1),false,calculationInstance);
+            return ()-> Math.atan2(arg.get(), arg2.get());
+        }
+        String s = "ERROR: wrong number of arguments "+ args +" in ATAN2 statement for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        System.out.println(s);
+        throw new EMFMathException(s);
     }
 
     private Supplier<Double> EMF_IF(List<String> args) throws EMFMathException {

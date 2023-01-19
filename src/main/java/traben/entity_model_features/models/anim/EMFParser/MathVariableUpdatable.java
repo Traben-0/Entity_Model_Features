@@ -58,7 +58,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Double>
             case "id" -> calculationInstance::getId;
 
             //constants
-            case "pi" -> ()->3.1415926f;
+            case "pi" -> ()->(float)Math.PI;//3.1415926f;
             case "true" ->  ()-> invertBooleans ? 0f : 1f;
             case "false" -> ()-> invertBooleans ? 1f : 0f;
 

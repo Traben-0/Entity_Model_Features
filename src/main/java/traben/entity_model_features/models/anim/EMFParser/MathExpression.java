@@ -14,7 +14,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
 
 
 
-    private final String originalExpression;
+    public final String originalExpression;
 
     public boolean isValid(){
         if(caughtExceptionString != null){

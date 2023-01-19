@@ -357,7 +357,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 //                }
 
 
-                calculator.calculateAndSet((LivingEntity) entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
+                calculator.calculateAndSet(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
            // }
         }
         //that's it????

@@ -31,12 +31,14 @@ public class AnimationCalculationEMFParser extends AnimationCalculation{
 
     @Override
     public double calculatorRun() {
+        setVerbose(true);
+        System.out.println("ran: "+EMFCalculator.originalExpression);
         return EMFCalculator.calculate();
     }
 
     @Override
     public boolean isValid(){
-        return EMFCalculator.isValid();
+        return EMFCalculator.isValid() && !Double.isNaN( EMFCalculator.calculate());
     }
 
 
