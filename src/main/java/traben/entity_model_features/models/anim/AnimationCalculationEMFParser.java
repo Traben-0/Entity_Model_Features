@@ -13,13 +13,10 @@ public class AnimationCalculationEMFParser extends AnimationCalculation{
     MathExpression EMFCalculator;
 
     //private final String expressionString;
-    AnimationCalculationEMFParser(EMF_EntityModel<?> parent, EMF_ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
-        super(parent,part,varToChange,animKey,initialExpression);
-        EMFCalculator = new MathExpression(initialExpression,false, this);
-    }
+
 
     public AnimationCalculationEMFParser(EMF_EntityModel<?> parent, ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
-        super(parent,part,varToChange,animKey,initialExpression);
+        super(parent,part,varToChange,animKey);
         //calculator = new Expression(initialExpression);
         EMFCalculator = new MathExpression(initialExpression,false, this);
     }
@@ -31,8 +28,8 @@ public class AnimationCalculationEMFParser extends AnimationCalculation{
 
     @Override
     public double calculatorRun() {
-        setVerbose(true);
-        System.out.println("ran: "+EMFCalculator.originalExpression);
+        //setVerbose(true);
+        //System.out.println("ran: "+EMFCalculator.originalExpression);
         return EMFCalculator.calculate();
     }
 

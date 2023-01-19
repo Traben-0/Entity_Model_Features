@@ -17,6 +17,7 @@ import traben.entity_model_features.EMFData;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
 
+import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -216,29 +217,18 @@ public abstract class AnimationCalculation {
      final float defaultValue;
 
     //private final String expressionString;
-    AnimationCalculation(EMF_EntityModel<?> parent, EMF_ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
-        //expressionString = ;
-        prevInterp.defaultReturnValue(EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
-        this.animKey = animKey;
-        this.parentModel = parent;
-        this.varToChange = varToChange;
-        this.modelPart = part;
-        if(varToChange != null)
-            defaultValue = varToChange.getDefaultFromModel(part);
-        else
-            defaultValue = 0;
-        prevResults.defaultReturnValue(defaultValue);
-        prevPrevResults.defaultReturnValue(defaultValue);
-        //calculator = new Expression(initialExpression);
-    }
 
-    AnimationCalculation(EMF_EntityModel<?> parent, ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
+    AnimationCalculation(EMF_EntityModel<?> parent, ModelPart part, AnimVar varToChange, String animKey) {
         prevInterp.defaultReturnValue(EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
         //expressionString = ;
         this.animKey = animKey;
         this.parentModel = parent;
         this.varToChange = varToChange;
-        this.vanillaModelPart = part;
+        if(part instanceof EMF_ModelPart emf)
+            this.modelPart = emf;
+        else
+            this.vanillaModelPart = part;
+
         if(varToChange != null)
             defaultValue = varToChange.getDefaultFromModel(part);
         else
@@ -325,18 +315,22 @@ public abstract class AnimationCalculation {
 
         if(Double.isNaN(result)){
             //System.out.println(isRidden()+", "+isChild());
-            //System.out.println("result was NaN from: "+animKey+"="+calculator.getExpressionString());
+            if(rand.nextInt(100) == 1)System.out.println("result was NaN from: "+animKey);
             varToChange.set(modelPart, -999D);
             //isValid();
         }else if(modelPart == null){
+
+            if(rand.nextInt(100) == 1)System.out.println("model null "+animKey);
           //  if(vanillaModelPart != null) {
                // varToChange.setValueInVanillaModel(vanillaModelPart,result);
            // }
         }else {
+            if(rand.nextInt(100) == 1)System.out.println("worked?"+animKey);
             varToChange.set(modelPart, result);
         }
 
     }
+    private static Random rand = new Random();
 
     public abstract boolean isValid();
 

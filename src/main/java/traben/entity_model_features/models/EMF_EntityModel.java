@@ -129,14 +129,14 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                     thisCalculator = EMFData.getInstance().getConfig().useMXParser ?
                             new AnimationCalculationMXParser(
                                 this,
-                                thisPart,
+                                    (EMF_ModelPart)thisPart,
                                 thisVariable,
                                 animKey,
                                 animationExpression)
                     :
                             new AnimationCalculationEMFParser(
                                     this,
-                                    thisPart,
+                                    (EMF_ModelPart)thisPart,
                                     thisVariable,
                                     animKey,
                                     animationExpression);
@@ -356,7 +356,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 //                    headYaw = head.yaw;
 //                }
 
-            System.out.println("calced "+ calculator.animKey);
+            //System.out.println("calced "+ calculator.animKey);
                 calculator.calculateAndSet(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
            // }
         }

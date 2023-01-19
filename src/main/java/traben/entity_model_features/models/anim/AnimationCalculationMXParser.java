@@ -17,13 +17,10 @@ public class AnimationCalculationMXParser extends AnimationCalculation{
     private final Expression calculator = new Expression();
 
     //private final String expressionString;
-    AnimationCalculationMXParser(EMF_EntityModel<?> parent, EMF_ModelPart part, AnimationCalculation.AnimVar varToChange, String animKey, String initialExpression) {
-        super(parent,part,varToChange,animKey,initialExpression);
-        addRequiredLogic(initialExpression);
-    }
+
 
     public AnimationCalculationMXParser(EMF_EntityModel<?> parent, ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
-        super(parent,part,varToChange,animKey,initialExpression);
+        super(parent,part,varToChange,animKey);
         //calculator = new Expression(initialExpression);
         addRequiredLogic(initialExpression);
     }

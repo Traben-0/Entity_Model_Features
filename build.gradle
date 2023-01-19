@@ -18,9 +18,15 @@ repositories {
     // for more information about repositories.
     maven { url "https://maven.shedaniel.me/" }
     maven { url "https://maven.terraformersmc.com/releases/" }
+    maven { url = "https://maven.isxander.dev/releases" }
+
 }
 
 dependencies {
+
+    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
     // To change the versions see the gradle.properties jemJsonObjects
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
@@ -37,6 +43,10 @@ dependencies {
 //    }
     // https://mvnrepository.com/artifact/org.mariuszgromada.math/MathParser.org-mXparser
     implementation 'org.mariuszgromada.math:MathParser.org-mXparser:5.1.0'
+
+
+    modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+
 }
 
 processResources {
