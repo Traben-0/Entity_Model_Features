@@ -356,7 +356,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 //                    headYaw = head.yaw;
 //                }
 
-
+            System.out.println("calced "+ calculator.animKey);
                 calculator.calculateAndSet(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
            // }
         }
