@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.model.ModelTransform;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.Angerable;
@@ -19,6 +20,7 @@ import org.mariuszgromada.math.mxparser.mXparser;
 import traben.entity_model_features.EMFData;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
@@ -217,6 +219,8 @@ class AnimationCalculation {
 
     private final ObjectOpenHashSet<String> animKeysThatAreNeeded = new ObjectOpenHashSet<>();
 
+    private final float defaultValue;
+
     //private final String expressionString;
     AnimationCalculation(EMF_EntityModel<?> parent, EMF_ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
         //expressionString = ;
@@ -225,6 +229,12 @@ class AnimationCalculation {
         this.parentModel = parent;
         this.varToChange = varToChange;
         this.modelPart = part;
+        if(varToChange != null)
+            defaultValue = varToChange.getDefaultFromModel(part);
+        else
+            defaultValue = 0;
+        prevResults.defaultReturnValue(defaultValue);
+        prevPrevResults.defaultReturnValue(defaultValue);
         //calculator = new Expression(initialExpression);
         addRequiredLogic(initialExpression);
     }
@@ -236,6 +246,12 @@ class AnimationCalculation {
         this.parentModel = parent;
         this.varToChange = varToChange;
         this.vanillaModelPart = part;
+        if(varToChange != null)
+            defaultValue = varToChange.getDefaultFromModel(part);
+        else
+            defaultValue = 0;
+        prevResults.defaultReturnValue(defaultValue);
+        prevPrevResults.defaultReturnValue(defaultValue);
         //calculator = new Expression(initialExpression);
         addRequiredLogic(initialExpression);
     }
@@ -309,10 +325,18 @@ class AnimationCalculation {
 
     public void calculateAndSet(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
         double result = getResultOnly( entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0);
-//        if (animKey.equals("head2.rz")){
-//            System.out.println("headyaw="+headYaw0);
-//            System.out.println("animated sheep rx head =\n"+this.calculator.getExpressionString()+"\n="+ result);
-//        }
+        if (animKey.equals("core.sy")){
+            System.out.println("core sy="+result);
+            System.out.println("anim=\n"+this.calculator.getExpressionString()+"\n="+ result);
+            System.out.println("canString="+calculator.getCanonicalExpressionString());
+            System.out.println("age="+getAge());
+            System.out.println("limbswing="+limbAngle);
+            System.out.println("limbspeed="+limbDistance);
+            System.out.println("isonground="+isOnGround());
+            System.out.println("maxhealth="+getMaxHealth());
+            calculator.setVerboseMode();
+
+        }
         if(Double.isNaN(result)){
             //System.out.println(isRidden()+", "+isChild());
             //System.out.println("result was NaN from: "+animKey+"="+calculator.getExpressionString());
@@ -642,7 +666,6 @@ class AnimationCalculation {
         //todo extend these
 
 
-
         Matcher m = PATTERN_FOR_PART_VAR.matcher(expressionString);
         //System.out.println("matchedf");
 
@@ -910,6 +933,43 @@ class AnimationCalculation {
                 }
                 default -> {
                     System.out.println("model variable was defaulted cannot get its value");
+                    return 0;
+                }
+            }
+        }
+        public float getDefaultFromModel(ModelPart modelPart){
+            if(modelPart == null){
+                System.out.println("model part was null cannot get its default value");
+                return 0;
+            }
+            ModelTransform transform = modelPart.getDefaultTransform();
+            switch (this){
+                case tx -> {
+                    return transform.pivotX;
+                }
+                case ty -> {
+                    return transform.pivotY;
+                }
+                case tz -> {
+                    return transform.pivotZ;
+                }
+                case rx -> {
+                    return transform.pitch;
+                }
+                case ry -> {
+                    return transform.yaw;
+                }
+                case rz -> {
+                    return transform.roll;
+                }
+                case sx, sz, sy -> {
+                    if(modelPart instanceof EMF_ModelPart emf)
+                        return emf.selfModelData.scale;
+                    else
+                        return 1;
+                }
+                default -> {
+                    System.out.println("model variable was defaulted cannot get its default value");
                     return 0;
                 }
             }
