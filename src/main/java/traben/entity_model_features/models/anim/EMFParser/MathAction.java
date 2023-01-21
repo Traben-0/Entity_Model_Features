@@ -6,7 +6,7 @@ public enum MathAction  implements MathComponent{
     multiply,
     divide,
     divisionRemainder,
-    power,
+   // power,
     comma,
     openBracket,
     closedBracket,
@@ -28,7 +28,7 @@ public enum MathAction  implements MathComponent{
             case '-' -> subtract;
             case '*' -> multiply;
             case '/' -> divide;
-            case '^' -> power;
+           // case '^' -> power;
             case ',' -> comma;
             case '(' -> openBracket;
             case ')' -> closedBracket;
@@ -39,7 +39,8 @@ public enum MathAction  implements MathComponent{
     }
 
     @Override
-    public Double get() {
-        return Double.NaN;
+    public Double get() throws EMFMathException {
+        throw new EMFMathException("ERROR: math action incorrectly called ["+this+"].");
+       // return Double.NaN;
     }
 }

@@ -278,6 +278,7 @@ public abstract class AnimationCalculation {
             headPitch = headPitch0;
             tickDelta = tickDelta0;
             prevResultsTick.put(id ,getAge());
+
             double result = calculatorRun();
             double oldResult = prevResults.getDouble(id);
             prevPrevResults.put(id,oldResult);
@@ -316,16 +317,17 @@ public abstract class AnimationCalculation {
         if(Double.isNaN(result)){
             //System.out.println(isRidden()+", "+isChild());
             if(rand.nextInt(100) == 1)System.out.println("result was NaN from: "+animKey);
-            varToChange.set(modelPart, -999D);
+            if(varToChange != null)
+                varToChange.set(modelPart, -999D);
             //isValid();
         }else if(modelPart == null){
 
-            if(rand.nextInt(100) == 1)System.out.println("model null "+animKey);
+           // if(rand.nextInt(100) == 1)System.out.println("model null "+animKey);
           //  if(vanillaModelPart != null) {
                // varToChange.setValueInVanillaModel(vanillaModelPart,result);
            // }
         }else {
-            if(rand.nextInt(100) == 1)System.out.println("worked?"+animKey);
+           // if(rand.nextInt(100) == 1)System.out.println("worked?"+animKey);
             varToChange.set(modelPart, result);
         }
 

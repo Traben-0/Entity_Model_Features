@@ -160,13 +160,10 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Double>
 
     @Override
     public Supplier<Double> getSupplier() {
-        return this;
+        return ()->valueSupplier.get().doubleValue();
     }
 
-    @Override
-    public Double get() {
-        return valueSupplier.get().doubleValue();
-    }
+
 
     @Override
     public String toString() {

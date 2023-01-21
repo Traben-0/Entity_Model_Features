@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.anim.EMFParser;
 
 import traben.entity_model_features.models.anim.AnimationCalculation;
+import traben.entity_model_features.models.anim.AnimationCalculationEMFParser;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,10 +30,10 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
 
 
     public MathExpression(String expressionString, boolean isNegative, AnimationCalculation calculationInstance){
-        super(isNegative,calculationInstance);
+        super(isNegative, (AnimationCalculationEMFParser) calculationInstance);
 
         expressionString = expressionString.trim();
-        expressionString = expressionString.replaceAll("\\s", "");
+        expressionString = expressionString.replaceAll("\\s*", "");
         originalExpression = expressionString;
 
         components = new LinkedList<>();
@@ -195,8 +196,25 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
         return neg;
     }
 
+//    Double lastResultThisTick = null;
+//    long lastResultCount = 0;
+
     public double calculate() {
         try {
+            if (calculationInstance.verboseMode) print("start calculating [" + originalExpression + "] as [" + components+"].");
+
+
+//            if(lastResultThisTick != null && calculationInstance.calculationCount == lastResultCount){
+//                //quick retrun already discovered result
+//                if (calculationInstance.verboseMode) print("finished calculating [" + originalExpression + "] as already calculated quick return.");
+//                return lastResultThisTick;
+//            }
+
+
+            if(components.size() == 1){
+                if (calculationInstance.verboseMode) print("finished calculating [" + originalExpression + "] as single component quick return.");
+                return components.getLast().get();
+            }
             //todo there is some optimization here for repeating code, but it wouldn't affect runtime :/
             //boolean pass
             LinkedList<MathComponent> componentsCopyB = new LinkedList<>(components);
@@ -212,7 +230,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                             newComponentsB.removeLast();
                             double lastD = last.get();
                             double nextD = next.get();
-                            if (calculationInstance.verboseMode) System.out.println("equals=" + lastD + " == " + nextD);
+                            if (calculationInstance.verboseMode) print("equals=" + lastD + " == " + nextD);
                             newComponentsB.add(new MathVariableConstant(lastD == nextD ? 1 : 0, false));
                         }
                         case notEquals -> {
@@ -221,7 +239,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                             newComponentsB.removeLast();
                             double lastD = last.get();
                             double nextD = next.get();
-                            if (calculationInstance.verboseMode) System.out.println("notEquals=" + lastD + " != " + nextD);
+                            if (calculationInstance.verboseMode) print("notEquals=" + lastD + " != " + nextD);
                             newComponentsB.add(new MathVariableConstant(lastD != nextD ? 1 : 0, false));
                         }
                         case and -> {
@@ -230,7 +248,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                             newComponentsB.removeLast();
                             double lastD = last.get();
                             double nextD = next.get();
-                            if (calculationInstance.verboseMode) System.out.println("and=" + (lastD == 1) + " && " + (nextD == 1));
+                            if (calculationInstance.verboseMode) print("and=" + (lastD == 1) + " && " + (nextD == 1));
                             newComponentsB.add(new MathVariableConstant((lastD == 1) && (nextD == 1) ? 1 : 0, false));
                         }
                         case or -> {
@@ -239,7 +257,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                             newComponentsB.removeLast();
                             double lastD = last.get();
                             double nextD = next.get();
-                            if (calculationInstance.verboseMode) System.out.println("or=" + (lastD == 1) + " || " + (nextD == 1));
+                            if (calculationInstance.verboseMode) print("or=" + (lastD == 1) + " || " + (nextD == 1));
                             newComponentsB.add(new MathVariableConstant((lastD == 1) || (nextD == 1) ? 1 : 0, false));
                         }
                         case largerThan -> {
@@ -248,7 +266,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                             newComponentsB.removeLast();
                             double lastD = last.get();
                             double nextD = next.get();
-                            if (calculationInstance.verboseMode) System.out.println("largerThan=" + lastD + " > " + nextD);
+                            if (calculationInstance.verboseMode) print("largerThan=" + lastD + " > " + nextD);
                             newComponentsB.add(new MathVariableConstant(lastD > nextD ? 1 : 0, false));
                         }
                         case largerThanOrEquals -> {
@@ -257,7 +275,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                             newComponentsB.removeLast();
                             double lastD = last.get();
                             double nextD = next.get();
-                            if (calculationInstance.verboseMode) System.out.println("largerThanOrEquals=" + lastD + " >= " + nextD);
+                            if (calculationInstance.verboseMode) print("largerThanOrEquals=" + lastD + " >= " + nextD);
                             newComponentsB.add(new MathVariableConstant(lastD >= nextD ? 1 : 0, false));
                         }
                         case smallerThan -> {
@@ -266,7 +284,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                             newComponentsB.removeLast();
                             double lastD = last.get();
                             double nextD = next.get();
-                            if (calculationInstance.verboseMode) System.out.println("smallerThan=" + lastD + " < " + nextD);
+                            if (calculationInstance.verboseMode) print("smallerThan=" + lastD + " < " + nextD);
                             newComponentsB.add(new MathVariableConstant(lastD < nextD ? 1 : 0, false));
                         }
                         case smallerThanOrEquals -> {
@@ -275,7 +293,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                             newComponentsB.removeLast();
                             double lastD = last.get();
                             double nextD = next.get();
-                            if (calculationInstance.verboseMode) System.out.println("smallerThanOrEquals=" + lastD + " <= " + nextD);
+                            if (calculationInstance.verboseMode) print("smallerThanOrEquals=" + lastD + " <= " + nextD);
                             newComponentsB.add(new MathVariableConstant(lastD <= nextD ? 1 : 0, false));
                         }
                         default -> newComponentsB.add(component);
@@ -297,7 +315,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                         newComponents.removeLast();
                         double lastD = last.get();
                         double nextD = next.get();
-                        if (calculationInstance.verboseMode) System.out.println("multiply=" + lastD + " * " + nextD);
+                        if (calculationInstance.verboseMode) print("multiply=" + lastD + " * " + nextD);
                         newComponents.add(new MathVariableConstant(lastD * nextD, false));
                     } else if (action == MathAction.divide) {
                         MathComponent last = newComponents.getLast();
@@ -305,7 +323,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                         newComponents.removeLast();
                         double lastD = last.get();
                         double nextD = next.get();
-                        if (calculationInstance.verboseMode) System.out.println("divide=" + lastD + " / " + nextD);
+                        if (calculationInstance.verboseMode) print("divide=" + lastD + " / " + nextD);
                         newComponents.add(new MathVariableConstant(lastD / nextD, false));
                     } else if (action == MathAction.divisionRemainder) {
                         MathComponent last = newComponents.getLast();
@@ -313,7 +331,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                         newComponents.removeLast();
                         double lastD = last.get();
                         double nextD = next.get();
-                        if (calculationInstance.verboseMode) System.out.println("divide remainder=" + lastD + " % " + nextD);
+                        if (calculationInstance.verboseMode) print("divide remainder=" + lastD + " % " + nextD);
                         newComponents.add(new MathVariableConstant(lastD % nextD, false));
                     } else {
                         newComponents.add(component);
@@ -336,7 +354,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                         newComponents2.removeLast();
                         double lastD = last.get();
                         double nextD = next.get();
-                        if (calculationInstance.verboseMode) System.out.println("add=" + lastD + " + " + nextD);
+                        if (calculationInstance.verboseMode) print("add=" + lastD + " + " + nextD);
                         newComponents2.add(new MathVariableConstant(lastD + nextD, false));
                     } else if (action == MathAction.subtract) {
                         MathComponent last = newComponents2.getLast();
@@ -344,7 +362,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                         newComponents2.removeLast();
                         double lastD = last.get();
                         double nextD = next.get();
-                        if (calculationInstance.verboseMode) System.out.println("subtract=" + lastD + " - " + nextD);
+                        if (calculationInstance.verboseMode) print("subtract=" + lastD + " - " + nextD);
                         newComponents2.add(new MathVariableConstant(lastD - nextD, false));
                     } else {
                         newComponents.add(component);
@@ -354,15 +372,17 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                 }
 
             }
-
+            if (calculationInstance.verboseMode) print("finish calculating [" + originalExpression + "] as [" + components+"].");
             if (newComponents2.size() == 1) {
-
+                // lastResultCount = calculationInstance.calculationCount;
                 //if(verboseMode) System.out.print("group result");
                 double result = newComponents2.getLast().get();
-                if (calculationInstance.verboseMode) System.out.println(" = " + result);
+                //lastResultThisTick = result;
+                if (calculationInstance.verboseMode) print(" = " + result);
                 return result;
             } else {
-                System.out.println("ERROR: calculation did not result in 1 component, found: " + newComponents2.toString());
+                System.out.println("ERROR: calculation did not result in 1 component, found: " + newComponents2.toString()+ " in ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].");
+                System.out.println("\texpression was ["+originalExpression+"].");
             }
         }catch (Exception e){
             System.out.println("EMF animation ERROR: expression error in ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"] caused by ["+e+"].");

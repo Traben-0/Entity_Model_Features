@@ -37,6 +37,16 @@ public class modMenuEntry implements ModMenuApi {
                                 )
                                 .controller(BooleanController::new)
                                 .build())
+                        .option(Option.createBuilder(boolean.class)
+                                .name(Text.of("print maths"))
+                                .tooltip(Text.of("")) // optional
+                                .binding(
+                                        false, // default
+                                        () -> EMFData.getInstance().getConfig().printAllMaths, // getter
+                                        newValue -> EMFData.getInstance().getConfig().printAllMaths = newValue // setter
+                                )
+                                .controller(BooleanController::new)
+                                .build())
                         .option(Option.createBuilder(float.class)
                                 .name(Text.of("minimin animation rate in tps"))
                                 .tooltip(Text.of("")) // optional
@@ -51,7 +61,7 @@ public class modMenuEntry implements ModMenuApi {
                                 .name(Text.of("minimin animation drop off distance"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(
-                                        1f, // default
+                                        8f, // default
                                         () -> EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff, // getter
                                         newValue -> EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff = newValue // setter
                                 )
@@ -61,15 +71,20 @@ public class modMenuEntry implements ModMenuApi {
                                 .name(Text.of("animation quality drop off rate"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(
-                                        1f, // default
+                                        6f, // default
                                         () -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate, // getter
                                         newValue -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate = newValue // setter
                                 )
                                 .controller((val)->new FloatSliderController(val,1,100,1f))
                                 .build())
                         .build())
-                .save(EMFData.getInstance()::EMF_saveConfig)
+                .save(modMenuEntry::saveAndReset)
                 .build()
                 .generateScreen(parent);
+    }
+
+    static void saveAndReset(){
+        EMFData.getInstance().EMF_saveConfig();
+        EMFData.reset();
     }
 }

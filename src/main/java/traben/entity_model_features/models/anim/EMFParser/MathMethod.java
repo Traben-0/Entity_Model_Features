@@ -79,7 +79,9 @@ public class MathMethod extends MathValue implements MathComponent{
             case "between" -> BETWEEN(argsList);
             case "equals" -> EQUALS(argsList);
             case "in" -> IN(argsList);
-            default -> ()-> 0d;
+            default ->{
+                throw new EMFMathException("ERROR: Unknown method ["+methodName+"], rejecting animation expression for ["+calculationInstance.animKey+"].");
+            } //()-> 0d;
         };
 
     }
@@ -152,7 +154,7 @@ public class MathMethod extends MathValue implements MathComponent{
             return ()-> {
                 double xVal = x.get();
                 if(getPrintCount() % n.get() == 0){
-                    System.out.println("EMF printb: ["+id+"] = "+(xVal == 1));
+                    print("EMF printb: ["+id+"] = "+(xVal == 1));
                 }
                 return xVal;
             };
@@ -169,7 +171,7 @@ public class MathMethod extends MathValue implements MathComponent{
             return ()-> {
                 double xVal = x.get();
                 if(getPrintCount() % n.get() == 0){
-                    System.out.println("EMF print: ["+id+"] = "+xVal);
+                    print("EMF print: ["+id+"] = "+xVal);
                 }
                 return xVal;
             };
@@ -314,7 +316,7 @@ public class MathMethod extends MathValue implements MathComponent{
                 double x = arg.get();
                 double min = arg1.get();
                 double max = arg2.get();
-                if(calculationInstance.verboseMode) System.out.println("clamp="+x+", "+min+", "+max);
+                if(calculationInstance.verboseMode) print("clamp="+x+", "+min+", "+max);
                 return x > max ? max : (Math.max(x, min));
             };
         }
@@ -375,7 +377,11 @@ public class MathMethod extends MathValue implements MathComponent{
     private Supplier<Double> TORAD(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> Math.toRadians(arg.get());
+            return ()->{
+                double x =arg.get();
+                if(calculationInstance.verboseMode) print("torad ="+x);
+                return Math.toRadians(x);
+            };
         }
         String s = "ERROR: wrong number of arguments "+ args +" in TORAD method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -393,7 +399,10 @@ public class MathMethod extends MathValue implements MathComponent{
     private Supplier<Double> SIN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> Math.sin(arg.get());
+            return ()-> {
+                if(calculationInstance.verboseMode) print("sin = "+ arg.components);
+                return Math.sin(arg.get());
+            };
         }
         String s = "ERROR: wrong number of arguments "+ args +" in SIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -464,7 +473,10 @@ public class MathMethod extends MathValue implements MathComponent{
             MathExpression tru = new MathExpression(args.get(1),false,calculationInstance);
             MathExpression fals = new MathExpression(args.get(2),false,calculationInstance);
 
-            return ()-> bool.get() == 1 ? tru.get() : fals.get();
+            return ()->{
+                if(calculationInstance.verboseMode) print("if = "+bool.components+", "+tru.components+", "+fals.components);
+                return bool.get() == 1 ? tru.get() : fals.get();
+            };
         }else if(args.size() % 2 == 1){
             //elif
             List<MathExpression> expList = new ArrayList<>();
@@ -478,12 +490,15 @@ public class MathMethod extends MathValue implements MathComponent{
                 for (int i = 0; i < expList.size(); i++) {
                     if(i == expList.size()-1){
                         //last
+                        if(calculationInstance.verboseMode) print("elif else = "+ expList.get(i).components);
                         return expList.get(i).get();
-                    }else if(i % 2 == 1){
+                    }else if(i % 2 == 0){
                         //boolean
+                        if(calculationInstance.verboseMode) print("elif = "+ expList.get(i).components);
                         lastCondition = expList.get(i).get() == 1;
                     }else if(lastCondition){
                         //true condition to return
+                        if(calculationInstance.verboseMode) print("elif true = "+ expList.get(i).components);
                         return expList.get(i).get();
                     }
                 }
@@ -500,7 +515,10 @@ public class MathMethod extends MathValue implements MathComponent{
 
     }
 
-
+    @Override
+    public String toString() {
+        return methodName;
+    }
 
     Supplier<Double> supplier;
     @Override

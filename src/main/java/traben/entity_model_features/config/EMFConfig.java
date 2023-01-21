@@ -11,5 +11,7 @@ public class EMFConfig {
 
     public boolean useMXParser = false;
 
+    public boolean printAllMaths = false;
+
 
 }
