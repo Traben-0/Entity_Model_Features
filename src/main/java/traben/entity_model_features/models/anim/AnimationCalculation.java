@@ -229,13 +229,17 @@ public abstract class AnimationCalculation {
         else
             this.vanillaModelPart = part;
 
-        if(varToChange != null)
+        if(varToChange != null) {
             defaultValue = varToChange.getDefaultFromModel(part);
-        else
+            if(this.modelPart != null)
+                varToChange.setValueAsAnimated(this.modelPart);
+        } else {
             defaultValue = 0;
+        }
         prevResults.defaultReturnValue(defaultValue);
         prevPrevResults.defaultReturnValue(defaultValue);
         //calculator = new Expression(initialExpression);
+
     }
 
     public boolean verboseMode = false;
@@ -316,7 +320,7 @@ public abstract class AnimationCalculation {
 
         if(Double.isNaN(result)){
             //System.out.println(isRidden()+", "+isChild());
-            if(rand.nextInt(100) == 1)System.out.println("result was NaN from: "+animKey);
+            //if(rand.nextInt(100) == 1)System.out.println("result was NaN from: "+animKey);
             if(varToChange != null)
                 varToChange.set(modelPart, -999D);
             //isValid();
@@ -402,6 +406,44 @@ public abstract class AnimationCalculation {
                 }
                 case CUSTOM -> {
                     //todo pain.jpeg
+                }
+            }
+        }
+        public void setValueAsAnimated(EMF_ModelPart part) {
+            if (part == null){
+                System.out.println("this model couldn't be anim set as the method sent null part to "+this);
+                return;
+            }
+            switch (this){
+                case tx -> {
+                    part.doesAnimtx = true;
+                }
+                case ty -> {
+                    part.doesAnimty = true;
+                }
+                case tz -> {
+                    part.doesAnimtz = true;
+                }
+                case rx -> {
+                    part.doesAnimrx = true;
+                }
+                case ry -> {
+                    part.doesAnimry = true;
+                }
+                case rz -> {
+                    part.doesAnimrz = true;
+                }
+                case sx -> {
+                    part.doesAnimsx = true;
+                }
+                case sy -> {
+                    part.doesAnimsy = true;
+                }
+                case sz -> {
+                    part.doesAnimsz = true;
+                }
+                default-> {
+                    //hmmm
                 }
             }
         }

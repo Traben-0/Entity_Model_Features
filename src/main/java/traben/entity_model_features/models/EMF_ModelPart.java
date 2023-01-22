@@ -9,7 +9,6 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import org.joml.*;
@@ -39,9 +38,7 @@ public class EMF_ModelPart extends ModelPart  {
     public boolean visible_boxes = true;
     public boolean visible = true;
 
-    private boolean invX = false;
-    private boolean invY = false;
-    private boolean invZ = false;
+
 
 
     @Override
@@ -60,7 +57,7 @@ public class EMF_ModelPart extends ModelPart  {
         if (this.visible) {
             if (!this.cuboids.isEmpty() || !this.children.isEmpty()) {
                 matrices.push();
-                this.rotateV2(matrices);
+                this.rotateV3(matrices);
                 // override texture if needed
                 // this is not recommended for ETF support but is very useful for .jpms
                 if(this.customTexture != null && this.thisModel.currentVertexProvider != null && this.thisModel.vanillaModel != null){
@@ -95,9 +92,9 @@ public class EMF_ModelPart extends ModelPart  {
 
         if (!thisModel.isAnimated && vanillaPart != null) {
             matrices.multiply((new Quaternionf()).rotationZYX(
-                    (didAnimrz ? this.roll : getDefaultTransform().roll + vanillaPart.roll),
-                    (didAnimry ? this.yaw : getDefaultTransform().yaw + vanillaPart.yaw),
-                    (didAnimrx ? this.pitch : getDefaultTransform().pitch + vanillaPart.pitch)));
+                    (doesAnimrz ? this.roll : getDefaultTransform().roll + vanillaPart.roll),
+                    (doesAnimry ? this.yaw : getDefaultTransform().yaw + vanillaPart.yaw),
+                    (doesAnimrx ? this.pitch : getDefaultTransform().pitch + vanillaPart.pitch)));
         } else {
             matrices.multiply((new Quaternionf()).rotationZYX(roll, yaw, pitch));
         }
@@ -106,38 +103,64 @@ public class EMF_ModelPart extends ModelPart  {
         }
     }
 
+    public void rotateV3(MatrixStack matrices) {
+
+        float pivotX = (doesAnimtx || vanillaPart == null ? this.pivotX : /*getDefaultTransform().pivotX +*/ vanillaPart.pivotX );
+        float pivotY = (doesAnimty || vanillaPart == null ? this.pivotY : /*getDefaultTransform().pivotY +*/ vanillaPart.pivotY );
+        float pivotZ = (doesAnimtz || vanillaPart == null ? this.pivotZ : /*getDefaultTransform().pivotZ +*/ vanillaPart.pivotZ );
+
+        float roll  = (doesAnimrz || vanillaPart == null ? this.roll  : getDefaultTransform().roll  + vanillaPart.roll );
+        float yaw   = (doesAnimry || vanillaPart == null ? this.yaw   : getDefaultTransform().yaw   + vanillaPart.yaw  );
+        float pitch = (doesAnimrx || vanillaPart == null ? this.pitch : getDefaultTransform().pitch + vanillaPart.pitch);
+
+       // float xScale = (doesAnimsx || vanillaPart == null ? this.xScale : vanillaPart.xScale );
+       // float yScale = (doesAnimsy || vanillaPart == null ? this.yScale : vanillaPart.yScale );
+       // float zScale = (doesAnimsz || vanillaPart == null ? this.zScale : vanillaPart.zScale );
+
+        matrices.translate(
+                (pivotX) / 16.0F,
+                (pivotY) / 16.0F,
+                (pivotZ) / 16.0F);
+
+        matrices.multiply((new Quaternionf()).rotationZYX(roll, yaw, pitch));
+
+        if (xScale != 1.0F || yScale != 1.0F || zScale != 1.0F) {
+            matrices.scale(xScale, yScale, zScale);
+        }
+    }
+
     public void setAnimPitch(float newPitch){
-        didAnimrx = true;
+        //didAnimrx = true;
         this.pitch = newPitch;// + getDefaultTransform().pitch;
     }
     public void setAnimYaw(float newYaw){
-        didAnimry = true;
+        //didAnimry = true;
         this.yaw = newYaw;// + getDefaultTransform().yaw;
     }
     public void setAnimRoll(float newRoll){
-        didAnimrz = true;
+        //didAnimrz = true;
         this.roll = newRoll;// + getDefaultTransform().roll;
     }
     public void setAnimPivotX(float val){
 //        if(parentOnePivotXOverride != 0)
 //            this.pivotX = (invX? val : -val) + parentOnePivotXOverride;
 //        else
-        didAnimtx = true;
+        //didAnimtx = true;
             this.pivotX = val  + parentOnePivotXOverride;
     }
     public void setAnimPivotY(float val){
 //        if(parentOnePivotYOverride != 0)
 //            this.pivotY = (invY? val : -val) + parentOnePivotYOverride;
 //        else
-        didAnimty = true;
-            this.pivotY = val  + parentOnePivotYOverride; //TODO THIS DOES NOT APPLY TO WITCH HAT, find out why??
+        //didAnimty = true;
+            this.pivotY = val  + parentOnePivotYOverride; //TODO THIS DOES NOT APPLY TO WITCH HAT, find out why??  resolved as snime neads to read pivot without parent modifier for other parent=1 variables
         //running theory is animation gets will remove the parentonepivot figure as witch hat calls it
     }
     public void setAnimPivotZ(float val){
 //        if(parentOnePivotZOverride != 0)
 //            this.pivotZ = (invZ? val : -val) + parentOnePivotZOverride;
 //        else
-        didAnimtz = true;
+        //didAnimtz = true;
         this.pivotZ = val + parentOnePivotZOverride;
     }
     public float getAnimPivotX(){
@@ -159,12 +182,15 @@ public class EMF_ModelPart extends ModelPart  {
         return pivotZ - parentOnePivotZOverride;
     }
 
-    boolean didAnimtx = false;
-    boolean didAnimty = false;
-    boolean didAnimtz = false;
-    boolean didAnimrx = false;
-    boolean didAnimry = false;
-    boolean didAnimrz = false;
+    public boolean doesAnimtx = false;
+    public boolean doesAnimty = false;
+    public boolean doesAnimtz = false;
+    public boolean doesAnimrx = false;
+    public boolean doesAnimry = false;
+    public boolean doesAnimrz = false;
+    public boolean doesAnimsx = false;
+    public boolean doesAnimsy = false;
+    public boolean doesAnimsz = false;
 
 
     private float parentOnePivotXOverride = 0;
@@ -224,9 +250,9 @@ public class EMF_ModelPart extends ModelPart  {
         boolean invY = selfModelData.invertAxis.contains("y");
         boolean invZ = selfModelData.invertAxis.contains("z");
 
-        this.invX = invX;
-        this.invY = invY;
-        this.invZ = invZ;
+       // this.invX = invX;
+        //this.invY = invY;
+        //this.invZ = invZ;
         //selfModelData.
 
         //these ones need to change due to some unknown bullshit
@@ -297,28 +323,28 @@ public class EMF_ModelPart extends ModelPart  {
 
         //this seems to fix the issue with sheep cows pigs etc where the body emf part isn't aligned right when not animated
         // this attempts to copy over model default transforms from vanilla parts
-        if (vanillaPartOfThis != null ){
-
-            ModelTransform defaults = vanillaPartOfThis.getDefaultTransform();
-            if(defaults.pitch != 0 || defaults.yaw != 0 || defaults.roll != 0) {
-                rotateX += defaults.pitch;
-                rotateY += defaults.yaw;
-                rotateZ += defaults.roll;
-
-                // seems this is a factor as it has proved functional for pigs sheep and cows despite their varied offsets
-//                float stanceWidthMaybe = -defaults.pivotY + 15;
-//                //sheep 10   pig 4
+//        if (vanillaPartOfThis != null ){
 //
+//            ModelTransform defaults = vanillaPartOfThis.getDefaultTransform();
+//            if(defaults.pitch != 0 || defaults.yaw != 0 || defaults.roll != 0) {
+//                rotateX += defaults.pitch;
+//                rotateY += defaults.yaw;
+//                rotateZ += defaults.roll;
+//
+//                // seems this is a factor as it has proved functional for pigs sheep and cows despite their varied offsets
+////                float stanceWidthMaybe = -defaults.pivotY + 15;
+////                //sheep 10   pig 4
+////
+////                pivotX = defaults.pivotX;
+////                pivotY = defaults.pivotY + (stanceWidthMaybe / 4);//+2;
+////                pivotZ = (float) (defaults.pivotZ + (stanceWidthMaybe * 1.8));//+20;
+//
+//                //nvm lol had something else disabled while testing
 //                pivotX = defaults.pivotX;
-//                pivotY = defaults.pivotY + (stanceWidthMaybe / 4);//+2;
-//                pivotZ = (float) (defaults.pivotZ + (stanceWidthMaybe * 1.8));//+20;
-
-                //nvm lol had something else disabled while testing
-                pivotX = defaults.pivotX;
-                pivotY = defaults.pivotY;
-                pivotZ = defaults.pivotZ;
-            }
-        }
+//                pivotY = defaults.pivotY;
+//                pivotZ = defaults.pivotZ;
+//            }
+//        }
 
         //try the vanilla model values
 
