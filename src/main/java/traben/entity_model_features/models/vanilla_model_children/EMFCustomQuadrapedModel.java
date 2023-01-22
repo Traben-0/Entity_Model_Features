@@ -5,6 +5,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.QuadrupedEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
+import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.mixin.accessor.QuadrupedEntityModelAccessor;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
@@ -30,6 +31,7 @@ public class EMFCustomQuadrapedModel<T extends LivingEntity> extends QuadrupedEn
         super(QuadrupedEntityModel.getModelData(1,Dilation.NONE).getRoot().createPart(0,0),
                 false,0,0,0,0,0);
         thisEMFModel=model;
+        ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
 
         List<EMF_ModelPart> headCandidates = new ArrayList<>();
         List<EMF_ModelPart> bodyCandidates = new ArrayList<>();

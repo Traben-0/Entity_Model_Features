@@ -3,13 +3,14 @@ package traben.entity_model_features.models.vanilla_model_children;
 import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.client.render.entity.model.IronGolemEntityModel;
+import net.minecraft.client.render.entity.model.ModelWithHat;
+import net.minecraft.client.render.entity.model.VillagerResemblingModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.IronGolemEntity;
-import traben.entity_model_features.mixin.IronGolemEntityModelAccessor;
+import traben.entity_model_features.mixin.VillagerResemblingModelAccessor;
 import traben.entity_model_features.mixin.accessor.BipedEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
+import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
@@ -17,7 +18,7 @@ import traben.entity_model_features.models.EMF_ModelPart;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EMFCustomIronGolemModel<T extends LivingEntity, M extends IronGolemEntity> extends IronGolemEntityModel<M> implements EMFCustomModel<T> {
+public class EMFCustomVillagerModel<T extends LivingEntity> extends VillagerResemblingModel<T> implements EMFCustomModel<T>, EMFArmorableModel {
 
     public EMF_EntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -27,43 +28,37 @@ public class EMFCustomIronGolemModel<T extends LivingEntity, M extends IronGolem
         return false;
     }
 
-    private final EMF_EntityModel<T> thisEMFModel;
+    private final  EMF_EntityModel<T> thisEMFModel;
 
 
-    public EMFCustomIronGolemModel(EMF_EntityModel<T> model) {
-        super(BipedEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
+    public EMFCustomVillagerModel(EMF_EntityModel<T> model) {
+        super(VillagerResemblingModel.getModelData().getRoot().createPart(0,0));
+
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
-        //supports flower holding feature
-        if(thisEMFModel.childrenMap.containsKey("right_arm")) {
-            ((BipedEntityModelAccessor) this).setRightArm(thisEMFModel.childrenMap.get("right_arm"));
-        }
-        List<EMF_ModelPart> rArmCandidates = new ArrayList<>();
+
+        List<EMF_ModelPart> headWearCandidates = new ArrayList<>();
+
         for (EMF_ModelPart part:
                 thisEMFModel.childrenMap.values()) {
-            if ("right_arm".equals(part.selfModelData.part)) {
-                rArmCandidates.add(part);
+            if ("headwear".equals(part.selfModelData.part)) {
+                headWearCandidates.add(part);
             }
         }
-        setNonEmptyPart(rArmCandidates,((IronGolemEntityModelAccessor)this)::setRightArm);
+
+        setNonEmptyPart(headWearCandidates,((VillagerResemblingModelAccessor)this)::setHat);
     }
-
-
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-        thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
-    }
 
+            thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
 
-    @Override
-    public void setAngles(M ironGolemEntity, float f, float g, float h, float i, float j) {
-        setAngles((T)ironGolemEntity, f, g, h, i, j);
     }
 
     @Override
     public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
-        //System.out.println("ran");
+
             thisEMFModel.child = child;
             //thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
@@ -72,15 +67,17 @@ public class EMFCustomIronGolemModel<T extends LivingEntity, M extends IronGolem
 
     }
 
-
-    @Override
-    public void animateModel(M ironGolemEntity, float f, float g, float h) {
-        animateModel((T)ironGolemEntity, f, g, h);
-    }
     @Override
     public void animateModel(T livingEntity, float f, float g, float h) {
-        thisEMFModel.animateModel(livingEntity, f, g, h);
+        //super.animateModel(livingEntity, f, g, h);
 
+            thisEMFModel.animateModel(livingEntity, f, g, h);
+
+    }
+
+    @Override
+    public EMF_EntityModel<?> getArmourModel(boolean getInner) {
+        return thisEMFModel.getArmourModel(getInner);
     }
 
 

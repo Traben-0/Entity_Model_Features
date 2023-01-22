@@ -2,6 +2,7 @@ package traben.entity_model_features.vanilla_part_mapping;
 
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.*;
+import net.minecraft.entity.player.PlayerEntity;
 import traben.entity_model_features.mixin.accessor.*;
 
 import java.util.ArrayList;
@@ -81,6 +82,9 @@ public class VanillaMappings {
         }
         if (vanillaModel instanceof ArmorStandEntityModel) {
             return VanillaMappings::getArmorStandMap;
+        }
+        if (vanillaModel instanceof PlayerEntityModel) {
+            return VanillaMappings::getGenericPlayerMap;
         }
         if (vanillaModel instanceof BipedEntityModel) {
             return VanillaMappings::getGenericBipedMap;
@@ -522,6 +526,33 @@ public class VanillaMappings {
             vanillaPartsList.put("left",bodyParts.get(7));
             vanillaPartsList.put("waist",bodyParts.get(8));//todo might be wrong part
             vanillaPartsList.put("base",bodyParts.get(9));
+        }
+        return vanillaPartsList;
+    }
+    private static HashMap<String, ModelPart> getGenericPlayerMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+        if(vanillaModel instanceof PlayerEntityModel player){
+            ArrayList<ModelPart> bodyParts = new ArrayList<>();
+            vanillaPartsList.put("head",((ModelWithHead)player).getHead());
+//            for (ModelPart part : ((BipedEntityModelAccessor) biped).callGetHeadParts()) {
+//                vanillaPartsList.put("head",part);
+//                break;
+//            }
+            //ImmutableList.of(this.body, this.rightArm, this.leftArm, this.rightLeg, this.leftLeg, this.hat);
+            for (ModelPart part : ((BipedEntityModelAccessor) player).callGetBodyParts()) {
+                bodyParts.add(part);
+            }
+            vanillaPartsList.put("body",bodyParts.get(0));
+            vanillaPartsList.put("right_arm",bodyParts.get(1));
+            vanillaPartsList.put("left_arm",bodyParts.get(2));
+            vanillaPartsList.put("right_leg",bodyParts.get(3));
+            vanillaPartsList.put("left_leg",bodyParts.get(4));
+            vanillaPartsList.put("headwear",bodyParts.get(5));
+            vanillaPartsList.put("left_pants",bodyParts.get(6));
+            vanillaPartsList.put("right_pants",bodyParts.get(7));
+            vanillaPartsList.put("left_sleeve",bodyParts.get(8));
+            vanillaPartsList.put("right_sleeve",bodyParts.get(9));
+            vanillaPartsList.put("jacket",bodyParts.get(10));
         }
         return vanillaPartsList;
     }

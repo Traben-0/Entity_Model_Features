@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(BipedEntityModel.class)
-public interface BipedEntityModelAccessor {
+public interface BipedEntityModelAccessor{
     @Invoker
     Iterable<ModelPart> callGetBodyParts();
 

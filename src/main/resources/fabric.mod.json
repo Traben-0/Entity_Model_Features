@@ -16,7 +16,9 @@
     "client": [
       "traben.entity_model_features.Entity_model_featuresClient"
     ],
-    "modmenu": [ "traben.entity_model_features.config.modMenuEntry" ]
+    "modmenu": [
+      "traben.entity_model_features.config.EMFModMenuEntry"
+    ]
   },
 
   "mixins": [

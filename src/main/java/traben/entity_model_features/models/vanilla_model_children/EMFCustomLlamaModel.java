@@ -9,6 +9,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.AbstractDonkeyEntity;
 import net.minecraft.entity.passive.DonkeyEntity;
 import traben.entity_model_features.mixin.accessor.LlamaEntityModelAccessor;
+import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.mixin.accessor.QuadrupedEntityModelAccessor;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
@@ -33,6 +34,7 @@ public class EMFCustomLlamaModel<T extends LivingEntity, M extends AbstractDonke
     public EMFCustomLlamaModel(EMF_EntityModel<T> model) {
         super(LlamaEntityModel.getTexturedModelData(Dilation.NONE).createModel());
         thisEMFModel=model;
+        ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
 
         List<EMF_ModelPart> headCandidates = new ArrayList<>();
         List<EMF_ModelPart> bodyCandidates = new ArrayList<>();

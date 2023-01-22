@@ -6,6 +6,7 @@ import net.minecraft.client.render.entity.model.EndermanEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import traben.entity_model_features.mixin.accessor.BipedEntityModelAccessor;
+import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
@@ -29,6 +30,7 @@ public class EMFCustomEndermanModel<T extends LivingEntity> extends EndermanEnti
     public EMFCustomEndermanModel(EMF_EntityModel<T> model) {
         super(EndermanEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
         thisEMFModel=model;
+        ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
 
         List<EMF_ModelPart> headWearCandidates = new ArrayList<>();
         List<EMF_ModelPart> headCandidates = new ArrayList<>();

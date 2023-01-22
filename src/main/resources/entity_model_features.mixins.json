@@ -4,24 +4,29 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "VillagerResemblingModelAccessor",
+    "accessor.IllagerEntityModelAccessor"
+  ],
+  "client": [
     "CuboidAccessor",
     "IronGolemEntityModelAccessor",
     "LlamaDecorFeatureRendererAccessor",
+    "MixinSimpleResourceReload",
     "SaddleFeatureRendererAccessor",
     "accessor.AnimalModelAccessor",
+    "accessor.BipedEntityModelAccessor",
     "accessor.FoxEntityModelAccessor",
     "accessor.HorseArmorFeatureRendererAccessor",
     "accessor.HorseEntityModelAccessor",
     "accessor.LivingEntityRendererAccessor",
     "accessor.LlamaEntityModelAccessor",
+    "accessor.ModelAccessor",
     "accessor.ModelPartAccessor",
-    "accessor.PlayerEntityModelAccessor"
-  ],
-  "client": [
-    "MixinSimpleResourceReload",
-    "accessor.BipedEntityModelAccessor",
+    "accessor.PlayerEntityModelAccessor",
     "accessor.QuadrupedEntityModelAccessor",
     "renderers.MixinLivingEntityRenderer",
+    "renderers.MixinPlayerEntityRenderer",
+    "renderers.features.MixinDrownedOverlayFeatureEntityRenderer",
     "renderers.features.MixinSheepWoolFeatureRenderer"
   ],
   "injectors": {

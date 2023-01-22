@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -17,9 +18,11 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import org.joml.Quaternionf;
 import traben.entity_model_features.EMFData;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.AnimalModelAccessor;
+import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 import traben.entity_model_features.models.anim.AnimationCalculationEMFParser;
 import traben.entity_model_features.models.anim.AnimationCalculationMXParser;
@@ -49,13 +52,40 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
     public boolean isAnimated = false;
 
+    public RenderLayer getLayer2(Identifier van) {
+
+        if (texture == null){
+            return EMFData.getInstance().getConfig().forceTranslucentMobRendering ? RenderLayer.getEntityTranslucent(van) : vanillaModel.getLayer(van);
+        }
+        return EMFData.getInstance().getConfig().forceTranslucentMobRendering ? RenderLayer.getEntityTranslucent(texture) : vanillaModel.getLayer(texture);
+    }
+
+    public final Identifier texture;
+
     public EMF_EntityModel(String WARNING_ONLY_FOR_TEST){
         modelPathIdentifier = WARNING_ONLY_FOR_TEST;
         vanillaModel = null;
         jemData = null;
+        texture = null;
     }
 
     public EMF_EntityModel(EMF_JemData jem, String modelPath, VanillaMappings.VanillaMapper vanillaPartSupplier, EntityModel<T> vanillaModel){
+
+       // super(EMFData.getInstance().getConfig().forceTranslucentMobRendering ? RenderLayer::getEntityTranslucent : RenderLayer::getEntityCutoutNoCull);
+
+        ((ModelAccessor)this).setLayerFactory(this::getLayer2);
+
+        if(jem != null && !jem.texture.isEmpty()){
+            Identifier texture =new Identifier(jem.texture);
+            if(MinecraftClient.getInstance().getResourceManager().getResource(texture).isPresent()){
+                this.texture = texture;
+            }else{
+                this.texture = null;
+            }
+        }else{
+            this.texture = null;
+        }
+
         HashMap<String,ModelPart> vanModelParts = vanillaPartSupplier.getVanillaModelPartsMapFromModel(vanillaModel);
         this.vanillaModel = vanillaModel;
         vanillaModelPartsById = vanModelParts;
@@ -274,10 +304,14 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         herematrices.push();
 
         if(animationProgress < EMFData.getInstance().getConfig().spawnAnimTime && EMFData.getInstance().getConfig().spawnAnim != EMFConfig.SpawnAnimation.None){
-            float delta = MathHelper.clamp( animationProgress / EMFData.getInstance().getConfig().spawnAnimTime,0,1);
+            float delta = MathHelper.clamp( animationProgress / EMFData.getInstance().getConfig().spawnAnimTime,0,1f);
             switch (EMFData.getInstance().getConfig().spawnAnim){
-                case Inflate -> {
+                case InflateGround -> {
                     herematrices.translate(0,2 - 2 * delta,0);
+                    herematrices.scale(delta,delta,delta);
+                }
+                case InflateCenter -> {
+                    //herematrices.translate(0,2 - 2 * delta,0);
                     herematrices.scale(delta,delta,delta);
                 }
                 case Rise -> herematrices.translate(0,3 *(1- delta),0);
@@ -286,12 +320,31 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                     herematrices.translate(0,-20 *(1- delta),0);
                 }
                 case Fade -> alpha = delta;
-                case Dark -> light = MathHelper.clamp( LightmapTextureManager.getSkyLightCoordinates((int)(15 * delta)),0,light);
-                case Bright -> light = MathHelper.clamp(LightmapTextureManager.getSkyLightCoordinates((int)(15 - 15* delta)),light,LightmapTextureManager.MAX_LIGHT_COORDINATE);
+                case Pitch -> {
+                    herematrices.multiply((new Quaternionf()).rotationZYX(0, 0, (float) Math.toRadians(90 - 90*delta)));
+                }
+                case Yaw -> {
+                    herematrices.multiply((new Quaternionf()).rotationZYX(0,  (float) Math.toRadians(360 - 360*delta),0));
+                }
+                case Dark -> {
+                    int lightSimple = LightmapTextureManager.getBlockLightCoordinates(light);
+                    lightSimple = Math.max(lightSimple, LightmapTextureManager.getSkyLightCoordinates(light));
+                    int lightClamp = MathHelper.clamp( (int)(15 * delta),0,lightSimple);
+                    light =LightmapTextureManager.pack(lightClamp,lightClamp);
+                }
+                case Bright ->{
+                    int lightSimple = LightmapTextureManager.getBlockLightCoordinates(light);
+                    lightSimple = Math.max(lightSimple, LightmapTextureManager.getSkyLightCoordinates(light));
+                    int lightClamp = MathHelper.clamp( (int)(15 - 15* delta),lightSimple,15);
+                    light =LightmapTextureManager.pack(lightClamp,lightClamp);
+                    //light = MathHelper.clamp(LightmapTextureManager.getSkyLightCoordinates((int)(15 - 15* delta)),light,LightmapTextureManager.MAX_LIGHT_COORDINATE);
+                }
             }
         }
 
-
+        if(this.texture != null && this.currentVertexProvider != null && this.vanillaModel != null){
+            vertices = this.currentVertexProvider.getBuffer(this.vanillaModel.getLayer(this.texture));
+        }
 
         if (this.child && vanillaModel instanceof AnimalModel animal) {
             float f = 1.0F / ((AnimalModelAccessor)animal).getInvertedChildBodyScale();
@@ -506,8 +559,8 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
     private EMF_EntityModel<T> outerArmor = null;
 
-    public interface ModelRenderLayerSupplier{
-        RenderLayer getLayer(Identifier id);
-    }
+
+
+
 
 }

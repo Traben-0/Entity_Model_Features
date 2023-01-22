@@ -2,25 +2,18 @@ package traben.entity_model_features.config;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import dev.isxander.yacl.api.Binding;
 import dev.isxander.yacl.api.ConfigCategory;
 import dev.isxander.yacl.api.Option;
 import dev.isxander.yacl.api.YetAnotherConfigLib;
 import dev.isxander.yacl.gui.controllers.BooleanController;
 import dev.isxander.yacl.gui.controllers.cycling.EnumController;
 import dev.isxander.yacl.gui.controllers.slider.FloatSliderController;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import traben.entity_model_features.EMFData;
 
-public class modMenuEntry implements ModMenuApi {
-
-    @Override
-    public ConfigScreenFactory<?> getModConfigScreenFactory() {
-
-
-        return modMenuEntry::createGui;
-    }
+public class EMFYACL{
 
     public static Screen createGui(Screen parent) {
         return YetAnotherConfigLib.createBuilder()
@@ -48,8 +41,28 @@ public class modMenuEntry implements ModMenuApi {
                                 )
                                 .controller(BooleanController::new)
                                 .build())
+                        .option(Option.createBuilder(boolean.class)
+                                .name(Text.of("force transparent rendering"))
+                                .tooltip(Text.of("")) // optional
+                                .binding(
+                                        false, // default
+                                        () -> EMFData.getInstance().getConfig().forceTranslucentMobRendering, // getter
+                                        newValue -> EMFData.getInstance().getConfig().forceTranslucentMobRendering = newValue // setter
+                                )
+                                .controller(BooleanController::new)
+                                .build())
+                        .option(Option.createBuilder(boolean.class)
+                                .name(Text.of("use custom player model arms in first person"))
+                                .tooltip(Text.of("")) // optional
+                                .binding(
+                                        false, // default
+                                        () -> EMFData.getInstance().getConfig().useCustomPlayerHandInFPS, // getter
+                                        newValue -> EMFData.getInstance().getConfig().useCustomPlayerHandInFPS = newValue // setter
+                                )
+                                .controller(BooleanController::new)
+                                .build())
                         .option(Option.createBuilder(float.class)
-                                .name(Text.of("minimin animation rate in tps"))
+                                .name(Text.of("minimum animation rate in tps"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(
                                         1f, // default
@@ -59,7 +72,7 @@ public class modMenuEntry implements ModMenuApi {
                                 .controller((val)->new FloatSliderController(val,0,10,0.1f))
                                 .build())
                         .option(Option.createBuilder(float.class)
-                                .name(Text.of("minimin animation drop off distance"))
+                                .name(Text.of("minimum animation drop off distance"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(
                                         8f, // default
@@ -92,14 +105,14 @@ public class modMenuEntry implements ModMenuApi {
                                 .name(Text.of("spawn animation speed"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(
-                                        20f, // default
+                                        4f, // default
                                         () -> EMFData.getInstance().getConfig().spawnAnimTime, // getter
                                         newValue -> EMFData.getInstance().getConfig().spawnAnimTime = newValue // setter
                                 )
                                 .controller((val)->new FloatSliderController(val,1,50,1f))
                                 .build())
                         .build())
-                .save(modMenuEntry::saveAndReset)
+                .save(EMFYACL::saveAndReset)
                 .build()
                 .generateScreen(parent);
     }
@@ -107,5 +120,6 @@ public class modMenuEntry implements ModMenuApi {
     static void saveAndReset(){
         EMFData.getInstance().EMF_saveConfig();
         EMFData.reset();
+        MinecraftClient.getInstance().reloadResources();
     }
 }

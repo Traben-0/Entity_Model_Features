@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.passive.*;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.dimension.DimensionTypes;
@@ -77,6 +78,8 @@ public abstract class AnimationCalculation {
     public float getTime() {
         return entity == null || entity.getWorld() == null ? 0 : entity.getWorld().getTime() + tickDelta;
     }
+
+
 
     public float getHealth() {
         return entity == null ? 0 : entity.getHealth();
@@ -251,7 +254,8 @@ public abstract class AnimationCalculation {
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
         if(entity0 == null) {
-            System.out.println("entity was null for getResultOnly");
+            //if(verboseMode)
+                System.out.println("entity was null for getResultOnly, (okay for model init)");
             return 0;
         }
         UUID id = entity0.getUuid();

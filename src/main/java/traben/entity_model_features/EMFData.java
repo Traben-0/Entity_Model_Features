@@ -7,8 +7,12 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.DrownedEntity;
+import net.minecraft.entity.mob.IllagerEntity;
 import net.minecraft.entity.passive.*;
+import net.minecraft.entity.player.PlayerEntity;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.vanilla_model_children.*;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
@@ -115,6 +119,10 @@ public class EMFData {
         return (EMF_EntityModel<T>) JEMPATH_CustomModel.get(hashKeyTypicallyEntityType);
     }
 
+    public<T extends LivingEntity, M extends EntityModel<T>> EntityModel<?> getCustomModelForRendererGeneric(EMF_EntityModel<?> alreadyBuiltSubmodel, EntityModel<?> vanillaModelForInstanceCheck){
+        return getCustomModelForRenderer((EMF_EntityModel<T>)alreadyBuiltSubmodel,(M)vanillaModelForInstanceCheck);
+    }
+
     public<T extends LivingEntity, M extends EntityModel<T>> M getCustomModelForRenderer(EMF_EntityModel<T> alreadyBuiltSubmodel,M vanillaModelForInstanceCheck){
         //figure out whether to send a vanilla child model or a direct EMF custom model
         if(vanillaModelForInstanceCheck instanceof CowEntityModel<?>){
@@ -135,6 +143,15 @@ public class EMFData {
         if(vanillaModelForInstanceCheck instanceof PlayerEntityModel){
             return (M) new EMFCustomPlayerModel<T>(alreadyBuiltSubmodel);
         }
+        if(vanillaModelForInstanceCheck instanceof WitchEntityModel){
+            return (M) new EMFCustomWitchModel<T>(alreadyBuiltSubmodel);
+        }
+        if(vanillaModelForInstanceCheck instanceof IllagerEntityModel){
+            return (M) new EMFCustomIllagerModel<T, IllagerEntity>(alreadyBuiltSubmodel);
+        }
+        if(vanillaModelForInstanceCheck instanceof VillagerResemblingModel){
+            return (M) new EMFCustomVillagerModel<T>(alreadyBuiltSubmodel);
+        }
         //this for instance allows vanilla features like non custom armour and hand held items to work for bipeds
         if(vanillaModelForInstanceCheck instanceof BipedEntityModel){
             return (M) new EMFCustomBipedModel<T>(alreadyBuiltSubmodel);
@@ -150,6 +167,8 @@ public class EMFData {
         return (M) alreadyBuiltSubmodel;
 
     }
+
+    public EMFCustomPlayerModel<?> clientPlayerModel = null;
 
 
 

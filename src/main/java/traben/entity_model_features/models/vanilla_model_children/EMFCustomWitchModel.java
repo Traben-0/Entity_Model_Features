@@ -1,16 +1,13 @@
 package traben.entity_model_features.models.vanilla_model_children;
 
-import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.FoxEntityModel;
-import net.minecraft.client.render.entity.model.QuadrupedEntityModel;
+import net.minecraft.client.render.entity.model.VillagerResemblingModel;
+import net.minecraft.client.render.entity.model.WitchEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.FoxEntity;
-import traben.entity_model_features.mixin.accessor.AnimalModelAccessor;
-import traben.entity_model_features.mixin.accessor.FoxEntityModelAccessor;
+import traben.entity_model_features.mixin.VillagerResemblingModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
-import traben.entity_model_features.mixin.accessor.QuadrupedEntityModelAccessor;
+import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
@@ -18,7 +15,7 @@ import traben.entity_model_features.models.EMF_ModelPart;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EMFCustomFoxModel<T extends LivingEntity, M extends FoxEntity> extends FoxEntityModel<M> implements EMFCustomModel<T> {
+public class EMFCustomWitchModel<T extends LivingEntity> extends WitchEntityModel<T> implements EMFCustomModel<T>, EMFArmorableModel {
 
     public EMF_EntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -31,21 +28,27 @@ public class EMFCustomFoxModel<T extends LivingEntity, M extends FoxEntity> exte
     private final  EMF_EntityModel<T> thisEMFModel;
 
 
-    public EMFCustomFoxModel(EMF_EntityModel<T> model) {
-        super(FoxEntityModel.getTexturedModelData().createModel());
+    public EMFCustomWitchModel(EMF_EntityModel<T> model) {
+        super(WitchEntityModel.getTexturedModelData().createModel());
+
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
 
-        List<EMF_ModelPart> headCandidates = new ArrayList<>();
+        List<EMF_ModelPart> headWearCandidates = new ArrayList<>();
+
+        List<EMF_ModelPart> noseCandidates = new ArrayList<>();
 
         for (EMF_ModelPart part:
                 thisEMFModel.childrenMap.values()) {
-            if ("head".equals(part.selfModelData.part)) {
-                headCandidates.add(part);
+            if ("headwear".equals(part.selfModelData.part)) {
+                headWearCandidates.add(part);
+            }else if ("nose".equals(part.selfModelData.part)) {
+                noseCandidates.add(part);
             }
         }
-        //head needed for fox item feature renderer
-        setNonEmptyPart(headCandidates,((FoxEntityModelAccessor)this)::setHead);
+
+        setNonEmptyPart(headWearCandidates,((VillagerResemblingModelAccessor)this)::setHat);
+        setNonEmptyPart(noseCandidates,((VillagerResemblingModelAccessor)this)::setNose);
     }
 
     @Override
@@ -53,11 +56,6 @@ public class EMFCustomFoxModel<T extends LivingEntity, M extends FoxEntity> exte
 
             thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
 
-    }
-
-    @Override
-    public void setAngles(M foxEntity, float f, float g, float h, float i, float j) {
-        setAngles((T)foxEntity, f, g, h, i, j);
     }
 
     @Override
@@ -72,16 +70,16 @@ public class EMFCustomFoxModel<T extends LivingEntity, M extends FoxEntity> exte
     }
 
     @Override
-    public void animateModel(M foxEntity, float f, float g, float h) {
-        animateModel((T)foxEntity, f, g, h);
-    }
-
-    @Override
     public void animateModel(T livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
 
             thisEMFModel.animateModel(livingEntity, f, g, h);
 
+    }
+
+    @Override
+    public EMF_EntityModel<?> getArmourModel(boolean getInner) {
+        return thisEMFModel.getArmourModel(getInner);
     }
 
 

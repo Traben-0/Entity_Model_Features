@@ -8,6 +8,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import traben.entity_model_features.mixin.accessor.HorseEntityModelAccessor;
+import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
@@ -30,7 +31,8 @@ public class EMFCustomHorseModel<T extends LivingEntity, M extends AbstractHorse
 
     public EMFCustomHorseModel(EMF_EntityModel<T> model) {
         super(HorseEntityModel.getModelData(Dilation.NONE).getRoot().createPart(0, 0));
-        thisEMFModel = model;
+        thisEMFModel=model;
+        ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
 
 //        List<EMF_ModelPart> headCandidates = new ArrayList<>();
 //        List<EMF_ModelPart> bodyCandidates = new ArrayList<>();

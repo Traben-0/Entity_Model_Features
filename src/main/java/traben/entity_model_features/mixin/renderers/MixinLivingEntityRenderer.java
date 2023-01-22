@@ -1,6 +1,7 @@
 package traben.entity_model_features.mixin.renderers;
 
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -10,6 +11,7 @@ import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Saddleable;
+import net.minecraft.entity.mob.DrownedEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.passive.HorseEntity;
 import net.minecraft.entity.passive.LlamaEntity;
@@ -30,6 +32,7 @@ import traben.entity_model_features.models.features.EMFArmorFeatureRenderer;
 import traben.entity_model_features.models.vanilla_model_children.EMFCustomBipedModel;
 import traben.entity_model_features.models.vanilla_model_children.EMFCustomHorseModel;
 import traben.entity_model_features.models.vanilla_model_children.EMFCustomLlamaModel;
+import traben.entity_model_features.models.vanilla_model_children.EMFCustomPlayerModel;
 
 import java.util.List;
 
@@ -159,6 +162,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                             }
                         }
                         this.model = emf$newModel;
+                        if(emf$newModel instanceof EMFCustomPlayerModel && MinecraftClient.getInstance().player != null && livingEntity.getUuid().equals(MinecraftClient.getInstance().player.getUuid())){
+                            EMFData.getInstance().clientPlayerModel = (EMFCustomPlayerModel<?>) emf$newModel;
+                        }
                     }
                 //}
            // }

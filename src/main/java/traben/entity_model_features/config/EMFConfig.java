@@ -13,17 +13,24 @@ public class EMFConfig {
 
     public boolean printAllMaths = false;
 
+    public boolean useCustomPlayerHandInFPS = false;
+
+    public boolean forceTranslucentMobRendering = false;
+
     public SpawnAnimation spawnAnim = SpawnAnimation.None;
-    public float spawnAnimTime = 20;
+    public float spawnAnimTime = 4;
 
 
     public enum SpawnAnimation{
         None,
         Rise,
-        Inflate,
+        InflateGround,
+        InflateCenter,
         Fall,
         Fade,
         Dark,
-        Bright;
+        Bright,
+        Pitch,
+        Yaw;
     }
 }
