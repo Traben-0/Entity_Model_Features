@@ -7,6 +7,7 @@ import dev.isxander.yacl.api.ConfigCategory;
 import dev.isxander.yacl.api.Option;
 import dev.isxander.yacl.api.YetAnotherConfigLib;
 import dev.isxander.yacl.gui.controllers.BooleanController;
+import dev.isxander.yacl.gui.controllers.cycling.EnumController;
 import dev.isxander.yacl.gui.controllers.slider.FloatSliderController;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -76,6 +77,26 @@ public class modMenuEntry implements ModMenuApi {
                                         newValue -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate = newValue // setter
                                 )
                                 .controller((val)->new FloatSliderController(val,1,100,1f))
+                                .build())
+                        .option(Option.createBuilder(EMFConfig.SpawnAnimation.class)
+                                .name(Text.of("SPAWN ANIMATION"))
+                                .tooltip(Text.of("")) // optional
+                                .binding(
+                                        EMFConfig.SpawnAnimation.None, // default
+                                        () -> EMFData.getInstance().getConfig().spawnAnim, // getter
+                                        newValue -> EMFData.getInstance().getConfig().spawnAnim = newValue // setter
+                                )
+                                .controller((val)->new EnumController<EMFConfig.SpawnAnimation>(val , enumConstant -> Text.of(enumConstant.toString()) ))
+                                .build())
+                        .option(Option.createBuilder(float.class)
+                                .name(Text.of("spawn animation speed"))
+                                .tooltip(Text.of("")) // optional
+                                .binding(
+                                        20f, // default
+                                        () -> EMFData.getInstance().getConfig().spawnAnimTime, // getter
+                                        newValue -> EMFData.getInstance().getConfig().spawnAnimTime = newValue // setter
+                                )
+                                .controller((val)->new FloatSliderController(val,1,50,1f))
                                 .build())
                         .build())
                 .save(modMenuEntry::saveAndReset)

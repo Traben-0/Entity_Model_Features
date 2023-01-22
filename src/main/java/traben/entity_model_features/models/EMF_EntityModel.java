@@ -6,6 +6,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -15,7 +16,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import traben.entity_model_features.EMFData;
+import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.AnimalModelAccessor;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 import traben.entity_model_features.models.anim.AnimationCalculationEMFParser;
@@ -269,6 +272,27 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     @Override
     public void render( MatrixStack herematrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         herematrices.push();
+
+        if(animationProgress < EMFData.getInstance().getConfig().spawnAnimTime && EMFData.getInstance().getConfig().spawnAnim != EMFConfig.SpawnAnimation.None){
+            float delta = MathHelper.clamp( animationProgress / EMFData.getInstance().getConfig().spawnAnimTime,0,1);
+            switch (EMFData.getInstance().getConfig().spawnAnim){
+                case Inflate -> {
+                    herematrices.translate(0,2 - 2 * delta,0);
+                    herematrices.scale(delta,delta,delta);
+                }
+                case Rise -> herematrices.translate(0,3 *(1- delta),0);
+                case Fall -> {
+                    alpha = delta;
+                    herematrices.translate(0,-20 *(1- delta),0);
+                }
+                case Fade -> alpha = delta;
+                case Dark -> light = MathHelper.clamp( LightmapTextureManager.getSkyLightCoordinates((int)(15 * delta)),0,light);
+                case Bright -> light = MathHelper.clamp(LightmapTextureManager.getSkyLightCoordinates((int)(15 - 15* delta)),light,LightmapTextureManager.MAX_LIGHT_COORDINATE);
+            }
+        }
+
+
+
         if (this.child && vanillaModel instanceof AnimalModel animal) {
             float f = 1.0F / ((AnimalModelAccessor)animal).getInvertedChildBodyScale();
             herematrices.scale(f, f, f);
@@ -328,10 +352,14 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 //        sneaking = entity.isSneaking();
     }
     float tickDelta = Float.NaN;
+
+    float animationProgress = 0;
     public boolean sneaking = false;
 
     @Override
     public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch){//, VanillaMappings.VanillaMapper vanillaPartSupplier,EntityModel<T> vanillaModel){
+        this.animationProgress = animationProgress;
+
         vanillaModel.setAngles( entity,limbAngle,limbDistance,animationProgress,headYaw,headPitch);
         //todo check if needs running supplier on each render or only once at init
        // vanillaModelPartsById = vanillaPartSupplier.getVanillaModelPartsMapFromModel(vanillaModel);
