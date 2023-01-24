@@ -219,7 +219,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         }
     }
 
-    public double getAnimationResultOfKey(
+    public float getAnimationResultOfKey(
             EMF_ModelPart parentForCheck,
             String key,
             Entity entity,
@@ -263,7 +263,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                     }
 
                 }catch(IllegalArgumentException e){
-                    System.out.println("no animation expression part variable value found for: "+key);
+                    //System.out.println("no animation expression part variable value found for: "+key);
                     return 0;
                 }
             }else {
@@ -273,13 +273,13 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                         variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
                         return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName));
                     }catch(IllegalArgumentException e){
-                        System.out.println("no animation expression part variable value found for: "+key);
+                       // System.out.println("no animation expression part variable value found for: "+key);
                         return 0;
                     }
                 }else {
-                    System.out.println("no animation expression value found for: " + key);
-                    System.out.println(animationKeyToCalculatorObject.keySet());
-                    System.out.println(vanillaModelPartsById.keySet());
+                   // System.out.println("no animation expression value found for: " + key);
+                   // System.out.println(animationKeyToCalculatorObject.keySet());
+                    //System.out.println(vanillaModelPartsById.keySet());
                     return 0;
                 }
             }

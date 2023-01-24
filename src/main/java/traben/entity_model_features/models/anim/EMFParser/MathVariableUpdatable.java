@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 
 
 
-public class MathVariableUpdatable extends MathValue implements Supplier<Double> , MathComponent{
+public class MathVariableUpdatable extends MathValue implements Supplier<Float> , MathComponent{
 
 
     Supplier<Float> valueSupplier;
@@ -101,7 +101,12 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Double>
         if(variableKey.matches("[a-zA-Z0-9_]+\\.[trs][xyz]")){
             System.out.println("found and setup for otherKey :" + variableKey);
             if (variableKey.equals(calculationInstance.animKey)) {
-                return ()-> (float)(calculationInstance.getEntity() == null? 0 : calculationInstance.prevResults.getDouble(calculationInstance.getEntity().getUuid()));
+                //todo check this
+                if (calculationInstance.vanillaModelPart != null && calculationInstance.varToChange != null) {
+                    return () -> (float) (calculationInstance.varToChange.getFromVanillaModel(calculationInstance.vanillaModelPart));
+                }else{
+                    return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
+                }
             } else {
                 EMF_ModelPart partParent = calculationInstance.modelPart == null? null : calculationInstance.modelPart.parent;
                 return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent
@@ -159,14 +164,14 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Double>
     }
 
     @Override
-    public Supplier<Double> getSupplier() {
-        return ()->valueSupplier.get().doubleValue();
+    public Supplier<Float> getSupplier() {
+        return ()->valueSupplier.get();
     }
 
 
 
     @Override
     public String toString() {
-        return get().toString();
+        return get()+"";
     }
 }

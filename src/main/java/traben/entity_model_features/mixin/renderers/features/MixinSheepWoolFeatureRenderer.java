@@ -18,11 +18,11 @@ public abstract class MixinSheepWoolFeatureRenderer<T extends LivingEntity> {
             index = 1)
     private EntityModel<T> injected(EntityModel<T> par1) {
         EMFData emfData = EMFData.getInstance();
-        int typeHash = par1.hashCode(); // livingEntity.getType().hashCode();
+        int typeHash = "sheep_wool".hashCode(); // livingEntity.getType().hashCode();
 
         if (!emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
             String entityTypeName = "sheep_wool";
-            emfData.createEMFModel(entityTypeName, typeHash, par1);
+            emfData.createEMFModelOnly(entityTypeName, par1);
         }
         if (emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
             if (emfData.JEMPATH_CustomModel.get(typeHash) != null) {

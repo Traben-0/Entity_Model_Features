@@ -28,8 +28,8 @@ public class AnimationCalculationMXParser extends AnimationCalculation{
     //optimize so we dont calculate multiple times
 
     @Override
-    double calculatorRun() {
-        return calculator.calculate();
+    float calculatorRun() {
+        return (float) calculator.calculate();
     }
 
     @Override
@@ -372,7 +372,7 @@ public class AnimationCalculationMXParser extends AnimationCalculation{
                     calculator.addConstants(new Constant(otherKeyReplace + " = 0") {
                         @Override
                         public double getConstantValue() {
-                            return getEntity() == null? 0 : prevResults.getDouble(getEntity().getUuid());
+                            return getEntity() == null? 0 : prevResults.getFloat(getEntity().getUuid());
                         }
                     });
 

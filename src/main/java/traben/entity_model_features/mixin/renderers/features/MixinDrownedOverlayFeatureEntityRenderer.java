@@ -45,9 +45,9 @@ public abstract class MixinDrownedOverlayFeatureEntityRenderer<T extends Drowned
             emf$originalModel = this.model;
             if (this.getContextModel() instanceof EMFCustomModel) {
                 String entityTypeName = "drowned_outer";
-                EMF_EntityModel<?> emfModel = EMFData.getInstance().createEMFModel(entityTypeName, this.hashCode(), this.model);
+                EMFCustomModel<T> emfModel =  EMFData.getInstance().getModelVariant(null,entityTypeName, this.model);
                 if(emfModel != null){
-                    emf$emfModel = (EMFCustomModel<T>) EMFData.getInstance().getCustomModelForRendererGeneric(emfModel,emf$originalModel);
+                    emf$emfModel = emfModel;
 
                 }
             }

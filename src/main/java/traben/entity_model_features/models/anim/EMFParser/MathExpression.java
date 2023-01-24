@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class MathExpression extends MathValue implements Supplier<Double>, MathComponent{
+public class MathExpression extends MathValue implements Supplier<Float>, MathComponent{
 
     LinkedList<MathComponent> components;
 
@@ -27,7 +27,8 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
 
     private String caughtExceptionString = null;
 
-    private boolean containsBooleans = false;
+    private boolean containsBooleansHigherOrder = false;
+    private boolean containsBooleansLowerOrder = false;
     private boolean containsMultiplicationLevel = false;
     private boolean containsAdditionLevel = false;
     private boolean containsOneComponent = false;
@@ -139,9 +140,9 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                         String read = rollingRead.toString();
                         rollingRead = new StringBuilder();
                         if (!read.isEmpty()) {
-                            Double asNumber = null;
+                            Float asNumber = null;
                             try {
-                                asNumber = Double.parseDouble(read);
+                                asNumber = Float.parseFloat(read);
                             } catch (NumberFormatException ignored) {
                             }
 
@@ -169,9 +170,9 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                 //discover rolling read value
                 String read = rollingRead.toString();
                 rollingRead = new StringBuilder();
-                Double asNumber = null;
+                Float asNumber = null;
                 try {
-                    asNumber = Double.parseDouble(read);
+                    asNumber = Float.parseFloat(read);
                 } catch (NumberFormatException ignored) {
                 }
 
@@ -191,14 +192,16 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
             if(components.size() == 1){
                 this.containsOneComponent = true;
             }else {
-                this.containsBooleans = (components.contains(MathAction.equals)
-                        || components.contains(MathAction.and)
+                this.containsBooleansHigherOrder = (components.contains(MathAction.equals)
                         || components.contains(MathAction.largerThan)
                         || components.contains(MathAction.largerThanOrEquals)
                         || components.contains(MathAction.smallerThan)
                         || components.contains(MathAction.smallerThanOrEquals)
-                        || components.contains(MathAction.notEquals)
-                        || components.contains(MathAction.or));
+                        || components.contains(MathAction.notEquals));
+
+                this.containsBooleansLowerOrder =
+                        components.contains(MathAction.and)
+                        || components.contains(MathAction.or);
 
                 this.containsMultiplicationLevel = (components.contains(MathAction.multiply)
                         || components.contains(MathAction.divide)
@@ -232,7 +235,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
 
 
     LinkedList<MathComponent> componentsDuringCalculate;
-    public double calculate() {
+    public float calculate() {
 
         try {
 
@@ -248,7 +251,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
             componentsDuringCalculate = new LinkedList<>(components);
 
             //boolean pass
-            if(containsBooleans) {
+            if(containsBooleansHigherOrder) {
                 LinkedList<MathComponent> newComponentsB = new LinkedList<>();
                 Iterator<MathComponent> compIteratorB = componentsDuringCalculate.iterator();
                 while (compIteratorB.hasNext()) {
@@ -259,8 +262,8 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                                 MathComponent last = newComponentsB.getLast();
                                 MathComponent next = compIteratorB.next();
                                 newComponentsB.removeLast();
-                                double lastD = last.get();
-                                double nextD = next.get();
+                                float lastD = last.get();
+                                float nextD = next.get();
                                 if (calculationInstance.verboseMode) print("equals=" + lastD + " == " + nextD);
                                 newComponentsB.add(new MathVariableConstant(lastD == nextD ? 1 : 0, false));
                             }
@@ -268,37 +271,17 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                                 MathComponent last = newComponentsB.getLast();
                                 MathComponent next = compIteratorB.next();
                                 newComponentsB.removeLast();
-                                double lastD = last.get();
-                                double nextD = next.get();
+                                float lastD = last.get();
+                                float nextD = next.get();
                                 if (calculationInstance.verboseMode) print("notEquals=" + lastD + " != " + nextD);
                                 newComponentsB.add(new MathVariableConstant(lastD != nextD ? 1 : 0, false));
-                            }
-                            case and -> {
-                                MathComponent last = newComponentsB.getLast();
-                                MathComponent next = compIteratorB.next();
-                                newComponentsB.removeLast();
-                                double lastD = last.get();
-                                double nextD = next.get();
-                                if (calculationInstance.verboseMode)
-                                    print("and=" + (lastD == 1) + " && " + (nextD == 1));
-                                newComponentsB.add(new MathVariableConstant((lastD == 1) && (nextD == 1) ? 1 : 0, false));
-                            }
-                            case or -> {
-                                MathComponent last = newComponentsB.getLast();
-                                MathComponent next = compIteratorB.next();
-                                newComponentsB.removeLast();
-                                double lastD = last.get();
-                                double nextD = next.get();
-                                if (calculationInstance.verboseMode)
-                                    print("or=" + (lastD == 1) + " || " + (nextD == 1));
-                                newComponentsB.add(new MathVariableConstant((lastD == 1) || (nextD == 1) ? 1 : 0, false));
                             }
                             case largerThan -> {
                                 MathComponent last = newComponentsB.getLast();
                                 MathComponent next = compIteratorB.next();
                                 newComponentsB.removeLast();
-                                double lastD = last.get();
-                                double nextD = next.get();
+                                float lastD = last.get();
+                                float nextD = next.get();
                                 if (calculationInstance.verboseMode) print("largerThan=" + lastD + " > " + nextD);
                                 newComponentsB.add(new MathVariableConstant(lastD > nextD ? 1 : 0, false));
                             }
@@ -306,8 +289,8 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                                 MathComponent last = newComponentsB.getLast();
                                 MathComponent next = compIteratorB.next();
                                 newComponentsB.removeLast();
-                                double lastD = last.get();
-                                double nextD = next.get();
+                                float lastD = last.get();
+                                float nextD = next.get();
                                 if (calculationInstance.verboseMode)
                                     print("largerThanOrEquals=" + lastD + " >= " + nextD);
                                 newComponentsB.add(new MathVariableConstant(lastD >= nextD ? 1 : 0, false));
@@ -316,8 +299,8 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                                 MathComponent last = newComponentsB.getLast();
                                 MathComponent next = compIteratorB.next();
                                 newComponentsB.removeLast();
-                                double lastD = last.get();
-                                double nextD = next.get();
+                                float lastD = last.get();
+                                float nextD = next.get();
                                 if (calculationInstance.verboseMode) print("smallerThan=" + lastD + " < " + nextD);
                                 newComponentsB.add(new MathVariableConstant(lastD < nextD ? 1 : 0, false));
                             }
@@ -325,11 +308,46 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                                 MathComponent last = newComponentsB.getLast();
                                 MathComponent next = compIteratorB.next();
                                 newComponentsB.removeLast();
-                                double lastD = last.get();
-                                double nextD = next.get();
+                                float lastD = last.get();
+                                float nextD = next.get();
                                 if (calculationInstance.verboseMode)
                                     print("smallerThanOrEquals=" + lastD + " <= " + nextD);
                                 newComponentsB.add(new MathVariableConstant(lastD <= nextD ? 1 : 0, false));
+                            }
+                            default -> newComponentsB.add(component);
+                        }
+                    } else {
+                        newComponentsB.add(component);
+                    }
+                }
+                componentsDuringCalculate = newComponentsB;
+            }
+            if(containsBooleansLowerOrder) {
+                LinkedList<MathComponent> newComponentsB = new LinkedList<>();
+                Iterator<MathComponent> compIteratorB = componentsDuringCalculate.iterator();
+                while (compIteratorB.hasNext()) {
+                    MathComponent component = compIteratorB.next();
+                    if (component instanceof MathAction action) {
+                        switch (action) {
+                            case and -> {
+                                MathComponent last = newComponentsB.getLast();
+                                MathComponent next = compIteratorB.next();
+                                newComponentsB.removeLast();
+                                float lastD = last.get();
+                                float nextD = next.get();
+                                if (calculationInstance.verboseMode)
+                                    print("and=" + (lastD == 1) + " && " + (nextD == 1));
+                                newComponentsB.add(new MathVariableConstant((lastD == 1) && (nextD == 1) ? 1 : 0, false));
+                            }
+                            case or -> {
+                                MathComponent last = newComponentsB.getLast();
+                                MathComponent next = compIteratorB.next();
+                                newComponentsB.removeLast();
+                                float lastD = last.get();
+                                float nextD = next.get();
+                                if (calculationInstance.verboseMode)
+                                    print("or=" + (lastD == 1) + " || " + (nextD == 1));
+                                newComponentsB.add(new MathVariableConstant((lastD == 1) || (nextD == 1) ? 1 : 0, false));
                             }
                             default -> newComponentsB.add(component);
                         }
@@ -350,24 +368,24 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                             MathComponent last = newComponents.getLast();
                             MathComponent next = compIterator.next();
                             newComponents.removeLast();
-                            double lastD = last.get();
-                            double nextD = next.get();
+                            float lastD = last.get();
+                            float nextD = next.get();
                             if (calculationInstance.verboseMode) print("multiply=" + lastD + " * " + nextD);
                             newComponents.add(new MathVariableConstant(lastD * nextD, false));
                         } else if (action == MathAction.divide) {
                             MathComponent last = newComponents.getLast();
                             MathComponent next = compIterator.next();
                             newComponents.removeLast();
-                            double lastD = last.get();
-                            double nextD = next.get();
+                            float lastD = last.get();
+                            float nextD = next.get();
                             if (calculationInstance.verboseMode) print("divide=" + lastD + " / " + nextD);
                             newComponents.add(new MathVariableConstant(lastD / nextD, false));
                         } else if (action == MathAction.divisionRemainder) {
                             MathComponent last = newComponents.getLast();
                             MathComponent next = compIterator.next();
                             newComponents.removeLast();
-                            double lastD = last.get();
-                            double nextD = next.get();
+                            float lastD = last.get();
+                            float nextD = next.get();
                             if (calculationInstance.verboseMode) print("divide remainder=" + lastD + " % " + nextD);
                             newComponents.add(new MathVariableConstant(lastD % nextD, false));
                         } else {
@@ -390,16 +408,16 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
                             MathComponent last = newComponents2.getLast();
                             MathComponent next = compIterator2.next();
                             newComponents2.removeLast();
-                            double lastD = last.get();
-                            double nextD = next.get();
+                            float lastD = last.get();
+                            float nextD = next.get();
                             if (calculationInstance.verboseMode) print("add=" + lastD + " + " + nextD);
                             newComponents2.add(new MathVariableConstant(lastD + nextD, false));
                         } else if (action == MathAction.subtract) {
                             MathComponent last = newComponents2.getLast();
                             MathComponent next = compIterator2.next();
                             newComponents2.removeLast();
-                            double lastD = last.get();
-                            double nextD = next.get();
+                            float lastD = last.get();
+                            float nextD = next.get();
                             if (calculationInstance.verboseMode) print("subtract=" + lastD + " - " + nextD);
                             newComponents2.add(new MathVariableConstant(lastD - nextD, false));
                         } else {
@@ -415,7 +433,7 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
             if (componentsDuringCalculate.size() == 1) {
                 // lastResultCount = calculationInstance.calculationCount;
                 //if(verboseMode) System.out.print("group result");
-                double result = componentsDuringCalculate.getLast().get();
+                float result = componentsDuringCalculate.getLast().get();
                 //lastResultThisTick = result;
                 if (calculationInstance.verboseMode) print(" = " + result);
                 return result;
@@ -427,12 +445,12 @@ public class MathExpression extends MathValue implements Supplier<Double>, MathC
             System.out.println("EMF animation ERROR: expression error in ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"] caused by ["+e+"].");
         }
 
-        return Double.NaN;
+        return Float.NaN;
     }
 
 
     @Override
-    public Supplier<Double> getSupplier() {
+    public Supplier<Float> getSupplier() {
         return this::calculate;
     }
 

@@ -5,7 +5,7 @@ import java.util.IllegalFormatException;
 public interface MathComponent{
 
 
-     Double get() throws EMFMathException;
+     Float get() throws EMFMathException;
 
 
      class EMFMathException extends Exception {

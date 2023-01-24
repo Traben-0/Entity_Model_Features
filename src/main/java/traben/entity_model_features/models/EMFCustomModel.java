@@ -47,4 +47,6 @@ public interface EMFCustomModel<T extends LivingEntity> {
     interface PartSetter{
          void setPart(EMF_ModelPart part);
     }
+
+    boolean canVariate = false;
 }

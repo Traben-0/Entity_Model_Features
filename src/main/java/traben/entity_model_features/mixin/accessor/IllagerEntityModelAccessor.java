@@ -19,4 +19,10 @@ public interface IllagerEntityModelAccessor {
     @Mutable
     @Accessor
     void setLeftArm(ModelPart leftArm);
+
+    @Accessor
+    ModelPart getRightArm();
+
+    @Accessor
+    ModelPart getLeftArm();
 }

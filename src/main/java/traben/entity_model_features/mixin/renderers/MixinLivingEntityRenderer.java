@@ -12,6 +12,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Saddleable;
 import net.minecraft.entity.mob.DrownedEntity;
+import net.minecraft.entity.mob.SlimeEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.passive.HorseEntity;
 import net.minecraft.entity.passive.LlamaEntity;
@@ -107,10 +108,12 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
            // if (emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
                // if (emfData.JEMPATH_CustomModel.get(typeHash) != null) {
                     emf$originalModel = this.model;
-                    EMF_EntityModel<T> emfSubmodel = emfData.createEMFModel(entityTypeName, typeHash, getModel());
-                    if(emfSubmodel!= null) {
+                    //EMF_EntityModel<T> emfSubmodel = emfData.createEMFModel(entityTypeName, typeHash, this.model);
+                     emf$newModel = EMFData.getInstance().getModelVariant(livingEntity ,entityTypeName, this.model);
+                    if(emf$newModel!= null) {
                         /*EMFCustomModel<T>*/
-                        emf$newModel = EMFData.getInstance().getCustomModelForRenderer(emfSubmodel, this.model);
+                        //emf$newModel = EMFData.getInstance().getCustomModelForRenderer(emfSubmodel, this.model);
+
 
                         if (emf$newModel instanceof EMFArmorableModel armored) {
                             for (FeatureRenderer<?, ?> feature :
@@ -139,9 +142,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                             for (FeatureRenderer<?, ?> feature :
                                     features) {
                                 if (feature instanceof HorseArmorFeatureRenderer armr) {
-                                    EMF_EntityModel<T> horseArmor = emfData.createEMFModel("horse_armor", feature.hashCode(), getModel());
-                                    if (horseArmor != null) {
-                                        M model = EMFData.getInstance().getCustomModelForRenderer(horseArmor, this.model);
+                                    M model = emfData.getModelVariant(livingEntity,"horse_armor", getModel());
+                                    if (model != null) {
                                         ((HorseArmorFeatureRendererAccessor) armr).setModel((HorseEntityModel<HorseEntity>) model);
                                         break;
                                     }
@@ -152,10 +154,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                             for (FeatureRenderer<?, ?> feature :
                                     features) {
                                 if (feature instanceof LlamaDecorFeatureRenderer decor) {
-                                    EMF_EntityModel<T> llama_decor = emfData.createEMFModel("llama_decor", feature.hashCode(), getModel());
+                                    M llama_decor = emfData.getModelVariant(livingEntity,"llama_decor", getModel());
                                     if (llama_decor != null) {
-                                        M model = EMFData.getInstance().getCustomModelForRenderer(llama_decor, this.model);
-                                        ((LlamaDecorFeatureRendererAccessor) decor).setModel((LlamaEntityModel<LlamaEntity>) model);
+                                        ((LlamaDecorFeatureRendererAccessor) decor).setModel((LlamaEntityModel<LlamaEntity>) llama_decor);
                                         break;
                                     }
                                 }

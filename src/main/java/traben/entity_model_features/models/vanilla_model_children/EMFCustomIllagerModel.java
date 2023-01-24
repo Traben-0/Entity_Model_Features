@@ -1,5 +1,6 @@
 package traben.entity_model_features.models.vanilla_model_children;
 
+import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.IllagerEntityModel;
 import net.minecraft.client.render.entity.model.VillagerResemblingModel;
@@ -68,6 +69,8 @@ public class EMFCustomIllagerModel<T extends LivingEntity, M extends IllagerEnti
 
     @Override
     public void setAngles(M illagerEntity, float f, float g, float h, float i, float j) {
+
+        ((IllagerEntityModel<M>)thisEMFModel.getThisEMFModel().vanillaModel).setAngles(illagerEntity, f, g, h, i, j);
         setAngles((T)illagerEntity, f, g, h, i, j);
     }
 
@@ -84,6 +87,7 @@ public class EMFCustomIllagerModel<T extends LivingEntity, M extends IllagerEnti
 
     @Override
     public void animateModel(M entity, float limbAngle, float limbDistance, float tickDelta) {
+        ((IllagerEntityModel<M>)thisEMFModel.getThisEMFModel().vanillaModel).animateModel(entity, limbAngle, limbDistance, tickDelta);
         animateModel((T)entity, limbAngle, limbDistance, tickDelta);
     }
 
@@ -102,6 +106,12 @@ public class EMFCustomIllagerModel<T extends LivingEntity, M extends IllagerEnti
 
     @Override
     public void setArmAngle(Arm arm, MatrixStack matrices) {
+        //((IllagerEntityModel<M>)thisEMFModel.getThisEMFModel().vanillaModel).setArmAngle(arm, matrices);
+        //ModelPart armP =(arm == Arm.LEFT ? ((IllagerEntityModelAccessor)this).getLeftArm() : ((IllagerEntityModelAccessor)this).getRightArm());
+        //if(armP instanceof EMF_ModelPart emf)
+        //    emf.rotateV3(matrices);
+
+
         super.setArmAngle(arm, matrices);
     }
 }

@@ -15,11 +15,11 @@ public class AnimationCalculationEMFParser extends AnimationCalculation{
 
     //private final String expressionString;
 
-    AnimationCalculationMXParser mxpThis = null;
+   // AnimationCalculationMXParser mxpThis = null;
 
     public AnimationCalculationEMFParser(EMF_EntityModel<?> parent, ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
         super(parent,part,varToChange,animKey);
-        mxpThis = new AnimationCalculationMXParser(parent,part,varToChange,animKey,initialExpression);
+        //mxpThis = new AnimationCalculationMXParser(parent,part,varToChange,animKey,initialExpression);
         //calculator = new Expression(initialExpression);
         EMFCalculator = new MathExpression(initialExpression,false, this);
     }
@@ -30,17 +30,17 @@ public class AnimationCalculationEMFParser extends AnimationCalculation{
     }
 
     @Override
-    public double calculatorRun() {
+    public float calculatorRun() {
        // calculationCount++;
         //setVerbose(true);
         //System.out.println("ran: "+EMFCalculator.originalExpression);
-        if(EMFData.getInstance().getConfig().printAllMaths && animKey.equals("rotation.rx")) {
+        if(EMFData.getInstance().getConfig().printAllMaths ) {
             setVerbose(true);
-            System.out.println("mxparser run/////////////////////////////////");
-            mxpThis.setVerbose(true);
-            System.out.println("mxparser ="+ mxpThis.calculatorRun());
+//            System.out.println("mxparser run/////////////////////////////////");
+//            mxpThis.setVerbose(true);
+//            System.out.println("mxparser ="+ mxpThis.calculatorRun());
             System.out.println("start EMF///////////////////////////////////");
-            double val = EMFCalculator.calculate();
+            float val = EMFCalculator.calculate();
             System.out.println("EMF = "+val+" ///////////////////////////////////");
             return val;
         }else{
@@ -62,7 +62,7 @@ public class AnimationCalculationEMFParser extends AnimationCalculation{
 
     @Override
     public boolean isValid(){
-        return EMFCalculator.isValid() && !Double.isNaN( EMFCalculator.calculate());
+        return EMFCalculator.isValid() && !Float.isNaN( EMFCalculator.calculate());
     }
 
 

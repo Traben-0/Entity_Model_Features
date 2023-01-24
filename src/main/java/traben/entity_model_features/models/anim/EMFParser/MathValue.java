@@ -5,7 +5,7 @@ import traben.entity_model_features.models.anim.AnimationCalculationEMFParser;
 
 import java.util.function.Supplier;
 
-public abstract class MathValue implements Supplier<Double> , MathComponent{
+public abstract class MathValue implements Supplier<Float> , MathComponent{
 
 
     MathValue(boolean isNegative, AnimationCalculation calculationInstance){
@@ -16,7 +16,7 @@ public abstract class MathValue implements Supplier<Double> , MathComponent{
     final AnimationCalculationEMFParser calculationInstance;
     public final boolean isNegative;
 
-    abstract public Supplier<Double> getSupplier();
+    abstract public Supplier<Float> getSupplier();
 
     public void print(String str){
         if(calculationInstance != null)
@@ -24,10 +24,10 @@ public abstract class MathValue implements Supplier<Double> , MathComponent{
     }
 
     @Override
-    public Double get() {
+    public Float get() {
         if(calculationInstance != null)
             calculationInstance.indentCount++;
-        Double ret = isNegative ? -getSupplier().get() : getSupplier().get();
+        Float ret = isNegative ? -getSupplier().get() : getSupplier().get();
         if(calculationInstance != null)
             calculationInstance.indentCount--;
         return ret;

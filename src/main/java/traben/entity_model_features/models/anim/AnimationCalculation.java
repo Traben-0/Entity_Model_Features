@@ -209,10 +209,10 @@ public abstract class AnimationCalculation {
     float tickDelta=0;
 
      public EMF_ModelPart modelPart = null;
-      ModelPart vanillaModelPart = null;
+     public ModelPart vanillaModelPart = null;
 
      public final EMF_EntityModel<?> parentModel;
-     final AnimVar varToChange;
+     public final AnimVar varToChange;
      public final String animKey;
 
      final ObjectOpenHashSet<String> animKeysThatAreNeeded = new ObjectOpenHashSet<>();
@@ -249,7 +249,7 @@ public abstract class AnimationCalculation {
     abstract void setVerbose(boolean val);
 
     //optimize so we dont calculate multiple times
-    public double getResultOnly(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
+    public float getResultOnly(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
         if(vanillaModelPart != null){
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
@@ -262,13 +262,13 @@ public abstract class AnimationCalculation {
 
         //if we haven't already calculated a result this frame get another
 
-        double interpolationLength = prevInterp.getDouble(id);
+        float interpolationLength = prevInterp.getFloat(id);
 
         if (animationProgress0 >= prevResultsTick.getFloat(id) +interpolationLength){
 
             //vary interpolation length by distance from client
             if (getEntity() != null && MinecraftClient.getInstance().player != null) {
-                double val =((entity0.distanceTo(MinecraftClient.getInstance().player ) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff)
+                float val =((entity0.distanceTo(MinecraftClient.getInstance().player ) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff)
                         / EMFData.getInstance().getConfig().animationRateDistanceDropOffRate );// LOWER == lower quality
                 //if((new Random()).nextInt(400) == 1)
                    // System.out.println("val="+val);
@@ -287,8 +287,8 @@ public abstract class AnimationCalculation {
             tickDelta = tickDelta0;
             prevResultsTick.put(id ,getAge());
 
-            double result = calculatorRun();
-            double oldResult = prevResults.getDouble(id);
+            float result = calculatorRun();
+            float oldResult = prevResults.getFloat(id);
             prevPrevResults.put(id,oldResult);
             prevResults.put(id,result);
             return oldResult;
@@ -299,12 +299,12 @@ public abstract class AnimationCalculation {
             prevResultsTick.put(id,-100);
         }else if(prevPrevResults.containsKey(id)){
             float delta = (float) ((animationProgress0 - prevResultsTick.getFloat(id) ) / interpolationLength);
-            return MathHelper.lerp(delta,prevPrevResults.getDouble(id), prevResults.getDouble(id));
+            return MathHelper.lerp(delta,prevPrevResults.getFloat(id), prevResults.getFloat(id));
         }
-        return prevResults.getDouble(id);
+        return prevResults.getFloat(id);
     }
 
-    abstract double calculatorRun();
+    abstract float calculatorRun();
 
     //public double getLastResult() {
     //    return getEntity() != null ? 0 : prevResults.getDouble(getEntity().getUuid());
@@ -312,21 +312,21 @@ public abstract class AnimationCalculation {
     public float getLastResultTick() {
         return getEntity() != null ? 0 : prevResultsTick.getFloat(getEntity().getUuid());
     }
-      Object2DoubleOpenHashMap<UUID> prevInterp = new Object2DoubleOpenHashMap<>();
-     Object2DoubleOpenHashMap<UUID> prevPrevResults = new Object2DoubleOpenHashMap<>();
-     public Object2DoubleOpenHashMap<UUID> prevResults = new Object2DoubleOpenHashMap<>();
+      Object2FloatOpenHashMap<UUID> prevInterp = new Object2FloatOpenHashMap<>();
+     Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
+     public Object2FloatOpenHashMap<UUID> prevResults = new Object2FloatOpenHashMap<>();
       Object2FloatOpenHashMap<UUID> prevResultsTick = new Object2FloatOpenHashMap<>();
     //private double lastResult = 0;
    // private float lastResultTick = -1000;
 
     public void calculateAndSet(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
-        double result = getResultOnly( entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0);
+        float result = getResultOnly( entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0);
 
-        if(Double.isNaN(result)){
+        if(Float.isNaN(result)){
             //System.out.println(isRidden()+", "+isChild());
             //if(rand.nextInt(100) == 1)System.out.println("result was NaN from: "+animKey);
             if(varToChange != null)
-                varToChange.set(modelPart, -999D);
+                varToChange.set(modelPart, -999f);
             //isValid();
         }else if(modelPart == null){
 
@@ -363,7 +363,7 @@ public abstract class AnimationCalculation {
         CUSTOM();
 
 
-        public void set(EMF_ModelPart part, Double value) {
+        public void set(EMF_ModelPart part, Float value) {
             if (value == null){
                 System.out.println("this model couldn't be set as the calculation returned null: "+part.selfModelData.id+"."+this);
                 return;
@@ -371,42 +371,42 @@ public abstract class AnimationCalculation {
             switch (this){
                 case tx -> {
                     //part.tx = value;
-                    part.setAnimPivotX(value.floatValue());
+                    part.setAnimPivotX(value);
                 }
                 case ty -> {
                     //part.ty = value;
-                    part.setAnimPivotY( value.floatValue());
+                    part.setAnimPivotY(value);
                 }
                 case tz -> {
                     //part.tz = value;
-                    part.setAnimPivotZ( value.floatValue());
+                    part.setAnimPivotZ(value);
                 }
                 case rx -> {
                     //part.rx = value;
                     //part.pitch = value.floatValue();
-                    part.setAnimPitch(value.floatValue());
+                    part.setAnimPitch(value);
                 }
                 case ry -> {
                     //part.ry = value;
                     //part.yaw = value.floatValue();
-                    part.setAnimYaw(value.floatValue());
+                    part.setAnimYaw(value);
                 }
                 case rz -> {
                     //part.rz = value;
                    // part.roll = value.floatValue();
-                    part.setAnimRoll(value.floatValue());
+                    part.setAnimRoll(value);
                 }
                 case sx -> {
                     //part.sx = value;
-                    part.xScale = value.floatValue();
+                    part.xScale = value;
                 }
                 case sy -> {
                     //part.sy = value;
-                    part.yScale = value.floatValue();
+                    part.yScale = value;
                 }
                 case sz -> {
                     //part.sz = value;
-                    part.zScale = value.floatValue();
+                    part.zScale = value;
                 }
                 case CUSTOM -> {
                     //todo pain.jpeg
