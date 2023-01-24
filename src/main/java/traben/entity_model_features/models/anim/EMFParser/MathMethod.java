@@ -325,7 +325,7 @@ public class MathMethod extends MathValue implements MathComponent{
         throw new EMFMathException(s);
     }
     private Supplier<Float> MAX(List<String> args) throws EMFMathException {
-        if(args.size() < 2){
+        if(args.size() >= 2){
             List<MathExpression> exps = new ArrayList<>();
             for (String arg:
                     args) {
@@ -350,7 +350,7 @@ public class MathMethod extends MathValue implements MathComponent{
         throw new EMFMathException(s);
     }
     private Supplier<Float> MIN(List<String> args) throws EMFMathException {
-        if(args.size() < 2){
+        if(args.size() >= 2){
             List<MathExpression> exps = new ArrayList<>();
             for (String arg:
                  args) {

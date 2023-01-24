@@ -192,6 +192,11 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
             if(components.size() == 1){
                 this.containsOneComponent = true;
             }else {
+
+                if(components.get(0) == MathAction.add){
+                    components.remove(0);
+                }
+
                 this.containsBooleansHigherOrder = (components.contains(MathAction.equals)
                         || components.contains(MathAction.largerThan)
                         || components.contains(MathAction.largerThanOrEquals)
@@ -249,6 +254,80 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
 
             //reset every calculate
             componentsDuringCalculate = new LinkedList<>(components);
+
+
+            //multiply & divide pass
+            if(containsMultiplicationLevel) {
+                LinkedList<MathComponent> newComponents = new LinkedList<>();
+                Iterator<MathComponent> compIterator = componentsDuringCalculate.iterator();
+                while (compIterator.hasNext()) {
+                    MathComponent component = compIterator.next();
+                    if (component instanceof MathAction action) {
+                        if (action == MathAction.multiply) {
+                            MathComponent last = newComponents.getLast();
+                            MathComponent next = compIterator.next();
+                            newComponents.removeLast();
+                            float lastD = last.get();
+                            float nextD = next.get();
+                            if (calculationInstance.verboseMode) print("multiply=" + lastD + " * " + nextD);
+                            newComponents.add(new MathVariableConstant(lastD * nextD, false));
+                        } else if (action == MathAction.divide) {
+                            MathComponent last = newComponents.getLast();
+                            MathComponent next = compIterator.next();
+                            newComponents.removeLast();
+                            float lastD = last.get();
+                            float nextD = next.get();
+                            if (calculationInstance.verboseMode) print("divide=" + lastD + " / " + nextD);
+                            newComponents.add(new MathVariableConstant(lastD / nextD, false));
+                        } else if (action == MathAction.divisionRemainder) {
+                            MathComponent last = newComponents.getLast();
+                            MathComponent next = compIterator.next();
+                            newComponents.removeLast();
+                            float lastD = last.get();
+                            float nextD = next.get();
+                            if (calculationInstance.verboseMode) print("divide remainder=" + lastD + " % " + nextD);
+                            newComponents.add(new MathVariableConstant(lastD % nextD, false));
+                        } else {
+                            newComponents.add(component);
+                        }
+                    } else {
+                        newComponents.add(component);
+                    }
+                }
+                componentsDuringCalculate = newComponents;
+            }
+            //add & subtract pass
+            if(containsAdditionLevel) {
+                LinkedList<MathComponent> newComponents2 = new LinkedList<>();
+                Iterator<MathComponent> compIterator2 = componentsDuringCalculate.iterator();
+                while (compIterator2.hasNext()) {
+                    MathComponent component = compIterator2.next();
+                    if (component instanceof MathAction action) {
+                        if (action == MathAction.add) {
+                            MathComponent last = newComponents2.getLast();
+                            MathComponent next = compIterator2.next();
+                            newComponents2.removeLast();
+                            float lastD = last.get();
+                            float nextD = next.get();
+                            if (calculationInstance.verboseMode) print("add=" + lastD + " + " + nextD);
+                            newComponents2.add(new MathVariableConstant(lastD + nextD, false));
+                        } else if (action == MathAction.subtract) {
+                            MathComponent last = newComponents2.getLast();
+                            MathComponent next = compIterator2.next();
+                            newComponents2.removeLast();
+                            float lastD = last.get();
+                            float nextD = next.get();
+                            if (calculationInstance.verboseMode) print("subtract=" + lastD + " - " + nextD);
+                            newComponents2.add(new MathVariableConstant(lastD - nextD, false));
+                        } else {
+                            newComponents2.add(component);
+                        }
+                    } else {
+                        newComponents2.add(component);
+                    }
+                }
+                componentsDuringCalculate = newComponents2;
+            }
 
             //boolean pass
             if(containsBooleansHigherOrder) {
@@ -357,78 +436,8 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
                 }
                 componentsDuringCalculate = newComponentsB;
             }
-            //multiply & divide pass
-            if(containsMultiplicationLevel) {
-                LinkedList<MathComponent> newComponents = new LinkedList<>();
-                Iterator<MathComponent> compIterator = componentsDuringCalculate.iterator();
-                while (compIterator.hasNext()) {
-                    MathComponent component = compIterator.next();
-                    if (component instanceof MathAction action) {
-                        if (action == MathAction.multiply) {
-                            MathComponent last = newComponents.getLast();
-                            MathComponent next = compIterator.next();
-                            newComponents.removeLast();
-                            float lastD = last.get();
-                            float nextD = next.get();
-                            if (calculationInstance.verboseMode) print("multiply=" + lastD + " * " + nextD);
-                            newComponents.add(new MathVariableConstant(lastD * nextD, false));
-                        } else if (action == MathAction.divide) {
-                            MathComponent last = newComponents.getLast();
-                            MathComponent next = compIterator.next();
-                            newComponents.removeLast();
-                            float lastD = last.get();
-                            float nextD = next.get();
-                            if (calculationInstance.verboseMode) print("divide=" + lastD + " / " + nextD);
-                            newComponents.add(new MathVariableConstant(lastD / nextD, false));
-                        } else if (action == MathAction.divisionRemainder) {
-                            MathComponent last = newComponents.getLast();
-                            MathComponent next = compIterator.next();
-                            newComponents.removeLast();
-                            float lastD = last.get();
-                            float nextD = next.get();
-                            if (calculationInstance.verboseMode) print("divide remainder=" + lastD + " % " + nextD);
-                            newComponents.add(new MathVariableConstant(lastD % nextD, false));
-                        } else {
-                            newComponents.add(component);
-                        }
-                    } else {
-                        newComponents.add(component);
-                    }
-                }
-                componentsDuringCalculate = newComponents;
-            }
-            //add & subtract pass
-            if(containsAdditionLevel) {
-                LinkedList<MathComponent> newComponents2 = new LinkedList<>();
-                Iterator<MathComponent> compIterator2 = componentsDuringCalculate.iterator();
-                while (compIterator2.hasNext()) {
-                    MathComponent component = compIterator2.next();
-                    if (component instanceof MathAction action) {
-                        if (action == MathAction.add) {
-                            MathComponent last = newComponents2.getLast();
-                            MathComponent next = compIterator2.next();
-                            newComponents2.removeLast();
-                            float lastD = last.get();
-                            float nextD = next.get();
-                            if (calculationInstance.verboseMode) print("add=" + lastD + " + " + nextD);
-                            newComponents2.add(new MathVariableConstant(lastD + nextD, false));
-                        } else if (action == MathAction.subtract) {
-                            MathComponent last = newComponents2.getLast();
-                            MathComponent next = compIterator2.next();
-                            newComponents2.removeLast();
-                            float lastD = last.get();
-                            float nextD = next.get();
-                            if (calculationInstance.verboseMode) print("subtract=" + lastD + " - " + nextD);
-                            newComponents2.add(new MathVariableConstant(lastD - nextD, false));
-                        } else {
-                            newComponents2.add(component);
-                        }
-                    } else {
-                        newComponents2.add(component);
-                    }
-                }
-                componentsDuringCalculate = newComponents2;
-            }
+
+
             if (calculationInstance.verboseMode) print("finish calculating [" + originalExpression + "] as [" + components+"].");
             if (componentsDuringCalculate.size() == 1) {
                 // lastResultCount = calculationInstance.calculationCount;

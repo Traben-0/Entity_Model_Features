@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.unimi.dsi.fastutil.ints.Int2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.entity.model.*;
@@ -13,6 +15,7 @@ import net.minecraft.entity.mob.IllagerEntity;
 import net.minecraft.entity.passive.*;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.vanilla_model_children.*;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
@@ -25,6 +28,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 public class EMFData {
 
@@ -119,6 +123,7 @@ public class EMFData {
                 EMFUtils.EMF_modMessage("failed for " + modelID + e, false);
                 e.printStackTrace();
                 JEMPATH_CustomModel.put(hashKeyTypicallyEntityType, null);
+                return null;
             }
         }
         return (EMF_EntityModel<T>) JEMPATH_CustomModel.get(hashKeyTypicallyEntityType);
@@ -180,22 +185,45 @@ public class EMFData {
         if(emfModel != null) {
             // jem exists so decide if variation occurs
             if (FabricLoader.getInstance().isModLoaded("entity_texture_features")) {
-                Identifier propertyID = new Identifier("optifine/cem/" + entityTypeName + ".properties");
-                if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
-                    List<etfPropertyReader.EMFPropertyCase> emfCases = etfPropertyReader.getAllValidPropertyObjects(propertyID, "models", entityTypeName);
-                    if (emfCases != null){
-                        for (etfPropertyReader.EMFPropertyCase emfCase:
-                             emfCases) {
-                            if (emfCase.testCase(entity,false,hmm))
+                if(!MODEL_CASES.containsKey(entityTypeName)) {
+                    Identifier propertyID = new Identifier("optifine/cem/" + entityTypeName + ".properties");
+                    if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
+                        List<etfPropertyReader.EMFPropertyCase> emfCases = etfPropertyReader.getAllValidPropertyObjects(propertyID, "models", entityTypeName);
+                        MODEL_CASES.put(entityTypeName, emfCases);
+                    }
+                }
+                List<etfPropertyReader.EMFPropertyCase> emfCases = MODEL_CASES.get(entityTypeName);
+                if (emfCases != null && !emfCases.isEmpty()){
+                    for (etfPropertyReader.EMFPropertyCase emfCase:
+                            emfCases) {
+                        if (emfCase.testCase(entity,false,UUID_MOB_MODEL_UPDATES)){
+                            int suffix = emfCase.getSuffix(entity.getUuid());
+                            String variantName = entityTypeName+suffix;
+                            EMF_EntityModel<T> emfModelVariant = createEMFModelOnly(variantName,vanillaModel);
+                            if(emfModelVariant != null){
+                                return (M) getFinalEMFModel(variantName,emfModelVariant, vanillaModel);
+                            }
                         }
                     }
                 }
             }
-            return (M) getCustomModelForRenderer(emfModel, vanillaModel);
+            return (M) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
         }
         return null;
     }
 
+    private <T extends LivingEntity, M extends EntityModel<T>> M  getFinalEMFModel(String jemName,EMF_EntityModel<T> alreadyBuiltSubmodel,M vanillaModelForInstanceCheck){
+        if(!COMPLETE_MODELS_FOR_RETURN.containsKey(jemName)){
+            M finalModel = getCustomModelForRenderer(alreadyBuiltSubmodel, vanillaModelForInstanceCheck);
+            COMPLETE_MODELS_FOR_RETURN.put(jemName, (EMFCustomModel<?>) finalModel);
+            return finalModel;
+        }
+        return (M) COMPLETE_MODELS_FOR_RETURN.get(jemName);
+    }
+
+    public  Object2ObjectOpenHashMap<String, EMFCustomModel<?>> COMPLETE_MODELS_FOR_RETURN = new Object2ObjectOpenHashMap<>();
+    public Object2ObjectOpenHashMap<String,List<etfPropertyReader.EMFPropertyCase>> MODEL_CASES = new Object2ObjectOpenHashMap<>();
+    public Object2BooleanOpenHashMap<UUID> UUID_MOB_MODEL_UPDATES = new Object2BooleanOpenHashMap<>();
 
     public EMFCustomPlayerModel<?> clientPlayerModel = null;
 

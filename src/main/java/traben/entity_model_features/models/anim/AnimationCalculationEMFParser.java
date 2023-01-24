@@ -34,7 +34,7 @@ public class AnimationCalculationEMFParser extends AnimationCalculation{
        // calculationCount++;
         //setVerbose(true);
         //System.out.println("ran: "+EMFCalculator.originalExpression);
-        if(EMFData.getInstance().getConfig().printAllMaths ) {
+        if(EMFData.getInstance().getConfig().printAllMaths && animKey.equals("nose.rz")) {
             setVerbose(true);
 //            System.out.println("mxparser run/////////////////////////////////");
 //            mxpThis.setVerbose(true);

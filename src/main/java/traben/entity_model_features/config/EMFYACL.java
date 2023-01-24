@@ -118,8 +118,8 @@ public class EMFYACL{
     }
 
     static void saveAndReset(){
-        EMFData.getInstance().EMF_saveConfig();
-        EMFData.reset();
+        //EMFData.getInstance().EMF_saveConfig();
+        //EMFData.reset();
         MinecraftClient.getInstance().reloadResources();
     }
 }

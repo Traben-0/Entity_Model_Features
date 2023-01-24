@@ -194,14 +194,14 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                             new AnimationCalculationMXParser(
                                 this,
                                 null,
-                                thisVariable,
+                                null,
                                 animKey,
                                 animationExpression)
                     :
                             new AnimationCalculationEMFParser(
                                     this,
                                     null,
-                                    thisVariable,
+                                    null,
                                     animKey,
                                     animationExpression);
                 }
@@ -263,7 +263,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                     }
 
                 }catch(IllegalArgumentException e){
-                    //System.out.println("no animation expression part variable value found for: "+key);
+                    System.out.println("no animation expression part variable value found for: "+key);
                     return 0;
                 }
             }else {
@@ -273,12 +273,12 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                         variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
                         return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName));
                     }catch(IllegalArgumentException e){
-                       // System.out.println("no animation expression part variable value found for: "+key);
+                        System.out.println("no animation expression part variable value found for: "+key);
                         return 0;
                     }
                 }else {
-                   // System.out.println("no animation expression value found for: " + key);
-                   // System.out.println(animationKeyToCalculatorObject.keySet());
+                    System.out.println("no animation expression value found for: " + key);
+                    System.out.println(animationKeyToCalculatorObject.keySet());
                     //System.out.println(vanillaModelPartsById.keySet());
                     return 0;
                 }
@@ -376,16 +376,18 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     }
 
 
+    private Object2ObjectOpenHashMap<String, EMF_ModelPart> getAllPartsCachedResult = null;
     public Object2ObjectOpenHashMap<String, EMF_ModelPart> getAllParts(){
-        Object2ObjectOpenHashMap<String, EMF_ModelPart> list = new Object2ObjectOpenHashMap<String, EMF_ModelPart>();
-        for (EMF_ModelPart part :
-                childrenMap.values()) {
-            list.put(part.selfModelData.id,part);
-            list.putAll(part.getAllParts());
+        if(getAllPartsCachedResult == null) {
+            Object2ObjectOpenHashMap<String, EMF_ModelPart> list = new Object2ObjectOpenHashMap<String, EMF_ModelPart>();
+            for (EMF_ModelPart part :
+                    childrenMap.values()) {
+                list.put(part.selfModelData.id, part);
+                list.putAll(part.getAllParts());
+            }
+            getAllPartsCachedResult = list;
         }
-
-
-        return list;
+        return getAllPartsCachedResult;
     }
 
     @Override

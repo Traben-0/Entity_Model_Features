@@ -123,30 +123,38 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
         }
         //process float variable  e.g.   var.asdf
         if(variableKey.matches("var\\.\\w+")) {
-            EMF_ModelPart partParent = calculationInstance.modelPart == null? null : calculationInstance.modelPart.parent;
-            return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent
-                                ,variableKey,
-                                calculationInstance.getEntity(),
-                                calculationInstance.getLimbAngle(),
-                                calculationInstance.getLimbDistance(),
-                                calculationInstance.getAnimationProgress(),
-                                calculationInstance.getHeadYaw(),
-                                calculationInstance.getHeadPitch(),
-                                calculationInstance.getTickDelta());
+            if (variableKey.equals(calculationInstance.animKey)) {
+                return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
+            }else {
+                EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
+                return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent
+                        , variableKey,
+                        calculationInstance.getEntity(),
+                        calculationInstance.getLimbAngle(),
+                        calculationInstance.getLimbDistance(),
+                        calculationInstance.getAnimationProgress(),
+                        calculationInstance.getHeadYaw(),
+                        calculationInstance.getHeadPitch(),
+                        calculationInstance.getTickDelta());
+            }
 
         }
         //process boolean variable  e.g.   varb.asdf
         if(variableKey.matches("varb\\.\\w+")) {
-            EMF_ModelPart partParent = calculationInstance.modelPart == null? null : calculationInstance.modelPart.parent;
-            return () -> (float) (calculationInstance.parentModel.getAnimationResultOfKey(partParent
-                    ,variableKey,
-                    calculationInstance.getEntity(),
-                    calculationInstance.getLimbAngle(),
-                    calculationInstance.getLimbDistance(),
-                    calculationInstance.getAnimationProgress(),
-                    calculationInstance.getHeadYaw(),
-                    calculationInstance.getHeadPitch(),
-                    calculationInstance.getTickDelta()) == (invertBooleans ? 1 : 0)? 0 : 1);
+            if (variableKey.equals(calculationInstance.animKey)) {
+                return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
+            }else {
+                EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
+                return () -> (float) (calculationInstance.parentModel.getAnimationResultOfKey(partParent
+                        , variableKey,
+                        calculationInstance.getEntity(),
+                        calculationInstance.getLimbAngle(),
+                        calculationInstance.getLimbDistance(),
+                        calculationInstance.getAnimationProgress(),
+                        calculationInstance.getHeadYaw(),
+                        calculationInstance.getHeadPitch(),
+                        calculationInstance.getTickDelta()) == (invertBooleans ? 1 : 0) ? 0 : 1);
+            }
 
         }
         String s = "ERROR: could not identify EMF animation variable ["+variableKey+"] for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
