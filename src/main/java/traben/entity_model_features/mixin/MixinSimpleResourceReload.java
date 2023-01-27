@@ -12,19 +12,19 @@ import traben.entity_model_features.Entity_model_featuresClient;
 @Mixin(SimpleResourceReload.class)
 public abstract class MixinSimpleResourceReload {
 
-    private static boolean etf$falseAfterFirstRun = true;
+    private static boolean emf$falseAfterFirstRun = true;
 
     @Inject(method = "getProgress()F", at = @At("RETURN"))
     private void emf$injected(CallbackInfoReturnable<Float> cir) {
         if (cir.getReturnValue() == 1.0) {
-            if (etf$falseAfterFirstRun) {
-                etf$falseAfterFirstRun = false;
+            if (emf$falseAfterFirstRun) {
+                emf$falseAfterFirstRun = false;
                 //do reset
                 System.out.println("resetting emf");
                 EMFData.reset();
             }
         } else {
-            etf$falseAfterFirstRun = true;
+            emf$falseAfterFirstRun = true;
         }
     }
 }

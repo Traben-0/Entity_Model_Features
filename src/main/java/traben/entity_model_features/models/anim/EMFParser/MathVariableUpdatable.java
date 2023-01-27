@@ -98,7 +98,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
         //todo there exists potential here to store the value here to prevent unnecessary repeated method calls with so many args, it is currently cached after the method calls
 
         //process model part variable   e.g.  head.rx
-        if(variableKey.matches("[a-zA-Z0-9_]+\\.[trs][xyz]")){
+        if(variableKey.matches("[a-zA-Z0-9_]+\\.([trs][xyz]$|visible$|visible_boxes$)")){
             System.out.println("found and setup for otherKey :" + variableKey);
             if (variableKey.equals(calculationInstance.animKey)) {
                 //todo check this

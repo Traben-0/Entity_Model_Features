@@ -45,6 +45,7 @@ dependencies {
     implementation 'org.mariuszgromada.math:MathParser.org-mXparser:5.1.0'
 
     modImplementation files("run/mods/entity_texture_features_fabric_1.19.3-4.3.2.emfdev.jar")
+
     modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
 }

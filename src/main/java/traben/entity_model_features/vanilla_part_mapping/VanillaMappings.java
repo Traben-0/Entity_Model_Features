@@ -3,6 +3,8 @@ package traben.entity_model_features.vanilla_part_mapping;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.entity.player.PlayerEntity;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.mixin.accessor.*;
 
 import java.util.ArrayList;
@@ -32,6 +34,12 @@ public class VanillaMappings {
 //        if (vanillaModel instanceof AllayEntityModel) {
 //            return VanillaMappings::getAllayMap;
 //        }
+        if (vanillaModel instanceof SlimeEntityModel) {
+            return VanillaMappings::getSlimeMap;
+        }
+        if (vanillaModel instanceof WolfEntityModel) {
+            return VanillaMappings::getWolfMap;
+        }
         if (vanillaModel instanceof MagmaCubeEntityModel) {
             return VanillaMappings::getMagmaCubeMap;
         }
@@ -106,35 +114,35 @@ public class VanillaMappings {
 
 
     }
-    private static HashMap<String, ModelPart> getEmptyMap(EntityModel<?> vanillaModel){
+    private static HashMap<String, ModelAndParent> getEmptyMap(EntityModel<?> vanillaModel){
         //todo mod entity integreation for part names
         System.out.println("empty model mapped for: "+ vanillaModel.getClass().toString());
         return new HashMap<>();
     }
     //this ones a bit special it automatically traverses a single part model capturing the vanilla part names
     // this automatically correctly captures allay model part and names for example
-    private static HashMap<String, ModelPart> getSinglePartModelMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getSinglePartModelMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof SinglePartEntityModel model) {
             ModelPart root = model.getPart();
             Map<String,ModelPart> sourceChildren = ((ModelPartAccessor)root).getChildren();
-            vanillaPartsList.putAll(iterateOverRootPartsChildren(sourceChildren));
+            vanillaPartsList.putAll(iterateOverRootPartsChildren(sourceChildren,null));
 
         }
         return vanillaPartsList;
     }
 
-    private static Map<String, ModelPart> getAllRootPartsChildren(ModelPart root){
+    private static Map<String, ModelAndParent> getAllRootPartsChildren(ModelPart root){
         Map<String,ModelPart> sourceChildren = ((ModelPartAccessor)root).getChildren();
-        return iterateOverRootPartsChildren(sourceChildren);
+        return iterateOverRootPartsChildren(sourceChildren, null);
     }
-    private static Map<String, ModelPart> iterateOverRootPartsChildren(Map<String, ModelPart> sourceChildren){
-        Map<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static Map<String, ModelAndParent> iterateOverRootPartsChildren(Map<String, ModelPart> sourceChildren, String parentName){
+        Map<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         for (Map.Entry<String, ModelPart> entry:
              sourceChildren.entrySet()) {
-            vanillaPartsList.put(entry.getKey(), entry.getValue());
+            vanillaPartsList.put(entry.getKey(), getEntry(entry.getValue(),parentName));
             Map<String,ModelPart> nextChildren = ((ModelPartAccessor)entry.getValue()).getChildren();
-            vanillaPartsList.putAll(iterateOverRootPartsChildren(nextChildren));
+            vanillaPartsList.putAll(iterateOverRootPartsChildren(nextChildren,entry.getKey()));
         }
         return vanillaPartsList;
     }
@@ -163,10 +171,40 @@ public class VanillaMappings {
 
 
 
+    private static HashMap<String, ModelAndParent> getWolfMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
+        if (vanillaModel instanceof WolfEntityModel wolf) {
+            //todo investigate the child head and tail models as they are possibly what is actually used by OptiFine
+
+            ArrayList<ModelPart> bodyParts = new ArrayList<>();
+            Iterable<ModelPart> hed = ((AnimalModelAccessor) wolf).callGetHeadParts();
+            if(hed.iterator().hasNext()) {
+                vanillaPartsList.put("head", getEntry(hed.iterator().next()));
+            }
+            for (ModelPart part : ((AnimalModelAccessor) wolf).callGetBodyParts()) {
+                bodyParts.add(part);
+            }
+            vanillaPartsList.put("body",getEntry(bodyParts.get(0)));
+            vanillaPartsList.put("leg1",getEntry(bodyParts.get(1)));
+            vanillaPartsList.put("leg2",getEntry(bodyParts.get(2)));
+            vanillaPartsList.put("leg3",getEntry(bodyParts.get(3)));
+            vanillaPartsList.put("leg4",getEntry(bodyParts.get(4)));
+
+            vanillaPartsList.put("tail",getEntry(bodyParts.get(5)));
+
+            vanillaPartsList.put("mane",getEntry(bodyParts.get(6)));
 
 
-    private static HashMap<String, ModelPart> getMagmaCubeMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        }
+        return vanillaPartsList;
+    }
+    private static HashMap<String, ModelAndParent> getSlimeMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        vanillaPartsList.put("body",vanillaPartsList.get("cube"));
+        return vanillaPartsList;
+    }
+    private static HashMap<String, ModelAndParent> getMagmaCubeMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
         vanillaPartsList.put("segment1",vanillaPartsList.get("cube0"));
         vanillaPartsList.put("segment2",vanillaPartsList.get("cube1"));
         vanillaPartsList.put("segment3",vanillaPartsList.get("cube2"));
@@ -181,44 +219,44 @@ public class VanillaMappings {
         return vanillaPartsList;
     }
 
-    private static HashMap<String, ModelPart> getLlamaMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getLlamaMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof LlamaEntityModel llama) {
-            vanillaPartsList.put("head",((LlamaEntityModelAccessor)llama).getHead());
-            vanillaPartsList.put("body",((LlamaEntityModelAccessor)llama).getBody());
-            vanillaPartsList.put("leg1",((LlamaEntityModelAccessor)llama).getRightHindLeg());
-            vanillaPartsList.put("leg2",((LlamaEntityModelAccessor)llama).getLeftHindLeg());
-            vanillaPartsList.put("leg3",((LlamaEntityModelAccessor)llama).getRightFrontLeg());
-            vanillaPartsList.put("leg4",((LlamaEntityModelAccessor)llama).getLeftFrontLeg());
-            vanillaPartsList.put("chest_right",((LlamaEntityModelAccessor)llama).getRightChest());
-            vanillaPartsList.put("chest_left",((LlamaEntityModelAccessor)llama).getLeftChest());
+            vanillaPartsList.put("head",getEntry(((LlamaEntityModelAccessor)llama).getHead()));
+            vanillaPartsList.put("body",getEntry(((LlamaEntityModelAccessor)llama).getBody()));
+            vanillaPartsList.put("leg1",getEntry(((LlamaEntityModelAccessor)llama).getRightHindLeg()));
+            vanillaPartsList.put("leg2",getEntry(((LlamaEntityModelAccessor)llama).getLeftHindLeg()));
+            vanillaPartsList.put("leg3",getEntry(((LlamaEntityModelAccessor)llama).getRightFrontLeg()));
+            vanillaPartsList.put("leg4",getEntry(((LlamaEntityModelAccessor)llama).getLeftFrontLeg()));
+            vanillaPartsList.put("chest_right",getEntry(((LlamaEntityModelAccessor)llama).getRightChest()));
+            vanillaPartsList.put("chest_left",getEntry(((LlamaEntityModelAccessor)llama).getLeftChest()));
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getFoxMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getFoxMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof FoxEntityModel fox) {
             ArrayList<ModelPart> bodyParts = new ArrayList<>();
             Iterable<ModelPart> hed = ((AnimalModelAccessor) fox).callGetHeadParts();
             if(hed.iterator().hasNext()) {
-                vanillaPartsList.put("head", hed.iterator().next());
+                vanillaPartsList.put("head", getEntry(hed.iterator().next()));
             }
             for (ModelPart part : ((AnimalModelAccessor) fox).callGetBodyParts()) {
                 bodyParts.add(part);
             }
-            vanillaPartsList.put("body",bodyParts.get(0));
-            vanillaPartsList.put("leg1",bodyParts.get(1));
-            vanillaPartsList.put("leg2",bodyParts.get(2));
-            vanillaPartsList.put("leg3",bodyParts.get(3));
-            vanillaPartsList.put("leg4",bodyParts.get(4));
-            vanillaPartsList.put("tail",((FoxEntityModelAccessor)fox).getTail());
+            vanillaPartsList.put("body",getEntry(bodyParts.get(0)));
+            vanillaPartsList.put("leg1",getEntry(bodyParts.get(1)));
+            vanillaPartsList.put("leg2",getEntry(bodyParts.get(2)));
+            vanillaPartsList.put("leg3",getEntry(bodyParts.get(3)));
+            vanillaPartsList.put("leg4",getEntry(bodyParts.get(4)));
+            vanillaPartsList.put("tail",getEntry(((FoxEntityModelAccessor)fox).getTail()));
 
 
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getGuardianMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+    private static HashMap<String, ModelAndParent> getGuardianMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
         vanillaPartsList.put("tail3",vanillaPartsList.get("tail2"));
         vanillaPartsList.put("tail2",vanillaPartsList.get("tail1"));
         vanillaPartsList.put("tail1",vanillaPartsList.get("tail0"));
@@ -240,82 +278,82 @@ public class VanillaMappings {
         return vanillaPartsList;
     }
 
-    private static HashMap<String, ModelPart> getHorseMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getHorseMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof AnimalModel horse) {
             ArrayList<ModelPart> bodyParts = new ArrayList<>();
             Iterable<ModelPart> hed = ((AnimalModelAccessor) horse).callGetHeadParts();
             ModelPart neck = null;
             if(hed.iterator().hasNext()) {
                  neck =hed.iterator().next();
-                    vanillaPartsList.put("neck", neck);
+                    vanillaPartsList.put("neck", getEntry(neck));
             }
             if(neck!= null) {
                // Map<String, ModelPart> head_parts = ((ModelPartAccessor) neck).getChildren();
 
                 if (neck.hasChild("head")) {
                     ModelPart head = neck.getChild("head");
-                    vanillaPartsList.put("head", head);
+                    vanillaPartsList.put("head", getEntry(head,"neck"));
                     Map<String, ModelPart> headSub_parts = ((ModelPartAccessor) head).getChildren();
                     if(headSub_parts.containsKey("left_ear"))
-                        vanillaPartsList.put("left_ear", headSub_parts.get("left_ear"));
+                        vanillaPartsList.put("left_ear", getEntry(headSub_parts.get("left_ear"),"head"));
                     if(headSub_parts.containsKey("right_ear"))
-                        vanillaPartsList.put("right_ear", headSub_parts.get("right_ear"));
+                        vanillaPartsList.put("right_ear", getEntry(headSub_parts.get("right_ear"), "head"));
                 }
                 if (neck.hasChild("mane"))
-                    vanillaPartsList.put("mane",neck.getChild("mane"));
+                    vanillaPartsList.put("mane",getEntry(neck.getChild("mane"),"neck"));
                 if (neck.hasChild("mouth"))
-                    vanillaPartsList.put("mouth",neck.getChild("mouth"));
+                    vanillaPartsList.put("mouth",getEntry(neck.getChild("mouth"),"neck"));
 
                 if (neck.hasChild("head_saddle"))
-                    vanillaPartsList.put("headpiece",neck.getChild("head_saddle"));
+                    vanillaPartsList.put("headpiece",getEntry(neck.getChild("head_saddle"),"neck"));
                 if (neck.hasChild("mouth_saddle_wrap"))
-                    vanillaPartsList.put("nose_band",neck.getChild("mouth_saddle_wrap"));
+                    vanillaPartsList.put("nose_band",getEntry(neck.getChild("mouth_saddle_wrap"),"neck"));
 
                 if (neck.hasChild("left_saddle_mouth"))
-                    vanillaPartsList.put("left_bit",neck.getChild("left_saddle_mouth"));
+                    vanillaPartsList.put("left_bit",getEntry(neck.getChild("left_saddle_mouth"),"neck"));
                 if (neck.hasChild("right_saddle_mouth"))
-                    vanillaPartsList.put("right_bit",neck.getChild("right_saddle_mouth"));
+                    vanillaPartsList.put("right_bit",getEntry(neck.getChild("right_saddle_mouth"),"neck"));
                 if (neck.hasChild("left_saddle_line"))
-                    vanillaPartsList.put("left_rein",neck.getChild("left_saddle_line"));
+                    vanillaPartsList.put("left_rein",getEntry(neck.getChild("left_saddle_line"),"neck"));
                 if (neck.hasChild("right_saddle_line"))
-                    vanillaPartsList.put("right_rein",neck.getChild("right_saddle_line"));
+                    vanillaPartsList.put("right_rein",getEntry(neck.getChild("right_saddle_line"),"neck"));
 
                 for (ModelPart part : ((AnimalModelAccessor) horse).callGetBodyParts()) {
                     bodyParts.add(part);
                 }
                 //Map<String, ModelPart> body_parts = ((ModelPartAccessor) bodyParts.get(0)).getChildren();
                 if (bodyParts.get(0).hasChild("tail"))
-                    vanillaPartsList.put("tail",bodyParts.get(0).getChild("tail"));
+                    vanillaPartsList.put("tail",getEntry(bodyParts.get(0).getChild("tail")));
                 if (bodyParts.get(0).hasChild("saddle"))
-                    vanillaPartsList.put("saddle",bodyParts.get(0).getChild("saddle"));
+                    vanillaPartsList.put("saddle",getEntry(bodyParts.get(0).getChild("saddle")));
 
 
-                vanillaPartsList.put("body", bodyParts.get(0));
-                vanillaPartsList.put("back_right_leg", bodyParts.get(1));
-                vanillaPartsList.put("back_left_leg", bodyParts.get(2));
-                vanillaPartsList.put("front_right_leg", bodyParts.get(3));
-                vanillaPartsList.put("front_left_leg", bodyParts.get(4));
+                vanillaPartsList.put("body",            getEntry(bodyParts.get(0)));
+                vanillaPartsList.put("back_right_leg",  getEntry(bodyParts.get(1)));
+                vanillaPartsList.put("back_left_leg",   getEntry(bodyParts.get(2)));
+                vanillaPartsList.put("front_right_leg", getEntry(bodyParts.get(3)));
+                vanillaPartsList.put("front_left_leg",  getEntry(bodyParts.get(4)));
 
-                vanillaPartsList.put("child_back_right_leg", bodyParts.get(5));
-                vanillaPartsList.put("child_back_left_leg", bodyParts.get(6));
-                vanillaPartsList.put("child_front_right_leg", bodyParts.get(7));
-                vanillaPartsList.put("child_front_left_leg", bodyParts.get(8));
+                vanillaPartsList.put("child_back_right_leg", getEntry(bodyParts.get(5)));
+                vanillaPartsList.put("child_back_left_leg",  getEntry(bodyParts.get(6)));
+                vanillaPartsList.put("child_front_right_leg",getEntry(bodyParts.get(7)));
+                vanillaPartsList.put("child_front_left_leg", getEntry(bodyParts.get(8)));
 
             }
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getCreeperMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+    private static HashMap<String, ModelAndParent> getCreeperMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
         vanillaPartsList.put("leg1",vanillaPartsList.get("right_hind_leg"));
         vanillaPartsList.put("leg2",vanillaPartsList.get("left_hind_leg"));
         vanillaPartsList.put("leg3",vanillaPartsList.get("right_front_leg"));
         vanillaPartsList.put("leg4",vanillaPartsList.get("left_front_leg"));
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getBlazeMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+    private static HashMap<String, ModelAndParent> getBlazeMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
         vanillaPartsList.put("stick1",vanillaPartsList.get("part0"));
         vanillaPartsList.put("stick2",vanillaPartsList.get("part1"));
         vanillaPartsList.put("stick3",vanillaPartsList.get("part2"));
@@ -331,183 +369,183 @@ public class VanillaMappings {
         return vanillaPartsList;
     }
 // bee   body, torso, right_wing, left_wing, front_legs, middle_legs, back_legs, stinger, left_antenna, right_antenna
-    private static HashMap<String, ModelPart> getBeeMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getBeeMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof BeeEntityModel bee) {
             ModelPart root = ((AnimalModelAccessor)bee).callGetBodyParts().iterator().next();
             vanillaPartsList.putAll(getAllRootPartsChildren(root));
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getBatMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+    private static HashMap<String, ModelAndParent> getBatMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
         vanillaPartsList.put("outer_right_wing",vanillaPartsList.get("right_wing_tip"));
         vanillaPartsList.put("outer_left_wing",vanillaPartsList.get("left_wing_tip"));
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getWitchMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getWitchMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof WitchEntityModel witch) {
             ModelPart root = witch.getPart();
-            vanillaPartsList.put("head",root.getChild("head"));
-            vanillaPartsList.put("headwear",root.getChild("head").getChild("hat"));
-            vanillaPartsList.put("headwear2",root.getChild("head").getChild("hat").getChild("hat_rim"));
-            vanillaPartsList.put("body",root.getChild("body"));
-            vanillaPartsList.put("bodywear",root.getChild("body").getChild("jacket"));
-            vanillaPartsList.put("arms",root.getChild("arms"));
-            vanillaPartsList.put("left_leg",root.getChild("left_leg"));
-            vanillaPartsList.put("right_leg",root.getChild("right_leg"));
-            vanillaPartsList.put("nose",root.getChild("head").getChild("nose"));
-            vanillaPartsList.put("mole",root.getChild("head").getChild("nose").getChild("mole"));
+            vanillaPartsList.put("head",        getEntry(root.getChild("head")));
+            vanillaPartsList.put("headwear",    getEntry(root.getChild("head").getChild("hat"),"head"));
+            vanillaPartsList.put("headwear2",   getEntry(root.getChild("head").getChild("hat").getChild("hat_rim"),"hat"));
+            vanillaPartsList.put("body",        getEntry(root.getChild("body")));
+            vanillaPartsList.put("bodywear",    getEntry(root.getChild("body").getChild("jacket"),"body"));
+            vanillaPartsList.put("arms",        getEntry(root.getChild("arms")));
+            vanillaPartsList.put("left_leg",    getEntry(root.getChild("left_leg")));
+            vanillaPartsList.put("right_leg",   getEntry(root.getChild("right_leg")));
+            vanillaPartsList.put("nose",        getEntry(root.getChild("head").getChild("nose"),"head"));
+            vanillaPartsList.put("mole",        getEntry(root.getChild("head").getChild("nose").getChild("mole"),"nose"));
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getSpiderMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getSpiderMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof SpiderEntityModel spider) {
             ModelPart root = spider.getPart();
-            vanillaPartsList.put("head",root.getChild("head"));
-            vanillaPartsList.put("neck",root.getChild("body0"));
-            vanillaPartsList.put("body",root.getChild("body1"));
-            vanillaPartsList.put("leg1",root.getChild("right_hind_leg"));
-            vanillaPartsList.put("leg2",root.getChild("left_hind_leg"));
-            vanillaPartsList.put("leg3",root.getChild("right_middle_hind_leg"));
-            vanillaPartsList.put("leg4",root.getChild("left_middle_hind_leg"));
-            vanillaPartsList.put("leg5",root.getChild("right_middle_front_leg"));
-            vanillaPartsList.put("leg6",root.getChild("left_middle_front_leg"));
-            vanillaPartsList.put("leg7",root.getChild("right_front_leg"));
-            vanillaPartsList.put("leg8",root.getChild("left_front_leg"));
+            vanillaPartsList.put("head",getEntry(root.getChild("head")));
+            vanillaPartsList.put("neck",getEntry(root.getChild("body0")));
+            vanillaPartsList.put("body",getEntry(root.getChild("body1")));
+            vanillaPartsList.put("leg1",getEntry(root.getChild("right_hind_leg")));
+            vanillaPartsList.put("leg2",getEntry(root.getChild("left_hind_leg")));
+            vanillaPartsList.put("leg3",getEntry(root.getChild("right_middle_hind_leg")));
+            vanillaPartsList.put("leg4",getEntry(root.getChild("left_middle_hind_leg")));
+            vanillaPartsList.put("leg5",getEntry(root.getChild("right_middle_front_leg")));
+            vanillaPartsList.put("leg6",getEntry(root.getChild("left_middle_front_leg")));
+            vanillaPartsList.put("leg7",getEntry(root.getChild("right_front_leg")));
+            vanillaPartsList.put("leg8",getEntry(root.getChild("left_front_leg")));
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getIronGolemMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getIronGolemMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof IronGolemEntityModel iron) {
             ModelPart root = iron.getPart();
-            vanillaPartsList.put("head",root.getChild("head"));
-            vanillaPartsList.put("body",root.getChild("body"));
-            vanillaPartsList.put("right_arm",root.getChild("right_arm"));
-            vanillaPartsList.put("left_arm",root.getChild("left_arm"));
-            vanillaPartsList.put("right_leg",root.getChild("right_leg"));
-            vanillaPartsList.put("left_leg",root.getChild("left_leg"));
+            vanillaPartsList.put("head",        getEntry(root.getChild("head")));
+            vanillaPartsList.put("body",        getEntry(root.getChild("body")));
+            vanillaPartsList.put("right_arm",   getEntry(root.getChild("right_arm")));
+            vanillaPartsList.put("left_arm",    getEntry(root.getChild("left_arm")));
+            vanillaPartsList.put("right_leg",   getEntry(root.getChild("right_leg")));
+            vanillaPartsList.put("left_leg",    getEntry(root.getChild("left_leg")));
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getAxolotlMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getAxolotlMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof AxolotlEntityModel axol) {
             ModelPart body = ((AnimalModelAccessor)axol).callGetBodyParts().iterator().next();
             ModelPart head = body.getChild("head");
-            vanillaPartsList.put("head",head);
-            vanillaPartsList.put("body",body);
-            vanillaPartsList.put("leg1",body.getChild("right_hind_leg"));
-            vanillaPartsList.put("leg2",body.getChild("left_hind_leg"));
-            vanillaPartsList.put("leg3",body.getChild("right_front_leg"));
-            vanillaPartsList.put("leg4",body.getChild("left_front_leg"));
-            vanillaPartsList.put("tail",body.getChild("tail"));
-            vanillaPartsList.put("top_gills",head.getChild("top_gills"));
-            vanillaPartsList.put("left_gills",head.getChild("left_gills"));
-            vanillaPartsList.put("right_gills",head.getChild("right_gills"));
+            vanillaPartsList.put("head",getEntry(head));
+            vanillaPartsList.put("body",getEntry(body));
+            vanillaPartsList.put("leg1",getEntry(body.getChild("right_hind_leg"),"body"));
+            vanillaPartsList.put("leg2",getEntry(body.getChild("left_hind_leg"),"body"));
+            vanillaPartsList.put("leg3",getEntry(body.getChild("right_front_leg"),"body"));
+            vanillaPartsList.put("leg4",getEntry(body.getChild("left_front_leg"),"body"));
+            vanillaPartsList.put("tail",getEntry(body.getChild("tail"),"body"));
+            vanillaPartsList.put("top_gills",getEntry(head.getChild("top_gills"),"head"));
+            vanillaPartsList.put("left_gills",getEntry(head.getChild("left_gills"),"head"));
+            vanillaPartsList.put("right_gills",getEntry(head.getChild("right_gills"),"head"));
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getGenericQuadrapedMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getGenericQuadrapedMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof QuadrupedEntityModel quadped) {
             ArrayList<ModelPart> bodyParts = new ArrayList<>();
             Iterable<ModelPart> hed = ((QuadrupedEntityModelAccessor) quadped).callGetHeadParts();
             if(hed.iterator().hasNext()) {
-                vanillaPartsList.put("head", hed.iterator().next());
+                vanillaPartsList.put("head", getEntry(hed.iterator().next()));
             }
             for (ModelPart part : ((QuadrupedEntityModelAccessor) quadped).callGetBodyParts()) {
                 bodyParts.add(part);
             }
-            vanillaPartsList.put("body",bodyParts.get(0));
-            vanillaPartsList.put("leg1",bodyParts.get(1));
-            vanillaPartsList.put("leg2",bodyParts.get(2));
-            vanillaPartsList.put("leg3",bodyParts.get(3));
-            vanillaPartsList.put("leg4",bodyParts.get(4));
+            vanillaPartsList.put("body",getEntry(bodyParts.get(0)));
+            vanillaPartsList.put("leg1",getEntry(bodyParts.get(1)));
+            vanillaPartsList.put("leg2",getEntry(bodyParts.get(2)));
+            vanillaPartsList.put("leg3",getEntry(bodyParts.get(3)));
+            vanillaPartsList.put("leg4",getEntry(bodyParts.get(4)));
 
 
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getGenericOcelotMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getGenericOcelotMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof OcelotEntityModel animal) {
             ArrayList<ModelPart> bodyParts = new ArrayList<>();
             Iterable<ModelPart> hed = ((AnimalModelAccessor) animal).callGetHeadParts();
             if(hed.iterator().hasNext()) {
-                vanillaPartsList.put("head", hed.iterator().next());
+                vanillaPartsList.put("head", getEntry(hed.iterator().next()));
             }
             for (ModelPart part : ((AnimalModelAccessor) animal).callGetBodyParts()) {
                 bodyParts.add(part);
             }
-            vanillaPartsList.put("body",bodyParts.get(0));
-            vanillaPartsList.put("back_left_leg",bodyParts.get(1));
-            vanillaPartsList.put("back_right_leg",bodyParts.get(2));
-            vanillaPartsList.put("front_left_leg",bodyParts.get(3));
-            vanillaPartsList.put("front_right_leg",bodyParts.get(4));
-            vanillaPartsList.put("tail",bodyParts.get(5));
-            vanillaPartsList.put("tail2",bodyParts.get(6));
+            vanillaPartsList.put("body",            getEntry(bodyParts.get(0)));
+            vanillaPartsList.put("back_left_leg",   getEntry(bodyParts.get(1)));
+            vanillaPartsList.put("back_right_leg",  getEntry(bodyParts.get(2)));
+            vanillaPartsList.put("front_left_leg",  getEntry(bodyParts.get(3)));
+            vanillaPartsList.put("front_right_leg", getEntry(bodyParts.get(4)));
+            vanillaPartsList.put("tail",            getEntry(bodyParts.get(5)));
+            vanillaPartsList.put("tail2",           getEntry(bodyParts.get(6)));
 
 
         }
         return vanillaPartsList;
     }
 
-    private static HashMap<String, ModelPart> getChickenMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getChickenMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof ChickenEntityModel animal) {
             ArrayList<ModelPart> bodyParts = new ArrayList<>();
             Iterable<ModelPart> hed = ((AnimalModelAccessor) animal).callGetHeadParts();
             //if(hed.iterator().hasNext()) {
-            vanillaPartsList.put("head", hed.iterator().next());
-            vanillaPartsList.put("bill", hed.iterator().next());
-            vanillaPartsList.put("chin", hed.iterator().next());
+            vanillaPartsList.put("head", getEntry(hed.iterator().next()));
+            vanillaPartsList.put("bill", getEntry(hed.iterator().next()));
+            vanillaPartsList.put("chin", getEntry(hed.iterator().next()));
             //}
             for (ModelPart part : ((AnimalModelAccessor) animal).callGetBodyParts()) {
                 bodyParts.add(part);
             }
-            vanillaPartsList.put("body",bodyParts.get(0));
-            vanillaPartsList.put("right_leg",bodyParts.get(1));
-            vanillaPartsList.put("left_leg",bodyParts.get(2));
-            vanillaPartsList.put("right_wing",bodyParts.get(3));
-            vanillaPartsList.put("left_wing",bodyParts.get(4));
+            vanillaPartsList.put("body",        getEntry(bodyParts.get(0)));
+            vanillaPartsList.put("right_leg",   getEntry(bodyParts.get(1)));
+            vanillaPartsList.put("left_leg",    getEntry(bodyParts.get(2)));
+            vanillaPartsList.put("right_wing",  getEntry(bodyParts.get(3)));
+            vanillaPartsList.put("left_wing",   getEntry(bodyParts.get(4)));
 
 
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getGenericAnimalMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getGenericAnimalMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof AnimalModel animal) {
             ArrayList<ModelPart> bodyParts = new ArrayList<>();
             Iterable<ModelPart> hed = ((AnimalModelAccessor) animal).callGetHeadParts();
             if(hed.iterator().hasNext()) {
-                vanillaPartsList.put("head", hed.iterator().next());
+                vanillaPartsList.put("head", getEntry(hed.iterator().next()));
             }
             for (ModelPart part : ((AnimalModelAccessor) animal).callGetBodyParts()) {
                 bodyParts.add(part);
             }
-            vanillaPartsList.put("body",bodyParts.get(0));
-            vanillaPartsList.put("leg1",bodyParts.get(1));
-            vanillaPartsList.put("leg2",bodyParts.get(2));
-            vanillaPartsList.put("leg3",bodyParts.get(3));
-            vanillaPartsList.put("leg4",bodyParts.get(4));
+            vanillaPartsList.put("body",getEntry(bodyParts.get(0)));
+            vanillaPartsList.put("leg1",getEntry(bodyParts.get(1)));
+            vanillaPartsList.put("leg2",getEntry(bodyParts.get(2)));
+            vanillaPartsList.put("leg3",getEntry(bodyParts.get(3)));
+            vanillaPartsList.put("leg4",getEntry(bodyParts.get(4)));
 
 
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getArmorStandMap(EntityModel<?> vanillaModel){
+    private static HashMap<String, ModelAndParent> getArmorStandMap(EntityModel<?> vanillaModel){
 
         //get biped parts
-        HashMap<String,ModelPart> vanillaPartsList = getGenericBipedMap(vanillaModel);
+        HashMap<String,ModelAndParent> vanillaPartsList = getGenericBipedMap(vanillaModel);
 
         if(vanillaModel instanceof ArmorStandEntityModel armor){
             ArrayList<ModelPart> bodyParts = new ArrayList<>();
-            vanillaPartsList.put("head",((ModelWithHead)armor).getHead());
+            vanillaPartsList.put("head",getEntry(((ModelWithHead)armor).getHead()));
 //            for (ModelPart part : ((BipedEntityModelAccessor) biped).callGetHeadParts()) {
 //                vanillaPartsList.put("head",part);
 //                break;
@@ -516,24 +554,24 @@ public class VanillaMappings {
             for (ModelPart part : ((BipedEntityModelAccessor) armor).callGetBodyParts()) {
                 bodyParts.add(part);
             }
-            vanillaPartsList.put("body",bodyParts.get(0));
-            vanillaPartsList.put("right_arm",bodyParts.get(1));
-            vanillaPartsList.put("left_arm",bodyParts.get(2));
-            vanillaPartsList.put("right_leg",bodyParts.get(3));
-            vanillaPartsList.put("left_leg",bodyParts.get(4));
-            vanillaPartsList.put("headwear",bodyParts.get(5));
-            vanillaPartsList.put("right",bodyParts.get(6));
-            vanillaPartsList.put("left",bodyParts.get(7));
-            vanillaPartsList.put("waist",bodyParts.get(8));//todo might be wrong part
-            vanillaPartsList.put("base",bodyParts.get(9));
+            vanillaPartsList.put("body",        getEntry(bodyParts.get(0)));
+            vanillaPartsList.put("right_arm",   getEntry(bodyParts.get(1)));
+            vanillaPartsList.put("left_arm",    getEntry(bodyParts.get(2)));
+            vanillaPartsList.put("right_leg",   getEntry(bodyParts.get(3)));
+            vanillaPartsList.put("left_leg",    getEntry(bodyParts.get(4)));
+            vanillaPartsList.put("headwear",    getEntry(bodyParts.get(5)));
+            vanillaPartsList.put("right",       getEntry(bodyParts.get(6)));
+            vanillaPartsList.put("left",        getEntry(bodyParts.get(7)));
+            vanillaPartsList.put("waist",       getEntry(bodyParts.get(8)));//todo might be wrong part
+            vanillaPartsList.put("base",        getEntry(bodyParts.get(9)));
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getGenericPlayerMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getGenericPlayerMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if(vanillaModel instanceof PlayerEntityModel player){
             ArrayList<ModelPart> bodyParts = new ArrayList<>();
-            vanillaPartsList.put("head",((ModelWithHead)player).getHead());
+            vanillaPartsList.put("head",getEntry(((ModelWithHead)player).getHead()));
 //            for (ModelPart part : ((BipedEntityModelAccessor) biped).callGetHeadParts()) {
 //                vanillaPartsList.put("head",part);
 //                break;
@@ -542,25 +580,25 @@ public class VanillaMappings {
             for (ModelPart part : ((BipedEntityModelAccessor) player).callGetBodyParts()) {
                 bodyParts.add(part);
             }
-            vanillaPartsList.put("body",bodyParts.get(0));
-            vanillaPartsList.put("right_arm",bodyParts.get(1));
-            vanillaPartsList.put("left_arm",bodyParts.get(2));
-            vanillaPartsList.put("right_leg",bodyParts.get(3));
-            vanillaPartsList.put("left_leg",bodyParts.get(4));
-            vanillaPartsList.put("headwear",bodyParts.get(5));
-            vanillaPartsList.put("left_pants",bodyParts.get(6));
-            vanillaPartsList.put("right_pants",bodyParts.get(7));
-            vanillaPartsList.put("left_sleeve",bodyParts.get(8));
-            vanillaPartsList.put("right_sleeve",bodyParts.get(9));
-            vanillaPartsList.put("jacket",bodyParts.get(10));
+            vanillaPartsList.put("body",        getEntry(bodyParts.get(0)));
+            vanillaPartsList.put("right_arm",   getEntry(bodyParts.get(1)));
+            vanillaPartsList.put("left_arm",    getEntry(bodyParts.get(2)));
+            vanillaPartsList.put("right_leg",   getEntry(bodyParts.get(3)));
+            vanillaPartsList.put("left_leg",    getEntry(bodyParts.get(4)));
+            vanillaPartsList.put("headwear",    getEntry(bodyParts.get(5)));
+            vanillaPartsList.put("left_pants",  getEntry(bodyParts.get(6)));
+            vanillaPartsList.put("right_pants", getEntry(bodyParts.get(7)));
+            vanillaPartsList.put("left_sleeve", getEntry(bodyParts.get(8)));
+            vanillaPartsList.put("right_sleeve",getEntry(bodyParts.get(9)));
+            vanillaPartsList.put("jacket",      getEntry(bodyParts.get(10)));
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getGenericBipedMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getGenericBipedMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if(vanillaModel instanceof BipedEntityModel biped){
             ArrayList<ModelPart> bodyParts = new ArrayList<>();
-            vanillaPartsList.put("head",((ModelWithHead)biped).getHead());
+            vanillaPartsList.put("head",getEntry(((ModelWithHead)biped).getHead()));
 //            for (ModelPart part : ((BipedEntityModelAccessor) biped).callGetHeadParts()) {
 //                vanillaPartsList.put("head",part);
 //                break;
@@ -569,28 +607,28 @@ public class VanillaMappings {
             for (ModelPart part : ((BipedEntityModelAccessor) biped).callGetBodyParts()) {
                 bodyParts.add(part);
             }
-            vanillaPartsList.put("body",bodyParts.get(0));
-            vanillaPartsList.put("right_arm",bodyParts.get(1));
-            vanillaPartsList.put("left_arm",bodyParts.get(2));
-            vanillaPartsList.put("right_leg",bodyParts.get(3));
-            vanillaPartsList.put("left_leg",bodyParts.get(4));
-            vanillaPartsList.put("headwear",bodyParts.get(5));
+            vanillaPartsList.put("body",        getEntry(bodyParts.get(0)));
+            vanillaPartsList.put("right_arm",   getEntry(bodyParts.get(1)));
+            vanillaPartsList.put("left_arm",    getEntry(bodyParts.get(2)));
+            vanillaPartsList.put("right_leg",   getEntry(bodyParts.get(3)));
+            vanillaPartsList.put("left_leg",    getEntry(bodyParts.get(4)));
+            vanillaPartsList.put("headwear",    getEntry(bodyParts.get(5)));
         }
         return vanillaPartsList;
     }
-    private static HashMap<String, ModelPart> getVillagerMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelPart> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getVillagerMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if(vanillaModel instanceof VillagerResemblingModel villager){
             ModelPart villagerRoot = villager.getPart();
-            vanillaPartsList.put("head",villagerRoot.getChild("head"));
-            vanillaPartsList.put("headwear",villagerRoot.getChild("head").getChild("hat"));
-            vanillaPartsList.put("headwear2",villagerRoot.getChild("head").getChild("hat").getChild("hat_rim"));
-            vanillaPartsList.put("body",villagerRoot.getChild("body"));
-            vanillaPartsList.put("bodywear",villagerRoot.getChild("body").getChild("jacket"));
-            vanillaPartsList.put("arms",villagerRoot.getChild("arms"));
-            vanillaPartsList.put("left_leg",villagerRoot.getChild("left_leg"));
-            vanillaPartsList.put("right_leg",villagerRoot.getChild("right_leg"));
-            vanillaPartsList.put("nose",villagerRoot.getChild("head").getChild("nose"));
+            vanillaPartsList.put("head",        getEntry(villagerRoot.getChild("head")));
+            vanillaPartsList.put("headwear",    getEntry(villagerRoot.getChild("head").getChild("hat"), "head"));
+            vanillaPartsList.put("headwear2",   getEntry(villagerRoot.getChild("head").getChild("hat").getChild("hat_rim"), "hat"));
+            vanillaPartsList.put("body",        getEntry(villagerRoot.getChild("body")));
+            vanillaPartsList.put("bodywear",    getEntry(villagerRoot.getChild("body").getChild("jacket"), "body"));
+            vanillaPartsList.put("arms",        getEntry(villagerRoot.getChild("arms")));
+            vanillaPartsList.put("left_leg",    getEntry(villagerRoot.getChild("left_leg")));
+            vanillaPartsList.put("right_leg",   getEntry(villagerRoot.getChild("right_leg")));
+            vanillaPartsList.put("nose",        getEntry(villagerRoot.getChild("head").getChild("nose"), "head"));
         }
         return vanillaPartsList;
     }
@@ -598,7 +636,18 @@ public class VanillaMappings {
 
     public interface VanillaMapper {
 
-        HashMap<String, ModelPart> getVanillaModelPartsMapFromModel( EntityModel<?> vanillaModel);
+        HashMap<String, ModelAndParent> getVanillaModelPartsMapFromModel( EntityModel<?> vanillaModel);
 
+    }
+
+    private static ModelAndParent getEntry(@NotNull ModelPart part, @Nullable String parentName){
+        return new ModelAndParent(part, parentName);
+    }
+    private static ModelAndParent getEntry(@NotNull ModelPart part){
+        return new ModelAndParent(part, null);
+    }
+
+    public record ModelAndParent(@NotNull ModelPart part, @Nullable String parentName){//<part extends ModelPart,str extends String>() {
+        
     }
 }

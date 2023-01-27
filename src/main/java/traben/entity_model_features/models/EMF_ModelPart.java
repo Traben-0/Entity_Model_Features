@@ -103,15 +103,71 @@ public class EMF_ModelPart extends ModelPart  {
         }
     }
 
+
+    public float getPivotXWithPossibleVanillaParentTransforms(){
+        if(vanillaParentPart == null){
+            return this.pivotX;
+        } else if (vanillaParentPart instanceof EMF_ModelPart emf){
+            return this.pivotX + emf.getPivotXWithPossibleVanillaParentTransforms();
+        } else{
+            return this.pivotX + vanillaParentPart.pivotX;
+        }
+    }
+    public float getPivotYWithPossibleVanillaParentTransforms(){
+        if(vanillaParentPart == null){
+            return this.pivotY;
+        } else if (vanillaParentPart instanceof EMF_ModelPart emf){
+            return this.pivotY + emf.getPivotYWithPossibleVanillaParentTransforms();
+        } else{
+            return this.pivotY + vanillaParentPart.pivotY;
+        }
+    }
+    public float getPivotZWithPossibleVanillaParentTransforms(){
+        if(vanillaParentPart == null){
+            return this.pivotZ;
+        } else if (vanillaParentPart instanceof EMF_ModelPart emf){
+            return this.pivotZ + emf.getPivotZWithPossibleVanillaParentTransforms();
+        } else{
+            return this.pivotZ + vanillaParentPart.pivotZ;
+        }
+    }
+    public float getRollWithPossibleVanillaParentTransforms(){
+        if(vanillaParentPart == null){
+            return this.roll;
+        } else if (vanillaParentPart instanceof EMF_ModelPart emf){
+            return this.roll + emf.getRollWithPossibleVanillaParentTransforms();
+        } else{
+            return this.roll + vanillaParentPart.roll;
+        }
+    }
+    public float getYawWithPossibleVanillaParentTransforms(){
+        if(vanillaParentPart == null){
+            return this.yaw;
+        } else if (vanillaParentPart instanceof EMF_ModelPart emf){
+            return this.yaw + emf.getYawWithPossibleVanillaParentTransforms();
+        } else{
+            return this.yaw + vanillaParentPart.yaw;
+        }
+    }
+    public float getPitchWithPossibleVanillaParentTransforms(){
+        if(vanillaParentPart == null){
+            return this.pitch;
+        } else if (vanillaParentPart instanceof EMF_ModelPart emf){
+            return this.pitch + emf.getPitchWithPossibleVanillaParentTransforms();
+        } else{
+            return this.pitch + vanillaParentPart.pitch;
+        }
+    }
+
     public void rotateV3(MatrixStack matrices) {
 
-        float pivotX = (doesAnimtx || vanillaPart == null ? this.pivotX : /*getDefaultTransform().pivotX +*/ vanillaPart.pivotX );
-        float pivotY = (doesAnimty || vanillaPart == null ? this.pivotY : /*getDefaultTransform().pivotY +*/ vanillaPart.pivotY );
-        float pivotZ = (doesAnimtz || vanillaPart == null ? this.pivotZ : /*getDefaultTransform().pivotZ +*/ vanillaPart.pivotZ );
+        float pivotX = (doesAnimtx || vanillaPart == null ? getPivotXWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotX +*/ vanillaPart.pivotX );
+        float pivotY = (doesAnimty || vanillaPart == null ? getPivotYWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotY +*/ vanillaPart.pivotY );
+        float pivotZ = (doesAnimtz || vanillaPart == null ? getPivotZWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotZ +*/ vanillaPart.pivotZ );
 
-        float roll  = (doesAnimrz || vanillaPart == null ? this.roll  : getDefaultTransform().roll  + vanillaPart.roll );
-        float yaw   = (doesAnimry || vanillaPart == null ? this.yaw   : getDefaultTransform().yaw   + vanillaPart.yaw  );
-        float pitch = (doesAnimrx || vanillaPart == null ? this.pitch : getDefaultTransform().pitch + vanillaPart.pitch);
+        float roll  = (doesAnimrz || vanillaPart == null ? getRollWithPossibleVanillaParentTransforms()  : getDefaultTransform().roll  + vanillaPart.roll );
+        float yaw   = (doesAnimry || vanillaPart == null ? getYawWithPossibleVanillaParentTransforms()   : getDefaultTransform().yaw   + vanillaPart.yaw  );
+        float pitch = (doesAnimrx || vanillaPart == null ? getPitchWithPossibleVanillaParentTransforms() : getDefaultTransform().pitch + vanillaPart.pitch);
 
        // float xScale = (doesAnimsx || vanillaPart == null ? this.xScale : vanillaPart.xScale );
        // float yScale = (doesAnimsy || vanillaPart == null ? this.yScale : vanillaPart.yScale );
@@ -217,15 +273,23 @@ public class EMF_ModelPart extends ModelPart  {
 //    }
     private final EMF_EntityModel<?> thisModel;
      final Identifier customTexture;
-     public final ModelPart vanillaPart;
+    public final ModelPart vanillaPart;
+    public ModelPart vanillaParentPart = null;
+
+
+
+    public final String vanillaParentPartName;
     public EMF_ModelPart(EMF_ModelPart parent, int parentNumber,
                          EMF_ModelData EMFmodelData,
                          ArrayList<EMF_ModelData> parentEMFmodelData,
                          float[] pivotModifyForParNum1Only,
                          ModelPart vanillaPartOfThis,
+                         String vanillaParentPartName,
                          EMF_EntityModel<?> thisModel){//,//float[] parentalTransforms) {
 
         super(new ArrayList<>(), new HashMap<>());
+
+        this.vanillaParentPartName = vanillaParentPartName;
         this.thisModel = thisModel;
         this.parent = parent;
         selfModelData = EMFmodelData;
@@ -370,7 +434,7 @@ public class EMF_ModelPart extends ModelPart  {
             while(children.containsKey(sub.id)){
                 sub.id = sub.id+"-";
             }
-            children.put(sub.id, new EMF_ModelPart(this,parentNumber + 1, sub, hold,sendToFirstChild,null,this.thisModel));
+            children.put(sub.id, new EMF_ModelPart(this,parentNumber + 1, sub, hold,sendToFirstChild,null,null,this.thisModel));
         }
         boolean emptyChildren = true;
         for (EMF_ModelPart child:

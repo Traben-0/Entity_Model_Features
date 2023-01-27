@@ -9,7 +9,6 @@ public class EMFConfig {
     public float animationRateMinimumDistanceDropOff = 8;
     public float animationRateDistanceDropOffRate = 6;
 
-    public boolean useMXParser = false;
 
     public boolean printAllMaths = false;
 

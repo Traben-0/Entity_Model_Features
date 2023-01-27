@@ -14,6 +14,7 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
     LinkedList<MathComponent> components;
 
 
+    public boolean wasInvertedBooleanExpression = false;
 
     public final String originalExpression;
 
@@ -124,9 +125,11 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
                             }
                         }
 
-                        if (functionName.isEmpty()) {
+                        if (functionName.isEmpty() || "!".equals(functionName)) {
                             //just brackets
                             MathExpression brackets = new MathExpression(bracketContents.toString(), getNegativeNext(), this.calculationInstance);
+                            if("!".equals(functionName))
+                                brackets.wasInvertedBooleanExpression = true;
                             components.add(brackets);
                         } else {
                             //method
@@ -463,10 +466,16 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
         return this::calculate;
     }
 
-//    @Override
-//    public Double get() {
-//        return calculate();
-//    }
+    @Override
+    public Float get() {
+        float value;
+        if (wasInvertedBooleanExpression){
+            value = super.get() == 1 ? 0 : 1;
+        }else{
+            value = super.get();
+        }
+        return value;
+    }
 
     @Override
     public String toString() {

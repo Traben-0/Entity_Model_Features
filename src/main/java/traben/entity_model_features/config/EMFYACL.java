@@ -21,16 +21,16 @@ public class EMFYACL{
                 .category(ConfigCategory.createBuilder()
                         .name(Text.of("Main"))
                         .tooltip(Text.of("This displays when you hover over a category button")) // optional
-                        .option(Option.createBuilder(boolean.class)
-                                .name(Text.of("Use mXParser"))
-                                .tooltip(Text.of("more accurate but slower")) // optional
-                                .binding(
-                                        false, // default
-                                        () -> EMFData.getInstance().getConfig().useMXParser, // getter
-                                        newValue -> EMFData.getInstance().getConfig().useMXParser = newValue // setter
-                                )
-                                .controller(BooleanController::new)
-                                .build())
+//                        .option(Option.createBuilder(boolean.class)
+//                                .name(Text.of("Use mXParser"))
+//                                .tooltip(Text.of("more accurate but slower")) // optional
+//                                .binding(
+//                                        false, // default
+//                                        () -> EMFData.getInstance().getConfig().useMXParser, // getter
+//                                        newValue -> EMFData.getInstance().getConfig().useMXParser = newValue // setter
+//                                )
+//                                .controller(BooleanController::new)
+//                                .build())
                         .option(Option.createBuilder(boolean.class)
                                 .name(Text.of("print maths"))
                                 .tooltip(Text.of("")) // optional
@@ -118,8 +118,8 @@ public class EMFYACL{
     }
 
     static void saveAndReset(){
-        //EMFData.getInstance().EMF_saveConfig();
-        //EMFData.reset();
+        EMFData.getInstance().EMF_saveConfig();
         MinecraftClient.getInstance().reloadResources();
+        EMFData.reset();
     }
 }

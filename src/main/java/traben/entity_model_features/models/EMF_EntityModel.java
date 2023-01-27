@@ -1,5 +1,6 @@
 package traben.entity_model_features.models;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.fabricmc.api.EnvType;
@@ -15,6 +16,7 @@ import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -25,7 +27,6 @@ import traben.entity_model_features.mixin.accessor.AnimalModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 import traben.entity_model_features.models.anim.AnimationCalculationEMFParser;
-import traben.entity_model_features.models.anim.AnimationCalculationMXParser;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 import traben.entity_model_features.utils.EMFUtils;
@@ -42,7 +43,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
 
 
-    private HashMap<String,ModelPart> vanillaModelPartsById;
+    private HashMap<String, VanillaMappings.ModelAndParent> vanillaModelPartsById;
 
    // private final Properties animationPropertiesOfAll;
     public final String modelPathIdentifier;
@@ -86,20 +87,37 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             this.texture = null;
         }
 
-        HashMap<String,ModelPart> vanModelParts = vanillaPartSupplier.getVanillaModelPartsMapFromModel(vanillaModel);
+        HashMap<String, VanillaMappings.ModelAndParent> vanModelParts = vanillaPartSupplier.getVanillaModelPartsMapFromModel(vanillaModel);
         this.vanillaModel = vanillaModel;
         vanillaModelPartsById = vanModelParts;
         modelPathIdentifier = modelPath;
         jemData = jem;
 
+
+
         System.out.println(modelPathIdentifier + " = " + vanModelParts);
 
         for (EMF_ModelData sub:
                 jemData.models) {
-            ModelPart vanillaPart = sub.part == null? null : vanModelParts.getOrDefault(sub.part, null);
-            childrenMap.put(sub.id, new EMF_ModelPart(null, 0, sub, new ArrayList<EMF_ModelData>(), new float[]{}, vanillaPart, this));
+
+
+            ModelPart vanillaPart = sub.part == null? null : (vanModelParts.containsKey(sub.part) ? vanModelParts.get(sub.part).part() : null);
+            String vanillaParentPartName = sub.part == null? null : (vanModelParts.containsKey(sub.part) ? vanModelParts.get(sub.part).parentName() : null);
+            childrenMap.put(sub.id, new EMF_ModelPart(null, 0, sub, new ArrayList<EMF_ModelData>(), new float[]{}, vanillaPart, vanillaParentPartName, this));
 
         }
+        //init parent to copy setup
+        getAllParts().forEach((part, value)-> {
+            if(value.vanillaParentPartName != null){
+                if (childrenMap.containsKey(value.vanillaParentPartName)){
+                    value.vanillaParentPart = childrenMap.get(value.vanillaParentPartName);
+                }else if (vanModelParts.containsKey(value.vanillaParentPartName)){
+                    value.vanillaParentPart = vanModelParts.get(value.vanillaParentPartName).part();
+                }
+            }
+        });
+
+
       //  System.out.println("start anim creation for "+modelPathIdentifier);
         preprocessAnimationStrings();
        // System.out.println("end anim creation for "+modelPathIdentifier);
@@ -159,14 +177,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
                 if (thisPart != null){
 
-                    thisCalculator = EMFData.getInstance().getConfig().useMXParser ?
-                            new AnimationCalculationMXParser(
-                                this,
-                                    (EMF_ModelPart)thisPart,
-                                thisVariable,
-                                animKey,
-                                animationExpression)
-                    :
+                    thisCalculator =
                             new AnimationCalculationEMFParser(
                                     this,
                                     (EMF_ModelPart)thisPart,
@@ -174,31 +185,15 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                                     animKey,
                                     animationExpression);
                 }else if(vanillaModelPartsById.containsKey(modelId)){
-                    thisCalculator = EMFData.getInstance().getConfig().useMXParser ?
-                            new AnimationCalculationMXParser(
-                                this,
-                                vanillaModelPartsById.get(modelId),
-                                thisVariable,
-                                animKey,
-                                animationExpression)
-                    :
-                            new AnimationCalculationEMFParser(
+                    thisCalculator = new AnimationCalculationEMFParser(
                                     this,
-                                    vanillaModelPartsById.get(modelId),
+                                    vanillaModelPartsById.get(modelId).part(),
                                     thisVariable,
                                     animKey,
                                     animationExpression);
                 }else{
                     //not a custom model or vanilla must be a custom variable
-                    thisCalculator = EMFData.getInstance().getConfig().useMXParser ?
-                            new AnimationCalculationMXParser(
-                                this,
-                                null,
-                                null,
-                                animKey,
-                                animationExpression)
-                    :
-                            new AnimationCalculationEMFParser(
+                    thisCalculator = new AnimationCalculationEMFParser(
                                     this,
                                     null,
                                     null,
@@ -228,7 +223,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             float animationProgress,
             float headYaw,
             float headPitch,
-            float tickDelta){
+            float tickDelta) {
 //    },
 //                                          Supplier<Entity> entitySupplier,
 //                                          Supplier<Float> limbAngleSupplier,
@@ -247,36 +242,35 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 //        float tickDelta = tickDeltaSupplier.get();
 
 
-
         //if(key.equals("head.ty")) return -0.5;
-        if(!animationKeyToCalculatorObject.containsKey(key)) {
+        if (!animationKeyToCalculatorObject.containsKey(key)) {
             String partName = key.split("\\.")[0];
-            if(getAllParts().containsKey(partName)){
+            if (getAllParts().containsKey(partName)) {
                 AnimationCalculation.AnimVar variableToGet;
                 EMF_ModelPart otherPart = getAllParts().get(partName);
                 try {
                     variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
-                    if(parentForCheck != null && parentForCheck.equals(otherPart.parent)){
-                        return variableToGet.getFromEMFModel(otherPart,true);
-                    }else{
+                    if (parentForCheck != null && parentForCheck.equals(otherPart.parent)) {
+                        return variableToGet.getFromEMFModel(otherPart, true);
+                    } else {
                         return variableToGet.getFromEMFModel(otherPart);
                     }
 
-                }catch(IllegalArgumentException e){
-                    System.out.println("no animation expression part variable value found for: "+key);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("no animation expression part variable value found for: " + key);
                     return 0;
                 }
-            }else {
-                if(vanillaModelPartsById.containsKey(partName)){
+            } else {
+                if (vanillaModelPartsById.containsKey(partName)) {
                     AnimationCalculation.AnimVar variableToGet;
                     try {
                         variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
-                        return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName));
-                    }catch(IllegalArgumentException e){
-                        System.out.println("no animation expression part variable value found for: "+key);
+                        return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName).part());
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("no animation expression part variable value found for: " + key);
                         return 0;
                     }
-                }else {
+                } else {
                     System.out.println("no animation expression value found for: " + key);
                     System.out.println(animationKeyToCalculatorObject.keySet());
                     //System.out.println(vanillaModelPartsById.keySet());
@@ -284,8 +278,14 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 }
             }
         }
+        //todo should really allow the calculate method but need solution for stack overflow for self iteration
+        do this
+       // if (calculateForThisAnimationTick) {
+       //     return animationKeyToCalculatorObject.get(key).getResultViaCalculate((LivingEntity) entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
+        //}else{
+            return animationKeyToCalculatorObject.get(key).getResultInterpolateOnly((LivingEntity) entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
+       // }
 
-        return animationKeyToCalculatorObject.get(key).getResultOnly((LivingEntity) entity,  limbAngle,  limbDistance,  animationProgress,  headYaw,  headPitch,tickDelta);
     }
 
 
@@ -301,6 +301,9 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
     @Override
     public void render( MatrixStack herematrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+
+       // if(currentEntity == null)return;
+
         herematrices.push();
 
         if(animationProgress < EMFData.getInstance().getConfig().spawnAnimTime && EMFData.getInstance().getConfig().spawnAnim != EMFConfig.SpawnAnimation.None){
@@ -411,41 +414,70 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     float animationProgress = 0;
     public boolean sneaking = false;
 
+    public float currentAnimationDeltaForThisTick = Float.NaN;
+    public boolean calculateForThisAnimationTick = false;
+
     @Override
     public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch){//, VanillaMappings.VanillaMapper vanillaPartSupplier,EntityModel<T> vanillaModel){
         this.animationProgress = animationProgress;
+        calculateForThisAnimationTick = false;
 
-        vanillaModel.setAngles( entity,limbAngle,limbDistance,animationProgress,headYaw,headPitch);
-        //todo check if needs running supplier on each render or only once at init
-       // vanillaModelPartsById = vanillaPartSupplier.getVanillaModelPartsMapFromModel(vanillaModel);
-        //process all animation states for all parts
-//        System.out.println("hpy="+headPitch+", "+headYaw);
-//        headPitch = (float) Math.toDegrees(headPitch);
-//        headYaw = (float) Math.toDegrees(headYaw);
-//        System.out.println("hpy="+headPitch+", "+headYaw);
-        for (AnimationCalculation calculator:
-        animationKeyToCalculatorObject.values()) {
-//            if (entity instanceof ZombieEntity
-//                    || entity instanceof SheepEntity
-//                    || entity instanceof VillagerEntity
-//                    || entity instanceof CreeperEntity
-//                    || entity instanceof PigEntity
-//                    || entity instanceof IronGolemEntity
-//                    || entity instanceof ChickenEntity) {
 
-//                if (vanillaPartList.containsKey("head")) {
-//                    ModelPart head = vanillaPartList.get("head");
-//                    headPitch = head.pitch;
-//                    headYaw = head.yaw;
-//                }
+        currentEntity = entity;
+        if(entity != null) {
+            UUID id = entity.getUuid();
+            float interpolationLength = prevInterp.getFloat(id);
 
-            //System.out.println("calced "+ calculator.animKey);
+            if (animationProgress >= prevResultsTick.getFloat(id) + interpolationLength) {
+                //vary interpolation length by distance from client
+                if (MinecraftClient.getInstance().player != null) {
+                    float val = ((entity.distanceTo(MinecraftClient.getInstance().player) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff)
+                            / EMFData.getInstance().getConfig().animationRateDistanceDropOffRate);// LOWER == lower quality
+                    prevInterp.put(id, EMFData.getInstance().getConfig().minimunAnimationCalculationRate + (val > 0 ? val : 0));
+                } else {
+                    prevInterp.put(id, EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
+                }
+
+                prevResultsTick.put(id, getNextPrevResultTickValue());//entity.age + tickDelta);
+                calculateForThisAnimationTick = true;
+                //currentAnimationDeltaForThisTick = 0f;
+            } else if (animationProgress < prevResultsTick.getFloat(id) - 100 - interpolationLength) {
+                //this is required as animation progress resets with the entity entering render distance
+                //todo possibly use world time ticks instead ??
+                prevResultsTick.put(id, -100);
+
+                //interpolate easier as will calculate next tick
+                calculateForThisAnimationTick = false;
+                // currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
+            } else {
+                //interpolate
+                calculateForThisAnimationTick = false;
+                //currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
+            }
+            currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
+
+            vanillaModel.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+
+            for (AnimationCalculation calculator :
+                    animationKeyToCalculatorObject.values()) {
                 calculator.calculateAndSet(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
-           // }
+            }
         }
         //that's it????
     }
 
+    private float getNextPrevResultTickValue(){
+        return animationProgress; //currentEntity.age+ tickDelta;
+    }
+
+    T currentEntity = null;
+
+    Object2FloatOpenHashMap<UUID> prevResultsTick = new Object2FloatOpenHashMap<>(){{
+        defaultReturnValue(-100);
+    }};
+    Object2FloatOpenHashMap<UUID> prevInterp = new Object2FloatOpenHashMap<>(){{
+        defaultReturnValue(EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
+    }};
 
     @Override
     public void setArmAngle(Arm arm, MatrixStack matrices) {
@@ -553,7 +585,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     }
 
 
-    public HashMap<String, ModelPart> supplierCopy(EntityModel<?> entityModel) {
+    public HashMap<String, VanillaMappings.ModelAndParent> supplierCopy(EntityModel<?> entityModel) {
         return vanillaModelPartsById;
     }
 

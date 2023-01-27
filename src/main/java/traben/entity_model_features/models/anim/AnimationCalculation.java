@@ -222,7 +222,6 @@ public abstract class AnimationCalculation {
     //private final String expressionString;
 
     AnimationCalculation(EMF_EntityModel<?> parent, ModelPart part, AnimVar varToChange, String animKey) {
-        prevInterp.defaultReturnValue(EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
         //expressionString = ;
         this.animKey = animKey;
         this.parentModel = parent;
@@ -249,7 +248,24 @@ public abstract class AnimationCalculation {
     abstract void setVerbose(boolean val);
 
     //optimize so we dont calculate multiple times
-    public float getResultOnly(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
+
+    public float getResultInterpolateOnly(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
+        if(vanillaModelPart != null){
+            return varToChange.getFromVanillaModel(vanillaModelPart);
+        }
+        if(entity0 == null) {
+            //if(verboseMode)
+            System.out.println("entity was null for getResultOnly, (okay for model init)");
+            return 0;
+        }
+        UUID id = entity0.getUuid();
+        //if(prevPrevResults.containsKey(id)){
+          //  float delta =  ((animationProgress0 - prevResultsTick.getFloat(id) ) / interpolationLength);
+            return MathHelper.lerp(parentModel.currentAnimationDeltaForThisTick,prevPrevResults.getFloat(id), prevResults.getFloat(id));
+        //}
+       // return prevResults.getFloat(id);
+    }
+    public float getResultViaCalculate(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
         if(vanillaModelPart != null){
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
@@ -260,23 +276,11 @@ public abstract class AnimationCalculation {
         }
         UUID id = entity0.getUuid();
 
+        //add a quick cache for repeatedly called values within the same tick
+      // if(lastResultAnimationProgress.getFloat(id) == animationProgress0){
+        //    return prevResults.getFloat(id);
+       // }
         //if we haven't already calculated a result this frame get another
-
-        float interpolationLength = prevInterp.getFloat(id);
-
-        if (animationProgress0 >= prevResultsTick.getFloat(id) +interpolationLength){
-
-            //vary interpolation length by distance from client
-            if (getEntity() != null && MinecraftClient.getInstance().player != null) {
-                float val =((entity0.distanceTo(MinecraftClient.getInstance().player ) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff)
-                        / EMFData.getInstance().getConfig().animationRateDistanceDropOffRate );// LOWER == lower quality
-                //if((new Random()).nextInt(400) == 1)
-                   // System.out.println("val="+val);
-                //distances seem wrong check them
-                prevInterp.put(id, EMFData.getInstance().getConfig().minimunAnimationCalculationRate + (val> 0 ? val  : 0 ));
-            } else {
-                prevInterp.put(id, EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
-            }
 
             entity = entity0;
             limbAngle = limbAngle0;
@@ -285,48 +289,48 @@ public abstract class AnimationCalculation {
             headYaw = headYaw0;
             headPitch = headPitch0;
             tickDelta = tickDelta0;
-            prevResultsTick.put(id ,getAge());
 
+
+        //lastResultAnimationProgress.put(id,animationProgress0);
             float result = calculatorRun();
             float oldResult = prevResults.getFloat(id);
             prevPrevResults.put(id,oldResult);
             prevResults.put(id,result);
             return oldResult;
 
-        }else if(animationProgress0 < prevResultsTick.getFloat(id) -100-interpolationLength){
-            //this is required as animation progress resets with the entity entering render distance
-            //todo possibly use world time ticks instead ??
-            prevResultsTick.put(id,-100);
-        }else if(prevPrevResults.containsKey(id)){
-            float delta = (float) ((animationProgress0 - prevResultsTick.getFloat(id) ) / interpolationLength);
-            return MathHelper.lerp(delta,prevPrevResults.getFloat(id), prevResults.getFloat(id));
-        }
-        return prevResults.getFloat(id);
     }
 
+
+
+
     abstract float calculatorRun();
+
 
     //public double getLastResult() {
     //    return getEntity() != null ? 0 : prevResults.getDouble(getEntity().getUuid());
    // }
-    public float getLastResultTick() {
-        return getEntity() != null ? 0 : prevResultsTick.getFloat(getEntity().getUuid());
-    }
-      Object2FloatOpenHashMap<UUID> prevInterp = new Object2FloatOpenHashMap<>();
-     Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
+
+    Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
      public Object2FloatOpenHashMap<UUID> prevResults = new Object2FloatOpenHashMap<>();
-      Object2FloatOpenHashMap<UUID> prevResultsTick = new Object2FloatOpenHashMap<>();
+    Object2FloatOpenHashMap<UUID> lastResultAnimationProgress = new Object2FloatOpenHashMap<>();
+
     //private double lastResult = 0;
    // private float lastResultTick = -1000;
 
     public void calculateAndSet(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
-        float result = getResultOnly( entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0);
+
+        float result;
+        if (parentModel.calculateForThisAnimationTick) {
+            result = getResultViaCalculate(entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0);
+        }else{
+            result = getResultInterpolateOnly(entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0);
+        }
 
         if(Float.isNaN(result)){
             //System.out.println(isRidden()+", "+isChild());
             //if(rand.nextInt(100) == 1)System.out.println("result was NaN from: "+animKey);
             if(varToChange != null)
-                varToChange.set(modelPart, -999f);
+                varToChange.set(modelPart, Float.MAX_VALUE);
             //isValid();
         }else if(modelPart == null){
 
@@ -383,17 +387,17 @@ public abstract class AnimationCalculation {
                 }
                 case rx -> {
                     //part.rx = value;
-                    //part.pitch = value.floatValue();
+                    //part.pitch = value;
                     part.setAnimPitch(value);
                 }
                 case ry -> {
                     //part.ry = value;
-                    //part.yaw = value.floatValue();
+                    //part.yaw = value;
                     part.setAnimYaw(value);
                 }
                 case rz -> {
                     //part.rz = value;
-                   // part.roll = value.floatValue();
+                   // part.roll = value;
                     part.setAnimRoll(value);
                 }
                 case sx -> {
@@ -408,7 +412,7 @@ public abstract class AnimationCalculation {
                     //part.sz = value;
                     part.zScale = value;
                 }
-                case CUSTOM -> {
+                case CUSTOM -> {//todo visibles
                     //todo pain.jpeg
                 }
             }
@@ -446,7 +450,7 @@ public abstract class AnimationCalculation {
                 case sz -> {
                     part.doesAnimsz = true;
                 }
-                default-> {
+                default-> {//todo visibles
                     //hmmm
                 }
             }
@@ -498,6 +502,10 @@ public abstract class AnimationCalculation {
                     //return modelPart.sz.floatValue();
                     return modelPart.zScale;
                 }
+                case visible, visible_boxes -> {//todo
+                    //return modelPart.sz.floatValue();
+                    return modelPart.visible? 1:0;
+                }
                 default -> {
                     System.out.println("model variable was defaulted cannot get its value");
                     return 0;
@@ -534,6 +542,9 @@ public abstract class AnimationCalculation {
                         return emf.selfModelData.scale;
                     else
                         return 1;
+                }
+                case visible, visible_boxes -> {
+                    return 1;//todo
                 }
                 default -> {
                     System.out.println("model variable was defaulted cannot get its default value");
@@ -574,6 +585,9 @@ public abstract class AnimationCalculation {
                 }
                 case sz -> {
                     return modelPart.zScale;
+                }
+                case visible, visible_boxes -> {//todo
+                    return modelPart.visible ? 1 : 0;
                 }
                 default -> {
                     System.out.println("model variable was defaulted cannot get its value");

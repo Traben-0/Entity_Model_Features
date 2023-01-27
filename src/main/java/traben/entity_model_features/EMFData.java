@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import it.unimi.dsi.fastutil.ints.Int2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -138,6 +139,9 @@ public class EMFData {
         if(vanillaModelForInstanceCheck instanceof CowEntityModel<?>){
             return (M) new EMFCustomCowModel<T>(alreadyBuiltSubmodel);
         }
+        if(vanillaModelForInstanceCheck instanceof SlimeEntityModel<?>){
+            return (M) new EMFCustomSlimeModel<T>(alreadyBuiltSubmodel);
+        }
         if(vanillaModelForInstanceCheck instanceof LlamaEntityModel){
             return (M) new EMFCustomLlamaModel<T, LlamaEntity>(alreadyBuiltSubmodel);
         }
@@ -180,11 +184,38 @@ public class EMFData {
     public<T extends LivingEntity, M extends EntityModel<T>> M getModelVariantGeneric(Entity entity, String entityTypeName, EntityModel<?> vanillaModel){
         return getModelVariant(entity,entityTypeName,(EntityModel<T>)vanillaModel);
     }
-    public<T extends LivingEntity, M extends EntityModel<T>> M getModelVariant(Entity entity, String entityTypeName, EntityModel<T> vanillaModel){
+
+    Object2LongOpenHashMap<UUID> UUID_LAST_UPDATE_TIME = new Object2LongOpenHashMap<>(){{defaultReturnValue(0);}};
+
+    Object2ObjectOpenHashMap<UUID,EMFCustomModel<?>> UUID_TO_MODEL = new Object2ObjectOpenHashMap<>();
+    public<T extends LivingEntity, M extends EntityModel<T>> M getModelVariant(Entity entity, String entityTypeName, EntityModel<T> vanillaModel) {
+        if(entity == null){
+            EMF_EntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
+            return (M) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
+        }
+        EMFCustomModel<?> knownModel = UUID_TO_MODEL.get(entity.getUuid());
+        if (knownModel != null) {
+            if (UUID_MOB_MODEL_UPDATES.getBoolean(entity.getUuid())) {
+                long time = System.currentTimeMillis();
+                if (time > 1000 + UUID_LAST_UPDATE_TIME.getLong(entity.getUuid())) {
+                    UUID_LAST_UPDATE_TIME.put(entity.getUuid(), time);
+                    EMFCustomModel<?> newModel = EMFData.getInstance().getModelVariantPossibleNew(entity, entityTypeName, vanillaModel);
+                    if (newModel != null)
+                        UUID_TO_MODEL.put(entity.getUuid(), newModel);
+                    return (M) newModel;
+                }
+            }
+            return (M) knownModel;
+        }
+        return getModelVariantPossibleNew(entity, entityTypeName, vanillaModel);
+    }
+    private<T extends LivingEntity, M extends EntityModel<T>> M getModelVariantPossibleNew(Entity entity, String entityTypeName, EntityModel<T> vanillaModel){
+       // System.out.println("ran");
         EMF_EntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
         if(emfModel != null) {
             // jem exists so decide if variation occurs
             if (FabricLoader.getInstance().isModLoaded("entity_texture_features")) {
+
                 if(!MODEL_CASES.containsKey(entityTypeName)) {
                     Identifier propertyID = new Identifier("optifine/cem/" + entityTypeName + ".properties");
                     if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
@@ -197,17 +228,22 @@ public class EMFData {
                     for (etfPropertyReader.EMFPropertyCase emfCase:
                             emfCases) {
                         if (emfCase.testCase(entity,false,UUID_MOB_MODEL_UPDATES)){
+                          //  System.out.println("was true");
                             int suffix = emfCase.getSuffix(entity.getUuid());
                             String variantName = entityTypeName+suffix;
                             EMF_EntityModel<T> emfModelVariant = createEMFModelOnly(variantName,vanillaModel);
                             if(emfModelVariant != null){
-                                return (M) getFinalEMFModel(variantName,emfModelVariant, vanillaModel);
+                                EMFCustomModel<T> mod = (EMFCustomModel<T>) getFinalEMFModel(variantName,emfModelVariant, vanillaModel);
+                                UUID_TO_MODEL.put(entity.getUuid(), mod);
+                                return (M) mod;
                             }
                         }
                     }
                 }
             }
-            return (M) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
+            EMFCustomModel<T> mod = (EMFCustomModel<T>) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
+            UUID_TO_MODEL.put(entity.getUuid(), mod);
+            return (M) mod;
         }
         return null;
     }

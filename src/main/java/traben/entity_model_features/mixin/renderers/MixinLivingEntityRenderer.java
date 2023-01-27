@@ -26,14 +26,12 @@ import traben.entity_model_features.EMFData;
 import traben.entity_model_features.mixin.LlamaDecorFeatureRendererAccessor;
 import traben.entity_model_features.mixin.SaddleFeatureRendererAccessor;
 import traben.entity_model_features.mixin.accessor.HorseArmorFeatureRendererAccessor;
+import traben.entity_model_features.mixin.accessor.SlimeOverlayFeatureRendererAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.features.EMFArmorFeatureRenderer;
-import traben.entity_model_features.models.vanilla_model_children.EMFCustomBipedModel;
-import traben.entity_model_features.models.vanilla_model_children.EMFCustomHorseModel;
-import traben.entity_model_features.models.vanilla_model_children.EMFCustomLlamaModel;
-import traben.entity_model_features.models.vanilla_model_children.EMFCustomPlayerModel;
+import traben.entity_model_features.models.vanilla_model_children.*;
 
 import java.util.List;
 
@@ -99,10 +97,10 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
             EMFData emfData = EMFData.getInstance();
             emfData.alreadyCalculatedForRenderer.put(hashCode(), true);
-            int typeHash = this.hashCode(); // livingEntity.getType().hashCode();
+            //int typeHash = this.hashCode(); // livingEntity.getType().hashCode();
 
             //if (!emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
-                String entityTypeName = livingEntity.getType().getName().getString().toLowerCase().replace("\s", "_");
+                entityTypeName = livingEntity.getType().getName().getString().toLowerCase().replace("\s", "_");
 
             //}
            // if (emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
@@ -142,7 +140,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                             for (FeatureRenderer<?, ?> feature :
                                     features) {
                                 if (feature instanceof HorseArmorFeatureRenderer armr) {
-                                    M model = emfData.getModelVariant(livingEntity,"horse_armor", getModel());
+                                    M model = emfData.getModelVariant(null,"horse_armor", getModel());
                                     if (model != null) {
                                         ((HorseArmorFeatureRendererAccessor) armr).setModel((HorseEntityModel<HorseEntity>) model);
                                         break;
@@ -154,9 +152,21 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                             for (FeatureRenderer<?, ?> feature :
                                     features) {
                                 if (feature instanceof LlamaDecorFeatureRenderer decor) {
-                                    M llama_decor = emfData.getModelVariant(livingEntity,"llama_decor", getModel());
+                                    M llama_decor = emfData.getModelVariant(null,"llama_decor", getModel());
                                     if (llama_decor != null) {
                                         ((LlamaDecorFeatureRendererAccessor) decor).setModel((LlamaEntityModel<LlamaEntity>) llama_decor);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if (livingEntity instanceof SlimeEntity && emf$newModel instanceof EMFCustomSlimeModel<?>) {
+                            for (FeatureRenderer<?, ?> feature :
+                                    features) {
+                                if (feature instanceof SlimeOverlayFeatureRenderer over) {
+                                    EntityModel<T> slime_outer = emfData.getModelVariant(null,"slime_outer", getModel());
+                                    if (slime_outer != null) {
+                                        ((SlimeOverlayFeatureRendererAccessor) over).setModel(slime_outer);
                                         break;
                                     }
                                 }
@@ -170,13 +180,23 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                 //}
            // }
         }else if (emf$newModel != null) {
-            ((EMFCustomModel<?>) emf$newModel).getThisEMFModel().currentVertexProvider = vertexConsumerProvider;
-            if (((EMFCustomModel<?>) emf$newModel).doesThisModelNeedToBeReset()) {
-                this.model = emf$newModel;
+
+            emf$newModel = EMFData.getInstance().getModelVariant(livingEntity, entityTypeName, emf$originalModel);
+            if(emf$newModel instanceof EMFCustomPlayerModel && MinecraftClient.getInstance().player != null && livingEntity.getUuid().equals(MinecraftClient.getInstance().player.getUuid())){
+                EMFData.getInstance().clientPlayerModel = (EMFCustomPlayerModel<?>) emf$newModel;
             }
+            ((EMFCustomModel<?>) emf$newModel).getThisEMFModel().currentVertexProvider = vertexConsumerProvider;
+            //if (((EMFCustomModel<?>) emf$newModel).doesThisModelNeedToBeReset()) {
+                this.model = emf$newModel;
+            //}
         }
 
     }
+
+    String entityTypeName = null;
+
+   // long lastUpdate = 0;
+
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("TAIL"))
     private void emf$ReturnModel(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
 
