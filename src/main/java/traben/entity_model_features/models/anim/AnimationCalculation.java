@@ -248,6 +248,7 @@ public class AnimationCalculation {
         EMFCalculator = new MathExpression(initialExpression,false, this);
         if(EMFCalculator.directlyCopiesOtherValueOnly){
             otherKeyToDirectlyCopy = EMFCalculator.directlyCopiesOtherValueName;
+            otherDirectCopyInvert = EMFCalculator.directlyCopiesOtherValueInvert;
         }
     }
 
@@ -259,6 +260,7 @@ public class AnimationCalculation {
 
 
     private String otherKeyToDirectlyCopy = null;
+    private boolean otherDirectCopyInvert = false;
     private AnimationCalculation otherAnimToDirectlyCopy = null;
 
     public void postProcess(){
@@ -268,9 +270,10 @@ public class AnimationCalculation {
     }
 
     public float getResultInterpolateOnly(LivingEntity entity0){
-//        if(otherAnimToDirectlyCopy != null){
-//            return otherAnimToDirectlyCopy.getResultInterpolateOnly(entity0);
-//        }
+        if(otherAnimToDirectlyCopy != null){
+            float val = otherAnimToDirectlyCopy.getResultInterpolateOnly(entity0);
+            return otherDirectCopyInvert ? -val : val;
+        }
         if(vanillaModelPart != null){
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
@@ -288,9 +291,10 @@ public class AnimationCalculation {
     }
 
     public float getLastResultOnly(LivingEntity entity0){
-//        if(otherAnimToDirectlyCopy != null){
-//            return otherAnimToDirectlyCopy.getLastResultOnly(entity0);
-//        }
+        if(otherAnimToDirectlyCopy != null){
+            float val = otherAnimToDirectlyCopy.getResultInterpolateOnly(entity0);
+            return otherDirectCopyInvert ? -val : val;
+        }
         if(vanillaModelPart != null){
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
@@ -303,10 +307,12 @@ public class AnimationCalculation {
 
     }
     public float getResultViaCalculate(LivingEntity entity0, float limbAngle0, float limbDistance0,
-                                       float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
-//        if(otherAnimToDirectlyCopy != null){
-//            return otherAnimToDirectlyCopy.getResultViaCalculate(entity0, limbAngle0, limbDistance0, animationProgress0, headYaw0, headPitch0, tickDelta0);
-//        }
+                                       float animationProgress0, float headYaw0, float headPitch0, float tickDelta0, boolean storeResult){
+        if(otherAnimToDirectlyCopy != null){
+            float val = otherAnimToDirectlyCopy.getResultViaCalculate(entity0, limbAngle0, limbDistance0, animationProgress0, headYaw0, headPitch0, tickDelta0,false);
+            //float val = otherAnimToDirectlyCopy.getResultInterpolateOnly(entity0);
+            return otherDirectCopyInvert ? -val : val;
+        }
         if(vanillaModelPart != null){
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
@@ -317,12 +323,6 @@ public class AnimationCalculation {
         }
         UUID id = entity0.getUuid();
 
-        //add a quick cache for repeatedly called values within the same tick
-      // if(lastResultAnimationProgress.getFloat(id) == animationProgress0){
-        //    return prevResults.getFloat(id);
-       // }
-        //if we haven't already calculated a result this frame get another
-
             entity = entity0;
             limbAngle = limbAngle0;
             limbDistance = limbDistance0;
@@ -331,17 +331,19 @@ public class AnimationCalculation {
             headPitch = headPitch0;
             tickDelta = tickDelta0;
 
-
-        //lastResultAnimationProgress.put(id,animationProgress0);
-           // currentCaulculateIterationNumber = iterationNumber;
             float result = calculatorRun();
-            //currentCaulculateIterationNumber = 0;
 
             float oldResult = prevResults.getFloat(id);
-            prevPrevResults.put(id,oldResult);
-            prevResults.put(id,result);
+            if(storeResult) {
+                prevPrevResults.put(id, oldResult);
+                prevResults.put(id, result);
+            }
             return oldResult;
+    }
 
+    public float getResultViaCalculate(LivingEntity entity0, float limbAngle0, float limbDistance0,
+                                       float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
+        return  getResultViaCalculate(entity0, limbAngle0, limbDistance0, animationProgress0, headYaw0, headPitch0, tickDelta0,true);
     }
 
     //public int currentCaulculateIterationNumber = 0;
