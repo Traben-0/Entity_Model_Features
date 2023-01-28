@@ -8,6 +8,7 @@ import dev.isxander.yacl.api.YetAnotherConfigLib;
 import dev.isxander.yacl.gui.controllers.BooleanController;
 import dev.isxander.yacl.gui.controllers.cycling.EnumController;
 import dev.isxander.yacl.gui.controllers.slider.FloatSliderController;
+import dev.isxander.yacl.gui.controllers.slider.IntegerSliderController;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -61,15 +62,15 @@ public class EMFYACL{
                                 )
                                 .controller(BooleanController::new)
                                 .build())
-                        .option(Option.createBuilder(float.class)
-                                .name(Text.of("minimum animation rate in tps"))
+                        .option(Option.createBuilder(int.class)
+                                .name(Text.of("animation rate per second"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(
-                                        1f, // default
-                                        () -> EMFData.getInstance().getConfig().minimunAnimationCalculationRate, // getter
-                                        newValue -> EMFData.getInstance().getConfig().minimunAnimationCalculationRate = newValue // setter
+                                        30, // default
+                                        () -> EMFData.getInstance().getConfig().animationFPS, // getter
+                                        newValue -> EMFData.getInstance().getConfig().animationFPS = newValue // setter
                                 )
-                                .controller((val)->new FloatSliderController(val,0,10,0.1f))
+                                .controller((val)->new IntegerSliderController(val,20,144,1))
                                 .build())
                         .option(Option.createBuilder(float.class)
                                 .name(Text.of("minimum animation drop off distance"))

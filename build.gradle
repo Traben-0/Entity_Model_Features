@@ -42,9 +42,9 @@ dependencies {
 //        exclude(group: "net.fabricmc.fabric-api")
 //    }
     // https://mvnrepository.com/artifact/org.mariuszgromada.math/MathParser.org-mXparser
-    implementation 'org.mariuszgromada.math:MathParser.org-mXparser:5.1.0'
+  //  implementation 'org.mariuszgromada.math:MathParser.org-mXparser:5.1.0'
 
-    modImplementation files("run/mods/entity_texture_features_fabric_1.19.3-4.3.2.emfdev.jar")
+    modImplementation files("run/mods/entity_texture_features_fabric_1.19.3-4.3.2.dev.1.jar")
 
     modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 

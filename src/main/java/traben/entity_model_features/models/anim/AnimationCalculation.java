@@ -14,20 +14,23 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.dimension.DimensionTypes;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFData;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
+import traben.entity_model_features.models.anim.EMFParser.MathExpression;
 
 import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-public abstract class AnimationCalculation {
+public class AnimationCalculation {
 
 
+    public int indentCount = 0;
+    MathExpression EMFCalculator;
 
-
-     public Entity getEntity() {
+    public Entity getEntity() {
         return entity;
     }
 
@@ -221,7 +224,7 @@ public abstract class AnimationCalculation {
 
     //private final String expressionString;
 
-    AnimationCalculation(EMF_EntityModel<?> parent, ModelPart part, AnimVar varToChange, String animKey) {
+    public AnimationCalculation(EMF_EntityModel<?> parent, ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
         //expressionString = ;
         this.animKey = animKey;
         this.parentModel = parent;
@@ -242,14 +245,32 @@ public abstract class AnimationCalculation {
         prevPrevResults.defaultReturnValue(defaultValue);
         //calculator = new Expression(initialExpression);
 
+        EMFCalculator = new MathExpression(initialExpression,false, this);
+        if(EMFCalculator.directlyCopiesOtherValueOnly){
+            otherKeyToDirectlyCopy = EMFCalculator.directlyCopiesOtherValueName;
+        }
     }
 
     public boolean verboseMode = false;
-    abstract void setVerbose(boolean val);
 
-    //optimize so we dont calculate multiple times
+    public void setVerbose(boolean val) {
+        verboseMode = val;
+    }
 
-    public float getResultInterpolateOnly(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
+
+    private String otherKeyToDirectlyCopy = null;
+    private AnimationCalculation otherAnimToDirectlyCopy = null;
+
+    public void postProcess(){
+        if(otherKeyToDirectlyCopy != null){
+            otherAnimToDirectlyCopy = parentModel.animationKeyToCalculatorObject.get(otherKeyToDirectlyCopy);
+        }
+    }
+
+    public float getResultInterpolateOnly(LivingEntity entity0){
+//        if(otherAnimToDirectlyCopy != null){
+//            return otherAnimToDirectlyCopy.getResultInterpolateOnly(entity0);
+//        }
         if(vanillaModelPart != null){
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
@@ -260,12 +281,32 @@ public abstract class AnimationCalculation {
         }
         UUID id = entity0.getUuid();
         //if(prevPrevResults.containsKey(id)){
-          //  float delta =  ((animationProgress0 - prevResultsTick.getFloat(id) ) / interpolationLength);
-            return MathHelper.lerp(parentModel.currentAnimationDeltaForThisTick,prevPrevResults.getFloat(id), prevResults.getFloat(id));
+        //  float delta =  ((animationProgress0 - prevResultsTick.getFloat(id) ) / interpolationLength);
+        return MathHelper.lerp(parentModel.currentAnimationDeltaForThisTick,prevPrevResults.getFloat(id), prevResults.getFloat(id));
         //}
-       // return prevResults.getFloat(id);
+        // return prevResults.getFloat(id);
     }
-    public float getResultViaCalculate(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
+
+    public float getLastResultOnly(LivingEntity entity0){
+//        if(otherAnimToDirectlyCopy != null){
+//            return otherAnimToDirectlyCopy.getLastResultOnly(entity0);
+//        }
+        if(vanillaModelPart != null){
+            return varToChange.getFromVanillaModel(vanillaModelPart);
+        }
+        if(entity0 == null) {
+            //if(verboseMode)
+            System.out.println("entity was null for getLastResultOnly, (okay for model init)");
+            return 0;
+        }
+       return prevResults.getFloat(entity0.getUuid());
+
+    }
+    public float getResultViaCalculate(LivingEntity entity0, float limbAngle0, float limbDistance0,
+                                       float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
+//        if(otherAnimToDirectlyCopy != null){
+//            return otherAnimToDirectlyCopy.getResultViaCalculate(entity0, limbAngle0, limbDistance0, animationProgress0, headYaw0, headPitch0, tickDelta0);
+//        }
         if(vanillaModelPart != null){
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
@@ -292,7 +333,10 @@ public abstract class AnimationCalculation {
 
 
         //lastResultAnimationProgress.put(id,animationProgress0);
+           // currentCaulculateIterationNumber = iterationNumber;
             float result = calculatorRun();
+            //currentCaulculateIterationNumber = 0;
+
             float oldResult = prevResults.getFloat(id);
             prevPrevResults.put(id,oldResult);
             prevResults.put(id,result);
@@ -300,10 +344,27 @@ public abstract class AnimationCalculation {
 
     }
 
+    //public int currentCaulculateIterationNumber = 0;
 
 
+    public float calculatorRun() {
+       // calculationCount++;
+        //setVerbose(true);
+        //System.out.println("ran: "+EMFCalculator.originalExpression);
+        if(EMFData.getInstance().getConfig().printAllMaths && animKey.equals("nose.rz")) {
+            setVerbose(true);
+//            System.out.println("mxparser run/////////////////////////////////");
+//            mxpThis.setVerbose(true);
+//            System.out.println("mxparser ="+ mxpThis.calculatorRun());
+            System.out.println("start EMF///////////////////////////////////");
+            float val = EMFCalculator.calculate();
+            System.out.println("EMF = "+val+" ///////////////////////////////////");
+            return val;
+        }else{
+            return EMFCalculator.calculate();
+        }
 
-    abstract float calculatorRun();
+    }
 
 
     //public double getLastResult() {
@@ -323,7 +384,7 @@ public abstract class AnimationCalculation {
         if (parentModel.calculateForThisAnimationTick) {
             result = getResultViaCalculate(entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0);
         }else{
-            result = getResultInterpolateOnly(entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0);
+            result = getResultInterpolateOnly(entity0);
         }
 
         if(Float.isNaN(result)){
@@ -346,14 +407,21 @@ public abstract class AnimationCalculation {
     }
     private static Random rand = new Random();
 
-    public abstract boolean isValid();
+    public void animPrint(String str){
+        StringBuilder indent = new StringBuilder();
+        for (int i = 0; i < indentCount; i++) {
+            indent.append("> ");
+        }
+        System.out.println(indent+ str);
+    }
+
+    public boolean isValid(){
+        return EMFCalculator.isValid() && !Float.isNaN( EMFCalculator.calculate());
+    }
 
 
 
 
-    static final Pattern PATTERN_FOR_PART_VAR = Pattern.compile("[a-zA-Z0-9_]+\\.[trs][xyz]");
-    static final Pattern PATTERN_FOR_STANDALONE_VAR = Pattern.compile("var\\.\\w+");
-    static final Pattern PATTERN_FOR_STANDALONE_VAR_B = Pattern.compile("varb\\.\\w+");
 
 
 

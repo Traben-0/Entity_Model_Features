@@ -5,6 +5,7 @@ import net.minecraft.entity.mob.CreeperEntity;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,7 +30,7 @@ public class EMF_ModelData {
     public float scale = 1.0f;
 
 
-    public Properties[] animations = {};
+    public LinkedHashMap<String,String>[] animations = null;
 
     private void copyFrom(EMF_ModelData jpmModel){
         this.submodels = jpmModel.submodels;
@@ -48,7 +49,7 @@ public class EMF_ModelData {
         this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
     }
 
-    public void prepare(int parentCount,Map<String, String> animationInstructionList, int[] textureSize, String texture){
+    public void prepare(int parentCount, int[] textureSize, String texture){
 
         //check if we need to load a .jpm into this object
         if(!this.model.isEmpty()){
@@ -81,13 +82,13 @@ public class EMF_ModelData {
         //rotate[2] = rotate[2] /1.57079632679f;
 
 
-        for (Properties p:
-             animations) {
-            for (String s:
-                 p.stringPropertyNames()) {
-                animationInstructionList.put(s,p.getProperty(s));
-            }
-        }
+//        for (LinkedHashMap<String,String> p:
+//             animations) {
+//            for (String s:
+//                 p.stringPropertyNames()) {
+//                animationInstructionList.put(s,p.getProperty(s));
+//            }
+//        }
 
         if (!model.equals("")){
             //TODO load json model part files to this object
@@ -101,11 +102,11 @@ public class EMF_ModelData {
             sprite.prepare();
         }
         if (submodel !=null){
-            submodel.prepare(parentCount+1,animationInstructionList, this.textureSize, this.texture);
+            submodel.prepare(parentCount+1, this.textureSize, this.texture);
         }
         for (EMF_ModelData model:
                 submodels) {
-            model.prepare(parentCount+1,animationInstructionList, this.textureSize, this.texture);
+            model.prepare(parentCount+1, this.textureSize, this.texture);
         }
     }
 

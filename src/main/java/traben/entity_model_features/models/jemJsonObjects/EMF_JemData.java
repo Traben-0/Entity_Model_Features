@@ -9,13 +9,13 @@ public class EMF_JemData {
     public int[] textureSize = null;
     public double shadow_size = 1.0;
     public EMF_ModelData[] models = {};
-    private final Map<String, String> animationInstructionList = new HashMap<>();
+   // private final Map<String, String> animationInstructionList = new HashMap<>();
 
 
     public void prepare(){
         for (EMF_ModelData model:
              models) {
-            model.prepare( 0,animationInstructionList,textureSize,"");
+            model.prepare( 0,textureSize,"");
         }
     }
 

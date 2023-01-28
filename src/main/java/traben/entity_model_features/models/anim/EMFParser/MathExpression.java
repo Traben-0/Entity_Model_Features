@@ -1,7 +1,6 @@
 package traben.entity_model_features.models.anim.EMFParser;
 
 import traben.entity_model_features.models.anim.AnimationCalculation;
-import traben.entity_model_features.models.anim.AnimationCalculationEMFParser;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,6 +25,9 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
         return true;
     }
 
+    public boolean directlyCopiesOtherValueOnly = false;
+    public String directlyCopiesOtherValueName = null;
+
     private String caughtExceptionString = null;
 
     private boolean containsBooleansHigherOrder = false;
@@ -38,7 +40,7 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
 
 
     public MathExpression(String expressionString, boolean isNegative, AnimationCalculation calculationInstance){
-        super(isNegative, (AnimationCalculationEMFParser) calculationInstance);
+        super(isNegative, calculationInstance);
 
         expressionString = expressionString.trim();
         expressionString = expressionString.replaceAll("\\s*", "");
@@ -194,6 +196,10 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
             //assess and store content metadata
             if(components.size() == 1){
                 this.containsOneComponent = true;
+                if(components.get(0) instanceof MathVariableUpdatable updateable && updateable.isOtherAnimVariable){
+                    directlyCopiesOtherValueOnly = true;
+                    directlyCopiesOtherValueName = updateable.variableName;
+                }
             }else {
 
                 if(components.get(0) == MathAction.add){

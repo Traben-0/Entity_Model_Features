@@ -1,6 +1,7 @@
 package traben.entity_model_features.models;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.fabricmc.api.EnvType;
@@ -26,7 +27,6 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.AnimalModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.anim.AnimationCalculation;
-import traben.entity_model_features.models.anim.AnimationCalculationEMFParser;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 import traben.entity_model_features.utils.EMFUtils;
@@ -39,7 +39,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
     private final EMF_JemData jemData;
     public final Object2ObjectOpenHashMap<String, EMF_ModelPart> childrenMap = new Object2ObjectOpenHashMap<>();
-    private final Object2ObjectOpenHashMap<String,AnimationCalculation> animationKeyToCalculatorObject = new Object2ObjectOpenHashMap<>();
+    public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> animationKeyToCalculatorObject = new Object2ObjectLinkedOpenHashMap<>();
 
 
 
@@ -131,17 +131,18 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         ///animation processing/////////////
 
         Object2ObjectOpenHashMap<String, EMF_ModelPart> parts = getAllParts();
-        ObjectOpenHashSet<Properties> allProperties = new ObjectOpenHashSet<>() {
-        };
+
+        LinkedList<LinkedHashMap<String,String>>  allProperties = new LinkedList<>();
+        //ObjectOpenHashSet<Properties> allProperties = new ObjectOpenHashSet<>() {};
         for (EMF_ModelPart part :
                 parts.values()) {
-            if (part.selfModelData.animations.length != 0) {
+            if (part.selfModelData.animations != null && part.selfModelData.animations.length != 0) {
                 //todo replace 'this' to represent actual model part
                 allProperties.addAll(Arrays.asList(part.selfModelData.animations));
             }
         }
-        Properties combinedProperties = new Properties();
-        for (Properties properties :
+        Properties  combinedProperties = new Properties();
+        for (LinkedHashMap<String,String> properties :
                 allProperties) {
             if (!properties.isEmpty()) {
                 combinedProperties.putAll(properties);
@@ -178,14 +179,14 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 if (thisPart != null){
 
                     thisCalculator =
-                            new AnimationCalculationEMFParser(
+                            new AnimationCalculation(
                                     this,
                                     (EMF_ModelPart)thisPart,
                                     thisVariable,
                                     animKey,
                                     animationExpression);
                 }else if(vanillaModelPartsById.containsKey(modelId)){
-                    thisCalculator = new AnimationCalculationEMFParser(
+                    thisCalculator = new AnimationCalculation(
                                     this,
                                     vanillaModelPartsById.get(modelId).part(),
                                     thisVariable,
@@ -193,7 +194,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                                     animationExpression);
                 }else{
                     //not a custom model or vanilla must be a custom variable
-                    thisCalculator = new AnimationCalculationEMFParser(
+                    thisCalculator = new AnimationCalculation(
                                     this,
                                     null,
                                     null,
@@ -212,10 +213,14 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
             }
         }
+        animationKeyToCalculatorObject.forEach((key,anim)->{
+            anim.postProcess();
+        });
     }
 
     public float getAnimationResultOfKey(
             EMF_ModelPart parentForCheck,
+            String sourceKey,
             String key,
             Entity entity,
             float limbAngle,
@@ -278,13 +283,14 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 }
             }
         }
-        //todo should really allow the calculate method but need solution for stack overflow for self iteration
-        do this
-       // if (calculateForThisAnimationTick) {
-       //     return animationKeyToCalculatorObject.get(key).getResultViaCalculate((LivingEntity) entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
-        //}else{
-            return animationKeyToCalculatorObject.get(key).getResultInterpolateOnly((LivingEntity) entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
-       // }
+
+//        if ( !sourceKey.equals(key) && iterationNumber < 2) {
+//            //System.out.println(modelPathIdentifier+"="+sourceKey+"+"+key +","+iterationNumber);
+//            return animationKeyToCalculatorObject.get(key).getResultViaCalculate((LivingEntity) entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta, iterationNumber+1);
+//        }else{
+           // return animationKeyToCalculatorObject.get(key).getResultInterpolateOnly((LivingEntity) entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
+            return animationKeyToCalculatorObject.get(key).getLastResultOnly((LivingEntity) entity);
+//        }
 
     }
 
@@ -433,9 +439,9 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 if (MinecraftClient.getInstance().player != null) {
                     float val = ((entity.distanceTo(MinecraftClient.getInstance().player) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff)
                             / EMFData.getInstance().getConfig().animationRateDistanceDropOffRate);// LOWER == lower quality
-                    prevInterp.put(id, EMFData.getInstance().getConfig().minimunAnimationCalculationRate + (val > 0 ? val : 0));
+                    prevInterp.put(id, EMFData.getInstance().getConfig().getMinAnimationRateFromFPS() + (val > 0 ? val : 0));
                 } else {
-                    prevInterp.put(id, EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
+                    prevInterp.put(id, EMFData.getInstance().getConfig().getMinAnimationRateFromFPS());
                 }
 
                 prevResultsTick.put(id, getNextPrevResultTickValue());//entity.age + tickDelta);
@@ -476,7 +482,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         defaultReturnValue(-100);
     }};
     Object2FloatOpenHashMap<UUID> prevInterp = new Object2FloatOpenHashMap<>(){{
-        defaultReturnValue(EMFData.getInstance().getConfig().minimunAnimationCalculationRate);
+        defaultReturnValue(EMFData.getInstance().getConfig().getMinAnimationRateFromFPS());
     }};
 
     @Override

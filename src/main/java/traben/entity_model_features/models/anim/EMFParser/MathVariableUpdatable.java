@@ -17,6 +17,8 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
 
     final String variableName;
 
+    public boolean isOtherAnimVariable = false;
+
     private boolean invertBooleans = false;
 
     public MathVariableUpdatable(String value, boolean isNegative, AnimationCalculation calculationInstance) throws EMFMathException {
@@ -109,8 +111,10 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
                 }
             } else {
                 EMF_ModelPart partParent = calculationInstance.modelPart == null? null : calculationInstance.modelPart.parent;
-                return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent
-                                ,variableKey,
+                isOtherAnimVariable = true;
+                return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent,
+                        calculationInstance.animKey,
+                                variableKey,
                                 calculationInstance.getEntity(),
                                 calculationInstance.getLimbAngle(),
                                 calculationInstance.getLimbDistance(),
@@ -118,6 +122,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
                                 calculationInstance.getHeadYaw(),
                                 calculationInstance.getHeadPitch(),
                                 calculationInstance.getTickDelta());
+
             }
 
         }
@@ -127,8 +132,9 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
                 return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
             }else {
                 EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
+                isOtherAnimVariable = true;
                 return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent
-                        , variableKey,
+                        ,calculationInstance.animKey,  variableKey,
                         calculationInstance.getEntity(),
                         calculationInstance.getLimbAngle(),
                         calculationInstance.getLimbDistance(),
@@ -145,8 +151,9 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
                 return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
             }else {
                 EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
+                isOtherAnimVariable = true;
                 return () -> (float) (calculationInstance.parentModel.getAnimationResultOfKey(partParent
-                        , variableKey,
+                        ,calculationInstance.animKey,  variableKey,
                         calculationInstance.getEntity(),
                         calculationInstance.getLimbAngle(),
                         calculationInstance.getLimbDistance(),
