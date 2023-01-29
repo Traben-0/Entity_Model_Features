@@ -19,7 +19,7 @@ public class EMFConfig {
 
     public int animationFPS = 30;
 
-    public  boolean displayVanillaModelHologram = false;
+    public  VanillaModelRenderMode displayVanillaModelHologram = VanillaModelRenderMode.No;
     public boolean printModelCreationInfoToLog = false;
     public float animationRateMinimumDistanceDropOff = 8;
     public float animationRateDistanceDropOffRate = 6;
@@ -49,8 +49,8 @@ public class EMFConfig {
     }
     public enum VanillaModelRenderMode{
         No,
-        Offset,
-        InflateGround
+        Yes,
+        Offset
     }
 
 }

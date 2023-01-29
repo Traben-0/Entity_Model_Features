@@ -62,15 +62,16 @@ public class EMFYACL{
                                 )
                                 .controller(BooleanController::new)
                                 .build())
-                        .option(Option.createBuilder(boolean.class)
-                                .name(Text.of("render vanilla model hologram"))
+
+                        .option(Option.createBuilder(EMFConfig.VanillaModelRenderMode.class)
+                                .name(Text.of("render vanilla model hologram mode"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(
-                                        false, // default
+                                        EMFConfig.VanillaModelRenderMode.No, // default
                                         () -> EMFData.getInstance().getConfig().displayVanillaModelHologram, // getter
                                         newValue -> EMFData.getInstance().getConfig().displayVanillaModelHologram = newValue // setter
                                 )
-                                .controller(BooleanController::new)
+                                .controller((val)->new EnumController<EMFConfig.VanillaModelRenderMode>(val , enumConstant -> Text.of(enumConstant.toString()) ))
                                 .build())
                         .option(Option.createBuilder(boolean.class)
                                 .name(Text.of("use custom player model arms in first person"))

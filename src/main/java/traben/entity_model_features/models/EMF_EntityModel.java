@@ -295,10 +295,24 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         return true;
     }
 
+
     @Override
     public void render( MatrixStack herematrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 
        // if(currentEntity == null)return;
+
+        switch (EMFData.getInstance().getConfig().displayVanillaModelHologram){
+            case Yes -> {
+                vanillaModel.render(herematrices, vertices, LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay, red/2, green, blue/2, alpha/2);
+            }
+            case Offset -> {
+                herematrices.push();
+                herematrices.translate(1.5, 0, 0);
+                vanillaModel.render(herematrices, vertices, LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay, red/2, green, blue/2, alpha/2);
+                herematrices.pop();
+            }
+            default -> {}
+        }
 
         herematrices.push();
 
