@@ -19,6 +19,8 @@ public class EMFConfig {
 
     public int animationFPS = 30;
 
+
+    public boolean printModelCreationInfoToLog = false;
     public float animationRateMinimumDistanceDropOff = 8;
     public float animationRateDistanceDropOffRate = 6;
 

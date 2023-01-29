@@ -25,9 +25,7 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
         return true;
     }
 
-    public boolean directlyCopiesOtherValueOnly = false;
-    public boolean directlyCopiesOtherValueInvert = false;
-    public String directlyCopiesOtherValueName = null;
+
 
     private String caughtExceptionString = null;
 
@@ -197,11 +195,7 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
             //assess and store content metadata
             if(components.size() == 1){
                 this.containsOneComponent = true;
-                if(components.get(0) instanceof MathVariableUpdatable updateable && updateable.isOtherAnimVariable){
-                    directlyCopiesOtherValueOnly = true;
-                    directlyCopiesOtherValueName = updateable.variableName;
-                    directlyCopiesOtherValueInvert = updateable.isNegative;
-                }
+
             }else {
 
                 if(components.get(0) == MathAction.add){

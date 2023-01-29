@@ -94,8 +94,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         jemData = jem;
 
 
-
-        System.out.println(modelPathIdentifier + " = " + vanModelParts);
+        if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage(modelPathIdentifier + " = " + vanModelParts);
 
         for (EMF_ModelData sub:
                 jemData.models) {
@@ -118,9 +117,9 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         });
 
 
-      //  System.out.println("start anim creation for "+modelPathIdentifier);
+        if(EMFData.getInstance().getConfig().printModelCreationInfoToLog)   EMFUtils.EMF_modMessage("start anim creation for "+modelPathIdentifier);
         preprocessAnimationStrings();
-       // System.out.println("end anim creation for "+modelPathIdentifier);
+        if(EMFData.getInstance().getConfig().printModelCreationInfoToLog)  EMFUtils.EMF_modMessage("end anim creation for "+modelPathIdentifier);
         isAnimated = !animationKeyToCalculatorObject.isEmpty();
     }
 
@@ -141,24 +140,35 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 allProperties.addAll(Arrays.asList(part.selfModelData.animations));
             }
         }
-        Properties  combinedProperties = new Properties();
+
+
+
+
+        LinkedHashMap<String,String>  combinedProperties = new LinkedHashMap<>();
         for (LinkedHashMap<String,String> properties :
                 allProperties) {
             if (!properties.isEmpty()) {
                 combinedProperties.putAll(properties);
             }
         }
+
+//        for (LinkedHashMap<String,String> map:
+//                allProperties) {
+//            System.out.println("{}{}{}{}{}");
+//            combinedProperties.forEach((key,val)->{
+//                System.out.println(" >>>>> "+key);
+//            });
+//        }
         //////////////
         if(!combinedProperties.isEmpty()) {
 
-            for (Object modelVariableObject :
-                    combinedProperties.keySet()) {
-
-              //  System.out.println("processing animation:" +modelVariableObject.toString()+" in "+this.modelPathIdentifier);
-                String animKey = modelVariableObject.toString();
+            combinedProperties.forEach((animKey,animationExpression)-> {
+                if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("parsing animation value: ["+animKey+"]");
+                    //  System.out.println("processing animation:" +modelVariableObject.toString()+" in "+this.modelPathIdentifier);
+               ////// String animKey = modelVariableObject.toString();
                 String modelId = animKey.split("\\.")[0];
                 String modelVariable = animKey.split("\\.")[1];
-                String animationExpression = combinedProperties.getProperty((String) modelVariableObject);
+                ///////String animationExpression = combinedProperties.get(modelVariableObject);
 
                 //insert constants
                ///// animationExpression = animationExpression.replaceAll("(?=[^a-zA-Z_])pi(?=[^a-zA-Z_])", String.valueOf(Math.PI));
@@ -170,8 +180,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 try {
                     thisVariable = AnimationCalculation.AnimVar.valueOf(modelVariable);
                 }catch (IllegalArgumentException e){
-                    //todo custom variable
-                    System.out.println("UNKOWN VARIABLE VALUE"+modelVariable +" in "+animKey+" = "+ e);
+                    if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("custom variable located: ["+animKey+"].");
                 }
                 EMF_ModelPart thisPart = parts.get(modelId);
                 AnimationCalculation thisCalculator = null;
@@ -206,46 +215,21 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                   //  System.out.println("found and added valid animation: "+animKey+"="+animationExpression);
                     animationKeyToCalculatorObject.put(animKey,thisCalculator);
                 }else{
-                    System.out.println("invalid animation = "+animKey+"="+ animationExpression);
+                    EMFUtils.EMF_modWarn("invalid animation = "+animKey+"="+ animationExpression);
                 }
                 //here we have a set of animation objects that only need to be iterated over and run
 
 
-            }
+            });
         }
-        animationKeyToCalculatorObject.forEach((key,anim)->{
-            anim.postProcess();
-        });
+
+
     }
 
     public float getAnimationResultOfKey(
             EMF_ModelPart parentForCheck,
-            String sourceKey,
             String key,
-            Entity entity,
-            float limbAngle,
-            float limbDistance,
-            float animationProgress,
-            float headYaw,
-            float headPitch,
-            float tickDelta) {
-//    },
-//                                          Supplier<Entity> entitySupplier,
-//                                          Supplier<Float> limbAngleSupplier,
-//                                          Supplier<Float> limbDistanceSupplier,
-//                                          Supplier<Float> animationProgressSupplier,
-//                                          Supplier<Float> headYawSupplier,
-//                                          Supplier<Float> headPitchSupplier,
-//                                          Supplier<Float> tickDeltaSupplier){
-
-//        LivingEntity entity = (LivingEntity) entitySupplier.get();
-//        float limbAngle = limbAngleSupplier.get();
-//        float limbDistance = limbDistanceSupplier.get();
-//        float animationProgress = animationProgressSupplier.get();
-//        float headYaw = headYawSupplier.get();
-//        float headPitch = headPitchSupplier.get();
-//        float tickDelta = tickDeltaSupplier.get();
-
+            Entity entity) {
 
         //if(key.equals("head.ty")) return -0.5;
         if (!animationKeyToCalculatorObject.containsKey(key)) {
@@ -262,7 +246,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                     }
 
                 } catch (IllegalArgumentException e) {
-                    System.out.println("no animation expression part variable value found for: " + key);
+                    EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key);
                     return 0;
                 }
             } else {
@@ -272,26 +256,18 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                         variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
                         return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName).part());
                     } catch (IllegalArgumentException e) {
-                        System.out.println("no animation expression part variable value found for: " + key);
+                        EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key);
                         return 0;
                     }
                 } else {
-                    System.out.println("no animation expression value found for: " + key);
-                    System.out.println(animationKeyToCalculatorObject.keySet());
+                    EMFUtils.EMF_modWarn("no animation expression value found for: " + key);
+                    //System.out.println(animationKeyToCalculatorObject.keySet());
                     //System.out.println(vanillaModelPartsById.keySet());
                     return 0;
                 }
             }
         }
-
-//        if ( !sourceKey.equals(key) && iterationNumber < 2) {
-//            //System.out.println(modelPathIdentifier+"="+sourceKey+"+"+key +","+iterationNumber);
-//            return animationKeyToCalculatorObject.get(key).getResultViaCalculate((LivingEntity) entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta, iterationNumber+1);
-//        }else{
-           // return animationKeyToCalculatorObject.get(key).getResultInterpolateOnly((LivingEntity) entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
-            return animationKeyToCalculatorObject.get(key).getLastResultOnly((LivingEntity) entity);
-//        }
-
+        return animationKeyToCalculatorObject.get(key).getLastResultOnly((LivingEntity) entity);
     }
 
 
@@ -463,11 +439,10 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
 
             vanillaModel.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+            animationKeyToCalculatorObject.forEach((key,animationCalculation)->{
+                animationCalculation.calculateAndSet(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
+            });
 
-            for (AnimationCalculation calculator :
-                    animationKeyToCalculatorObject.values()) {
-                calculator.calculateAndSet(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
-            }
         }
         //that's it????
     }

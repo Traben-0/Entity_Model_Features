@@ -112,16 +112,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
             } else {
                 EMF_ModelPart partParent = calculationInstance.modelPart == null? null : calculationInstance.modelPart.parent;
                 isOtherAnimVariable = true;
-                return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent,
-                        calculationInstance.animKey,
-                                variableKey,
-                                calculationInstance.getEntity(),
-                                calculationInstance.getLimbAngle(),
-                                calculationInstance.getLimbDistance(),
-                                calculationInstance.getAnimationProgress(),
-                                calculationInstance.getHeadYaw(),
-                                calculationInstance.getHeadPitch(),
-                                calculationInstance.getTickDelta());
+                return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent, variableKey, calculationInstance.getEntity());
 
             }
 
@@ -133,15 +124,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
             }else {
                 EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
                 isOtherAnimVariable = true;
-                return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent
-                        ,calculationInstance.animKey,  variableKey,
-                        calculationInstance.getEntity(),
-                        calculationInstance.getLimbAngle(),
-                        calculationInstance.getLimbDistance(),
-                        calculationInstance.getAnimationProgress(),
-                        calculationInstance.getHeadYaw(),
-                        calculationInstance.getHeadPitch(),
-                        calculationInstance.getTickDelta());
+                return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent,variableKey,calculationInstance.getEntity());
             }
 
         }
@@ -152,15 +135,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
             }else {
                 EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
                 isOtherAnimVariable = true;
-                return () -> (float) (calculationInstance.parentModel.getAnimationResultOfKey(partParent
-                        ,calculationInstance.animKey,  variableKey,
-                        calculationInstance.getEntity(),
-                        calculationInstance.getLimbAngle(),
-                        calculationInstance.getLimbDistance(),
-                        calculationInstance.getAnimationProgress(),
-                        calculationInstance.getHeadYaw(),
-                        calculationInstance.getHeadPitch(),
-                        calculationInstance.getTickDelta()) == (invertBooleans ? 1 : 0) ? 0 : 1);
+                return () -> (float) (calculationInstance.parentModel.getAnimationResultOfKey(partParent,  variableKey, calculationInstance.getEntity()) == (invertBooleans ? 1 : 0) ? 0 : 1);
             }
 
         }

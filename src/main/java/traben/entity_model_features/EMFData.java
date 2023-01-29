@@ -111,14 +111,14 @@ public class EMFData {
         int hashKeyTypicallyEntityType = modelJemName.hashCode();
         if(!JEMPATH_CustomModel.containsKey(hashKeyTypicallyEntityType)) {
             String modelID = "optifine/cem/" + modelJemName + ".jem";
-            System.out.println("checking " + modelID);
+            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("checking " + modelID);
             try {
                 EMF_JemData jem = EMFUtils.EMF_readJemData(modelID);
                 VanillaMappings.VanillaMapper vanillaPartSupplier = VanillaMappings.getVanillaModelPartsMapSupplier(hashKeyTypicallyEntityType, vanillaModel);
                 //vanillaPartsByType.put(typeHash,vanillaPartList);
                 EMF_EntityModel<T> model = new EMF_EntityModel<>(jem, modelID, vanillaPartSupplier, vanillaModel);
                 JEMPATH_CustomModel.put(hashKeyTypicallyEntityType, (EMF_EntityModel<LivingEntity>) model);
-                System.out.println("put emfpart in data =" + model.toString());
+                if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("put emfpart in data =" + model.toString());
 
             } catch (Exception e) {
                 EMFUtils.EMF_modMessage("failed for " + modelID + e, false);

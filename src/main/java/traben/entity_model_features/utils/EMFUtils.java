@@ -18,7 +18,9 @@ import java.util.Properties;
 
 
 public class EMFUtils {
-
+    public static void EMF_modMessage(String message) {
+        EMF_modMessage(message,false);
+    }
     public static void EMF_modMessage(String message, boolean inChat) {
         if (inChat) {
             ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
@@ -29,6 +31,21 @@ public class EMFUtils {
             }
         } else {
             LogManager.getLogger().info("[Entity Model Features]: " + message);
+        }
+    }
+    public static void EMF_modWarn(String message) {
+        EMF_modMessage(message,false);
+    }
+    public static void EMF_modWarn(String message, boolean inChat) {
+        if (inChat) {
+            ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
+            if (plyr != null) {
+                plyr.sendMessage(Text.of("\u00A76[Entity Model Features]\u00A77: " + message), false);
+            } else {
+                LogManager.getLogger().info("[Entity Model Features]: " + message);
+            }
+        } else {
+            LogManager.getLogger().warn("[Entity Model Features]: " + message);
         }
     }
 

@@ -246,10 +246,7 @@ public class AnimationCalculation {
         //calculator = new Expression(initialExpression);
 
         EMFCalculator = new MathExpression(initialExpression,false, this);
-        if(EMFCalculator.directlyCopiesOtherValueOnly){
-            otherKeyToDirectlyCopy = EMFCalculator.directlyCopiesOtherValueName;
-            otherDirectCopyInvert = EMFCalculator.directlyCopiesOtherValueInvert;
-        }
+
     }
 
     public boolean verboseMode = false;
@@ -259,21 +256,10 @@ public class AnimationCalculation {
     }
 
 
-    private String otherKeyToDirectlyCopy = null;
-    private boolean otherDirectCopyInvert = false;
-    private AnimationCalculation otherAnimToDirectlyCopy = null;
 
-    public void postProcess(){
-        if(otherKeyToDirectlyCopy != null){
-            otherAnimToDirectlyCopy = parentModel.animationKeyToCalculatorObject.get(otherKeyToDirectlyCopy);
-        }
-    }
+
 
     public float getResultInterpolateOnly(LivingEntity entity0){
-        if(otherAnimToDirectlyCopy != null){
-            float val = otherAnimToDirectlyCopy.getResultInterpolateOnly(entity0);
-            return otherDirectCopyInvert ? -val : val;
-        }
         if(vanillaModelPart != null){
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
@@ -282,6 +268,7 @@ public class AnimationCalculation {
             System.out.println("entity was null for getResultOnly, (okay for model init)");
             return 0;
         }
+
         UUID id = entity0.getUuid();
         //if(prevPrevResults.containsKey(id)){
         //  float delta =  ((animationProgress0 - prevResultsTick.getFloat(id) ) / interpolationLength);
@@ -291,10 +278,7 @@ public class AnimationCalculation {
     }
 
     public float getLastResultOnly(LivingEntity entity0){
-        if(otherAnimToDirectlyCopy != null){
-            float val = otherAnimToDirectlyCopy.getResultInterpolateOnly(entity0);
-            return otherDirectCopyInvert ? -val : val;
-        }
+
         if(vanillaModelPart != null){
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
@@ -303,16 +287,13 @@ public class AnimationCalculation {
             System.out.println("entity was null for getLastResultOnly, (okay for model init)");
             return 0;
         }
+
        return prevResults.getFloat(entity0.getUuid());
 
     }
     public float getResultViaCalculate(LivingEntity entity0, float limbAngle0, float limbDistance0,
                                        float animationProgress0, float headYaw0, float headPitch0, float tickDelta0, boolean storeResult){
-        if(otherAnimToDirectlyCopy != null){
-            float val = otherAnimToDirectlyCopy.getResultViaCalculate(entity0, limbAngle0, limbDistance0, animationProgress0, headYaw0, headPitch0, tickDelta0,false);
-            //float val = otherAnimToDirectlyCopy.getResultInterpolateOnly(entity0);
-            return otherDirectCopyInvert ? -val : val;
-        }
+
         if(vanillaModelPart != null){
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
@@ -321,6 +302,7 @@ public class AnimationCalculation {
                 System.out.println("entity was null for getResultOnly, (okay for model init)");
             return 0;
         }
+
         UUID id = entity0.getUuid();
 
             entity = entity0;

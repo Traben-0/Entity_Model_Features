@@ -43,6 +43,16 @@ public class EMFYACL{
                                 .controller(BooleanController::new)
                                 .build())
                         .option(Option.createBuilder(boolean.class)
+                                .name(Text.of("print model creation"))
+                                .tooltip(Text.of("")) // optional
+                                .binding(
+                                        false, // default
+                                        () -> EMFData.getInstance().getConfig().printModelCreationInfoToLog, // getter
+                                        newValue -> EMFData.getInstance().getConfig().printModelCreationInfoToLog = newValue // setter
+                                )
+                                .controller(BooleanController::new)
+                                .build())
+                        .option(Option.createBuilder(boolean.class)
                                 .name(Text.of("force transparent rendering"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(

@@ -51,6 +51,14 @@ public class EMF_ModelData {
 
     public void prepare(int parentCount, int[] textureSize, String texture){
 
+//        for (LinkedHashMap<String,String> map:
+//             animations) {
+//            System.out.println("{}{}{}{}{}");
+//            map.forEach((key,val)->{
+//                System.out.println(" >>>>> "+key);
+//            });
+//        }
+
         //check if we need to load a .jpm into this object
         if(!this.model.isEmpty()){
             EMF_ModelData jpmModel = EMFUtils.EMF_readModelPart(this.model);
