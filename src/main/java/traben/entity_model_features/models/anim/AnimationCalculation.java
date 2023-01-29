@@ -44,38 +44,38 @@ public class AnimationCalculation {
     }
 
     public float getPlayerX(){
-        return MinecraftClient.getInstance().player == null ? 0: MinecraftClient.getInstance().player.getBlockX();
+        return MinecraftClient.getInstance().player == null ? 0: (float) MinecraftClient.getInstance().player.getX();
     }
     public float getPlayerY(){
-        return MinecraftClient.getInstance().player == null ? 0: MinecraftClient.getInstance().player.getBlockY();
+        return MinecraftClient.getInstance().player == null ? 0: (float) MinecraftClient.getInstance().player.getY();
     }
     public float getPlayerZ(){
-        return MinecraftClient.getInstance().player == null ? 0: MinecraftClient.getInstance().player.getBlockZ();
+        return MinecraftClient.getInstance().player == null ? 0: (float) MinecraftClient.getInstance().player.getZ();
     }
     public float getPlayerRX(){
         return (MinecraftClient.getInstance().player == null) ? 0 :
-         MinecraftClient.getInstance().player.getPitch(tickDelta);
+                (float) Math.toRadians(MinecraftClient.getInstance().player.getPitch(tickDelta));
     }
     public float getPlayerRY(){
         return (MinecraftClient.getInstance().player == null) ? 0 :
-                MinecraftClient.getInstance().player.getYaw(tickDelta);
+                (float) Math.toRadians(MinecraftClient.getInstance().player.getYaw(tickDelta));
     }
     public float getEntityX(){
-        return getEntity() == null ? 0: getEntity().getBlockX();
+        return getEntity() == null ? 0: (float) getEntity().getX();
     }
     public float getEntityY(){
-        return getEntity() == null ? 0: getEntity().getBlockY();
+        return getEntity() == null ? 0: (float) getEntity().getY();
     }
     public float getEntityZ(){
-        return getEntity() == null ? 0: getEntity().getBlockZ();
+        return getEntity() == null ? 0: (float) getEntity().getZ();
     }
     public float getEntityRX(){
         return (getEntity() == null) ? 0 :
-                getEntity().getPitch(tickDelta);
+                (float) Math.toRadians(getEntity().getPitch(tickDelta));
     }
     public float getEntityRY(){
         return (getEntity() == null) ? 0 :
-                getEntity().getYaw(tickDelta);
+                (float) Math.toRadians(getEntity().getYaw(tickDelta));
     }
 
     //long changed to float... should be fine tbh
