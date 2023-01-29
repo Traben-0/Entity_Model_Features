@@ -9,6 +9,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.EMFData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 
@@ -123,7 +124,7 @@ public class EMFUtils {
         try {
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
             if(res.isEmpty()){
-                EMF_modMessage("jem failed "+pathOfJem+" does not exist", false);
+                if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMF_modMessage("jem failed "+pathOfJem+" does not exist", false);
                 return null;
             }
             Resource jemResource = res.get();
@@ -140,7 +141,7 @@ public class EMFUtils {
                 return jem;
             //}
         } catch (Exception e) {
-            EMF_modMessage("jem failed "+e, false);
+            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMF_modMessage("jem failed "+e, false);
         }
         return null;
     }
@@ -151,7 +152,7 @@ public class EMFUtils {
         try {
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJpm));
             if(res.isEmpty()){
-                EMF_modMessage("jpm failed "+pathOfJpm+" does not exist", false);
+                if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMF_modMessage("jpm failed "+pathOfJpm+" does not exist", false);
                 return null;
             }
             Resource jpmResource = res.get();
@@ -168,7 +169,7 @@ public class EMFUtils {
             return jpm;
             //}
         } catch (Exception e) {
-            EMF_modMessage("jpm failed "+e, false);
+            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMF_modMessage("jpm failed "+e, false);
         }
         return null;
     }

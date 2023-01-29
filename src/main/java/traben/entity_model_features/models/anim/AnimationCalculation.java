@@ -19,6 +19,7 @@ import traben.entity_model_features.EMFData;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
 import traben.entity_model_features.models.anim.EMFParser.MathExpression;
+import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.Random;
 import java.util.UUID;
@@ -265,7 +266,7 @@ public class AnimationCalculation {
         }
         if(entity0 == null) {
             //if(verboseMode)
-            System.out.println("entity was null for getResultOnly, (okay for model init)");
+            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
             return 0;
         }
 
@@ -284,7 +285,7 @@ public class AnimationCalculation {
         }
         if(entity0 == null) {
             //if(verboseMode)
-            System.out.println("entity was null for getLastResultOnly, (okay for model init)");
+            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getLastResultOnly, (okay for model init)");
             return 0;
         }
 
@@ -299,7 +300,7 @@ public class AnimationCalculation {
         }
         if(entity0 == null) {
             //if(verboseMode)
-                System.out.println("entity was null for getResultOnly, (okay for model init)");
+            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
             return 0;
         }
 
@@ -335,14 +336,14 @@ public class AnimationCalculation {
        // calculationCount++;
         //setVerbose(true);
         //System.out.println("ran: "+EMFCalculator.originalExpression);
-        if(EMFData.getInstance().getConfig().printAllMaths && animKey.equals("nose.rz")) {
+        if(EMFData.getInstance().getConfig().printAllMaths) {
             setVerbose(true);
 //            System.out.println("mxparser run/////////////////////////////////");
 //            mxpThis.setVerbose(true);
 //            System.out.println("mxparser ="+ mxpThis.calculatorRun());
-            System.out.println("start EMF///////////////////////////////////");
+            //System.out.println("start EMF///////////////////////////////////");
             float val = EMFCalculator.calculate();
-            System.out.println("EMF = "+val+" ///////////////////////////////////");
+            EMFUtils.EMF_modMessage("animation result: "+animKey+" = "+val);
             return val;
         }else{
             return EMFCalculator.calculate();
@@ -400,7 +401,7 @@ public class AnimationCalculation {
     }
 
     public boolean isValid(){
-        return EMFCalculator.isValid() && !Float.isNaN( EMFCalculator.calculate());
+        return EMFCalculator.isValid();// && !Float.isNaN( EMFCalculator.calculate());
     }
 
 

@@ -222,10 +222,13 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
             });
         }
-
-
     }
 
+
+    //called when another animation wants to get "head.tx" or something similar
+    //checks if an existing animation has that key and uses it
+    // if it's not existing it tries to find the part, be it EMF or vanilla to copy its value
+    //there is an alternate method that is more optimized just for animation variables e.g.g "var.asdf"
     public float getAnimationResultOfKey(
             EMF_ModelPart parentForCheck,
             String key,
@@ -246,7 +249,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                     }
 
                 } catch (IllegalArgumentException e) {
-                    EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key);
+                    EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
                     return 0;
                 }
             } else {
@@ -256,11 +259,11 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                         variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
                         return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName).part());
                     } catch (IllegalArgumentException e) {
-                        EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key);
+                        EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
                         return 0;
                     }
                 } else {
-                    EMFUtils.EMF_modWarn("no animation expression value found for: " + key);
+                    EMFUtils.EMF_modWarn("no animation expression value found for: " + key + " in " + modelPathIdentifier);
                     //System.out.println(animationKeyToCalculatorObject.keySet());
                     //System.out.println(vanillaModelPartsById.keySet());
                     return 0;
@@ -268,6 +271,17 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             }
         }
         return animationKeyToCalculatorObject.get(key).getLastResultOnly((LivingEntity) entity);
+    }
+    //same as above method but optimized for variable loading as they only exist in animations
+    //also as we do not want an unwanted error message unlike the other method
+    public float getAnimationResultOfKeyOptimiseForVariable(
+            String key,
+            Entity entity) {
+        if (animationKeyToCalculatorObject.containsKey(key)) {
+            return animationKeyToCalculatorObject.get(key).getLastResultOnly((LivingEntity) entity);
+        }
+        if(EMFData.getInstance().getConfig().printAllMaths) EMFUtils.EMF_modWarn("no animation variable found for: " + key + " in " + modelPathIdentifier);
+        return 0;
     }
 
 

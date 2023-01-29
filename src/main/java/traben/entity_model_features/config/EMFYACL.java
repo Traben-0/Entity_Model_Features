@@ -63,6 +63,16 @@ public class EMFYACL{
                                 .controller(BooleanController::new)
                                 .build())
                         .option(Option.createBuilder(boolean.class)
+                                .name(Text.of("render vanilla model hologram"))
+                                .tooltip(Text.of("")) // optional
+                                .binding(
+                                        false, // default
+                                        () -> EMFData.getInstance().getConfig().displayVanillaModelHologram, // getter
+                                        newValue -> EMFData.getInstance().getConfig().displayVanillaModelHologram = newValue // setter
+                                )
+                                .controller(BooleanController::new)
+                                .build())
+                        .option(Option.createBuilder(boolean.class)
                                 .name(Text.of("use custom player model arms in first person"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(
@@ -79,6 +89,7 @@ public class EMFYACL{
                                         30, // default
                                         () -> EMFData.getInstance().getConfig().animationFPS, // getter
                                         newValue -> EMFData.getInstance().getConfig().animationFPS = newValue // setter
+
                                 )
                                 .controller((val)->new IntegerSliderController(val,20,144,1))
                                 .build())

@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.anim.EMFParser;
 
 import traben.entity_model_features.models.anim.AnimationCalculation;
+import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,7 +20,7 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
 
     public boolean isValid(){
         if(caughtExceptionString != null){
-            System.out.println(caughtExceptionString);
+            EMFUtils.EMF_modWarn(caughtExceptionString);
             return false;
         }
         return true;
@@ -191,6 +192,24 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
             }
 
             if(components.isEmpty()) throw new EMFMathException("ERROR: math components found to be empty for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"]");
+
+            //resolve unnecessary and unwanted math logic issue like 1 + +2
+            LinkedList<MathComponent> newComponents = new LinkedList<>();
+            MathComponent lastComponent = null;
+            for (MathComponent component:
+                 components) {
+                if(lastComponent instanceof MathAction && component instanceof MathAction action){
+                    if(action == MathAction.add){
+                        //do not include unneeded addition action as there is no reason to and will mess with parser logic
+                    }else{
+                        newComponents.add(component);
+                    }
+                }else{
+                    newComponents.add(component);
+                }
+                lastComponent = component;
+            }
+            if(newComponents.size() != components.size()) components = newComponents;
 
             //assess and store content metadata
             if(components.size() == 1){

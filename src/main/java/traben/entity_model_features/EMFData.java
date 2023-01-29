@@ -114,12 +114,17 @@ public class EMFData {
             if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("checking " + modelID);
             try {
                 EMF_JemData jem = EMFUtils.EMF_readJemData(modelID);
-                VanillaMappings.VanillaMapper vanillaPartSupplier = VanillaMappings.getVanillaModelPartsMapSupplier(hashKeyTypicallyEntityType, vanillaModel);
-                //vanillaPartsByType.put(typeHash,vanillaPartList);
-                EMF_EntityModel<T> model = new EMF_EntityModel<>(jem, modelID, vanillaPartSupplier, vanillaModel);
-                JEMPATH_CustomModel.put(hashKeyTypicallyEntityType, (EMF_EntityModel<LivingEntity>) model);
-                if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("put emfpart in data =" + model.toString());
-
+                if(jem!=null) {
+                    VanillaMappings.VanillaMapper vanillaPartSupplier = VanillaMappings.getVanillaModelPartsMapSupplier(hashKeyTypicallyEntityType, vanillaModel);
+                    //vanillaPartsByType.put(typeHash,vanillaPartList);
+                    EMF_EntityModel<T> model = new EMF_EntityModel<>(jem, modelID, vanillaPartSupplier, vanillaModel);
+                    JEMPATH_CustomModel.put(hashKeyTypicallyEntityType, (EMF_EntityModel<LivingEntity>) model);
+                    if (EMFData.getInstance().getConfig().printModelCreationInfoToLog)
+                        EMFUtils.EMF_modMessage("put emfpart in data =" + model.toString());
+                }else{
+                    if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("no jem found for " + modelID);
+                    return null;
+                }
             } catch (Exception e) {
                 EMFUtils.EMF_modMessage("failed for " + modelID + e, false);
                 e.printStackTrace();

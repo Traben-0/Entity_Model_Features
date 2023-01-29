@@ -37,6 +37,15 @@ public class VanillaMappings {
         if (vanillaModel instanceof SlimeEntityModel) {
             return VanillaMappings::getSlimeMap;
         }
+        if (vanillaModel instanceof SlimeEntityModel) {
+            return VanillaMappings::getSlimeMap;
+        }
+        if (vanillaModel instanceof HoglinEntityModel) {
+            return VanillaMappings::getHoglinMap;
+        }
+        if (vanillaModel instanceof RavagerEntityModel) {
+            return VanillaMappings::getRavagerMap;
+        }
         if (vanillaModel instanceof WolfEntityModel) {
             return VanillaMappings::getWolfMap;
         }
@@ -166,9 +175,46 @@ public class VanillaMappings {
 //    }
 
 
+    private static HashMap<String, ModelAndParent> getHoglinMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
+        if (vanillaModel instanceof HoglinEntityModel hoglin) {
+            ArrayList<ModelPart> bodyParts = new ArrayList<>();
+            Iterable<ModelPart> hed = ((AnimalModelAccessor) hoglin).callGetHeadParts();
+            if(hed.iterator().hasNext()) {
+                ModelPart head = hed.iterator().next();
+                vanillaPartsList.put("head", getEntry(head));
+                if(head.hasChild("right_ear"))
+                    vanillaPartsList.put("right_ear",getEntry(head.getChild("right_ear"),"head"));
+                if(head.hasChild("left_ear"))
+                    vanillaPartsList.put("left_ear",getEntry(head.getChild("left_ear"),"head"));
+
+            }
+            for (ModelPart part : ((AnimalModelAccessor) hoglin).callGetBodyParts()) {
+                bodyParts.add(part);
+            }
+            vanillaPartsList.put("body",getEntry(bodyParts.get(0)));
+            vanillaPartsList.put("right_front_leg",getEntry(bodyParts.get(1)));
+            vanillaPartsList.put("left_front_leg",getEntry(bodyParts.get(2)));
+            vanillaPartsList.put("right_hind_leg",getEntry(bodyParts.get(3)));
+            vanillaPartsList.put("left_hind_leg",getEntry(bodyParts.get(4)));
+            if(bodyParts.get(0).hasChild("mane"))
+                vanillaPartsList.put("mane",getEntry(bodyParts.get(0).getChild("mane"),"body"));
 
 
+        }
+        return vanillaPartsList;
+    }
 
+    private static HashMap<String, ModelAndParent> getRavagerMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        vanillaPartsList.put("jaw",vanillaPartsList.get("mouth"));
+        vanillaPartsList.put("leg1",vanillaPartsList.get("right_hind_leg"));
+        vanillaPartsList.put("leg2",vanillaPartsList.get("left_hind_leg"));
+        vanillaPartsList.put("leg3",vanillaPartsList.get("right_front_leg"));
+        vanillaPartsList.put("leg4",vanillaPartsList.get("left_front_leg"));
+
+        return vanillaPartsList;
+    }
 
 
     private static HashMap<String, ModelAndParent> getWolfMap(EntityModel<?> vanillaModel){
