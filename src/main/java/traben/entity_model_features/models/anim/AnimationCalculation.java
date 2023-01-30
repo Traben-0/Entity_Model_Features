@@ -1,29 +1,26 @@
 package traben.entity_model_features.models.anim;
 
-import it.unimi.dsi.fastutil.objects.Object2DoubleOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.Angerable;
-import net.minecraft.entity.passive.*;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.passive.CatEntity;
+import net.minecraft.entity.passive.ParrotEntity;
+import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.dimension.DimensionTypes;
-import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFData;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
 import traben.entity_model_features.models.anim.EMFParser.MathExpression;
 import traben.entity_model_features.utils.EMFUtils;
 
-import java.util.Random;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 public class AnimationCalculation {
 
@@ -64,7 +61,8 @@ public class AnimationCalculation {
         return getEntity() == null ? 0: (float) getEntity().getX();
     }
     public float getEntityY(){
-        return getEntity() == null ? 0: (float) getEntity().getY();
+        return getEntity() == null ? 0:
+                (float)getEntity().getY();// MathHelper.lerp (getTickDelta(), ,getEntity().getY() + getEntity().getVelocity().y);
     }
     public float getEntityZ(){
         return getEntity() == null ? 0: (float) getEntity().getZ();
@@ -187,9 +185,6 @@ public class AnimationCalculation {
         return limbDistance;
     }
 
-    public float getAnimationProgress() {
-        return animationProgress;
-    }
 
     public float getHeadYaw() {
         return headYaw;
@@ -219,14 +214,12 @@ public class AnimationCalculation {
      public final AnimVar varToChange;
      public final String animKey;
 
-     final ObjectOpenHashSet<String> animKeysThatAreNeeded = new ObjectOpenHashSet<>();
 
      final float defaultValue;
 
-    //private final String expressionString;
 
     public AnimationCalculation(EMF_EntityModel<?> parent, ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
-        //expressionString = ;
+
         this.animKey = animKey;
         this.parentModel = parent;
         this.varToChange = varToChange;
@@ -236,6 +229,7 @@ public class AnimationCalculation {
             this.vanillaModelPart = part;
 
         if(varToChange != null) {
+            resultIsAngle = (varToChange == AnimVar.rx || varToChange == AnimVar.ry ||varToChange == AnimVar.rz);
             defaultValue = varToChange.getDefaultFromModel(part);
             if(this.modelPart != null)
                 varToChange.setValueAsAnimated(this.modelPart);
@@ -244,12 +238,13 @@ public class AnimationCalculation {
         }
         prevResults.defaultReturnValue(defaultValue);
         prevPrevResults.defaultReturnValue(defaultValue);
-        //calculator = new Expression(initialExpression);
 
         EMFCalculator = new MathExpression(initialExpression,false, this);
 
+
     }
 
+    private boolean resultIsAngle = false;
     public boolean verboseMode = false;
 
     public void setVerbose(boolean val) {
@@ -265,17 +260,16 @@ public class AnimationCalculation {
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
         if(entity0 == null) {
-            //if(verboseMode)
             if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
             return 0;
         }
 
         UUID id = entity0.getUuid();
-        //if(prevPrevResults.containsKey(id)){
-        //  float delta =  ((animationProgress0 - prevResultsTick.getFloat(id) ) / interpolationLength);
+        if(resultIsAngle){
+            return MathHelper.lerpAngleDegrees(parentModel.currentAnimationDeltaForThisTick,prevPrevResults.getFloat(id), prevResults.getFloat(id));
+        }
         return MathHelper.lerp(parentModel.currentAnimationDeltaForThisTick,prevPrevResults.getFloat(id), prevResults.getFloat(id));
-        //}
-        // return prevResults.getFloat(id);
+
     }
 
     public float getLastResultOnly(LivingEntity entity0){
@@ -284,7 +278,6 @@ public class AnimationCalculation {
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
         if(entity0 == null) {
-            //if(verboseMode)
             if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getLastResultOnly, (okay for model init)");
             return 0;
         }
@@ -299,7 +292,6 @@ public class AnimationCalculation {
             return varToChange.getFromVanillaModel(vanillaModelPart);
         }
         if(entity0 == null) {
-            //if(verboseMode)
             if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
             return 0;
         }
@@ -329,19 +321,12 @@ public class AnimationCalculation {
         return  getResultViaCalculate(entity0, limbAngle0, limbDistance0, animationProgress0, headYaw0, headPitch0, tickDelta0,true);
     }
 
-    //public int currentCaulculateIterationNumber = 0;
 
 
     public float calculatorRun() {
-       // calculationCount++;
-        //setVerbose(true);
-        //System.out.println("ran: "+EMFCalculator.originalExpression);
+
         if(EMFData.getInstance().getConfig().printAllMaths) {
             setVerbose(true);
-//            System.out.println("mxparser run/////////////////////////////////");
-//            mxpThis.setVerbose(true);
-//            System.out.println("mxparser ="+ mxpThis.calculatorRun());
-            //System.out.println("start EMF///////////////////////////////////");
             float val = EMFCalculator.calculate();
             EMFUtils.EMF_modMessage("animation result: "+animKey+" = "+val);
             return val;
@@ -352,16 +337,11 @@ public class AnimationCalculation {
     }
 
 
-    //public double getLastResult() {
-    //    return getEntity() != null ? 0 : prevResults.getDouble(getEntity().getUuid());
-   // }
 
     Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
      public Object2FloatOpenHashMap<UUID> prevResults = new Object2FloatOpenHashMap<>();
-    Object2FloatOpenHashMap<UUID> lastResultAnimationProgress = new Object2FloatOpenHashMap<>();
 
-    //private double lastResult = 0;
-   // private float lastResultTick = -1000;
+
 
     public void calculateAndSet(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
 
@@ -373,24 +353,13 @@ public class AnimationCalculation {
         }
 
         if(Float.isNaN(result)){
-            //System.out.println(isRidden()+", "+isChild());
-            //if(rand.nextInt(100) == 1)System.out.println("result was NaN from: "+animKey);
             if(varToChange != null)
                 varToChange.set(modelPart, Float.MAX_VALUE);
-            //isValid();
-        }else if(modelPart == null){
-
-           // if(rand.nextInt(100) == 1)System.out.println("model null "+animKey);
-          //  if(vanillaModelPart != null) {
-               // varToChange.setValueInVanillaModel(vanillaModelPart,result);
-           // }
-        }else {
-           // if(rand.nextInt(100) == 1)System.out.println("worked?"+animKey);
+        }else if(modelPart != null){
             varToChange.set(modelPart, result);
         }
-
     }
-    private static Random rand = new Random();
+
 
     public void animPrint(String str){
         StringBuilder indent = new StringBuilder();
@@ -401,7 +370,7 @@ public class AnimationCalculation {
     }
 
     public boolean isValid(){
-        return EMFCalculator.isValid();// && !Float.isNaN( EMFCalculator.calculate());
+        return EMFCalculator.isValid() && !Float.isNaN( EMFCalculator.calculate());
     }
 
 
