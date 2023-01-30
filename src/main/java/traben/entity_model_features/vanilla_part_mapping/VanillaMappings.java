@@ -2,10 +2,10 @@ package traben.entity_model_features.vanilla_part_mapping;
 
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.*;
-import net.minecraft.entity.player.PlayerEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.mixin.accessor.*;
+import traben.entity_model_features.mixin.accessor.entity.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

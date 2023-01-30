@@ -43,13 +43,9 @@ public class EMF_BoxData {
                 ", uvDown=" + Arrays.toString(uvDown) +
                 ", uvUp=" + Arrays.toString(uvUp) +
                 ", uvNorth=" + Arrays.toString(uvNorth) +
-                ", uvFront=" + Arrays.toString(uvFront) +
                 ", uvSouth=" + Arrays.toString(uvSouth) +
-                ", uvFBack=" + Arrays.toString(uvBack) +
                 ", uvWest=" + Arrays.toString(uvWest) +
-                ", uvLeft=" + Arrays.toString(uvLeft) +
                 ", uvEast=" + Arrays.toString(uvEast) +
-                ", uvRight=" + Arrays.toString(uvRight) +
                 ", textureOffset=" + Arrays.toString(textureOffset) +
                 ", sizeAdd=" + sizeAdd +
                 '}';

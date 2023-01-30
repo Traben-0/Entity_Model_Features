@@ -1,20 +1,12 @@
 package traben.entity_model_features.models.vanilla_model_children;
 
-import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.CowEntityModel;
-import net.minecraft.client.render.entity.model.QuadrupedEntityModel;
 import net.minecraft.client.render.entity.model.SlimeEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
-import traben.entity_model_features.mixin.accessor.QuadrupedEntityModelAccessor;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
-import traben.entity_model_features.models.EMF_ModelPart;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class EMFCustomSlimeModel<T extends LivingEntity> extends SlimeEntityModel<T> implements EMFCustomModel<T> {
 

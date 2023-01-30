@@ -2,11 +2,23 @@
   "schemaVersion": 1,
   "id": "entity_model_features",
   "version": "${version}",
-
-  "name": "0-entity_model_features",
-  "description": "",
-  "authors": [],
-  "contact": {},
+  "name": "Entity Model Features",
+  "description": "Adds support for OptiFine format Custom Entity Models (CEM) resourcepacks.",
+  "authors": [
+    {
+      "name": "Traben",
+      "contact": {
+        "homepage": "https://www.curseforge.com/members/traben_0/projects",
+        "discord": "https://discord.gg/rURmwrzUcz"
+      }
+    }
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/entity-texture-features-fabric",
+    "sources": "https://github.com/Traben-0/Entity_Texture_Features",
+    "issues": "https://github.com/Traben-0/Entity_Texture_Features/issues",
+    "discord": "https://discord.gg/rURmwrzUcz"
+  },
 
   "license": "LGPL-3.0",
   "icon": "icon.png",
@@ -20,14 +32,25 @@
       "traben.entity_model_features.config.EMFModMenuEntry"
     ]
   },
-
   "mixins": [
         "entity_model_features.mixins.json"
       ],
   "accessWidener" : "entity_model_features.accesswidener",
   "depends": {
     "fabricloader": ">=0.14",
-              "fabric": "*",
-          "minecraft": "1.19.3"
+    "fabric": "*",
+    "minecraft": "1.19.3"
+  },
+  "conflicts": {
+    "optifabric": "*",
+    "cem": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.website": "https://www.curseforge.com/members/traben_0/projects",
+        "modmenu.discord": "https://discord.gg/rURmwrzUcz"
+      }
+    }
   }
 }

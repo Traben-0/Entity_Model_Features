@@ -1,13 +1,9 @@
 package traben.entity_model_features.models.jemJsonObjects;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.mob.CreeperEntity;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
 
 public class EMF_ModelData {
 
@@ -77,7 +73,7 @@ public class EMF_ModelData {
 
 
         if(this.textureSize == null) this.textureSize = textureSize;
-        if(this.texture.isEmpty()){
+        if(this.texture.isBlank()){
             this.texture = texture;
         }else{
             if(!this.texture.contains(".png")) this.texture = this.texture + ".png";

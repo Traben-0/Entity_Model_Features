@@ -3,7 +3,6 @@ package traben.entity_model_features.models;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -17,14 +16,13 @@ import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Quaternionf;
 import traben.entity_model_features.EMFData;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.mixin.accessor.AnimalModelAccessor;
+import traben.entity_model_features.mixin.accessor.entity.AnimalModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
@@ -43,15 +41,14 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
 
 
-    private HashMap<String, VanillaMappings.ModelAndParent> vanillaModelPartsById;
+    private final HashMap<String, VanillaMappings.ModelAndParent> vanillaModelPartsById;
 
-   // private final Properties animationPropertiesOfAll;
     public final String modelPathIdentifier;
     public final EntityModel<T> vanillaModel;
 
     public VertexConsumerProvider currentVertexProvider = null;
 
-    public boolean isAnimated = false;
+    public boolean isAnimated;
 
     public RenderLayer getLayer2(Identifier van) {
 
@@ -63,12 +60,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
     public final Identifier texture;
 
-    public EMF_EntityModel(String WARNING_ONLY_FOR_TEST){
-        modelPathIdentifier = WARNING_ONLY_FOR_TEST;
-        vanillaModel = null;
-        jemData = null;
-        texture = null;
-    }
+
 
     public EMF_EntityModel(EMF_JemData jem, String modelPath, VanillaMappings.VanillaMapper vanillaPartSupplier, EntityModel<T> vanillaModel){
 
@@ -128,11 +120,9 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
     private void preprocessAnimationStrings(){
         ///animation processing/////////////
-
         Object2ObjectOpenHashMap<String, EMF_ModelPart> parts = getAllParts();
 
         LinkedList<LinkedHashMap<String,String>>  allProperties = new LinkedList<>();
-        //ObjectOpenHashSet<Properties> allProperties = new ObjectOpenHashSet<>() {};
         for (EMF_ModelPart part :
                 parts.values()) {
             if (part.selfModelData.animations != null && part.selfModelData.animations.length != 0) {
@@ -140,10 +130,6 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 allProperties.addAll(Arrays.asList(part.selfModelData.animations));
             }
         }
-
-
-
-
         LinkedHashMap<String,String>  combinedProperties = new LinkedHashMap<>();
         for (LinkedHashMap<String,String> properties :
                 allProperties) {
@@ -151,30 +137,12 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 combinedProperties.putAll(properties);
             }
         }
-
-//        for (LinkedHashMap<String,String> map:
-//                allProperties) {
-//            System.out.println("{}{}{}{}{}");
-//            combinedProperties.forEach((key,val)->{
-//                System.out.println(" >>>>> "+key);
-//            });
-//        }
-        //////////////
         if(!combinedProperties.isEmpty()) {
 
             combinedProperties.forEach((animKey,animationExpression)-> {
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("parsing animation value: ["+animKey+"]");
-                    //  System.out.println("processing animation:" +modelVariableObject.toString()+" in "+this.modelPathIdentifier);
-               ////// String animKey = modelVariableObject.toString();
                 String modelId = animKey.split("\\.")[0];
                 String modelVariable = animKey.split("\\.")[1];
-                ///////String animationExpression = combinedProperties.get(modelVariableObject);
-
-                //insert constants
-               ///// animationExpression = animationExpression.replaceAll("(?=[^a-zA-Z_])pi(?=[^a-zA-Z_])", String.valueOf(Math.PI));
-                //animationExpression = animationExpression.replaceAll("true", "1");
-                //animationExpression = animationExpression.replaceAll("false", "0");
-
 
                 AnimationCalculation.AnimVar thisVariable = null;
                 try {

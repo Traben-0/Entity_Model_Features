@@ -78,9 +78,6 @@ public class EMFData {
         }
     }
 
-    // config code based on bedrockify & actually unbreaking fabric config code
-    // https://github.com/juancarloscp52/BedrockIfy/blob/1.17.x/src/main/java/me/juancarloscp52/bedrockify/Bedrockify.java
-    // https://github.com/wutdahack/ActuallyUnbreakingFabric/blob/1.18.1/src/main/java/wutdahack/actuallyunbreaking/ActuallyUnbreaking.java
     public void loadConfig() {
         try {
             File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_model_features.json");
@@ -262,7 +259,7 @@ public class EMFData {
         return (M) COMPLETE_MODELS_FOR_RETURN.get(jemName);
     }
 
-    public  Object2ObjectOpenHashMap<String, EMFCustomModel<?>> COMPLETE_MODELS_FOR_RETURN = new Object2ObjectOpenHashMap<>();
+    public Object2ObjectOpenHashMap<String, EMFCustomModel<?>> COMPLETE_MODELS_FOR_RETURN = new Object2ObjectOpenHashMap<>();
     public Object2ObjectOpenHashMap<String,List<etfPropertyReader.EMFPropertyCase>> MODEL_CASES = new Object2ObjectOpenHashMap<>();
     public Object2BooleanOpenHashMap<UUID> UUID_MOB_MODEL_UPDATES = new Object2BooleanOpenHashMap<>();
 

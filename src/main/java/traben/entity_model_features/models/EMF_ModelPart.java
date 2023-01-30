@@ -6,28 +6,22 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
-import org.joml.*;
+import net.minecraft.util.math.Direction;
+import org.joml.Quaternionf;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.mixin.CuboidAccessor;
-import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.mixin.accessor.CuboidAccessor;
+import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.jemJsonObjects.EMF_BoxData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
+import traben.entity_model_features.utils.EMFUtils;
 
-import java.lang.Math;
 import java.util.*;
 
 @Environment(value = EnvType.CLIENT)
 public class EMF_ModelPart extends ModelPart  {
-
-    //todo probably needs parent offset but could be calculated before render
-
-
-
     private final List<EMFCuboid> cuboids = new ArrayList<>();
     private final Map<String, EMF_ModelPart> children = new HashMap<>();
 
@@ -36,7 +30,7 @@ public class EMF_ModelPart extends ModelPart  {
     public final ArrayList<EMF_ModelData> parentModelData;
     public final EMF_ModelPart parent;
 
-    public boolean visible_boxes = true;
+    public boolean visible_boxes = true;//todo
     public boolean visible = true;
 
 
@@ -58,7 +52,7 @@ public class EMF_ModelPart extends ModelPart  {
         if (this.visible) {
             if (!this.cuboids.isEmpty() || !this.children.isEmpty()) {
                 matrices.push();
-                this.rotateV3(matrices);
+                this.rotate(matrices);
                 // override texture if needed
                 // this is not recommended for ETF support but is very useful for .jpms
                 if(this.customTexture != null && this.thisModel.currentVertexProvider != null && this.thisModel.vanillaModel != null){
@@ -85,24 +79,7 @@ public class EMF_ModelPart extends ModelPart  {
         }
     }
 
-    public void rotateV2(MatrixStack matrices) {
-        matrices.translate(
-                ( this.pivotX ) / 16.0F,
-                (this.pivotY ) / 16.0F,
-                (this.pivotZ ) / 16.0F);
 
-        if (!thisModel.isAnimated && vanillaPart != null) {
-            matrices.multiply((new Quaternionf()).rotationZYX(
-                    (doesAnimrz ? this.roll : getDefaultTransform().roll + vanillaPart.roll),
-                    (doesAnimry ? this.yaw : getDefaultTransform().yaw + vanillaPart.yaw),
-                    (doesAnimrx ? this.pitch : getDefaultTransform().pitch + vanillaPart.pitch)));
-        } else {
-            matrices.multiply((new Quaternionf()).rotationZYX(roll, yaw, pitch));
-        }
-        if (this.xScale != 1.0F || this.yScale != 1.0F || this.zScale != 1.0F) {
-            matrices.scale(this.xScale, this.yScale, this.zScale);
-        }
-    }
 
 
     public float getPivotXWithPossibleVanillaParentTransforms(){
@@ -160,7 +137,10 @@ public class EMF_ModelPart extends ModelPart  {
         }
     }
 
-    public void rotateV3(MatrixStack matrices) {
+
+    //todo investigate need for a rotate(vec3D) override
+    @Override
+    public void rotate(MatrixStack matrices) {
 
         float pivotX = (doesAnimtx || vanillaPart == null ? getPivotXWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotX +*/ vanillaPart.pivotX );
         float pivotY = (doesAnimty || vanillaPart == null ? getPivotYWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotY +*/ vanillaPart.pivotY );
@@ -187,37 +167,21 @@ public class EMF_ModelPart extends ModelPart  {
     }
 
     public void setAnimPitch(float newPitch){
-        //didAnimrx = true;
         this.pitch = newPitch;// + getDefaultTransform().pitch;
     }
     public void setAnimYaw(float newYaw){
-        //didAnimry = true;
         this.yaw = newYaw;// + getDefaultTransform().yaw;
     }
     public void setAnimRoll(float newRoll){
-        //didAnimrz = true;
         this.roll = newRoll;// + getDefaultTransform().roll;
     }
     public void setAnimPivotX(float val){
-//        if(parentOnePivotXOverride != 0)
-//            this.pivotX = (invX? val : -val) + parentOnePivotXOverride;
-//        else
-        //didAnimtx = true;
             this.pivotX = val  + parentOnePivotXOverride;
     }
     public void setAnimPivotY(float val){
-//        if(parentOnePivotYOverride != 0)
-//            this.pivotY = (invY? val : -val) + parentOnePivotYOverride;
-//        else
-        //didAnimty = true;
-            this.pivotY = val  + parentOnePivotYOverride; //TODO THIS DOES NOT APPLY TO WITCH HAT, find out why??  resolved as snime neads to read pivot without parent modifier for other parent=1 variables
-        //running theory is animation gets will remove the parentonepivot figure as witch hat calls it
+            this.pivotY = val  + parentOnePivotYOverride;
     }
     public void setAnimPivotZ(float val){
-//        if(parentOnePivotZOverride != 0)
-//            this.pivotZ = (invZ? val : -val) + parentOnePivotZOverride;
-//        else
-        //didAnimtz = true;
         this.pivotZ = val + parentOnePivotZOverride;
     }
     public float getAnimPivotX(){
@@ -255,23 +219,7 @@ public class EMF_ModelPart extends ModelPart  {
     private float parentOnePivotZOverride = 0;
 
 
-//    public EMF_CustomModelPart<T> copyOf(){
-//        return new EMF_CustomModelPart<>(this);
-//    }
-//
-//    private EMF_CustomModelPart(EMF_CustomModelPart<T> copyFrom){
-//        super(new ArrayList<>(), new HashMap<>());
-//        setDefaultTransform(copyFrom.getDefaultTransform());
-//        copyTransform(copyFrom);
-//        for (Map.Entry<String, EMF_CustomModelPart<T>> entry:
-//                copyFrom.children.entrySet()) {
-//                children.put(entry.getKey(), entry.getValue().copyOf());
-//        }
-//        for (Cuboid entry:
-//                copyFrom.cuboids) {
-//            cuboids.add( entry.copyOf());
-//        }
-//    }
+
     private final EMF_EntityModel<?> thisModel;
      final Identifier customTexture;
     public final ModelPart vanillaPart;
@@ -446,6 +394,11 @@ public class EMF_ModelPart extends ModelPart  {
             }
         }
         isEmptyPart = cuboids.isEmpty() && emptyChildren;
+
+        //give the super our children and cuboids incase they are needed by some other mod or process
+        //using my own maps as the default ones are private final etc
+        ((ModelPartAccessor)this).setChildren(new HashMap<String, ModelPart>(children));
+        ((ModelPartAccessor)this).setCuboids(new ArrayList<Cuboid>(cuboids));
     }
 
     public boolean isEmptyPart = false;
@@ -512,54 +465,11 @@ public class EMF_ModelPart extends ModelPart  {
         }
 
     }
-//    private void createCuboidsFromBoxData(boolean[] invertAxis, boolean removePivotValue) {
-//        if (selfModelData.boxes.length > 0) {
-//            try {
-//                for (EMF_BoxData box :
-//                        selfModelData.boxes) {
-//                    Cuboid cube;
-//                    if (box.textureOffset.length == 2) {
-//
-//                        //create super easy texture offset box
-//                        //todo ensure matches below
-////                        cube = new Cuboid(selfModelData,
-////                                box.textureOffset[0], box.textureOffset[1],
-////                                box.coordinates[0], box.coordinates[1], box.coordinates[2],
-////                                box.coordinates[3], box.coordinates[4], box.coordinates[5],
-////                                box.sizeAdd, box.sizeAdd, box.sizeAdd,
-////                                new boolean[]{selfModelData.mirrorTexture.contains("u"), selfModelData.mirrorTexture.contains("v")},
-////                                selfModelData.textureSize[0], selfModelData.textureSize[1], "");//selfModelData.invertAxis);
-//                        cube=null;
-//                    } else {
-//                        //create annoying custom uv box
-//                        cube = new Cuboid(selfModelData,
-//                                box.uvDown, box.uvUp, box.uvNorth,
-//                                box.uvSouth, box.uvWest, box.uvEast,
-//                                -box.coordinates[0]-box.coordinates[3], -box.coordinates[1]-box.coordinates[4], box.coordinates[2],
-//                                box.coordinates[3], box.coordinates[4], box.coordinates[5],
-//                                box.sizeAdd, box.sizeAdd, box.sizeAdd,
-//                                new boolean[]{selfModelData.mirrorTexture.contains("u"), selfModelData.mirrorTexture.contains("v")},
-//                                selfModelData.textureSize[0], selfModelData.textureSize[1], invertAxis, removePivotValue);//selfModelData.invertAxis);
-//                    }
-//                    cuboids.add(cube);
-//                }
-//
-//            } catch (Exception e) {
-//                EMFUtils.EMF_modMessage("cuboid construction broke: " + e, false);
-//
-//            }
-//        }
-//
-//    }
 
 
 
 
-    @FunctionalInterface
-    @Environment(value = EnvType.CLIENT)
-    public static interface CuboidConsumer {
-        public void accept(MatrixStack.Entry var1, String var2, int var3, EMFCuboid var4);
-    }
+
 
     @Environment(value = EnvType.CLIENT)
     public static class EMFCuboid extends Cuboid{

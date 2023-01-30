@@ -1,16 +1,12 @@
 package traben.entity_model_features.models.vanilla_model_children;
 
-import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.FoxEntityModel;
-import net.minecraft.client.render.entity.model.QuadrupedEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.FoxEntity;
-import traben.entity_model_features.mixin.accessor.AnimalModelAccessor;
-import traben.entity_model_features.mixin.accessor.FoxEntityModelAccessor;
+import traben.entity_model_features.mixin.accessor.entity.FoxEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
-import traben.entity_model_features.mixin.accessor.QuadrupedEntityModelAccessor;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;

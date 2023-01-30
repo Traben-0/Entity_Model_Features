@@ -1,11 +1,10 @@
 package traben.entity_model_features.models.vanilla_model_children;
 
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.VillagerResemblingModel;
 import net.minecraft.client.render.entity.model.WitchEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import traben.entity_model_features.mixin.VillagerResemblingModelAccessor;
+import traben.entity_model_features.mixin.accessor.entity.VillagerResemblingModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomModel;

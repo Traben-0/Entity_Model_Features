@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin;
+package traben.entity_model_features.mixin.accessor.entity;
 
 import net.minecraft.client.render.entity.feature.SaddleFeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
