@@ -19,7 +19,9 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
     public final String originalExpression;
 
     public boolean isValid(){
+
         if(caughtExceptionString != null){
+            System.out.println("ran"+ caughtExceptionString);
             EMFUtils.EMF_modWarn(caughtExceptionString);
             return false;
         }
@@ -274,7 +276,8 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
                 return components.getLast().get();
             }
 
-            if (calculationInstance.verboseMode) print("start calculating [" + originalExpression + "] as [" + components+"].");
+            if (calculationInstance.verboseMode)
+                print("start calculating [" + originalExpression + "] as [" + components+"].");
 
             //reset every calculate
             componentsDuringCalculate = new LinkedList<>(components);
@@ -469,6 +472,7 @@ public class MathExpression extends MathValue implements Supplier<Float>, MathCo
                 float result = componentsDuringCalculate.getLast().get();
                 //lastResultThisTick = result;
                 if (calculationInstance.verboseMode) print(" = " + result);
+                if(Float.isNaN(result)) print(" result was NaN for expression: " + originalExpression+" as "+ components);
                 return result;
             } else {
                 System.out.println("ERROR: calculation did not result in 1 component, found: " + componentsDuringCalculate.toString()+ " in ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].");

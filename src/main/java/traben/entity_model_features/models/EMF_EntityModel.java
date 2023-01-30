@@ -387,12 +387,12 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 //        child = ((LivingEntity)entity).isBaby();
 //        sneaking = entity.isSneaking();
     }
-    float tickDelta = Float.NaN;
+    float tickDelta = 0;
 
     float animationProgress = 0;
     public boolean sneaking = false;
 
-    public float currentAnimationDeltaForThisTick = Float.NaN;
+    public float currentAnimationDeltaForThisTick = 0;
     public boolean calculateForThisAnimationTick = false;
 
     @Override

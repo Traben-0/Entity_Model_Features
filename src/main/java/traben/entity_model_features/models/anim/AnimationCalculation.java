@@ -84,7 +84,7 @@ public class AnimationCalculation {
 
 
     public float getHealth() {
-        return entity == null ? 0 : entity.getHealth();
+        return entity == null ? 1 : entity.getHealth();
     }
     public float getDeathTime() {
         return entity == null ? 0 : entity.deathTime;
@@ -93,7 +93,7 @@ public class AnimationCalculation {
         return entity == null || !(entity instanceof Angerable) ? 0 : ((Angerable)entity).getAngerTime();
     }
     public float getMaxHealth() {
-        return entity == null ? 0 : entity.getMaxHealth();
+        return entity == null ? 1 : entity.getMaxHealth();
     }
     public float getId() {
         return entity == null ? 0 : entity.getUuid().hashCode();
@@ -221,6 +221,7 @@ public class AnimationCalculation {
     public AnimationCalculation(EMF_EntityModel<?> parent, ModelPart part, AnimVar varToChange, String animKey, String initialExpression) {
 
         this.animKey = animKey;
+        isVariable =animKey.startsWith("var");
         this.parentModel = parent;
         this.varToChange = varToChange;
         if(part instanceof EMF_ModelPart emf)
@@ -243,6 +244,8 @@ public class AnimationCalculation {
 
 
     }
+
+    public final boolean isVariable;
 
     private boolean resultIsAngle = false;
     public boolean verboseMode = false;
@@ -344,14 +347,14 @@ public class AnimationCalculation {
 
 
     public void calculateAndSet(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
-
-        float result;
         if (parentModel.calculateForThisAnimationTick) {
-            result = getResultViaCalculate(entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0);
-        }else{
-            result = getResultInterpolateOnly(entity0);
+            handleResult(getResultViaCalculate(entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0));
+        }else if (!isVariable){
+            handleResult(getResultInterpolateOnly(entity0));
         }
+    }
 
+    private void handleResult(float result){
         if(Float.isNaN(result)){
             if(varToChange != null)
                 varToChange.set(modelPart, Float.MAX_VALUE);

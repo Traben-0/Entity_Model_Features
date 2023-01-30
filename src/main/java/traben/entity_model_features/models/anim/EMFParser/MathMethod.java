@@ -4,7 +4,6 @@ import net.minecraft.util.math.MathHelper;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
@@ -204,7 +203,13 @@ public class MathMethod extends MathValue implements MathComponent{
     private Supplier<Float> SQRT(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> (float) Math.sqrt(arg.get());
+            return ()-> {
+                double result = Math.sqrt(arg.get());
+                if(Double.isNaN(result)){
+                    print("ERROR: sqrt() returned NaN.");
+                }
+                return (float) result;
+            };
         }
         String s = "ERROR: wrong number of arguments "+ args +" in SQRT method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -332,13 +337,11 @@ public class MathMethod extends MathValue implements MathComponent{
                 exps.add(new MathExpression(arg,false,calculationInstance));
             }
             return ()-> {
-                float largest = Float.NaN;
+                float largest = Float.MIN_VALUE;
                 for (MathExpression expression:
                         exps) {
                     float get =expression.get();
-                    if(Float.isNaN(largest)){
-                        largest = get;
-                    }else if(get > largest){
+                    if(get > largest){
                         largest = get;
                     }
                 }
@@ -357,13 +360,11 @@ public class MathMethod extends MathValue implements MathComponent{
                 exps.add(new MathExpression(arg,false,calculationInstance));
             }
             return ()-> {
-                float smallest = Float.NaN;
+                float smallest = Float.MAX_VALUE;
                 for (MathExpression expression:
                      exps) {
                     float get =expression.get();
-                    if(Float.isNaN(smallest)){
-                        smallest = get;
-                    }else if(get < smallest){
+                    if(get < smallest){
                         smallest = get;
                     }
                 }
