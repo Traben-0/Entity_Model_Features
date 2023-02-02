@@ -6,23 +6,46 @@ public class EMFConfig {
     public boolean enableCustomEntityModels = true;
     //public float minimunAnimationCalculationRate = 1;
 
-    public float getMinAnimationRateFromFPS(){
+
+    private boolean dontReduceFps = false;
+    public float getAnimationRateFromFPS(float interpolationModifier){
         //if(animationFPS > 144) animationFPS = 144;
-        if(animationFPS < 20) animationFPS = 20;
-
-
+        //if(animationFPS < 20) animationFPS = 20;
+        if(dontReduceFps) return 20f / animationFPS;
         // fps of 20 = 1.0
         // fps of 60 = 0.3333
         // fps of 144 = 0.138888   etc.
-        return 20f / Math.min(animationFPS, MinecraftClient.getInstance().getCurrentFps());
+        float calculatedValue = 20f / Math.min(animationFPS, MinecraftClient.getInstance().getCurrentFps()) + (interpolationModifier > 0 ? interpolationModifier : 0);
+        return  Math.min(calculatedValue, 20f / minimumAnimationFPS);
     }
 
+
+    public float getInterpolationModifiedByDistance(float distanceFromPlayer){
+        //was value / animationRateDistanceDropOffRate;
+        dontReduceFps = (minimumAnimationFPS == animationFPS) || animationRateDistanceDropOffRate == 0;
+        if(dontReduceFps) return 0;
+        float vanillaModifer = MinecraftClient.getInstance().player == null ? 1 :  MinecraftClient.getInstance().player.getFovMultiplier();
+        float fov = MinecraftClient.getInstance().options.getFov().getValue() * vanillaModifer;
+
+        float fovModified;
+        if (fov >= 70 || fov <= 0) {
+            fovModified = (100 - animationRateDistanceDropOffRate);
+        } else {
+            fovModified = (100 - animationRateDistanceDropOffRate) * (70 / fov);//increase value the lower the fov is
+        }
+        return distanceFromPlayer / fovModified;//lower result = higher quality anim
+      //  return distanceFromPlayer / animationRateDistanceDropOffRate
+    }
+
+
+
     public int animationFPS = 30;
+    public float minimumAnimationFPS = 1;
 
     public  VanillaModelRenderMode displayVanillaModelHologram = VanillaModelRenderMode.No;
     public boolean printModelCreationInfoToLog = false;
     public float animationRateMinimumDistanceDropOff = 8;
-    public float animationRateDistanceDropOffRate = 6;
+    public float animationRateDistanceDropOffRate = 94;
 
 
     public boolean printAllMaths = false;

@@ -173,8 +173,8 @@ public class AnimationCalculation {
     }
 
     public float getAge() {
-         return entity == null ? 0 : entity.age + tickDelta;
-        //return animationProgress;
+         //return entity == null ? 0 : entity.age + tickDelta;
+        return animationProgress;
     }
 
     public float getLimbAngle() {

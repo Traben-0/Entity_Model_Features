@@ -409,11 +409,10 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             if (animationProgress >= prevResultsTick.getFloat(id) + interpolationLength) {
                 //vary interpolation length by distance from client
                 if (MinecraftClient.getInstance().player != null) {
-                    float val = ((entity.distanceTo(MinecraftClient.getInstance().player) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff)
-                            / EMFData.getInstance().getConfig().animationRateDistanceDropOffRate);// LOWER == lower quality
-                    prevInterp.put(id, EMFData.getInstance().getConfig().getMinAnimationRateFromFPS() + (val > 0 ? val : 0));
+                    float val = EMFData.getInstance().getConfig().getInterpolationModifiedByDistance((entity.distanceTo(MinecraftClient.getInstance().player) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff));
+                    prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(val) );
                 } else {
-                    prevInterp.put(id, EMFData.getInstance().getConfig().getMinAnimationRateFromFPS());
+                    prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
                 }
 
                 prevResultsTick.put(id, getNextPrevResultTickValue());//entity.age + tickDelta);
@@ -453,7 +452,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         defaultReturnValue(-100);
     }};
     Object2FloatOpenHashMap<UUID> prevInterp = new Object2FloatOpenHashMap<>(){{
-        defaultReturnValue(EMFData.getInstance().getConfig().getMinAnimationRateFromFPS());
+        defaultReturnValue(EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
     }};
 
     @Override

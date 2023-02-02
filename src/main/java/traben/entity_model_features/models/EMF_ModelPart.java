@@ -395,6 +395,9 @@ public class EMF_ModelPart extends ModelPart  {
         }
         isEmptyPart = cuboids.isEmpty() && emptyChildren;
 
+//        if("right_arm".equals(selfModelData.part)){
+//            System.out.println("empty="+isEmptyPart);
+//        }
         //give the super our children and cuboids incase they are needed by some other mod or process
         //using my own maps as the default ones are private final etc
         ((ModelPartAccessor)this).setChildren(new HashMap<String, ModelPart>(children));

@@ -1,7 +1,5 @@
 package traben.entity_model_features.config;
 
-import com.terraformersmc.modmenu.api.ConfigScreenFactory;
-import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl.api.ConfigCategory;
 import dev.isxander.yacl.api.Option;
 import dev.isxander.yacl.api.YetAnotherConfigLib;
@@ -105,10 +103,20 @@ public class EMFYACL{
                                 .controller((val)->new FloatSliderController(val,1,128,1f))
                                 .build())
                         .option(Option.createBuilder(float.class)
+                                .name(Text.of("min animation fps"))
+                                .tooltip(Text.of("")) // optional
+                                .binding(
+                                        1f, // default
+                                        () -> EMFData.getInstance().getConfig().minimumAnimationFPS, // getter
+                                        newValue -> EMFData.getInstance().getConfig().minimumAnimationFPS = newValue // setter
+                                )
+                                .controller((val)->new FloatSliderController(val,0,20,0.1f))
+                                .build())
+                        .option(Option.createBuilder(float.class)
                                 .name(Text.of("animation quality drop off rate"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(
-                                        6f, // default
+                                        94f, // default
                                         () -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate, // getter
                                         newValue -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate = newValue // setter
                                 )
