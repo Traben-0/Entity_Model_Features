@@ -8,10 +8,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.CatEntity;
-import net.minecraft.entity.passive.ParrotEntity;
+import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.dimension.DimensionTypes;
@@ -42,39 +41,41 @@ public class AnimationCalculation {
     }
 
     public float getPlayerX(){
-        return MinecraftClient.getInstance().player == null ? 0: (float) MinecraftClient.getInstance().player.getX();
+        return MinecraftClient.getInstance().player == null ? 0: (float) MathHelper.lerp(tickDelta, MinecraftClient.getInstance().player.prevX,MinecraftClient.getInstance().player.getX());
     }
     public float getPlayerY(){
-        return MinecraftClient.getInstance().player == null ? 0: (float) MinecraftClient.getInstance().player.getY();
+        return MinecraftClient.getInstance().player == null ? 0: (float) MathHelper.lerp(tickDelta, MinecraftClient.getInstance().player.prevY,MinecraftClient.getInstance().player.getY());
     }
     public float getPlayerZ(){
-        return MinecraftClient.getInstance().player == null ? 0: (float) MinecraftClient.getInstance().player.getZ();
+        return MinecraftClient.getInstance().player == null ? 0: (float) MathHelper.lerp(tickDelta, MinecraftClient.getInstance().player.prevZ,MinecraftClient.getInstance().player.getZ());
     }
     public float getPlayerRX(){
         return (MinecraftClient.getInstance().player == null) ? 0 :
-                (float) Math.toRadians(MinecraftClient.getInstance().player.getPitch(tickDelta));
+                (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, MinecraftClient.getInstance().player.prevPitch,MinecraftClient.getInstance().player.getPitch()));
     }
     public float getPlayerRY(){
         return (MinecraftClient.getInstance().player == null) ? 0 :
-                (float) Math.toRadians(MinecraftClient.getInstance().player.getYaw(tickDelta));
+                (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, MinecraftClient.getInstance().player.prevYaw,MinecraftClient.getInstance().player.getYaw()));
     }
     public float getEntityX(){
-        return getEntity() == null ? 0: (float) getEntity().getX();
+        return getEntity() == null ? 0: (float) MathHelper.lerp (getTickDelta(),getEntity().prevX ,getEntity().getX());
     }
     public float getEntityY(){
         return getEntity() == null ? 0:
-                (float)getEntity().getY();// MathHelper.lerp (getTickDelta(), ,getEntity().getY() + getEntity().getVelocity().y);
+                //(float) getEntity().getY();
+                (float) MathHelper.lerp (getTickDelta(),getEntity().prevY ,getEntity().getY());
     }
     public float getEntityZ(){
-        return getEntity() == null ? 0: (float) getEntity().getZ();
+        return getEntity() == null ? 0: (float) MathHelper.lerp (getTickDelta(),getEntity().prevZ ,getEntity().getZ());
     }
     public float getEntityRX(){
         return (getEntity() == null) ? 0 :
-                (float) Math.toRadians(getEntity().getPitch(tickDelta));
+                //(float) Math.toRadians(getEntity().getPitch(tickDelta));
+                (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, getEntity().prevPitch,getEntity().getPitch()));
     }
     public float getEntityRY(){
-        return (getEntity() == null) ? 0 :
-                (float) Math.toRadians(getEntity().getYaw(tickDelta));
+        return (getEntity() instanceof LivingEntity alive) ?
+                (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, alive.prevBodyYaw,alive.getBodyYaw()) ) : 0;
     }
 
     //long changed to float... should be fine tbh
@@ -85,16 +86,16 @@ public class AnimationCalculation {
 
 
     public float getHealth() {
-        return entity == null ? 1 : entity.getHealth();
+        return entity instanceof LivingEntity alive ? alive.getHealth() : 1;
     }
     public float getDeathTime() {
-        return entity == null ? 0 : entity.deathTime;
+        return entity instanceof LivingEntity alive ? alive.deathTime : 0;
     }
     public float getAngerTime() {
         return entity == null || !(entity instanceof Angerable) ? 0 : ((Angerable)entity).getAngerTime();
     }
     public float getMaxHealth() {
-        return entity == null ? 1 : entity.getMaxHealth();
+        return entity instanceof LivingEntity alive ? alive.getMaxHealth() : 1;
     }
     public float getId() {
         return entity == null ? 0 : entity.getUuid().hashCode();
@@ -102,7 +103,7 @@ public class AnimationCalculation {
 
 
     public float getHurtTime() {
-        return entity == null ? 0 : entity.hurtTime;
+        return entity instanceof LivingEntity alive ? alive.hurtTime : 0;
     }
     public boolean isInWater() {
         return entity != null && entity.isTouchingWater();
@@ -111,11 +112,12 @@ public class AnimationCalculation {
         return entity != null && entity.isOnFire();
     }
     public boolean isRiding() {
-        return entity != null && entity.hasVehicle();
+        return parentModel.riding;
+       // return entity != null && entity.hasVehicle();
     }
 
     public boolean isChild() {
-        return entity != null && entity.isBaby();
+        return entity instanceof LivingEntity alive && alive.isBaby();
     }
     public boolean isOnGround() {
         return entity != null && entity.isOnGround();
@@ -129,14 +131,12 @@ public class AnimationCalculation {
     public boolean isGlowing() {
         return entity != null && entity.isGlowing();
     }
-    public boolean isHurt() {return entity != null && entity.hurtTime > 0;}
+    public boolean isHurt() {return entity instanceof LivingEntity alive && alive.hurtTime > 0;}
     public boolean isInHand() {return false;}
     public boolean isInItemFrame() {
         return false;
     }
-    public boolean isInGround() {
-        return false;
-    }
+    public boolean isInGround() {return entity instanceof ArrowEntity arrow && arrow.isOnGround();}
     public boolean isInGui() {
         return false;
     }
@@ -154,12 +154,11 @@ public class AnimationCalculation {
     }
     public boolean isRidden() {return entity != null && entity.hasPassengers();}
     public boolean isSitting() {
-        return entity != null &&
-                (
-                 (entity instanceof ParrotEntity parrot && parrot.isSitting()) ||
-                 (entity instanceof CatEntity cat && cat.isSitting()) ||
-                 (entity instanceof WolfEntity wolf && wolf.isSitting())
-                );
+        return entity != null && (
+                entity instanceof TameableEntity tame && tame.isSitting() ||
+                        entity instanceof FoxEntity fox && fox.isSitting()
+
+        );
     }
     public boolean isSneaking() {
         return entity != null && entity.isSneaking();
@@ -172,7 +171,7 @@ public class AnimationCalculation {
         return entity != null && entity.isWet();
     }
     public float getSwingProgress() {
-        return  entity == null ? 0 : entity.getHandSwingProgress(tickDelta);
+        return  entity instanceof LivingEntity alive ? alive.getHandSwingProgress(tickDelta) : 0;
     }
 
     public float getAge() {
@@ -202,7 +201,7 @@ public class AnimationCalculation {
         return tickDelta;
     }
 
-    LivingEntity entity;
+    Entity entity;
     float limbAngle=0;
     float limbDistance=0;
     float animationProgress=0;

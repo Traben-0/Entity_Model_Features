@@ -5,7 +5,7 @@ import net.minecraft.client.render.entity.model.FoxEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.FoxEntity;
-import traben.entity_model_features.mixin.accessor.entity.FoxEntityModelAccessor;
+import traben.entity_model_features.mixin.accessor.entity.model.FoxEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;

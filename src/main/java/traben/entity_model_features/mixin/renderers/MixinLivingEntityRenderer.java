@@ -25,7 +25,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.mixin.accessor.entity.*;
+import traben.entity_model_features.mixin.accessor.entity.feature.HorseArmorFeatureRendererAccessor;
+import traben.entity_model_features.mixin.accessor.entity.feature.LlamaDecorFeatureRendererAccessor;
+import traben.entity_model_features.mixin.accessor.entity.feature.SaddleFeatureRendererAccessor;
+import traben.entity_model_features.mixin.accessor.entity.feature.SlimeOverlayFeatureRendererAccessor;
+import traben.entity_model_features.mixin.accessor.entity.model.PlayerEntityModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
@@ -33,7 +37,6 @@ import traben.entity_model_features.models.features.EMFArmorFeatureRenderer;
 import traben.entity_model_features.models.vanilla_model_children.EMFCustomHorseModel;
 import traben.entity_model_features.models.vanilla_model_children.EMFCustomLlamaModel;
 import traben.entity_model_features.models.vanilla_model_children.EMFCustomPlayerModel;
-import traben.entity_model_features.models.vanilla_model_children.EMFCustomSlimeModel;
 
 import java.util.List;
 
@@ -95,8 +98,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                                     features) {
                                 if (feature instanceof SaddleFeatureRenderer saddle) {
                                     ((SaddleFeatureRendererAccessor<T, M>) saddle).setModel(emf$newModel);
-                                    break;
+
                                 }
+                                break;
                             }
                         }
                         if (livingEntity instanceof AbstractHorseEntity && emf$newModel instanceof EMFCustomHorseModel) {
@@ -106,8 +110,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                                     M model = emfData.getModelVariant(null,"horse_armor", getModel());
                                     if (model != null) {
                                         ((HorseArmorFeatureRendererAccessor) armr).setModel((HorseEntityModel<HorseEntity>) model);
-                                        break;
+
                                     }
+                                    break;
                                 }
                             }
                         }
@@ -118,20 +123,22 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                                     M llama_decor = emfData.getModelVariant(null,"llama_decor", getModel());
                                     if (llama_decor != null) {
                                         ((LlamaDecorFeatureRendererAccessor) decor).setModel((LlamaEntityModel<LlamaEntity>) llama_decor);
-                                        break;
+
                                     }
+                                    break;
                                 }
                             }
                         }
-                        if (livingEntity instanceof SlimeEntity && emf$newModel instanceof EMFCustomSlimeModel<?>) {
+
+                        if (livingEntity instanceof SlimeEntity && emf$newModel instanceof EMFCustomModel) {
                             for (FeatureRenderer<?, ?> feature :
                                     features) {
                                 if (feature instanceof SlimeOverlayFeatureRenderer over) {
-                                    EntityModel<T> slime_outer = emfData.getModelVariant(null,"slime_outer", getModel());
+                                    EntityModel<T> slime_outer = emfData.getModelVariant(null, "slime_outer", getModel());
                                     if (slime_outer != null) {
                                         ((SlimeOverlayFeatureRendererAccessor) over).setModel(slime_outer);
-                                        break;
                                     }
+                                    break;
                                 }
                             }
                         }

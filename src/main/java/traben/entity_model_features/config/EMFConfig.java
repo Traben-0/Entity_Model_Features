@@ -16,6 +16,7 @@ public class EMFConfig {
         // fps of 60 = 0.3333
         // fps of 144 = 0.138888   etc.
         float calculatedValue = 20f / Math.min(animationFPS, MinecraftClient.getInstance().getCurrentFps()) + (interpolationModifier > 0 ? interpolationModifier : 0);
+        //System.out.println("fps"+Math.min(calculatedValue, 20f / minimumAnimationFPS));
         return  Math.min(calculatedValue, 20f / minimumAnimationFPS);
     }
 
@@ -33,6 +34,7 @@ public class EMFConfig {
         } else {
             fovModified = (16 - animationRateDistanceDropOffRate) * (70 / fov);//increase value the lower the fov is
         }
+
         return distanceFromPlayer / fovModified;//lower result = higher quality anim
       //  return distanceFromPlayer / animationRateDistanceDropOffRate
     }

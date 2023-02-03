@@ -22,7 +22,7 @@ import net.minecraft.util.math.MathHelper;
 import org.joml.Quaternionf;
 import traben.entity_model_features.EMFData;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.mixin.accessor.entity.AnimalModelAccessor;
+import traben.entity_model_features.mixin.accessor.entity.model.AnimalModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
@@ -211,9 +211,8 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 AnimationCalculation.AnimVar variableToGet;
                 try {
                     variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
-                    float value = variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName).part());
-                    if (key.contains("arm")) System.out.println(key + "=" + value);
-                    return value;
+                    //if (key.contains("arm")) System.out.println(key + "=" + value);
+                    return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName).part());
                 } catch (IllegalArgumentException e) {
                     EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
                     return 0;

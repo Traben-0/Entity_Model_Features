@@ -4,12 +4,15 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.EMFData;
 import traben.entity_model_features.mixin.accessor.*;
-import traben.entity_model_features.mixin.accessor.entity.*;
+import traben.entity_model_features.mixin.accessor.entity.model.*;
+import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 
 public class VanillaMappings {
 
@@ -17,7 +20,7 @@ public class VanillaMappings {
     private static final HashMap<Integer, VanillaMapper> mappers = new HashMap<>();
 
     VanillaMappings(){
-        //todo init vanilla mappers to lessen actual runtime load
+        //todo api for modded mappings that for some reason dont extend single part entity model
     }
 
 
@@ -31,10 +34,20 @@ public class VanillaMappings {
     }
 
     private static VanillaMapper discoverMappingToUse(EntityModel<?> vanillaModel){
+
+        if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("getting vanilla model map...");
 //        if (vanillaModel instanceof AllayEntityModel) {
 //            return VanillaMappings::getAllayMap;
 //        }
+        //todo this should really be optimized but the instanceof logic is very much needed for support for some mod entities
 
+        //todo needs to extend to all vanilla mobs and confirm OptiFine part name mappings
+        if (vanillaModel instanceof SalmonEntityModel) {
+            return VanillaMappings::getSalmonMap;
+        }
+        if (vanillaModel instanceof CodEntityModel) {
+            return VanillaMappings::getCodMap;
+        }
         if (vanillaModel instanceof SlimeEntityModel) {
             return VanillaMappings::getSlimeMap;
         }
@@ -171,6 +184,31 @@ public class VanillaMappings {
 //        }
 //        return vanillaPartsList;
 //    }
+
+
+    private static HashMap<String, ModelAndParent> getCodMap(EntityModel<?> vanillaModel){
+        //# cod                      body, fin_back, head, nose, fin_right, fin_left, tail
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        vanillaPartsList.put("tail",vanillaPartsList.get("tail_fin"));
+        vanillaPartsList.put("fin_back",vanillaPartsList.get("top_fin"));
+        vanillaPartsList.put("right_fin",vanillaPartsList.get("fin_right"));
+        vanillaPartsList.put("left_fin",vanillaPartsList.get("fin_left"));
+
+        return vanillaPartsList;
+    }
+    private static HashMap<String, ModelAndParent> getSalmonMap(EntityModel<?> vanillaModel){
+        //# salmon                   body_front, body_back, head, fin_back_1, fin_back_2, tail, fin_right, fin_left
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        vanillaPartsList.put("fin_back_1",vanillaPartsList.get("top_front_fin"));
+        vanillaPartsList.put("fin_back_2",vanillaPartsList.get("top_back_fin"));
+        vanillaPartsList.put("fin_right",vanillaPartsList.get("right_fin"));
+        vanillaPartsList.put("fin_left",vanillaPartsList.get("left_fin"));
+        vanillaPartsList.put("tail",vanillaPartsList.get("back_fin"));
+
+        return vanillaPartsList;
+    }
+
+
 
 
     private static HashMap<String, ModelAndParent> getHoglinMap(EntityModel<?> vanillaModel){

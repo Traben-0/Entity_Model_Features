@@ -6,7 +6,7 @@ import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.ModelWithHat;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import traben.entity_model_features.mixin.accessor.entity.BipedEntityModelAccessor;
+import traben.entity_model_features.mixin.accessor.entity.model.BipedEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomModel;

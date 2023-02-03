@@ -6,7 +6,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.IllagerEntity;
 import net.minecraft.util.Arm;
-import traben.entity_model_features.mixin.accessor.entity.IllagerEntityModelAccessor;
+import traben.entity_model_features.mixin.accessor.entity.model.IllagerEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomModel;
