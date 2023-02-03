@@ -6,7 +6,6 @@ import dev.isxander.yacl.api.YetAnotherConfigLib;
 import dev.isxander.yacl.gui.controllers.BooleanController;
 import dev.isxander.yacl.gui.controllers.cycling.EnumController;
 import dev.isxander.yacl.gui.controllers.slider.FloatSliderController;
-import dev.isxander.yacl.gui.controllers.slider.IntegerSliderController;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -15,6 +14,10 @@ import traben.entity_model_features.EMFData;
 public class EMFYACL{
 
     public static Screen createGui(Screen parent) {
+
+
+
+
         return YetAnotherConfigLib.createBuilder()
                 .title(Text.of("Entity Model features"))
                 .category(ConfigCategory.createBuilder()
@@ -81,16 +84,16 @@ public class EMFYACL{
                                 )
                                 .controller(BooleanController::new)
                                 .build())
-                        .option(Option.createBuilder(int.class)
-                                .name(Text.of("animation rate per second"))
-                                .tooltip(Text.of("")) // optional
+                        .option(Option.createBuilder(EMFConfig.AnimationRatePerSecondMode.class)
+                                .name(Text.of("animation rate: "))
+                                .tooltip(Text.of("actual value is always limited by fps")) // optional
                                 .binding(
-                                        30, // default
-                                        () -> EMFData.getInstance().getConfig().animationFPS, // getter
-                                        newValue -> EMFData.getInstance().getConfig().animationFPS = newValue // setter
+                                        EMFConfig.AnimationRatePerSecondMode.Sixty_tps, // default
+                                        () -> EMFData.getInstance().getConfig().animationRate, // getter
+                                        newValue -> EMFData.getInstance().getConfig().animationRate = newValue // setter
 
                                 )
-                                .controller((val)->new IntegerSliderController(val,20,144,1))
+                                .controller((val)->new EnumController<EMFConfig.AnimationRatePerSecondMode>(val , enumConstant -> Text.of(enumConstant.toString()) ))
                                 .build())
                         .option(Option.createBuilder(float.class)
                                 .name(Text.of("minimum animation drop off distance"))
@@ -120,7 +123,7 @@ public class EMFYACL{
                                         () -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate, // getter
                                         newValue -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate = newValue // setter
                                 )
-                                .controller((val)->new FloatSliderController(val,1,16,1f))
+                                .controller((val)->new FloatSliderController(val,0,16,1f))
                                 .build())
                         .option(Option.createBuilder(EMFConfig.SpawnAnimation.class)
                                 .name(Text.of("SPAWN ANIMATION"))

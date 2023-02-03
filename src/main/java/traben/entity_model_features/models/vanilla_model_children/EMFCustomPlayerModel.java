@@ -60,63 +60,65 @@ public class EMFCustomPlayerModel<T extends LivingEntity> extends PlayerEntityMo
 
         for (EMF_ModelPart part:
              thisEMFModel.childrenMap.values()) {
-            switch (part.selfModelData.part){
-                case "headwear"->{
-                    headWearCandidates.add(part);
-                }
-                case "head"->{
-                    headCandidates.add(part);
-                }
-                case "body"->{
-                    bodyCandidates.add(part);
-                }
-                case "left_arm"->{
-                    lArmCandidates.add(part);
-                }
-                case "left_leg"->{
-                    lLegCandidates.add(part);
-                }
+            if(part.selfModelData.part != null) {
+                switch (part.selfModelData.part) {
+                    case "headwear" -> {
+                        headWearCandidates.add(part);
+                    }
+                    case "head" -> {
+                        headCandidates.add(part);
+                    }
+                    case "body" -> {
+                        bodyCandidates.add(part);
+                    }
+                    case "left_arm" -> {
+                        lArmCandidates.add(part);
+                    }
+                    case "left_leg" -> {
+                        lLegCandidates.add(part);
+                    }
 //                case "left_arm_slim"->{
 //                    lArmCandidates_slim.add(part);
 //                }
 //                case "right_arm_slim"->{
 //                    rArmCandidates_slim.add(part);
 //                }
-                case "right_arm"->{
-                    rArmCandidates.add(part);
-                }
-                case "right_leg"->{
-                    rLegCandidates.add(part);
-                }
-                case "jacket"->{
-                    bodyXCandidates.add(part);
-                }
-                case "left_sleeve"->{
-                    lArmXCandidates.add(part);
-                }
-                case "left_pants"->{
-                    lLegXCandidates.add(part);
-                }
-                case "right_sleeve"->{
-                    rArmXCandidates.add(part);
-                }
-                case "right_pants"->{
-                    rLegXCandidates.add(part);
-                }
-                case "ears"->{
-                    earsCandidates.add(part);
-                }
-                case "cape"->{
-                    capeCandidates.add(part);
-                }
+                    case "right_arm" -> {
+                        rArmCandidates.add(part);
+                    }
+                    case "right_leg" -> {
+                        rLegCandidates.add(part);
+                    }
+                    case "jacket" -> {
+                        bodyXCandidates.add(part);
+                    }
+                    case "left_sleeve" -> {
+                        lArmXCandidates.add(part);
+                    }
+                    case "left_pants" -> {
+                        lLegXCandidates.add(part);
+                    }
+                    case "right_sleeve" -> {
+                        rArmXCandidates.add(part);
+                    }
+                    case "right_pants" -> {
+                        rLegXCandidates.add(part);
+                    }
+                    case "ears" -> {
+                        earsCandidates.add(part);
+                    }
+                    case "cape" -> {
+                        capeCandidates.add(part);
+                    }
 //                case "left_sleeve_slim"->{
 //                    lArmXCandidates_slim.add(part);
 //                }
 //                case "right_sleeve_slim"->{
 //                    rArmXCandidates_slim.add(part);
 //                }
-                default->{
+                    default -> {
 
+                    }
                 }
             }
         }

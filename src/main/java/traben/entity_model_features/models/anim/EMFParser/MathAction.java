@@ -1,7 +1,5 @@
 package traben.entity_model_features.models.anim.EMFParser;
 
-import net.fabricmc.loader.api.FabricLoader;
-
 public enum MathAction  implements MathComponent{
     add,
     subtract,
@@ -41,7 +39,7 @@ public enum MathAction  implements MathComponent{
     }
 
     @Override
-    public Float get() throws EMFMathException {
+    public float get() throws EMFMathException {
         throw new EMFMathException("ERROR: math action incorrectly called ["+this+"].");
        // return Double.NaN;
     }

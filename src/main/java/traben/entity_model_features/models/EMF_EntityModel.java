@@ -409,35 +409,39 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         currentEntity = entity;
         if(entity != null) {
             UUID id = entity.getUuid();
-            float interpolationLength = prevInterp.getFloat(id);
-
-            if (animationProgress >= prevResultsTick.getFloat(id) + interpolationLength) {
-                //vary interpolation length by distance from client
-                if (MinecraftClient.getInstance().player != null) {
-                    float val = EMFData.getInstance().getConfig().getInterpolationModifiedByDistance((entity.distanceTo(MinecraftClient.getInstance().player) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff));
-                    prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(val) );
-                } else {
-                    prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
-                }
-
-                prevResultsTick.put(id, getNextPrevResultTickValue());//entity.age + tickDelta);
+            if (EMFData.getInstance().getConfig().animationRate == EMFConfig.AnimationRatePerSecondMode.Every_frame && EMFData.getInstance().getConfig().animationRateDistanceDropOffRate == 0) {
                 calculateForThisAnimationTick = true;
-                //currentAnimationDeltaForThisTick = 0f;
-            } else if (animationProgress < prevResultsTick.getFloat(id) - 100 - interpolationLength) {
-                //this is required as animation progress resets with the entity entering render distance
-                //todo possibly use world time ticks instead ??
-                prevResultsTick.put(id, -100);
-
-                //interpolate easier as will calculate next tick
-                calculateForThisAnimationTick = false;
-                // currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
+                currentAnimationDeltaForThisTick = 0;
             } else {
-                //interpolate
-                calculateForThisAnimationTick = false;
-                //currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
-            }
-            currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
+                float interpolationLength = prevInterp.getFloat(id);
 
+                if (animationProgress >= prevResultsTick.getFloat(id) + interpolationLength) {
+                    //vary interpolation length by distance from client
+                    if (MinecraftClient.getInstance().player != null) {
+                        float val = EMFData.getInstance().getConfig().getInterpolationModifiedByDistance((entity.distanceTo(MinecraftClient.getInstance().player) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff));
+                        prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(val));
+                    } else {
+                        prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
+                    }
+
+                    prevResultsTick.put(id, getNextPrevResultTickValue());//entity.age + tickDelta);
+                    calculateForThisAnimationTick = true;
+                    //currentAnimationDeltaForThisTick = 0f;
+                } else if (animationProgress < prevResultsTick.getFloat(id) - 100 - interpolationLength) {
+                    //this is required as animation progress resets with the entity entering render distance
+                    //todo possibly use world time ticks instead ??
+                    prevResultsTick.put(id, -100);
+
+                    //interpolate easier as will calculate next tick
+                    calculateForThisAnimationTick = false;
+                    // currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
+                } else {
+                    //interpolate
+                    calculateForThisAnimationTick = false;
+                    //currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
+                }
+                currentAnimationDeltaForThisTick = ((animationProgress - prevResultsTick.getFloat(id)) / interpolationLength);
+            }
             vanillaModel.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
 
             alreadyCalculatedThisTickAnimations.clear();
@@ -508,25 +512,24 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
 
     public void setVisibleToplvl(boolean setTo){
-        for (EMF_ModelPart part:
-                this.childrenMap.values()) {
+        this.childrenMap.forEach((key,part)->{
             part.visible = setTo;
-        }
+            part.visibilityIsOveridden = true;
+            //System.out.println("made"+key+setTo);
+        });
+
     }
     public void setVisibleToplvl(Set<String> partNames, boolean setTo){
         //Map<String,EMF_CustomModelPart<T>> parts = getAllParts();
 
-        for (String name:
-                partNames) {
-            //System.out.println("matcching:"+name+", "+childrenMap.keySet());
-            if(childrenMap.containsKey(name)){
-                //System.out.println("match");
-                EMF_ModelPart part = childrenMap.get(name);
-
-                if(part != null)
-                    part.visible = setTo;
+        childrenMap.forEach((key,part)->{
+            if(partNames.contains(key) && part != null){
+                part.visible = setTo;
+                part.visibilityIsOveridden = true;
+                //System.out.println("made2"+key+setTo);
             }
-        }
+        });
+
     }
 
     public EMF_EntityModel<T> getArmourModel(boolean getInner){

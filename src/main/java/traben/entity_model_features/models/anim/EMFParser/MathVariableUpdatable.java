@@ -3,14 +3,12 @@ package traben.entity_model_features.models.anim.EMFParser;
 import traben.entity_model_features.models.EMF_ModelPart;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 
-import java.util.function.Supplier;
 
 
+public class MathVariableUpdatable extends MathValue implements  MathComponent{
 
-public class MathVariableUpdatable extends MathValue implements Supplier<Float> , MathComponent{
 
-
-    Supplier<Float> valueSupplier;
+    ValueSupplier valueSupplier;
 
 
     final String variableName;
@@ -58,7 +56,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
             case "id" -> calculationInstance::getId;
 
             //constants
-            case "pi" -> ()->(float)Math.PI;//3.1415926f;
+            case "pi" -> ()->PI;//3.1415926f;
             case "true" ->  ()-> invertBooleans ? 0f : 1f;
             case "false" -> ()-> invertBooleans ? 1f : 0f;
 
@@ -92,8 +90,10 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
         };
     }
 
+    final float PI = (float) Math.PI;
 
-    private Supplier<Float> getVariable(String variableKey) throws EMFMathException {
+
+    private ValueSupplier getVariable(String variableKey) throws EMFMathException {
 
         //todo there exists potential here to store the value here to prevent unnecessary repeated method calls with so many args, it is currently cached after the method calls
 
@@ -110,7 +110,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
 //            } else {
                 EMF_ModelPart partParent = calculationInstance.modelPart == null? null : calculationInstance.modelPart.parent;
                 isOtherAnimVariable = true;
-                return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent, variableKey, calculationInstance.getEntity());
+                return () -> calculationInstance.parentModel.getAnimationResultOfKey(partParent, variableKey, calculationInstance.getEntity());
 
 //            }
 
@@ -118,18 +118,18 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
         //process float variable  e.g.   var.asdf
         if(variableKey.matches("var\\.\\w+")) {
             if (variableKey.equals(calculationInstance.animKey)) {
-                return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
+                return () ->  (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
             }else {
                // EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
                 isOtherAnimVariable = true;
-                return () -> (float) calculationInstance.parentModel.getAnimationResultOfKeyOptimiseForVariable(variableKey,calculationInstance.getEntity());
+                return () -> calculationInstance.parentModel.getAnimationResultOfKeyOptimiseForVariable(variableKey,calculationInstance.getEntity());
             }
 
         }
         //process boolean variable  e.g.   varb.asdf
         if(variableKey.matches("varb\\.\\w+")) {
             if (variableKey.equals(calculationInstance.animKey)) {
-                return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
+                return () -> (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
             }else {
                 //EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
                 isOtherAnimVariable = true;
@@ -143,7 +143,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
     }
 
 
-    private Supplier<Float> getBooleanAsFloat(Supplier<Boolean> boolGetter){
+    private ValueSupplier getBooleanAsFloat(BoolSupplierPrimitive boolGetter){
         return ()->{
             boolean value = invertBooleans != boolGetter.get();
 
@@ -152,7 +152,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
     }
 
     @Override
-    public Supplier<Float> getSupplier() {
+    public ValueSupplier getSupplier() {
         return ()->valueSupplier.get();
     }
 
@@ -161,5 +161,9 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
     @Override
     public String toString() {
         return get()+"";
+    }
+
+    private interface BoolSupplierPrimitive{
+        boolean get();
     }
 }

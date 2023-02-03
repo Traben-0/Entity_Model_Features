@@ -1,11 +1,9 @@
 package traben.entity_model_features.models.anim.EMFParser;
 
-import java.util.IllegalFormatException;
-
 public interface MathComponent{
 
 
-     Float get() throws EMFMathException;
+     float get() throws EMFMathException;
 
 
      class EMFMathException extends Exception {
@@ -21,4 +19,6 @@ public interface MathComponent{
                return errorMsg;
           }
      }
+
+
 }

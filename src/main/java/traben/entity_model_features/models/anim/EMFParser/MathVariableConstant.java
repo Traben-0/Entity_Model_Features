@@ -1,23 +1,23 @@
 package traben.entity_model_features.models.anim.EMFParser;
 
-import java.util.function.Supplier;
+public class MathVariableConstant extends MathValue implements MathComponent{
 
-public class MathVariableConstant extends MathValue implements Supplier<Float> , MathComponent{
-
-    Float hardCodedValue;
+    float hardCodedValue;
 
     public MathVariableConstant(float number, boolean isNegative){
-        super(isNegative, null);
+        super(isNegative);
         hardCodedValue = number;
     }
-
+    public MathVariableConstant(float number){
+        hardCodedValue = number;
+    }
     @Override
-    public Supplier<Float> getSupplier() {
+    public ValueSupplier getSupplier() {
         return ()-> hardCodedValue;
     }
 
     @Override
     public String toString() {
-        return get().toString();
+        return String.valueOf(get());
     }
 }

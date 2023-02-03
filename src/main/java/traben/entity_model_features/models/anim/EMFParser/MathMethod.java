@@ -6,7 +6,6 @@ import traben.entity_model_features.models.anim.AnimationCalculation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Supplier;
 
 public class MathMethod extends MathValue implements MathComponent{
 
@@ -78,16 +77,16 @@ public class MathMethod extends MathValue implements MathComponent{
             case "between" -> BETWEEN(argsList);
             case "equals" -> EQUALS(argsList);
             case "in" -> IN(argsList);
-            default ->{
+            default ->
                 throw new EMFMathException("ERROR: Unknown method ["+methodName+"], rejecting animation expression for ["+calculationInstance.animKey+"].");
-            } //()-> 0d;
+             //()-> 0d;
         };
 
     }
 
 
 
-    private Supplier<Float> IN(List<String> args) throws EMFMathException {
+    private ValueSupplier IN(List<String> args) throws EMFMathException {
         if(args.size() >= 3){
             MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
             List<MathExpression> vals = new ArrayList<>();
@@ -109,7 +108,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> EQUALS(List<String> args) throws EMFMathException {
+    private ValueSupplier EQUALS(List<String> args) throws EMFMathException {
         if(args.size() == 3){
             MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
             MathExpression y = new MathExpression(args.get(1),false,calculationInstance);
@@ -128,7 +127,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> BETWEEN(List<String> args) throws EMFMathException {
+    private ValueSupplier BETWEEN(List<String> args) throws EMFMathException {
         if(args.size() == 3){
             MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
             MathExpression min = new MathExpression(args.get(1),false,calculationInstance);
@@ -148,7 +147,7 @@ public class MathMethod extends MathValue implements MathComponent{
         printCount++;
         return printCount;
     }
-    private Supplier<Float> PRINTB(List<String> args) throws EMFMathException {
+    private ValueSupplier PRINTB(List<String> args) throws EMFMathException {
         if(args.size() == 3){
             String id = args.get(0);
             MathExpression n = new MathExpression(args.get(1),false,calculationInstance);
@@ -165,7 +164,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> PRINT(List<String> args) throws EMFMathException {
+    private ValueSupplier PRINT(List<String> args) throws EMFMathException {
         if(args.size() == 3){
             String id = args.get(0);
             MathExpression n = new MathExpression(args.get(1),false,calculationInstance);
@@ -182,7 +181,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> LERP(List<String> args) throws EMFMathException {
+    private ValueSupplier LERP(List<String> args) throws EMFMathException {
         if(args.size() == 3){
             MathExpression k = new MathExpression(args.get(0),false,calculationInstance);
             MathExpression x = new MathExpression(args.get(1),false,calculationInstance);
@@ -193,17 +192,17 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> FMOD(List<String> args) throws EMFMathException {
+    private ValueSupplier FMOD(List<String> args) throws EMFMathException {
         if(args.size() == 2){
             MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
             MathExpression y = new MathExpression(args.get(1),false,calculationInstance);
-            return ()-> Float.valueOf(Math.floorMod((int) Math.floor(x.get()), (int) Math.floor(y.get())));
+            return ()-> Math.floorMod((int) Math.floor(x.get()), (int) Math.floor(y.get()));
         }
         String s = "ERROR: wrong number of arguments "+ args +" in FMOD method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> SQRT(List<String> args) throws EMFMathException {
+    private ValueSupplier SQRT(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> {
@@ -218,7 +217,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> SIGNUM(List<String> args) throws EMFMathException {
+    private ValueSupplier SIGNUM(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> Math.signum(arg.get());
@@ -227,27 +226,27 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> ROUND(List<String> args) throws EMFMathException {
+    private ValueSupplier ROUND(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> Float.valueOf(Math.round(arg.get()));
+            return ()-> Math.round(arg.get());
         }
         String s = "ERROR: wrong number of arguments "+ args +" in ROUND method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> RANDOM(List<String> args) throws EMFMathException {
+    private ValueSupplier RANDOM(List<String> args) throws EMFMathException {
         if(args.size() ==0 ){
             return ()-> new Random().nextFloat(1);
         }else if(args.size() == 1){
             MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> new Random(x.get().longValue()).nextFloat(1);
+            return ()-> new Random((long) x.get()).nextFloat(1);
         }
         String s = "ERROR: wrong number of arguments "+ args +" in RANDOM method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> POW(List<String> args) throws EMFMathException {
+    private ValueSupplier POW(List<String> args) throws EMFMathException {
         if(args.size() == 2){
             MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
             MathExpression y = new MathExpression(args.get(1),false,calculationInstance);
@@ -257,7 +256,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> LOG(List<String> args) throws EMFMathException {
+    private ValueSupplier LOG(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> (float) Math.log(arg.get());
@@ -266,7 +265,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> FRAC(List<String> args) throws EMFMathException {
+    private ValueSupplier FRAC(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()->{
@@ -278,7 +277,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> EXP(List<String> args) throws EMFMathException {
+    private ValueSupplier EXP(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> (float) Math.exp(arg.get());
@@ -287,7 +286,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> CEIL(List<String> args) throws EMFMathException {
+    private ValueSupplier CEIL(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> (float) Math.ceil(arg.get());
@@ -296,7 +295,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> FLOOR(List<String> args) throws EMFMathException {
+    private ValueSupplier FLOOR(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> (float) Math.floor(arg.get());
@@ -305,7 +304,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> ABS(List<String> args) throws EMFMathException {
+    private ValueSupplier ABS(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> Math.abs(arg.get());
@@ -314,7 +313,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> CLAMP(List<String> args) throws EMFMathException {
+    private ValueSupplier CLAMP(List<String> args) throws EMFMathException {
         if(args.size() == 3){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             MathExpression arg1 = new MathExpression(args.get(1),false,calculationInstance);
@@ -332,7 +331,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> MAX(List<String> args) throws EMFMathException {
+    private ValueSupplier MAX(List<String> args) throws EMFMathException {
         if(args.size() >= 2){
             List<MathExpression> exps = new ArrayList<>();
             for (String arg:
@@ -355,7 +354,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> MIN(List<String> args) throws EMFMathException {
+    private ValueSupplier MIN(List<String> args) throws EMFMathException {
         if(args.size() >= 2){
             List<MathExpression> exps = new ArrayList<>();
             for (String arg:
@@ -378,7 +377,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> TORAD(List<String> args) throws EMFMathException {
+    private ValueSupplier TORAD(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()->{
@@ -391,7 +390,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> TODEG(List<String> args) throws EMFMathException {
+    private ValueSupplier TODEG(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> (float) Math.toDegrees(arg.get());
@@ -400,7 +399,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> SIN(List<String> args) throws EMFMathException {
+    private ValueSupplier SIN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> {
@@ -412,7 +411,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> ASIN(List<String> args) throws EMFMathException {
+    private ValueSupplier ASIN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> (float) Math.asin(arg.get());
@@ -421,7 +420,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> COS(List<String> args) throws EMFMathException {
+    private ValueSupplier COS(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> (float) Math.cos(arg.get());
@@ -430,7 +429,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> ACOS(List<String> args) throws EMFMathException {
+    private ValueSupplier ACOS(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> (float) Math.acos(arg.get());
@@ -439,7 +438,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> TAN(List<String> args) throws EMFMathException {
+    private ValueSupplier TAN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> (float) Math.tan(arg.get());
@@ -448,7 +447,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> ATAN(List<String> args) throws EMFMathException {
+    private ValueSupplier ATAN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             return ()-> (float) Math.atan(arg.get());
@@ -457,7 +456,7 @@ public class MathMethod extends MathValue implements MathComponent{
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private Supplier<Float> ATAN2(List<String> args) throws EMFMathException {
+    private ValueSupplier ATAN2(List<String> args) throws EMFMathException {
         if(args.size() == 2){
             MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
             MathExpression arg2 = new MathExpression(args.get(1),false,calculationInstance);
@@ -468,7 +467,7 @@ public class MathMethod extends MathValue implements MathComponent{
         throw new EMFMathException(s);
     }
 
-    private Supplier<Float> EMF_IF(List<String> args) throws EMFMathException {
+    private ValueSupplier EMF_IF(List<String> args) throws EMFMathException {
 
         if(args.size() == 3){
             //easy if
@@ -524,9 +523,9 @@ public class MathMethod extends MathValue implements MathComponent{
         return methodName;
     }
 
-    Supplier<Float> supplier;
+    ValueSupplier supplier;
     @Override
-    public Supplier<Float> getSupplier() {
+    public ValueSupplier getSupplier() {
         return supplier;
     }
 }

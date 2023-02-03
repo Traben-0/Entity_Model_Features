@@ -69,7 +69,7 @@ public class EMFArmorFeatureRenderer<T extends LivingEntity, M extends EntityMod
         }
     }
 
-    protected void setVisible(EMF_EntityModel<?> model, EquipmentSlot slot) {
+    private void setVisible(EMF_EntityModel<?> model, EquipmentSlot slot) {
         model.setVisibleToplvl(false);
         Set<String> visibles = new HashSet<>();
         switch (slot) {
@@ -93,6 +93,7 @@ public class EMFArmorFeatureRenderer<T extends LivingEntity, M extends EntityMod
                 visibles.add("left_leg");
             }
         }
+        //System.out.println(visibles);
         model.setVisibleToplvl(visibles,true);
     }
 
