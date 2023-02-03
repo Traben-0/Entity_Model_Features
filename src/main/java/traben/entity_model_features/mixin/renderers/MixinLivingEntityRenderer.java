@@ -10,6 +10,7 @@ import net.minecraft.client.render.entity.feature.*;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.HorseEntityModel;
 import net.minecraft.client.render.entity.model.LlamaEntityModel;
+import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Saddleable;
@@ -24,10 +25,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.mixin.accessor.entity.LlamaDecorFeatureRendererAccessor;
-import traben.entity_model_features.mixin.accessor.entity.SaddleFeatureRendererAccessor;
-import traben.entity_model_features.mixin.accessor.entity.HorseArmorFeatureRendererAccessor;
-import traben.entity_model_features.mixin.accessor.entity.SlimeOverlayFeatureRendererAccessor;
+import traben.entity_model_features.mixin.accessor.entity.*;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
@@ -61,14 +59,16 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             EMFData emfData = EMFData.getInstance();
             emfData.alreadyCalculatedForRenderer.put(hashCode(), true);
             //int typeHash = this.hashCode(); // livingEntity.getType().hashCode();
-
+            emf$originalModel = this.model;
             //if (!emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
                 entityTypeName = livingEntity.getType().getName().getString().toLowerCase().replace("\s", "_");
-
+                if(emf$originalModel instanceof PlayerEntityModel plyr && ((PlayerEntityModelAccessor)plyr).isThinArms()){
+                    entityTypeName = entityTypeName + "_slim";
+                }
             //}
            // if (emfData.JEMPATH_CustomModel.containsKey(typeHash)) {
                // if (emfData.JEMPATH_CustomModel.get(typeHash) != null) {
-                    emf$originalModel = this.model;
+
                     //EMF_EntityModel<T> emfSubmodel = emfData.createEMFModel(entityTypeName, typeHash, this.model);
                      emf$newModel = EMFData.getInstance().getModelVariant(livingEntity ,entityTypeName, this.model);
                     if(emf$newModel!= null) {

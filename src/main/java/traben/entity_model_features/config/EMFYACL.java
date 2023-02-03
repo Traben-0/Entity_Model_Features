@@ -116,11 +116,11 @@ public class EMFYACL{
                                 .name(Text.of("animation quality drop off rate"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(
-                                        94f, // default
+                                        8f, // default
                                         () -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate, // getter
                                         newValue -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate = newValue // setter
                                 )
-                                .controller((val)->new FloatSliderController(val,1,100,1f))
+                                .controller((val)->new FloatSliderController(val,1,16,1f))
                                 .build())
                         .option(Option.createBuilder(EMFConfig.SpawnAnimation.class)
                                 .name(Text.of("SPAWN ANIMATION"))

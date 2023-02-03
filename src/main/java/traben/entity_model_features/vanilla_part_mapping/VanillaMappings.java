@@ -34,9 +34,7 @@ public class VanillaMappings {
 //        if (vanillaModel instanceof AllayEntityModel) {
 //            return VanillaMappings::getAllayMap;
 //        }
-        if (vanillaModel instanceof SlimeEntityModel) {
-            return VanillaMappings::getSlimeMap;
-        }
+
         if (vanillaModel instanceof SlimeEntityModel) {
             return VanillaMappings::getSlimeMap;
         }
@@ -662,6 +660,7 @@ public class VanillaMappings {
         }
         return vanillaPartsList;
     }
+
     private static HashMap<String, ModelAndParent> getVillagerMap(EntityModel<?> vanillaModel){
         HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if(vanillaModel instanceof VillagerResemblingModel villager){
@@ -694,6 +693,13 @@ public class VanillaMappings {
     }
 
     public record ModelAndParent(@NotNull ModelPart part, @Nullable String parentName){//<part extends ModelPart,str extends String>() {
-        
+
+        @Override
+        public String toString() {
+            return "ModelAndParent{" +
+                    "part=" + part +
+                    ", parentName='" + parentName + '\'' +
+                    '}';
+        }
     }
 }

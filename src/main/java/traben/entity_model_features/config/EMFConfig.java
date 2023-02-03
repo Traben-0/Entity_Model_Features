@@ -29,9 +29,9 @@ public class EMFConfig {
 
         float fovModified;
         if (fov >= 70 || fov <= 0) {
-            fovModified = (100 - animationRateDistanceDropOffRate);
+            fovModified = (16 - animationRateDistanceDropOffRate);
         } else {
-            fovModified = (100 - animationRateDistanceDropOffRate) * (70 / fov);//increase value the lower the fov is
+            fovModified = (16 - animationRateDistanceDropOffRate) * (70 / fov);//increase value the lower the fov is
         }
         return distanceFromPlayer / fovModified;//lower result = higher quality anim
       //  return distanceFromPlayer / animationRateDistanceDropOffRate

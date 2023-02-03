@@ -117,8 +117,11 @@ public class MathMethod extends MathValue implements MathComponent{
             return ()-> {
                 float X = x.get();
                 float Y = y.get();
+                float BIGGER = Math.max(X,Y);
+                float SMALLER = Math.min(X,Y);
                 float EPSILON = epsilon.get();
-                return X >= Y - EPSILON ? 0 : (X <= Y + EPSILON ? 0 : 1f);
+                return Math.abs(BIGGER - SMALLER) <= EPSILON ? 1f : 0f;
+               // return X >= Y - EPSILON ? 0 : (X <= Y + EPSILON ? 0 : 1f);
             };
         }
         String s = "ERROR: wrong number of arguments "+ args +" in EQUALS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";

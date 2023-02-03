@@ -3,9 +3,7 @@ package traben.entity_model_features.models.anim.EMFParser;
 import traben.entity_model_features.models.EMF_ModelPart;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 
-import java.util.ArrayList;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
 
 
 
@@ -102,19 +100,19 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
         //process model part variable   e.g.  head.rx
         if(variableKey.matches("[a-zA-Z0-9_]+\\.([trs][xyz]$|visible$|visible_boxes$)")){
             //System.out.println("found and setup for otherKey :" + variableKey);
-            if (variableKey.equals(calculationInstance.animKey)) {
-                //todo check this
-                if (calculationInstance.vanillaModelPart != null && calculationInstance.varToChange != null) {
-                    return () -> (float) (calculationInstance.varToChange.getFromVanillaModel(calculationInstance.vanillaModelPart));
-                }else{
-                    return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
-                }
-            } else {
+//            if (variableKey.equals(calculationInstance.animKey)) {
+//                //todo check this
+//                if (calculationInstance.vanillaModelPart != null && calculationInstance.varToChange != null) {
+//                    return () -> (float) (calculationInstance.varToChange.getFromVanillaModel(calculationInstance.vanillaModelPart));
+//                }else{
+//                    return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
+//                }
+//            } else {
                 EMF_ModelPart partParent = calculationInstance.modelPart == null? null : calculationInstance.modelPart.parent;
                 isOtherAnimVariable = true;
                 return () -> (float) calculationInstance.parentModel.getAnimationResultOfKey(partParent, variableKey, calculationInstance.getEntity());
 
-            }
+//            }
 
         }
         //process float variable  e.g.   var.asdf
@@ -122,7 +120,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
             if (variableKey.equals(calculationInstance.animKey)) {
                 return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
             }else {
-                EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
+               // EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
                 isOtherAnimVariable = true;
                 return () -> (float) calculationInstance.parentModel.getAnimationResultOfKeyOptimiseForVariable(variableKey,calculationInstance.getEntity());
             }
@@ -133,7 +131,7 @@ public class MathVariableUpdatable extends MathValue implements Supplier<Float> 
             if (variableKey.equals(calculationInstance.animKey)) {
                 return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
             }else {
-                EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
+                //EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
                 isOtherAnimVariable = true;
                 return () -> (float) (calculationInstance.parentModel.getAnimationResultOfKeyOptimiseForVariable(  variableKey, calculationInstance.getEntity()) == (invertBooleans ? 1 : 0) ? 0 : 1);
             }

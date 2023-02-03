@@ -38,7 +38,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     private final EMF_JemData jemData;
     public final Object2ObjectOpenHashMap<String, EMF_ModelPart> childrenMap = new Object2ObjectOpenHashMap<>();
     public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> animationKeyToCalculatorObject = new Object2ObjectLinkedOpenHashMap<>();
-
+    public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> alreadyCalculatedThisTickAnimations = new Object2ObjectLinkedOpenHashMap<>();
 
 
     private final HashMap<String, VanillaMappings.ModelAndParent> vanillaModelPartsById;
@@ -202,10 +202,24 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             String key,
             Entity entity) {
 
-        //if(key.equals("head.ty")) return -0.5;
-        if (!animationKeyToCalculatorObject.containsKey(key)) {
+        //if(key.contains("arm")) System.out.println(vanillaModelPartsById.keySet());;
+        if (!alreadyCalculatedThisTickAnimations.containsKey(key)) {
+        //if (!animationKeyToCalculatorObject.containsKey(key)) {
             String partName = key.split("\\.")[0];
-            if (getAllParts().containsKey(partName)) {
+
+            if (vanillaModelPartsById.containsKey(partName)) {
+                AnimationCalculation.AnimVar variableToGet;
+                try {
+                    variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
+                    float value = variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName).part());
+                    if (key.contains("arm")) System.out.println(key + "=" + value);
+                    return value;
+                } catch (IllegalArgumentException e) {
+                    EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
+                    return 0;
+                }
+
+            } else if (getAllParts().containsKey(partName)) {
                 AnimationCalculation.AnimVar variableToGet;
                 EMF_ModelPart otherPart = getAllParts().get(partName);
                 try {
@@ -220,25 +234,17 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                     EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
                     return 0;
                 }
+
             } else {
-                if (vanillaModelPartsById.containsKey(partName)) {
-                    AnimationCalculation.AnimVar variableToGet;
-                    try {
-                        variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
-                        return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName).part());
-                    } catch (IllegalArgumentException e) {
-                        EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
-                        return 0;
-                    }
-                } else {
-                    EMFUtils.EMF_modWarn("no animation expression value found for: " + key + " in " + modelPathIdentifier);
-                    //System.out.println(animationKeyToCalculatorObject.keySet());
-                    //System.out.println(vanillaModelPartsById.keySet());
-                    return 0;
-                }
+                EMFUtils.EMF_modWarn("no animation expression value found for: " + key + " in " + modelPathIdentifier);
+                //System.out.println(animationKeyToCalculatorObject.keySet());
+                //System.out.println(vanillaModelPartsById.keySet());
+                return 0;
             }
+
         }
-        return animationKeyToCalculatorObject.get(key).getLastResultOnly((LivingEntity) entity);
+        //return animationKeyToCalculatorObject.get(key).getLastResultOnly((LivingEntity) entity);
+        return alreadyCalculatedThisTickAnimations.get(key).getLastResultOnly((LivingEntity) entity);
     }
     //same as above method but optimized for variable loading as they only exist in animations
     //also as we do not want an unwanted error message unlike the other method
@@ -434,8 +440,11 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
 
             vanillaModel.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+
+            alreadyCalculatedThisTickAnimations.clear();
             animationKeyToCalculatorObject.forEach((key,animationCalculation)->{
                 animationCalculation.calculateAndSet(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
+                alreadyCalculatedThisTickAnimations.put(key,animationCalculation);
             });
 
         }

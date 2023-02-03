@@ -7,6 +7,7 @@ import net.minecraft.client.model.ModelTransform;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.Angerable;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.ParrotEntity;
 import net.minecraft.entity.passive.TameableEntity;
@@ -122,7 +123,9 @@ public class AnimationCalculation {
     public boolean isAlive() {
         return entity != null && entity.isAlive();
     }
-    public boolean isAggressive() {return entity != null && entity.getAttacking() != null;}
+    public boolean isAggressive() {return entity instanceof MobEntity && ((MobEntity) entity).isAttacking();}
+
+
     public boolean isGlowing() {
         return entity != null && entity.isGlowing();
     }

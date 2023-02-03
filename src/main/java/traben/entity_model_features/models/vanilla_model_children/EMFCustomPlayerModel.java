@@ -51,10 +51,10 @@ public class EMFCustomPlayerModel<T extends LivingEntity> extends PlayerEntityMo
         List<EMF_ModelPart> earsCandidates = new ArrayList<>();
 
 
-        List<EMF_ModelPart> rArmCandidates_slim = new ArrayList<>();
-        List<EMF_ModelPart> lArmCandidates_slim = new ArrayList<>();
-        List<EMF_ModelPart> rArmXCandidates_slim = new ArrayList<>();
-        List<EMF_ModelPart> lArmXCandidates_slim = new ArrayList<>();
+//        List<EMF_ModelPart> rArmCandidates_slim = new ArrayList<>();
+//        List<EMF_ModelPart> lArmCandidates_slim = new ArrayList<>();
+//        List<EMF_ModelPart> rArmXCandidates_slim = new ArrayList<>();
+//        List<EMF_ModelPart> lArmXCandidates_slim = new ArrayList<>();
 
 
 
@@ -76,12 +76,12 @@ public class EMFCustomPlayerModel<T extends LivingEntity> extends PlayerEntityMo
                 case "left_leg"->{
                     lLegCandidates.add(part);
                 }
-                case "left_arm_slim"->{
-                    lArmCandidates_slim.add(part);
-                }
-                case "right_arm_slim"->{
-                    rArmCandidates_slim.add(part);
-                }
+//                case "left_arm_slim"->{
+//                    lArmCandidates_slim.add(part);
+//                }
+//                case "right_arm_slim"->{
+//                    rArmCandidates_slim.add(part);
+//                }
                 case "right_arm"->{
                     rArmCandidates.add(part);
                 }
@@ -109,50 +109,50 @@ public class EMFCustomPlayerModel<T extends LivingEntity> extends PlayerEntityMo
                 case "cape"->{
                     capeCandidates.add(part);
                 }
-                case "left_sleeve_slim"->{
-                    lArmXCandidates_slim.add(part);
-                }
-                case "right_sleeve_slim"->{
-                    rArmXCandidates_slim.add(part);
-                }
+//                case "left_sleeve_slim"->{
+//                    lArmXCandidates_slim.add(part);
+//                }
+//                case "right_sleeve_slim"->{
+//                    rArmXCandidates_slim.add(part);
+//                }
                 default->{
 
                 }
             }
         }
 
-        boolean thinArms = ((PlayerEntityModelAccessor)model.vanillaModel).isThinArms();
-        if(thinArms){
-            if(!rArmCandidates_slim.isEmpty()){
-                rArmCandidates.forEach(emf_modelPart -> emf_modelPart.visible = false);
-                rArmCandidates = rArmCandidates_slim;
-            }
-            if(!lArmCandidates_slim.isEmpty()){
-                lArmCandidates.forEach(emf_modelPart -> emf_modelPart.visible = false);
-                lArmCandidates = lArmCandidates_slim;
-            }
-            if(!rArmXCandidates_slim.isEmpty()){
-                rArmXCandidates.forEach(emf_modelPart -> emf_modelPart.visible = false);
-                rArmXCandidates = rArmXCandidates_slim;
-            }
-            if(!lArmXCandidates_slim.isEmpty()){
-                lArmXCandidates.forEach(emf_modelPart -> emf_modelPart.visible = false);
-                lArmXCandidates = lArmXCandidates_slim;
-            }
-        }else{
-            if(!rArmCandidates_slim.isEmpty()){
-                rArmCandidates_slim.forEach(emf_modelPart -> emf_modelPart.visible = false);
-            }
-            if(!lArmCandidates_slim.isEmpty()){
-                lArmCandidates_slim.forEach(emf_modelPart -> emf_modelPart.visible = false);
-            }
-            if(!rArmXCandidates_slim.isEmpty()){
-                rArmXCandidates_slim.forEach(emf_modelPart -> emf_modelPart.visible = false);
-            }
-            if(!lArmXCandidates_slim.isEmpty()){
-                lArmXCandidates_slim.forEach(emf_modelPart -> emf_modelPart.visible = false);
-            }
-        }
+//        boolean thinArms = ((PlayerEntityModelAccessor)model.vanillaModel).isThinArms();
+//        if(thinArms){
+//            if(!rArmCandidates_slim.isEmpty()){
+//                rArmCandidates.forEach(emf_modelPart -> emf_modelPart.visible = false);
+//                rArmCandidates = rArmCandidates_slim;
+//            }
+//            if(!lArmCandidates_slim.isEmpty()){
+//                lArmCandidates.forEach(emf_modelPart -> emf_modelPart.visible = false);
+//                lArmCandidates = lArmCandidates_slim;
+//            }
+//            if(!rArmXCandidates_slim.isEmpty()){
+//                rArmXCandidates.forEach(emf_modelPart -> emf_modelPart.visible = false);
+//                rArmXCandidates = rArmXCandidates_slim;
+//            }
+//            if(!lArmXCandidates_slim.isEmpty()){
+//                lArmXCandidates.forEach(emf_modelPart -> emf_modelPart.visible = false);
+//                lArmXCandidates = lArmXCandidates_slim;
+//            }
+//        }else{
+//            if(!rArmCandidates_slim.isEmpty()){
+//                rArmCandidates_slim.forEach(emf_modelPart -> emf_modelPart.visible = false);
+//            }
+//            if(!lArmCandidates_slim.isEmpty()){
+//                lArmCandidates_slim.forEach(emf_modelPart -> emf_modelPart.visible = false);
+//            }
+//            if(!rArmXCandidates_slim.isEmpty()){
+//                rArmXCandidates_slim.forEach(emf_modelPart -> emf_modelPart.visible = false);
+//            }
+//            if(!lArmXCandidates_slim.isEmpty()){
+//                lArmXCandidates_slim.forEach(emf_modelPart -> emf_modelPart.visible = false);
+//            }
+//        }
 
         //this part makes sure head rotation data is available for armor feature renderer
         // mostly as fresh animations tends to use headwear for rotation instead of head
