@@ -22,8 +22,8 @@ import net.minecraft.util.math.MathHelper;
 import org.joml.Quaternionf;
 import traben.entity_model_features.EMFData;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.mixin.accessor.entity.model.AnimalModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
+import traben.entity_model_features.mixin.accessor.entity.model.AnimalModelAccessor;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
@@ -193,6 +193,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     }
 
 
+
     //called when another animation wants to get "head.tx" or something similar
     //checks if an existing animation has that key and uses it
     // if it's not existing it tries to find the part, be it EMF or vanilla to copy its value
@@ -208,9 +209,26 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             String partName = key.split("\\.")[0];
 
             if (vanillaModelPartsById.containsKey(partName)) {
+
                 AnimationCalculation.AnimVar variableToGet;
                 try {
                     variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
+                    //attempt to cache an interpolating animation variable pointing to the vanilla part so that vanilla values can match EMF interpolation when needed
+                    //////////////////
+                    if(!animationKeyToCalculatorObject.containsKey(key)){
+                        //this means we have not added a custom interpolating variable yet, so add one
+                        AnimationCalculation interpolatingVanillaGetter =  new AnimationCalculation(
+                                this,
+                                getAllParts().get(partName),//null if no mapping is correct
+                                variableToGet,
+                                key,
+                                key);
+                        //add to start of anims for next loop to be able to use interpolating value
+                        animationKeyToCalculatorObject.putAndMoveToFirst(key,interpolatingVanillaGetter);
+                        //now that it has been put this section will not run again for the same vanilla value
+                    }
+                    //////////////////
+
                     //if (key.contains("arm")) System.out.println(key + "=" + value);
                     return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName).part());
                 } catch (IllegalArgumentException e) {
@@ -418,7 +436,11 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 if (animationProgress >= prevResultsTick.getFloat(id) + interpolationLength) {
                     //vary interpolation length by distance from client
                     if (MinecraftClient.getInstance().player != null) {
-                        float val = EMFData.getInstance().getConfig().getInterpolationModifiedByDistance((entity.distanceTo(MinecraftClient.getInstance().player) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff));
+                        //val;
+                        //if(entity == MinecraftClient.getInstance().player)
+                        //    val=0;
+                        //else
+                        float val= EMFData.getInstance().getConfig().getInterpolationModifiedByDistance((entity.distanceTo(MinecraftClient.getInstance().player) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff));
                         prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(val));
                     } else {
                         prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
@@ -445,6 +467,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             vanillaModel.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
 
             alreadyCalculatedThisTickAnimations.clear();
+            //if(entity instanceof BlazeEntity && entity.getRandom().nextInt(50) == 4) System.out.println(animationKeyToCalculatorObject.keySet());
             animationKeyToCalculatorObject.forEach((key,animationCalculation)->{
                 animationCalculation.calculateAndSet(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
                 alreadyCalculatedThisTickAnimations.put(key,animationCalculation);

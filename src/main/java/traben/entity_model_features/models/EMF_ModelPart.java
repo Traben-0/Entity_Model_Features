@@ -80,9 +80,24 @@ public class EMF_ModelPart extends ModelPart  {
         }
     }
 
-
-
-
+    public float getVanillaPivotXWithPossibleVanillaParentTransforms(){
+        if (vanillaParentPart != null){
+            return vanillaPart.pivotX + vanillaParentPart.pivotX;
+        }
+        return vanillaPart.pivotX;
+    }
+    public float getVanillaPivotYWithPossibleVanillaParentTransforms(){
+        if (vanillaParentPart != null){
+            return vanillaPart.pivotY + vanillaParentPart.pivotY;
+        }
+        return vanillaPart.pivotY;
+    }
+    public float getVanillaPivotZWithPossibleVanillaParentTransforms(){
+        if (vanillaParentPart != null){
+            return vanillaPart.pivotZ + vanillaParentPart.pivotZ;
+        }
+        return vanillaPart.pivotZ;
+    }
     public float getPivotXWithPossibleVanillaParentTransforms(){
         if(vanillaParentPart == null){
             return this.pivotX;
@@ -143,9 +158,9 @@ public class EMF_ModelPart extends ModelPart  {
     @Override
     public void rotate(MatrixStack matrices) {
 
-        float pivotX = (doesAnimtx || vanillaPart == null ? getPivotXWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotX +*/ vanillaPart.pivotX );
-        float pivotY = (doesAnimty || vanillaPart == null ? getPivotYWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotY +*/ vanillaPart.pivotY );
-        float pivotZ = (doesAnimtz || vanillaPart == null ? getPivotZWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotZ +*/ vanillaPart.pivotZ );
+        float pivotX = (doesAnimtx || vanillaPart == null ? getPivotXWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotX +*/ getVanillaPivotXWithPossibleVanillaParentTransforms() );
+        float pivotY = (doesAnimty || vanillaPart == null ? getPivotYWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotY +*/ getVanillaPivotYWithPossibleVanillaParentTransforms() );
+        float pivotZ = (doesAnimtz || vanillaPart == null ? getPivotZWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotZ +*/ getVanillaPivotZWithPossibleVanillaParentTransforms() );
 
         float roll  = (doesAnimrz || vanillaPart == null ? getRollWithPossibleVanillaParentTransforms()  : getDefaultTransform().roll  + vanillaPart.roll );
         float yaw   = (doesAnimry || vanillaPart == null ? getYawWithPossibleVanillaParentTransforms()   : getDefaultTransform().yaw   + vanillaPart.yaw  );

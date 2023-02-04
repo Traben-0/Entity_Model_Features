@@ -5,7 +5,7 @@ import net.minecraft.client.render.entity.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.mixin.accessor.*;
+import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.mixin.accessor.entity.model.*;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -406,9 +406,9 @@ public class VanillaMappings {
                 }
                 //Map<String, ModelPart> body_parts = ((ModelPartAccessor) bodyParts.get(0)).getChildren();
                 if (bodyParts.get(0).hasChild("tail"))
-                    vanillaPartsList.put("tail",getEntry(bodyParts.get(0).getChild("tail")));
+                    vanillaPartsList.put("tail",getEntry(bodyParts.get(0).getChild("tail"),"body"));
                 if (bodyParts.get(0).hasChild("saddle"))
-                    vanillaPartsList.put("saddle",getEntry(bodyParts.get(0).getChild("saddle")));
+                    vanillaPartsList.put("saddle",getEntry(bodyParts.get(0).getChild("saddle"),"body"));
 
 
                 vanillaPartsList.put("body",            getEntry(bodyParts.get(0)));
