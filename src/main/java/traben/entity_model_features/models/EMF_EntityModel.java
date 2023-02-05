@@ -25,6 +25,8 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.mixin.accessor.entity.model.AnimalModelAccessor;
 import traben.entity_model_features.models.anim.AnimationCalculation;
+import traben.entity_model_features.models.anim.AnimationGetters;
+import traben.entity_model_features.models.anim.AnimationModelDefaultVariable;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 import traben.entity_model_features.utils.EMFUtils;
@@ -39,9 +41,11 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     public final Object2ObjectOpenHashMap<String, EMF_ModelPart> childrenMap = new Object2ObjectOpenHashMap<>();
     public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> animationKeyToCalculatorObject = new Object2ObjectLinkedOpenHashMap<>();
     public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> alreadyCalculatedThisTickAnimations = new Object2ObjectLinkedOpenHashMap<>();
-
+    public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> needToBeAddedToAnimationMap = new Object2ObjectLinkedOpenHashMap<>();
 
     private final HashMap<String, VanillaMappings.ModelAndParent> vanillaModelPartsById;
+
+
 
     public final String modelPathIdentifier;
     public final EntityModel<T> vanillaModel;
@@ -49,6 +53,8 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     public VertexConsumerProvider currentVertexProvider = null;
 
     public boolean isAnimated;
+
+    //private boolean stillInInit = true;
 
     public RenderLayer getLayer2(Identifier van) {
 
@@ -113,6 +119,8 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         preprocessAnimationStrings();
         if(EMFData.getInstance().getConfig().printModelCreationInfoToLog)  EMFUtils.EMF_modMessage("end anim creation for "+modelPathIdentifier);
         isAnimated = !animationKeyToCalculatorObject.isEmpty();
+
+        //stillInInit = false;
     }
 
 
@@ -144,9 +152,9 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 String modelId = animKey.split("\\.")[0];
                 String modelVariable = animKey.split("\\.")[1];
 
-                AnimationCalculation.AnimVar thisVariable = null;
+                AnimationModelDefaultVariable thisVariable = null;
                 try {
-                    thisVariable = AnimationCalculation.AnimVar.valueOf(modelVariable);
+                    thisVariable = AnimationModelDefaultVariable.valueOf(modelVariable);
                 }catch (IllegalArgumentException e){
                     if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("custom variable located: ["+animKey+"].");
                 }
@@ -202,6 +210,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             EMF_ModelPart parentForCheck,
             String key,
             Entity entity) {
+        //if(stillInInit) return 1;
 
         //if(key.contains("arm")) System.out.println(vanillaModelPartsById.keySet());;
         if (!alreadyCalculatedThisTickAnimations.containsKey(key)) {
@@ -210,12 +219,14 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
             if (vanillaModelPartsById.containsKey(partName)) {
 
-                AnimationCalculation.AnimVar variableToGet;
+                AnimationModelDefaultVariable variableToGet;
                 try {
-                    variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
+                    variableToGet = AnimationModelDefaultVariable.valueOf(key.split("\\.")[1]);
                     //attempt to cache an interpolating animation variable pointing to the vanilla part so that vanilla values can match EMF interpolation when needed
                     //////////////////
-                    if(!animationKeyToCalculatorObject.containsKey(key)){
+                    if(!variableToGet.isRotation &&
+                            !animationKeyToCalculatorObject.containsKey(key) &&
+                            !needToBeAddedToAnimationMap.containsKey(key)){
                         //this means we have not added a custom interpolating variable yet, so add one
                         AnimationCalculation interpolatingVanillaGetter =  new AnimationCalculation(
                                 this,
@@ -224,7 +235,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                                 key,
                                 key);
                         //add to start of anims for next loop to be able to use interpolating value
-                        animationKeyToCalculatorObject.putAndMoveToFirst(key,interpolatingVanillaGetter);
+                        needToBeAddedToAnimationMap.putAndMoveToFirst(key,interpolatingVanillaGetter);
                         //now that it has been put this section will not run again for the same vanilla value
                     }
                     //////////////////
@@ -237,10 +248,10 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 }
 
             } else if (getAllParts().containsKey(partName)) {
-                AnimationCalculation.AnimVar variableToGet;
+                AnimationModelDefaultVariable variableToGet;
                 EMF_ModelPart otherPart = getAllParts().get(partName);
                 try {
-                    variableToGet = AnimationCalculation.AnimVar.valueOf(key.split("\\.")[1]);
+                    variableToGet = AnimationModelDefaultVariable.valueOf(key.split("\\.")[1]);
                     if (parentForCheck != null && parentForCheck.equals(otherPart.parent)) {
                         return variableToGet.getFromEMFModel(otherPart, true);
                     } else {
@@ -448,6 +459,9 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
                     prevResultsTick.put(id, getNextPrevResultTickValue());//entity.age + tickDelta);
                     calculateForThisAnimationTick = true;
+
+
+
                     //currentAnimationDeltaForThisTick = 0f;
                 } else if (animationProgress < prevResultsTick.getFloat(id) - 100 - interpolationLength) {
                     //this is required as animation progress resets with the entity entering render distance
@@ -469,10 +483,13 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             alreadyCalculatedThisTickAnimations.clear();
             //if(entity instanceof BlazeEntity && entity.getRandom().nextInt(50) == 4) System.out.println(animationKeyToCalculatorObject.keySet());
             animationKeyToCalculatorObject.forEach((key,animationCalculation)->{
+
                 animationCalculation.calculateAndSet(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
                 alreadyCalculatedThisTickAnimations.put(key,animationCalculation);
             });
-
+            if (!needToBeAddedToAnimationMap.isEmpty()){
+                needToBeAddedToAnimationMap.forEach(animationKeyToCalculatorObject::putAndMoveToFirst);
+            }
         }
         //that's it????
     }

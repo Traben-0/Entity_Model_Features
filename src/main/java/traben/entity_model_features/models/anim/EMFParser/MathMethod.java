@@ -1,7 +1,6 @@
 package traben.entity_model_features.models.anim.EMFParser;
 
 import net.minecraft.util.math.MathHelper;
-import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 
 import java.util.ArrayList;
@@ -95,9 +94,8 @@ public class MathMethod extends MathValue implements MathComponent{
 
     }
 
-    //returns null if any non constants in components
-    @Nullable
-    private MathComponent returnOptimizedIfPossible(List<MathComponent> allComponents, ValueSupplier supplier){
+
+    private void setOptimizedIfPossible(List<MathComponent> allComponents, ValueSupplier supplier){
         //check if method only contains constants, if so precalculate the result and replace this with a constant
             boolean foundNonConstant = false;
             for (MathComponent comp :
@@ -113,9 +111,8 @@ public class MathMethod extends MathValue implements MathComponent{
                 //precalculate expression that only contains constants
                 float constantResult = supplier.get();
                 if (!Float.isNaN(constantResult))
-                    return new MathVariableConstant(constantResult);
+                    optimizedAlternativeToThis = new MathVariableConstant(constantResult,isNegative);
             }
-            return null;
     }
 
 
@@ -139,7 +136,8 @@ public class MathMethod extends MathValue implements MathComponent{
             };
             List<MathComponent> comps = new ArrayList<>(vals);
             comps.add(x);
-            optimizedAlternativeToThis = returnOptimized(comps,valueSupplier);
+            setOptimizedIfPossible(comps,valueSupplier);
+
             return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in IN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
@@ -148,18 +146,23 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier EQUALS(List<String> args) throws EMFMathException {
         if(args.size() == 3){
-            MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
-            MathExpression y = new MathExpression(args.get(1),false,calculationInstance);
-            MathExpression epsilon = new MathExpression(args.get(2),false,calculationInstance);
-            return ()-> {
+            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent y = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent epsilon = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+
+            ValueSupplier valueSupplier =()-> {
                 float X = x.get();
                 float Y = y.get();
                 float BIGGER = Math.max(X,Y);
                 float SMALLER = Math.min(X,Y);
                 float EPSILON = epsilon.get();
                 return Math.abs(BIGGER - SMALLER) <= EPSILON ? 1f : 0f;
-               // return X >= Y - EPSILON ? 0 : (X <= Y + EPSILON ? 0 : 1f);
+                // return X >= Y - EPSILON ? 0 : (X <= Y + EPSILON ? 0 : 1f);
             };
+            List<MathComponent> comps = List.of(x,y,epsilon);
+            setOptimizedIfPossible(comps,valueSupplier);
+
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in EQUALS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -167,14 +170,19 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier BETWEEN(List<String> args) throws EMFMathException {
         if(args.size() == 3){
-            MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
-            MathExpression min = new MathExpression(args.get(1),false,calculationInstance);
-            MathExpression max = new MathExpression(args.get(2),false,calculationInstance);
-            return ()-> {
+            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent min = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent max = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> {
                 float X = x.get();
                 float MAX = max.get();
                 return X > MAX ? 0 : (X < min.get() ? 0 : 1f);
             };
+
+            List<MathComponent> comps = List.of(x,min,max);
+            setOptimizedIfPossible(comps,valueSupplier);
+
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in BETWEEN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -188,15 +196,19 @@ public class MathMethod extends MathValue implements MathComponent{
     private ValueSupplier PRINTB(List<String> args) throws EMFMathException {
         if(args.size() == 3){
             String id = args.get(0);
-            MathExpression n = new MathExpression(args.get(1),false,calculationInstance);
-            MathExpression x = new MathExpression(args.get(2),false,calculationInstance);
-            return ()-> {
+            MathComponent n = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent x = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> {
                 float xVal = x.get();
                 if(getPrintCount() % n.get() == 0){
                     print("EMF printb: ["+id+"] = "+(xVal == 1));
                 }
                 return xVal;
             };
+            List<MathComponent> comps = List.of(n,x);
+            setOptimizedIfPossible(comps,valueSupplier);
+
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in PRINTB method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -205,15 +217,19 @@ public class MathMethod extends MathValue implements MathComponent{
     private ValueSupplier PRINT(List<String> args) throws EMFMathException {
         if(args.size() == 3){
             String id = args.get(0);
-            MathExpression n = new MathExpression(args.get(1),false,calculationInstance);
-            MathExpression x = new MathExpression(args.get(2),false,calculationInstance);
-            return ()-> {
+            MathComponent n = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent x = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> {
                 float xVal = x.get();
                 if(getPrintCount() % n.get() == 0){
                     print("EMF print: ["+id+"] = "+xVal);
                 }
                 return xVal;
             };
+            List<MathComponent> comps = List.of(n,x);
+            setOptimizedIfPossible(comps,valueSupplier);
+
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in PRINT method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -221,10 +237,13 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier LERP(List<String> args) throws EMFMathException {
         if(args.size() == 3){
-            MathExpression k = new MathExpression(args.get(0),false,calculationInstance);
-            MathExpression x = new MathExpression(args.get(1),false,calculationInstance);
-            MathExpression y = new MathExpression(args.get(2),false,calculationInstance);
-            return ()-> MathHelper.lerp(k.get(),x.get(),y.get());
+            MathComponent k = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent x = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent y = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> MathHelper.lerp(k.get(),x.get(),y.get());
+            List<MathComponent> comps = List.of(k,x,y);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in LERP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -232,9 +251,12 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier FMOD(List<String> args) throws EMFMathException {
         if(args.size() == 2){
-            MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
-            MathExpression y = new MathExpression(args.get(1),false,calculationInstance);
-            return ()-> Math.floorMod((int) Math.floor(x.get()), (int) Math.floor(y.get()));
+            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent y = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> Math.floorMod((int) Math.floor(x.get()), (int) Math.floor(y.get()));
+            List<MathComponent> comps = List.of(x,y);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in FMOD method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -242,14 +264,17 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier SQRT(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> {
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> {
                 double result = Math.sqrt(arg.get());
                 if(Double.isNaN(result)){
                     print("ERROR: sqrt() returned NaN.");
                 }
                 return (float) result;
             };
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in SQRT method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -257,8 +282,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier SIGNUM(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> Math.signum(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> Math.signum(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in SIGNUM method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -266,19 +294,28 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ROUND(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> Math.round(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> Math.round(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in ROUND method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
+    private final Random random = new Random();
     private ValueSupplier RANDOM(List<String> args) throws EMFMathException {
         if(args.size() ==0 ){
-            return ()-> new Random().nextFloat(1);
+            //cannot optimize further
+            return random::nextFloat;
         }else if(args.size() == 1){
-            MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> new Random((long) x.get()).nextFloat(1);
+            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> new Random((long) x.get()).nextFloat(1);
+            List<MathComponent> comps = List.of(x);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in RANDOM method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -286,9 +323,12 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier POW(List<String> args) throws EMFMathException {
         if(args.size() == 2){
-            MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
-            MathExpression y = new MathExpression(args.get(1),false,calculationInstance);
-            return ()-> (float) Math.pow(x.get(),y.get());
+            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent y = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> (float) Math.pow(x.get(),y.get());
+            List<MathComponent> comps = List.of(x,y);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in POW method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -296,8 +336,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier LOG(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> (float) Math.log(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> (float) Math.log(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in LOG method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -305,11 +348,14 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier FRAC(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()->{
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()->{
                 float d =arg.get();
                 return d > 0 ? d - (float) Math.floor(d) : d + (float) Math.ceil(d);
             };
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in FRAC method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -317,8 +363,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier EXP(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> (float) Math.exp(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> (float) Math.exp(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in EXP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -326,8 +375,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier CEIL(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> (float) Math.ceil(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> (float) Math.ceil(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in CEIL method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -335,8 +387,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier FLOOR(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> (float) Math.floor(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> (float) Math.floor(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in FLOOR method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -344,8 +399,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ABS(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> Math.abs(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> Math.abs(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in ABS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -353,17 +411,20 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier CLAMP(List<String> args) throws EMFMathException {
         if(args.size() == 3){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            MathExpression arg1 = new MathExpression(args.get(1),false,calculationInstance);
-            MathExpression arg2 = new MathExpression(args.get(2),false,calculationInstance);
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg1 = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent arg2 = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
 
-            return ()->{
+            ValueSupplier valueSupplier = ()->{
                 float x = arg.get();
                 float min = arg1.get();
                 float max = arg2.get();
                 if(calculationInstance.verboseMode) print("clamp="+x+", "+min+", "+max);
                 return x > max ? max : (Math.max(x, min));
             };
+            List<MathComponent> comps = List.of(arg1,arg2,arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in CLAMP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -371,14 +432,14 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier MAX(List<String> args) throws EMFMathException {
         if(args.size() >= 2){
-            List<MathExpression> exps = new ArrayList<>();
+            List<MathComponent> exps = new ArrayList<>();
             for (String arg:
                     args) {
-                exps.add(new MathExpression(arg,false,calculationInstance));
+                exps.add(MathExpression.getOptimizedExpression(arg,false,calculationInstance));
             }
-            return ()-> {
+            ValueSupplier valueSupplier = ()-> {
                 float largest = Float.MIN_VALUE;
-                for (MathExpression expression:
+                for (MathComponent expression:
                         exps) {
                     float get =expression.get();
                     if(get > largest){
@@ -387,6 +448,8 @@ public class MathMethod extends MathValue implements MathComponent{
                 }
                 return largest;
             };
+            setOptimizedIfPossible(exps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in MAX method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -394,14 +457,14 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier MIN(List<String> args) throws EMFMathException {
         if(args.size() >= 2){
-            List<MathExpression> exps = new ArrayList<>();
+            List<MathComponent> exps = new ArrayList<>();
             for (String arg:
                  args) {
-                exps.add(new MathExpression(arg,false,calculationInstance));
+                exps.add(MathExpression.getOptimizedExpression(arg,false,calculationInstance));
             }
-            return ()-> {
+            ValueSupplier valueSupplier = ()-> {
                 float smallest = Float.MAX_VALUE;
-                for (MathExpression expression:
+                for (MathComponent expression:
                      exps) {
                     float get =expression.get();
                     if(get < smallest){
@@ -410,6 +473,9 @@ public class MathMethod extends MathValue implements MathComponent{
                 }
                 return smallest;
             };
+
+            setOptimizedIfPossible(exps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in MIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -417,12 +483,15 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier TORAD(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()->{
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()->{
                 float x =arg.get();
                 if(calculationInstance.verboseMode) print("torad ="+x);
                 return (float) Math.toRadians(x);
             };
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in TORAD method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -430,8 +499,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier TODEG(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> (float) Math.toDegrees(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier  = ()-> (float) Math.toDegrees(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in TODEG method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -439,11 +511,14 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier SIN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> {
-                if(calculationInstance.verboseMode) print("sin = "+ arg.components);
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> {
+                //if(calculationInstance.verboseMode) print("sin = "+ arg);
                 return (float) Math.sin(arg.get());
             };
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in SIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -451,8 +526,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ASIN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> (float) Math.asin(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> (float) Math.asin(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in ASIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -460,8 +538,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier COS(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> (float) Math.cos(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> (float) Math.cos(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in COS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -469,8 +550,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ACOS(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> (float) Math.acos(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> (float) Math.acos(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in ACOS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -478,8 +562,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier TAN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> (float) Math.tan(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> (float) Math.tan(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in TAN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -487,8 +574,11 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ATAN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            return ()-> (float) Math.atan(arg.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> (float) Math.atan(arg.get());
+            List<MathComponent> comps = List.of(arg);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in ATAN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -496,9 +586,12 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ATAN2(List<String> args) throws EMFMathException {
         if(args.size() == 2){
-            MathExpression arg = new MathExpression(args.get(0),false,calculationInstance);
-            MathExpression arg2 = new MathExpression(args.get(1),false,calculationInstance);
-            return ()-> (float) Math.atan2(arg.get(), arg2.get());
+            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg2 = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            ValueSupplier valueSupplier = ()-> (float) Math.atan2(arg.get(), arg2.get());
+            List<MathComponent> comps = List.of(arg,arg2);
+            setOptimizedIfPossible(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in ATAN2 method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);
@@ -509,21 +602,29 @@ public class MathMethod extends MathValue implements MathComponent{
 
         if(args.size() == 3){
             //easy if
-            MathExpression bool = new MathExpression(args.get(0),false,calculationInstance);
+            MathComponent bool = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
 
-            MathExpression tru = new MathExpression(args.get(1),false,calculationInstance);
-            MathExpression fals = new MathExpression(args.get(2),false,calculationInstance);
+            MathComponent tru = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent fals = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
 
+
+            // different constant optimization for if statement
+            // this should never happen unless the pack maker is 0 iq
+            if (!(bool instanceof MathMethod) &&
+                    !(bool instanceof MathVariableUpdatable) &&
+                    !(bool instanceof MathExpression)) {
+                optimizedAlternativeToThis = bool.get() == 1 ? tru : fals;
+            }
             return ()->{
-                if(calculationInstance.verboseMode) print("if = "+bool.components+", "+tru.components+", "+fals.components);
+                //if(calculationInstance.verboseMode) print("if = "+bool+", "+tru+", "+fals);
                 return bool.get() == 1 ? tru.get() : fals.get();
             };
         }else if(args.size() % 2 == 1){
             //elif
-            List<MathExpression> expList = new ArrayList<>();
+            List<MathComponent> expList = new ArrayList<>();
             for (String str:
                  args) {
-                expList.add(new MathExpression(str,false,calculationInstance));
+                expList.add(MathExpression.getOptimizedExpression(str,false,calculationInstance));
             }
 
             return ()->{
@@ -531,15 +632,15 @@ public class MathMethod extends MathValue implements MathComponent{
                 for (int i = 0; i < expList.size(); i++) {
                     if(i == expList.size()-1){
                         //last
-                        if(calculationInstance.verboseMode) print("elif else = "+ expList.get(i).components);
+                        //if(calculationInstance.verboseMode) print("elif else = "+ expList.get(i));
                         return expList.get(i).get();
                     }else if(i % 2 == 0){
                         //boolean
-                        if(calculationInstance.verboseMode) print("elif = "+ expList.get(i).components);
+                        //if(calculationInstance.verboseMode) print("elif = "+ expList.get(i));
                         lastCondition = expList.get(i).get() == 1;
                     }else if(lastCondition){
                         //true condition to return
-                        if(calculationInstance.verboseMode) print("elif true = "+ expList.get(i).components);
+                        //if(calculationInstance.verboseMode) print("elif true = "+ expList.get(i));
                         return expList.get(i).get();
                     }
                 }

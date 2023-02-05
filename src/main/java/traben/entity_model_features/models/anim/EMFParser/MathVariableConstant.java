@@ -5,14 +5,16 @@ public class MathVariableConstant extends MathValue implements MathComponent{
     float hardCodedValue;
 
     public MathVariableConstant(float number, boolean isNegative){
-        super(isNegative);
-        hardCodedValue = number;
+        //super(isNegative);
+
+        hardCodedValue = isNegative ? -number : number;
     }
     public MathVariableConstant(float number){
         hardCodedValue = number;
     }
     @Override
     public ValueSupplier getSupplier() {
+        System.out.println("EMF math constant: this shouldn't happen!");
         return ()-> hardCodedValue;
     }
 
@@ -27,6 +29,6 @@ public class MathVariableConstant extends MathValue implements MathComponent{
             //calculationInstance.indentCount++;
         //if(calculationInstance != null)
             //calculationInstance.indentCount--;
-        return isNegative ? -hardCodedValue : hardCodedValue;
+        return hardCodedValue;
     }
 }

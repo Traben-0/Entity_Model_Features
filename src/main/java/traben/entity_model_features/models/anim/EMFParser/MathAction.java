@@ -39,8 +39,8 @@ public enum MathAction  implements MathComponent{
     }
 
     @Override
-    public float get() throws EMFMathException {
-        throw new EMFMathException("ERROR: math action incorrectly called ["+this+"].");
-       // return Double.NaN;
+    public float get(){
+        System.out.println("ERROR: math action incorrectly called ["+this+"].");
+        return Float.NaN;
     }
 }

@@ -119,7 +119,7 @@ public class EMFYACL{
                                 .name(Text.of("animation quality drop off rate"))
                                 .tooltip(Text.of("")) // optional
                                 .binding(
-                                        8f, // default
+                                        10f, // default
                                         () -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate, // getter
                                         newValue -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate = newValue // setter
                                 )

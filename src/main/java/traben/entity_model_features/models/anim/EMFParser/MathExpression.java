@@ -18,7 +18,6 @@ public class MathExpression extends MathValue implements MathComponent {
     public final String originalExpression;
 
     public boolean isValid(){
-
         if(caughtExceptionString != null){
             EMFUtils.EMF_modWarn(caughtExceptionString);
             return false;
@@ -39,19 +38,37 @@ public class MathExpression extends MathValue implements MathComponent {
     private boolean containsAdditionLevel = false;
     //private boolean containsOneComponent = false;
 
+    public static final MathExpression NULL_EXPRESSION = new MathExpression("null"){
+        @Override
+        public float get() {
+            return Float.NaN;
+        }
+
+        @Override
+        public boolean isValid() {
+            return false;
+        }
+    };
+
+
     public static MathComponent getOptimizedExpression(String expressionString, boolean isNegative, AnimationCalculation calculationInstance){
         return getOptimizedExpression(expressionString, isNegative, calculationInstance,false);
     }
+
+
     public static MathComponent getOptimizedExpression(String expressionString, boolean isNegative, AnimationCalculation calculationInstance, boolean invertBoolean){
          MathExpression expression = new MathExpression(expressionString, isNegative, calculationInstance, invertBoolean);
          if(expression.optimizedAlternativeToThis == null)
-             return expression.isValid() ? expression : null;
+             return expression.isValid() ? expression : NULL_EXPRESSION;
          return expression.optimizedAlternativeToThis;
     }
 
     public MathComponent optimizedAlternativeToThis = null;
 
-
+    private MathExpression(String WARNING_ONLY_FOR_NULL_EXPRESSION){
+        originalExpression = WARNING_ONLY_FOR_NULL_EXPRESSION;
+        components = new CalculationList();
+    }
     private MathExpression(String expressionString, boolean isNegative, AnimationCalculation calculationInstance, boolean invertBoolean){
         super(isNegative, calculationInstance);
 
@@ -165,9 +182,9 @@ public class MathExpression extends MathValue implements MathComponent {
                             } catch (NumberFormatException ignored) {
                             }
 
-                            MathValue variable;
+                            MathComponent variable;
                             if (asNumber == null) {
-                                variable = new MathVariableUpdatable(read, getNegativeNext(), this.calculationInstance);
+                                variable = MathVariableUpdatable.getOptimizedVariable(read, getNegativeNext(), this.calculationInstance);
                             } else {
                                 variable = new MathVariableConstant(asNumber, getNegativeNext());
                             }
@@ -195,9 +212,9 @@ public class MathExpression extends MathValue implements MathComponent {
                 } catch (NumberFormatException ignored) {
                 }
 
-                MathValue variable;
+                MathComponent variable;
                 if (asNumber == null) {
-                    variable = new MathVariableUpdatable(read, getNegativeNext(), this.calculationInstance);
+                    variable = MathVariableUpdatable.getOptimizedVariable(read, getNegativeNext(), this.calculationInstance);
                 } else {
                     variable = new MathVariableConstant(asNumber, getNegativeNext());
                 }
@@ -227,7 +244,13 @@ public class MathExpression extends MathValue implements MathComponent {
             //assess and store content metadata
             if(components.size() == 1){
                 //this.containsOneComponent = true;
-                optimizedAlternativeToThis = components.getLast();
+                MathComponent comp = components.getLast();
+                if(comp instanceof MathVariableConstant constnt){
+                     if(isNegative) comp = new MathVariableConstant(-constnt.get());
+                }else if(comp instanceof MathValue val){
+                    val.isNegative = isNegative != val.isNegative;
+                }
+                optimizedAlternativeToThis = comp;
             }else {
 
                 if(components.get(0) == MathAction.add){
@@ -270,7 +293,7 @@ public class MathExpression extends MathValue implements MathComponent {
                         //precalculate expression that only contains constants
                         float constantResult = this.get();
                         if(!Float.isNaN(constantResult))
-                            optimizedAlternativeToThis = new MathVariableConstant(constantResult);
+                            optimizedAlternativeToThis = new MathVariableConstant(constantResult,isNegative);
                     }
                 }
 

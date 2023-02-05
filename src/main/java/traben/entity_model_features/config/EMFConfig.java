@@ -42,12 +42,12 @@ public class EMFConfig {
     public AnimationRatePerSecondMode animationRate = AnimationRatePerSecondMode.Sixty_tps;
 
    // public int animationFPS = 30;
-    public float minimumAnimationFPS = 1;
+    public float minimumAnimationFPS = 0.3F;
 
     public  VanillaModelRenderMode displayVanillaModelHologram = VanillaModelRenderMode.No;
     public boolean printModelCreationInfoToLog = false;
     public float animationRateMinimumDistanceDropOff = 8;
-    public float animationRateDistanceDropOffRate = 94;
+    public float animationRateDistanceDropOffRate = 10;
 
 
     public boolean printAllMaths = false;

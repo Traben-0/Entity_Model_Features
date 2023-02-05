@@ -5,7 +5,7 @@ import traben.entity_model_features.models.anim.AnimationCalculation;
 public abstract class MathValue implements  MathComponent{
 
 
-    MathValue(boolean isNegative, AnimationCalculation calculationInstance){
+    MathValue(boolean isNegative,AnimationCalculation calculationInstance){
         this.isNegative = isNegative;
         this.calculationInstance =  calculationInstance;
     }
@@ -17,8 +17,9 @@ public abstract class MathValue implements  MathComponent{
         this.isNegative = false;
         this.calculationInstance =  null;
     }
+
     final AnimationCalculation calculationInstance;
-    public final boolean isNegative;
+    public boolean isNegative;
 
     abstract public ValueSupplier getSupplier();
 
