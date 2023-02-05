@@ -74,6 +74,7 @@ public class MathVariableUpdatable extends MathValue implements  MathComponent{
 
             //boolean
             case "is_child" -> getBooleanAsFloat(getter::isChild);
+            case "is_climbing" -> getBooleanAsFloat(getter::isClimbing);
             case "is_in_water" -> getBooleanAsFloat(getter::isInWater);
             case "is_riding" -> getBooleanAsFloat(getter::isRiding);
             case "is_on_ground" -> getBooleanAsFloat(getter::isOnGround);

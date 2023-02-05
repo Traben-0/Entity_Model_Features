@@ -131,7 +131,6 @@ public class AnimationCalculation {
         animationGetters.riding = parentModel.riding;
 
         animationGetters.child = parentModel.child;
-
             float result = calculatorRun();
 
             float oldResult = prevResults.getFloat(id);

@@ -136,6 +136,9 @@ public class AnimationGetters {
     public  boolean isOnGround() {
         return entity != null && entity.isOnGround();
     }
+    public  boolean isClimbing() {
+        return entity instanceof LivingEntity alive && alive.isClimbing();
+    }
 
     public  boolean isAlive() {
         return entity != null && entity.isAlive();
