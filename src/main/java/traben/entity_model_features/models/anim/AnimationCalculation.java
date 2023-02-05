@@ -17,6 +17,7 @@ import net.minecraft.world.dimension.DimensionTypes;
 import traben.entity_model_features.EMFData;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
+import traben.entity_model_features.models.anim.EMFParser.MathComponent;
 import traben.entity_model_features.models.anim.EMFParser.MathExpression;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -26,7 +27,7 @@ public class AnimationCalculation {
 
 
     public int indentCount = 0;
-    MathExpression EMFCalculator;
+    MathComponent EMFCalculator;
 
     public Entity getEntity() {
         return entity;
@@ -242,7 +243,7 @@ public class AnimationCalculation {
         prevResults.defaultReturnValue(defaultValue);
         prevPrevResults.defaultReturnValue(defaultValue);
 
-        EMFCalculator = new MathExpression(initialExpression,false, this);
+        EMFCalculator = MathExpression.getOptimizedExpression(initialExpression,false, this);
 
 
     }
@@ -329,15 +330,18 @@ public class AnimationCalculation {
 
 
     public float calculatorRun() {
-
-        if(EMFData.getInstance().getConfig().printAllMaths) {
-            setVerbose(true);
-            float val = EMFCalculator.calculate();
-            EMFUtils.EMF_modMessage("animation result: "+animKey+" = "+val);
-            return val;
-        }else{
-            return EMFCalculator.calculate();
-        }
+//        try {
+            if (EMFData.getInstance().getConfig().printAllMaths) {
+                setVerbose(true);
+                float val = EMFCalculator.get();
+                EMFUtils.EMF_modMessage("animation result: " + animKey + " = " + val);
+                return val;
+            } else {
+                return EMFCalculator.get();
+            }
+//        }catch(MathComponent.EMFMathException e){
+//            return Float.NaN;
+//        }
 
     }
 
@@ -374,9 +378,7 @@ public class AnimationCalculation {
         System.out.println(indent+ str);
     }
 
-    public boolean isValid(){
-        return EMFCalculator.isValid() && !Float.isNaN( EMFCalculator.calculate());
-    }
+
 
 
 

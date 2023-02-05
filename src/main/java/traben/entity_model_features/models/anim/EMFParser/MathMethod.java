@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.anim.EMFParser;
 
 import net.minecraft.util.math.MathHelper;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 
 import java.util.ArrayList;
@@ -11,7 +12,17 @@ public class MathMethod extends MathValue implements MathComponent{
 
 
     String methodName;
-    public MathMethod(String methodName, String args, boolean isNegative, AnimationCalculation calculationInstance) throws EMFMathException {
+
+    public static MathComponent getOptimizedExpression(String methodName, String args, boolean isNegative, AnimationCalculation calculationInstance) throws EMFMathException{
+        MathMethod method = new MathMethod(methodName, args, isNegative, calculationInstance);
+        if(method.optimizedAlternativeToThis == null)
+            return method;
+        return method.optimizedAlternativeToThis;
+    }
+
+    public MathComponent optimizedAlternativeToThis = null;
+
+    private MathMethod(String methodName, String args, boolean isNegative, AnimationCalculation calculationInstance) throws EMFMathException {
         super(isNegative,calculationInstance);
 
         this.methodName = methodName;
@@ -84,25 +95,52 @@ public class MathMethod extends MathValue implements MathComponent{
 
     }
 
+    //returns null if any non constants in components
+    @Nullable
+    private MathComponent returnOptimizedIfPossible(List<MathComponent> allComponents, ValueSupplier supplier){
+        //check if method only contains constants, if so precalculate the result and replace this with a constant
+            boolean foundNonConstant = false;
+            for (MathComponent comp :
+                    allComponents) {
+                if (comp instanceof MathMethod ||
+                        comp instanceof MathVariableUpdatable ||
+                        comp instanceof MathExpression) {
+                    foundNonConstant = true;
+                    break;
+                }
+            }
+            if (!foundNonConstant) {
+                //precalculate expression that only contains constants
+                float constantResult = supplier.get();
+                if (!Float.isNaN(constantResult))
+                    return new MathVariableConstant(constantResult);
+            }
+            return null;
+    }
 
 
     private ValueSupplier IN(List<String> args) throws EMFMathException {
         if(args.size() >= 3){
-            MathExpression x = new MathExpression(args.get(0),false,calculationInstance);
-            List<MathExpression> vals = new ArrayList<>();
+            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            List<MathComponent> vals = new ArrayList<>();
             for (int i = 1; i < args.size(); i++) {
-                vals.add(new MathExpression(args.get(i),false,calculationInstance));
+                vals.add(MathExpression.getOptimizedExpression(args.get(i),false,calculationInstance));
             }
-            return ()-> {
+
+            ValueSupplier valueSupplier = ()-> {
                 float X = x.get();
-                for (MathExpression expression:
-                     vals) {
+                for (MathComponent expression:
+                        vals) {
                     if(expression.get() == X){
                         return 1f;
                     }
                 }
                 return 0f;
             };
+            List<MathComponent> comps = new ArrayList<>(vals);
+            comps.add(x);
+            optimizedAlternativeToThis = returnOptimized(comps,valueSupplier);
+            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments "+ args +" in IN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
         System.out.println(s);

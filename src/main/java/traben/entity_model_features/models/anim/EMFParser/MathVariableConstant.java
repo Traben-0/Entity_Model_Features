@@ -20,4 +20,13 @@ public class MathVariableConstant extends MathValue implements MathComponent{
     public String toString() {
         return String.valueOf(get());
     }
+
+    @Override // make fastest return
+    public float get() {
+        //if(calculationInstance != null)
+            //calculationInstance.indentCount++;
+        //if(calculationInstance != null)
+            //calculationInstance.indentCount--;
+        return isNegative ? -hardCodedValue : hardCodedValue;
+    }
 }

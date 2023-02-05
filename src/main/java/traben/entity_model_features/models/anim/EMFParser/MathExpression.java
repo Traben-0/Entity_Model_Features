@@ -20,8 +20,10 @@ public class MathExpression extends MathValue implements MathComponent {
     public boolean isValid(){
 
         if(caughtExceptionString != null){
-            System.out.println("ran"+ caughtExceptionString);
             EMFUtils.EMF_modWarn(caughtExceptionString);
+            return false;
+        }else if(Float.isNaN(this.calculate())){
+            EMFUtils.EMF_modWarn("result was NaN, expression not valid: "+originalExpression);
             return false;
         }
         return true;
@@ -35,13 +37,25 @@ public class MathExpression extends MathValue implements MathComponent {
     private boolean containsBooleansLowerOrder = false;
     private boolean containsMultiplicationLevel = false;
     private boolean containsAdditionLevel = false;
-    private boolean containsOneComponent = false;
+    //private boolean containsOneComponent = false;
+
+    public static MathComponent getOptimizedExpression(String expressionString, boolean isNegative, AnimationCalculation calculationInstance){
+        return getOptimizedExpression(expressionString, isNegative, calculationInstance,false);
+    }
+    public static MathComponent getOptimizedExpression(String expressionString, boolean isNegative, AnimationCalculation calculationInstance, boolean invertBoolean){
+         MathExpression expression = new MathExpression(expressionString, isNegative, calculationInstance, invertBoolean);
+         if(expression.optimizedAlternativeToThis == null)
+             return expression.isValid() ? expression : null;
+         return expression.optimizedAlternativeToThis;
+    }
+
+    public MathComponent optimizedAlternativeToThis = null;
 
 
-
-
-    public MathExpression(String expressionString, boolean isNegative, AnimationCalculation calculationInstance){
+    private MathExpression(String expressionString, boolean isNegative, AnimationCalculation calculationInstance, boolean invertBoolean){
         super(isNegative, calculationInstance);
+
+        wasInvertedBooleanExpression = invertBoolean;
 
         expressionString = expressionString.trim();
         expressionString = expressionString.replaceAll("\\s*", "");
@@ -130,13 +144,12 @@ public class MathExpression extends MathValue implements MathComponent {
 
                         if (functionName.isEmpty() || "!".equals(functionName)) {
                             //just brackets
-                            MathExpression brackets = new MathExpression(bracketContents.toString(), getNegativeNext(), this.calculationInstance);
-                            if("!".equals(functionName))
-                                brackets.wasInvertedBooleanExpression = true;
+                            MathComponent brackets = MathExpression.getOptimizedExpression(bracketContents.toString(), getNegativeNext(), this.calculationInstance,"!".equals(functionName));
+
                             components.add(brackets);
                         } else {
                             //method
-                            MathMethod method = new MathMethod(functionName, bracketContents.toString(), getNegativeNext(), this.calculationInstance);
+                            MathComponent method = MathMethod.getOptimizedExpression(functionName, bracketContents.toString(), getNegativeNext(), this.calculationInstance);
                             components.add(method);
                         }
 
@@ -213,8 +226,8 @@ public class MathExpression extends MathValue implements MathComponent {
 
             //assess and store content metadata
             if(components.size() == 1){
-                this.containsOneComponent = true;
-
+                //this.containsOneComponent = true;
+                optimizedAlternativeToThis = components.getLast();
             }else {
 
                 if(components.get(0) == MathAction.add){
@@ -238,6 +251,29 @@ public class MathExpression extends MathValue implements MathComponent {
 
                 this.containsAdditionLevel = (components.contains(MathAction.add)
                         || components.contains(MathAction.subtract));
+
+
+
+                //check if expression only contains constants, if so precalculate and save constant result
+                if(isValid()) {
+                    boolean foundNonConstant = false;
+                    for (MathComponent comp :
+                            components) {
+                        if (comp instanceof MathMethod ||
+                                comp instanceof MathVariableUpdatable ||
+                                comp instanceof MathExpression) {
+                            foundNonConstant = true;
+                            break;
+                        }
+                    }
+                    if (!foundNonConstant) {
+                        //precalculate expression that only contains constants
+                        float constantResult = this.get();
+                        if(!Float.isNaN(constantResult))
+                            optimizedAlternativeToThis = new MathVariableConstant(constantResult);
+                    }
+                }
+
             }
 
 
@@ -266,10 +302,10 @@ public class MathExpression extends MathValue implements MathComponent {
         try {
 
             //it is possible the expression is simply 1 value, just return the single component value in this case for efficiency
-            if(containsOneComponent){
-               // if (calculationInstance.verboseMode) print("finished calculating [" + originalExpression + "] as single component quick return.");
-                return components.getLast().get();
-            }
+//            if(containsOneComponent){
+//               // if (calculationInstance.verboseMode) print("finished calculating [" + originalExpression + "] as single component quick return.");
+//                return components.getLast().get();
+//            }
 
             if (calculationInstance.verboseMode)
                 print("start calculating [" + originalExpression + "] as [" + components+"].");
