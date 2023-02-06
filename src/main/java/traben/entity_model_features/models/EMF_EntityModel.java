@@ -25,7 +25,6 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.mixin.accessor.entity.model.AnimalModelAccessor;
 import traben.entity_model_features.models.anim.AnimationCalculation;
-import traben.entity_model_features.models.anim.AnimationGetters;
 import traben.entity_model_features.models.anim.AnimationModelDefaultVariable;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
@@ -444,7 +443,10 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             } else {
                 float interpolationLength = prevInterp.getFloat(id);
 
-                if (animationProgress >= prevResultsTick.getFloat(id) + interpolationLength) {
+                float thisTickValue = getNextPrevResultTickValue();
+                float prevTickValue = prevResultsTick.getFloat(id);
+
+                if (thisTickValue >= prevTickValue + interpolationLength) {
                     //vary interpolation length by distance from client
                     if (MinecraftClient.getInstance().player != null) {
                         //val;
@@ -457,26 +459,33 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                         prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
                     }
 
-                    prevResultsTick.put(id, getNextPrevResultTickValue());//entity.age + tickDelta);
+                    prevResultsTick.put(id, thisTickValue);//entity.age + tickDelta);
                     calculateForThisAnimationTick = true;
 
 
 
                     //currentAnimationDeltaForThisTick = 0f;
-                } else if (animationProgress < prevResultsTick.getFloat(id) - 100 - interpolationLength) {
+                } else if (thisTickValue < prevTickValue - 100 - interpolationLength) {
                     //this is required as animation progress resets with the entity entering render distance
                     //todo possibly use world time ticks instead ??
                     prevResultsTick.put(id, -100);
-
                     //interpolate easier as will calculate next tick
                     calculateForThisAnimationTick = false;
                     // currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
                 } else {
+                    //todo wolves and chickens here for some reason
+
+//                    if(new Random().nextInt(100)==1 && currentEntity != null)
+//                        System.out.println(interpolationLength+", "+prevInterp.getFloat(id)+", "+animationProgress+", "+prevResultsTick.getFloat(id));
+//                    0.047732696, 0.047732696, 0.62831855, 0.62831855
+//
+//                    0.62831855>=0.676051246
+
                     //interpolate
                     calculateForThisAnimationTick = false;
                     //currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
                 }
-                currentAnimationDeltaForThisTick = ((animationProgress - prevResultsTick.getFloat(id)) / interpolationLength);
+                currentAnimationDeltaForThisTick = (float) ((thisTickValue - prevTickValue) / interpolationLength);
             }
             vanillaModel.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
 
@@ -495,7 +504,11 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     }
 
     private float getNextPrevResultTickValue(){
-        return animationProgress; //currentEntity.age+ tickDelta;
+//        if(currentEntity != null && currentEntity.world != null)
+//            return MinecraftClient.getInstance().tick();+tickDelta;
+
+       // if(new Random().nextInt(100)==1 && currentEntity.world != null) System.out.println((System.currentTimeMillis()/50d+tickDelta));
+        return currentEntity.age + tickDelta ;//(System.currentTimeMillis()/50d+ tickDelta);
     }
 
     T currentEntity = null;

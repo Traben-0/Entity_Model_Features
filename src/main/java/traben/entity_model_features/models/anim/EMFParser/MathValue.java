@@ -38,6 +38,9 @@ public abstract class MathValue implements  MathComponent{
         return ret;
     }
 
+    public void makeNegative(boolean become){
+        if(become) isNegative = !isNegative;
+    }
 
     public interface ValueSupplier{
         float get();

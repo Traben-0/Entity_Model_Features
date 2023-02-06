@@ -4,6 +4,7 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "accessor.WorldAccessor"
   ],
   "client": [
     "MixinSimpleResourceReload",

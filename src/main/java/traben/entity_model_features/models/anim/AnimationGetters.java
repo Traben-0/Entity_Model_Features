@@ -10,7 +10,12 @@ import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.dimension.DimensionTypes;
+
+import java.util.Iterator;
+import java.util.Optional;
 
 public class AnimationGetters {
 
@@ -136,7 +141,58 @@ public class AnimationGetters {
     public  boolean isOnGround() {
         return entity != null && entity.isOnGround();
     }
+
+    public float getClosestCollisionX(){
+        if(entity != null && entity.world != null){
+            Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity,entity.getBoundingBox()).iterator() ;
+            Vec3d entitypos = entity.getPos();
+            float closest = Float.MAX_VALUE;
+            while (bob.hasNext()) {
+                Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
+                if(current.isPresent()){
+                    float newVec = (float) current.get().x;
+                    closest = (float) Math.min(closest,Math.max(entitypos.x,newVec)-Math.min(entitypos.x,newVec));
+                }
+            }
+            if(closest != Float.MAX_VALUE) return closest;
+        }
+        return 0;
+    }
+    public float getClosestCollisionY(){
+        if(entity != null && entity.world != null){
+            Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity,entity.getBoundingBox()).iterator() ;
+            Vec3d entitypos = entity.getPos();
+            float closest = Float.MAX_VALUE;
+            while (bob.hasNext()) {
+                Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
+                if(current.isPresent()){
+                    float newVec = (float) current.get().y;
+                    closest = (float) Math.min(closest,Math.max(entitypos.y,newVec)-Math.min(entitypos.y,newVec));
+                }
+            }
+            if(closest != Float.MAX_VALUE) return closest;
+        }
+        return 0;
+    }
+    public float getClosestCollisionZ(){
+        if(entity != null && entity.world != null){
+            Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity,entity.getBoundingBox()).iterator() ;
+            Vec3d entitypos = entity.getPos();
+            float closest = Float.MAX_VALUE;
+            while (bob.hasNext()) {
+                Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
+                if(current.isPresent()){
+                    float newVec = (float) current.get().z;
+                    closest = (float) Math.min(closest,Math.max(entitypos.z,newVec)-Math.min(entitypos.z,newVec));
+                }
+            }
+            if(closest != Float.MAX_VALUE) return closest;
+        }
+        return 0;
+    }
+
     public  boolean isClimbing() {
+
         return entity instanceof LivingEntity alive && alive.isClimbing();
     }
 

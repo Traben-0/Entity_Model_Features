@@ -38,6 +38,30 @@ public enum MathAction  implements MathComponent{
         };
     }
 
+    public float run(MathComponent first, MathComponent second){
+        return switch (this){
+            case add -> first.get() + second.get();
+            case subtract -> first.get() - second.get();
+            case multiply -> first.get() * second.get();
+            case divide -> first.get() / second.get();
+            case divisionRemainder -> first.get() % second.get();
+            case largerThan -> (first.get() > second.get())? 1 : 0;
+            case largerThanOrEquals -> (first.get() >= second.get())? 1 : 0;
+            case smallerThan -> (first.get() < second.get())? 1 : 0;
+            case smallerThanOrEquals -> (first.get() <= second.get())? 1 : 0;
+            case equals -> (first.get() == second.get())? 1 : 0;
+            case notEquals -> (first.get() != second.get())? 1 : 0;
+            case and -> (first.get()==1 && second.get()==1)? 1 : 0;
+            case or -> (first.get()==1 || second.get()==1)? 1 : 0;
+            default -> Float.NaN;
+        };
+    }
+
+    @Override
+    public boolean isConstant() {
+        return true;
+    }
+
     @Override
     public float get(){
         System.out.println("ERROR: math action incorrectly called ["+this+"].");

@@ -100,9 +100,7 @@ public class MathMethod extends MathValue implements MathComponent{
             boolean foundNonConstant = false;
             for (MathComponent comp :
                     allComponents) {
-                if (comp instanceof MathMethod ||
-                        comp instanceof MathVariableUpdatable ||
-                        comp instanceof MathExpression) {
+                if (!comp.isConstant()) {
                     foundNonConstant = true;
                     break;
                 }
@@ -118,10 +116,10 @@ public class MathMethod extends MathValue implements MathComponent{
 
     private ValueSupplier IN(List<String> args) throws EMFMathException {
         if(args.size() >= 3){
-            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             List<MathComponent> vals = new ArrayList<>();
             for (int i = 1; i < args.size(); i++) {
-                vals.add(MathExpression.getOptimizedExpression(args.get(i),false,calculationInstance));
+                vals.add(MathExpressionParser.getOptimizedExpression(args.get(i),false,calculationInstance));
             }
 
             ValueSupplier valueSupplier = ()-> {
@@ -146,9 +144,9 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier EQUALS(List<String> args) throws EMFMathException {
         if(args.size() == 3){
-            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent y = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent epsilon = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent epsilon = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
 
             ValueSupplier valueSupplier =()-> {
                 float X = x.get();
@@ -170,9 +168,9 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier BETWEEN(List<String> args) throws EMFMathException {
         if(args.size() == 3){
-            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent min = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent max = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent min = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent max = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> {
                 float X = x.get();
                 float MAX = max.get();
@@ -196,8 +194,8 @@ public class MathMethod extends MathValue implements MathComponent{
     private ValueSupplier PRINTB(List<String> args) throws EMFMathException {
         if(args.size() == 3){
             String id = args.get(0);
-            MathComponent n = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent x = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+            MathComponent n = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> {
                 float xVal = x.get();
                 if(getPrintCount() % n.get() == 0){
@@ -217,8 +215,8 @@ public class MathMethod extends MathValue implements MathComponent{
     private ValueSupplier PRINT(List<String> args) throws EMFMathException {
         if(args.size() == 3){
             String id = args.get(0);
-            MathComponent n = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent x = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+            MathComponent n = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> {
                 float xVal = x.get();
                 if(getPrintCount() % n.get() == 0){
@@ -237,9 +235,9 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier LERP(List<String> args) throws EMFMathException {
         if(args.size() == 3){
-            MathComponent k = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent x = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent y = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+            MathComponent k = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> MathHelper.lerp(k.get(),x.get(),y.get());
             List<MathComponent> comps = List.of(k,x,y);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -251,8 +249,8 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier FMOD(List<String> args) throws EMFMathException {
         if(args.size() == 2){
-            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent y = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> Math.floorMod((int) Math.floor(x.get()), (int) Math.floor(y.get()));
             List<MathComponent> comps = List.of(x,y);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -264,7 +262,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier SQRT(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> {
                 double result = Math.sqrt(arg.get());
                 if(Double.isNaN(result)){
@@ -282,7 +280,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier SIGNUM(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> Math.signum(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -294,7 +292,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ROUND(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> Math.round(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -311,7 +309,7 @@ public class MathMethod extends MathValue implements MathComponent{
             //cannot optimize further
             return random::nextFloat;
         }else if(args.size() == 1){
-            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> new Random((long) x.get()).nextFloat(1);
             List<MathComponent> comps = List.of(x);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -323,8 +321,8 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier POW(List<String> args) throws EMFMathException {
         if(args.size() == 2){
-            MathComponent x = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent y = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> (float) Math.pow(x.get(),y.get());
             List<MathComponent> comps = List.of(x,y);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -336,7 +334,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier LOG(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> (float) Math.log(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -348,7 +346,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier FRAC(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()->{
                 float d =arg.get();
                 return d > 0 ? d - (float) Math.floor(d) : d + (float) Math.ceil(d);
@@ -363,7 +361,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier EXP(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> (float) Math.exp(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -375,7 +373,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier CEIL(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> (float) Math.ceil(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -387,7 +385,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier FLOOR(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> (float) Math.floor(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -399,7 +397,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ABS(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> Math.abs(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -411,9 +409,9 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier CLAMP(List<String> args) throws EMFMathException {
         if(args.size() == 3){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent arg1 = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent arg2 = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg1 = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
 
             ValueSupplier valueSupplier = ()->{
                 float x = arg.get();
@@ -435,7 +433,7 @@ public class MathMethod extends MathValue implements MathComponent{
             List<MathComponent> exps = new ArrayList<>();
             for (String arg:
                     args) {
-                exps.add(MathExpression.getOptimizedExpression(arg,false,calculationInstance));
+                exps.add(MathExpressionParser.getOptimizedExpression(arg,false,calculationInstance));
             }
             ValueSupplier valueSupplier = ()-> {
                 float largest = Float.MIN_VALUE;
@@ -460,7 +458,7 @@ public class MathMethod extends MathValue implements MathComponent{
             List<MathComponent> exps = new ArrayList<>();
             for (String arg:
                  args) {
-                exps.add(MathExpression.getOptimizedExpression(arg,false,calculationInstance));
+                exps.add(MathExpressionParser.getOptimizedExpression(arg,false,calculationInstance));
             }
             ValueSupplier valueSupplier = ()-> {
                 float smallest = Float.MAX_VALUE;
@@ -483,7 +481,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier TORAD(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()->{
                 float x =arg.get();
                 if(calculationInstance.verboseMode) print("torad ="+x);
@@ -499,7 +497,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier TODEG(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier  = ()-> (float) Math.toDegrees(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -511,7 +509,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier SIN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> {
                 //if(calculationInstance.verboseMode) print("sin = "+ arg);
                 return (float) Math.sin(arg.get());
@@ -526,7 +524,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ASIN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> (float) Math.asin(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -538,7 +536,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier COS(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> (float) Math.cos(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -550,7 +548,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ACOS(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> (float) Math.acos(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -562,7 +560,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier TAN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> (float) Math.tan(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -574,7 +572,7 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ATAN(List<String> args) throws EMFMathException {
         if(args.size() == 1){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> (float) Math.atan(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -586,8 +584,8 @@ public class MathMethod extends MathValue implements MathComponent{
     }
     private ValueSupplier ATAN2(List<String> args) throws EMFMathException {
         if(args.size() == 2){
-            MathComponent arg = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent arg2 = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> (float) Math.atan2(arg.get(), arg2.get());
             List<MathComponent> comps = List.of(arg,arg2);
             setOptimizedIfPossible(comps,valueSupplier);
@@ -602,17 +600,17 @@ public class MathMethod extends MathValue implements MathComponent{
 
         if(args.size() == 3){
             //easy if
-            MathComponent bool = MathExpression.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent bool = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
 
-            MathComponent tru = MathExpression.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent fals = MathExpression.getOptimizedExpression(args.get(2),false,calculationInstance);
+            MathComponent tru = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
+            MathComponent fals = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
 
 
             // different constant optimization for if statement
             // this should never happen unless the pack maker is 0 iq
             if (!(bool instanceof MathMethod) &&
                     !(bool instanceof MathVariableUpdatable) &&
-                    !(bool instanceof MathExpression)) {
+                    !(bool instanceof MathExpressionParser)) {
                 optimizedAlternativeToThis = bool.get() == 1 ? tru : fals;
             }
             return ()->{
@@ -624,7 +622,7 @@ public class MathMethod extends MathValue implements MathComponent{
             List<MathComponent> expList = new ArrayList<>();
             for (String str:
                  args) {
-                expList.add(MathExpression.getOptimizedExpression(str,false,calculationInstance));
+                expList.add(MathExpressionParser.getOptimizedExpression(str,false,calculationInstance));
             }
 
             return ()->{

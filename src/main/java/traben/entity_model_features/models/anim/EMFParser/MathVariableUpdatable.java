@@ -67,6 +67,12 @@ public class MathVariableUpdatable extends MathValue implements  MathComponent{
             case "max_health" -> getter::getMaxHealth;
             case "id" -> getter::getId;
 
+
+            case "collisionX" -> getter::getClosestCollisionX;
+            case "collisionY" -> getter::getClosestCollisionY;
+            case "collisionZ" -> getter::getClosestCollisionZ;
+
+            case "is_climbing" -> getBooleanAsFloat(getter::isClimbing);
             //constants
 //            case "pi" -> ()->PI;//3.1415926f;
 //            case "true" ->  ()-> invertBooleans ? 0f : 1f;
@@ -74,7 +80,6 @@ public class MathVariableUpdatable extends MathValue implements  MathComponent{
 
             //boolean
             case "is_child" -> getBooleanAsFloat(getter::isChild);
-            case "is_climbing" -> getBooleanAsFloat(getter::isClimbing);
             case "is_in_water" -> getBooleanAsFloat(getter::isInWater);
             case "is_riding" -> getBooleanAsFloat(getter::isRiding);
             case "is_on_ground" -> getBooleanAsFloat(getter::isOnGround);

@@ -8,7 +8,7 @@ import traben.entity_model_features.EMFData;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
 import traben.entity_model_features.models.anim.EMFParser.MathComponent;
-import traben.entity_model_features.models.anim.EMFParser.MathExpression;
+import traben.entity_model_features.models.anim.EMFParser.MathExpressionParser;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.UUID;
@@ -58,7 +58,7 @@ public class AnimationCalculation {
         prevResults.defaultReturnValue(defaultValue);
         prevPrevResults.defaultReturnValue(defaultValue);
 
-        EMFCalculator = MathExpression.getOptimizedExpression(initialExpression,false, this);
+        EMFCalculator = MathExpressionParser.getOptimizedExpression(initialExpression,false, this);
 
 
     }
@@ -189,7 +189,7 @@ public class AnimationCalculation {
     }
 
     public boolean isValid(){
-        return EMFCalculator != MathExpression.NULL_EXPRESSION;
+        return EMFCalculator != MathExpressionParser.NULL_EXPRESSION;
     }
 
     public void animPrint(String str){

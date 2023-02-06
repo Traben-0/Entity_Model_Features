@@ -19,6 +19,14 @@ public class MathVariableConstant extends MathValue implements MathComponent{
     }
 
     @Override
+    public boolean isConstant() {
+        return true;
+    }
+    @Override
+    public void makeNegative(boolean become){
+        if(become) hardCodedValue = -hardCodedValue;
+    }
+    @Override
     public String toString() {
         return String.valueOf(get());
     }

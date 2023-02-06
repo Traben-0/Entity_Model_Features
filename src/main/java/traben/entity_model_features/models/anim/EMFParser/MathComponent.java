@@ -6,6 +6,7 @@ public interface MathComponent{
      float get();// throws EMFMathException;
 
 
+     default boolean isConstant(){return false;}
      class EMFMathException extends Exception {
 
           public EMFMathException(String s) {
