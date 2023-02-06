@@ -36,7 +36,7 @@ public class MathOrderedExpressionComponent extends MathValue implements MathCom
 
     @Override
     public String toString() {
-        return String.valueOf(get());
+        return "oExp:"+first+" "+action+" "+second+"="+ get();
     }
 
 

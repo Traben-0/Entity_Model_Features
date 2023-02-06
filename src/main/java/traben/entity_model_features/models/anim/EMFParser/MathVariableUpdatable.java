@@ -37,7 +37,7 @@ public class MathVariableUpdatable extends MathValue implements  MathComponent{
             invertBooleans = true;
         }
 
-        AnimationGetters getter = calculationInstance.animationGetters;
+        AnimationGetters getter = calculationInstance.parentModel.animationGetters;
 
         //discover supplier needed
         valueSupplier = switch (value){
@@ -196,7 +196,7 @@ public class MathVariableUpdatable extends MathValue implements  MathComponent{
 
     @Override
     public String toString() {
-        return get()+"";
+        return variableName+"="+get();
     }
 
     private interface BoolSupplierPrimitive{

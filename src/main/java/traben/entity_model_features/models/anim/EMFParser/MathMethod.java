@@ -608,9 +608,7 @@ public class MathMethod extends MathValue implements MathComponent{
 
             // different constant optimization for if statement
             // this should never happen unless the pack maker is 0 iq
-            if (!(bool instanceof MathMethod) &&
-                    !(bool instanceof MathVariableUpdatable) &&
-                    !(bool instanceof MathExpressionParser)) {
+            if (bool.isConstant()) {
                 optimizedAlternativeToThis = bool.get() == 1 ? tru : fals;
             }
             return ()->{

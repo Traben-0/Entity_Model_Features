@@ -11,6 +11,7 @@ import traben.entity_model_features.models.anim.EMFParser.MathComponent;
 import traben.entity_model_features.models.anim.EMFParser.MathExpressionParser;
 import traben.entity_model_features.utils.EMFUtils;
 
+import java.util.Random;
 import java.util.UUID;
 
 public class AnimationCalculation {
@@ -107,7 +108,7 @@ public class AnimationCalculation {
 
     }
 
-    public final AnimationGetters animationGetters = new AnimationGetters();
+
     public float getResultViaCalculate(LivingEntity entity0, float limbAngle0, float limbDistance0,
                                        float animationProgress0, float headYaw0, float headPitch0, float tickDelta0, boolean storeResult){
 
@@ -121,16 +122,8 @@ public class AnimationCalculation {
 
         UUID id = entity0.getUuid();
 
-        animationGetters.entity = entity0;
-        animationGetters.limbAngle = limbAngle0;
-        animationGetters.limbDistance = limbDistance0;
-        animationGetters.animationProgress = animationProgress0;
-        animationGetters.headYaw = headYaw0;
-        animationGetters.headPitch = headPitch0;
-        animationGetters.tickDelta = tickDelta0;
-        animationGetters.riding = parentModel.riding;
 
-        animationGetters.child = parentModel.child;
+
             float result = calculatorRun();
 
             float oldResult = prevResults.getFloat(id);
@@ -147,12 +140,13 @@ public class AnimationCalculation {
     }
 
 
-
+    private final Random rand = new Random();
     public float calculatorRun() {
 //        try {
-            if (EMFData.getInstance().getConfig().printAllMaths) {
+            if (EMFData.getInstance().getConfig().printAllMaths && rand.nextInt(100) == 1) {
                 setVerbose(true);
                 float val = EMFCalculator.get();
+                System.out.println(EMFCalculator.toString() +" is "+ EMFCalculator.getClass());
                 EMFUtils.EMF_modMessage("animation result: " + animKey + " = " + val);
                 return val;
             } else {

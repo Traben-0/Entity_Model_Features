@@ -25,6 +25,7 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.mixin.accessor.entity.model.AnimalModelAccessor;
 import traben.entity_model_features.models.anim.AnimationCalculation;
+import traben.entity_model_features.models.anim.AnimationGetters;
 import traben.entity_model_features.models.anim.AnimationModelDefaultVariable;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
@@ -459,10 +460,18 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                         prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
                     }
 
-                    prevResultsTick.put(id, thisTickValue);//entity.age + tickDelta);
+                    prevResultsTick.put(id, thisTickValue);//entity.age + tickDelta)
                     calculateForThisAnimationTick = true;
 
-
+                    animationGetters.entity = entity;
+                    animationGetters.limbAngle = limbAngle;
+                    animationGetters.limbDistance = limbDistance;
+                    animationGetters.animationProgress = animationProgress;
+                    animationGetters.headYaw = headYaw;
+                    animationGetters.headPitch = headPitch;
+                    animationGetters.tickDelta = tickDelta;
+                    animationGetters.riding = riding;
+                    animationGetters.child = child;
 
                     //currentAnimationDeltaForThisTick = 0f;
                 } else if (thisTickValue < prevTickValue - 100 - interpolationLength) {
@@ -502,6 +511,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         }
         //that's it????
     }
+    public final AnimationGetters animationGetters = new AnimationGetters();
 
     private float getNextPrevResultTickValue(){
 //        if(currentEntity != null && currentEntity.world != null)

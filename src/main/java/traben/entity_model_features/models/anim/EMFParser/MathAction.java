@@ -39,7 +39,8 @@ public enum MathAction  implements MathComponent{
     }
 
     public float run(MathComponent first, MathComponent second){
-        return switch (this){
+
+        float result = switch (this){
             case add -> first.get() + second.get();
             case subtract -> first.get() - second.get();
             case multiply -> first.get() * second.get();
@@ -55,6 +56,8 @@ public enum MathAction  implements MathComponent{
             case or -> (first.get()==1 || second.get()==1)? 1 : 0;
             default -> Float.NaN;
         };
+        //if(EMFData.getInstance().getConfig().printAllMaths) System.out.println("run: "+first+this+second+"="+result);
+        return result;
     }
 
     @Override

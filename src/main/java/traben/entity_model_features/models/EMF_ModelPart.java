@@ -50,7 +50,7 @@ public class EMF_ModelPart extends ModelPart  {
             this.visible = vanillaPart.visible;
             this.hidden = vanillaPart.hidden;
         }
-        if (this.visible) {
+        if (this.visible){// && xScale!= 0 && yScale != 0 && zScale != 0){// && scaleNotZero) {
             if (!this.cuboids.isEmpty() || !this.children.isEmpty()) {
                 matrices.push();
                 this.rotate(matrices);
@@ -182,6 +182,19 @@ public class EMF_ModelPart extends ModelPart  {
         }
     }
 
+    //private boolean scaleNotZero = true;
+//    public void setAnimScaleX(float newScale){
+//        //scaleNotZero = newScale != 0 || (yScale != 0 || zScale != 0);
+//        xScale = newScale;
+//    }
+//    public void setAnimScaleY(float newScale){
+//        //scaleNotZero = newScale != 0 || (xScale != 0 || zScale != 0);
+//        yScale = newScale;
+//    }
+//    public void setAnimScaleZ(float newScale){
+//       // scaleNotZero = newScale != 0 || (yScale != 0 || xScale != 0);
+//        zScale = newScale;
+//    }
     public void setAnimPitch(float newPitch){
         this.pitch = newPitch;// + getDefaultTransform().pitch;
     }

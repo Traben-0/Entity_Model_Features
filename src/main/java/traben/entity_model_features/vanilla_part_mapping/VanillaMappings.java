@@ -5,6 +5,7 @@ import net.minecraft.client.render.entity.model.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFData;
+import traben.entity_model_features.mixin.accessor.DonkeyEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.mixin.accessor.entity.model.*;
 import traben.entity_model_features.utils.EMFUtils;
@@ -45,6 +46,9 @@ public class VanillaMappings {
         if (vanillaModel instanceof SalmonEntityModel) {
             return VanillaMappings::getSalmonMap;
         }
+        if (vanillaModel instanceof TadpoleEntityModel) {
+            return VanillaMappings::getTadpoleMap;
+        }
         if (vanillaModel instanceof CodEntityModel) {
             return VanillaMappings::getCodMap;
         }
@@ -71,6 +75,9 @@ public class VanillaMappings {
         }
         if (vanillaModel instanceof GuardianEntityModel) {
             return VanillaMappings::getGuardianMap;
+        }
+        if (vanillaModel instanceof DonkeyEntityModel) {
+            return VanillaMappings::getDonkeyMap;
         }
         if (vanillaModel instanceof HorseEntityModel) {
             return VanillaMappings::getHorseMap;
@@ -185,6 +192,21 @@ public class VanillaMappings {
 //        return vanillaPartsList;
 //    }
 
+
+    private static HashMap<String, ModelAndParent> getTadpoleMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
+        if (vanillaModel instanceof AnimalModel animal) {
+            Iterable<ModelPart> bodyParts =((AnimalModelAccessor) animal).callGetHeadParts();
+            Iterable<ModelPart> hed = ((AnimalModelAccessor) animal).callGetHeadParts();
+            if(hed.iterator().hasNext()) {
+                vanillaPartsList.put("body", getEntry(hed.iterator().next()));
+            }
+            if(bodyParts.iterator().hasNext()) {
+                vanillaPartsList.put("tail", getEntry(bodyParts.iterator().next(),"body"));
+            }
+        }
+        return vanillaPartsList;
+    }
 
     private static HashMap<String, ModelAndParent> getCodMap(EntityModel<?> vanillaModel){
         //# cod                      body, fin_back, head, nose, fin_right, fin_left, tail
@@ -359,7 +381,14 @@ public class VanillaMappings {
         vanillaPartsList.put("spine12",vanillaPartsList.get("spike11"));
         return vanillaPartsList;
     }
-
+    private static HashMap<String, ModelAndParent> getDonkeyMap(EntityModel<?> vanillaModel){
+        HashMap<String,ModelAndParent> vanillaPartsList = getHorseMap(vanillaModel);
+        if (vanillaModel instanceof DonkeyEntityModel donkey) {
+            vanillaPartsList.put("left_chest",getEntry(((DonkeyEntityModelAccessor)donkey).getLeftChest(),"body"));
+            vanillaPartsList.put("right_chest",getEntry(((DonkeyEntityModelAccessor)donkey).getRightChest(),"body"));
+        }
+        return vanillaPartsList;
+    }
     private static HashMap<String, ModelAndParent> getHorseMap(EntityModel<?> vanillaModel){
         HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof AnimalModel horse) {
@@ -610,11 +639,25 @@ public class VanillaMappings {
             for (ModelPart part : ((AnimalModelAccessor) animal).callGetBodyParts()) {
                 bodyParts.add(part);
             }
-            vanillaPartsList.put("body",getEntry(bodyParts.get(0)));
-            vanillaPartsList.put("leg1",getEntry(bodyParts.get(1)));
-            vanillaPartsList.put("leg2",getEntry(bodyParts.get(2)));
-            vanillaPartsList.put("leg3",getEntry(bodyParts.get(3)));
-            vanillaPartsList.put("leg4",getEntry(bodyParts.get(4)));
+
+            for (int i = 0; i < bodyParts.size(); i++) {
+                switch (i){
+                    case 0->vanillaPartsList.put("body",getEntry(bodyParts.get(0)));
+                    case 1->vanillaPartsList.put("leg1",getEntry(bodyParts.get(1)));
+                    case 2->vanillaPartsList.put("leg2",getEntry(bodyParts.get(2)));
+                    case 3->vanillaPartsList.put("leg3",getEntry(bodyParts.get(3)));
+                    case 4->vanillaPartsList.put("leg4",getEntry(bodyParts.get(4)));
+                    default->{
+                        EMFUtils.EMF_modWarn("unkown part found for "+ vanillaModel.getClass());
+                        vanillaPartsList.put("unkown"+i,getEntry(bodyParts.get(i)));
+                    }
+                }
+            }
+
+//            vanillaPartsList.put("leg1",getEntry(bodyParts.get(1)));
+//            vanillaPartsList.put("leg2",getEntry(bodyParts.get(2)));
+//            vanillaPartsList.put("leg3",getEntry(bodyParts.get(3)));
+//            vanillaPartsList.put("leg4",getEntry(bodyParts.get(4)));
 
 
         }
