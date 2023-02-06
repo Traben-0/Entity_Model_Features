@@ -14,9 +14,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.IllagerEntity;
 import net.minecraft.entity.passive.*;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFCustomModel;
+import traben.entity_model_features.models.anim.AnimationGetters;
 import traben.entity_model_features.models.vanilla_model_children.*;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
@@ -264,7 +266,8 @@ public class EMFData {
     public Object2BooleanOpenHashMap<UUID> UUID_MOB_MODEL_UPDATES = new Object2BooleanOpenHashMap<>();
 
     public EMFCustomPlayerModel<?> clientPlayerModel = null;
-
-
+    public EntityModel<PlayerEntity> clientPlayerVanillaModel = null;
+    public boolean checkedHand = false;
+    public AnimationGetters clientGetter = null;
 
 }

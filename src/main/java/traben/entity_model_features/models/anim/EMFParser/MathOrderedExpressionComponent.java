@@ -13,7 +13,7 @@ public class MathOrderedExpressionComponent extends MathValue implements MathCom
         this.first = first;
         this.action = action;
         this.second = second;
-        supplier = ()-> action.run(first,second);
+        //supplier = ()-> action.run(first,second);
     }
 
     public static MathComponent getOptimizedExpression(MathComponent first, MathAction action, MathComponent second){
@@ -28,10 +28,15 @@ public class MathOrderedExpressionComponent extends MathValue implements MathCom
         return component;
     }
 
-    private final ValueSupplier supplier;
+    //private final ValueSupplier supplier;
     @Override
     public ValueSupplier getSupplier() {
-        return supplier;
+        return null;
+    }
+
+    @Override
+    public float get() {
+        return isNegative ? -action.run(first,second) : action.run(first,second);
     }
 
     @Override

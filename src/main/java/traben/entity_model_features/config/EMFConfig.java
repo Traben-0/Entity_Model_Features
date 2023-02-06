@@ -52,7 +52,7 @@ public class EMFConfig {
 
     public boolean printAllMaths = false;
 
-    public boolean useCustomPlayerHandInFPS = false;
+   // public boolean useCustomPlayerHandInFPS = false;
 
     public boolean forceTranslucentMobRendering = false;
 

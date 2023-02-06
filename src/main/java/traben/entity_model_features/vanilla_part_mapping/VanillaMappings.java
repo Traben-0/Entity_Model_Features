@@ -29,12 +29,15 @@ public class VanillaMappings {
 
     public static VanillaMapper getVanillaModelPartsMapSupplier(int entityTypeHash, EntityModel<?> vanillaModel){
         if(!mappers.containsKey(entityTypeHash)){
-            mappers.put(entityTypeHash,discoverMappingToUse(vanillaModel));
+            mappers.put(entityTypeHash, discoverMappingToUse(vanillaModel));
         }
         return mappers.get(entityTypeHash);
     }
 
+
     private static VanillaMapper discoverMappingToUse(EntityModel<?> vanillaModel){
+
+
 
         if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("getting vanilla model map...");
 //        if (vanillaModel instanceof AllayEntityModel) {

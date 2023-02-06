@@ -473,6 +473,9 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                     animationGetters.riding = riding;
                     animationGetters.child = child;
 
+                    if(entity == MinecraftClient.getInstance().player && EMFData.getInstance().clientGetter == null)
+                        EMFData.getInstance().clientGetter = animationGetters;
+
                     //currentAnimationDeltaForThisTick = 0f;
                 } else if (thisTickValue < prevTickValue - 100 - interpolationLength) {
                     //this is required as animation progress resets with the entity entering render distance
@@ -511,7 +514,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         }
         //that's it????
     }
-    public final AnimationGetters animationGetters = new AnimationGetters();
+    public AnimationGetters animationGetters = new AnimationGetters();
 
     private float getNextPrevResultTickValue(){
 //        if(currentEntity != null && currentEntity.world != null)
