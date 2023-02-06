@@ -33,8 +33,8 @@ public class EMFYACL{
                 .name(Text.of("General"))
                 .tooltip(Text.of("General settings"))
                 .option(Option.createBuilder(boolean.class)
-                        .name(Text.of("force transparent rendering"))
-                        .tooltip(Text.of("")) // optional
+                        .name(Text.of("force translucent rendering"))
+                        .tooltip(Text.of("forces models to render using translucency support\n might break things idk")) // optional
                         .binding(
                                 false, // default
                                 () -> EMFData.getInstance().getConfig().forceTranslucentMobRendering, // getter
@@ -45,7 +45,7 @@ public class EMFYACL{
 
                 .option(Option.createBuilder(EMFConfig.VanillaModelRenderMode.class)
                         .name(Text.of("render vanilla model hologram mode"))
-                        .tooltip(Text.of("")) // optional
+                        .tooltip(Text.of("render the vanilla model next to or on top of the EMF model")) // optional
                         .binding(
                                 EMFConfig.VanillaModelRenderMode.No, // default
                                 () -> EMFData.getInstance().getConfig().displayVanillaModelHologram, // getter
@@ -66,7 +66,7 @@ public class EMFYACL{
 
                 .option(Option.createBuilder(EMFConfig.SpawnAnimation.class)
                         .name(Text.of("SPAWN ANIMATION"))
-                        .tooltip(Text.of("")) // optional
+                        .tooltip(Text.of("select a spawn animation type\nexpect some bugs\nnot all work yet")) // optional
                         .binding(
                                 EMFConfig.SpawnAnimation.None, // default
                                 () -> EMFData.getInstance().getConfig().spawnAnim, // getter
@@ -94,7 +94,7 @@ public class EMFYACL{
 
                 .option(Option.createBuilder(EMFConfig.AnimationRatePerSecondMode.class)
                         .name(Text.of("animation rate: "))
-                        .tooltip(Text.of("actual value is always limited by fps")) // optional
+                        .tooltip(Text.of("can be set as Ticks Per Second (TPS)\nor relative to FPS\nactual value is always limited by fps\n lower values are usually just fine, but some optifine packs expect calculating often to update variables:/\ndefault of 60tps recommended")) // optional
                         .binding(
                                 EMFConfig.AnimationRatePerSecondMode.Sixty_tps, // default
                                 () -> EMFData.getInstance().getConfig().animationRate, // getter
@@ -105,7 +105,7 @@ public class EMFYACL{
                         .build())
                 .option(Option.createBuilder(float.class)
                         .name(Text.of("minimum animation drop off distance"))
-                        .tooltip(Text.of("")) // optional
+                        .tooltip(Text.of("animations will reduce their rate depending on distance from the player\n this will start happening from this distance from the player")) // optional
                         .binding(
                                 8f, // default
                                 () -> EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff, // getter
@@ -114,8 +114,8 @@ public class EMFYACL{
                         .controller((val)->new FloatSliderController(val,1,128,1f))
                         .build())
                 .option(Option.createBuilder(float.class)
-                        .name(Text.of("min animation fps"))
-                        .tooltip(Text.of("")) // optional
+                        .name(Text.of("min animation tps"))
+                        .tooltip(Text.of("sets the minimun tps for distant animations for if you want to crank up the drop off rate below")) // optional
                         .binding(
                                 0.3f, // default
                                 () -> EMFData.getInstance().getConfig().minimumAnimationFPS, // getter
@@ -125,7 +125,7 @@ public class EMFYACL{
                         .build())
                 .option(Option.createBuilder(float.class)
                         .name(Text.of("animation quality drop off rate"))
-                        .tooltip(Text.of("")) // optional
+                        .tooltip(Text.of("this sets the rate at which distant mobs animation rate will reduce")) // optional
                         .binding(
                                 10f, // default
                                 () -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate, // getter
@@ -144,7 +144,7 @@ public class EMFYACL{
 
                 .option(Option.createBuilder(boolean.class)
                         .name(Text.of("print maths"))
-                        .tooltip(Text.of("")) // optional
+                        .tooltip(Text.of("prints math debug data to log\nWARNING EXTREMELY LAG INDUCING!")) // optional
                         .binding(
                                 false, // default
                                 () -> EMFData.getInstance().getConfig().printAllMaths, // getter
@@ -154,7 +154,7 @@ public class EMFYACL{
                         .build())
                 .option(Option.createBuilder(boolean.class)
                         .name(Text.of("print model creation"))
-                        .tooltip(Text.of("")) // optional
+                        .tooltip(Text.of("prints model creation debug data to log\nwill increase the stutter time the first time a model is rendered")) // optional
                         .binding(
                                 false, // default
                                 () -> EMFData.getInstance().getConfig().printModelCreationInfoToLog, // getter
