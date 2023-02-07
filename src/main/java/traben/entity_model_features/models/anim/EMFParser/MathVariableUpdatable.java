@@ -108,7 +108,7 @@ public class MathVariableUpdatable extends MathValue implements  MathComponent{
         };
     }
 
-    final float PI = (float) Math.PI;
+    //final float PI = (float) Math.PI;
 
 
     private ValueSupplier getVariable(String variableKey, AnimationGetters getter) throws EMFMathException {
@@ -117,8 +117,8 @@ public class MathVariableUpdatable extends MathValue implements  MathComponent{
 //            case "false" -> ()-> invertBooleans ? 1f : 0f;
         switch(variableKey){
             case "pi"-> {
-                optimizedAlternativeToThis = new MathVariableConstant(PI,isNegative);
-                return ()->PI;//3.1415926f;
+                optimizedAlternativeToThis = new MathVariableConstant(Math.PI,isNegative);
+                return ()->Math.PI;
             }
             case "true"-> {
                 float bool = invertBooleans ? 0f : 1f;
@@ -183,7 +183,7 @@ public class MathVariableUpdatable extends MathValue implements  MathComponent{
         return ()->{
             boolean value = invertBooleans != boolGetter.get();
 
-            return value ? 1f: 0f;
+            return value ? 1d: 0d;
         };
     }
 

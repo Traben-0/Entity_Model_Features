@@ -2,14 +2,14 @@ package traben.entity_model_features.models.anim.EMFParser;
 
 public class MathVariableConstant extends MathValue implements MathComponent{
 
-    float hardCodedValue;
+    double hardCodedValue;
 
-    public MathVariableConstant(float number, boolean isNegative){
+    public MathVariableConstant(double number, boolean isNegative){
         //super(isNegative);
 
         hardCodedValue = isNegative ? -number : number;
     }
-    public MathVariableConstant(float number){
+    public MathVariableConstant(double number){
         hardCodedValue = number;
     }
     @Override
@@ -32,7 +32,7 @@ public class MathVariableConstant extends MathValue implements MathComponent{
     }
 
     @Override // make fastest return
-    public float get() {
+    public double get() {
         //if(calculationInstance != null)
             //calculationInstance.indentCount++;
         //if(calculationInstance != null)

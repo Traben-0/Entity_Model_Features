@@ -13,9 +13,9 @@ public class EMFModMenuEntry implements ModMenuApi {
                 return EMFYACL::createGui;
             }
         }catch (Exception e){
-            return null;
+            return screen -> null;
         }
-        return null;
+        return screen -> null;
     }
 
 

@@ -39,7 +39,7 @@ public class AnimationGetters {
             return entity;
         }
 
-        public float getDimension () {
+        public double getDimension () {
             if (entity == null || entity.getWorld() == null) return 0;
             Identifier id = entity.getWorld().getDimensionKey().getValue();
             if (id.equals(DimensionTypes.THE_NETHER_ID)) return -1;
@@ -47,79 +47,79 @@ public class AnimationGetters {
             return 0;
         }
 
-        public float getPlayerX () {
-            return MinecraftClient.getInstance().player == null ? 0 : (float) MathHelper.lerp(tickDelta, MinecraftClient.getInstance().player.prevX, MinecraftClient.getInstance().player.getX());
+        public double getPlayerX () {
+            return MinecraftClient.getInstance().player == null ? 0 : (double) MathHelper.lerp(tickDelta, MinecraftClient.getInstance().player.prevX, MinecraftClient.getInstance().player.getX());
         }
 
-        public float getPlayerY () {
-            return MinecraftClient.getInstance().player == null ? 0 : (float) MathHelper.lerp(tickDelta, MinecraftClient.getInstance().player.prevY, MinecraftClient.getInstance().player.getY());
+        public double getPlayerY () {
+            return MinecraftClient.getInstance().player == null ? 0 : (double) MathHelper.lerp(tickDelta, MinecraftClient.getInstance().player.prevY, MinecraftClient.getInstance().player.getY());
         }
 
-        public float getPlayerZ () {
-            return MinecraftClient.getInstance().player == null ? 0 : (float) MathHelper.lerp(tickDelta, MinecraftClient.getInstance().player.prevZ, MinecraftClient.getInstance().player.getZ());
+        public double getPlayerZ () {
+            return MinecraftClient.getInstance().player == null ? 0 : (double) MathHelper.lerp(tickDelta, MinecraftClient.getInstance().player.prevZ, MinecraftClient.getInstance().player.getZ());
         }
 
-        public float getPlayerRX () {
+        public double getPlayerRX () {
             return (MinecraftClient.getInstance().player == null) ? 0 :
-                    (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, MinecraftClient.getInstance().player.prevPitch, MinecraftClient.getInstance().player.getPitch()));
+                    (double) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, MinecraftClient.getInstance().player.prevPitch, MinecraftClient.getInstance().player.getPitch()));
         }
 
-        public float getPlayerRY () {
+        public double getPlayerRY () {
             return (MinecraftClient.getInstance().player == null) ? 0 :
-                    (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, MinecraftClient.getInstance().player.prevYaw, MinecraftClient.getInstance().player.getYaw()));
+                    (double) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, MinecraftClient.getInstance().player.prevYaw, MinecraftClient.getInstance().player.getYaw()));
         }
 
-        public float getEntityX () {
-            return getEntity() == null ? 0 : (float) MathHelper.lerp(getTickDelta(), getEntity().prevX, getEntity().getX());
+        public double getEntityX () {
+            return getEntity() == null ? 0 : (double) MathHelper.lerp(getTickDelta(), getEntity().prevX, getEntity().getX());
         }
 
-        public float getEntityY () {
+        public double getEntityY () {
             return getEntity() == null ? 0 :
-                    //(float) getEntity().getY();
-                    (float) MathHelper.lerp(getTickDelta(), getEntity().prevY, getEntity().getY());
+                    //(double) getEntity().getY();
+                    (double) MathHelper.lerp(getTickDelta(), getEntity().prevY, getEntity().getY());
         }
 
-        public float getEntityZ () {
-            return getEntity() == null ? 0 : (float) MathHelper.lerp(getTickDelta(), getEntity().prevZ, getEntity().getZ());
+        public double getEntityZ () {
+            return getEntity() == null ? 0 : (double) MathHelper.lerp(getTickDelta(), getEntity().prevZ, getEntity().getZ());
         }
 
-        public float getEntityRX () {
+        public double getEntityRX () {
             return (getEntity() == null) ? 0 :
-                    //(float) Math.toRadians(getEntity().getPitch(tickDelta));
-                    (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, getEntity().prevPitch, getEntity().getPitch()));
+                    //(double) Math.toRadians(getEntity().getPitch(tickDelta));
+                    (double) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, getEntity().prevPitch, getEntity().getPitch()));
         }
 
-        public float getEntityRY () {
+        public double getEntityRY () {
             return (getEntity() instanceof LivingEntity alive) ?
-                    (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, alive.prevBodyYaw, alive.getBodyYaw())) : 0;
+                    (double) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, alive.prevBodyYaw, alive.getBodyYaw())) : 0;
         }
 
-        //long changed to float... should be fine tbh
-        public float getTime () {
-            return entity == null || entity.getWorld() == null ? 0 : entity.getWorld().getTime() + tickDelta;
+        //long changed to double... should be fine tbh
+        public double getTime () {
+            return entity == null || entity.getWorld() == null ? 0 : entity.getWorld().getTime() % Integer.MAX_VALUE + tickDelta;
         }
 
-        public float getHealth () {
+        public double getHealth () {
             return entity instanceof LivingEntity alive ? alive.getHealth() : 1;
         }
 
-        public float getDeathTime () {
+        public double getDeathTime () {
             return entity instanceof LivingEntity alive ? alive.deathTime : 0;
         }
 
-        public float getAngerTime () {
+        public double getAngerTime () {
             return !(entity instanceof Angerable) ? 0 : ((Angerable) entity).getAngerTime();
         }
 
-        public float getMaxHealth () {
+        public double getMaxHealth () {
             return entity instanceof LivingEntity alive ? alive.getMaxHealth() : 1;
         }
 
-        public float getId () {
+        public double getId () {
             return entity == null ? 0 : entity.getUuid().hashCode();
         }
 
-        public float getHurtTime () {
+        public double getHurtTime () {
             return entity instanceof LivingEntity alive ? alive.hurtTime : 0;
         }
 
@@ -145,51 +145,51 @@ public class AnimationGetters {
             return entity != null && entity.isOnGround();
         }
 
-        public float getClosestCollisionX () {
+        public double getClosestCollisionX () {
             if (entity != null && entity.world != null) {
                 Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity, entity.getBoundingBox()).iterator();
                 Vec3d entitypos = entity.getPos();
-                float closest = Float.MAX_VALUE;
+                double closest = Double.MAX_VALUE;
                 while (bob.hasNext()) {
                     Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
                     if (current.isPresent()) {
-                        float newVec = (float) current.get().x;
-                        closest = (float) Math.min(closest, Math.max(entitypos.x, newVec) - Math.min(entitypos.x, newVec));
+                        double newVec = (double) current.get().x;
+                        closest = (double) Math.min(closest, Math.max(entitypos.x, newVec) - Math.min(entitypos.x, newVec));
                     }
                 }
-                if (closest != Float.MAX_VALUE) return closest;
+                if (closest != Double.MAX_VALUE) return closest;
             }
             return 0;
         }
-        public float getClosestCollisionY () {
+        public double getClosestCollisionY () {
             if (entity != null && entity.world != null) {
                 Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity, entity.getBoundingBox()).iterator();
                 Vec3d entitypos = entity.getPos();
-                float closest = Float.MAX_VALUE;
+                double closest = Double.MAX_VALUE;
                 while (bob.hasNext()) {
                     Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
                     if (current.isPresent()) {
-                        float newVec = (float) current.get().y;
-                        closest = (float) Math.min(closest, Math.max(entitypos.y, newVec) - Math.min(entitypos.y, newVec));
+                        double newVec = (double) current.get().y;
+                        closest = (double) Math.min(closest, Math.max(entitypos.y, newVec) - Math.min(entitypos.y, newVec));
                     }
                 }
-                if (closest != Float.MAX_VALUE) return closest;
+                if (closest != Double.MAX_VALUE) return closest;
             }
             return 0;
         }
-        public float getClosestCollisionZ () {
+        public double getClosestCollisionZ () {
             if (entity != null && entity.world != null) {
                 Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity, entity.getBoundingBox()).iterator();
                 Vec3d entitypos = entity.getPos();
-                float closest = Float.MAX_VALUE;
+                double closest = Double.MAX_VALUE;
                 while (bob.hasNext()) {
                     Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
                     if (current.isPresent()) {
-                        float newVec = (float) current.get().z;
-                        closest = (float) Math.min(closest, Math.max(entitypos.z, newVec) - Math.min(entitypos.z, newVec));
+                        double newVec = (double) current.get().z;
+                        closest = (double) Math.min(closest, Math.max(entitypos.z, newVec) - Math.min(entitypos.z, newVec));
                     }
                 }
-                if (closest != Float.MAX_VALUE) return closest;
+                if (closest != Double.MAX_VALUE) return closest;
             }
             return 0;
         }
@@ -275,33 +275,33 @@ public class AnimationGetters {
             return entity != null && entity.isWet();
         }
 
-        public float getSwingProgress () {
-            return entity instanceof LivingEntity alive ? alive.getHandSwingProgress(tickDelta) : 0;
+        public double getSwingProgress () {
+            return entity instanceof LivingEntity alive ? alive.getHandSwingProgress((float) tickDelta) : 0;
         }
 
-        public float getAge () {
+        public double getAge () {
             //return entity == null ? 0 : entity.age + tickDelta;
             return animationProgress;
         }
 
-        public float getLimbAngle () {
+        public double getLimbAngle () {
             return limbAngle;
         }
 
-        public float getLimbDistance () {
+        public double getLimbDistance () {
             return limbDistance;
         }
 
-        public float getHeadYaw () {
+        public double getHeadYaw () {
             return headYaw;
         }
 
-        public float getHeadPitch () {
+        public double getHeadPitch () {
             return headPitch;
 
         }
 
-        public float getTickDelta () {
+        public double getTickDelta () {
             return tickDelta;
         }
     

@@ -38,9 +38,10 @@ public enum MathAction  implements MathComponent{
         };
     }
 
-    public float run(MathComponent first, MathComponent second){
+    public double run(MathComponent first, MathComponent second){
 
-        float result = switch (this){
+        //if(EMFData.getInstance().getConfig().printAllMaths) System.out.println("run: "+first+this+second+"="+result);
+        return switch (this){
             case add -> first.get() + second.get();
             case subtract -> first.get() - second.get();
             case multiply -> first.get() * second.get();
@@ -54,10 +55,8 @@ public enum MathAction  implements MathComponent{
             case notEquals -> (first.get() != second.get())? 1 : 0;
             case and -> (first.get()==1 && second.get()==1)? 1 : 0;
             case or -> (first.get()==1 || second.get()==1)? 1 : 0;
-            default -> Float.NaN;
+            default -> Double.NaN;
         };
-        //if(EMFData.getInstance().getConfig().printAllMaths) System.out.println("run: "+first+this+second+"="+result);
-        return result;
     }
 
     @Override
@@ -66,8 +65,8 @@ public enum MathAction  implements MathComponent{
     }
 
     @Override
-    public float get(){
+    public double get(){
         System.out.println("ERROR: math action incorrectly called ["+this+"].");
-        return Float.NaN;
+        return Double.NaN;
     }
 }

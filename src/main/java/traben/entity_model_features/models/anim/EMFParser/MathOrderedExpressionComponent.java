@@ -35,7 +35,7 @@ public class MathOrderedExpressionComponent extends MathValue implements MathCom
     }
 
     @Override
-    public float get() {
+    public double get() {
         return isNegative ? -action.run(first,second) : action.run(first,second);
     }
 

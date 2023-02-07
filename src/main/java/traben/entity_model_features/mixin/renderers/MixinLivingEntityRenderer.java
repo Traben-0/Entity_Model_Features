@@ -153,7 +153,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                 //}
            // }
         }else if (emf$newModel != null) {
-
             emf$newModel = EMFData.getInstance().getModelVariant(livingEntity, entityTypeName, emf$originalModel);
             if(emf$newModel instanceof EMFCustomPlayerModel && MinecraftClient.getInstance().player != null && livingEntity.getUuid().equals(MinecraftClient.getInstance().player.getUuid())){
                 EMFData.getInstance().clientPlayerModel = (EMFCustomPlayerModel<?>) emf$newModel;
@@ -163,7 +162,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                 this.model = emf$newModel;
             //}
         }
-
     }
 
     String entityTypeName = null;
@@ -176,7 +174,14 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             this.model =  emf$originalModel;
         }
     }
+    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+            at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
+    private void emf$ReturnModel2(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
 
+        if(EMFData.getInstance().getConfig().patchFeatures && emf$newModel != null && ((EMFCustomModel<?>)emf$newModel).doesThisModelNeedToBeReset()){
+            this.model =  emf$originalModel;
+        }
+    }
 
     private M emf$originalModel = null;
     //must be instance of EMFCustomModel<T>

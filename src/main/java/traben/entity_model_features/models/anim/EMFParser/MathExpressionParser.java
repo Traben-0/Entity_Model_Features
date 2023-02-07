@@ -23,7 +23,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
             return false;
         }
         //must do both I depend on this method call for optimization
-        if(Float.isNaN(this.validateCalculationAndOptimize())){
+        if(Double.isNaN(this.validateCalculationAndOptimize())){
             EMFUtils.EMF_modWarn("result was NaN, expression not valid: "+originalExpression);
             return false;
         }
@@ -42,7 +42,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
     public static final MathExpressionParser NULL_EXPRESSION = new MathExpressionParser("null"){
         @Override
-        public float get() {
+        public double get() {
             return Float.NaN;
         }
 
@@ -326,7 +326,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
 
     CalculationList componentsDuringCalculate;
-    public float validateCalculationAndOptimize() {
+    public double validateCalculationAndOptimize() {
 
         try {
 
@@ -478,10 +478,10 @@ public class MathExpressionParser extends MathValue implements MathComponent {
             if (calculationInstance.verboseMode) print("finish calculating [" + originalExpression + "] as [" + components+"].");
             if (componentsDuringCalculate.size() == 1) {
                 //if(verboseMode) System.out.print("group result");
-                float result = componentsDuringCalculate.getLast().get();
+                double result = componentsDuringCalculate.getLast().get();
                 //lastResultThisTick = result;
                 if (calculationInstance.verboseMode) print(" = " + result);
-                if(Float.isNaN(result)){
+                if(Double.isNaN(result)){
                     print(" result was NaN for expression: " + originalExpression+" as "+ components);
                 }else{
                     //save optimized version of valid expression
@@ -506,13 +506,13 @@ public class MathExpressionParser extends MathValue implements MathComponent {
     @Override
     public ValueSupplier getSupplier() {
         EMFUtils.EMF_modWarn("this should not happen this object should have been optimized");
-        return this::calculateOLD;
+        return this::get;
     }
 
     @Override
-    public float get() {
+    public double get() {
         EMFUtils.EMF_modWarn("this should not happen this object should have been optimized");
-        float value;
+        double value;
         if (wasInvertedBooleanExpression){
             value = super.get() == 1 ? 0 : 1;
         }else{
@@ -560,223 +560,223 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
 
 
-    //old direct calculate logic
-    @Deprecated
-    private float calculateOLD() {
-
-        try {
-
-            //it is possible the expression is simply 1 value, just return the single component value in this case for efficiency
-//            if(containsOneComponent){
-//               // if (calculationInstance.verboseMode) print("finished calculating [" + originalExpression + "] as single component quick return.");
-//                return components.getLast().get();
+//    //old direct calculate logic
+//    @Deprecated
+//    private float calculateOLD() {
+//
+//        try {
+//
+//            //it is possible the expression is simply 1 value, just return the single component value in this case for efficiency
+////            if(containsOneComponent){
+////               // if (calculationInstance.verboseMode) print("finished calculating [" + originalExpression + "] as single component quick return.");
+////                return components.getLast().get();
+////            }
+//
+//            if (calculationInstance.verboseMode)
+//                print("start calculating [" + originalExpression + "] as [" + components+"].");
+//
+//            //reset every calculate
+//            componentsDuringCalculate = new CalculationList(components);
+//            //multiply & divide pass
+//            if(containsMultiplicationLevel) {
+//                CalculationList newComponents = new CalculationList();
+//                Iterator<MathComponent> compIterator = componentsDuringCalculate.iterator();
+//
+//                while (compIterator.hasNext()) {
+//                    MathComponent component = compIterator.next();
+//                    if (component instanceof MathAction action) {
+//                        if (action == MathAction.multiply) {
+//                            MathComponent last = newComponents.getLast();
+//                            MathComponent next = compIterator.next();
+//                            newComponents.removeLast();
+//                            float lastD = last.get();
+//                            float nextD = next.get();
+//                            if (calculationInstance.verboseMode) print("multiply=" + lastD + " * " + nextD);
+//                            newComponents.add(new MathVariableConstant(lastD * nextD));
+//
+//                        } else if (action == MathAction.divide) {
+//                            MathComponent last = newComponents.getLast();
+//                            MathComponent next = compIterator.next();
+//                            newComponents.removeLast();
+//                            float lastD = last.get();
+//                            float nextD = next.get();
+//                            if (calculationInstance.verboseMode) print("divide=" + lastD + " / " + nextD);
+//                            newComponents.add(new MathVariableConstant(lastD / nextD));
+//                        } else if (action == MathAction.divisionRemainder) {
+//                            MathComponent last = newComponents.getLast();
+//                            MathComponent next = compIterator.next();
+//                            newComponents.removeLast();
+//                            float lastD = last.get();
+//                            float nextD = next.get();
+//                            if (calculationInstance.verboseMode) print("divide remainder=" + lastD + " % " + nextD);
+//                            newComponents.add(new MathVariableConstant(lastD % nextD));
+//                        } else {
+//                            newComponents.add(component);
+//                        }
+//                    } else {
+//                        newComponents.add(component);
+//                    }
+//                }
+//                componentsDuringCalculate = newComponents;
 //            }
-
-            if (calculationInstance.verboseMode)
-                print("start calculating [" + originalExpression + "] as [" + components+"].");
-
-            //reset every calculate
-            componentsDuringCalculate = new CalculationList(components);
-            //multiply & divide pass
-            if(containsMultiplicationLevel) {
-                CalculationList newComponents = new CalculationList();
-                Iterator<MathComponent> compIterator = componentsDuringCalculate.iterator();
-
-                while (compIterator.hasNext()) {
-                    MathComponent component = compIterator.next();
-                    if (component instanceof MathAction action) {
-                        if (action == MathAction.multiply) {
-                            MathComponent last = newComponents.getLast();
-                            MathComponent next = compIterator.next();
-                            newComponents.removeLast();
-                            float lastD = last.get();
-                            float nextD = next.get();
-                            if (calculationInstance.verboseMode) print("multiply=" + lastD + " * " + nextD);
-                            newComponents.add(new MathVariableConstant(lastD * nextD));
-
-                        } else if (action == MathAction.divide) {
-                            MathComponent last = newComponents.getLast();
-                            MathComponent next = compIterator.next();
-                            newComponents.removeLast();
-                            float lastD = last.get();
-                            float nextD = next.get();
-                            if (calculationInstance.verboseMode) print("divide=" + lastD + " / " + nextD);
-                            newComponents.add(new MathVariableConstant(lastD / nextD));
-                        } else if (action == MathAction.divisionRemainder) {
-                            MathComponent last = newComponents.getLast();
-                            MathComponent next = compIterator.next();
-                            newComponents.removeLast();
-                            float lastD = last.get();
-                            float nextD = next.get();
-                            if (calculationInstance.verboseMode) print("divide remainder=" + lastD + " % " + nextD);
-                            newComponents.add(new MathVariableConstant(lastD % nextD));
-                        } else {
-                            newComponents.add(component);
-                        }
-                    } else {
-                        newComponents.add(component);
-                    }
-                }
-                componentsDuringCalculate = newComponents;
-            }
-            //add & subtract pass
-            if(containsAdditionLevel) {
-                CalculationList newComponents2 = new CalculationList();
-                Iterator<MathComponent> compIterator2 = componentsDuringCalculate.iterator();
-                while (compIterator2.hasNext()) {
-                    MathComponent component = compIterator2.next();
-                    if (component instanceof MathAction action) {
-                        if (action == MathAction.add) {
-                            MathComponent last = newComponents2.getLast();
-                            MathComponent next = compIterator2.next();
-                            newComponents2.removeLast();
-                            float lastD = last.get();
-                            float nextD = next.get();
-                            if (calculationInstance.verboseMode) print("add=" + lastD + " + " + nextD);
-                            newComponents2.add(new MathVariableConstant(lastD + nextD));
-                        } else if (action == MathAction.subtract) {
-                            MathComponent last = newComponents2.getLast();
-                            MathComponent next = compIterator2.next();
-                            newComponents2.removeLast();
-                            float lastD = last.get();
-                            float nextD = next.get();
-                            if (calculationInstance.verboseMode) print("subtract=" + lastD + " - " + nextD);
-                            newComponents2.add(new MathVariableConstant(lastD - nextD));
-                        } else {
-                            newComponents2.add(component);
-                        }
-                    } else {
-                        newComponents2.add(component);
-                    }
-                }
-                componentsDuringCalculate = newComponents2;
-            }
-
-            //boolean pass
-            if(containsBooleansHigherOrder) {
-                CalculationList newComponentsB = new CalculationList();
-                Iterator<MathComponent> compIteratorB = componentsDuringCalculate.iterator();
-                while (compIteratorB.hasNext()) {
-                    MathComponent component = compIteratorB.next();
-                    if (component instanceof MathAction action) {
-                        switch (action) {
-                            case equals -> {
-                                MathComponent last = newComponentsB.getLast();
-                                MathComponent next = compIteratorB.next();
-                                newComponentsB.removeLast();
-                                float lastD = last.get();
-                                float nextD = next.get();
-                                if (calculationInstance.verboseMode) print("equals=" + lastD + " == " + nextD);
-                                newComponentsB.add(new MathVariableConstant(lastD == nextD ? 1 : 0));
-                            }
-                            case notEquals -> {
-                                MathComponent last = newComponentsB.getLast();
-                                MathComponent next = compIteratorB.next();
-                                newComponentsB.removeLast();
-                                float lastD = last.get();
-                                float nextD = next.get();
-                                if (calculationInstance.verboseMode) print("notEquals=" + lastD + " != " + nextD);
-                                newComponentsB.add(new MathVariableConstant(lastD != nextD ? 1 : 0));
-                            }
-                            case largerThan -> {
-                                MathComponent last = newComponentsB.getLast();
-                                MathComponent next = compIteratorB.next();
-                                newComponentsB.removeLast();
-                                float lastD = last.get();
-                                float nextD = next.get();
-                                if (calculationInstance.verboseMode) print("largerThan=" + lastD + " > " + nextD);
-                                newComponentsB.add(new MathVariableConstant(lastD > nextD ? 1 : 0));
-                            }
-                            case largerThanOrEquals -> {
-                                MathComponent last = newComponentsB.getLast();
-                                MathComponent next = compIteratorB.next();
-                                newComponentsB.removeLast();
-                                float lastD = last.get();
-                                float nextD = next.get();
-                                if (calculationInstance.verboseMode)
-                                    print("largerThanOrEquals=" + lastD + " >= " + nextD);
-                                newComponentsB.add(new MathVariableConstant(lastD >= nextD ? 1 : 0));
-                            }
-                            case smallerThan -> {
-                                MathComponent last = newComponentsB.getLast();
-                                MathComponent next = compIteratorB.next();
-                                newComponentsB.removeLast();
-                                float lastD = last.get();
-                                float nextD = next.get();
-                                if (calculationInstance.verboseMode) print("smallerThan=" + lastD + " < " + nextD);
-                                newComponentsB.add(new MathVariableConstant(lastD < nextD ? 1 : 0));
-                            }
-                            case smallerThanOrEquals -> {
-                                MathComponent last = newComponentsB.getLast();
-                                MathComponent next = compIteratorB.next();
-                                newComponentsB.removeLast();
-                                float lastD = last.get();
-                                float nextD = next.get();
-                                if (calculationInstance.verboseMode)
-                                    print("smallerThanOrEquals=" + lastD + " <= " + nextD);
-                                newComponentsB.add(new MathVariableConstant(lastD <= nextD ? 1 : 0));
-                            }
-                            default -> newComponentsB.add(component);
-                        }
-                    } else {
-                        newComponentsB.add(component);
-                    }
-                }
-                componentsDuringCalculate = newComponentsB;
-            }
-            if(containsBooleansLowerOrder) {
-                CalculationList newComponentsB = new CalculationList();
-                Iterator<MathComponent> compIteratorB = componentsDuringCalculate.iterator();
-                while (compIteratorB.hasNext()) {
-                    MathComponent component = compIteratorB.next();
-                    if (component instanceof MathAction action) {
-                        switch (action) {
-                            case and -> {
-                                MathComponent last = newComponentsB.getLast();
-                                MathComponent next = compIteratorB.next();
-                                newComponentsB.removeLast();
-                                float lastD = last.get();
-                                float nextD = next.get();
-                                if (calculationInstance.verboseMode)
-                                    print("and=" + (lastD == 1) + " && " + (nextD == 1));
-                                newComponentsB.add(new MathVariableConstant((lastD == 1) && (nextD == 1) ? 1 : 0, false));
-                            }
-                            case or -> {
-                                MathComponent last = newComponentsB.getLast();
-                                MathComponent next = compIteratorB.next();
-                                newComponentsB.removeLast();
-                                float lastD = last.get();
-                                float nextD = next.get();
-                                if (calculationInstance.verboseMode)
-                                    print("or=" + (lastD == 1) + " || " + (nextD == 1));
-                                newComponentsB.add(new MathVariableConstant((lastD == 1) || (nextD == 1) ? 1 : 0, false));
-                            }
-                            default -> newComponentsB.add(component);
-                        }
-                    } else {
-                        newComponentsB.add(component);
-                    }
-                }
-                componentsDuringCalculate = newComponentsB;
-            }
-
-
-            if (calculationInstance.verboseMode) print("finish calculating [" + originalExpression + "] as [" + components+"].");
-            if (componentsDuringCalculate.size() == 1) {
-                //if(verboseMode) System.out.print("group result");
-                float result = componentsDuringCalculate.getLast().get();
-                //lastResultThisTick = result;
-                if (calculationInstance.verboseMode) print(" = " + result);
-                if(Float.isNaN(result)) print(" result was NaN for expression: " + originalExpression+" as "+ components);
-                return result;
-            } else {
-                System.out.println("ERROR: calculation did not result in 1 component, found: " + componentsDuringCalculate+ " in ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].");
-                System.out.println("\texpression was ["+originalExpression+"].");
-            }
-        }catch (Exception e){
-            System.out.println("EMF animation ERROR: expression error in ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"] caused by ["+e+"].");
-        }
-
-        return Float.NaN;
-    }
+//            //add & subtract pass
+//            if(containsAdditionLevel) {
+//                CalculationList newComponents2 = new CalculationList();
+//                Iterator<MathComponent> compIterator2 = componentsDuringCalculate.iterator();
+//                while (compIterator2.hasNext()) {
+//                    MathComponent component = compIterator2.next();
+//                    if (component instanceof MathAction action) {
+//                        if (action == MathAction.add) {
+//                            MathComponent last = newComponents2.getLast();
+//                            MathComponent next = compIterator2.next();
+//                            newComponents2.removeLast();
+//                            float lastD = last.get();
+//                            float nextD = next.get();
+//                            if (calculationInstance.verboseMode) print("add=" + lastD + " + " + nextD);
+//                            newComponents2.add(new MathVariableConstant(lastD + nextD));
+//                        } else if (action == MathAction.subtract) {
+//                            MathComponent last = newComponents2.getLast();
+//                            MathComponent next = compIterator2.next();
+//                            newComponents2.removeLast();
+//                            float lastD = last.get();
+//                            float nextD = next.get();
+//                            if (calculationInstance.verboseMode) print("subtract=" + lastD + " - " + nextD);
+//                            newComponents2.add(new MathVariableConstant(lastD - nextD));
+//                        } else {
+//                            newComponents2.add(component);
+//                        }
+//                    } else {
+//                        newComponents2.add(component);
+//                    }
+//                }
+//                componentsDuringCalculate = newComponents2;
+//            }
+//
+//            //boolean pass
+//            if(containsBooleansHigherOrder) {
+//                CalculationList newComponentsB = new CalculationList();
+//                Iterator<MathComponent> compIteratorB = componentsDuringCalculate.iterator();
+//                while (compIteratorB.hasNext()) {
+//                    MathComponent component = compIteratorB.next();
+//                    if (component instanceof MathAction action) {
+//                        switch (action) {
+//                            case equals -> {
+//                                MathComponent last = newComponentsB.getLast();
+//                                MathComponent next = compIteratorB.next();
+//                                newComponentsB.removeLast();
+//                                float lastD = last.get();
+//                                float nextD = next.get();
+//                                if (calculationInstance.verboseMode) print("equals=" + lastD + " == " + nextD);
+//                                newComponentsB.add(new MathVariableConstant(lastD == nextD ? 1 : 0));
+//                            }
+//                            case notEquals -> {
+//                                MathComponent last = newComponentsB.getLast();
+//                                MathComponent next = compIteratorB.next();
+//                                newComponentsB.removeLast();
+//                                float lastD = last.get();
+//                                float nextD = next.get();
+//                                if (calculationInstance.verboseMode) print("notEquals=" + lastD + " != " + nextD);
+//                                newComponentsB.add(new MathVariableConstant(lastD != nextD ? 1 : 0));
+//                            }
+//                            case largerThan -> {
+//                                MathComponent last = newComponentsB.getLast();
+//                                MathComponent next = compIteratorB.next();
+//                                newComponentsB.removeLast();
+//                                float lastD = last.get();
+//                                float nextD = next.get();
+//                                if (calculationInstance.verboseMode) print("largerThan=" + lastD + " > " + nextD);
+//                                newComponentsB.add(new MathVariableConstant(lastD > nextD ? 1 : 0));
+//                            }
+//                            case largerThanOrEquals -> {
+//                                MathComponent last = newComponentsB.getLast();
+//                                MathComponent next = compIteratorB.next();
+//                                newComponentsB.removeLast();
+//                                float lastD = last.get();
+//                                float nextD = next.get();
+//                                if (calculationInstance.verboseMode)
+//                                    print("largerThanOrEquals=" + lastD + " >= " + nextD);
+//                                newComponentsB.add(new MathVariableConstant(lastD >= nextD ? 1 : 0));
+//                            }
+//                            case smallerThan -> {
+//                                MathComponent last = newComponentsB.getLast();
+//                                MathComponent next = compIteratorB.next();
+//                                newComponentsB.removeLast();
+//                                float lastD = last.get();
+//                                float nextD = next.get();
+//                                if (calculationInstance.verboseMode) print("smallerThan=" + lastD + " < " + nextD);
+//                                newComponentsB.add(new MathVariableConstant(lastD < nextD ? 1 : 0));
+//                            }
+//                            case smallerThanOrEquals -> {
+//                                MathComponent last = newComponentsB.getLast();
+//                                MathComponent next = compIteratorB.next();
+//                                newComponentsB.removeLast();
+//                                float lastD = last.get();
+//                                float nextD = next.get();
+//                                if (calculationInstance.verboseMode)
+//                                    print("smallerThanOrEquals=" + lastD + " <= " + nextD);
+//                                newComponentsB.add(new MathVariableConstant(lastD <= nextD ? 1 : 0));
+//                            }
+//                            default -> newComponentsB.add(component);
+//                        }
+//                    } else {
+//                        newComponentsB.add(component);
+//                    }
+//                }
+//                componentsDuringCalculate = newComponentsB;
+//            }
+//            if(containsBooleansLowerOrder) {
+//                CalculationList newComponentsB = new CalculationList();
+//                Iterator<MathComponent> compIteratorB = componentsDuringCalculate.iterator();
+//                while (compIteratorB.hasNext()) {
+//                    MathComponent component = compIteratorB.next();
+//                    if (component instanceof MathAction action) {
+//                        switch (action) {
+//                            case and -> {
+//                                MathComponent last = newComponentsB.getLast();
+//                                MathComponent next = compIteratorB.next();
+//                                newComponentsB.removeLast();
+//                                float lastD = last.get();
+//                                float nextD = next.get();
+//                                if (calculationInstance.verboseMode)
+//                                    print("and=" + (lastD == 1) + " && " + (nextD == 1));
+//                                newComponentsB.add(new MathVariableConstant((lastD == 1) && (nextD == 1) ? 1 : 0, false));
+//                            }
+//                            case or -> {
+//                                MathComponent last = newComponentsB.getLast();
+//                                MathComponent next = compIteratorB.next();
+//                                newComponentsB.removeLast();
+//                                float lastD = last.get();
+//                                float nextD = next.get();
+//                                if (calculationInstance.verboseMode)
+//                                    print("or=" + (lastD == 1) + " || " + (nextD == 1));
+//                                newComponentsB.add(new MathVariableConstant((lastD == 1) || (nextD == 1) ? 1 : 0, false));
+//                            }
+//                            default -> newComponentsB.add(component);
+//                        }
+//                    } else {
+//                        newComponentsB.add(component);
+//                    }
+//                }
+//                componentsDuringCalculate = newComponentsB;
+//            }
+//
+//
+//            if (calculationInstance.verboseMode) print("finish calculating [" + originalExpression + "] as [" + components+"].");
+//            if (componentsDuringCalculate.size() == 1) {
+//                //if(verboseMode) System.out.print("group result");
+//                float result = componentsDuringCalculate.getLast().get();
+//                //lastResultThisTick = result;
+//                if (calculationInstance.verboseMode) print(" = " + result);
+//                if(Float.isNaN(result)) print(" result was NaN for expression: " + originalExpression+" as "+ components);
+//                return result;
+//            } else {
+//                System.out.println("ERROR: calculation did not result in 1 component, found: " + componentsDuringCalculate+ " in ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].");
+//                System.out.println("\texpression was ["+originalExpression+"].");
+//            }
+//        }catch (Exception e){
+//            System.out.println("EMF animation ERROR: expression error in ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"] caused by ["+e+"].");
+//        }
+//
+//        return Float.NaN;
+//    }
 }

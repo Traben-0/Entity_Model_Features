@@ -29,10 +29,10 @@ public abstract class MathValue implements  MathComponent{
     }
 
     @Override
-    public float get() {
+    public double get() {
         if(calculationInstance != null)
             calculationInstance.indentCount++;
-        float ret = isNegative ? -getSupplier().get() : getSupplier().get();
+        double ret = isNegative ? -getSupplier().get() : getSupplier().get();
         if(calculationInstance != null)
             calculationInstance.indentCount--;
         return ret;
@@ -43,6 +43,6 @@ public abstract class MathValue implements  MathComponent{
     }
 
     public interface ValueSupplier{
-        float get();
+        double get();
     }
 }

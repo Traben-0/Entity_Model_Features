@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.entity.Entity;
@@ -35,8 +36,25 @@ import java.util.UUID;
 
 public class EMFData {
 
+    private static Boolean isValidETF = null;
     private EMFConfig EMFConfigData;
     private static EMFData self = null;
+
+    public static boolean isValidETF(){
+        //System.out.println("ran");
+        if(isValidETF == null) {
+            isValidETF = false;
+            for (ModContainer mod:
+            FabricLoader.getInstance().getAllMods()){
+                if ("entity_texture_features".equals(mod.getMetadata().getId())){
+                    isValidETF = "4.3.2.dev.1".equals(mod.getMetadata().getVersion().getFriendlyString());//todo proper api update
+                   // EMFUtils.EMF_modMessage("ETF valid = "+isValid);
+                }
+            }
+
+        }
+        return isValidETF;
+    }
 
     public EMFConfig getConfig(){
         if(EMFConfigData == null){
@@ -49,6 +67,7 @@ public class EMFData {
 
 
     private EMFData(){
+        isETFPresent = FabricLoader.getInstance().isModLoaded("entity_texture_features");
         alreadyCalculatedForRenderer.defaultReturnValue(false);
         getConfig();
     }
@@ -193,17 +212,20 @@ public class EMFData {
 
     Object2ObjectOpenHashMap<UUID,EMFCustomModel<?>> UUID_TO_MODEL = new Object2ObjectOpenHashMap<>();
     public<T extends LivingEntity, M extends EntityModel<T>> M getModelVariant(Entity entity, String entityTypeName, EntityModel<T> vanillaModel) {
+
+
         if(entity == null){
             EMF_EntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
             return (M) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
         }
+
         EMFCustomModel<?> knownModel = UUID_TO_MODEL.get(entity.getUuid());
         if (knownModel != null) {
             if (UUID_MOB_MODEL_UPDATES.getBoolean(entity.getUuid())) {
                 long time = System.currentTimeMillis();
                 if (time > 1000 + UUID_LAST_UPDATE_TIME.getLong(entity.getUuid())) {
                     UUID_LAST_UPDATE_TIME.put(entity.getUuid(), time);
-                    EMFCustomModel<?> newModel = EMFData.getInstance().getModelVariantPossibleNew(entity, entityTypeName, vanillaModel);
+                    EMFCustomModel<?> newModel = getModelVariantPossibleNew(entity, entityTypeName, vanillaModel);
                     if (newModel != null)
                         UUID_TO_MODEL.put(entity.getUuid(), newModel);
                     return (M) newModel;
@@ -213,12 +235,16 @@ public class EMFData {
         }
         return getModelVariantPossibleNew(entity, entityTypeName, vanillaModel);
     }
+
+    private boolean isETFPresent;
     private<T extends LivingEntity, M extends EntityModel<T>> M getModelVariantPossibleNew(Entity entity, String entityTypeName, EntityModel<T> vanillaModel){
        // System.out.println("ran");
         EMF_EntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
+        //System.out.println("rans="+isETFPresent+etfPropertyReader.isValidETF());
         if(emfModel != null) {
             // jem exists so decide if variation occurs
-            if (FabricLoader.getInstance().isModLoaded("entity_texture_features")) {
+            //System.out.println("rans="+isETFPresent+etfPropertyReader.isValidETF());
+            if (isETFPresent && isValidETF()) {
 
                 if(!MODEL_CASES.containsKey(entityTypeName)) {
                     Identifier propertyID = new Identifier("optifine/cem/" + entityTypeName + ".properties");

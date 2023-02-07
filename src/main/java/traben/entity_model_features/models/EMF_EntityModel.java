@@ -505,7 +505,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             //if(entity instanceof BlazeEntity && entity.getRandom().nextInt(50) == 4) System.out.println(animationKeyToCalculatorObject.keySet());
             animationKeyToCalculatorObject.forEach((key,animationCalculation)->{
 
-                animationCalculation.calculateAndSet(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, tickDelta);
+                animationCalculation.calculateAndSet(entity);
                 alreadyCalculatedThisTickAnimations.put(key,animationCalculation);
             });
             if (!needToBeAddedToAnimationMap.isEmpty()){

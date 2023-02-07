@@ -107,8 +107,8 @@ public class MathMethod extends MathValue implements MathComponent{
             }
             if (!foundNonConstant) {
                 //precalculate expression that only contains constants
-                float constantResult = supplier.get();
-                if (!Float.isNaN(constantResult))
+                double constantResult = supplier.get();
+                if (!Double.isNaN(constantResult))
                     optimizedAlternativeToThis = new MathVariableConstant(constantResult,isNegative);
             }
     }
@@ -123,7 +123,7 @@ public class MathMethod extends MathValue implements MathComponent{
             }
 
             ValueSupplier valueSupplier = ()-> {
-                float X = x.get();
+                double X = x.get();
                 for (MathComponent expression:
                         vals) {
                     if(expression.get() == X){
@@ -149,11 +149,11 @@ public class MathMethod extends MathValue implements MathComponent{
             MathComponent epsilon = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
 
             ValueSupplier valueSupplier =()-> {
-                float X = x.get();
-                float Y = y.get();
-                float BIGGER = Math.max(X,Y);
-                float SMALLER = Math.min(X,Y);
-                float EPSILON = epsilon.get();
+                double X = x.get();
+                double Y = y.get();
+                double BIGGER = Math.max(X,Y);
+                double SMALLER = Math.min(X,Y);
+                double EPSILON = epsilon.get();
                 return Math.abs(BIGGER - SMALLER) <= EPSILON ? 1f : 0f;
                 // return X >= Y - EPSILON ? 0 : (X <= Y + EPSILON ? 0 : 1f);
             };
@@ -172,8 +172,8 @@ public class MathMethod extends MathValue implements MathComponent{
             MathComponent min = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
             MathComponent max = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> {
-                float X = x.get();
-                float MAX = max.get();
+                double X = x.get();
+                double MAX = max.get();
                 return X > MAX ? 0 : (X < min.get() ? 0 : 1f);
             };
 
@@ -197,7 +197,7 @@ public class MathMethod extends MathValue implements MathComponent{
             MathComponent n = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
             MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> {
-                float xVal = x.get();
+                double xVal = x.get();
                 if(getPrintCount() % n.get() == 0){
                     print("EMF printb: ["+id+"] = "+(xVal == 1));
                 }
@@ -218,7 +218,7 @@ public class MathMethod extends MathValue implements MathComponent{
             MathComponent n = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
             MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
             ValueSupplier valueSupplier = ()-> {
-                float xVal = x.get();
+                double xVal = x.get();
                 if(getPrintCount() % n.get() == 0){
                     print("EMF print: ["+id+"] = "+xVal);
                 }
@@ -348,7 +348,7 @@ public class MathMethod extends MathValue implements MathComponent{
         if(args.size() == 1){
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()->{
-                float d =arg.get();
+                double d =arg.get();
                 return d > 0 ? d - (float) Math.floor(d) : d + (float) Math.ceil(d);
             };
             List<MathComponent> comps = List.of(arg);
@@ -414,9 +414,9 @@ public class MathMethod extends MathValue implements MathComponent{
             MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
 
             ValueSupplier valueSupplier = ()->{
-                float x = arg.get();
-                float min = arg1.get();
-                float max = arg2.get();
+                double x = arg.get();
+                double min = arg1.get();
+                double max = arg2.get();
                 if(calculationInstance.verboseMode) print("clamp="+x+", "+min+", "+max);
                 return x > max ? max : (Math.max(x, min));
             };
@@ -436,10 +436,10 @@ public class MathMethod extends MathValue implements MathComponent{
                 exps.add(MathExpressionParser.getOptimizedExpression(arg,false,calculationInstance));
             }
             ValueSupplier valueSupplier = ()-> {
-                float largest = Float.MIN_VALUE;
+                double largest = Float.MIN_VALUE;
                 for (MathComponent expression:
                         exps) {
-                    float get =expression.get();
+                    double get =expression.get();
                     if(get > largest){
                         largest = get;
                     }
@@ -461,10 +461,10 @@ public class MathMethod extends MathValue implements MathComponent{
                 exps.add(MathExpressionParser.getOptimizedExpression(arg,false,calculationInstance));
             }
             ValueSupplier valueSupplier = ()-> {
-                float smallest = Float.MAX_VALUE;
+                double smallest = Float.MAX_VALUE;
                 for (MathComponent expression:
                      exps) {
-                    float get =expression.get();
+                    double get =expression.get();
                     if(get < smallest){
                         smallest = get;
                     }
@@ -483,7 +483,7 @@ public class MathMethod extends MathValue implements MathComponent{
         if(args.size() == 1){
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
             ValueSupplier valueSupplier = ()->{
-                float x =arg.get();
+                double x =arg.get();
                 if(calculationInstance.verboseMode) print("torad ="+x);
                 return (float) Math.toRadians(x);
             };

@@ -13,6 +13,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 public class etfPropertyReader {
+
     @Nullable
     public static List<EMFPropertyCase> getAllValidPropertyObjects(Identifier propsID, String suffixToTest, String entityTypeName){
 

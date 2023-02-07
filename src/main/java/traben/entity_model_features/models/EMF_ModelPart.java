@@ -569,43 +569,43 @@ public class EMF_ModelPart extends ModelPart  {
 
             try {
                // sides[2] = new Quad(new Vertex[]{vertex6, vertex5, vertex, vertex2}, k, p, l, q, textureWidth, textureHeight,false, Direction.DOWN);
-                sides.add( new Quad(new Vertex[]{vertex6, vertex5, vertex, vertex2},
+                sides.add( new Quad(mirrorV ? new Vertex[]{vertex3, vertex4, vertex8, vertex7} : new Vertex[]{vertex6, vertex5, vertex, vertex2},
                         //k, p, l, q,
                         //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
                         mirrorU ? l : k,
                         mirrorV ? q : p,
                         mirrorU ? k : l,
                         mirrorV ? p : q,
-                        textureWidth, textureHeight,false, Direction.DOWN));
+                        textureWidth, textureHeight,false, mirrorV ? Direction.UP : Direction.DOWN));
             }catch (Exception e){
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-dwn failed for "+selfModelData.id);
             }
             try {
-                sides.add(  new Quad(new Vertex[]{vertex3, vertex4, vertex8, vertex7},
+                sides.add(  new Quad(mirrorV ? new Vertex[]{vertex6, vertex5, vertex, vertex2} : new Vertex[]{vertex3, vertex4, vertex8, vertex7},
                         //l, q, m, p,
                         //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
                         mirrorU ? m : l,
                         mirrorV ? p : q,
                         mirrorU ? l : m,
                         mirrorV ? q : p,
-                        textureWidth, textureHeight,false, Direction.UP));
+                        textureWidth, textureHeight,false,mirrorV ? Direction.DOWN : Direction.UP));
             }catch (Exception e){
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-up failed for "+selfModelData.id);
             }
             try {
-                sides.add(  new Quad(new Vertex[]{vertex, vertex5, vertex8, vertex4},
+                sides.add(  new Quad(mirrorU ? new Vertex[]{vertex6, vertex2, vertex3, vertex7} : new Vertex[]{vertex, vertex5, vertex8, vertex4},
                         //j, q, k, r,
                         //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
                         mirrorU ? k : j,
                         mirrorV ? r : q,
                         mirrorU ? j : k,
                         mirrorV ? q : r,
-                        textureWidth, textureHeight,false, Direction.WEST));
+                        textureWidth, textureHeight,false, mirrorU ? Direction.EAST : Direction.WEST));
             }catch (Exception e){
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-west failed for "+selfModelData.id);
             }
             try {
-                sides.add(  new Quad(new Vertex[]{vertex2, vertex, vertex4, vertex3},
+                sides.add(  new Quad( new Vertex[]{vertex2, vertex, vertex4, vertex3},
                        // k, q, l, r,
                         //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
                         mirrorU ? l : k,
@@ -617,14 +617,14 @@ public class EMF_ModelPart extends ModelPart  {
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-nrth failed for "+selfModelData.id);
             }
             try {
-                sides.add(  new Quad(new Vertex[]{vertex6, vertex2, vertex3, vertex7},
+                sides.add(  new Quad(mirrorU ? new Vertex[]{vertex, vertex5, vertex8, vertex4} :  new Vertex[]{vertex6, vertex2, vertex3, vertex7},
                         //l, q, n, r,
                         //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
                         mirrorU ? n : l,
                         mirrorV ? r : q,
                         mirrorU ? l : n,
                         mirrorV ? q : r,
-                        textureWidth, textureHeight,false, Direction.EAST));
+                        textureWidth, textureHeight,false, mirrorU ? Direction.WEST : Direction.EAST));
             }catch (Exception e){
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-east failed for "+selfModelData.id);
             }
@@ -640,6 +640,8 @@ public class EMF_ModelPart extends ModelPart  {
             }catch (Exception e){
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-sth failed for "+selfModelData.id);
             }
+
+
             ((CuboidAccessor) this).setSides(sides.toArray(new Quad[0]));
         }
 
@@ -705,34 +707,34 @@ public class EMF_ModelPart extends ModelPart  {
 
 
             try {
-                sides.add( new Quad(new Vertex[]{vertex, vertex2, vertex6, vertex5},
+                sides.add( new Quad(mirrorV ? new Vertex[]{vertex8, vertex7, vertex3, vertex4} : new Vertex[]{vertex, vertex2, vertex6, vertex5},
                         mirrorU ? uvUp[2] : uvUp[0],
                         mirrorV ? uvUp[3] : uvUp[1],
                         mirrorU ? uvUp[0] : uvUp[2],
                         mirrorV ? uvUp[1] : uvUp[3],
-                        textureWidth, textureHeight,false,  Direction.DOWN));
+                        textureWidth, textureHeight,false,mirrorV ? Direction.UP :  Direction.DOWN));
             }catch (Exception e){
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-up failed for "+selfModelData.id);
             }
             try {
-                sides.add( new Quad(new Vertex[]{vertex8, vertex7, vertex3, vertex4},//actually down
+                sides.add( new Quad(mirrorV ? new Vertex[]{vertex, vertex2, vertex6, vertex5} : new Vertex[]{vertex8, vertex7, vertex3, vertex4},//actually down
                        // uvDown[0], uvDown[1], uvDown[2], uvDown[3],
                         mirrorU ? uvDown[2] : uvDown[0],
                         mirrorV ? uvDown[3] : uvDown[1],
                         mirrorU ? uvDown[0] : uvDown[2],
                         mirrorV ? uvDown[1] : uvDown[3],
-                        textureWidth, textureHeight, false, Direction.UP));
+                        textureWidth, textureHeight, false,mirrorV ? Direction.DOWN : Direction.UP));
             }catch (Exception e){
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-down failed for "+selfModelData.id);
             }
             try {
-                sides.add( new Quad(new Vertex[]{vertex6, vertex2, vertex3, vertex7},
+                sides.add( new Quad(mirrorU? new Vertex[]{vertex, vertex5, vertex8, vertex4} : new Vertex[]{vertex6, vertex2, vertex3, vertex7},
                        // uvWest[0], uvWest[1], uvWest[2], uvWest[3],
                         mirrorU ? uvWest[2] : uvWest[0],
                         mirrorV ? uvWest[3] : uvWest[1],
                         mirrorU ? uvWest[0] : uvWest[2],
                         mirrorV ? uvWest[1] : uvWest[3],
-                        textureWidth, textureHeight,false,  Direction.EAST));
+                        textureWidth, textureHeight,false,mirrorU? Direction.WEST :  Direction.EAST));
             }catch (Exception e){
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-west failed for "+selfModelData.id);
             }
@@ -748,13 +750,13 @@ public class EMF_ModelPart extends ModelPart  {
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-north failed for "+selfModelData.id);
                 }
             try {
-                sides.add( new Quad(new Vertex[]{vertex, vertex5, vertex8, vertex4},
+                sides.add( new Quad(mirrorU ? new Vertex[]{vertex6, vertex2, vertex3, vertex7} : new Vertex[]{vertex, vertex5, vertex8, vertex4},
                         //uvEast[0], uvEast[1], uvEast[2], uvEast[3],
                         mirrorU ? uvEast[2] : uvEast[0],
                         mirrorV ? uvEast[3] : uvEast[1],
                         mirrorU ? uvEast[0] : uvEast[2],
                         mirrorV ? uvEast[1] : uvEast[3],
-                        textureWidth, textureHeight,false, Direction.WEST));
+                        textureWidth, textureHeight,false,mirrorU? Direction.EAST : Direction.WEST));
             }catch (Exception e){
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-east failed for "+selfModelData.id);
             }
@@ -769,6 +771,10 @@ public class EMF_ModelPart extends ModelPart  {
             }catch (Exception e){
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("uv-south failed for "+selfModelData.id);
             }
+
+
+
+
             ((CuboidAccessor) this).setSides(sides.toArray(new Quad[0]));
 
 

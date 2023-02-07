@@ -3,7 +3,7 @@ package traben.entity_model_features.models.anim.EMFParser;
 public interface MathComponent{
 
 
-     float get();// throws EMFMathException;
+     double get();// throws EMFMathException;
 
 
      default boolean isConstant(){return false;}

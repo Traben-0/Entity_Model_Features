@@ -97,4 +97,6 @@ public class EMFConfig {
         }
     }
 
+
+    public boolean patchFeatures = false;
 }

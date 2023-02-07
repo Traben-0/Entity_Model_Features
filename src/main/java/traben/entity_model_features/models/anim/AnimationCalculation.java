@@ -109,8 +109,7 @@ public class AnimationCalculation {
     }
 
 
-    public float getResultViaCalculate(LivingEntity entity0, float limbAngle0, float limbDistance0,
-                                       float animationProgress0, float headYaw0, float headPitch0, float tickDelta0, boolean storeResult){
+    public float getResultViaCalculate(LivingEntity entity0, boolean storeResult){
 
         if(vanillaModelPart != null){
             return varToChange.getFromVanillaModel(vanillaModelPart);
@@ -124,9 +123,9 @@ public class AnimationCalculation {
 
 
 
-            float result = calculatorRun();
+        float result = calculatorRun();
 
-            float oldResult = prevResults.getFloat(id);
+        float oldResult = prevResults.getFloat(id);
             if(storeResult) {
                 prevPrevResults.put(id, oldResult);
                 prevResults.put(id, result);
@@ -134,23 +133,24 @@ public class AnimationCalculation {
             return oldResult;
     }
 
-    public float getResultViaCalculate(LivingEntity entity0, float limbAngle0, float limbDistance0,
-                                       float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
-        return  getResultViaCalculate(entity0, limbAngle0, limbDistance0, animationProgress0, headYaw0, headPitch0, tickDelta0,true);
+    public float getResultViaCalculate(LivingEntity entity0){
+        return  getResultViaCalculate(entity0,true);
     }
 
 
     private final Random rand = new Random();
+
+    //use float up at this level as minecraft uses it
     public float calculatorRun() {
 //        try {
             if (EMFData.getInstance().getConfig().printAllMaths && rand.nextInt(100) == 1) {
                 setVerbose(true);
-                float val = EMFCalculator.get();
+                double val = EMFCalculator.get();
                 System.out.println(EMFCalculator.toString() +" is "+ EMFCalculator.getClass());
                 EMFUtils.EMF_modMessage("animation result: " + animKey + " = " + val);
-                return val;
+                return (float) val;
             } else {
-                return EMFCalculator.get();
+                return (float) EMFCalculator.get();
             }
 //        }catch(MathComponent.EMFMathException e){
 //            return Float.NaN;
@@ -165,9 +165,9 @@ public class AnimationCalculation {
 
 
 
-    public void calculateAndSet(LivingEntity entity0, float limbAngle0, float limbDistance0, float animationProgress0, float headYaw0, float headPitch0, float tickDelta0){
+    public void calculateAndSet(LivingEntity entity0){
         if (parentModel.calculateForThisAnimationTick) {
-            handleResult(getResultViaCalculate(entity0,  limbAngle0,  limbDistance0,  animationProgress0,  headYaw0,  headPitch0,  tickDelta0));
+            handleResult(getResultViaCalculate(entity0));
         }else if (!isVariable){
             handleResult(getResultInterpolateOnly(entity0));
         }

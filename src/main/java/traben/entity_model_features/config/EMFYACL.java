@@ -141,7 +141,16 @@ public class EMFYACL{
         return ConfigCategory.createBuilder()
                 .name(Text.of("Debug"))
                 .tooltip(Text.of("debug options, these are mostly just for the dev"))
-
+                .option(Option.createBuilder(boolean.class)
+                        .name(Text.of("patch for features"))
+                        .tooltip(Text.of("temp patch while all mobs do not extend vanilla models")) // optional
+                        .binding(
+                                false, // default
+                                () -> EMFData.getInstance().getConfig().patchFeatures, // getter
+                                newValue -> EMFData.getInstance().getConfig().patchFeatures = newValue // setter
+                        )
+                        .controller(BooleanController::new)
+                        .build())
                 .option(Option.createBuilder(boolean.class)
                         .name(Text.of("print maths"))
                         .tooltip(Text.of("prints math debug data to log\nWARNING EXTREMELY LAG INDUCING!")) // optional
