@@ -92,47 +92,47 @@ public class EMFYACL{
                 .name(Text.of("Optimization"))
                 .tooltip(Text.of("Settings related to animation optimization"))
 
-                .option(Option.createBuilder(EMFConfig.AnimationRatePerSecondMode.class)
-                        .name(Text.of("animation rate: "))
-                        .tooltip(Text.of("can be set as Ticks Per Second (TPS)\nor relative to FPS\nactual value is always limited by fps\n lower values are usually just fine, but some optifine packs expect calculating often to update variables:/\ndefault of 60tps recommended")) // optional
-                        .binding(
-                                EMFConfig.AnimationRatePerSecondMode.Sixty_tps, // default
-                                () -> EMFData.getInstance().getConfig().animationRate, // getter
-                                newValue -> EMFData.getInstance().getConfig().animationRate = newValue // setter
-
-                        )
-                        .controller((val)->new EnumController<EMFConfig.AnimationRatePerSecondMode>(val , enumConstant -> Text.of(enumConstant.toString()) ))
-                        .build())
-                .option(Option.createBuilder(float.class)
-                        .name(Text.of("minimum animation drop off distance"))
-                        .tooltip(Text.of("animations will reduce their rate depending on distance from the player\n this will start happening from this distance from the player")) // optional
-                        .binding(
-                                8f, // default
-                                () -> EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff, // getter
-                                newValue -> EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff = newValue // setter
-                        )
-                        .controller((val)->new FloatSliderController(val,1,128,1f))
-                        .build())
-                .option(Option.createBuilder(float.class)
-                        .name(Text.of("min animation tps"))
-                        .tooltip(Text.of("sets the minimun tps for distant animations for if you want to crank up the drop off rate below")) // optional
-                        .binding(
-                                0.3f, // default
-                                () -> EMFData.getInstance().getConfig().minimumAnimationFPS, // getter
-                                newValue -> EMFData.getInstance().getConfig().minimumAnimationFPS = newValue // setter
-                        )
-                        .controller((val)->new FloatSliderController(val,0.1f,20,0.1f))
-                        .build())
-                .option(Option.createBuilder(float.class)
-                        .name(Text.of("animation quality drop off rate"))
-                        .tooltip(Text.of("this sets the rate at which distant mobs animation rate will reduce")) // optional
-                        .binding(
-                                10f, // default
-                                () -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate, // getter
-                                newValue -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate = newValue // setter
-                        )
-                        .controller((val)->new FloatSliderController(val,0,16,1f))
-                        .build())
+//                .option(Option.createBuilder(EMFConfig.AnimationRatePerSecondMode.class)
+//                        .name(Text.of("animation rate: "))
+//                        .tooltip(Text.of("can be set as Ticks Per Second (TPS)\nor relative to FPS\nactual value is always limited by fps\n lower values are usually just fine, but some optifine packs expect calculating often to update variables:/\ndefault of 60tps recommended")) // optional
+//                        .binding(
+//                                EMFConfig.AnimationRatePerSecondMode.Sixty_tps, // default
+//                                () -> EMFData.getInstance().getConfig().animationRate, // getter
+//                                newValue -> EMFData.getInstance().getConfig().animationRate = newValue // setter
+//
+//                        )
+//                        .controller((val)->new EnumController<EMFConfig.AnimationRatePerSecondMode>(val , enumConstant -> Text.of(enumConstant.toString()) ))
+//                        .build())
+//                .option(Option.createBuilder(float.class)
+//                        .name(Text.of("minimum animation drop off distance"))
+//                        .tooltip(Text.of("animations will reduce their rate depending on distance from the player\n this will start happening from this distance from the player")) // optional
+//                        .binding(
+//                                8f, // default
+//                                () -> EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff, // getter
+//                                newValue -> EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff = newValue // setter
+//                        )
+//                        .controller((val)->new FloatSliderController(val,1,128,1f))
+//                        .build())
+//                .option(Option.createBuilder(float.class)
+//                        .name(Text.of("min animation tps"))
+//                        .tooltip(Text.of("sets the minimun tps for distant animations for if you want to crank up the drop off rate below")) // optional
+//                        .binding(
+//                                0.3f, // default
+//                                () -> EMFData.getInstance().getConfig().minimumAnimationFPS, // getter
+//                                newValue -> EMFData.getInstance().getConfig().minimumAnimationFPS = newValue // setter
+//                        )
+//                        .controller((val)->new FloatSliderController(val,0.1f,20,0.1f))
+//                        .build())
+//                .option(Option.createBuilder(float.class)
+//                        .name(Text.of("animation quality drop off rate"))
+//                        .tooltip(Text.of("this sets the rate at which distant mobs animation rate will reduce")) // optional
+//                        .binding(
+//                                10f, // default
+//                                () -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate, // getter
+//                                newValue -> EMFData.getInstance().getConfig().animationRateDistanceDropOffRate = newValue // setter
+//                        )
+//                        .controller((val)->new FloatSliderController(val,0,16,1f))
+//                        .build())
                 .build();
     }
 
@@ -178,6 +178,7 @@ public class EMFYACL{
 
     static void saveAndReset(){
         EMFData.getInstance().EMF_saveConfig();
+        EMFData.reset();
         MinecraftClient.getInstance().reloadResources();
         EMFData.reset();
     }

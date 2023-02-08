@@ -1,6 +1,5 @@
 package traben.entity_model_features.models;
 
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
@@ -14,7 +13,6 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
@@ -27,6 +25,7 @@ import traben.entity_model_features.mixin.accessor.entity.model.AnimalModelAcces
 import traben.entity_model_features.models.anim.AnimationCalculation;
 import traben.entity_model_features.models.anim.AnimationGetters;
 import traben.entity_model_features.models.anim.AnimationModelDefaultVariable;
+import traben.entity_model_features.models.anim.EMFParser.MathValue;
 import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
 import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
 import traben.entity_model_features.utils.EMFUtils;
@@ -202,19 +201,104 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
 
 
+//    //called when another animation wants to get "head.tx" or something similar
+//    //checks if an existing animation has that key and uses it
+//    // if it's not existing it tries to find the part, be it EMF or vanilla to copy its value
+//    //there is an alternate method that is more optimized just for animation variables e.g.g "var.asdf"
+//    public float getAnimationResultOfKey(
+//            EMF_ModelPart parentForCheck,
+//            String key,
+//            Entity entity) {
+//        //if(stillInInit) return 1;
+//
+//        //if(key.contains("arm")) System.out.println(vanillaModelPartsById.keySet());;
+//        if (!alreadyCalculatedThisTickAnimations.containsKey(key)) {
+//        //if (!animationKeyToCalculatorObject.containsKey(key)) {
+//            String partName = key.split("\\.")[0];
+//
+//            if (vanillaModelPartsById.containsKey(partName)) {
+//
+//                AnimationModelDefaultVariable variableToGet;
+//                try {
+//                    variableToGet = AnimationModelDefaultVariable.valueOf(key.split("\\.")[1]);
+//                    //attempt to cache an interpolating animation variable pointing to the vanilla part so that vanilla values can match EMF interpolation when needed
+//                    //////////////////
+////                    if(!variableToGet.isRotation &&
+////                            !animationKeyToCalculatorObject.containsKey(key) &&
+////                            !needToBeAddedToAnimationMap.containsKey(key)){
+////                        //this means we have not added a custom interpolating variable yet, so add one
+////                        AnimationCalculation interpolatingVanillaGetter =  new AnimationCalculation(
+////                                this,
+////                                getAllParts().get(partName),//null if no mapping is correct
+////                                variableToGet,
+////                                key,
+////                                key);
+////                        //add to start of anims for next loop to be able to use interpolating value
+////                        needToBeAddedToAnimationMap.putAndMoveToFirst(key,interpolatingVanillaGetter);
+////                        //now that it has been put this section will not run again for the same vanilla value
+////                    }
+//                    //////////////////
+//
+//                    //if (key.contains("arm")) System.out.println(key + "=" + value);
+//                    return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName).part());
+//                } catch (IllegalArgumentException e) {
+//                    EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
+//                    return 0;
+//                }
+//
+//            } else if (getAllParts().containsKey(partName)) {
+//                AnimationModelDefaultVariable variableToGet;
+//                EMF_ModelPart otherPart = getAllParts().get(partName);
+//                try {
+//                    variableToGet = AnimationModelDefaultVariable.valueOf(key.split("\\.")[1]);
+//                    if (parentForCheck != null && parentForCheck.equals(otherPart.parent)) {
+//                        return variableToGet.getFromEMFModel(otherPart, true);
+//                    } else {
+//                        return variableToGet.getFromEMFModel(otherPart);
+//                    }
+//
+//                } catch (IllegalArgumentException e) {
+//                    EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
+//                    return 0;
+//                }
+//
+//            } else {
+//                EMFUtils.EMF_modWarn("no animation expression value found for: " + key + " in " + modelPathIdentifier);
+//                //System.out.println(animationKeyToCalculatorObject.keySet());
+//                //System.out.println(vanillaModelPartsById.keySet());
+//                return 0;
+//            }
+//
+//        }
+//        //return animationKeyToCalculatorObject.get(key).getLastResultOnly((LivingEntity) entity);
+//        return alreadyCalculatedThisTickAnimations.get(key).getLastResultOnly((LivingEntity) entity);
+//    }
+//    //same as above method but optimized for variable loading as they only exist in animations
+//    //also as we do not want an unwanted error message unlike the other method
+//    public float getAnimationResultOfKeyOptimiseForVariable(
+//            String key,
+//            Entity entity) {
+//        if (animationKeyToCalculatorObject.containsKey(key)) {
+//            return animationKeyToCalculatorObject.get(key).getLastResultOnly((LivingEntity) entity);
+//        }
+//        if(EMFData.getInstance().getConfig().printAllMaths) EMFUtils.EMF_modWarn("no animation variable found for: " + key + " in " + modelPathIdentifier);
+//        return 0;
+//    }
+
+
+
     //called when another animation wants to get "head.tx" or something similar
     //checks if an existing animation has that key and uses it
     // if it's not existing it tries to find the part, be it EMF or vanilla to copy its value
     //there is an alternate method that is more optimized just for animation variables e.g.g "var.asdf"
-    public float getAnimationResultOfKey(
+    public MathValue.AnimationValueSupplier getAnimationResultOfKeyAsSupplier(
             EMF_ModelPart parentForCheck,
-            String key,
-            Entity entity) {
+            String key) {
         //if(stillInInit) return 1;
 
         //if(key.contains("arm")) System.out.println(vanillaModelPartsById.keySet());;
-        if (!alreadyCalculatedThisTickAnimations.containsKey(key)) {
-        //if (!animationKeyToCalculatorObject.containsKey(key)) {
+        if (!animationKeyToCalculatorObject.containsKey(key)) {
+            //if (!animationKeyToCalculatorObject.containsKey(key)) {
             String partName = key.split("\\.")[0];
 
             if (vanillaModelPartsById.containsKey(partName)) {
@@ -224,27 +308,30 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                     variableToGet = AnimationModelDefaultVariable.valueOf(key.split("\\.")[1]);
                     //attempt to cache an interpolating animation variable pointing to the vanilla part so that vanilla values can match EMF interpolation when needed
                     //////////////////
-                    if(!variableToGet.isRotation &&
-                            !animationKeyToCalculatorObject.containsKey(key) &&
-                            !needToBeAddedToAnimationMap.containsKey(key)){
-                        //this means we have not added a custom interpolating variable yet, so add one
-                        AnimationCalculation interpolatingVanillaGetter =  new AnimationCalculation(
-                                this,
-                                getAllParts().get(partName),//null if no mapping is correct
-                                variableToGet,
-                                key,
-                                key);
-                        //add to start of anims for next loop to be able to use interpolating value
-                        needToBeAddedToAnimationMap.putAndMoveToFirst(key,interpolatingVanillaGetter);
-                        //now that it has been put this section will not run again for the same vanilla value
-                    }
+//                    if(!variableToGet.isRotation &&
+//                            !animationKeyToCalculatorObject.containsKey(key) &&
+//                            !needToBeAddedToAnimationMap.containsKey(key)){
+//                        //this means we have not added a custom interpolating variable yet, so add one
+//                        AnimationCalculation interpolatingVanillaGetter =  new AnimationCalculation(
+//                                this,
+//                                getAllParts().get(partName),//null if no mapping is correct
+//                                variableToGet,
+//                                key,
+//                                key);
+//                        //add to start of anims for next loop to be able to use interpolating value
+//                        needToBeAddedToAnimationMap.putAndMoveToFirst(key,interpolatingVanillaGetter);
+//                        //now that it has been put this section will not run again for the same vanilla value
+//                    }
                     //////////////////
 
                     //if (key.contains("arm")) System.out.println(key + "=" + value);
-                    return variableToGet.getFromVanillaModel(vanillaModelPartsById.get(partName).part());
+
+                    ModelPart part =vanillaModelPartsById.get(partName).part();
+                    return (entity2) -> variableToGet.getFromVanillaModel(part);
+
                 } catch (IllegalArgumentException e) {
                     EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
-                    return 0;
+                    return (ent)->0;
                 }
 
             } else if (getAllParts().containsKey(partName)) {
@@ -253,37 +340,37 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                 try {
                     variableToGet = AnimationModelDefaultVariable.valueOf(key.split("\\.")[1]);
                     if (parentForCheck != null && parentForCheck.equals(otherPart.parent)) {
-                        return variableToGet.getFromEMFModel(otherPart, true);
+                        return (ent)-> variableToGet.getFromEMFModel(otherPart, true);
                     } else {
-                        return variableToGet.getFromEMFModel(otherPart);
+                        return (ent)-> variableToGet.getFromEMFModel(otherPart);
                     }
 
                 } catch (IllegalArgumentException e) {
                     EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
-                    return 0;
+                    return (ent)->0;
                 }
 
             } else {
                 EMFUtils.EMF_modWarn("no animation expression value found for: " + key + " in " + modelPathIdentifier);
                 //System.out.println(animationKeyToCalculatorObject.keySet());
                 //System.out.println(vanillaModelPartsById.keySet());
-                return 0;
+                return (ent)-> 0;
             }
 
         }
-        //return animationKeyToCalculatorObject.get(key).getLastResultOnly((LivingEntity) entity);
-        return alreadyCalculatedThisTickAnimations.get(key).getLastResultOnly((LivingEntity) entity);
+        AnimationCalculation variable =animationKeyToCalculatorObject.get(key);
+        return (entity2) -> variable.getLastResultOnly((LivingEntity) entity2);
+        //return alreadyCalculatedThisTickAnimations.get(key).getLastResultOnly((LivingEntity) entity);
     }
     //same as above method but optimized for variable loading as they only exist in animations
     //also as we do not want an unwanted error message unlike the other method
-    public float getAnimationResultOfKeyOptimiseForVariable(
-            String key,
-            Entity entity) {
+    public MathValue.AnimationValueSupplier getAnimationResultOfKeyOptimiseForVariableAsSupplier(String key){
         if (animationKeyToCalculatorObject.containsKey(key)) {
-            return animationKeyToCalculatorObject.get(key).getLastResultOnly((LivingEntity) entity);
+            AnimationCalculation variable =animationKeyToCalculatorObject.get(key);
+            return (entity2) -> variable.getLastResultOnly((LivingEntity) entity2);
         }
         if(EMFData.getInstance().getConfig().printAllMaths) EMFUtils.EMF_modWarn("no animation variable found for: " + key + " in " + modelPathIdentifier);
-        return 0;
+        return (entity3) -> 0;
     }
 
 
@@ -318,8 +405,8 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
         herematrices.push();
 
-        if(animationProgress < EMFData.getInstance().getConfig().spawnAnimTime && EMFData.getInstance().getConfig().spawnAnim != EMFConfig.SpawnAnimation.None){
-            float delta = MathHelper.clamp( animationProgress / EMFData.getInstance().getConfig().spawnAnimTime,0,1f);
+        if(alterAnimationProgress() < EMFData.getInstance().getConfig().spawnAnimTime && EMFData.getInstance().getConfig().spawnAnim != EMFConfig.SpawnAnimation.None){
+            float delta = MathHelper.clamp( alterAnimationProgress() / EMFData.getInstance().getConfig().spawnAnimTime,0,1f);
             switch (EMFData.getInstance().getConfig().spawnAnim){
                 case InflateGround -> {
                     herematrices.translate(0,2 - 2 * delta,0);
@@ -426,99 +513,104 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     float animationProgress = 0;
     public boolean sneaking = false;
 
-    public float currentAnimationDeltaForThisTick = 0;
-    public boolean calculateForThisAnimationTick = false;
+//    public float currentAnimationDeltaForThisTick = 0;
+//    public boolean calculateForThisAnimationTick = false;
 
     @Override
     public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch){//, VanillaMappings.VanillaMapper vanillaPartSupplier,EntityModel<T> vanillaModel){
         this.animationProgress = animationProgress;
-        calculateForThisAnimationTick = false;
+//        calculateForThisAnimationTick = false;
 
-
-        currentEntity = entity;
         if(entity != null) {
-            UUID id = entity.getUuid();
-            if (EMFData.getInstance().getConfig().animationRate == EMFConfig.AnimationRatePerSecondMode.Every_frame && EMFData.getInstance().getConfig().animationRateDistanceDropOffRate == 0) {
-                calculateForThisAnimationTick = true;
-                currentAnimationDeltaForThisTick = 0;
-            } else {
-                float interpolationLength = prevInterp.getFloat(id);
-
-                float thisTickValue = getNextPrevResultTickValue();
-                float prevTickValue = prevResultsTick.getFloat(id);
-
-                if (thisTickValue >= prevTickValue + interpolationLength) {
-                    //vary interpolation length by distance from client
-                    if (MinecraftClient.getInstance().player != null) {
-                        //val;
-                        //if(entity == MinecraftClient.getInstance().player)
-                        //    val=0;
-                        //else
-                        float val= EMFData.getInstance().getConfig().getInterpolationModifiedByDistance((entity.distanceTo(MinecraftClient.getInstance().player) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff));
-                        prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(val));
-                    } else {
-                        prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
-                    }
-
-                    prevResultsTick.put(id, thisTickValue);//entity.age + tickDelta)
-                    calculateForThisAnimationTick = true;
-
+            currentEntity = entity;
+         //   UUID id = entity.getUuid();
+//            if (EMFData.getInstance().getConfig().animationRate == EMFConfig.AnimationRatePerSecondMode.Every_frame && EMFData.getInstance().getConfig().animationRateDistanceDropOffRate == 0) {
+//                calculateForThisAnimationTick = true;
+//                currentAnimationDeltaForThisTick = 0;
+//            } else {
+//                float interpolationLength = prevInterp.getFloat(id);
+//
+//                float thisTickValue = getNextPrevResultTickValue();
+//                float prevTickValue = prevResultsTick.getFloat(id);
+//
+//                if (thisTickValue >= prevTickValue + interpolationLength) {
+//                    //vary interpolation length by distance from client
+//                    if (MinecraftClient.getInstance().player != null) {
+//                        //val;
+//                        //if(entity == MinecraftClient.getInstance().player)
+//                        //    val=0;
+//                        //else
+//                        float val= EMFData.getInstance().getConfig().getInterpolationModifiedByDistance((entity.distanceTo(MinecraftClient.getInstance().player) - EMFData.getInstance().getConfig().animationRateMinimumDistanceDropOff));
+//                        prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(val));
+//                    } else {
+//                        prevInterp.put(id, EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
+//                    }
+//
+//                    prevResultsTick.put(id, thisTickValue);//entity.age + tickDelta)
+//                    calculateForThisAnimationTick = true;
+//
+//                    animationGetters.entity = entity;
+//                    animationGetters.limbAngle = limbAngle;
+//                    animationGetters.limbDistance = limbDistance;
+//                    animationGetters.animationProgress = animationProgress;
+//                    animationGetters.headYaw = headYaw;
+//                    animationGetters.headPitch = headPitch;
+//                    animationGetters.tickDelta = tickDelta;
+//                   // animationGetters.riding = riding;
+//                   // animationGetters.child = child;
+//
+//                    if(entity == MinecraftClient.getInstance().player && EMFData.getInstance().clientGetter == null)
+//                        EMFData.getInstance().clientGetter = animationGetters;
+//
+//                    //currentAnimationDeltaForThisTick = 0f;
+//                } else if (thisTickValue < prevTickValue - 100 - interpolationLength) {
+//                    //this is required as animation progress resets with the entity entering render distance
+//                    //todo possibly use world time ticks instead ??
+//                    prevResultsTick.put(id, -100);
+//                    //interpolate easier as will calculate next tick
+//                    calculateForThisAnimationTick = false;
+//                    // currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
+//                } else {
+//                    //todo wolves and chickens here for some reason
+//
+////                    if(new Random().nextInt(100)==1 && currentEntity != null)
+////                        System.out.println(interpolationLength+", "+prevInterp.getFloat(id)+", "+animationProgress+", "+prevResultsTick.getFloat(id));
+////                    0.047732696, 0.047732696, 0.62831855, 0.62831855
+////
+////                    0.62831855>=0.676051246
+//
+//                    //interpolate
+//                    calculateForThisAnimationTick = false;
+//                    //currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
+//                }
+//                currentAnimationDeltaForThisTick = (float) ((thisTickValue - prevTickValue) / interpolationLength);
+//            }
+            vanillaModel.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
                     animationGetters.entity = entity;
                     animationGetters.limbAngle = limbAngle;
                     animationGetters.limbDistance = limbDistance;
-                    animationGetters.animationProgress = animationProgress;
+                    animationGetters.animationProgress = alterAnimationProgress();
                     animationGetters.headYaw = headYaw;
                     animationGetters.headPitch = headPitch;
                     animationGetters.tickDelta = tickDelta;
-                    animationGetters.riding = riding;
-                    animationGetters.child = child;
-
-                    if(entity == MinecraftClient.getInstance().player && EMFData.getInstance().clientGetter == null)
-                        EMFData.getInstance().clientGetter = animationGetters;
-
-                    //currentAnimationDeltaForThisTick = 0f;
-                } else if (thisTickValue < prevTickValue - 100 - interpolationLength) {
-                    //this is required as animation progress resets with the entity entering render distance
-                    //todo possibly use world time ticks instead ??
-                    prevResultsTick.put(id, -100);
-                    //interpolate easier as will calculate next tick
-                    calculateForThisAnimationTick = false;
-                    // currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
-                } else {
-                    //todo wolves and chickens here for some reason
-
-//                    if(new Random().nextInt(100)==1 && currentEntity != null)
-//                        System.out.println(interpolationLength+", "+prevInterp.getFloat(id)+", "+animationProgress+", "+prevResultsTick.getFloat(id));
-//                    0.047732696, 0.047732696, 0.62831855, 0.62831855
-//
-//                    0.62831855>=0.676051246
-
-                    //interpolate
-                    calculateForThisAnimationTick = false;
-                    //currentAnimationDeltaForThisTick =  ((animationProgress - prevResultsTick.getFloat(id) ) / interpolationLength);
-                }
-                currentAnimationDeltaForThisTick = (float) ((thisTickValue - prevTickValue) / interpolationLength);
-            }
-            vanillaModel.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
-
-            alreadyCalculatedThisTickAnimations.clear();
+            //alreadyCalculatedThisTickAnimations.clear();
             //if(entity instanceof BlazeEntity && entity.getRandom().nextInt(50) == 4) System.out.println(animationKeyToCalculatorObject.keySet());
             animationKeyToCalculatorObject.forEach((key,animationCalculation)->{
 
                 animationCalculation.calculateAndSet(entity);
-                alreadyCalculatedThisTickAnimations.put(key,animationCalculation);
+                //alreadyCalculatedThisTickAnimations.put(key,animationCalculation);
             });
-            if (!needToBeAddedToAnimationMap.isEmpty()){
-                needToBeAddedToAnimationMap.forEach(animationKeyToCalculatorObject::putAndMoveToFirst);
-            }
+//            if (!needToBeAddedToAnimationMap.isEmpty()){
+//                needToBeAddedToAnimationMap.forEach(animationKeyToCalculatorObject::putAndMoveToFirst);
+//            }
         }
         //that's it????
     }
     public AnimationGetters animationGetters = new AnimationGetters();
 
-    private float getNextPrevResultTickValue(){
-//        if(currentEntity != null && currentEntity.world != null)
-//            return MinecraftClient.getInstance().tick();+tickDelta;
+    private float alterAnimationProgress(){
+        if(currentEntity == null)
+            return animationProgress;
 
        // if(new Random().nextInt(100)==1 && currentEntity.world != null) System.out.println((System.currentTimeMillis()/50d+tickDelta));
         return currentEntity.age + tickDelta ;//(System.currentTimeMillis()/50d+ tickDelta);
@@ -526,12 +618,12 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
     T currentEntity = null;
 
-    Object2FloatOpenHashMap<UUID> prevResultsTick = new Object2FloatOpenHashMap<>(){{
-        defaultReturnValue(-100);
-    }};
-    Object2FloatOpenHashMap<UUID> prevInterp = new Object2FloatOpenHashMap<>(){{
-        defaultReturnValue(EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
-    }};
+//    Object2FloatOpenHashMap<UUID> prevResultsTick = new Object2FloatOpenHashMap<>(){{
+//        defaultReturnValue(-100);
+//    }};
+//    Object2FloatOpenHashMap<UUID> prevInterp = new Object2FloatOpenHashMap<>(){{
+//        defaultReturnValue(EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
+//    }};
 
     @Override
     public void setArmAngle(Arm arm, MatrixStack matrices) {

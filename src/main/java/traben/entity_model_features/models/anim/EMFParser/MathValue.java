@@ -1,5 +1,6 @@
 package traben.entity_model_features.models.anim.EMFParser;
 
+import net.minecraft.entity.Entity;
 import traben.entity_model_features.models.anim.AnimationCalculation;
 
 public abstract class MathValue implements  MathComponent{
@@ -45,4 +46,14 @@ public abstract class MathValue implements  MathComponent{
     public interface ValueSupplier{
         double get();
     }
+
+    public interface AnimationValueSupplier{
+
+//        default float get(){
+//            return get(null);
+//        }
+        float get(Entity entity);
+
+    }
+
 }

@@ -144,7 +144,8 @@ public class MathVariableUpdatable extends MathValue implements  MathComponent{
 //            } else {
                     EMF_ModelPart partParent = calculationInstance.modelPart == null? null : calculationInstance.modelPart.parent;
                     isOtherAnimVariable = true;
-                    return () -> calculationInstance.parentModel.getAnimationResultOfKey(partParent, variableKey, getter.getEntity());
+                    AnimationValueSupplier SUPPLIER = calculationInstance.parentModel.getAnimationResultOfKeyAsSupplier(partParent, variableKey);
+                    return () -> SUPPLIER.get(getter.getEntity());
 
 //            }
 
@@ -152,22 +153,24 @@ public class MathVariableUpdatable extends MathValue implements  MathComponent{
                 //process float variable  e.g.   var.asdf
                 if(variableKey.matches("var\\.\\w+")) {
                     if (variableKey.equals(calculationInstance.animKey)) {
-                        return () ->  (getter.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(getter.getEntity().getUuid()));
+                        return () ->  (getter.getEntity() == null ? 0 : calculationInstance.prevResult.getFloat(getter.getEntity().getUuid()));
                     }else {
                         // EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
                         isOtherAnimVariable = true;
-                        return () -> calculationInstance.parentModel.getAnimationResultOfKeyOptimiseForVariable(variableKey, getter.getEntity());
+                        AnimationValueSupplier SUPPLIER = calculationInstance.parentModel.getAnimationResultOfKeyOptimiseForVariableAsSupplier(variableKey );
+                        return () -> SUPPLIER.get(getter.getEntity());
                     }
 
                 }
                 //process boolean variable  e.g.   varb.asdf
                 if(variableKey.matches("varb\\.\\w+")) {
                     if (variableKey.equals(calculationInstance.animKey)) {
-                        return () -> (getter.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(getter.getEntity().getUuid()));
+                        return () -> (getter.getEntity() == null ? 0 : calculationInstance.prevResult.getFloat(getter.getEntity().getUuid()));
                     }else {
                         //EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
                         isOtherAnimVariable = true;
-                        return () -> (float) (calculationInstance.parentModel.getAnimationResultOfKeyOptimiseForVariable(  variableKey, getter.getEntity()) == (invertBooleans ? 1 : 0) ? 0 : 1);
+                        AnimationValueSupplier SUPPLIER = calculationInstance.parentModel.getAnimationResultOfKeyOptimiseForVariableAsSupplier(  variableKey);
+                        return () ->  SUPPLIER.get(getter.getEntity()) == (invertBooleans ? 1 : 0) ? 0 : 1;
                     }
 
                 }

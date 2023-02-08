@@ -3,7 +3,6 @@ package traben.entity_model_features.models.anim;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.MathHelper;
 import traben.entity_model_features.EMFData;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
@@ -44,7 +43,7 @@ public class AnimationCalculation {
             this.vanillaModelPart = part;
 
         if(varToChange != null) {
-            resultIsAngle = (varToChange == AnimationModelDefaultVariable.rx || varToChange == AnimationModelDefaultVariable.ry ||varToChange == AnimationModelDefaultVariable.rz);
+            //resultIsAngle = (varToChange == AnimationModelDefaultVariable.rx || varToChange == AnimationModelDefaultVariable.ry ||varToChange == AnimationModelDefaultVariable.rz);
             if(part == null){
                 System.out.println("null part for "+ animKey+" in "+ parentModel.modelPathIdentifier);
                 defaultValue = 0;
@@ -56,8 +55,8 @@ public class AnimationCalculation {
         } else {
             defaultValue = 0;
         }
-        prevResults.defaultReturnValue(defaultValue);
-        prevPrevResults.defaultReturnValue(defaultValue);
+        prevResult.defaultReturnValue(defaultValue);
+        //prevPrevResults.defaultReturnValue(defaultValue);
 
         EMFCalculator = MathExpressionParser.getOptimizedExpression(initialExpression,false, this);
 
@@ -66,7 +65,7 @@ public class AnimationCalculation {
 
     public final boolean isVariable;
 
-    private boolean resultIsAngle = false;
+    //private boolean resultIsAngle = false;
     public boolean verboseMode = false;
 
     public void setVerbose(boolean val) {
@@ -77,22 +76,22 @@ public class AnimationCalculation {
 
 
 
-    public float getResultInterpolateOnly(LivingEntity entity0){
-        if(vanillaModelPart != null){
-            return varToChange.getFromVanillaModel(vanillaModelPart);
-        }
-        if(entity0 == null) {
-            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
-            return 0;
-        }
-
-        UUID id = entity0.getUuid();
-        if(resultIsAngle){
-            return MathHelper.lerpAngleDegrees(parentModel.currentAnimationDeltaForThisTick,prevPrevResults.getFloat(id), prevResults.getFloat(id));
-        }
-        return MathHelper.lerp(parentModel.currentAnimationDeltaForThisTick,prevPrevResults.getFloat(id), prevResults.getFloat(id));
-
-    }
+//    public float getResultInterpolateOnly(LivingEntity entity0){
+//        if(vanillaModelPart != null){
+//            return varToChange.getFromVanillaModel(vanillaModelPart);
+//        }
+//        if(entity0 == null) {
+//            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
+//            return 0;
+//        }
+//
+//        UUID id = entity0.getUuid();
+//        if(resultIsAngle){
+//            return MathHelper.lerpAngleDegrees(parentModel.currentAnimationDeltaForThisTick,prevPrevResults.getFloat(id), prevResults.getFloat(id));
+//        }
+//        return MathHelper.lerp(parentModel.currentAnimationDeltaForThisTick,prevPrevResults.getFloat(id), prevResults.getFloat(id));
+//
+//    }
 
     public float getLastResultOnly(LivingEntity entity0){
 
@@ -104,7 +103,7 @@ public class AnimationCalculation {
             return 0;
         }
 
-       return prevResults.getFloat(entity0.getUuid());
+       return prevResult.getFloat(entity0.getUuid());
 
     }
 
@@ -119,18 +118,16 @@ public class AnimationCalculation {
             return 0;
         }
 
-        UUID id = entity0.getUuid();
-
-
 
         float result = calculatorRun();
 
-        float oldResult = prevResults.getFloat(id);
+        //float oldResult = prevResults.getFloat(id);
             if(storeResult) {
-                prevPrevResults.put(id, oldResult);
-                prevResults.put(id, result);
+                //prevPrevResults.put(id, oldResult);
+                prevResult.put(entity0.getUuid(), result);
             }
-            return oldResult;
+            return result;
+            //return oldResult;
     }
 
     public float getResultViaCalculate(LivingEntity entity0){
@@ -160,16 +157,15 @@ public class AnimationCalculation {
 
 
 
-    Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
-     public Object2FloatOpenHashMap<UUID> prevResults = new Object2FloatOpenHashMap<>();
+   // Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
+     public Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
 
 
 
     public void calculateAndSet(LivingEntity entity0){
-        if (parentModel.calculateForThisAnimationTick) {
-            handleResult(getResultViaCalculate(entity0));
-        }else if (!isVariable){
-            handleResult(getResultInterpolateOnly(entity0));
+        float result = getResultViaCalculate(entity0);
+        if (!isVariable){
+            handleResult(result);
         }
     }
 

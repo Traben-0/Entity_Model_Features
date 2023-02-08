@@ -22,9 +22,9 @@ public class AnimationGetters {
 
 
 
-        public boolean riding = false;
+        //public boolean riding = false;
 
-        public boolean child = false;
+        //public boolean child = false;
 
         public Entity entity = null;
         public float limbAngle = 0;
@@ -132,13 +132,13 @@ public class AnimationGetters {
         }
 
         public boolean isRiding () {
-            return riding;
-            // return entity != null && entity.hasVehicle();
+            //return riding;
+             return entity != null && entity.hasVehicle();
         }
 
         public boolean isChild () {
-            return child;
-            //return entity instanceof LivingEntity alive && alive.isBaby();
+            //return child;
+            return entity instanceof LivingEntity alive && alive.isBaby();
         }
 
         public boolean isOnGround () {
