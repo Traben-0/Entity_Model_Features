@@ -604,7 +604,11 @@ public class MathMethod extends MathValue implements MathComponent{
 
             MathComponent tru = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
             MathComponent fals = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
-
+//            if(calculationInstance.animKey.equals("var.float")){
+//                System.out.println("var.float = " + args.get(0));
+//                System.out.println("var.float as string = "+ bool.toString());
+//                System.out.println("var.float .get() = "+ bool.get());
+//            }
 
             // different constant optimization for if statement
             // this should never happen unless the pack maker is 0 iq

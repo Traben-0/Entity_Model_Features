@@ -17,7 +17,7 @@ public class AnimationCalculation {
 
 
     public int indentCount = 0;
-    MathComponent EMFCalculator;
+    MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
 
 
     public EMF_ModelPart modelPart = null;
@@ -27,6 +27,7 @@ public class AnimationCalculation {
      public final AnimationModelDefaultVariable varToChange;
      public final String animKey;
 
+     private final String expressionString;
 
      final float defaultValue;
 
@@ -34,23 +35,23 @@ public class AnimationCalculation {
     public AnimationCalculation(EMF_EntityModel<?> parent, ModelPart part, AnimationModelDefaultVariable varToChange, String animKey, String initialExpression) {
 
         this.animKey = animKey;
-        isVariable =animKey.startsWith("var");
+        isVariable = animKey.startsWith("var");
         this.parentModel = parent;
         this.varToChange = varToChange;
-        if(part instanceof EMF_ModelPart emf)
+        if (part instanceof EMF_ModelPart emf)
             this.modelPart = emf;
         else
             this.vanillaModelPart = part;
 
-        if(varToChange != null) {
+        if (varToChange != null) {
             //resultIsAngle = (varToChange == AnimationModelDefaultVariable.rx || varToChange == AnimationModelDefaultVariable.ry ||varToChange == AnimationModelDefaultVariable.rz);
-            if(part == null){
-                System.out.println("null part for "+ animKey+" in "+ parentModel.modelPathIdentifier);
+            if (part == null) {
+                System.out.println("null part for " + animKey + " in " + parentModel.modelPathIdentifier);
                 defaultValue = 0;
-            }else {
+            } else {
                 defaultValue = varToChange.getDefaultFromModel(part);
             }
-            if(this.modelPart != null)
+            if (this.modelPart != null)
                 varToChange.setValueAsAnimated(this.modelPart);
         } else {
             defaultValue = 0;
@@ -58,9 +59,10 @@ public class AnimationCalculation {
         prevResult.defaultReturnValue(defaultValue);
         //prevPrevResults.defaultReturnValue(defaultValue);
 
-        EMFCalculator = MathExpressionParser.getOptimizedExpression(initialExpression,false, this);
-
-
+        expressionString = initialExpression;
+    }
+    public void initExpression(){
+        EMFCalculator = MathExpressionParser.getOptimizedExpression(expressionString,false, this);
     }
 
     public final boolean isVariable;
@@ -163,9 +165,10 @@ public class AnimationCalculation {
 
 
     public void calculateAndSet(LivingEntity entity0){
-        float result = getResultViaCalculate(entity0);
-        if (!isVariable){
-            handleResult(result);
+        if (isVariable) {
+            getResultViaCalculate(entity0);
+        } else {
+            handleResult(getResultViaCalculate(entity0));
         }
     }
 

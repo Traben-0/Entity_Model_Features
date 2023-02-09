@@ -1,11 +1,14 @@
 package traben.entity_model_features.models.anim;
 
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.FoxEntity;
+import net.minecraft.entity.passive.ParrotEntity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.util.Identifier;
@@ -16,6 +19,7 @@ import net.minecraft.world.dimension.DimensionTypes;
 
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.UUID;
 
 public class AnimationGetters {
 
@@ -254,7 +258,9 @@ public class AnimationGetters {
         public boolean isSitting () {
             return entity != null && (
                     entity instanceof TameableEntity tame && tame.isSitting() ||
-                            entity instanceof FoxEntity fox && fox.isSitting()
+                            entity instanceof FoxEntity fox && fox.isSitting()||
+                            entity instanceof ParrotEntity parrot && parrot.isSitting()||
+                            entity instanceof CatEntity cat && cat.isSitting()
 
             );
         }
@@ -282,6 +288,11 @@ public class AnimationGetters {
         public double getAge () {
             //return entity == null ? 0 : entity.age + tickDelta;
             return animationProgress;
+        }
+        //public static long lastFrameTime = System.currentTimeMillis();
+        private final Object2LongOpenHashMap<UUID> lastFrameTimeMap = new Object2LongOpenHashMap<>();
+        public double getFrameTime(){
+            return MinecraftClient.getInstance().getLastFrameDuration()/10;
         }
 
         public double getLimbAngle () {

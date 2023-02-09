@@ -12,6 +12,8 @@ public interface EMFCustomModel<T extends LivingEntity> {
 
     boolean doesThisModelNeedToBeReset();
 
+    boolean forceRecheckModel_currentlyOnlyTrueForPufferFish = false;
+
    // EMF_EntityModel<? extends LivingEntity> thisEMFModel = null;
 
     void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha);

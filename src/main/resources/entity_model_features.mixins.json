@@ -6,12 +6,12 @@
   "mixins": [
   ],
   "client": [
-    "accessor.DonkeyEntityModelAccessor",
-    "accessor.WorldAccessor",
     "MixinSimpleResourceReload",
     "accessor.CuboidAccessor",
+    "accessor.DonkeyEntityModelAccessor",
     "accessor.ModelAccessor",
     "accessor.ModelPartAccessor",
+    "accessor.WorldAccessor",
     "accessor.entity.LivingEntityRendererAccessor",
     "accessor.entity.feature.CreeperChargeFeatureRendererAccessor",
     "accessor.entity.feature.HorseArmorFeatureRendererAccessor",
@@ -33,7 +33,8 @@
     "renderers.features.MixinCreeperChargeFeatureEntityRenderer",
     "renderers.features.MixinDrownedOverlayFeatureEntityRenderer",
     "renderers.features.MixinSheepWoolFeatureRenderer",
-    "renderers.features.MixinStrayOverlayFeatureEntityRenderer"
+    "renderers.features.MixinStrayOverlayFeatureEntityRenderer",
+    "renderers.features.MixinTropicalFishFeatureRenderer"
   ],
   "injectors": {
     "defaultRequire": 1

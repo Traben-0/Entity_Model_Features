@@ -218,16 +218,23 @@ public class EMFData {
             EMF_EntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
             return (M) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
         }
+        UUID id;
+        if(entity instanceof PufferfishEntity){
+            String newU = entity.getUuid().toString() + entityTypeName.hashCode();
+            id = UUID.nameUUIDFromBytes(newU.getBytes());
+        }else {
+            id = entity.getUuid();
+        }
 
-        EMFCustomModel<?> knownModel = UUID_TO_MODEL.get(entity.getUuid());
+        EMFCustomModel<?> knownModel = UUID_TO_MODEL.get(id);
         if (knownModel != null) {
-            if (UUID_MOB_MODEL_UPDATES.getBoolean(entity.getUuid())) {
+            if (UUID_MOB_MODEL_UPDATES.getBoolean(id)) {
                 long time = System.currentTimeMillis();
-                if (time > 1000 + UUID_LAST_UPDATE_TIME.getLong(entity.getUuid())) {
-                    UUID_LAST_UPDATE_TIME.put(entity.getUuid(), time);
+                if (time > 1000 + UUID_LAST_UPDATE_TIME.getLong(id)) {
+                    UUID_LAST_UPDATE_TIME.put(id, time);
                     EMFCustomModel<?> newModel = getModelVariantPossibleNew(entity, entityTypeName, vanillaModel);
                     if (newModel != null)
-                        UUID_TO_MODEL.put(entity.getUuid(), newModel);
+                        UUID_TO_MODEL.put(id, newModel);
                     return (M) newModel;
                 }
             }

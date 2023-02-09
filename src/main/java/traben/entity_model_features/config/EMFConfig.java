@@ -44,7 +44,7 @@ public class EMFConfig {
 //   // public int animationFPS = 30;
 //    public float minimumAnimationFPS = 0.3F;
 
-    public  VanillaModelRenderMode displayVanillaModelHologram = VanillaModelRenderMode.No;
+    public  VanillaModelRenderMode displayVanillaModelHologram = VanillaModelRenderMode.Off;
     public boolean printModelCreationInfoToLog = false;
 //    public float animationRateMinimumDistanceDropOff = 8;
 //    public float animationRateDistanceDropOffRate = 10;
@@ -55,6 +55,8 @@ public class EMFConfig {
    // public boolean useCustomPlayerHandInFPS = false;
 
     public boolean forceTranslucentMobRendering = false;
+
+
 
     public SpawnAnimation spawnAnim = SpawnAnimation.None;
     public float spawnAnimTime = 4;
@@ -73,9 +75,9 @@ public class EMFConfig {
         Yaw
     }
     public enum VanillaModelRenderMode{
-        No,
-        Yes,
-        Offset
+        Off,
+        Position_normal,
+        Positon_offset
     }
     public enum AnimationRatePerSecondMode{
         Twenty_tps(()->Math.min(20,MinecraftClient.getInstance().getCurrentFps())),

@@ -7,9 +7,8 @@ import net.minecraft.client.render.entity.model.IronGolemEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
-import traben.entity_model_features.mixin.accessor.entity.model.IronGolemEntityModelAccessor;
-import traben.entity_model_features.mixin.accessor.entity.model.BipedEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
+import traben.entity_model_features.mixin.accessor.entity.model.IronGolemEntityModelAccessor;
 import traben.entity_model_features.models.EMFCustomModel;
 import traben.entity_model_features.models.EMF_EntityModel;
 import traben.entity_model_features.models.EMF_ModelPart;
@@ -35,9 +34,7 @@ public class EMFCustomIronGolemModel<T extends LivingEntity, M extends IronGolem
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
         //supports flower holding feature
-        if(thisEMFModel.childrenMap.containsKey("right_arm")) {
-            ((BipedEntityModelAccessor) this).setRightArm(thisEMFModel.childrenMap.get("right_arm"));
-        }
+
         List<EMF_ModelPart> rArmCandidates = new ArrayList<>();
         for (EMF_ModelPart part:
                 thisEMFModel.childrenMap.values()) {

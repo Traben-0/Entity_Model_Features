@@ -1,5 +1,6 @@
 package traben.entity_model_features.models;
 
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
@@ -39,8 +40,8 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
     private final EMF_JemData jemData;
     public final Object2ObjectOpenHashMap<String, EMF_ModelPart> childrenMap = new Object2ObjectOpenHashMap<>();
     public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> animationKeyToCalculatorObject = new Object2ObjectLinkedOpenHashMap<>();
-    public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> alreadyCalculatedThisTickAnimations = new Object2ObjectLinkedOpenHashMap<>();
-    public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> needToBeAddedToAnimationMap = new Object2ObjectLinkedOpenHashMap<>();
+    public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> alreadyCalculatedThisInitTickAnimations = new Object2ObjectLinkedOpenHashMap<>();
+    //public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> needToBeAddedToAnimationMap = new Object2ObjectLinkedOpenHashMap<>();
 
     private final HashMap<String, VanillaMappings.ModelAndParent> vanillaModelPartsById;
 
@@ -186,16 +187,24 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
                                     animationExpression);
                 }
 
-                if(thisCalculator.isValid()){
+               // if(thisCalculator.isValid()){
                   //  System.out.println("found and added valid animation: "+animKey+"="+animationExpression);
                     animationKeyToCalculatorObject.put(animKey,thisCalculator);
-                }else{
-                    EMFUtils.EMF_modWarn("invalid animation = "+animKey+"="+ animationExpression);
-                }
+                //}else{
+                //    EMFUtils.EMF_modWarn("invalid animation = "+animKey+"="+ animationExpression);
+                //}
                 //here we have a set of animation objects that only need to be iterated over and run
 
 
             });
+
+            //init expressions after all available variables have been loaded to the animation map
+            // utilise a new map over the iteration to ensure non variable calls can consider value availability for mapping to vanilla parts
+            animationKeyToCalculatorObject.forEach((key,anim)->{
+                anim.initExpression();
+                alreadyCalculatedThisInitTickAnimations.put(key,anim);
+            });
+            
         }
     }
 
@@ -297,7 +306,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         //if(stillInInit) return 1;
 
         //if(key.contains("arm")) System.out.println(vanillaModelPartsById.keySet());;
-        if (!animationKeyToCalculatorObject.containsKey(key)) {
+        if (!alreadyCalculatedThisInitTickAnimations.containsKey(key)) {
             //if (!animationKeyToCalculatorObject.containsKey(key)) {
             String partName = key.split("\\.")[0];
 
@@ -358,12 +367,11 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             }
 
         }
-        AnimationCalculation variable =animationKeyToCalculatorObject.get(key);
+        AnimationCalculation variable =alreadyCalculatedThisInitTickAnimations.get(key);
         return (entity2) -> variable.getLastResultOnly((LivingEntity) entity2);
         //return alreadyCalculatedThisTickAnimations.get(key).getLastResultOnly((LivingEntity) entity);
     }
-    //same as above method but optimized for variable loading as they only exist in animations
-    //also as we do not want an unwanted error message unlike the other method
+    //same as above method but optimized for variable loading as they only exist in animations map and can be loaded out of execution order
     public MathValue.AnimationValueSupplier getAnimationResultOfKeyOptimiseForVariableAsSupplier(String key){
         if (animationKeyToCalculatorObject.containsKey(key)) {
             AnimationCalculation variable =animationKeyToCalculatorObject.get(key);
@@ -387,14 +395,24 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
     @Override
     public void render( MatrixStack herematrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+//todo below code segment might assist with some modded entity renderers but honestly not a concern atm, as i want to know of any such incompatibilities
+//        if(currentEntity!= null){
+//            if( currentEntity.world == null){
+//                //attempt to reroute some modded entity rendering
+//                vanillaModel.render(herematrices, vertices, light, overlay, red, green, blue, alpha);
+//                return;
+//            }else if(currentEntity.getPos().equals(new Vec3d(0,0,0))){
+//                vanillaModel.render(herematrices, vertices, light, overlay, red, green, blue, alpha);
+//                return;
+//            }
+//        }
 
-       // if(currentEntity == null)return;
 
         switch (EMFData.getInstance().getConfig().displayVanillaModelHologram){
-            case Yes -> {
+            case Position_normal -> {
                 vanillaModel.render(herematrices, vertices, LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay, red/2, green, blue/2, alpha/2);
             }
-            case Offset -> {
+            case Positon_offset -> {
                 herematrices.push();
                 herematrices.translate(1.5, 0, 0);
                 vanillaModel.render(herematrices, vertices, LightmapTextureManager.MAX_LIGHT_COORDINATE, overlay, red/2, green, blue/2, alpha/2);
@@ -444,9 +462,10 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             }
         }
 
-        if(this.texture != null && this.currentVertexProvider != null && this.vanillaModel != null){
-            vertices = this.currentVertexProvider.getBuffer(this.vanillaModel.getLayer(this.texture));
-        }
+        //todo possibly no longer needed
+//        if(this.texture != null && this.currentVertexProvider != null && this.vanillaModel != null){
+//            vertices = this.currentVertexProvider.getBuffer(this.vanillaModel.getLayer(this.texture));
+//        }
 
         if (this.child && vanillaModel instanceof AnimalModel animal) {
             float f = 1.0F / ((AnimalModelAccessor)animal).getInvertedChildBodyScale();
@@ -518,6 +537,7 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
     @Override
     public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch){//, VanillaMappings.VanillaMapper vanillaPartSupplier,EntityModel<T> vanillaModel){
+
         this.animationProgress = animationProgress;
 //        calculateForThisAnimationTick = false;
 
@@ -585,6 +605,9 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 //                }
 //                currentAnimationDeltaForThisTick = (float) ((thisTickValue - prevTickValue) / interpolationLength);
 //            }
+
+
+
             vanillaModel.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
                     animationGetters.entity = entity;
                     animationGetters.limbAngle = limbAngle;
@@ -598,6 +621,8 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
             animationKeyToCalculatorObject.forEach((key,animationCalculation)->{
 
                 animationCalculation.calculateAndSet(entity);
+
+
                 //alreadyCalculatedThisTickAnimations.put(key,animationCalculation);
             });
 //            if (!needToBeAddedToAnimationMap.isEmpty()){
@@ -606,6 +631,8 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
         }
         //that's it????
     }
+
+    public boolean calculateVariables = true;
     public AnimationGetters animationGetters = new AnimationGetters();
 
     private float alterAnimationProgress(){
@@ -618,9 +645,9 @@ public class EMF_EntityModel<T extends LivingEntity> extends EntityModel<T> impl
 
     T currentEntity = null;
 
-//    Object2FloatOpenHashMap<UUID> prevResultsTick = new Object2FloatOpenHashMap<>(){{
-//        defaultReturnValue(-100);
-//    }};
+    Object2LongOpenHashMap<UUID> prevCalcTick = new Object2LongOpenHashMap<>(){{
+        defaultReturnValue(-100);
+    }};
 //    Object2FloatOpenHashMap<UUID> prevInterp = new Object2FloatOpenHashMap<>(){{
 //        defaultReturnValue(EMFData.getInstance().getConfig().getAnimationRateFromFPS(0));
 //    }};

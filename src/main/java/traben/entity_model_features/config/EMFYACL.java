@@ -47,7 +47,7 @@ public class EMFYACL{
                         .name(Text.of("render vanilla model hologram mode"))
                         .tooltip(Text.of("render the vanilla model next to or on top of the EMF model")) // optional
                         .binding(
-                                EMFConfig.VanillaModelRenderMode.No, // default
+                                EMFConfig.VanillaModelRenderMode.Off, // default
                                 () -> EMFData.getInstance().getConfig().displayVanillaModelHologram, // getter
                                 newValue -> EMFData.getInstance().getConfig().displayVanillaModelHologram = newValue // setter
                         )

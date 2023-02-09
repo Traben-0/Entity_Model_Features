@@ -61,7 +61,12 @@ public class MathExpressionParser extends MathValue implements MathComponent {
     public static MathComponent getOptimizedExpression(String expressionString, boolean isNegative, AnimationCalculation calculationInstance, boolean invertBoolean){
          MathExpressionParser expression = new MathExpressionParser(expressionString, isNegative, calculationInstance, invertBoolean);
          if(expression.optimizedAlternativeToThis == null)
-             return expression.isValid() ? expression : NULL_EXPRESSION;
+             if(expression.isValid()){
+                 return expression;
+             }else{
+                 EMFUtils.EMF_modWarn("null animation expression: ["+expressionString+"] in ["+ calculationInstance.parentModel.modelPathIdentifier+"]");
+                 return NULL_EXPRESSION;
+             }
          return expression.optimizedAlternativeToThis;
     }
 
@@ -113,7 +118,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                     }else{
                         if(firstBooleanChar == '!') {
                             //likely a '!' for boolean variables so need to add to read
-                            rollingRead.append(firstBooleanChar);
+                            rollingRead.append('!');
                         }else{
                             //add complete single char boolean action
                             components.add(switch (firstBooleanChar){
@@ -127,7 +132,8 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                         }
                     }
                     firstBooleanChar = null;
-                }else if(action == MathAction.BOOLEAN_CHAR){
+                }
+                if(action == MathAction.BOOLEAN_CHAR){
                     firstBooleanChar = ch;
                 }
                 //critical that elif stops here
@@ -183,7 +189,9 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                                 asNumber = Float.parseFloat(read);
                             } catch (NumberFormatException ignored) {
                             }
-
+//                            if(this.calculationInstance.animKey.equals("var.float")){
+//                                System.out.println("variablename = "+read);
+//                            }
                             MathComponent variable;
                             if (asNumber == null) {
                                 variable = MathVariableUpdatable.getOptimizedVariable(read, getNegativeNext(), this.calculationInstance);

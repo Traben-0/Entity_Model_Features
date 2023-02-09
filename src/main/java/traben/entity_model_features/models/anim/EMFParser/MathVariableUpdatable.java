@@ -42,7 +42,7 @@ public class MathVariableUpdatable extends MathValue implements  MathComponent{
         //discover supplier needed
         valueSupplier = switch (value){
             case "limb_swing" -> getter::getLimbAngle;
-            case "frame_time" -> getter::getTickDelta;
+            case "frame_time" -> getter::getFrameTime;
             case "limb_speed" -> getter::getLimbDistance;
             case "age" -> getter::getAge;
             case "head_pitch" -> getter::getHeadPitch;
