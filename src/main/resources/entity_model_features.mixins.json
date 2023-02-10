@@ -4,11 +4,11 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "accessor.entity.model.RabbitEntityModelAccessor"
   ],
   "client": [
     "MixinSimpleResourceReload",
     "accessor.CuboidAccessor",
-    "accessor.entity.model.DonkeyEntityModelAccessor",
     "accessor.ModelAccessor",
     "accessor.ModelPartAccessor",
     "accessor.entity.LivingEntityRendererAccessor",
@@ -19,6 +19,7 @@
     "accessor.entity.feature.SlimeOverlayFeatureRendererAccessor",
     "accessor.entity.model.AnimalModelAccessor",
     "accessor.entity.model.BipedEntityModelAccessor",
+    "accessor.entity.model.DonkeyEntityModelAccessor",
     "accessor.entity.model.FoxEntityModelAccessor",
     "accessor.entity.model.HorseEntityModelAccessor",
     "accessor.entity.model.IllagerEntityModelAccessor",
