@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.models.EMFCustomModel;
+import traben.entity_model_features.models.EMFCustomEntityModel;
 
 
 @Mixin(CreeperChargeFeatureRenderer.class)
@@ -31,9 +31,9 @@ public abstract class MixinCreeperChargeFeatureEntityRenderer extends EnergySwir
     private void injected(CallbackInfoReturnable<EntityModel<CreeperEntity>> cir) {
         if(emf$originalModel == null) {
             emf$originalModel = this.model;
-            if (super.getContextModel() instanceof EMFCustomModel) {
+            if (super.getContextModel() instanceof EMFCustomEntityModel) {
                 String entityTypeName = "creeper_charge";
-                EMFCustomModel<?> emfModel =  EMFData.getInstance().getModelVariant(null,entityTypeName, this.model);
+                EMFCustomEntityModel<?> emfModel =  EMFData.getInstance().getModelVariant(null,entityTypeName, this.model);
                 if(emfModel != null){
                     emf$emfModel = (EntityModel<CreeperEntity>) emfModel;
 

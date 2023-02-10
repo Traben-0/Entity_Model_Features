@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.models.EMFCustomModel;
+import traben.entity_model_features.models.EMFCustomEntityModel;
 
 
 @Mixin(StrayOverlayFeatureRenderer.class)
@@ -37,9 +37,9 @@ public abstract class MixinStrayOverlayFeatureEntityRenderer<T extends MobEntity
         //5 is sleeve
         if(emf$originalModel == null) {
             emf$originalModel = this.model;
-            if (this.getContextModel() instanceof EMFCustomModel) {
+            if (this.getContextModel() instanceof EMFCustomEntityModel) {
                 String entityTypeName = "stray_outer";
-                EMFCustomModel<T> emfModel =  EMFData.getInstance().getModelVariant(null,entityTypeName, this.model);
+                EMFCustomEntityModel<T> emfModel =  EMFData.getInstance().getModelVariant(null,entityTypeName, this.model);
                 if(emfModel != null){
                     emf$emfModel = emfModel;
 
@@ -54,7 +54,7 @@ public abstract class MixinStrayOverlayFeatureEntityRenderer<T extends MobEntity
     }
 
     private  SkeletonEntityModel<T> emf$originalModel;
-    private  EMFCustomModel<T> emf$emfModel;
+    private EMFCustomEntityModel<T> emf$emfModel;
 
 
 }

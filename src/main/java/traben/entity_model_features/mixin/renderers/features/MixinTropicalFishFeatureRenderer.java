@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.models.EMFCustomModel;
-import traben.entity_model_features.models.EMF_EntityModel;
+import traben.entity_model_features.models.EMFCustomEntityModel;
+import traben.entity_model_features.models.EMFGenericEntityEntityModel;
 
 
 @Mixin(TropicalFishColorFeatureRenderer.class)
@@ -29,8 +29,8 @@ public abstract class MixinTropicalFishFeatureRenderer extends FeatureRenderer<T
     )
     private EntityModel<TropicalFishEntity> injectedRaplaceModels(EntityModel<TropicalFishEntity> value) {
         EntityModel<?> context = getContextModel();
-        if (context instanceof EMFCustomModel<?> em) {
-            EMF_EntityModel<?> emf = em.getThisEMFModel();
+        if (context instanceof EMFCustomEntityModel<?> em) {
+            EMFGenericEntityEntityModel<?> emf = em.getThisEMFModel();
             String typeName = "tropical_fish_pattern_" + (emf.modelPathIdentifier.equals("tropical_fish_a") ? 'a' : 'b');
             EMFData emfData = EMFData.getInstance();
             int typeHash = typeName.hashCode();

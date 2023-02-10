@@ -1,16 +1,10 @@
 package traben.entity_model_features.mixin.renderers.features;
 
 
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.DrownedOverlayFeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.DrownedEntityModel;
-import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.DrownedEntity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,9 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.models.EMFCustomModel;
-import traben.entity_model_features.models.EMF_EntityModel;
-import traben.entity_model_features.models.vanilla_model_children.EMFCustomPlayerModel;
+import traben.entity_model_features.models.EMFCustomEntityModel;
 
 
 @Mixin(DrownedOverlayFeatureRenderer.class)
@@ -43,9 +35,9 @@ public abstract class MixinDrownedOverlayFeatureEntityRenderer<T extends Drowned
         //5 is sleeve
         if(emf$originalModel == null) {
             emf$originalModel = this.model;
-            if (this.getContextModel() instanceof EMFCustomModel) {
+            if (this.getContextModel() instanceof EMFCustomEntityModel) {
                 String entityTypeName = "drowned_outer";
-                EMFCustomModel<T> emfModel =  EMFData.getInstance().getModelVariant(null,entityTypeName, this.model);
+                EMFCustomEntityModel<T> emfModel =  EMFData.getInstance().getModelVariant(null,entityTypeName, this.model);
                 if(emfModel != null){
                     emf$emfModel = emfModel;
 
@@ -60,7 +52,7 @@ public abstract class MixinDrownedOverlayFeatureEntityRenderer<T extends Drowned
     }
 
     private  DrownedEntityModel<T> emf$originalModel;
-    private  EMFCustomModel<T> emf$emfModel;
+    private EMFCustomEntityModel<T> emf$emfModel;
 
 
 }

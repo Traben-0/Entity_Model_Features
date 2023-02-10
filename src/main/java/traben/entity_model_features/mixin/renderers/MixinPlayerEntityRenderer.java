@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.models.EMF_EntityModel;
-import traben.entity_model_features.models.EMF_ModelPart;
+import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFModelPart;
 
 
 @Mixin(PlayerEntityRenderer.class)
@@ -72,11 +72,11 @@ public abstract class MixinPlayerEntityRenderer extends LivingEntityRenderer<Abs
         }
     }
 
-    EMF_ModelPart leftArm = null;
-    EMF_ModelPart leftSleeve = null;
-    EMF_ModelPart rightArm = null;
-    EMF_ModelPart rightSleeve = null;
-    EMF_EntityModel<PlayerEntity> handModel = null;
+    EMFModelPart leftArm = null;
+    EMFModelPart leftSleeve = null;
+    EMFModelPart rightArm = null;
+    EMFModelPart rightSleeve = null;
+    EMFGenericEntityEntityModel<PlayerEntity> handModel = null;
 
     @ModifyArgs(
             method = "renderRightArm",

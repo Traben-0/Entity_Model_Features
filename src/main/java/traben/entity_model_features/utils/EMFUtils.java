@@ -10,8 +10,8 @@ import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
-import traben.entity_model_features.models.jemJsonObjects.EMF_ModelData;
+import traben.entity_model_features.models.jem_objects.EMFJemData;
+import traben.entity_model_features.models.jem_objects.EMFPartData;
 
 import java.io.*;
 import java.util.Optional;
@@ -119,7 +119,7 @@ public class EMFUtils {
     }
 
     @Nullable
-    public static EMF_JemData EMF_readJemData(String pathOfJem){
+    public static EMFJemData EMF_readJemData(String pathOfJem){
         //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
         try {
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
@@ -135,7 +135,7 @@ public class EMFUtils {
                 //FileReader fileReader = new FileReader(jemFile);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(jemResource.getInputStream()));
 
-                EMF_JemData jem = gson.fromJson(reader, EMF_JemData.class);
+                EMFJemData jem = gson.fromJson(reader, EMFJemData.class);
                 reader.close();
                 jem.prepare();
                 return jem;
@@ -146,7 +146,7 @@ public class EMFUtils {
         return null;
     }
     @Nullable
-    public static EMF_ModelData EMF_readModelPart(String pathOfJpm){
+    public static EMFPartData EMF_readModelPart(String pathOfJpm){
         //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
         pathOfJpm = "optifine/cem/"+ pathOfJpm;
         try {
@@ -163,7 +163,7 @@ public class EMFUtils {
             //FileReader fileReader = new FileReader(jemFile);
             BufferedReader reader = new BufferedReader(new InputStreamReader(jpmResource.getInputStream()));
 
-            EMF_ModelData jpm = gson.fromJson(reader, EMF_ModelData.class);
+            EMFPartData jpm = gson.fromJson(reader, EMFPartData.class);
             reader.close();
             //jpm.prepare();
             return jpm;

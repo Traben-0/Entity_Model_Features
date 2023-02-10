@@ -1,9 +1,5 @@
 package traben.entity_model_features.config;
 
-import net.minecraft.client.MinecraftClient;
-
-import java.util.function.Supplier;
-
 public class EMFConfig {
 
 
@@ -79,25 +75,25 @@ public class EMFConfig {
         Position_normal,
         Positon_offset
     }
-    public enum AnimationRatePerSecondMode{
-        Twenty_tps(()->Math.min(20,MinecraftClient.getInstance().getCurrentFps())),
-        Forty_tps(()->Math.min(40,MinecraftClient.getInstance().getCurrentFps())),
-        Sixty_tps(()->Math.min(60,MinecraftClient.getInstance().getCurrentFps())),
-        Every_four_frames(()->MinecraftClient.getInstance().getCurrentFps()/4),
-        Every_other_frame(()->MinecraftClient.getInstance().getCurrentFps()/2),
-        Every_frame(()->MinecraftClient.getInstance().getCurrentFps());
-
-        final Supplier<Integer> intGet;
-
-
-        AnimationRatePerSecondMode(Supplier<Integer> intGet){
-            this.intGet = intGet;
-        }
-
-        public int get(){
-            return intGet.get();
-        }
-    }
+//    public enum AnimationRatePerSecondMode{
+//        Twenty_tps(()->Math.min(20,MinecraftClient.getInstance().getCurrentFps())),
+//        Forty_tps(()->Math.min(40,MinecraftClient.getInstance().getCurrentFps())),
+//        Sixty_tps(()->Math.min(60,MinecraftClient.getInstance().getCurrentFps())),
+//        Every_four_frames(()->MinecraftClient.getInstance().getCurrentFps()/4),
+//        Every_other_frame(()->MinecraftClient.getInstance().getCurrentFps()/2),
+//        Every_frame(()->MinecraftClient.getInstance().getCurrentFps());
+//
+//        final Supplier<Integer> intGet;
+//
+//
+//        AnimationRatePerSecondMode(Supplier<Integer> intGet){
+//            this.intGet = intGet;
+//        }
+//
+//        public int get(){
+//            return intGet.get();
+//        }
+//    }
 
 
     public boolean patchFeatures = false;

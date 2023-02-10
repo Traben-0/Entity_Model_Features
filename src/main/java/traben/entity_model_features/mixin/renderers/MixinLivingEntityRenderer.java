@@ -31,12 +31,12 @@ import traben.entity_model_features.mixin.accessor.entity.feature.SaddleFeatureR
 import traben.entity_model_features.mixin.accessor.entity.feature.SlimeOverlayFeatureRendererAccessor;
 import traben.entity_model_features.mixin.accessor.entity.model.PlayerEntityModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
-import traben.entity_model_features.models.EMFCustomModel;
-import traben.entity_model_features.models.EMF_EntityModel;
-import traben.entity_model_features.models.features.EMFArmorFeatureRenderer;
-import traben.entity_model_features.models.vanilla_model_children.EMFCustomHorseModel;
-import traben.entity_model_features.models.vanilla_model_children.EMFCustomLlamaModel;
-import traben.entity_model_features.models.vanilla_model_children.EMFCustomPlayerModel;
+import traben.entity_model_features.models.EMFCustomEntityModel;
+import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.features.EMFCustomArmorFeatureRenderer;
+import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.quadraped.EMFCustomHorseEntityModel;
+import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.quadraped.EMFCustomLlamaEntityModel;
+import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.biped.EMFCustomPlayerEntityModel;
 
 import java.util.List;
 
@@ -68,7 +68,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
                 EMFData emfData = EMFData.getInstance();
                 emfData.alreadyCalculatedForRenderer.put(hashCode(), true);
-                emf$originalModel = this.model;
+                if(!(this.model instanceof EMFCustomEntityModel<?>))
+                    emf$originalModel = this.model;
 
                 emf$newModel = EMFData.getInstance().getModelVariant(livingEntity, getTypeName(livingEntity), this.model);
                 if (emf$newModel != null) {
@@ -76,11 +77,11 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                         for (FeatureRenderer<?, ?> feature :
                                 features) {
                             if (feature instanceof ArmorFeatureRenderer<?, ?, ?>) {
-                                EMF_EntityModel<?> inner = armored.getArmourModel(true);
-                                EMF_EntityModel<?> outer = armored.getArmourModel(false);
+                                EMFGenericEntityEntityModel<?> inner = armored.getArmourModel(true);
+                                EMFGenericEntityEntityModel<?> outer = armored.getArmourModel(false);
                                 if (inner != null && outer != null) {
                                     features.remove(feature);
-                                    features.add(new EMFArmorFeatureRenderer<T, M>(this, inner, outer));
+                                    features.add(new EMFCustomArmorFeatureRenderer<T, M>(this, inner, outer));
                                 }
                                 break;
                             }
@@ -96,7 +97,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                             break;
                         }
                     }
-                    if (livingEntity instanceof AbstractHorseEntity && emf$newModel instanceof EMFCustomHorseModel) {
+                    if (livingEntity instanceof AbstractHorseEntity && emf$newModel instanceof EMFCustomHorseEntityModel) {
                         for (FeatureRenderer<?, ?> feature :
                                 features) {
                             if (feature instanceof HorseArmorFeatureRenderer armr) {
@@ -109,7 +110,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                             }
                         }
                     }
-                    if (livingEntity instanceof LlamaEntity && emf$newModel instanceof EMFCustomLlamaModel) {
+                    if (livingEntity instanceof LlamaEntity && emf$newModel instanceof EMFCustomLlamaEntityModel) {
                         for (FeatureRenderer<?, ?> feature :
                                 features) {
                             if (feature instanceof LlamaDecorFeatureRenderer decor) {
@@ -123,7 +124,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                         }
                     }
 
-                    if (livingEntity instanceof SlimeEntity && emf$newModel instanceof EMFCustomModel) {
+                    if (livingEntity instanceof SlimeEntity && emf$newModel instanceof EMFCustomEntityModel) {
                         for (FeatureRenderer<?, ?> feature :
                                 features) {
                             if (feature instanceof SlimeOverlayFeatureRenderer over) {
@@ -138,8 +139,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
 
                     this.model = emf$newModel;
-                    if (emf$newModel instanceof EMFCustomPlayerModel && MinecraftClient.getInstance().player != null && livingEntity.getUuid().equals(MinecraftClient.getInstance().player.getUuid())) {
-                        EMFData.getInstance().clientPlayerModel = (EMFCustomPlayerModel<?>) emf$newModel;
+                    if (emf$newModel instanceof EMFCustomPlayerEntityModel && MinecraftClient.getInstance().player != null && livingEntity.getUuid().equals(MinecraftClient.getInstance().player.getUuid())) {
+                        EMFData.getInstance().clientPlayerModel = (EMFCustomPlayerEntityModel<?>) emf$newModel;
                         if (emf$originalModel instanceof PlayerEntityModel)
                             EMFData.getInstance().clientPlayerVanillaModel = (EntityModel<PlayerEntity>) emf$originalModel;
                     }
@@ -149,10 +150,10 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             } else if (emf$newModel != null) {
                 //if(livingEntity instanceof PufferfishEntity && new Random().nextInt(100)==1) System.out.println("puffer="+getTypeName(livingEntity));
                 emf$newModel = EMFData.getInstance().getModelVariant(livingEntity, getTypeName(livingEntity), emf$originalModel);
-                if (emf$newModel instanceof EMFCustomPlayerModel && MinecraftClient.getInstance().player != null && livingEntity.getUuid().equals(MinecraftClient.getInstance().player.getUuid())) {
-                    EMFData.getInstance().clientPlayerModel = (EMFCustomPlayerModel<?>) emf$newModel;
+                if (emf$newModel instanceof EMFCustomPlayerEntityModel && MinecraftClient.getInstance().player != null && livingEntity.getUuid().equals(MinecraftClient.getInstance().player.getUuid())) {
+                    EMFData.getInstance().clientPlayerModel = (EMFCustomPlayerEntityModel<?>) emf$newModel;
                 }
-                ((EMFCustomModel<?>) emf$newModel).getThisEMFModel().currentVertexProvider = vertexConsumerProvider;
+                ((EMFCustomEntityModel<?>) emf$newModel).getThisEMFModel().currentVertexProvider = vertexConsumerProvider;
                 //if (((EMFCustomModel<?>) emf$newModel).doesThisModelNeedToBeReset()) {
                 this.model = emf$newModel;
                 //}
@@ -191,7 +192,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("TAIL"))
     private void emf$ReturnModel(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
 
-        if(emf$newModel != null && ((EMFCustomModel<?>)emf$newModel).doesThisModelNeedToBeReset()){
+        if(emf$newModel != null && ((EMFCustomEntityModel<?>)emf$newModel).doesThisModelNeedToBeReset()){
             this.model =  emf$originalModel;
         }
     }
@@ -199,7 +200,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
     private void emf$ReturnModel2(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
 
-        if(EMFData.getInstance().getConfig().patchFeatures && emf$newModel != null && ((EMFCustomModel<?>)emf$newModel).doesThisModelNeedToBeReset()){
+        if(EMFData.getInstance().getConfig().patchFeatures && emf$newModel != null && ((EMFCustomEntityModel<?>)emf$newModel).doesThisModelNeedToBeReset()){
             this.model =  emf$originalModel;
         }
     }

@@ -10,27 +10,27 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.entity.model.*;
+import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.IllagerEntity;
-import net.minecraft.entity.passive.*;
+import net.minecraft.entity.passive.PufferfishEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.models.EMFCustomModel;
-import traben.entity_model_features.models.anim.AnimationGetters;
-import traben.entity_model_features.models.vanilla_model_children.*;
-import traben.entity_model_features.models.EMF_EntityModel;
-import traben.entity_model_features.models.jemJsonObjects.EMF_JemData;
+import traben.entity_model_features.models.EMFCustomEntityModel;
+import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.jem_objects.EMFJemData;
+import traben.entity_model_features.models.vanilla_model_compat.VanillaModelPartOptiFineMappings;
+import traben.entity_model_features.models.vanilla_model_compat.VanillaModelWrapperHandler;
+import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.biped.EMFCustomPlayerEntityModel;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.etfPropertyReader;
-import traben.entity_model_features.vanilla_part_mapping.VanillaMappings;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -63,7 +63,7 @@ public class EMFData {
         return EMFConfigData;
     }
     public  Int2BooleanOpenHashMap alreadyCalculatedForRenderer = new Int2BooleanOpenHashMap();
-    public  Int2ObjectOpenHashMap<EMF_EntityModel<?>> JEMPATH_CustomModel = new Int2ObjectOpenHashMap<>();
+    public  Int2ObjectOpenHashMap<EMFGenericEntityEntityModel<?>> JEMPATH_CustomModel = new Int2ObjectOpenHashMap<>();
 
 
     private EMFData(){
@@ -125,18 +125,18 @@ public class EMFData {
         }
     }
 
-    public  <T extends LivingEntity> EMF_EntityModel<T> createEMFModelOnly(String modelJemName, EntityModel<T> vanillaModel){
+    public  <T extends LivingEntity> EMFGenericEntityEntityModel<T> createEMFModelOnly(String modelJemName, EntityModel<T> vanillaModel){
         int hashKeyTypicallyEntityType = modelJemName.hashCode();
         if(!JEMPATH_CustomModel.containsKey(hashKeyTypicallyEntityType)) {
             String modelID = "optifine/cem/" + modelJemName + ".jem";
             if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("checking " + modelID);
             try {
-                EMF_JemData jem = EMFUtils.EMF_readJemData(modelID);
+                EMFJemData jem = EMFUtils.EMF_readJemData(modelID);
                 if(jem!=null) {
-                    VanillaMappings.VanillaMapper vanillaPartSupplier = VanillaMappings.getVanillaModelPartsMapSupplier(hashKeyTypicallyEntityType, vanillaModel);
+                    VanillaModelPartOptiFineMappings.VanillaMapper vanillaPartSupplier = VanillaModelPartOptiFineMappings.getVanillaModelPartsMapSupplier(hashKeyTypicallyEntityType, vanillaModel);
                     //vanillaPartsByType.put(typeHash,vanillaPartList);
-                    EMF_EntityModel<T> model = new EMF_EntityModel<>(jem, modelID, vanillaPartSupplier, vanillaModel);
-                    JEMPATH_CustomModel.put(hashKeyTypicallyEntityType, (EMF_EntityModel<LivingEntity>) model);
+                    EMFGenericEntityEntityModel<T> model = new EMFGenericEntityEntityModel<>(jem, modelID, vanillaPartSupplier, vanillaModel);
+                    JEMPATH_CustomModel.put(hashKeyTypicallyEntityType, (EMFGenericEntityEntityModel<LivingEntity>) model);
                     if (EMFData.getInstance().getConfig().printModelCreationInfoToLog)
                         EMFUtils.EMF_modMessage("put emfpart in data =" + model.toString());
                 }else{
@@ -150,72 +150,21 @@ public class EMFData {
                 return null;
             }
         }
-        return (EMF_EntityModel<T>) JEMPATH_CustomModel.get(hashKeyTypicallyEntityType);
+        return (EMFGenericEntityEntityModel<T>) JEMPATH_CustomModel.get(hashKeyTypicallyEntityType);
     }
 
-    private <T extends LivingEntity, M extends EntityModel<T>> EntityModel<?> getCustomModelForRendererGeneric(EMF_EntityModel<?> alreadyBuiltSubmodel, EntityModel<?> vanillaModelForInstanceCheck){
-        return getCustomModelForRenderer((EMF_EntityModel<T>)alreadyBuiltSubmodel,(M)vanillaModelForInstanceCheck);
-    }
-
-    private <T extends LivingEntity, M extends EntityModel<T>> M getCustomModelForRenderer(EMF_EntityModel<T> alreadyBuiltSubmodel,M vanillaModelForInstanceCheck){
-        //figure out whether to send a vanilla child model or a direct EMF custom model
-        if(vanillaModelForInstanceCheck instanceof CowEntityModel<?>){
-            return (M) new EMFCustomCowModel<T>(alreadyBuiltSubmodel);
-        }
-        if(vanillaModelForInstanceCheck instanceof SlimeEntityModel<?>){
-            return (M) new EMFCustomSlimeModel<T>(alreadyBuiltSubmodel);
-        }
-        if(vanillaModelForInstanceCheck instanceof LlamaEntityModel){
-            return (M) new EMFCustomLlamaModel<T, LlamaEntity>(alreadyBuiltSubmodel);
-        }
-        if(vanillaModelForInstanceCheck instanceof FoxEntityModel){
-            return (M) new EMFCustomFoxModel<T, FoxEntity>(alreadyBuiltSubmodel);
-        }
-        if(vanillaModelForInstanceCheck instanceof EndermanEntityModel){
-            return (M) new EMFCustomEndermanModel<T>(alreadyBuiltSubmodel);
-        }
-        if(vanillaModelForInstanceCheck instanceof HorseEntityModel){
-            return (M) new EMFCustomHorseModel<T, AbstractHorseEntity>(alreadyBuiltSubmodel);
-        }
-        if(vanillaModelForInstanceCheck instanceof PlayerEntityModel){
-            return (M) new EMFCustomPlayerModel<T>(alreadyBuiltSubmodel);
-        }
-        if(vanillaModelForInstanceCheck instanceof WitchEntityModel){
-            return (M) new EMFCustomWitchModel<T>(alreadyBuiltSubmodel);
-        }
-        if(vanillaModelForInstanceCheck instanceof IllagerEntityModel){
-            return (M) new EMFCustomIllagerModel<T, IllagerEntity>(alreadyBuiltSubmodel);
-        }
-        if(vanillaModelForInstanceCheck instanceof VillagerResemblingModel){
-            return (M) new EMFCustomVillagerModel<T>(alreadyBuiltSubmodel);
-        }
-        //this for instance allows vanilla features like non custom armour and hand held items to work for bipeds
-        if(vanillaModelForInstanceCheck instanceof BipedEntityModel){
-            return (M) new EMFCustomBipedModel<T>(alreadyBuiltSubmodel);
-        }
-        if(vanillaModelForInstanceCheck instanceof QuadrupedEntityModel){
-            return (M) new EMFCustomQuadrapedModel<T>(alreadyBuiltSubmodel);
-        }
-        //this for instance allows vanilla features like flower holding to work
-        if(vanillaModelForInstanceCheck instanceof IronGolemEntityModel){
-            return (M) new EMFCustomIronGolemModel<T,IronGolemEntity>(alreadyBuiltSubmodel);
-        }
-
-        return (M) alreadyBuiltSubmodel;
-
-    }
     public<T extends LivingEntity, M extends EntityModel<T>> M getModelVariantGeneric(Entity entity, String entityTypeName, EntityModel<?> vanillaModel){
         return getModelVariant(entity,entityTypeName,(EntityModel<T>)vanillaModel);
     }
 
     Object2LongOpenHashMap<UUID> UUID_LAST_UPDATE_TIME = new Object2LongOpenHashMap<>(){{defaultReturnValue(0);}};
 
-    Object2ObjectOpenHashMap<UUID,EMFCustomModel<?>> UUID_TO_MODEL = new Object2ObjectOpenHashMap<>();
+    Object2ObjectOpenHashMap<UUID, EMFCustomEntityModel<?>> UUID_TO_MODEL = new Object2ObjectOpenHashMap<>();
     public<T extends LivingEntity, M extends EntityModel<T>> M getModelVariant(Entity entity, String entityTypeName, EntityModel<T> vanillaModel) {
 
 
         if(entity == null){
-            EMF_EntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
+            EMFGenericEntityEntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
             return (M) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
         }
         UUID id;
@@ -226,13 +175,13 @@ public class EMFData {
             id = entity.getUuid();
         }
 
-        EMFCustomModel<?> knownModel = UUID_TO_MODEL.get(id);
+        EMFCustomEntityModel<?> knownModel = UUID_TO_MODEL.get(id);
         if (knownModel != null) {
             if (UUID_MOB_MODEL_UPDATES.getBoolean(id)) {
                 long time = System.currentTimeMillis();
                 if (time > 1000 + UUID_LAST_UPDATE_TIME.getLong(id)) {
                     UUID_LAST_UPDATE_TIME.put(id, time);
-                    EMFCustomModel<?> newModel = getModelVariantPossibleNew(entity, entityTypeName, vanillaModel);
+                    EMFCustomEntityModel<?> newModel = getModelVariantPossibleNew(entity, entityTypeName, vanillaModel);
                     if (newModel != null)
                         UUID_TO_MODEL.put(id, newModel);
                     return (M) newModel;
@@ -246,7 +195,7 @@ public class EMFData {
     private boolean isETFPresent;
     private<T extends LivingEntity, M extends EntityModel<T>> M getModelVariantPossibleNew(Entity entity, String entityTypeName, EntityModel<T> vanillaModel){
        // System.out.println("ran");
-        EMF_EntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
+        EMFGenericEntityEntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
         //System.out.println("rans="+isETFPresent+etfPropertyReader.isValidETF());
         if(emfModel != null) {
             // jem exists so decide if variation occurs
@@ -268,9 +217,9 @@ public class EMFData {
                           //  System.out.println("was true");
                             int suffix = emfCase.getSuffix(entity.getUuid());
                             String variantName = entityTypeName+suffix;
-                            EMF_EntityModel<T> emfModelVariant = createEMFModelOnly(variantName,vanillaModel);
+                            EMFGenericEntityEntityModel<T> emfModelVariant = createEMFModelOnly(variantName,vanillaModel);
                             if(emfModelVariant != null){
-                                EMFCustomModel<T> mod = (EMFCustomModel<T>) getFinalEMFModel(variantName,emfModelVariant, vanillaModel);
+                                EMFCustomEntityModel<T> mod = (EMFCustomEntityModel<T>) getFinalEMFModel(variantName,emfModelVariant, vanillaModel);
                                 UUID_TO_MODEL.put(entity.getUuid(), mod);
                                 return (M) mod;
                             }
@@ -278,29 +227,29 @@ public class EMFData {
                     }
                 }
             }
-            EMFCustomModel<T> mod = (EMFCustomModel<T>) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
+            EMFCustomEntityModel<T> mod = (EMFCustomEntityModel<T>) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
             UUID_TO_MODEL.put(entity.getUuid(), mod);
             return (M) mod;
         }
         return null;
     }
 
-    private <T extends LivingEntity, M extends EntityModel<T>> M  getFinalEMFModel(String jemName,EMF_EntityModel<T> alreadyBuiltSubmodel,M vanillaModelForInstanceCheck){
+    private <T extends LivingEntity, M extends EntityModel<T>> M  getFinalEMFModel(String jemName, EMFGenericEntityEntityModel<T> alreadyBuiltSubmodel, M vanillaModelForInstanceCheck){
         if(!COMPLETE_MODELS_FOR_RETURN.containsKey(jemName)){
-            M finalModel = getCustomModelForRenderer(alreadyBuiltSubmodel, vanillaModelForInstanceCheck);
-            COMPLETE_MODELS_FOR_RETURN.put(jemName, (EMFCustomModel<?>) finalModel);
+            M finalModel = VanillaModelWrapperHandler.getCustomModelForRenderer(alreadyBuiltSubmodel, vanillaModelForInstanceCheck);
+            COMPLETE_MODELS_FOR_RETURN.put(jemName, (EMFCustomEntityModel<?>) finalModel);
             return finalModel;
         }
         return (M) COMPLETE_MODELS_FOR_RETURN.get(jemName);
     }
 
-    public Object2ObjectOpenHashMap<String, EMFCustomModel<?>> COMPLETE_MODELS_FOR_RETURN = new Object2ObjectOpenHashMap<>();
+    public Object2ObjectOpenHashMap<String, EMFCustomEntityModel<?>> COMPLETE_MODELS_FOR_RETURN = new Object2ObjectOpenHashMap<>();
     public Object2ObjectOpenHashMap<String,List<etfPropertyReader.EMFPropertyCase>> MODEL_CASES = new Object2ObjectOpenHashMap<>();
     public Object2BooleanOpenHashMap<UUID> UUID_MOB_MODEL_UPDATES = new Object2BooleanOpenHashMap<>();
 
-    public EMFCustomPlayerModel<?> clientPlayerModel = null;
+    public EMFCustomPlayerEntityModel<?> clientPlayerModel = null;
     public EntityModel<PlayerEntity> clientPlayerVanillaModel = null;
     public boolean checkedHand = false;
-    public AnimationGetters clientGetter = null;
+    public final HashMap<Integer, VanillaModelPartOptiFineMappings.VanillaMapper> vanilla_mappings_map = new HashMap<>();
 
 }

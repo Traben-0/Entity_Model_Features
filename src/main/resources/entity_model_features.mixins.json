@@ -8,10 +8,9 @@
   "client": [
     "MixinSimpleResourceReload",
     "accessor.CuboidAccessor",
-    "accessor.DonkeyEntityModelAccessor",
+    "accessor.entity.model.DonkeyEntityModelAccessor",
     "accessor.ModelAccessor",
     "accessor.ModelPartAccessor",
-    "accessor.WorldAccessor",
     "accessor.entity.LivingEntityRendererAccessor",
     "accessor.entity.feature.CreeperChargeFeatureRendererAccessor",
     "accessor.entity.feature.HorseArmorFeatureRendererAccessor",
