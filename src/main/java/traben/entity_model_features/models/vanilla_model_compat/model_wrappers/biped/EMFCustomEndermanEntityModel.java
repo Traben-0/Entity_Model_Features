@@ -8,7 +8,7 @@ import net.minecraft.entity.LivingEntity;
 import traben.entity_model_features.mixin.accessor.entity.model.BipedEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.EMFModelPart;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class EMFCustomEndermanEntityModel<T extends LivingEntity> extends EndermanEntityModel<T> implements EMFCustomEntityModel<T> {
 
-    public EMFGenericEntityEntityModel<T> getThisEMFModel() {
+    public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
     }
 
@@ -24,10 +24,10 @@ public class EMFCustomEndermanEntityModel<T extends LivingEntity> extends Enderm
         return false;
     }
 
-    private final EMFGenericEntityEntityModel<T> thisEMFModel;
+    private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
 
-    public EMFCustomEndermanEntityModel(EMFGenericEntityEntityModel<T> model) {
+    public EMFCustomEndermanEntityModel(EMFGenericCustomEntityModel<T> model) {
         super(EndermanEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);

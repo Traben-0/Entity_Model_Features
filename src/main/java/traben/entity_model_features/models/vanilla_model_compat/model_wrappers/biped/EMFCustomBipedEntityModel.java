@@ -6,19 +6,16 @@ import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.ModelWithHat;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import traben.entity_model_features.mixin.accessor.entity.model.BipedEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
-import traben.entity_model_features.models.EMFModelPart;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class EMFCustomBipedEntityModel<T extends LivingEntity> extends BipedEntityModel<T> implements EMFCustomEntityModel<T>, EMFArmorableModel, ModelWithHat {
 
-    public EMFGenericEntityEntityModel<T> getThisEMFModel() {
+    public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
     }
 
@@ -26,73 +23,18 @@ public class EMFCustomBipedEntityModel<T extends LivingEntity> extends BipedEnti
         return false;
     }
 
-    private final EMFGenericEntityEntityModel<T> thisEMFModel;
+    private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
-
-    public EMFCustomBipedEntityModel(EMFGenericEntityEntityModel<T> model) {
-        super(BipedEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
+    private static final HashMap<String,String> optifineMap = new HashMap<>(){{
+        put("hat","headwear");
+    }};
+    public EMFCustomBipedEntityModel(EMFGenericCustomEntityModel<T> model) {
+        super( EMFCustomEntityModel.getFinalModelRootData( BipedEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0),model,optifineMap));
 
         thisEMFModel=model;
+        thisEMFModel.clearAllFakePartChildrenData();
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
 
-        List<EMFModelPart> headWearCandidates = new ArrayList<>();
-        List<EMFModelPart> headCandidates = new ArrayList<>();
-        List<EMFModelPart> bodyCandidates = new ArrayList<>();
-        List<EMFModelPart> rArmCandidates = new ArrayList<>();
-        List<EMFModelPart> lArmCandidates = new ArrayList<>();
-        List<EMFModelPart> lLegCandidates = new ArrayList<>();
-        List<EMFModelPart> rLegCandidates = new ArrayList<>();
-
-        for (EMFModelPart part:
-                thisEMFModel.childrenMap.values()) {
-            switch (part.selfModelData.part){
-                case "headwear"->{
-                    headWearCandidates.add(part);
-                }
-                case "head"->{
-                    headCandidates.add(part);
-                }
-                case "body"->{
-                    bodyCandidates.add(part);
-                }
-                case "left_arm"->{
-                    lArmCandidates.add(part);
-                }
-                case "left_leg"->{
-                    lLegCandidates.add(part);
-                }
-                case "right_arm"->{
-                    rArmCandidates.add(part);
-                }
-                case "right_leg"->{
-                    rLegCandidates.add(part);
-                }
-                default->{
-
-                }
-            }
-        }
-        //this part makes sure head rotation data is available for armor feature renderer
-        // mostly as fresh animations tends to use headwear for rotation instead of head
-        boolean wasNotEmpty = false;
-        for (EMFModelPart part:
-                headCandidates) {
-            if(!part.isEmptyPart){
-                wasNotEmpty = true;
-                break;
-            }
-        }
-        if(!wasNotEmpty){
-            headCandidates = headWearCandidates;
-        }
-
-        setNonEmptyPart(headWearCandidates,((BipedEntityModelAccessor)this)::setHat);
-        setNonEmptyPart(headCandidates,((BipedEntityModelAccessor)this)::setHead);
-        setNonEmptyPart(bodyCandidates,((BipedEntityModelAccessor)this)::setBody);
-        setNonEmptyPart(lArmCandidates,((BipedEntityModelAccessor)this)::setLeftArm);
-        setNonEmptyPart(lLegCandidates,((BipedEntityModelAccessor)this)::setLeftLeg);
-        setNonEmptyPart(rArmCandidates,((BipedEntityModelAccessor)this)::setRightArm);
-        setNonEmptyPart(rLegCandidates,((BipedEntityModelAccessor)this)::setRightLeg);
     }
 
     @Override
@@ -123,7 +65,7 @@ public class EMFCustomBipedEntityModel<T extends LivingEntity> extends BipedEnti
 
 
     @Override
-    public EMFGenericEntityEntityModel<?> getArmourModel(boolean getInner) {
+    public EMFGenericCustomEntityModel<?> getArmourModel(boolean getInner) {
         return thisEMFModel.getArmourModel(getInner);
     }
 

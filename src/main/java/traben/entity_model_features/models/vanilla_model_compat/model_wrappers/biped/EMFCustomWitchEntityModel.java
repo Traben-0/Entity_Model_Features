@@ -8,7 +8,7 @@ import traben.entity_model_features.mixin.accessor.entity.model.VillagerResembli
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.EMFModelPart;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class EMFCustomWitchEntityModel<T extends LivingEntity> extends WitchEntityModel<T> implements EMFCustomEntityModel<T>, EMFArmorableModel {
 
-    public EMFGenericEntityEntityModel<T> getThisEMFModel() {
+    public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
     }
 
@@ -24,10 +24,10 @@ public class EMFCustomWitchEntityModel<T extends LivingEntity> extends WitchEnti
         return false;
     }
 
-    private final EMFGenericEntityEntityModel<T> thisEMFModel;
+    private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
 
-    public EMFCustomWitchEntityModel(EMFGenericEntityEntityModel<T> model) {
+    public EMFCustomWitchEntityModel(EMFGenericCustomEntityModel<T> model) {
         super(WitchEntityModel.getTexturedModelData().createModel());
 
         thisEMFModel=model;
@@ -77,7 +77,7 @@ public class EMFCustomWitchEntityModel<T extends LivingEntity> extends WitchEnti
     }
 
     @Override
-    public EMFGenericEntityEntityModel<?> getArmourModel(boolean getInner) {
+    public EMFGenericCustomEntityModel<?> getArmourModel(boolean getInner) {
         return thisEMFModel.getArmourModel(getInner);
     }
 

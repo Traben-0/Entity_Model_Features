@@ -6,11 +6,11 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 public class EMFCustomSlimeEntityModel<T extends LivingEntity> extends SlimeEntityModel<T> implements EMFCustomEntityModel<T> {
 
-    public EMFGenericEntityEntityModel<T> getThisEMFModel() {
+    public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
     }
 
@@ -18,10 +18,10 @@ public class EMFCustomSlimeEntityModel<T extends LivingEntity> extends SlimeEnti
         return false;
     }
 
-    private final EMFGenericEntityEntityModel<T> thisEMFModel;
+    private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
 
-    public EMFCustomSlimeEntityModel(EMFGenericEntityEntityModel<T> model) {
+    public EMFCustomSlimeEntityModel(EMFGenericCustomEntityModel<T> model) {
         super(SlimeEntityModel.getInnerTexturedModelData().createModel());
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);

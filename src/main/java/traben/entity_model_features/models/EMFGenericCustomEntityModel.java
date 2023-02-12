@@ -34,7 +34,7 @@ import traben.entity_model_features.utils.EMFUtils;
 import java.util.*;
 
 @Environment(value= EnvType.CLIENT)
-public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityModel<T> implements ModelWithHat, ModelWithWaterPatch, ModelWithArms, ModelWithHead, EMFCustomEntityModel<T> {
+public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityModel<T> implements ModelWithHat, ModelWithWaterPatch, ModelWithArms, ModelWithHead, EMFCustomEntityModel<T> {
 
     private final EMFJemData jemData;
     public final Object2ObjectLinkedOpenHashMap<String, EMFModelPart> childrenMap = new Object2ObjectLinkedOpenHashMap<>();
@@ -67,7 +67,7 @@ public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityM
 
 
 
-    public EMFGenericEntityEntityModel(EMFJemData jem, String modelPath, VanillaModelPartOptiFineMappings.VanillaMapper vanillaPartSupplier, EntityModel<T> vanillaModel){
+    public EMFGenericCustomEntityModel(EMFJemData jem, String modelPath, VanillaModelPartOptiFineMappings.VanillaMapper vanillaPartSupplier, EntityModel<T> vanillaModel){
 
        // super(EMFData.getInstance().getConfig().forceTranslucentMobRendering ? RenderLayer::getEntityTranslucent : RenderLayer::getEntityCutoutNoCull);
 
@@ -382,7 +382,7 @@ public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityM
 
 
     @Override
-    public EMFGenericEntityEntityModel<T> getThisEMFModel() {
+    public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return this;
     }
 
@@ -672,7 +672,7 @@ public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityM
     }
 
 
-    public void copyStateToEMF(EMFGenericEntityEntityModel<?> copy) {
+    public void copyStateToEMF(EMFGenericCustomEntityModel<?> copy) {
         try {
             super.copyStateTo((EntityModel<T>) copy);
         }catch (Exception ignored){}
@@ -716,19 +716,19 @@ public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityM
 
     }
 
-    public EMFGenericEntityEntityModel<T> getArmourModel(boolean getInner){
+    public EMFGenericCustomEntityModel<T> getArmourModel(boolean getInner){
         if(getInner){
             if(innerArmor== null){
                 String path = modelPathIdentifier.replace(".jem", "_armor_inner.jem");
                 EMFJemData jem = EMFUtils.EMF_readJemData(path);
                 if(jem != null) {
-                    innerArmor = new EMFGenericEntityEntityModel<>(jem, path, this::supplierCopy, vanillaModel);
+                    innerArmor = new EMFGenericCustomEntityModel<>(jem, path, this::supplierCopy, vanillaModel);
                     innerArmor.isAnimated = this.isAnimated;
                 }else{
                     String path2 = "optifine/cem/biped_armor_inner.jem";
                     EMFJemData jem2 = EMFUtils.EMF_readJemData(path2);
                     if(jem2 != null) {
-                        innerArmor = new EMFGenericEntityEntityModel<>(jem2, path2, this::supplierCopy, vanillaModel);
+                        innerArmor = new EMFGenericCustomEntityModel<>(jem2, path2, this::supplierCopy, vanillaModel);
                         innerArmor.isAnimated = this.isAnimated;
                     }
                 }
@@ -740,13 +740,13 @@ public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityM
                 String path = modelPathIdentifier.replace(".jem", "_armor_outer.jem");
                 EMFJemData jem = EMFUtils.EMF_readJemData(path);
                 if(jem != null) {
-                    outerArmor = new EMFGenericEntityEntityModel<>(jem, path, this::supplierCopy, vanillaModel);
+                    outerArmor = new EMFGenericCustomEntityModel<>(jem, path, this::supplierCopy, vanillaModel);
                     outerArmor.isAnimated = this.isAnimated;
                 }else{
                     String path2 = "optifine/cem/biped_armor_outer.jem";
                     EMFJemData jem2 = EMFUtils.EMF_readJemData(path2);
                     if(jem2 != null) {
-                        outerArmor = new EMFGenericEntityEntityModel<>(jem2, path2, this::supplierCopy, vanillaModel);
+                        outerArmor = new EMFGenericCustomEntityModel<>(jem2, path2, this::supplierCopy, vanillaModel);
                         outerArmor.isAnimated = this.isAnimated;
                     }
                 }
@@ -760,9 +760,9 @@ public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityM
         return vanillaModelPartsById;
     }
 
-    private EMFGenericEntityEntityModel<T> innerArmor = null;
+    private EMFGenericCustomEntityModel<T> innerArmor = null;
 
-    private EMFGenericEntityEntityModel<T> outerArmor = null;
+    private EMFGenericCustomEntityModel<T> outerArmor = null;
 
 
 

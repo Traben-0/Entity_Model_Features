@@ -249,7 +249,7 @@ public class EMFModelPart extends ModelPart  {
 
 
 
-    private final EMFGenericEntityEntityModel<?> thisModel;
+    private final EMFGenericCustomEntityModel<?> thisModel;
      final Identifier customTexture;
     public final ModelPart vanillaPart;
     public ModelPart vanillaParentPart = null;
@@ -263,7 +263,7 @@ public class EMFModelPart extends ModelPart  {
                         float[] pivotModifyForParNum1Only,
                         ModelPart vanillaPartOfThis,
                         String vanillaParentPartName,
-                        EMFGenericEntityEntityModel<?> thisModel){//,//float[] parentalTransforms) {
+                        EMFGenericCustomEntityModel<?> thisModel){//,//float[] parentalTransforms) {
 
         super(new ArrayList<>(), new HashMap<>());
 

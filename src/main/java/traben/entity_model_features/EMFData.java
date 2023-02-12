@@ -18,7 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.vanilla_model_compat.VanillaModelPartOptiFineMappings;
 import traben.entity_model_features.models.vanilla_model_compat.VanillaModelWrapperHandler;
@@ -63,7 +63,7 @@ public class EMFData {
         return EMFConfigData;
     }
     public  Int2BooleanOpenHashMap alreadyCalculatedForRenderer = new Int2BooleanOpenHashMap();
-    public  Int2ObjectOpenHashMap<EMFGenericEntityEntityModel<?>> JEMPATH_CustomModel = new Int2ObjectOpenHashMap<>();
+    public  Int2ObjectOpenHashMap<EMFGenericCustomEntityModel<?>> JEMPATH_CustomModel = new Int2ObjectOpenHashMap<>();
 
 
     private EMFData(){
@@ -125,7 +125,7 @@ public class EMFData {
         }
     }
 
-    public  <T extends LivingEntity> EMFGenericEntityEntityModel<T> createEMFModelOnly(String modelJemName, EntityModel<T> vanillaModel){
+    public  <T extends LivingEntity> EMFGenericCustomEntityModel<T> createEMFModelOnly(String modelJemName, EntityModel<T> vanillaModel){
         int hashKeyTypicallyEntityType = modelJemName.hashCode();
         if(!JEMPATH_CustomModel.containsKey(hashKeyTypicallyEntityType)) {
             String modelID = "optifine/cem/" + modelJemName + ".jem";
@@ -135,8 +135,8 @@ public class EMFData {
                 if(jem!=null) {
                     VanillaModelPartOptiFineMappings.VanillaMapper vanillaPartSupplier = VanillaModelPartOptiFineMappings.getVanillaModelPartsMapSupplier(hashKeyTypicallyEntityType, vanillaModel);
                     //vanillaPartsByType.put(typeHash,vanillaPartList);
-                    EMFGenericEntityEntityModel<T> model = new EMFGenericEntityEntityModel<>(jem, modelID, vanillaPartSupplier, vanillaModel);
-                    JEMPATH_CustomModel.put(hashKeyTypicallyEntityType, (EMFGenericEntityEntityModel<LivingEntity>) model);
+                    EMFGenericCustomEntityModel<T> model = new EMFGenericCustomEntityModel<>(jem, modelID, vanillaPartSupplier, vanillaModel);
+                    JEMPATH_CustomModel.put(hashKeyTypicallyEntityType, (EMFGenericCustomEntityModel<LivingEntity>) model);
                     if (EMFData.getInstance().getConfig().printModelCreationInfoToLog)
                         EMFUtils.EMF_modMessage("put emfpart in data =" + model.toString());
                 }else{
@@ -150,7 +150,7 @@ public class EMFData {
                 return null;
             }
         }
-        return (EMFGenericEntityEntityModel<T>) JEMPATH_CustomModel.get(hashKeyTypicallyEntityType);
+        return (EMFGenericCustomEntityModel<T>) JEMPATH_CustomModel.get(hashKeyTypicallyEntityType);
     }
 
     public<T extends LivingEntity, M extends EntityModel<T>> M getModelVariantGeneric(Entity entity, String entityTypeName, EntityModel<?> vanillaModel){
@@ -164,7 +164,7 @@ public class EMFData {
 
 
         if(entity == null){
-            EMFGenericEntityEntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
+            EMFGenericCustomEntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
             return (M) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
         }
         UUID id;
@@ -195,7 +195,7 @@ public class EMFData {
     private boolean isETFPresent;
     private<T extends LivingEntity, M extends EntityModel<T>> M getModelVariantPossibleNew(Entity entity, String entityTypeName, EntityModel<T> vanillaModel){
        // System.out.println("ran");
-        EMFGenericEntityEntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
+        EMFGenericCustomEntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
         //System.out.println("rans="+isETFPresent+etfPropertyReader.isValidETF());
         if(emfModel != null) {
             // jem exists so decide if variation occurs
@@ -217,7 +217,7 @@ public class EMFData {
                           //  System.out.println("was true");
                             int suffix = emfCase.getSuffix(entity.getUuid());
                             String variantName = entityTypeName+suffix;
-                            EMFGenericEntityEntityModel<T> emfModelVariant = createEMFModelOnly(variantName,vanillaModel);
+                            EMFGenericCustomEntityModel<T> emfModelVariant = createEMFModelOnly(variantName,vanillaModel);
                             if(emfModelVariant != null){
                                 EMFCustomEntityModel<T> mod = (EMFCustomEntityModel<T>) getFinalEMFModel(variantName,emfModelVariant, vanillaModel);
                                 UUID_TO_MODEL.put(entity.getUuid(), mod);
@@ -234,7 +234,7 @@ public class EMFData {
         return null;
     }
 
-    private <T extends LivingEntity, M extends EntityModel<T>> M  getFinalEMFModel(String jemName, EMFGenericEntityEntityModel<T> alreadyBuiltSubmodel, M vanillaModelForInstanceCheck){
+    private <T extends LivingEntity, M extends EntityModel<T>> M  getFinalEMFModel(String jemName, EMFGenericCustomEntityModel<T> alreadyBuiltSubmodel, M vanillaModelForInstanceCheck){
         if(!COMPLETE_MODELS_FOR_RETURN.containsKey(jemName)){
             M finalModel = VanillaModelWrapperHandler.getCustomModelForRenderer(alreadyBuiltSubmodel, vanillaModelForInstanceCheck);
             COMPLETE_MODELS_FOR_RETURN.put(jemName, (EMFCustomEntityModel<?>) finalModel);

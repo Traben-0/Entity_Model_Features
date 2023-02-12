@@ -7,7 +7,7 @@ import net.minecraft.entity.passive.AbstractHorseEntity;
 import net.minecraft.entity.passive.FoxEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.LlamaEntity;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.biped.*;
 import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.other.EMFCustomSlimeEntityModel;
 import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.quadraped.*;
@@ -25,7 +25,7 @@ import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.q
  */
 public class VanillaModelWrapperHandler {
 
-    public static <T extends LivingEntity, M extends EntityModel<T>> M getCustomModelForRenderer(EMFGenericEntityEntityModel<T> alreadyBuiltSubmodel, M vanillaModelForInstanceCheck){
+    public static <T extends LivingEntity, M extends EntityModel<T>> M getCustomModelForRenderer(EMFGenericCustomEntityModel<T> alreadyBuiltSubmodel, M vanillaModelForInstanceCheck){
         //figure out whether to send a vanilla child model or a direct EMF custom model
 
         //todo extend to all entity models
@@ -81,7 +81,7 @@ public class VanillaModelWrapperHandler {
 
     }
 
-    public static <T extends LivingEntity, M extends EntityModel<T>> EntityModel<?> getCustomModelForRendererGeneric(EMFGenericEntityEntityModel<?> alreadyBuiltSubmodel, EntityModel<?> vanillaModelForInstanceCheck){
-        return getCustomModelForRenderer((EMFGenericEntityEntityModel<T>)alreadyBuiltSubmodel,(M)vanillaModelForInstanceCheck);
+    public static <T extends LivingEntity, M extends EntityModel<T>> EntityModel<?> getCustomModelForRendererGeneric(EMFGenericCustomEntityModel<?> alreadyBuiltSubmodel, EntityModel<?> vanillaModelForInstanceCheck){
+        return getCustomModelForRenderer((EMFGenericCustomEntityModel<T>)alreadyBuiltSubmodel,(M)vanillaModelForInstanceCheck);
     }
 }

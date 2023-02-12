@@ -8,11 +8,11 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.AbstractHorseEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 public class EMFCustomHorseEntityModel<T extends LivingEntity, M extends AbstractHorseEntity> extends HorseEntityModel<M> implements EMFCustomEntityModel<T> {
 
-    public EMFGenericEntityEntityModel<T> getThisEMFModel() {
+    public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
     }
 
@@ -20,10 +20,10 @@ public class EMFCustomHorseEntityModel<T extends LivingEntity, M extends Abstrac
         return false;
     }
 
-    private final EMFGenericEntityEntityModel<T> thisEMFModel;
+    private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
 
-    public EMFCustomHorseEntityModel(EMFGenericEntityEntityModel<T> model) {
+    public EMFCustomHorseEntityModel(EMFGenericCustomEntityModel<T> model) {
         super(HorseEntityModel.getModelData(Dilation.NONE).getRoot().createPart(0, 0));
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);

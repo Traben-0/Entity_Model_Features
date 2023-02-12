@@ -8,7 +8,7 @@ import net.minecraft.entity.LivingEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.mixin.accessor.entity.model.QuadrupedEntityModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.EMFModelPart;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class EMFCustomQuadrapedEntityModel<T extends LivingEntity> extends QuadrupedEntityModel<T> implements EMFCustomEntityModel<T> {
 
-    public EMFGenericEntityEntityModel<T> getThisEMFModel() {
+    public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
     }
 
@@ -24,10 +24,10 @@ public class EMFCustomQuadrapedEntityModel<T extends LivingEntity> extends Quadr
         return false;
     }
 
-    private final EMFGenericEntityEntityModel<T> thisEMFModel;
+    private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
 
-    public EMFCustomQuadrapedEntityModel(EMFGenericEntityEntityModel<T> model) {
+    public EMFCustomQuadrapedEntityModel(EMFGenericCustomEntityModel<T> model) {
         super(QuadrupedEntityModel.getModelData(1,Dilation.NONE).getRoot().createPart(0,0),
                 false,0,0,0,0,0);
         thisEMFModel=model;

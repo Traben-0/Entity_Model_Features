@@ -32,7 +32,7 @@ import traben.entity_model_features.mixin.accessor.entity.feature.SlimeOverlayFe
 import traben.entity_model_features.mixin.accessor.entity.model.PlayerEntityModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.features.EMFCustomArmorFeatureRenderer;
 import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.quadraped.EMFCustomHorseEntityModel;
 import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.quadraped.EMFCustomLlamaEntityModel;
@@ -77,8 +77,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                         for (FeatureRenderer<?, ?> feature :
                                 features) {
                             if (feature instanceof ArmorFeatureRenderer<?, ?, ?>) {
-                                EMFGenericEntityEntityModel<?> inner = armored.getArmourModel(true);
-                                EMFGenericEntityEntityModel<?> outer = armored.getArmourModel(false);
+                                EMFGenericCustomEntityModel<?> inner = armored.getArmourModel(true);
+                                EMFGenericCustomEntityModel<?> outer = armored.getArmourModel(false);
                                 if (inner != null && outer != null) {
                                     features.remove(feature);
                                     features.add(new EMFCustomArmorFeatureRenderer<T, M>(this, inner, outer));

@@ -10,7 +10,7 @@ import traben.entity_model_features.mixin.accessor.entity.model.IllagerEntityMod
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.EMFModelPart;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class EMFCustomIllagerEntityModel<T extends LivingEntity, M extends IllagerEntity> extends IllagerEntityModel<M> implements EMFCustomEntityModel<T>, EMFArmorableModel {
 
-    public EMFGenericEntityEntityModel<T> getThisEMFModel() {
+    public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
     }
 
@@ -26,10 +26,10 @@ public class EMFCustomIllagerEntityModel<T extends LivingEntity, M extends Illag
         return false;
     }
 
-    private final EMFGenericEntityEntityModel<T> thisEMFModel;
+    private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
 
-    public EMFCustomIllagerEntityModel(EMFGenericEntityEntityModel<T> model) {
+    public EMFCustomIllagerEntityModel(EMFGenericCustomEntityModel<T> model) {
         super(IllagerEntityModel.getTexturedModelData().createModel());
 
         thisEMFModel=model;
@@ -97,7 +97,7 @@ public class EMFCustomIllagerEntityModel<T extends LivingEntity, M extends Illag
     }
 
     @Override
-    public EMFGenericEntityEntityModel<?> getArmourModel(boolean getInner) {
+    public EMFGenericCustomEntityModel<?> getArmourModel(boolean getInner) {
         return thisEMFModel.getArmourModel(getInner);
     }
 

@@ -10,7 +10,7 @@ import net.minecraft.entity.passive.IronGolemEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.mixin.accessor.entity.model.IronGolemEntityModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.EMFModelPart;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class EMFCustomIronGolemEntityModel<T extends LivingEntity, M extends IronGolemEntity> extends IronGolemEntityModel<M> implements EMFCustomEntityModel<T> {
 
-    public EMFGenericEntityEntityModel<T> getThisEMFModel() {
+    public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
     }
 
@@ -26,10 +26,10 @@ public class EMFCustomIronGolemEntityModel<T extends LivingEntity, M extends Iro
         return false;
     }
 
-    private final EMFGenericEntityEntityModel<T> thisEMFModel;
+    private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
 
-    public EMFCustomIronGolemEntityModel(EMFGenericEntityEntityModel<T> model) {
+    public EMFCustomIronGolemEntityModel(EMFGenericCustomEntityModel<T> model) {
         super(BipedEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);

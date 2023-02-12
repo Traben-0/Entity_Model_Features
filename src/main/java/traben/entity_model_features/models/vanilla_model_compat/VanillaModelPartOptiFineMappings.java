@@ -84,6 +84,10 @@ public class VanillaModelPartOptiFineMappings {
         }
 //todo boat                     bottom, back, front, right, left, paddle_left, paddle_right, bottom_no_water
 
+        //camel unknown
+        if (vanillaModel instanceof CamelEntityModel) {
+            return VanillaModelPartOptiFineMappings::getSinglePartModelMap;
+        }
 // ✅ cat                      back_left_leg, back_right_leg, front_left_leg, front_right_leg, tail, tail2, head, body
 // ✅ cat_collar               back_left_leg, back_right_leg, front_left_leg, front_right_leg, tail, tail2, head, body
 // ✅ cave_spider              head, neck, body, leg1 ... leg8
@@ -334,10 +338,17 @@ public class VanillaModelPartOptiFineMappings {
             return VanillaModelPartOptiFineMappings::getGenericPlayerMap;
         }
 
-        //generics, these are intended to catch some modded entities
+        //all villager types
         if (vanillaModel instanceof VillagerResemblingModel) {
             return VanillaModelPartOptiFineMappings::getVillagerMap;
         }
+
+        // single part entity model can catch a lot automatically
+        if (vanillaModel instanceof SinglePartEntityModel) {
+            return VanillaModelPartOptiFineMappings::getSinglePartModelMap;
+        }
+
+        //generics, these are intended to try catch some modded entities
         if (vanillaModel instanceof BipedEntityModel) {
             return VanillaModelPartOptiFineMappings::getGenericBipedMap;
         }
@@ -348,10 +359,7 @@ public class VanillaModelPartOptiFineMappings {
             return VanillaModelPartOptiFineMappings::getGenericAnimalMap;
         }
 
-        // single part entity model can catch a lot automatically
-        if (vanillaModel instanceof SinglePartEntityModel) {
-            return VanillaModelPartOptiFineMappings::getSinglePartModelMap;
-        }
+
 
 
         //else simply go with no map, the model will still work fine but cannot rely on vanilla movements/animations

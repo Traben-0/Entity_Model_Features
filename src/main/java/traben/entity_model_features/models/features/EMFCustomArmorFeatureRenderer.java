@@ -20,7 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -29,10 +29,10 @@ import java.util.Set;
 @Environment(EnvType.CLIENT)
 public class EMFCustomArmorFeatureRenderer<T extends LivingEntity, M extends EntityModel<T>> extends FeatureRenderer<T, M> {
     private static final Map<String, Identifier> ARMOR_TEXTURE_CACHE = Maps.newHashMap();
-    private final EMFGenericEntityEntityModel<?> innerModel;
-    private final EMFGenericEntityEntityModel<?> outerModel;
+    private final EMFGenericCustomEntityModel<?> innerModel;
+    private final EMFGenericCustomEntityModel<?> outerModel;
 
-    public EMFCustomArmorFeatureRenderer(FeatureRendererContext<T, M> context, EMFGenericEntityEntityModel<?> innerModel, EMFGenericEntityEntityModel<?> outerModel) {
+    public EMFCustomArmorFeatureRenderer(FeatureRendererContext<T, M> context, EMFGenericCustomEntityModel<?> innerModel, EMFGenericCustomEntityModel<?> outerModel) {
         super(context);
         this.innerModel = innerModel;
         this.outerModel = outerModel;
@@ -45,7 +45,7 @@ public class EMFCustomArmorFeatureRenderer<T extends LivingEntity, M extends Ent
         this.renderArmor(matrixStack, vertexConsumerProvider, livingEntity, EquipmentSlot.HEAD, i, this.getModel(EquipmentSlot.HEAD));
     }
 
-    private void renderArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T entity, EquipmentSlot armorSlot, int light, EMFGenericEntityEntityModel<?> model) {
+    private void renderArmor(MatrixStack matrices, VertexConsumerProvider vertexConsumers, T entity, EquipmentSlot armorSlot, int light, EMFGenericCustomEntityModel<?> model) {
         ItemStack itemStack = entity.getEquippedStack(armorSlot);
         if (itemStack.getItem() instanceof ArmorItem) {
             ArmorItem armorItem = (ArmorItem)itemStack.getItem();
@@ -69,7 +69,7 @@ public class EMFCustomArmorFeatureRenderer<T extends LivingEntity, M extends Ent
         }
     }
 
-    private void setVisible(EMFGenericEntityEntityModel<?> model, EquipmentSlot slot) {
+    private void setVisible(EMFGenericCustomEntityModel<?> model, EquipmentSlot slot) {
         model.setVisibleToplvl(false);
         Set<String> visibles = new HashSet<>();
         switch (slot) {
@@ -97,12 +97,12 @@ public class EMFCustomArmorFeatureRenderer<T extends LivingEntity, M extends Ent
         model.setVisibleToplvl(visibles,true);
     }
 
-    private void renderArmorParts(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorItem item, boolean glint, EMFGenericEntityEntityModel<?> model, boolean secondTextureLayer, float red, float green, float blue, @Nullable String overlay) {
+    private void renderArmorParts(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorItem item, boolean glint, EMFGenericCustomEntityModel<?> model, boolean secondTextureLayer, float red, float green, float blue, @Nullable String overlay) {
         VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(this.getArmorTexture(item, secondTextureLayer, overlay)), false, glint);
         model.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, red, green, blue, 1.0F);
     }
 
-    private EMFGenericEntityEntityModel<?> getModel(EquipmentSlot slot) {
+    private EMFGenericCustomEntityModel<?> getModel(EquipmentSlot slot) {
         return this.usesInnerModel(slot) ? this.innerModel : this.outerModel;
     }
 

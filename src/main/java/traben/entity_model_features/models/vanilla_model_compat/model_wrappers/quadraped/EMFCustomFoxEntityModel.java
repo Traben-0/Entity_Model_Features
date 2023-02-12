@@ -8,7 +8,7 @@ import net.minecraft.entity.passive.FoxEntity;
 import traben.entity_model_features.mixin.accessor.entity.model.FoxEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.EMFModelPart;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class EMFCustomFoxEntityModel<T extends LivingEntity, M extends FoxEntity> extends FoxEntityModel<M> implements EMFCustomEntityModel<T> {
 
-    public EMFGenericEntityEntityModel<T> getThisEMFModel() {
+    public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
     }
 
@@ -24,10 +24,10 @@ public class EMFCustomFoxEntityModel<T extends LivingEntity, M extends FoxEntity
         return false;
     }
 
-    private final EMFGenericEntityEntityModel<T> thisEMFModel;
+    private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
 
-    public EMFCustomFoxEntityModel(EMFGenericEntityEntityModel<T> model) {
+    public EMFCustomFoxEntityModel(EMFGenericCustomEntityModel<T> model) {
         super(FoxEntityModel.getTexturedModelData().createModel());
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);

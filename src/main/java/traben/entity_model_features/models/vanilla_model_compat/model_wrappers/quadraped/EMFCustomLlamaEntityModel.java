@@ -9,7 +9,7 @@ import net.minecraft.entity.passive.AbstractDonkeyEntity;
 import traben.entity_model_features.mixin.accessor.entity.model.LlamaEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.EMFModelPart;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class EMFCustomLlamaEntityModel<T extends LivingEntity, M extends AbstractDonkeyEntity> extends LlamaEntityModel<M> implements EMFCustomEntityModel<T> {
 
-    public EMFGenericEntityEntityModel<T> getThisEMFModel() {
+    public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
     }
 
@@ -25,10 +25,10 @@ public class EMFCustomLlamaEntityModel<T extends LivingEntity, M extends Abstrac
         return false;
     }
 
-    private final EMFGenericEntityEntityModel<T> thisEMFModel;
+    private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
 
-    public EMFCustomLlamaEntityModel(EMFGenericEntityEntityModel<T> model) {
+    public EMFCustomLlamaEntityModel(EMFGenericCustomEntityModel<T> model) {
         super(LlamaEntityModel.getTexturedModelData(Dilation.NONE).createModel());
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);

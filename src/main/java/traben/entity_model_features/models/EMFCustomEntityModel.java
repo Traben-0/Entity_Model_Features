@@ -13,12 +13,12 @@ import java.util.Map;
 public interface EMFCustomEntityModel<T extends LivingEntity> {
 
     static <T extends LivingEntity> ModelPart getFinalModelRootData(ModelPart root,
-                                                                    EMFGenericEntityEntityModel<T> EMFModelToIntegrateIntoRoot){
+                                                                    EMFGenericCustomEntityModel<T> EMFModelToIntegrateIntoRoot){
         return getFinalModelRootData(root,EMFModelToIntegrateIntoRoot,new HashMap<>());
     }
 
     static <T extends LivingEntity> ModelPart getFinalModelRootData(ModelPart root,
-                                                                    EMFGenericEntityEntityModel<T> EMFModelToIntegrateIntoRoot,
+                                                                    EMFGenericCustomEntityModel<T> EMFModelToIntegrateIntoRoot,
                                                                     HashMap<String,String> optifineNameMap){
         Map<String, ModelPart> rootChildren = ((ModelPartAccessor)root).getChildren();
         Map<String, ModelPart> replacementChildren = forEachChildCheckAndReplace(rootChildren,EMFModelToIntegrateIntoRoot, optifineNameMap);
@@ -29,7 +29,7 @@ public interface EMFCustomEntityModel<T extends LivingEntity> {
 
     static <T extends LivingEntity> Map<String, ModelPart> forEachChildCheckAndReplace(
             Map<String, ModelPart> rootChildren,
-            EMFGenericEntityEntityModel<T> EMFModelToIntegrateIntoRoot,
+            EMFGenericCustomEntityModel<T> EMFModelToIntegrateIntoRoot,
             HashMap<String,String> optifineNameMap
     ){
         Map<String, ModelPart> replacements = new HashMap<>();
@@ -54,7 +54,7 @@ public interface EMFCustomEntityModel<T extends LivingEntity> {
     }
 
     static <T extends LivingEntity> EMFModelPart getFirstOfPartInModelAndPrepare(String partname,
-                                                                                 EMFGenericEntityEntityModel<T> EMFModel,
+                                                                                 EMFGenericCustomEntityModel<T> EMFModel,
                                                                                  Map<String, ModelPart> vanillaPartChildren,
                                                                                  HashMap<String,String> optifineNameMap){
         EMFModelPart findPart = getFirstOfPartInModel(partname,EMFModel);
@@ -64,7 +64,7 @@ public interface EMFCustomEntityModel<T extends LivingEntity> {
         return findPart;
     }
 
-    static <T extends LivingEntity> EMFModelPart getFirstOfPartInModel(String partname, EMFGenericEntityEntityModel<T> EMFModel){
+    static <T extends LivingEntity> EMFModelPart getFirstOfPartInModel(String partname, EMFGenericCustomEntityModel<T> EMFModel){
         for (EMFModelPart part:
              EMFModel.childrenMap.values()) {
             if(partname.equals(part.selfModelData.part)){
@@ -77,7 +77,7 @@ public interface EMFCustomEntityModel<T extends LivingEntity> {
 
 
 
-    EMFGenericEntityEntityModel<T> getThisEMFModel() ;
+    EMFGenericCustomEntityModel<T> getThisEMFModel() ;
 
     boolean doesThisModelNeedToBeReset();
 

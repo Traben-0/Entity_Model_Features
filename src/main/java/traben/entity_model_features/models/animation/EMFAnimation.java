@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.entity.LivingEntity;
 import traben.entity_model_features.EMFData;
-import traben.entity_model_features.models.EMFGenericEntityEntityModel;
+import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimationMathParser.MathComponent;
 import traben.entity_model_features.models.animation.EMFAnimationMathParser.MathExpressionParser;
@@ -23,7 +23,7 @@ public class EMFAnimation {
     public EMFModelPart modelPart = null;
      public ModelPart vanillaModelPart = null;
 
-     public final EMFGenericEntityEntityModel<?> parentModel;
+     public final EMFGenericCustomEntityModel<?> parentModel;
      public final EMFDefaultModelVariable varToChange;
      public final String animKey;
 
@@ -32,7 +32,7 @@ public class EMFAnimation {
      final float defaultValue;
 
 
-    public EMFAnimation(EMFGenericEntityEntityModel<?> parent, ModelPart part, EMFDefaultModelVariable varToChange, String animKey, String initialExpression) {
+    public EMFAnimation(EMFGenericCustomEntityModel<?> parent, ModelPart part, EMFDefaultModelVariable varToChange, String animKey, String initialExpression) {
 
         this.animKey = animKey;
         isVariable = animKey.startsWith("var");
