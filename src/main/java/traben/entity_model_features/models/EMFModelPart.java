@@ -919,4 +919,25 @@ public class EMFModelPart extends ModelPart  {
     }
 
 
+    private Map<String, ModelPart> heldFakeRootChildren = null;
+
+    public void clearVanillaFakeChildren(){
+        heldFakeRootChildren = null;
+    }
+    public void setVanillaFakeChildren(Map<String, ModelPart> heldFakeRootChildren){
+        this.heldFakeRootChildren = heldFakeRootChildren;
+    }
+    @Override
+    public boolean hasChild(String child) {
+        if(heldFakeRootChildren == null)
+            return super.hasChild(child);
+        return heldFakeRootChildren.containsKey(child);
+    }
+
+    @Override
+    public ModelPart getChild(String name) {
+        if(heldFakeRootChildren == null)
+            return super.getChild(name);
+        return heldFakeRootChildren.get(name);
+    }
 }

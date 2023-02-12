@@ -1,12 +1,13 @@
 package traben.entity_model_features.models.jem_objects;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 
 public class EMFJemData {
     public String texture = "";
     public int[] textureSize = null;
     public double shadow_size = 1.0;
-    public EMFPartData[] models = {};
+    public LinkedList<EMFPartData> models = new LinkedList<>();
 
 
     public void prepare(){
@@ -30,7 +31,7 @@ public class EMFJemData {
                 "texture='" + texture + '\'' +
                 ", textureSize=" + Arrays.toString(textureSize) +
                 ", shadow_size=" + shadow_size +
-                ", models=" + Arrays.toString(models) +
+                ", models=" + models.toString() +
                 '}';
     }
 }

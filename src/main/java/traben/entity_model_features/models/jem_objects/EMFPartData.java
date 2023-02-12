@@ -4,6 +4,7 @@ import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 public class EMFPartData {
 
@@ -16,7 +17,7 @@ public class EMFPartData {
     public EMFBoxData[] boxes = {};
     public EMFSpriteData[] sprites = {};
     public EMFPartData submodel = null;
-    public EMFPartData[] submodels = {};
+    public LinkedList<EMFPartData> submodels = new LinkedList<>();
 
     public String baseId = "";  //- Model parent ID, all parent properties are inherited
     public String model = "";  //- Part model jemJsonObjects, from which to load the part model definition
@@ -140,7 +141,7 @@ public class EMFPartData {
                 ", submodel=" + submodel +
                 ", submodels=" +(
                         printFullChild ?
-                            Arrays.toString(submodels) :
+                            submodels.toString() :
                             printChildNamesOnly())+
                 '}';
     }

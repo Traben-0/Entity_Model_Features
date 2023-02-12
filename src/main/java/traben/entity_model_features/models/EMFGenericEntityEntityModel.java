@@ -2,7 +2,6 @@ package traben.entity_model_features.models;
 
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -24,13 +23,13 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.mixin.accessor.entity.model.AnimalModelAccessor;
 import traben.entity_model_features.models.animation.EMFAnimation;
+import traben.entity_model_features.models.animation.EMFAnimationMathParser.MathValue;
 import traben.entity_model_features.models.animation.EMFAnimationVariableSuppliers;
 import traben.entity_model_features.models.animation.EMFDefaultModelVariable;
-import traben.entity_model_features.models.animation.EMFAnimationMathParser.MathValue;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
-import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.vanilla_model_compat.VanillaModelPartOptiFineMappings;
+import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
 
@@ -38,7 +37,7 @@ import java.util.*;
 public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityModel<T> implements ModelWithHat, ModelWithWaterPatch, ModelWithArms, ModelWithHead, EMFCustomEntityModel<T> {
 
     private final EMFJemData jemData;
-    public final Object2ObjectOpenHashMap<String, EMFModelPart> childrenMap = new Object2ObjectOpenHashMap<>();
+    public final Object2ObjectLinkedOpenHashMap<String, EMFModelPart> childrenMap = new Object2ObjectLinkedOpenHashMap<>();
     public final Object2ObjectLinkedOpenHashMap<String, EMFAnimation> animationKeyToCalculatorObject = new Object2ObjectLinkedOpenHashMap<>();
     public final Object2ObjectLinkedOpenHashMap<String, EMFAnimation> alreadyCalculatedThisInitTickAnimations = new Object2ObjectLinkedOpenHashMap<>();
     //public final Object2ObjectLinkedOpenHashMap<String,AnimationCalculation> needToBeAddedToAnimationMap = new Object2ObjectLinkedOpenHashMap<>();
@@ -128,7 +127,7 @@ public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityM
 
     private void preprocessAnimationStrings(){
         ///animation processing/////////////
-        Object2ObjectOpenHashMap<String, EMFModelPart> parts = getAllParts();
+        Object2ObjectLinkedOpenHashMap<String, EMFModelPart> parts = getAllParts();
 
         LinkedList<LinkedHashMap<String,String>>  allProperties = new LinkedList<>();
         for (EMFModelPart part :
@@ -497,10 +496,10 @@ public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityM
     }
 
 
-    private Object2ObjectOpenHashMap<String, EMFModelPart> getAllPartsCachedResult = null;
-    public Object2ObjectOpenHashMap<String, EMFModelPart> getAllParts(){
+    private Object2ObjectLinkedOpenHashMap<String, EMFModelPart> getAllPartsCachedResult = null;
+    public Object2ObjectLinkedOpenHashMap<String, EMFModelPart> getAllParts(){
         if(getAllPartsCachedResult == null) {
-            Object2ObjectOpenHashMap<String, EMFModelPart> list = new Object2ObjectOpenHashMap<String, EMFModelPart>();
+            Object2ObjectLinkedOpenHashMap<String, EMFModelPart> list = new Object2ObjectLinkedOpenHashMap<String, EMFModelPart>();
             for (EMFModelPart part :
                     childrenMap.values()) {
                 list.put(part.selfModelData.id, part);
@@ -678,8 +677,8 @@ public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityM
             super.copyStateTo((EntityModel<T>) copy);
         }catch (Exception ignored){}
        // if(copy instanceof EMF_CustomModel<?> emf){
-        Object2ObjectOpenHashMap<String, ? extends EMFModelPart> copyParts = copy.getAllParts();
-        Object2ObjectOpenHashMap<String, ? extends EMFModelPart> thisParts = this.getAllParts();
+        Object2ObjectLinkedOpenHashMap<String, ? extends EMFModelPart> copyParts = copy.getAllParts();
+        Object2ObjectLinkedOpenHashMap<String, ? extends EMFModelPart> thisParts = this.getAllParts();
         //System.out.println(copyParts);
         //System.out.println(thisParts);
             for (Map.Entry<String, ? extends EMFModelPart> entry:
@@ -767,6 +766,11 @@ public class EMFGenericEntityEntityModel<T extends LivingEntity> extends EntityM
 
 
 
-
+    public void clearAllFakePartChildrenData(){
+        for (EMFModelPart part:
+             getAllParts().values()) {
+            part.clearVanillaFakeChildren();
+        }
+    }
 
 }
