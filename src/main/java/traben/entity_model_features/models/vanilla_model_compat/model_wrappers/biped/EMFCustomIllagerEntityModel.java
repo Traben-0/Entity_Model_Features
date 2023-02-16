@@ -6,15 +6,10 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.IllagerEntity;
 import net.minecraft.util.Arm;
-import traben.entity_model_features.mixin.accessor.entity.model.IllagerEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
-import traben.entity_model_features.models.EMFModelPart;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class EMFCustomIllagerEntityModel<T extends LivingEntity, M extends IllagerEntity> extends IllagerEntityModel<M> implements EMFCustomEntityModel<T>, EMFArmorableModel {
 
@@ -30,29 +25,31 @@ public class EMFCustomIllagerEntityModel<T extends LivingEntity, M extends Illag
 
 
     public EMFCustomIllagerEntityModel(EMFGenericCustomEntityModel<T> model) {
-        super(IllagerEntityModel.getTexturedModelData().createModel());
+        //super(IllagerEntityModel.getTexturedModelData().createModel());
+        super(EMFCustomEntityModel.getFinalModelRootData(IllagerEntityModel.getTexturedModelData().createModel() ,model));
 
         thisEMFModel=model;
+        thisEMFModel.clearAllFakePartChildrenData();
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
-
-        List<EMFModelPart> headCandidates = new ArrayList<>();
-        List<EMFModelPart> lACandidates = new ArrayList<>();
-        List<EMFModelPart> rACandidates = new ArrayList<>();
-
-        for (EMFModelPart part:
-                thisEMFModel.childrenMap.values()) {
-            if ("head".equals(part.selfModelData.part)) {
-                headCandidates.add(part);
-            }else if ("left_arm".equals(part.selfModelData.part)) {
-                lACandidates.add(part);
-            }else if ("right_arm".equals(part.selfModelData.part)) {
-                rACandidates.add(part);
-            }
-        }
-
-        setNonEmptyPart(headCandidates,((IllagerEntityModelAccessor)this)::setHead);
-        setNonEmptyPart(lACandidates,((IllagerEntityModelAccessor)this)::setLeftArm);
-        setNonEmptyPart(rACandidates,((IllagerEntityModelAccessor)this)::setRightArm);
+//
+//        List<EMFModelPart> headCandidates = new ArrayList<>();
+//        List<EMFModelPart> lACandidates = new ArrayList<>();
+//        List<EMFModelPart> rACandidates = new ArrayList<>();
+//
+//        for (EMFModelPart part:
+//                thisEMFModel.childrenMap.values()) {
+//            if ("head".equals(part.selfModelData.part)) {
+//                headCandidates.add(part);
+//            }else if ("left_arm".equals(part.selfModelData.part)) {
+//                lACandidates.add(part);
+//            }else if ("right_arm".equals(part.selfModelData.part)) {
+//                rACandidates.add(part);
+//            }
+//        }
+//
+//        setNonEmptyPart(headCandidates,((IllagerEntityModelAccessor)this)::setHead);
+//        setNonEmptyPart(lACandidates,((IllagerEntityModelAccessor)this)::setLeftArm);
+//        setNonEmptyPart(rACandidates,((IllagerEntityModelAccessor)this)::setRightArm);
     }
 
 

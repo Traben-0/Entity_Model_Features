@@ -6,13 +6,10 @@ import net.minecraft.client.render.entity.model.QuadrupedEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
-import traben.entity_model_features.mixin.accessor.entity.model.QuadrupedEntityModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
-import traben.entity_model_features.models.EMFModelPart;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class EMFCustomQuadrapedEntityModel<T extends LivingEntity> extends QuadrupedEntityModel<T> implements EMFCustomEntityModel<T> {
 
@@ -26,53 +23,66 @@ public class EMFCustomQuadrapedEntityModel<T extends LivingEntity> extends Quadr
 
     private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
-
+    private static final HashMap<String,String> optifineMap = new HashMap<>(){{
+        put("right_hind_leg","leg1");
+        put("left_hind_leg", "leg2");
+        put("right_front_leg", "leg3");
+        put("left_front_leg", "leg4");
+    }};
     public EMFCustomQuadrapedEntityModel(EMFGenericCustomEntityModel<T> model) {
-        super(QuadrupedEntityModel.getModelData(1,Dilation.NONE).getRoot().createPart(0,0),
+        //super(QuadrupedEntityModel.getModelData(1,Dilation.NONE).getRoot().createPart(0,0),
+         //       false,0,0,0,0,0);
+
+        //todo this should never be called once done with all the other wrappers
+
+        super( EMFCustomEntityModel.getFinalModelRootData(
+                QuadrupedEntityModel.getModelData(1,Dilation.NONE).getRoot().createPart(0,0),
+                model, optifineMap),
                 false,0,0,0,0,0);
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
+        thisEMFModel.clearAllFakePartChildrenData();
 
-        List<EMFModelPart> headCandidates = new ArrayList<>();
-        List<EMFModelPart> bodyCandidates = new ArrayList<>();
-        List<EMFModelPart> rFLegCandidates = new ArrayList<>();
-        List<EMFModelPart> lFLegCandidates = new ArrayList<>();
-        List<EMFModelPart> lBLegCandidates = new ArrayList<>();
-        List<EMFModelPart> rBLegCandidates = new ArrayList<>();
-
-        for (EMFModelPart part:
-                thisEMFModel.childrenMap.values()) {
-            switch (part.selfModelData.part){
-                case "head"->{
-                    headCandidates.add(part);
-                }
-                case "body"->{
-                    bodyCandidates.add(part);
-                }
-                case "leg1"->{
-                    rBLegCandidates.add(part);
-                }
-                case "leg2"->{
-                    lBLegCandidates.add(part);
-                }
-                case "leg3"->{
-                    rFLegCandidates.add(part);
-                }
-                case "leg4"->{
-                    lFLegCandidates.add(part);
-                }
-                default->{
-
-                }
-            }
-        }
-
-        setNonEmptyPart(headCandidates,((QuadrupedEntityModelAccessor)this)::setHead);
-        setNonEmptyPart(bodyCandidates,((QuadrupedEntityModelAccessor)this)::setBody);
-        setNonEmptyPart(lFLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftFrontLeg);
-        setNonEmptyPart(lBLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftHindLeg);
-        setNonEmptyPart(rFLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightFrontLeg);
-        setNonEmptyPart(rBLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightHindLeg);
+//        List<EMFModelPart> headCandidates = new ArrayList<>();
+//        List<EMFModelPart> bodyCandidates = new ArrayList<>();
+//        List<EMFModelPart> rFLegCandidates = new ArrayList<>();
+//        List<EMFModelPart> lFLegCandidates = new ArrayList<>();
+//        List<EMFModelPart> lBLegCandidates = new ArrayList<>();
+//        List<EMFModelPart> rBLegCandidates = new ArrayList<>();
+//
+//        for (EMFModelPart part:
+//                thisEMFModel.childrenMap.values()) {
+//            switch (part.selfModelData.part){
+//                case "head"->{
+//                    headCandidates.add(part);
+//                }
+//                case "body"->{
+//                    bodyCandidates.add(part);
+//                }
+//                case "leg1"->{
+//                    rBLegCandidates.add(part);
+//                }
+//                case "leg2"->{
+//                    lBLegCandidates.add(part);
+//                }
+//                case "leg3"->{
+//                    rFLegCandidates.add(part);
+//                }
+//                case "leg4"->{
+//                    lFLegCandidates.add(part);
+//                }
+//                default->{
+//
+//                }
+//            }
+//        }
+//
+//        setNonEmptyPart(headCandidates,((QuadrupedEntityModelAccessor)this)::setHead);
+//        setNonEmptyPart(bodyCandidates,((QuadrupedEntityModelAccessor)this)::setBody);
+//        setNonEmptyPart(lFLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftFrontLeg);
+//        setNonEmptyPart(lBLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftHindLeg);
+//        setNonEmptyPart(rFLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightFrontLeg);
+//        setNonEmptyPart(rBLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightHindLeg);
     }
 
     @Override

@@ -30,28 +30,24 @@ import java.util.Map;
 public class VanillaModelPartOptiFineMappings {
 
 
-
-
-    VanillaModelPartOptiFineMappings(){
+    VanillaModelPartOptiFineMappings() {
         //todo api for modded mappings that for some reason dont extend single part entity model
     }
 
 
-
-
-    public static VanillaMapper getVanillaModelPartsMapSupplier(int entityTypeHash, EntityModel<?> vanillaModel){
-        if(!EMFData.getInstance().vanilla_mappings_map.containsKey(entityTypeHash)){
+    public static VanillaMapper getVanillaModelPartsMapSupplier(int entityTypeHash, EntityModel<?> vanillaModel) {
+        if (!EMFData.getInstance().vanilla_mappings_map.containsKey(entityTypeHash)) {
             EMFData.getInstance().vanilla_mappings_map.put(entityTypeHash, discoverMappingToUse(vanillaModel));
         }
         return EMFData.getInstance().vanilla_mappings_map.get(entityTypeHash);
     }
 
 
-    private static VanillaMapper discoverMappingToUse(EntityModel<?> vanillaModel){
+    private static VanillaMapper discoverMappingToUse(EntityModel<?> vanillaModel) {
 
 
-
-        if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("getting vanilla model map...");
+        if (EMFData.getInstance().getConfig().printModelCreationInfoToLog)
+            EMFUtils.EMF_modMessage("getting vanilla model map...");
         //if an instance check starts with '✅' it means it is a single part entity that maps correctly to the optifine name format
 
         //todo needs to extend to all vanilla mobs and confirm OptiFine part name mappings
@@ -258,15 +254,20 @@ public class VanillaModelPartOptiFineMappings {
         if (vanillaModel instanceof SalmonEntityModel) {
             return VanillaModelPartOptiFineMappings::getSalmonMap;
         }
-// sheep                    head, body, leg1 ... leg4
-// sheep_wool               head, body, leg1 ... leg4
-// shulker                  head, base, lid
-// shulker_box              base, lid
+// ✅ sheep                    head, body, leg1 ... leg4
+// ✅ sheep_wool               head, body, leg1 ... leg4
+// ✅ shulker                  head, base, lid
+
+//todo shulker_box              base, lid
 // shulker_bullet           bullet
 // sign                     board, stick
+
 // silverfish               body1 ... body7, wing1 ... wing3
-// skeleton                 head, headwear, body, left_arm, right_arm, left_leg, right_leg
-// skeleton_horse           <same as horse>
+        if (vanillaModel instanceof SilverfishEntityModel) {
+            return VanillaModelPartOptiFineMappings::getSilverfishMap;
+        }
+// ✅ skeleton                 head, headwear, body, left_arm, right_arm, left_leg, right_leg
+// ✅ skeleton_horse           <same as horse>
 
 // ✅ slime                    body, left_eye, right_eye, mouth
 // ✅ slime_outer              body, left_eye, right_eye, mouth
@@ -274,62 +275,85 @@ public class VanillaModelPartOptiFineMappings {
             return VanillaModelPartOptiFineMappings::getSlimeMap;
         }
 
-// snow_golem               body, body_bottom, head, left_hand, right_hand
-// spawner_minecart         bottom, back, front, right, left
+// ✅ snow_golem               body, body_bottom, head, left_hand, right_hand
+        if (vanillaModel instanceof SnowGolemEntityModel) {
+            return VanillaModelPartOptiFineMappings::getSnowGolemMap;
+        }
+//todo spawner_minecart         bottom, back, front, right, left
+
 // spider                   head, neck, body, leg1, ... leg8
         if (vanillaModel instanceof SpiderEntityModel) {
             return VanillaModelPartOptiFineMappings::getSpiderMap;
         }
-// squid                    body, tentacle1 ... tentacle8
-// stray                    head, headwear, body, left_arm, right_arm, left_leg, right_leg
-// stray_outer              head, headwear, body, left_arm, right_arm, left_leg, right_leg
+// ✅ squid                    body, tentacle1 ... tentacle8
+// ✅ stray                    head, headwear, body, left_arm, right_arm, left_leg, right_leg
+// ✅ stray_outer              head, headwear, body, left_arm, right_arm, left_leg, right_leg
 // strider                  body, right_leg, left_leg, hair_right_top, hair_right_middle, hair_right_bottom, hair_left_top, hair_left_middle, hair_left_bottom
 // strider_saddle           body, right_leg, left_leg, hair_right_top, hair_right_middle, hair_right_bottom, hair_left_top, hair_left_middle, hair_left_bottom
-// tnt_minecart             bottom, back, front, right, left
+        if (vanillaModel instanceof StriderEntityModel) {
+            return VanillaModelPartOptiFineMappings::getStriderMap;
+        }
+
+//todo tnt_minecart             bottom, back, front, right, left
+
 // tadpole                  body, tail
         if (vanillaModel instanceof TadpoleEntityModel) {
             return VanillaModelPartOptiFineMappings::getTadpoleMap;
         }
-// trader_llama             head, body, leg1 ... leg4, chest_right, chest_left
-// trader_llama_decor       head, body, leg1 ... leg4, chest_right, chest_left
-// trapped_chest            lid, base, knob
+// ✅ trader_llama             head, body, leg1 ... leg4, chest_right, chest_left
+// ✅ trader_llama_decor       head, body, leg1 ... leg4, chest_right, chest_left
+
+//todo trapped_chest            lid, base, knob
 // trapped_chest_large      lid_left, base_left, knob_left, lid_right, base_right, knob_right
 // trident                  body
-// tropical_fish_a          body, tail, fin_right, fin_left, fin_top
-// tropical_fish_b          body, tail, fin_right, fin_left, fin_top, fin_bottom
-// tropical_fish_pattern_a  body, tail, fin_right, fin_left, fin_top
-// tropical_fish_pattern_b  body, tail, fin_right, fin_left, fin_top, fin_bottom
-// turtle                   head, body, leg1 ... leg4, body2
-// vex                      head, headwear, body, left_arm, right_arm, left_leg, right_leg, left_wing, right_wing
-// villager                 head, headwear, headwear2, body, bodywear, arms, left_leg, right_leg, nose
 
-// vindicator               head, hat, body, arms, left_leg, right_leg, nose, left_arm, right_arm
-// wandering_trader         head, headwear, headwear2, body, bodywear, arms, left_leg, right_leg, nose
+// tropical_fish_a          body, tail, fin_right, fin_left, fin_top
+        if (vanillaModel instanceof SmallTropicalFishEntityModel) {
+            return VanillaModelPartOptiFineMappings::getTropicalSmallMap;
+        }
+// tropical_fish_b          body, tail, fin_right, fin_left, fin_top, fin_bottom
+        if (vanillaModel instanceof LargeTropicalFishEntityModel) {
+            return VanillaModelPartOptiFineMappings::getTropicalLargeMap;
+        }
+// ✅ tropical_fish_pattern_a  body, tail, fin_right, fin_left, fin_top
+// ✅ tropical_fish_pattern_b  body, tail, fin_right, fin_left, fin_top, fin_bottom
+
+// turtle                   head, body, leg1 ... leg4, body2
+        if (vanillaModel instanceof TurtleEntityModel) {
+            return VanillaModelPartOptiFineMappings::getTurtleMap;
+        }
+//todo vex                      head, headwear, body, left_arm, right_arm, left_leg, right_leg, left_wing, right_wing
+
+// ✅ villager                 head, headwear, headwear2, body, bodywear, arms, left_leg, right_leg, nose
+
+// ✅ vindicator               head, hat, body, arms, left_leg, right_leg, nose, left_arm, right_arm
+// ✅ wandering_trader         head, headwear, headwear2, body, bodywear, arms, left_leg, right_leg, nose
 // warden                   body, torso, head, left_leg, right_leg, left_arm, right_arm, left_tendril, right_tendril, left_ribcage, right_ribcage
-// witch                    head, headwear, headwear2, body, bodywear, arms, left_leg, right_leg, nose, mole
-        if (vanillaModel instanceof WitchEntityModel<?>) {
+        if (vanillaModel instanceof WardenEntityModel) {
+            return VanillaModelPartOptiFineMappings::getWardenMap;
+        }
+// ✅ witch                    head, headwear, headwear2, body, bodywear, arms, left_leg, right_leg, nose, mole
+        if (vanillaModel instanceof WitchEntityModel) {
             return VanillaModelPartOptiFineMappings::getWitchMap;
         }
-// wither                   body1 ... body3, head1 ... head3
+//todo wither                   body1 ... body3, head1 ... head3
 // wither_armor             body1 ... body3, head1 ... head3
-// wither_skeleton          head, headwear, body, left_arm, right_arm, left_leg, right_leg
-// wither_skull             head
+
+// ✅ wither_skeleton          head, headwear, body, left_arm, right_arm, left_leg, right_leg
+//todo wither_skull             head
+
 // ✅ wolf                     head, body, leg1 ... leg4, tail, mane
-// ?? wolf_collar              head, body, leg1 ... leg4, tail, mane
+// ✅ wolf_collar              head, body, leg1 ... leg4, tail, mane
         if (vanillaModel instanceof WolfEntityModel) {
             return VanillaModelPartOptiFineMappings::getWolfMap;
         }
-// zoglin                   head, right_ear, left_ear, body, front_right_leg, front_left_leg, back_right_leg, back_left_leg, mane
-// zombie                   head, headwear, body, left_arm, right_arm, left_leg, right_leg
-// zombie_horse             <same as horse>
-// zombie_pigman            head, headwear, body, left_arm, right_arm, left_leg, right_leg
-// zombie_villager          head, headwear, body, left_arm, right_arm, left_leg, right_leg
-// zombified_piglin         head, headwear, body, left_arm, right_arm, left_leg, right_leg, left_ear, left_sleeve, right_sleeve, left_pants, right_pants, jacket
-//
+// ✅ zoglin                   head, right_ear, left_ear, body, front_right_leg, front_left_leg, back_right_leg, back_left_leg, mane
+// ✅ zombie                   head, headwear, body, left_arm, right_arm, left_leg, right_leg
+// ✅ zombie_horse             <same as horse>
+//@Deprecated zombie_pigman            head, headwear, body, left_arm, right_arm, left_leg, right_leg
 
-
-
-
+// ✅ zombie_villager          head, headwear, body, left_arm, right_arm, left_leg, right_leg
+// ✅ zombified_piglin         head, headwear, body, left_arm, right_arm, left_leg, right_leg, left_ear, left_sleeve, right_sleeve, left_pants, right_pants, jacket
 
 
 
@@ -360,45 +384,44 @@ public class VanillaModelPartOptiFineMappings {
         }
 
 
-
-
         //else simply go with no map, the model will still work fine but cannot rely on vanilla movements/animations
         return VanillaModelPartOptiFineMappings::getEmptyMap;
     }
-    private static HashMap<String, ModelAndParent> getEmptyMap(EntityModel<?> vanillaModel){
 
-        System.out.println("empty model mapped for: "+ vanillaModel.getClass().toString());
+    private static HashMap<String, ModelAndParent> getEmptyMap(EntityModel<?> vanillaModel) {
+
+        System.out.println("empty model mapped for: " + vanillaModel.getClass().toString());
         return new HashMap<>();
     }
+
     //this ones a bit special it automatically traverses a single part model capturing the vanilla part names
     // this automatically correctly captures allay model part and names for example
-    private static HashMap<String, ModelAndParent> getSinglePartModelMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getSinglePartModelMap(EntityModel<?> vanillaModel) {
+        HashMap<String, ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof SinglePartEntityModel model) {
             ModelPart root = model.getPart();
-            Map<String,ModelPart> sourceChildren = ((ModelPartAccessor)root).getChildren();
-            vanillaPartsList.putAll(iterateOverRootPartsChildren(sourceChildren,null));
+            Map<String, ModelPart> sourceChildren = ((ModelPartAccessor) root).getChildren();
+            vanillaPartsList.putAll(iterateOverRootPartsChildren(sourceChildren, null));
 
         }
         return vanillaPartsList;
     }
 
-    private static Map<String, ModelAndParent> getAllRootPartsChildren(ModelPart root){
-        Map<String,ModelPart> sourceChildren = ((ModelPartAccessor)root).getChildren();
+    private static Map<String, ModelAndParent> getAllRootPartsChildren(ModelPart root) {
+        Map<String, ModelPart> sourceChildren = ((ModelPartAccessor) root).getChildren();
         return iterateOverRootPartsChildren(sourceChildren, null);
     }
-    private static Map<String, ModelAndParent> iterateOverRootPartsChildren(Map<String, ModelPart> sourceChildren, String parentName){
-        Map<String,ModelAndParent> vanillaPartsList = new HashMap<>();
-        for (Map.Entry<String, ModelPart> entry:
-             sourceChildren.entrySet()) {
-            vanillaPartsList.put(entry.getKey(), getEntry(entry.getValue(),parentName));
-            Map<String,ModelPart> nextChildren = ((ModelPartAccessor)entry.getValue()).getChildren();
-            vanillaPartsList.putAll(iterateOverRootPartsChildren(nextChildren,entry.getKey()));
+
+    private static Map<String, ModelAndParent> iterateOverRootPartsChildren(Map<String, ModelPart> sourceChildren, String parentName) {
+        Map<String, ModelAndParent> vanillaPartsList = new HashMap<>();
+        for (Map.Entry<String, ModelPart> entry :
+                sourceChildren.entrySet()) {
+            vanillaPartsList.put(entry.getKey(), getEntry(entry.getValue(), parentName));
+            Map<String, ModelPart> nextChildren = ((ModelPartAccessor) entry.getValue()).getChildren();
+            vanillaPartsList.putAll(iterateOverRootPartsChildren(nextChildren, entry.getKey()));
         }
         return vanillaPartsList;
     }
-
-
 
 
 //    private static HashMap<String, ModelPart> getAllayMap(EntityModel<?> vanillaModel){
@@ -417,21 +440,116 @@ public class VanillaModelPartOptiFineMappings {
 //    }
 
 
-    private static HashMap<String, ModelAndParent> getTadpoleMap(EntityModel<?> vanillaModel){
-        HashMap<String,ModelAndParent> vanillaPartsList = new HashMap<>();
+    private static HashMap<String, ModelAndParent> getTadpoleMap(EntityModel<?> vanillaModel) {
+        HashMap<String, ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof AnimalModel animal) {
-            Iterable<ModelPart> bodyParts =((AnimalModelAccessor) animal).callGetHeadParts();
+            Iterable<ModelPart> bodyParts = ((AnimalModelAccessor) animal).callGetHeadParts();
             Iterable<ModelPart> hed = ((AnimalModelAccessor) animal).callGetHeadParts();
-            if(hed.iterator().hasNext()) {
+            if (hed.iterator().hasNext()) {
                 vanillaPartsList.put("body", getEntry(hed.iterator().next()));
             }
-            if(bodyParts.iterator().hasNext()) {
-                vanillaPartsList.put("tail", getEntry(bodyParts.iterator().next(),"body"));
+            if (bodyParts.iterator().hasNext()) {
+                vanillaPartsList.put("tail", getEntry(bodyParts.iterator().next(), "body"));
             }
         }
         return vanillaPartsList;
     }
 
+    private static HashMap<String, ModelAndParent> getSilverfishMap(EntityModel<?> vanillaModel) {
+        //# silverfish               body1 ... body7, wing1 ... wing3
+        HashMap<String, ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        vanillaPartsList.put("segment0", vanillaPartsList.get("body1"));
+        vanillaPartsList.put("segment1", vanillaPartsList.get("body2"));
+        vanillaPartsList.put("segment2", vanillaPartsList.get("body3"));
+        vanillaPartsList.put("segment3", vanillaPartsList.get("body4"));
+        vanillaPartsList.put("segment4", vanillaPartsList.get("body5"));
+        vanillaPartsList.put("segment5", vanillaPartsList.get("body6"));
+        vanillaPartsList.put("segment6", vanillaPartsList.get("body7"));
+
+        vanillaPartsList.put("layer0", vanillaPartsList.get("wing1"));
+        vanillaPartsList.put("layer1", vanillaPartsList.get("wing2"));
+        vanillaPartsList.put("layer2", vanillaPartsList.get("wing3"));
+
+        return vanillaPartsList;
+    }
+    private static HashMap<String, ModelAndParent> getWardenMap(EntityModel<?> vanillaModel) {
+        //# warden
+        // body, torso, head, left_leg, right_leg, left_arm, right_arm, left_tendril, right_tendril, left_ribcage, right_ribcage
+        HashMap<String, ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        vanillaPartsList.put("body",            getEntry( vanillaPartsList.get("body").part,"torso"));
+        vanillaPartsList.put("torso",           getEntry( vanillaPartsList.get("bone").part));
+        vanillaPartsList.put("left_leg",        getEntry( vanillaPartsList.get("left_leg").part,"torso"));
+        vanillaPartsList.put("right_leg",       getEntry( vanillaPartsList.get("right_leg").part,"torso"));
+
+
+        return vanillaPartsList;
+    }
+    private static HashMap<String, ModelAndParent> getTurtleMap(EntityModel<?> vanillaModel) {
+        //# turtle                   head, body, leg1 ... leg4, body2
+        HashMap<String, ModelAndParent> vanillaPartsList = new HashMap<>();
+        if (vanillaModel instanceof QuadrupedEntityModel<?> quadped) {
+            ArrayList<ModelPart> bodyParts = new ArrayList<>();
+            Iterable<ModelPart> hed = ((QuadrupedEntityModelAccessor) quadped).callGetHeadParts();
+            if (hed.iterator().hasNext()) {
+                vanillaPartsList.put("head", getEntry(hed.iterator().next()));
+            }
+            for (ModelPart part : ((QuadrupedEntityModelAccessor) quadped).callGetBodyParts()) {
+                bodyParts.add(part);
+            }
+            vanillaPartsList.put("body", getEntry(bodyParts.get(0)));
+            vanillaPartsList.put("leg1", getEntry(bodyParts.get(1)));
+            vanillaPartsList.put("leg2", getEntry(bodyParts.get(2)));
+            vanillaPartsList.put("leg3", getEntry(bodyParts.get(3)));
+            vanillaPartsList.put("leg4", getEntry(bodyParts.get(4)));
+            vanillaPartsList.put("body2", getEntry(bodyParts.get(5)));
+
+
+        }
+        return vanillaPartsList;
+    }
+
+    private static HashMap<String, ModelAndParent> getStriderMap(EntityModel<?> vanillaModel){
+        //# strider
+        // body, right_leg, left_leg, hair_right_top, hair_right_middle, hair_right_bottom, hair_left_top, hair_left_middle, hair_left_bottom
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        vanillaPartsList.put("hair_right_top",      vanillaPartsList.get("right_top_bristle"));
+        vanillaPartsList.put("hair_right_middle",   vanillaPartsList.get("right_middle_bristle"));
+        vanillaPartsList.put("hair_right_bottom",   vanillaPartsList.get("right_bottom_bristle"));
+        vanillaPartsList.put("hair_left_top",       vanillaPartsList.get("left_top_bristle"));
+        vanillaPartsList.put("hair_left_middle",    vanillaPartsList.get("left_middle_bristle"));
+        vanillaPartsList.put("hair_left_bottom",    vanillaPartsList.get("left_bottom_bristle"));
+
+        return vanillaPartsList;
+    }
+    private static HashMap<String, ModelAndParent> getSnowGolemMap(EntityModel<?> vanillaModel){
+        //# snow_golem               body, body_bottom, head, left_hand, right_hand
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        vanillaPartsList.put("left_hand",vanillaPartsList.get("left_arm"));
+        vanillaPartsList.put("right_hand",vanillaPartsList.get("right_arm"));
+        vanillaPartsList.put("body",vanillaPartsList.get("upper_body"));
+        vanillaPartsList.put("body_bottom",vanillaPartsList.get("lower_body"));
+
+        return vanillaPartsList;
+    }
+    private static HashMap<String, ModelAndParent> getTropicalSmallMap(EntityModel<?> vanillaModel){
+        //# body, tail, fin_right, fin_left, fin_top
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        vanillaPartsList.put("fin_right",vanillaPartsList.get("right_fin"));
+        vanillaPartsList.put("fin_left",vanillaPartsList.get("left_fin"));
+        vanillaPartsList.put("fin_top",vanillaPartsList.get("top_fin"));
+
+        return vanillaPartsList;
+    }
+    private static HashMap<String, ModelAndParent> getTropicalLargeMap(EntityModel<?> vanillaModel){
+        //# body, tail, fin_right, fin_left, fin_top, fin_bottom
+        HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        vanillaPartsList.put("fin_right",vanillaPartsList.get("right_fin"));
+        vanillaPartsList.put("fin_left",vanillaPartsList.get("left_fin"));
+        vanillaPartsList.put("fin_top",vanillaPartsList.get("top_fin"));
+        vanillaPartsList.put("fin_bottom",vanillaPartsList.get("bottom_fin"));
+
+        return vanillaPartsList;
+    }
     private static HashMap<String, ModelAndParent> getCodMap(EntityModel<?> vanillaModel){
         //# cod                      body, fin_back, head, nose, fin_right, fin_left, tail
         HashMap<String,ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
@@ -770,8 +888,8 @@ public class VanillaModelPartOptiFineMappings {
                 }
                 if (neck.hasChild("mane"))
                     vanillaPartsList.put("mane",getEntry(neck.getChild("mane"),"neck"));
-                if (neck.hasChild("mouth"))
-                    vanillaPartsList.put("mouth",getEntry(neck.getChild("mouth"),"neck"));
+                if (neck.hasChild("upper_mouth"))
+                    vanillaPartsList.put("mouth",getEntry(neck.getChild("upper_mouth"),"neck"));
 
                 if (neck.hasChild("head_saddle"))
                     vanillaPartsList.put("headpiece",getEntry(neck.getChild("head_saddle"),"neck"));

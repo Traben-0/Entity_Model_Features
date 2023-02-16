@@ -5,14 +5,11 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.EndermanEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import traben.entity_model_features.mixin.accessor.entity.model.BipedEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
-import traben.entity_model_features.models.EMFModelPart;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class EMFCustomEndermanEntityModel<T extends LivingEntity> extends EndermanEntityModel<T> implements EMFCustomEntityModel<T> {
 
@@ -26,70 +23,17 @@ public class EMFCustomEndermanEntityModel<T extends LivingEntity> extends Enderm
 
     private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
-
+    private static final HashMap<String,String> optifineMap = new HashMap<>(){{
+        put("hat","headwear");
+    }};
     public EMFCustomEndermanEntityModel(EMFGenericCustomEntityModel<T> model) {
-        super(EndermanEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
+        //super(EndermanEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
+        super( EMFCustomEntityModel.getFinalModelRootData( EndermanEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0),model,optifineMap));
+
         thisEMFModel=model;
+        thisEMFModel.clearAllFakePartChildrenData();
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
 
-        List<EMFModelPart> headWearCandidates = new ArrayList<>();
-        List<EMFModelPart> headCandidates = new ArrayList<>();
-        List<EMFModelPart> bodyCandidates = new ArrayList<>();
-        List<EMFModelPart> rArmCandidates = new ArrayList<>();
-        List<EMFModelPart> lArmCandidates = new ArrayList<>();
-        List<EMFModelPart> lLegCandidates = new ArrayList<>();
-        List<EMFModelPart> rLegCandidates = new ArrayList<>();
-
-        for (EMFModelPart part:
-                thisEMFModel.childrenMap.values()) {
-            switch (part.selfModelData.part){
-                case "headwear"->{
-                    headWearCandidates.add(part);
-                }
-                case "head"->{
-                    headCandidates.add(part);
-                }
-                case "body"->{
-                    bodyCandidates.add(part);
-                }
-                case "left_arm"->{
-                    lArmCandidates.add(part);
-                }
-                case "left_leg"->{
-                    lLegCandidates.add(part);
-                }
-                case "right_arm"->{
-                    rArmCandidates.add(part);
-                }
-                case "right_leg"->{
-                    rLegCandidates.add(part);
-                }
-                default->{
-
-                }
-            }
-        }
-        //this part makes sure head rotation data is available for armor feature renderer
-        // mostly as fresh animations tends to use headwear for rotation instead of head
-        boolean wasNotEmpty = false;
-        for (EMFModelPart part:
-                headCandidates) {
-            if(!part.isEmptyPart){
-                wasNotEmpty = true;
-                break;
-            }
-        }
-        if(!wasNotEmpty){
-            headCandidates = headWearCandidates;
-        }
-
-        setNonEmptyPart(headWearCandidates,((BipedEntityModelAccessor)this)::setHat);
-        setNonEmptyPart(headCandidates,((BipedEntityModelAccessor)this)::setHead);
-        setNonEmptyPart(bodyCandidates,((BipedEntityModelAccessor)this)::setBody);
-        setNonEmptyPart(lArmCandidates,((BipedEntityModelAccessor)this)::setLeftArm);
-        setNonEmptyPart(lLegCandidates,((BipedEntityModelAccessor)this)::setLeftLeg);
-        setNonEmptyPart(rArmCandidates,((BipedEntityModelAccessor)this)::setRightArm);
-        setNonEmptyPart(rLegCandidates,((BipedEntityModelAccessor)this)::setRightLeg);
     }
 
     @Override

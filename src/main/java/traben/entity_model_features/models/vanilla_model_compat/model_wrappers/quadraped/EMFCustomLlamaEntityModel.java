@@ -6,14 +6,11 @@ import net.minecraft.client.render.entity.model.LlamaEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.AbstractDonkeyEntity;
-import traben.entity_model_features.mixin.accessor.entity.model.LlamaEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
-import traben.entity_model_features.models.EMFModelPart;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class EMFCustomLlamaEntityModel<T extends LivingEntity, M extends AbstractDonkeyEntity> extends LlamaEntityModel<M> implements EMFCustomEntityModel<T> {
 
@@ -27,52 +24,63 @@ public class EMFCustomLlamaEntityModel<T extends LivingEntity, M extends Abstrac
 
     private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
-
+    private static final HashMap<String,String> optifineMap = new HashMap<>(){{
+        put("right_hind_leg","leg1");
+        put("left_hind_leg", "leg2");
+        put("right_front_leg", "leg3");
+        put("left_front_leg", "leg4");
+        put("right_chest", "chest_right");
+        put("left_chest", "chest_left");
+    }};
     public EMFCustomLlamaEntityModel(EMFGenericCustomEntityModel<T> model) {
-        super(LlamaEntityModel.getTexturedModelData(Dilation.NONE).createModel());
+        //super(LlamaEntityModel.getTexturedModelData(Dilation.NONE).createModel());
+        super( EMFCustomEntityModel.getFinalModelRootData(
+                LlamaEntityModel.getTexturedModelData(Dilation.NONE).createModel(),
+                model, optifineMap));
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
+        thisEMFModel.clearAllFakePartChildrenData();
 
-        List<EMFModelPart> headCandidates = new ArrayList<>();
-        List<EMFModelPart> bodyCandidates = new ArrayList<>();
-//        List<EMF_ModelPart> rFLegCandidates = new ArrayList<>();
-//        List<EMF_ModelPart> lFLegCandidates = new ArrayList<>();
-//        List<EMF_ModelPart> lBLegCandidates = new ArrayList<>();
-//        List<EMF_ModelPart> rBLegCandidates = new ArrayList<>();
-
-        for (EMFModelPart part:
-                thisEMFModel.childrenMap.values()) {
-            switch (part.selfModelData.part){
-                case "head"->{
-                    headCandidates.add(part);
-                }
-                case "body"->{
-                    bodyCandidates.add(part);
-                }
-//                case "leg1"->{
-//                    rBLegCandidates.add(part);
+//        List<EMFModelPart> headCandidates = new ArrayList<>();
+//        List<EMFModelPart> bodyCandidates = new ArrayList<>();
+////        List<EMF_ModelPart> rFLegCandidates = new ArrayList<>();
+////        List<EMF_ModelPart> lFLegCandidates = new ArrayList<>();
+////        List<EMF_ModelPart> lBLegCandidates = new ArrayList<>();
+////        List<EMF_ModelPart> rBLegCandidates = new ArrayList<>();
+//
+//        for (EMFModelPart part:
+//                thisEMFModel.childrenMap.values()) {
+//            switch (part.selfModelData.part){
+//                case "head"->{
+//                    headCandidates.add(part);
 //                }
-//                case "leg2"->{
-//                    lBLegCandidates.add(part);
+//                case "body"->{
+//                    bodyCandidates.add(part);
 //                }
-//                case "leg3"->{
-//                    rFLegCandidates.add(part);
+////                case "leg1"->{
+////                    rBLegCandidates.add(part);
+////                }
+////                case "leg2"->{
+////                    lBLegCandidates.add(part);
+////                }
+////                case "leg3"->{
+////                    rFLegCandidates.add(part);
+////                }
+////                case "leg4"->{
+////                    lFLegCandidates.add(part);
+////                }
+//                default->{
+//
 //                }
-//                case "leg4"->{
-//                    lFLegCandidates.add(part);
-//                }
-                default->{
-
-                }
-            }
-        }
-
-        setNonEmptyPart(headCandidates,((LlamaEntityModelAccessor)this)::setHead);
-        setNonEmptyPart(bodyCandidates,((LlamaEntityModelAccessor)this)::setBody);
-//        setNonEmptyPart(lFLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftFrontLeg);
-//        setNonEmptyPart(lBLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftHindLeg);
-//        setNonEmptyPart(rFLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightFrontLeg);
-//        setNonEmptyPart(rBLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightHindLeg);
+//            }
+//        }
+//
+//        setNonEmptyPart(headCandidates,((LlamaEntityModelAccessor)this)::setHead);
+//        setNonEmptyPart(bodyCandidates,((LlamaEntityModelAccessor)this)::setBody);
+////        setNonEmptyPart(lFLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftFrontLeg);
+////        setNonEmptyPart(lBLegCandidates,((QuadrupedEntityModelAccessor)this)::setLeftHindLeg);
+////        setNonEmptyPart(rFLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightFrontLeg);
+////        setNonEmptyPart(rBLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightHindLeg);
     }
 
     @Override

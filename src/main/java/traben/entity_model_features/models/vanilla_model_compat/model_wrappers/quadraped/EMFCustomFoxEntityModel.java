@@ -5,14 +5,11 @@ import net.minecraft.client.render.entity.model.FoxEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.FoxEntity;
-import traben.entity_model_features.mixin.accessor.entity.model.FoxEntityModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
-import traben.entity_model_features.models.EMFModelPart;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class EMFCustomFoxEntityModel<T extends LivingEntity, M extends FoxEntity> extends FoxEntityModel<M> implements EMFCustomEntityModel<T> {
 
@@ -26,22 +23,32 @@ public class EMFCustomFoxEntityModel<T extends LivingEntity, M extends FoxEntity
 
     private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
-
+    private static final HashMap<String,String> optifineMap = new HashMap<>(){{
+        put("right_hind_leg","leg1");
+        put("left_hind_leg", "leg2");
+        put("right_front_leg", "leg3");
+        put("left_front_leg", "leg4");
+    }};
     public EMFCustomFoxEntityModel(EMFGenericCustomEntityModel<T> model) {
-        super(FoxEntityModel.getTexturedModelData().createModel());
+        //super(FoxEntityModel.getTexturedModelData().createModel());
+        super( EMFCustomEntityModel.getFinalModelRootData(
+                FoxEntityModel.getTexturedModelData().createModel(),
+                model, optifineMap));
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
+        thisEMFModel.clearAllFakePartChildrenData();
 
-        List<EMFModelPart> headCandidates = new ArrayList<>();
 
-        for (EMFModelPart part:
-                thisEMFModel.childrenMap.values()) {
-            if ("head".equals(part.selfModelData.part)) {
-                headCandidates.add(part);
-            }
-        }
-        //head needed for fox item feature renderer
-        setNonEmptyPart(headCandidates,((FoxEntityModelAccessor)this)::setHead);
+//        List<EMFModelPart> headCandidates = new ArrayList<>();
+//
+//        for (EMFModelPart part:
+//                thisEMFModel.childrenMap.values()) {
+//            if ("head".equals(part.selfModelData.part)) {
+//                headCandidates.add(part);
+//            }
+//        }
+//        //head needed for fox item feature renderer
+//        setNonEmptyPart(headCandidates,((FoxEntityModelAccessor)this)::setHead);
     }
 
     @Override

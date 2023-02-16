@@ -10,6 +10,8 @@ import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
+import java.util.HashMap;
+
 public class EMFCustomHorseEntityModel<T extends LivingEntity, M extends AbstractHorseEntity> extends HorseEntityModel<M> implements EMFCustomEntityModel<T> {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
@@ -22,11 +24,32 @@ public class EMFCustomHorseEntityModel<T extends LivingEntity, M extends Abstrac
 
     private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
-
+    private static final HashMap<String,String> optifineMap = new HashMap<>(){{
+        put("right_hind_leg","back_right_leg");
+        put("left_hind_leg", "back_left_leg");
+        put("right_front_leg", "front_right_leg");
+        put("left_front_leg", "neck");
+        put("head_parts", "front_left_leg");
+        put("upper_mouth", "mouth");
+        put("head_saddle", "headpiece");
+        put("mouth_saddle_wrap", "nose_band");
+        put("left_saddle_mouth", "left_bit");
+        put("right_saddle_mouth", "right_bit");
+        put("left_saddle_line", "left_rein");
+        put("right_saddle_line", "right_rein");
+        put("right_hind_baby_leg", "child_back_right_leg");
+        put("left_hind_baby_leg", "child_back_left_leg");
+        put("left_front_baby_leg", "child_front_right_leg");
+        put("right_front_baby_leg", "child_front_left_leg");
+    }};
     public EMFCustomHorseEntityModel(EMFGenericCustomEntityModel<T> model) {
-        super(HorseEntityModel.getModelData(Dilation.NONE).getRoot().createPart(0, 0));
+        //super(HorseEntityModel.getModelData(Dilation.NONE).getRoot().createPart(0, 0));
+        super( EMFCustomEntityModel.getFinalModelRootData(
+                HorseEntityModel.getModelData(Dilation.NONE).getRoot().createPart(0, 0),
+                model, optifineMap));
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
+        thisEMFModel.clearAllFakePartChildrenData();
 
 //        List<EMF_ModelPart> headCandidates = new ArrayList<>();
 //        List<EMF_ModelPart> bodyCandidates = new ArrayList<>();

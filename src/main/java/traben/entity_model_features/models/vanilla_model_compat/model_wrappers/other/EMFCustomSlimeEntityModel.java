@@ -8,6 +8,8 @@ import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
+import java.util.HashMap;
+
 public class EMFCustomSlimeEntityModel<T extends LivingEntity> extends SlimeEntityModel<T> implements EMFCustomEntityModel<T> {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
@@ -20,10 +22,18 @@ public class EMFCustomSlimeEntityModel<T extends LivingEntity> extends SlimeEnti
 
     private final EMFGenericCustomEntityModel<T> thisEMFModel;
 
-
+    private static final HashMap<String,String> optifineMap = new HashMap<>(){{
+        put("cube","body");
+    }};
     public EMFCustomSlimeEntityModel(EMFGenericCustomEntityModel<T> model) {
-        super(SlimeEntityModel.getInnerTexturedModelData().createModel());
+        //super(SlimeEntityModel.getInnerTexturedModelData().createModel());
+        //todo look into setting up outer slime model correctly, ultimately it seems to be fine for now
+        super( EMFCustomEntityModel.getFinalModelRootData(
+                SlimeEntityModel.getInnerTexturedModelData().createModel(),
+                model, optifineMap));
+
         thisEMFModel=model;
+        thisEMFModel.clearAllFakePartChildrenData();
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
 
     }

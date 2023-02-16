@@ -1,20 +1,13 @@
 package traben.entity_model_features.models.vanilla_model_compat.model_wrappers.biped;
 
-import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.IronGolemEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
-import traben.entity_model_features.mixin.accessor.entity.model.IronGolemEntityModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
-import traben.entity_model_features.models.EMFModelPart;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class EMFCustomIronGolemEntityModel<T extends LivingEntity, M extends IronGolemEntity> extends IronGolemEntityModel<M> implements EMFCustomEntityModel<T> {
 
@@ -30,19 +23,20 @@ public class EMFCustomIronGolemEntityModel<T extends LivingEntity, M extends Iro
 
 
     public EMFCustomIronGolemEntityModel(EMFGenericCustomEntityModel<T> model) {
-        super(BipedEntityModel.getModelData(Dilation.NONE,0).getRoot().createPart(0,0));
+        super(EMFCustomEntityModel.getFinalModelRootData( IronGolemEntityModel.getTexturedModelData().createModel(),model));
         thisEMFModel=model;
+        thisEMFModel.clearAllFakePartChildrenData();
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
         //supports flower holding feature
 
-        List<EMFModelPart> rArmCandidates = new ArrayList<>();
-        for (EMFModelPart part:
-                thisEMFModel.childrenMap.values()) {
-            if ("right_arm".equals(part.selfModelData.part)) {
-                rArmCandidates.add(part);
-            }
-        }
-        setNonEmptyPart(rArmCandidates,((IronGolemEntityModelAccessor)this)::setRightArm);
+//        List<EMFModelPart> rArmCandidates = new ArrayList<>();
+//        for (EMFModelPart part:
+//                thisEMFModel.childrenMap.values()) {
+//            if ("right_arm".equals(part.selfModelData.part)) {
+//                rArmCandidates.add(part);
+//            }
+//        }
+//        setNonEmptyPart(rArmCandidates,((IronGolemEntityModelAccessor)this)::setRightArm);
     }
 
 

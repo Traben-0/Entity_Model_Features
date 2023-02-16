@@ -4,15 +4,12 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.WitchEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import traben.entity_model_features.mixin.accessor.entity.model.VillagerResemblingModelAccessor;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
-import traben.entity_model_features.models.EMFModelPart;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class EMFCustomWitchEntityModel<T extends LivingEntity> extends WitchEntityModel<T> implements EMFCustomEntityModel<T>, EMFArmorableModel {
 
@@ -25,29 +22,36 @@ public class EMFCustomWitchEntityModel<T extends LivingEntity> extends WitchEnti
     }
 
     private final EMFGenericCustomEntityModel<T> thisEMFModel;
-
+    private static final HashMap<String,String> optifineMap = new HashMap<>(){{
+        put("hat","headwear");
+        put("hat_rim", "headwear2");
+        put("bodywear", "jacket");
+    }};
 
     public EMFCustomWitchEntityModel(EMFGenericCustomEntityModel<T> model) {
-        super(WitchEntityModel.getTexturedModelData().createModel());
-
+        //super(WitchEntityModel.getTexturedModelData().createModel());
+        super( EMFCustomEntityModel.getFinalModelRootData(
+                WitchEntityModel.getTexturedModelData().createModel(),
+                model, optifineMap));
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
+        thisEMFModel.clearAllFakePartChildrenData();
 
-        List<EMFModelPart> headWearCandidates = new ArrayList<>();
-
-        List<EMFModelPart> noseCandidates = new ArrayList<>();
-
-        for (EMFModelPart part:
-                thisEMFModel.childrenMap.values()) {
-            if ("headwear".equals(part.selfModelData.part)) {
-                headWearCandidates.add(part);
-            }else if ("nose".equals(part.selfModelData.part)) {
-                noseCandidates.add(part);
-            }
-        }
-
-        setNonEmptyPart(headWearCandidates,((VillagerResemblingModelAccessor)this)::setHat);
-        setNonEmptyPart(noseCandidates,((VillagerResemblingModelAccessor)this)::setNose);
+//        List<EMFModelPart> headWearCandidates = new ArrayList<>();
+//
+//        List<EMFModelPart> noseCandidates = new ArrayList<>();
+//
+//        for (EMFModelPart part:
+//                thisEMFModel.childrenMap.values()) {
+//            if ("headwear".equals(part.selfModelData.part)) {
+//                headWearCandidates.add(part);
+//            }else if ("nose".equals(part.selfModelData.part)) {
+//                noseCandidates.add(part);
+//            }
+//        }
+//
+//        setNonEmptyPart(headWearCandidates,((VillagerResemblingModelAccessor)this)::setHat);
+//        setNonEmptyPart(noseCandidates,((VillagerResemblingModelAccessor)this)::setNose);
     }
 
     @Override
