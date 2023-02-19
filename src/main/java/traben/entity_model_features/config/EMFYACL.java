@@ -92,17 +92,16 @@ public class EMFYACL{
                 .name(Text.of("Optimization"))
                 .tooltip(Text.of("Settings related to animation optimization"))
 
-//                .option(Option.createBuilder(EMFConfig.AnimationRatePerSecondMode.class)
-//                        .name(Text.of("animation rate: "))
-//                        .tooltip(Text.of("can be set as Ticks Per Second (TPS)\nor relative to FPS\nactual value is always limited by fps\n lower values are usually just fine, but some optifine packs expect calculating often to update variables:/\ndefault of 60tps recommended")) // optional
-//                        .binding(
-//                                EMFConfig.AnimationRatePerSecondMode.Sixty_tps, // default
-//                                () -> EMFData.getInstance().getConfig().animationRate, // getter
-//                                newValue -> EMFData.getInstance().getConfig().animationRate = newValue // setter
-//
-//                        )
-//                        .controller((val)->new EnumController<EMFConfig.AnimationRatePerSecondMode>(val , enumConstant -> Text.of(enumConstant.toString()) ))
-//                        .build())
+                .option(Option.createBuilder(EMFConfig.MathFunctionChoice.class)
+                        .name(Text.of("Math function type"))
+                        .tooltip(Text.of("hi")) // optional
+                        .binding(
+                                EMFConfig.MathFunctionChoice.JavaMath, // default
+                                () -> EMFData.getInstance().getConfig().mathFunctionChoice, // getter
+                                newValue -> EMFData.getInstance().getConfig().mathFunctionChoice = newValue // setter
+                        )
+                        .controller((val)->new EnumController<EMFConfig.MathFunctionChoice>(val , enumConstant -> Text.of(enumConstant.toString()) ))
+                        .build())
 //                .option(Option.createBuilder(float.class)
 //                        .name(Text.of("minimum animation drop off distance"))
 //                        .tooltip(Text.of("animations will reduce their rate depending on distance from the player\n this will start happening from this distance from the player")) // optional

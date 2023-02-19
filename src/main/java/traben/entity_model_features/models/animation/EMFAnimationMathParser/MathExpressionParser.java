@@ -365,7 +365,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                            float nextD = next.get();
 //                            if (calculationInstance.verboseMode) print("multiply=" + lastD + " * " + nextD);
 //                            newComponents.add(new MathVariableConstant(lastD * nextD));
-                            newComponents.add(MathSingleComparisonComponent.getOptimizedExpression(last,action,next));
+                            newComponents.add(MathBinaryExpressionComponent.getOptimizedExpression(last,action,next));
 
                         } else if (action == MathAction.divide) {
                             MathComponent last = newComponents.getLast();
@@ -375,7 +375,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                            float nextD = next.get();
 //                            if (calculationInstance.verboseMode) print("divide=" + lastD + " / " + nextD);
 //                            newComponents.add(new MathVariableConstant(lastD / nextD));
-                            newComponents.add(MathSingleComparisonComponent.getOptimizedExpression(last,action,next));
+                            newComponents.add(MathBinaryExpressionComponent.getOptimizedExpression(last,action,next));
                         } else if (action == MathAction.divisionRemainder) {
                             MathComponent last = newComponents.getLast();
                             MathComponent next = compIterator.next();
@@ -384,7 +384,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                            float nextD = next.get();
 //                            if (calculationInstance.verboseMode) print("divide remainder=" + lastD + " % " + nextD);
 //                            newComponents.add(new MathVariableConstant(lastD % nextD));
-                            newComponents.add(MathSingleComparisonComponent.getOptimizedExpression(last,action,next));
+                            newComponents.add(MathBinaryExpressionComponent.getOptimizedExpression(last,action,next));
                         } else {
                          newComponents.add(component);
                         }
@@ -409,7 +409,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                            float nextD = next.get();
 //                            if (calculationInstance.verboseMode) print("add=" + lastD + " + " + nextD);
 //                            newComponents2.add(new MathVariableConstant(lastD + nextD));
-                            newComponents2.add(MathSingleComparisonComponent.getOptimizedExpression(last,action,next));
+                            newComponents2.add(MathBinaryExpressionComponent.getOptimizedExpression(last,action,next));
                         } else if (action == MathAction.subtract) {
                             MathComponent last = newComponents2.getLast();
                             MathComponent next = compIterator2.next();
@@ -418,7 +418,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                            float nextD = next.get();
 //                            if (calculationInstance.verboseMode) print("subtract=" + lastD + " - " + nextD);
 //                            newComponents2.add(new MathVariableConstant(lastD - nextD));
-                            newComponents2.add(MathSingleComparisonComponent.getOptimizedExpression(last,action,next));
+                            newComponents2.add(MathBinaryExpressionComponent.getOptimizedExpression(last,action,next));
                         } else {
                             newComponents2.add(component);
                         }
@@ -445,7 +445,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                                float nextD = next.get();
 //                                if (calculationInstance.verboseMode) print("equals=" + lastD + " == " + nextD);
 //                                newComponentsB.add(new MathVariableConstant(lastD == nextD ? 1 : 0));
-                                newComponentsB.add(MathSingleComparisonComponent.getOptimizedExpression(last,action,next));
+                                newComponentsB.add(MathBinaryExpressionComponent.getOptimizedExpression(last,action,next));
                             }
                             default -> newComponentsB.add(component);
                         }
@@ -471,7 +471,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                                if (calculationInstance.verboseMode)
 //                                    print("and=" + (lastD == 1) + " && " + (nextD == 1));
 //                                newComponentsB.add(new MathVariableConstant((lastD == 1) && (nextD == 1) ? 1 : 0, false));
-                                newComponentsB.add(MathSingleComparisonComponent.getOptimizedExpression(last,action,next));
+                                newComponentsB.add(MathBinaryExpressionComponent.getOptimizedExpression(last,action,next));
                             }
                             default -> newComponentsB.add(component);
                         }

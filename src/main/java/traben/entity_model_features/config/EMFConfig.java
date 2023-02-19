@@ -58,6 +58,8 @@ public class EMFConfig {
     public float spawnAnimTime = 4;
 
 
+    public MathFunctionChoice mathFunctionChoice = MathFunctionChoice.JavaMath;
+
     public enum SpawnAnimation{
         None,
         Rise,
@@ -74,6 +76,11 @@ public class EMFConfig {
         Off,
         Position_normal,
         Positon_offset
+    }
+    public enum MathFunctionChoice{
+        JavaMath,
+        MinecraftMath,
+        FastMath
     }
 //    public enum AnimationRatePerSecondMode{
 //        Twenty_tps(()->Math.min(20,MinecraftClient.getInstance().getCurrentFps())),
