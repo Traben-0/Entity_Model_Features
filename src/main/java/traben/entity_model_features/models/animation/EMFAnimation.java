@@ -51,8 +51,10 @@ public class EMFAnimation {
             } else {
                 defaultValue = varToChange.getDefaultFromModel(part);
             }
-            if (this.modelPart != null)
+            if (this.modelPart != null) {
+               // if ("right_leg".equals( this.modelPart.selfModelData.part)) System.out.println("right_leg "+animKey);
                 varToChange.setValueAsAnimated(this.modelPart);
+            }
         } else {
             defaultValue = 0;
         }
@@ -142,8 +144,13 @@ public class EMFAnimation {
     //use float up at this level as minecraft uses it
     public float calculatorRun() {
 //        try {
-            if (EMFData.getInstance().getConfig().printAllMaths && rand.nextInt(100) == 1) {
+            if (
+                    EMFData.getInstance().getConfig().printAllMaths &&
+                          //  animKey.equals("var.pounce") &&
+                            rand.nextInt(100) == 1) {
                 setVerbose(true);
+
+              //  System.out.println("vanilla body.rx ="+ parentModel.getAnimationResultOfKeyAsSupplier(null, "body.rx").get(entity0));
                 double val = EMFCalculator.get();
                 System.out.println(EMFCalculator.toString() +" is "+ EMFCalculator.getClass());
                 EMFUtils.EMF_modMessage("animation result: " + animKey + " = " + val);

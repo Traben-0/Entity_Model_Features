@@ -828,7 +828,7 @@ public class VanillaModelPartOptiFineMappings {
             vanillaPartsList.put("leg2",getEntry(bodyParts.get(2)));
             vanillaPartsList.put("leg3",getEntry(bodyParts.get(3)));
             vanillaPartsList.put("leg4",getEntry(bodyParts.get(4)));
-            vanillaPartsList.put("tail",getEntry(((FoxEntityModelAccessor)fox).getTail()));
+            vanillaPartsList.put("tail",getEntry(((FoxEntityModelAccessor)fox).getTail(),"body"));
 
 
         }

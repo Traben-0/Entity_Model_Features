@@ -147,6 +147,7 @@ public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityM
         if(!combinedProperties.isEmpty()) {
 
             combinedProperties.forEach((animKey,animationExpression)-> {
+
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("parsing animation value: ["+animKey+"]");
                 String modelId = animKey.split("\\.")[0];
                 String modelVariable = animKey.split("\\.")[1];
@@ -157,6 +158,7 @@ public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityM
                 }catch (IllegalArgumentException e){
                     if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("custom variable located: ["+animKey+"].");
                 }
+                //System.out.println(modelId +", "+animKey);
                 EMFModelPart thisPart = parts.get(modelId);
                 EMFAnimation thisCalculator = null;
 
@@ -422,7 +424,7 @@ public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityM
 
         herematrices.push();
 
-        if(alterAnimationProgress() < EMFData.getInstance().getConfig().spawnAnimTime && EMFData.getInstance().getConfig().spawnAnim != EMFConfig.SpawnAnimation.None){
+        if(currentEntity != null && alterAnimationProgress() < EMFData.getInstance().getConfig().spawnAnimTime && EMFData.getInstance().getConfig().spawnAnim != EMFConfig.SpawnAnimation.None){
             float delta = MathHelper.clamp( alterAnimationProgress() / EMFData.getInstance().getConfig().spawnAnimTime,0,1f);
             switch (EMFData.getInstance().getConfig().spawnAnim){
                 case InflateGround -> {
@@ -507,6 +509,7 @@ public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityM
             }
             getAllPartsCachedResult = list;
         }
+        //System.out.println(getAllPartsCachedResult.keySet());
         return getAllPartsCachedResult;
     }
 

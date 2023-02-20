@@ -49,12 +49,12 @@ public enum MathAction  implements MathComponent{
             case divide -> first.get() / second.get();
             case divisionRemainder -> first.get() % second.get();
             //boolean results
-            case largerThan -> (first.get() > second.get()) ? 1 : 0;
-            case largerThanOrEquals -> (first.get() >= second.get()) ? 1 : 0;
-            case smallerThan -> (first.get() < second.get()) ? 1 : 0;
-            case smallerThanOrEquals -> (first.get() <= second.get()) ? 1 : 0;
-            case equals -> (first.get() == second.get()) ? 1 : 0;
-            case notEquals -> (first.get() != second.get()) ? 1 : 0;
+            case largerThan -> ((float)first.get() > (float)second.get()) ? 1 : 0;
+            case largerThanOrEquals -> ((float)first.get() >= (float)second.get()) ? 1 : 0;
+            case smallerThan -> ((float)first.get() < (float)second.get()) ? 1 : 0;
+            case smallerThanOrEquals -> ((float)first.get() <= (float)second.get()) ? 1 : 0;
+            case equals -> ((float)first.get() == (float)second.get()) ? 1 : 0;
+            case notEquals -> ((float)first.get() != (float)second.get()) ? 1 : 0;
             //boolean result and inputs
             case and -> ((first.get() == 1) && (second.get() == 1)) ? 1 : 0;
             case or -> ((first.get() == 1) || (second.get() == 1)) ? 1 : 0;

@@ -7,10 +7,7 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.*;
-import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.client.render.entity.model.HorseEntityModel;
-import net.minecraft.client.render.entity.model.LlamaEntityModel;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
+import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -25,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFData;
+import traben.entity_model_features.mixin.accessor.FoxHeldItemFeatureRendererAccessor;
 import traben.entity_model_features.mixin.accessor.entity.feature.HorseArmorFeatureRendererAccessor;
 import traben.entity_model_features.mixin.accessor.entity.feature.LlamaDecorFeatureRendererAccessor;
 import traben.entity_model_features.mixin.accessor.entity.feature.SaddleFeatureRendererAccessor;
@@ -34,9 +32,10 @@ import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.features.EMFCustomArmorFeatureRenderer;
+import traben.entity_model_features.models.features.EMFoxHeldItemFeatureRenderer;
+import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.biped.EMFCustomPlayerEntityModel;
 import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.quadraped.EMFCustomHorseEntityModel;
 import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.quadraped.EMFCustomLlamaEntityModel;
-import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.biped.EMFCustomPlayerEntityModel;
 
 import java.util.List;
 
@@ -83,6 +82,22 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                                     features.remove(feature);
                                     features.add(new EMFCustomArmorFeatureRenderer<T, M>(this, inner, outer));
                                 }
+                                break;
+                            }
+                        }
+                    }if (livingEntity instanceof FoxEntity) {
+                        for (FeatureRenderer<?, ?> feature :
+                                features) {
+                            if (feature instanceof FoxHeldItemFeatureRenderer foxFeature) {
+
+                                EMFoxHeldItemFeatureRenderer newFoxHeld =
+                                        new EMFoxHeldItemFeatureRenderer(
+                                                (FeatureRendererContext<FoxEntity, FoxEntityModel<FoxEntity>>) this,
+                                                ((FoxHeldItemFeatureRendererAccessor)foxFeature).getHeldItemRenderer());
+
+                                features.remove(feature);
+                                features.add((FeatureRenderer<T, M>) newFoxHeld);
+
                                 break;
                             }
                         }

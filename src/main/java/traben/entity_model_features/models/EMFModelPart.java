@@ -51,7 +51,7 @@ public class EMFModelPart extends ModelPart  {
             this.hidden = vanillaPart.hidden;
         }
         if (this.visible){// && xScale!= 0 && yScale != 0 && zScale != 0){// && scaleNotZero) {
-            if (!this.cuboids.isEmpty() || !this.children.isEmpty()) {
+            //if (!this.cuboids.isEmpty() || !this.children.isEmpty()) {
                 matrices.push();
                 this.rotate(matrices);
                 // override texture if needed
@@ -76,7 +76,7 @@ public class EMFModelPart extends ModelPart  {
                 }
 
                 matrices.pop();
-            }
+           // }
         }
     }
 
@@ -165,7 +165,10 @@ public class EMFModelPart extends ModelPart  {
         float roll  = (doesAnimrz || vanillaPart == null ? getRollWithPossibleVanillaParentTransforms()  : getDefaultTransform().roll  + vanillaPart.roll );
         float yaw   = (doesAnimry || vanillaPart == null ? getYawWithPossibleVanillaParentTransforms()   : getDefaultTransform().yaw   + vanillaPart.yaw  );
         float pitch = (doesAnimrx || vanillaPart == null ? getPitchWithPossibleVanillaParentTransforms() : getDefaultTransform().pitch + vanillaPart.pitch);
-
+//        if(new Random().nextInt(100)==1 && "right_leg".equals( selfModelData.part)){
+//            System.out.println(vanillaPart==null);
+//            System.out.println("pitch "+pitch +", "+vanillaPart.pitch+", "+getDefaultTransform().pitch+","+doesAnimrx);
+//        }
        // float xScale = (doesAnimsx || vanillaPart == null ? this.xScale : vanillaPart.xScale );
        // float yScale = (doesAnimsy || vanillaPart == null ? this.yScale : vanillaPart.yScale );
        // float zScale = (doesAnimsz || vanillaPart == null ? this.zScale : vanillaPart.zScale );

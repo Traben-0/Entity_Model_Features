@@ -60,6 +60,7 @@ public class EMFCustomFoxEntityModel<T extends LivingEntity, M extends FoxEntity
 
     @Override
     public void setAngles(M foxEntity, float f, float g, float h, float i, float j) {
+        //thisEMFModel.vanillaModel.setAngles((T) foxEntity, f, g, h, i, j);
         setAngles((T)foxEntity, f, g, h, i, j);
     }
 
@@ -76,6 +77,7 @@ public class EMFCustomFoxEntityModel<T extends LivingEntity, M extends FoxEntity
 
     @Override
     public void animateModel(M foxEntity, float f, float g, float h) {
+        //thisEMFModel.vanillaModel.animateModel((T) foxEntity, f, g, h);
         animateModel((T)foxEntity, f, g, h);
     }
 

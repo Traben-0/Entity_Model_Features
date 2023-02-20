@@ -89,6 +89,7 @@ public enum EMFDefaultModelVariable {
                 part.doesAnimtz = true;
             }
             case rx -> {
+
                 part.doesAnimrx = true;
             }
             case ry -> {
