@@ -8,7 +8,6 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.entity.Entity;
@@ -31,7 +30,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public class EMFData {
@@ -40,21 +38,7 @@ public class EMFData {
     private EMFConfig EMFConfigData;
     private static EMFData self = null;
 
-    public static boolean isValidETF(){
-        //System.out.println("ran");
-        if(isValidETF == null) {
-            isValidETF = false;
-            for (ModContainer mod:
-            FabricLoader.getInstance().getAllMods()){
-                if ("entity_texture_features".equals(mod.getMetadata().getId())){
-                    isValidETF = "4.3.2.dev.1".equals(mod.getMetadata().getVersion().getFriendlyString());//todo proper api update
-                   // EMFUtils.EMF_modMessage("ETF valid = "+isValid);
-                }
-            }
 
-        }
-        return isValidETF;
-    }
 
     public EMFConfig getConfig(){
         if(EMFConfigData == null){
@@ -200,31 +184,34 @@ public class EMFData {
         if(emfModel != null) {
             // jem exists so decide if variation occurs
             //System.out.println("rans="+isETFPresent+etfPropertyReader.isValidETF());
-            if (isETFPresent && isValidETF()) {
+            if (isETFPresent) {
 
                 if(!MODEL_CASES.containsKey(entityTypeName)) {
                     Identifier propertyID = new Identifier("optifine/cem/" + entityTypeName + ".properties");
                     if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
-                        List<etfPropertyReader.EMFPropertyCase> emfCases = etfPropertyReader.getAllValidPropertyObjects(propertyID, "models", entityTypeName);
-                        MODEL_CASES.put(entityTypeName, emfCases);
+                        EMFPropertyTester emfTester = etfPropertyReader.getAllValidPropertyObjects(propertyID);
+                        MODEL_CASES.put(entityTypeName, emfTester);
                     }
                 }
-                List<etfPropertyReader.EMFPropertyCase> emfCases = MODEL_CASES.get(entityTypeName);
-                if (emfCases != null && !emfCases.isEmpty()){
-                    for (etfPropertyReader.EMFPropertyCase emfCase:
-                            emfCases) {
-                        if (emfCase.testCase(entity,false,UUID_MOB_MODEL_UPDATES)){
+                EMFPropertyTester emfProperty = MODEL_CASES.get(entityTypeName);
+                if (emfProperty != null){
+//                    for (EMFPropertyTester emfCase:
+//                            emfCases) {
+                        //if (emfCase.testCase(entity,false,UUID_MOB_MODEL_UPDATES)){
                           //  System.out.println("was true");
-                            int suffix = emfCase.getSuffix(entity.getUuid());
-                            String variantName = entityTypeName+suffix;
-                            EMFGenericCustomEntityModel<T> emfModelVariant = createEMFModelOnly(variantName,vanillaModel);
-                            if(emfModelVariant != null){
-                                EMFCustomEntityModel<T> mod = (EMFCustomEntityModel<T>) getFinalEMFModel(variantName,emfModelVariant, vanillaModel);
-                                UUID_TO_MODEL.put(entity.getUuid(), mod);
-                                return (M) mod;
-                            }
+                    int suffix = emfProperty.getSuffixOfEntity(entity,UUID_MOB_MODEL_UPDATES.containsKey(entity.getUuid()),UUID_MOB_MODEL_UPDATES);
+                    if(suffix > 1) { // ignore 0 & 1
+                        String variantName = entityTypeName + suffix;
+                        EMFGenericCustomEntityModel<T> emfModelVariant = createEMFModelOnly(variantName, vanillaModel);
+                        if (emfModelVariant != null) {
+                            EMFCustomEntityModel<T> mod = (EMFCustomEntityModel<T>) getFinalEMFModel(variantName, emfModelVariant, vanillaModel);
+                            UUID_TO_MODEL.put(entity.getUuid(), mod);
+                            return (M) mod;
+                        }else{
+                            EMFUtils.EMF_modWarn(" Model variant didn't exist: looked for ["+variantName+"], found nothing. using default model...");
                         }
                     }
+//                    }
                 }
             }
             EMFCustomEntityModel<T> mod = (EMFCustomEntityModel<T>) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
@@ -244,7 +231,7 @@ public class EMFData {
     }
 
     public Object2ObjectOpenHashMap<String, EMFCustomEntityModel<?>> COMPLETE_MODELS_FOR_RETURN = new Object2ObjectOpenHashMap<>();
-    public Object2ObjectOpenHashMap<String,List<etfPropertyReader.EMFPropertyCase>> MODEL_CASES = new Object2ObjectOpenHashMap<>();
+    public Object2ObjectOpenHashMap<String,EMFPropertyTester> MODEL_CASES = new Object2ObjectOpenHashMap<>();
     public Object2BooleanOpenHashMap<UUID> UUID_MOB_MODEL_UPDATES = new Object2BooleanOpenHashMap<>();
 
     public EMFCustomPlayerEntityModel<?> clientPlayerModel = null;
@@ -252,4 +239,7 @@ public class EMFData {
     public boolean checkedHand = false;
     public final HashMap<Integer, VanillaModelPartOptiFineMappings.VanillaMapper> vanilla_mappings_map = new HashMap<>();
 
+    public interface EMFPropertyTester {
+        int getSuffixOfEntity(Entity entity, boolean isUpdate, Object2BooleanOpenHashMap<UUID> UUID_CaseHasUpdateablesCustom);
+    }
 }

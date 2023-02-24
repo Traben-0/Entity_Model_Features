@@ -111,23 +111,30 @@ public class MathVariable extends MathValue implements  MathComponent{
     //final float PI = (float) Math.PI;
 
 
+    private static final MathConstant TRUE_CONSTANT = new MathConstant(1);
+    private static final MathConstant FALSE_CONSTANT = new MathConstant(0);
+    private static final MathConstant PI_CONSTANT = new MathConstant(Math.PI);
+    private static final MathConstant PI_NEGATIVE_CONSTANT = new MathConstant(Math.PI,true);
+
     private ValueSupplier getVariable(String variableKey, EMFAnimationVariableSuppliers getter) throws EMFMathException {
 //            case "pi" -> ()->PI;//3.1415926f;
 //            case "true" ->  ()-> invertBooleans ? 0f : 1f;
 //            case "false" -> ()-> invertBooleans ? 1f : 0f;
         switch(variableKey){
             case "pi"-> {
-                optimizedAlternativeToThis = new MathConstant(Math.PI,isNegative);
-                return ()->Math.PI;
+                optimizedAlternativeToThis = isNegative ? PI_NEGATIVE_CONSTANT : PI_CONSTANT;
+                return ()-> Math.PI;
             }
             case "true"-> {
                 float bool = invertBooleans ? 0f : 1f;
-                optimizedAlternativeToThis = new MathConstant(bool);
+                //optimizedAlternativeToThis = new MathConstant(bool);
+                optimizedAlternativeToThis = invertBooleans ? FALSE_CONSTANT : TRUE_CONSTANT;
                 return ()-> bool;
             }
             case "false"-> {
                 float bool = invertBooleans ? 1f : 0f;
-                optimizedAlternativeToThis = new MathConstant(bool);
+                //optimizedAlternativeToThis = new MathConstant(bool);
+                optimizedAlternativeToThis = invertBooleans ? TRUE_CONSTANT : FALSE_CONSTANT;
                 return ()-> bool;
             }
             default -> {
