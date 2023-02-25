@@ -9,7 +9,6 @@ import net.minecraft.client.render.entity.model.FoxEntityModel;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.passive.FoxEntity;
-import org.apache.commons.math3.util.FastMath;
 
 @Environment(EnvType.CLIENT)
 public class EMFoxHeldItemFeatureRenderer extends FoxHeldItemFeatureRenderer {
@@ -24,7 +23,7 @@ public class EMFoxHeldItemFeatureRenderer extends FoxHeldItemFeatureRenderer {
         //todo this is not right but none of this makes any sense,
         // like the FA fox held item renderer can't possibly be reading the values of the foxes head because it is ALWAYS 0 if it's touching the ground
         // need to test comparisons with optifine
-        super.render(matrixStack, vertexConsumerProvider, i, foxEntity, f, g, h, j, (float) -FastMath.toDegrees(this.getContextModel().head.roll), l);
+        super.render(matrixStack, vertexConsumerProvider, i, foxEntity, f, g, h, j, (float) -Math.toDegrees(this.getContextModel().head.roll), l);
 
 //        boolean bl = foxEntity.isSleeping();
 //        boolean bl2 = foxEntity.isBaby();

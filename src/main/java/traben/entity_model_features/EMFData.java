@@ -53,7 +53,13 @@ public class EMFData {
     private EMFData(){
         isETFPresent = FabricLoader.getInstance().isModLoaded("entity_texture_features");
         alreadyCalculatedForRenderer.defaultReturnValue(false);
-        getConfig();
+
+        // must be called at least once to reset config
+        //getConfig();
+
+        //todo future math optimization options will need this removed
+        getConfig().mathFunctionChoice = EMFConfig.MathFunctionChoice.JavaMath;
+
     }
 
     public static EMFData getInstance(){

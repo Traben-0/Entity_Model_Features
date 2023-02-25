@@ -12,7 +12,7 @@ import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashMap;
 
-public class EMFCustomHorseEntityModel<T extends LivingEntity, M extends AbstractHorseEntity> extends HorseEntityModel<M> implements EMFCustomEntityModel<T> {
+public class EMFCustomHorseEntityModel<T extends LivingEntity> extends HorseEntityModel<AbstractHorseEntity> implements EMFCustomEntityModel<T> {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -206,7 +206,7 @@ public class EMFCustomHorseEntityModel<T extends LivingEntity, M extends Abstrac
     }
 
     @Override
-    public void setAngles(M abstractHorseEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(AbstractHorseEntity abstractHorseEntity, float f, float g, float h, float i, float j) {
         //super.setAngles(abstractHorseEntity, f, g, h, i, j);
         setAngles((T)abstractHorseEntity, f, g, h, i, j);
     }
@@ -220,7 +220,7 @@ public class EMFCustomHorseEntityModel<T extends LivingEntity, M extends Abstrac
     }
 
     @Override
-    public void animateModel(M abstractHorseEntity, float f, float g, float h) {
+    public void animateModel(AbstractHorseEntity abstractHorseEntity, float f, float g, float h) {
         //super.animateModel(abstractHorseEntity, f, g, h);
         animateModel((T)abstractHorseEntity, f, g, h);
     }

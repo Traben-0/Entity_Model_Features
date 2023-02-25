@@ -12,7 +12,7 @@ import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashMap;
 
-public class EMFCustomLlamaEntityModel<T extends LivingEntity, M extends AbstractDonkeyEntity> extends LlamaEntityModel<M> implements EMFCustomEntityModel<T> {
+public class EMFCustomLlamaEntityModel<T extends LivingEntity> extends LlamaEntityModel<AbstractDonkeyEntity> implements EMFCustomEntityModel<T> {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -91,7 +91,7 @@ public class EMFCustomLlamaEntityModel<T extends LivingEntity, M extends Abstrac
     }
 
     @Override
-    public void setAngles(M abstractDonkeyEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(AbstractDonkeyEntity abstractDonkeyEntity, float f, float g, float h, float i, float j) {
         setAngles((T)abstractDonkeyEntity, f, g, h, i, j);
     }
 
@@ -107,7 +107,7 @@ public class EMFCustomLlamaEntityModel<T extends LivingEntity, M extends Abstrac
     }
 
     @Override
-    public void animateModel(M entity, float limbAngle, float limbDistance, float tickDelta) {
+    public void animateModel(AbstractDonkeyEntity entity, float limbAngle, float limbDistance, float tickDelta) {
         animateModel((T)entity, limbAngle, limbDistance, tickDelta);
     }
 

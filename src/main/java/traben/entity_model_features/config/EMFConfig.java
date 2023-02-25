@@ -79,8 +79,8 @@ public class EMFConfig {
     }
     public enum MathFunctionChoice{
         JavaMath,
-        MinecraftMath,
-        FastMath
+        MinecraftMath//bugged for some reason
+        //FastMath
     }
 //    public enum AnimationRatePerSecondMode{
 //        Twenty_tps(()->Math.min(20,MinecraftClient.getInstance().getCurrentFps())),

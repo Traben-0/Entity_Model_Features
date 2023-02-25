@@ -1,17 +1,16 @@
-package traben.entity_model_features.models.vanilla_model_compat.model_wrappers.quadraped;
+package traben.entity_model_features.models.vanilla_model_compat.model_wrappers.other;
 
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.entity.model.FoxEntityModel;
+import net.minecraft.client.render.entity.model.SpiderEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.FoxEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashMap;
 
-public class EMFCustomFoxEntityModel<T extends LivingEntity> extends FoxEntityModel<FoxEntity> implements EMFCustomEntityModel<T> {
+public class EMFCustomSpiderEntityModel<T extends LivingEntity> extends SpiderEntityModel<T> implements EMFCustomEntityModel<T> {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -25,30 +24,34 @@ public class EMFCustomFoxEntityModel<T extends LivingEntity> extends FoxEntityMo
 
     private static final HashMap<String,String> optifineMap = new HashMap<>(){{
         put("right_hind_leg","leg1");
-        put("left_hind_leg", "leg2");
-        put("right_front_leg", "leg3");
-        put("left_front_leg", "leg4");
+        put("left_hind_leg","leg2");
+        put("right_middle_hind_leg","leg3");
+        put("left_middle_hind_leg","leg4");
+        put("right_middle_front_leg","leg5");
+        put("left_middle_front_leg","leg6");
+        put("right_front_leg","leg7");
+        put("left_front_leg","leg8");
     }};
-    public EMFCustomFoxEntityModel(EMFGenericCustomEntityModel<T> model) {
-        //super(FoxEntityModel.getTexturedModelData().createModel());
+    public EMFCustomSpiderEntityModel(EMFGenericCustomEntityModel<T> model) {
+        //super(QuadrupedEntityModel.getModelData(1,Dilation.NONE).getRoot().createPart(0,0));
         super( EMFCustomEntityModel.getFinalModelRootData(
-                FoxEntityModel.getTexturedModelData().createModel(),
+                SpiderEntityModel.getTexturedModelData().createModel(),
                 model, optifineMap));
+
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
         thisEMFModel.clearAllFakePartChildrenData();
 
-
 //        List<EMFModelPart> headCandidates = new ArrayList<>();
-//
+
 //        for (EMFModelPart part:
 //                thisEMFModel.childrenMap.values()) {
 //            if ("head".equals(part.selfModelData.part)) {
 //                headCandidates.add(part);
 //            }
 //        }
-//        //head needed for fox item feature renderer
-//        setNonEmptyPart(headCandidates,((FoxEntityModelAccessor)this)::setHead);
+//        //this is for mooshroom feature renderer
+//        setNonEmptyPart(headCandidates,((QuadrupedEntityModelAccessor)this)::setHead);
     }
 
     @Override
@@ -56,12 +59,6 @@ public class EMFCustomFoxEntityModel<T extends LivingEntity> extends FoxEntityMo
 
             thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
 
-    }
-
-    @Override
-    public void setAngles(FoxEntity foxEntity, float f, float g, float h, float i, float j) {
-        //thisEMFModel.vanillaModel.setAngles((T) foxEntity, f, g, h, i, j);
-        setAngles((T)foxEntity, f, g, h, i, j);
     }
 
     @Override
@@ -73,12 +70,6 @@ public class EMFCustomFoxEntityModel<T extends LivingEntity> extends FoxEntityMo
             thisEMFModel.handSwingProgress = handSwingProgress;
             thisEMFModel.setAngles(livingEntity, f, g, h, i, j);
 
-    }
-
-    @Override
-    public void animateModel(FoxEntity foxEntity, float f, float g, float h) {
-        //thisEMFModel.vanillaModel.animateModel((T) foxEntity, f, g, h);
-        animateModel((T)foxEntity, f, g, h);
     }
 
     @Override

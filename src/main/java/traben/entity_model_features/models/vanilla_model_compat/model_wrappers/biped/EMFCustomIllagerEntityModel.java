@@ -11,11 +11,12 @@ import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
-public class EMFCustomIllagerEntityModel<T extends LivingEntity, M extends IllagerEntity> extends IllagerEntityModel<M> implements EMFCustomEntityModel<T>, EMFArmorableModel {
+public class EMFCustomIllagerEntityModel<T extends LivingEntity> extends IllagerEntityModel<IllagerEntity> implements EMFCustomEntityModel<T>, EMFArmorableModel {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
     }
+
 
     public boolean doesThisModelNeedToBeReset() {
         return false;
@@ -62,9 +63,9 @@ public class EMFCustomIllagerEntityModel<T extends LivingEntity, M extends Illag
     }
 
     @Override
-    public void setAngles(M illagerEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(IllagerEntity illagerEntity, float f, float g, float h, float i, float j) {
 
-        ((IllagerEntityModel<M>)thisEMFModel.getThisEMFModel().vanillaModel).setAngles(illagerEntity, f, g, h, i, j);
+        ((IllagerEntityModel<IllagerEntity>)thisEMFModel.getThisEMFModel().vanillaModel).setAngles(illagerEntity, f, g, h, i, j);
         setAngles((T)illagerEntity, f, g, h, i, j);
     }
 
@@ -80,8 +81,8 @@ public class EMFCustomIllagerEntityModel<T extends LivingEntity, M extends Illag
     }
 
     @Override
-    public void animateModel(M entity, float limbAngle, float limbDistance, float tickDelta) {
-        ((IllagerEntityModel<M>)thisEMFModel.getThisEMFModel().vanillaModel).animateModel(entity, limbAngle, limbDistance, tickDelta);
+    public void animateModel(IllagerEntity entity, float limbAngle, float limbDistance, float tickDelta) {
+        ((IllagerEntityModel<IllagerEntity>)thisEMFModel.getThisEMFModel().vanillaModel).animateModel(entity, limbAngle, limbDistance, tickDelta);
         animateModel((T)entity, limbAngle, limbDistance, tickDelta);
     }
 

@@ -9,7 +9,7 @@ import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
-public class EMFCustomIronGolemEntityModel<T extends LivingEntity, M extends IronGolemEntity> extends IronGolemEntityModel<M> implements EMFCustomEntityModel<T> {
+public class EMFCustomIronGolemEntityModel<T extends LivingEntity> extends IronGolemEntityModel<IronGolemEntity> implements EMFCustomEntityModel<T> {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -48,7 +48,7 @@ public class EMFCustomIronGolemEntityModel<T extends LivingEntity, M extends Iro
 
 
     @Override
-    public void setAngles(M ironGolemEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(IronGolemEntity ironGolemEntity, float f, float g, float h, float i, float j) {
         setAngles((T)ironGolemEntity, f, g, h, i, j);
     }
 
@@ -65,7 +65,7 @@ public class EMFCustomIronGolemEntityModel<T extends LivingEntity, M extends Iro
 
 
     @Override
-    public void animateModel(M ironGolemEntity, float f, float g, float h) {
+    public void animateModel(IronGolemEntity ironGolemEntity, float f, float g, float h) {
         animateModel((T)ironGolemEntity, f, g, h);
     }
     @Override
