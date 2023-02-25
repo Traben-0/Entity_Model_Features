@@ -1,8 +1,10 @@
 package traben.entity_model_features.models.vanilla_model_compat;
 
 import net.minecraft.client.render.entity.model.*;
+import net.minecraft.entity.AngledModelEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.RangedAttackMob;
+import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.mob.*;
 import net.minecraft.entity.passive.*;
 import traben.entity_model_features.models.EMFCustomEntityModel;
@@ -34,16 +36,20 @@ public class VanillaModelWrapperHandler {
         private static <T extends LivingEntity,
                 M extends EntityModel<T>,
                 Skelly extends MobEntity & RangedAttackMob,
-                Hog extends MobEntity & Hoglin>
+                Hog extends MobEntity & Hoglin,
+                Axo extends AxolotlEntity & AngledModelEntity>
         EMFCustomEntityModel<?> getEMFCustomModelForRenderer(EMFGenericCustomEntityModel<T> alreadyBuiltSubmodel, M vanillaModelForInstanceCheck){
         //figure out whether to send a vanilla child model or a direct EMF custom model
         try {
             //todo extend to all entity models
-            if (vanillaModelForInstanceCheck instanceof DrownedEntityModel) {
+            if (vanillaModelForInstanceCheck instanceof DrownedEntityModel) {//before zombie
                 return new EMFCustomDrownedEntityModel<>((EMFGenericCustomEntityModel<DrownedEntity>) alreadyBuiltSubmodel);
             }
-            if (vanillaModelForInstanceCheck instanceof GiantEntityModel) {
+            if (vanillaModelForInstanceCheck instanceof GiantEntityModel) {//before zombie
                 return new EMFCustomGiantEntityModel<>((EMFGenericCustomEntityModel<GiantEntity>) alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof ZombieVillagerEntityModel) {//before zombie
+                return new EMFCustomZombieVillagerEntityModel<>((EMFGenericCustomEntityModel<ZombieEntity>) alreadyBuiltSubmodel);
             }
             if (vanillaModelForInstanceCheck instanceof ZombieEntityModel) {
                 return new EMFCustomZombieEntityModel<>((EMFGenericCustomEntityModel<ZombieEntity>) alreadyBuiltSubmodel);
@@ -72,6 +78,72 @@ public class VanillaModelWrapperHandler {
             if (vanillaModelForInstanceCheck instanceof HoglinEntityModel) {
                 return new EMFCustomHoglinEntityModel<>((EMFGenericCustomEntityModel<Hog>)alreadyBuiltSubmodel);
             }
+            if (vanillaModelForInstanceCheck instanceof ShulkerEntityModel) {
+                return new EMFCustomShulkerEntityModel<>((EMFGenericCustomEntityModel<ShulkerEntity>)alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof CatEntityModel) {
+                return new EMFCustomCatEntityModel<>((EMFGenericCustomEntityModel<CatEntity>)alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof StriderEntityModel) {
+                return new EMFCustomStriderEntityModel<>((EMFGenericCustomEntityModel<StriderEntity>)alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof MagmaCubeEntityModel) {
+                return new EMFCustomMagmaCubeEntityModel<>((EMFGenericCustomEntityModel<SlimeEntity>)alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof ArmorStandEntityModel) {
+                return new EMFCustomArmorStandEntityModel<>((EMFGenericCustomEntityModel<ArmorStandEntity>)alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof AxolotlEntityModel) {
+                return new EMFCustomAxolotlEntityModel<>((EMFGenericCustomEntityModel<Axo>)alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof FrogEntityModel) {
+                return new EMFCustomFrogEntityModel<>((EMFGenericCustomEntityModel<FrogEntity>)alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof PhantomEntityModel) {
+                return new EMFCustomPhantomEntityModel<>((EMFGenericCustomEntityModel<PhantomEntity>)alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof BeeEntityModel<?>) {
+                return new EMFCustomBeeEntityModel<>((EMFGenericCustomEntityModel<BeeEntity>)alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof RabbitEntityModel) {
+                return new EMFCustomRabbitEntityModel<>((EMFGenericCustomEntityModel<RabbitEntity>)alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof WardenEntityModel) {
+                return new EMFCustomWardenEntityModel<>((EMFGenericCustomEntityModel<WardenEntity>)alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof DolphinEntityModel) {
+                return new EMFCustomDolphinEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof ParrotEntityModel) {
+                return new EMFCustomParrotEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof SnowGolemEntityModel) {
+                return new EMFCustomSnowGolemEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof BatEntityModel) {
+                return new EMFCustomBatEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof AllayEntityModel) {
+                return new EMFCustomAllayEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof VexEntityModel) {
+                return new EMFCustomVexEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof EndermiteEntityModel) {
+                return new EMFCustomEndermiteEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof SilverfishEntityModel) {
+                return new EMFCustomSilverfishEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof GhastEntityModel) {
+                return new EMFCustomGhastEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof GuardianEntityModel) {
+                return new EMFCustomGuardianEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof OcelotEntityModel) {
+                return new EMFCustomOcelotEntityModel<>(alreadyBuiltSubmodel);
+            }
             if (vanillaModelForInstanceCheck instanceof BlazeEntityModel) {
                 return new EMFCustomBlazeEntityModel<>(alreadyBuiltSubmodel);
             }
@@ -95,6 +167,12 @@ public class VanillaModelWrapperHandler {
             }
             if (vanillaModelForInstanceCheck instanceof LargeTropicalFishEntityModel) {
                 return new EMFCustomTropicalFishBEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof ChickenEntityModel) {
+                return new EMFCustomChickenEntityModel<>(alreadyBuiltSubmodel);
+            }
+            if (vanillaModelForInstanceCheck instanceof SquidEntityModel) {
+                return new EMFCustomSquidEntityModel<>(alreadyBuiltSubmodel);
             }
             if (vanillaModelForInstanceCheck instanceof SalmonEntityModel) {
                 return new EMFCustomSalmonEntityModel<>(alreadyBuiltSubmodel);
@@ -140,6 +218,11 @@ public class VanillaModelWrapperHandler {
             }
             if (vanillaModelForInstanceCheck instanceof IronGolemEntityModel) {
                 return new EMFCustomIronGolemEntityModel<>(alreadyBuiltSubmodel);
+            }
+
+            if (vanillaModelForInstanceCheck instanceof PiglinEntityModel) {
+                //must be before  player model
+                return new EMFCustomPiglinEntityModel<>((EMFGenericCustomEntityModel<MobEntity>)alreadyBuiltSubmodel);
             }
             //player
             if (vanillaModelForInstanceCheck instanceof PlayerEntityModel) {
