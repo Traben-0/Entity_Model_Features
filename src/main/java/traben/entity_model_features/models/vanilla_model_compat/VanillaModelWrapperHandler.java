@@ -37,22 +37,23 @@ public class VanillaModelWrapperHandler {
                 M extends EntityModel<T>,
                 Skelly extends MobEntity & RangedAttackMob,
                 Hog extends MobEntity & Hoglin,
+                Zom extends ZombieEntity,
                 Axo extends AxolotlEntity & AngledModelEntity>
         EMFCustomEntityModel<?> getEMFCustomModelForRenderer(EMFGenericCustomEntityModel<T> alreadyBuiltSubmodel, M vanillaModelForInstanceCheck){
         //figure out whether to send a vanilla child model or a direct EMF custom model
         try {
             //todo extend to all entity models
             if (vanillaModelForInstanceCheck instanceof DrownedEntityModel) {//before zombie
-                return new EMFCustomDrownedEntityModel<>((EMFGenericCustomEntityModel<DrownedEntity>) alreadyBuiltSubmodel);
+                return new EMFCustomDrownedEntityModel<>((EMFGenericCustomEntityModel<Zom>) alreadyBuiltSubmodel);
             }
             if (vanillaModelForInstanceCheck instanceof GiantEntityModel) {//before zombie
                 return new EMFCustomGiantEntityModel<>((EMFGenericCustomEntityModel<GiantEntity>) alreadyBuiltSubmodel);
             }
             if (vanillaModelForInstanceCheck instanceof ZombieVillagerEntityModel) {//before zombie
-                return new EMFCustomZombieVillagerEntityModel<>((EMFGenericCustomEntityModel<ZombieEntity>) alreadyBuiltSubmodel);
+                return new EMFCustomZombieVillagerEntityModel<>((EMFGenericCustomEntityModel<Zom>) alreadyBuiltSubmodel);
             }
             if (vanillaModelForInstanceCheck instanceof ZombieEntityModel) {
-                return new EMFCustomZombieEntityModel<>((EMFGenericCustomEntityModel<ZombieEntity>) alreadyBuiltSubmodel);
+                return new EMFCustomZombieEntityModel<>((EMFGenericCustomEntityModel<Zom>) alreadyBuiltSubmodel);
             }
             if (vanillaModelForInstanceCheck instanceof SkeletonEntityModel) {
                 return new EMFCustomSkeletonEntityModel<>((EMFGenericCustomEntityModel<Skelly>) alreadyBuiltSubmodel);
@@ -222,7 +223,7 @@ public class VanillaModelWrapperHandler {
 
             if (vanillaModelForInstanceCheck instanceof PiglinEntityModel) {
                 //must be before  player model
-                return new EMFCustomPiglinEntityModel<>((EMFGenericCustomEntityModel<MobEntity>)alreadyBuiltSubmodel);
+                return new EMFCustomPiglinEntityModel<>(alreadyBuiltSubmodel);
             }
             //player
             if (vanillaModelForInstanceCheck instanceof PlayerEntityModel) {

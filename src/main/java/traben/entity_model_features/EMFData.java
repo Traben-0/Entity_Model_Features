@@ -11,6 +11,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.PufferfishEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -147,23 +148,27 @@ public class EMFData {
         return getModelVariant(entity,entityTypeName,(EntityModel<T>)vanillaModel);
     }
 
-    Object2LongOpenHashMap<UUID> UUID_LAST_UPDATE_TIME = new Object2LongOpenHashMap<>(){{defaultReturnValue(0);}};
+    Object2LongOpenHashMap<CacheUUIDAndTypeKey> UUID_LAST_UPDATE_TIME = new Object2LongOpenHashMap<>(){{defaultReturnValue(0);}};
 
-    Object2ObjectOpenHashMap<UUID, EMFCustomEntityModel<?>> UUID_TO_MODEL = new Object2ObjectOpenHashMap<>();
+    Object2ObjectOpenHashMap<CacheUUIDAndTypeKey, EMFCustomEntityModel<?>> UUID_TO_MODEL = new Object2ObjectOpenHashMap<>();
+
+   // private static final UUID GENERIC_ID = UUID.nameUUIDFromBytes(("GENERIC").getBytes());
+
     public<T extends LivingEntity, M extends EntityModel<T>> M getModelVariant(Entity entity, String entityTypeName, EntityModel<T> vanillaModel) {
-
+        FIGURE OUT UUID AND ENTITY TYPE AS KEY
 
         if(entity == null){
             EMFGenericCustomEntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
             return (M) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
         }
-        UUID id;
-        if(entity instanceof PufferfishEntity){
-            String newU = entity.getUuid().toString() + entityTypeName.hashCode();
-            id = UUID.nameUUIDFromBytes(newU.getBytes());
-        }else {
-            id = entity.getUuid();
-        }
+//        UUID id;
+//        if(entity instanceof PufferfishEntity){
+//            String newU = entity.getUuid().toString() + entityTypeName.hashCode();
+//            id = UUID.nameUUIDFromBytes(newU.getBytes());
+//        }else {
+//            id = entity.getUuid();
+//        }
+        CacheUUIDAndTypeKey id = new CacheUUIDAndTypeKey(entity.getUuid(), entity.getType());
 
         EMFCustomEntityModel<?> knownModel = UUID_TO_MODEL.get(id);
         if (knownModel != null) {
@@ -248,4 +253,9 @@ public class EMFData {
     public interface EMFPropertyTester {
         int getSuffixOfEntity(Entity entity, boolean isUpdate, Object2BooleanOpenHashMap<UUID> UUID_CaseHasUpdateablesCustom);
     }
+
+
+
+
+    private record CacheUUIDAndTypeKey(UUID uuid, EntityType<?> entityType){};
 }

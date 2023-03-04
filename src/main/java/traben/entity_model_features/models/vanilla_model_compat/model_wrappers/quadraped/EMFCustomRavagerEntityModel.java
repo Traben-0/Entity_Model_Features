@@ -57,28 +57,28 @@ public class EMFCustomRavagerEntityModel<T extends LivingEntity> extends Ravager
             thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 
+//    @Override
+//    public void setAngles(RavagerEntity livingEntity, float f, float g, float h, float i, float j) {
+//        setAngles((T)livingEntity, f, g, h, i, j);
+//    }
     @Override
     public void setAngles(RavagerEntity livingEntity, float f, float g, float h, float i, float j) {
-        setAngles((T)livingEntity, f, g, h, i, j);
-    }
-    @Override
-    public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
             thisEMFModel.child = child;
             //thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
             thisEMFModel.handSwingProgress = handSwingProgress;
-            thisEMFModel.setAngles(livingEntity, f, g, h, i, j);
+            thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
     }
 
-    @Override
-    public void animateModel(RavagerEntity ravagerEntity, float f, float g, float h) {
-        animateModel((T)ravagerEntity, f, g, h);
-    }
+//    @Override
+//    public void animateModel(RavagerEntity ravagerEntity, float f, float g, float h) {
+//        animateModel((T)ravagerEntity, f, g, h);
+//    }
 
     @Override
-    public void animateModel(T livingEntity, float f, float g, float h) {
+    public void animateModel(RavagerEntity livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
-            thisEMFModel.animateModel(livingEntity, f, g, h);
+            thisEMFModel.animateModel((T) livingEntity, f, g, h);
     }
 
 

@@ -87,9 +87,9 @@ public interface EMFCustomEntityModel<T extends LivingEntity> {
 
     void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha);
 
-    void setAngles(T livingEntity, float f, float g, float h, float i, float j);
+    //void setAngles(T livingEntity, float f, float g, float h, float i, float j);
 
-    void animateModel(T livingEntity, float f, float g, float h);
+    //void animateModel(T livingEntity, float f, float g, float h);
 
     default void setNonEmptyPart(List<EMFModelPart> parts, PartSetter setter){
         for (EMFModelPart part:

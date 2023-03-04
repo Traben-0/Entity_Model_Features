@@ -58,34 +58,34 @@ public class EMFCustomFoxEntityModel<T extends LivingEntity> extends FoxEntityMo
 
     }
 
-    @Override
-    public void setAngles(FoxEntity foxEntity, float f, float g, float h, float i, float j) {
-        //thisEMFModel.vanillaModel.setAngles((T) foxEntity, f, g, h, i, j);
-        setAngles((T)foxEntity, f, g, h, i, j);
-    }
+//    @Override
+//    public void setAngles(FoxEntity foxEntity, float f, float g, float h, float i, float j) {
+//        //thisEMFModel.vanillaModel.setAngles((T) foxEntity, f, g, h, i, j);
+//        setAngles((T)foxEntity, f, g, h, i, j);
+//    }
 
     @Override
-    public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(FoxEntity livingEntity, float f, float g, float h, float i, float j) {
 
             thisEMFModel.child = child;
             //thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
             thisEMFModel.handSwingProgress = handSwingProgress;
-            thisEMFModel.setAngles(livingEntity, f, g, h, i, j);
+            thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
 
     }
 
-    @Override
-    public void animateModel(FoxEntity foxEntity, float f, float g, float h) {
-        //thisEMFModel.vanillaModel.animateModel((T) foxEntity, f, g, h);
-        animateModel((T)foxEntity, f, g, h);
-    }
+//    @Override
+//    public void animateModel(FoxEntity foxEntity, float f, float g, float h) {
+//        //thisEMFModel.vanillaModel.animateModel((T) foxEntity, f, g, h);
+//        animateModel((T)foxEntity, f, g, h);
+//    }
 
     @Override
-    public void animateModel(T livingEntity, float f, float g, float h) {
+    public void animateModel(FoxEntity livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
 
-            thisEMFModel.animateModel(livingEntity, f, g, h);
+            thisEMFModel.animateModel((T) livingEntity, f, g, h);
 
     }
 

@@ -5,6 +5,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.ModelWithHat;
 import net.minecraft.client.render.entity.model.PiglinEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
@@ -13,7 +14,7 @@ import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashMap;
 
-public class EMFCustomPiglinEntityModel<T extends MobEntity> extends PiglinEntityModel<T> implements EMFCustomEntityModel<T>, EMFArmorableModel, ModelWithHat {
+public class EMFCustomPiglinEntityModel<T extends LivingEntity> extends PiglinEntityModel<MobEntity> implements EMFCustomEntityModel<T>, EMFArmorableModel, ModelWithHat {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -53,21 +54,21 @@ public class EMFCustomPiglinEntityModel<T extends MobEntity> extends PiglinEntit
     }
 
     @Override
-    public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(MobEntity livingEntity, float f, float g, float h, float i, float j) {
 
             thisEMFModel.child = child;
             thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
             thisEMFModel.handSwingProgress = handSwingProgress;
-            thisEMFModel.setAngles(livingEntity, f, g, h, i, j);
+            thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
 
     }
 
     @Override
-    public void animateModel(T livingEntity, float f, float g, float h) {
+    public void animateModel(MobEntity livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
 
-            thisEMFModel.animateModel(livingEntity, f, g, h);
+            thisEMFModel.animateModel((T) livingEntity, f, g, h);
 
     }
 

@@ -67,6 +67,7 @@ public class EMFCustomVexEntityModel<T extends LivingEntity> extends VexEntityMo
         animateModel((T)entity, limbAngle, limbDistance, tickDelta);
     }
 
+
     @Override
     public void animateModel(T livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);

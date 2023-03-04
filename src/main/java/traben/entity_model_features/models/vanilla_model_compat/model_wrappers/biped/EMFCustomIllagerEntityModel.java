@@ -62,35 +62,35 @@ public class EMFCustomIllagerEntityModel<T extends LivingEntity> extends Illager
 
     }
 
-    @Override
-    public void setAngles(IllagerEntity illagerEntity, float f, float g, float h, float i, float j) {
+//    @Override
+//    public void setAngles(IllagerEntity illagerEntity, float f, float g, float h, float i, float j) {
+//
+//        ((IllagerEntityModel<IllagerEntity>)thisEMFModel.getThisEMFModel().vanillaModel).setAngles(illagerEntity, f, g, h, i, j);
+//        setAngles((T)illagerEntity, f, g, h, i, j);
+//    }
 
-        ((IllagerEntityModel<IllagerEntity>)thisEMFModel.getThisEMFModel().vanillaModel).setAngles(illagerEntity, f, g, h, i, j);
-        setAngles((T)illagerEntity, f, g, h, i, j);
-    }
-
     @Override
-    public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(IllagerEntity livingEntity, float f, float g, float h, float i, float j) {
 
             thisEMFModel.child = child;
             //thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
             thisEMFModel.handSwingProgress = handSwingProgress;
-            thisEMFModel.setAngles(livingEntity, f, g, h, i, j);
+            thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
 
     }
 
-    @Override
-    public void animateModel(IllagerEntity entity, float limbAngle, float limbDistance, float tickDelta) {
-        ((IllagerEntityModel<IllagerEntity>)thisEMFModel.getThisEMFModel().vanillaModel).animateModel(entity, limbAngle, limbDistance, tickDelta);
-        animateModel((T)entity, limbAngle, limbDistance, tickDelta);
-    }
+//    @Override
+//    public void animateModel(IllagerEntity entity, float limbAngle, float limbDistance, float tickDelta) {
+//        ((IllagerEntityModel<IllagerEntity>)thisEMFModel.getThisEMFModel().vanillaModel).animateModel(entity, limbAngle, limbDistance, tickDelta);
+//        animateModel((T)entity, limbAngle, limbDistance, tickDelta);
+//    }
 
     @Override
-    public void animateModel(T livingEntity, float f, float g, float h) {
+    public void animateModel(IllagerEntity livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
 
-            thisEMFModel.animateModel(livingEntity, f, g, h);
+            thisEMFModel.animateModel((T) livingEntity, f, g, h);
 
     }
 

@@ -24,10 +24,10 @@ public abstract class MixinTropicalFishFeatureRenderer extends FeatureRenderer<T
 
     @ModifyVariable(
             method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/passive/TropicalFishEntity;FFFFFF)V",
-            at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/util/DyeColor;getColorComponents()[F"),
-            index = 12
+            at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/entity/passive/TropicalFishEntity;getPatternColorComponents()[F"),
+            index = 11
     )
-    private EntityModel<TropicalFishEntity> injectedRaplaceModels(EntityModel<TropicalFishEntity> value) {
+    private EntityModel<TropicalFishEntity> injectedReplaceModels(EntityModel<TropicalFishEntity> value) {
         EntityModel<?> context = getContextModel();
         if (context instanceof EMFCustomEntityModel<?> em) {
             EMFGenericCustomEntityModel<?> emf = em.getThisEMFModel();

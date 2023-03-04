@@ -205,28 +205,28 @@ public class EMFCustomHorseEntityModel<T extends LivingEntity> extends HorseEnti
         thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 
-    @Override
-    public void setAngles(AbstractHorseEntity abstractHorseEntity, float f, float g, float h, float i, float j) {
-        //super.setAngles(abstractHorseEntity, f, g, h, i, j);
-        setAngles((T)abstractHorseEntity, f, g, h, i, j);
-    }
+//    @Override
+//    public void setAngles(AbstractHorseEntity abstractHorseEntity, float f, float g, float h, float i, float j) {
+//        //super.setAngles(abstractHorseEntity, f, g, h, i, j);
+//        setAngles((T)abstractHorseEntity, f, g, h, i, j);
+//    }
 
     @Override
-    public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(AbstractHorseEntity livingEntity, float f, float g, float h, float i, float j) {
         thisEMFModel.child = child;
         thisEMFModel.riding = riding;
         thisEMFModel.handSwingProgress = handSwingProgress;
-        thisEMFModel.setAngles(livingEntity, f, g, h, i, j);
+        thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
     }
 
-    @Override
-    public void animateModel(AbstractHorseEntity abstractHorseEntity, float f, float g, float h) {
-        //super.animateModel(abstractHorseEntity, f, g, h);
-        animateModel((T)abstractHorseEntity, f, g, h);
-    }
+//    @Override
+//    public void animateModel(AbstractHorseEntity abstractHorseEntity, float f, float g, float h) {
+//        //super.animateModel(abstractHorseEntity, f, g, h);
+//        animateModel((T)abstractHorseEntity, f, g, h);
+//    }
 
     @Override
-    public void animateModel(T livingEntity, float f, float g, float h) {
-        thisEMFModel.animateModel(livingEntity, f, g, h);
+    public void animateModel(AbstractHorseEntity livingEntity, float f, float g, float h) {
+        thisEMFModel.animateModel((T) livingEntity, f, g, h);
     }
 }

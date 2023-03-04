@@ -90,32 +90,32 @@ public class EMFCustomLlamaEntityModel<T extends LivingEntity> extends LlamaEnti
 
     }
 
-    @Override
-    public void setAngles(AbstractDonkeyEntity abstractDonkeyEntity, float f, float g, float h, float i, float j) {
-        setAngles((T)abstractDonkeyEntity, f, g, h, i, j);
-    }
+//    @Override
+//    public void setAngles(AbstractDonkeyEntity abstractDonkeyEntity, float f, float g, float h, float i, float j) {
+//        setAngles((T)abstractDonkeyEntity, f, g, h, i, j);
+//    }
 
     @Override
-    public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(AbstractDonkeyEntity livingEntity, float f, float g, float h, float i, float j) {
 
             thisEMFModel.child = child;
             //thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
             thisEMFModel.handSwingProgress = handSwingProgress;
-            thisEMFModel.setAngles(livingEntity, f, g, h, i, j);
+            thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
 
     }
 
-    @Override
-    public void animateModel(AbstractDonkeyEntity entity, float limbAngle, float limbDistance, float tickDelta) {
-        animateModel((T)entity, limbAngle, limbDistance, tickDelta);
-    }
+//    @Override
+//    public void animateModel(AbstractDonkeyEntity entity, float limbAngle, float limbDistance, float tickDelta) {
+//        animateModel((T)entity, limbAngle, limbDistance, tickDelta);
+//    }
 
     @Override
-    public void animateModel(T livingEntity, float f, float g, float h) {
+    public void animateModel(AbstractDonkeyEntity livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
 
-            thisEMFModel.animateModel(livingEntity, f, g, h);
+            thisEMFModel.animateModel((T) livingEntity, f, g, h);
 
     }
 
