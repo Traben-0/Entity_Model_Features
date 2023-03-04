@@ -4,6 +4,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.ModelWithHat;
 import net.minecraft.client.render.entity.model.StriderEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.StriderEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
@@ -12,7 +13,7 @@ import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashMap;
 
-public class EMFCustomStriderEntityModel<T extends StriderEntity> extends StriderEntityModel<T> implements EMFCustomEntityModel<T>, EMFArmorableModel, ModelWithHat {
+public class EMFCustomStriderEntityModel<T extends LivingEntity,A extends StriderEntity> extends StriderEntityModel<A> implements EMFCustomEntityModel<T>, EMFArmorableModel, ModelWithHat {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -57,15 +58,23 @@ public class EMFCustomStriderEntityModel<T extends StriderEntity> extends Stride
             //thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
             thisEMFModel.handSwingProgress = handSwingProgress;
-            thisEMFModel.setAngles((T)livingEntity, f, g, h, i, j);
+            try {
+                thisEMFModel.setAngles((T)livingEntity, f, g, h, i, j);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
 
     }
 
     @Override
-    public void animateModel(T livingEntity, float f, float g, float h) {
+    public void animateModel(StriderEntity livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
 
-            thisEMFModel.animateModel(livingEntity, f, g, h);
+            try {
+                thisEMFModel.animateModel((T) livingEntity, f, g, h);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
 
     }
 

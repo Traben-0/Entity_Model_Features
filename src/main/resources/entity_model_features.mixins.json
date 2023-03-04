@@ -4,13 +4,13 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "accessor.FeatureRendererAccessor",
-    "accessor.FoxHeldItemFeatureRendererAccessor",
-    "accessor.entity.model.RabbitEntityModelAccessor"
+    "accessor.CatCollarFeatureRendererAccessor"
   ],
   "client": [
     "MixinSimpleResourceReload",
     "accessor.CuboidAccessor",
+    "accessor.FeatureRendererAccessor",
+    "accessor.FoxHeldItemFeatureRendererAccessor",
     "accessor.ModelAccessor",
     "accessor.ModelPartAccessor",
     "accessor.entity.LivingEntityRendererAccessor",
@@ -29,6 +29,7 @@
     "accessor.entity.model.LlamaEntityModelAccessor",
     "accessor.entity.model.PlayerEntityModelAccessor",
     "accessor.entity.model.QuadrupedEntityModelAccessor",
+    "accessor.entity.model.RabbitEntityModelAccessor",
     "accessor.entity.model.VillagerResemblingModelAccessor",
     "renderers.MixinLivingEntityRenderer",
     "renderers.MixinPlayerEntityRenderer",

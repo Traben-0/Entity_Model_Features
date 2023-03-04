@@ -5,6 +5,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.GiantEntityModel;
 import net.minecraft.client.render.entity.model.ModelWithHat;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.GiantEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
@@ -13,7 +14,7 @@ import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashMap;
 
-public class EMFCustomGiantEntityModel<T extends GiantEntity> extends GiantEntityModel implements EMFCustomEntityModel<T>, EMFArmorableModel, ModelWithHat {
+public class EMFCustomGiantEntityModel<T extends LivingEntity> extends GiantEntityModel implements EMFCustomEntityModel<T>, EMFArmorableModel, ModelWithHat {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -58,7 +59,11 @@ public class EMFCustomGiantEntityModel<T extends GiantEntity> extends GiantEntit
             thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
             thisEMFModel.handSwingProgress = handSwingProgress;
-            thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
+            try {
+                thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
 
     }
 
@@ -70,7 +75,11 @@ public class EMFCustomGiantEntityModel<T extends GiantEntity> extends GiantEntit
     public void animateModel(GiantEntity livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
 
-            thisEMFModel.animateModel((T) livingEntity, f, g, h);
+            try {
+                thisEMFModel.animateModel((T) livingEntity, f, g, h);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
 
     }
 

@@ -3,6 +3,7 @@ package traben.entity_model_features.models.vanilla_model_compat.model_wrappers.
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.GoatEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.GoatEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
@@ -10,7 +11,7 @@ import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashMap;
 
-public class EMFCustomGoatEntityModel<T extends GoatEntity> extends GoatEntityModel<T> implements EMFCustomEntityModel<T> {
+public class EMFCustomGoatEntityModel<T extends LivingEntity,A extends GoatEntity> extends GoatEntityModel<A> implements EMFCustomEntityModel<T> {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -58,21 +59,29 @@ public class EMFCustomGoatEntityModel<T extends GoatEntity> extends GoatEntityMo
     }
 
     @Override
-    public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(A livingEntity, float f, float g, float h, float i, float j) {
 
             thisEMFModel.child = child;
             //thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
             thisEMFModel.handSwingProgress = handSwingProgress;
-            thisEMFModel.setAngles(livingEntity, f, g, h, i, j);
+            try {
+                thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
 
     }
 
     @Override
-    public void animateModel(T livingEntity, float f, float g, float h) {
+    public void animateModel(A livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
 
-            thisEMFModel.animateModel(livingEntity, f, g, h);
+            try {
+                thisEMFModel.animateModel((T) livingEntity, f, g, h);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
 
     }
 

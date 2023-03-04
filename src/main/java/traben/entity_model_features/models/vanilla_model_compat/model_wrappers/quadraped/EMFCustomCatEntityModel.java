@@ -4,6 +4,7 @@ import net.minecraft.client.model.Dilation;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.CatEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.CatEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
@@ -11,7 +12,7 @@ import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashMap;
 
-public class EMFCustomCatEntityModel<T extends CatEntity> extends CatEntityModel<T> implements EMFCustomEntityModel<T> {
+public class EMFCustomCatEntityModel<T extends LivingEntity,A extends CatEntity> extends CatEntityModel<A> implements EMFCustomEntityModel<T> {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -61,21 +62,29 @@ public class EMFCustomCatEntityModel<T extends CatEntity> extends CatEntityModel
     }
 
     @Override
-    public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(A livingEntity, float f, float g, float h, float i, float j) {
 
             thisEMFModel.child = child;
             //thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
             thisEMFModel.handSwingProgress = handSwingProgress;
-            thisEMFModel.setAngles(livingEntity, f, g, h, i, j);
+            try {
+                thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
 
     }
 
     @Override
-    public void animateModel(T livingEntity, float f, float g, float h) {
+    public void animateModel(A livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
 
-            thisEMFModel.animateModel(livingEntity, f, g, h);
+            try {
+                thisEMFModel.animateModel((T) livingEntity, f, g, h);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
 
     }
 

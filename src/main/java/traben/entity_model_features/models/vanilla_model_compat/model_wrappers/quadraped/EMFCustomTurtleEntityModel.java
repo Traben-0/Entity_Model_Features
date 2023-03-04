@@ -3,6 +3,7 @@ package traben.entity_model_features.models.vanilla_model_compat.model_wrappers.
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.TurtleEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.TurtleEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFCustomEntityModel;
@@ -10,7 +11,7 @@ import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashMap;
 
-public class EMFCustomTurtleEntityModel<T extends TurtleEntity> extends TurtleEntityModel<T> implements EMFCustomEntityModel<T> {
+public class EMFCustomTurtleEntityModel<T extends LivingEntity,A extends TurtleEntity> extends TurtleEntityModel<A> implements EMFCustomEntityModel<T> {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -38,7 +39,7 @@ public class EMFCustomTurtleEntityModel<T extends TurtleEntity> extends TurtleEn
         thisEMFModel=model;
         ((ModelAccessor)this).setLayerFactory(getThisEMFModel()::getLayer2);
         thisEMFModel.clearAllFakePartChildrenData();
-
+        //System.out.println("turtle");
 //        List<EMFModelPart> headCandidates = new ArrayList<>();
 
 //        for (EMFModelPart part:
@@ -59,21 +60,29 @@ public class EMFCustomTurtleEntityModel<T extends TurtleEntity> extends TurtleEn
     }
 
     @Override
-    public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(A livingEntity, float f, float g, float h, float i, float j) {
 
             thisEMFModel.child = child;
             //thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
             thisEMFModel.handSwingProgress = handSwingProgress;
-            thisEMFModel.setAngles(livingEntity, f, g, h, i, j);
-
+            try {
+                thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
+        //System.out.println("turtleAngle");
     }
 
     @Override
-    public void animateModel(T livingEntity, float f, float g, float h) {
+    public void animateModel(A livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
 
-            thisEMFModel.animateModel(livingEntity, f, g, h);
+            try {
+                thisEMFModel.animateModel((T) livingEntity, f, g, h);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
 
     }
 

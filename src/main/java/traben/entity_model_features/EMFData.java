@@ -13,7 +13,6 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.passive.PufferfishEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
@@ -155,7 +154,7 @@ public class EMFData {
    // private static final UUID GENERIC_ID = UUID.nameUUIDFromBytes(("GENERIC").getBytes());
 
     public<T extends LivingEntity, M extends EntityModel<T>> M getModelVariant(Entity entity, String entityTypeName, EntityModel<T> vanillaModel) {
-        FIGURE OUT UUID AND ENTITY TYPE AS KEY
+
 
         if(entity == null){
             EMFGenericCustomEntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
@@ -176,7 +175,7 @@ public class EMFData {
                 long time = System.currentTimeMillis();
                 if (time > 1000 + UUID_LAST_UPDATE_TIME.getLong(id)) {
                     UUID_LAST_UPDATE_TIME.put(id, time);
-                    EMFCustomEntityModel<?> newModel = getModelVariantPossibleNew(entity, entityTypeName, vanillaModel);
+                    EMFCustomEntityModel<?> newModel = getModelVariantPossibleNew(id,entity, entityTypeName, vanillaModel);
                     if (newModel != null)
                         UUID_TO_MODEL.put(id, newModel);
                     return (M) newModel;
@@ -184,11 +183,11 @@ public class EMFData {
             }
             return (M) knownModel;
         }
-        return getModelVariantPossibleNew(entity, entityTypeName, vanillaModel);
+        return getModelVariantPossibleNew(id, entity, entityTypeName, vanillaModel);
     }
 
-    private boolean isETFPresent;
-    private<T extends LivingEntity, M extends EntityModel<T>> M getModelVariantPossibleNew(Entity entity, String entityTypeName, EntityModel<T> vanillaModel){
+    private final boolean isETFPresent;
+    private<T extends LivingEntity, M extends EntityModel<T>> M getModelVariantPossibleNew(CacheUUIDAndTypeKey id, Entity entity, String entityTypeName, EntityModel<T> vanillaModel){
        // System.out.println("ran");
         EMFGenericCustomEntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
         //System.out.println("rans="+isETFPresent+etfPropertyReader.isValidETF());
@@ -216,7 +215,7 @@ public class EMFData {
                         EMFGenericCustomEntityModel<T> emfModelVariant = createEMFModelOnly(variantName, vanillaModel);
                         if (emfModelVariant != null) {
                             EMFCustomEntityModel<T> mod = (EMFCustomEntityModel<T>) getFinalEMFModel(variantName, emfModelVariant, vanillaModel);
-                            UUID_TO_MODEL.put(entity.getUuid(), mod);
+                            UUID_TO_MODEL.put(id, mod);
                             return (M) mod;
                         }else{
                             EMFUtils.EMF_modWarn(" Model variant didn't exist: looked for ["+variantName+"], found nothing. using default model...");
@@ -226,7 +225,7 @@ public class EMFData {
                 }
             }
             EMFCustomEntityModel<T> mod = (EMFCustomEntityModel<T>) getFinalEMFModel(entityTypeName,emfModel, vanillaModel);
-            UUID_TO_MODEL.put(entity.getUuid(), mod);
+            UUID_TO_MODEL.put(id, mod);
             return (M) mod;
         }
         return null;

@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFData;
+import traben.entity_model_features.mixin.accessor.CatCollarFeatureRendererAccessor;
 import traben.entity_model_features.mixin.accessor.FoxHeldItemFeatureRendererAccessor;
 import traben.entity_model_features.mixin.accessor.entity.feature.HorseArmorFeatureRendererAccessor;
 import traben.entity_model_features.mixin.accessor.entity.feature.LlamaDecorFeatureRendererAccessor;
@@ -34,6 +35,7 @@ import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 import traben.entity_model_features.models.features.EMFCustomArmorFeatureRenderer;
 import traben.entity_model_features.models.features.EMFoxHeldItemFeatureRenderer;
 import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.biped.EMFCustomPlayerEntityModel;
+import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.quadraped.EMFCustomCatEntityModel;
 import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.quadraped.EMFCustomHorseEntityModel;
 import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.quadraped.EMFCustomLlamaEntityModel;
 
@@ -132,6 +134,19 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                                 M llama_decor = emfData.getModelVariant(null, "llama_decor", getModel());
                                 if (llama_decor != null) {
                                     ((LlamaDecorFeatureRendererAccessor) decor).setModel((LlamaEntityModel<LlamaEntity>) llama_decor);
+
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    if (livingEntity instanceof CatEntity && emf$newModel instanceof EMFCustomCatEntityModel) {
+                        for (FeatureRenderer<?, ?> feature :
+                                features) {
+                            if (feature instanceof CatCollarFeatureRenderer decor) {
+                                M catCollar = emfData.getModelVariant(null, "cat_collar", getModel());
+                                if (catCollar != null) {
+                                    ((CatCollarFeatureRendererAccessor) decor).setModel((CatEntityModel<CatEntity>) catCollar);
 
                                 }
                                 break;

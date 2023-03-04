@@ -5,6 +5,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.ModelWithHat;
 import net.minecraft.client.render.entity.model.ZombieEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.ZombieEntity;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
@@ -13,7 +14,7 @@ import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashMap;
 
-public class EMFCustomZombieEntityModel<T extends ZombieEntity> extends ZombieEntityModel<T> implements EMFCustomEntityModel<T>, EMFArmorableModel, ModelWithHat {
+public class EMFCustomZombieEntityModel<T extends LivingEntity,A extends ZombieEntity> extends ZombieEntityModel<A> implements EMFCustomEntityModel<T>, EMFArmorableModel, ModelWithHat {
 
     public EMFGenericCustomEntityModel<T> getThisEMFModel() {
         return thisEMFModel;
@@ -52,13 +53,17 @@ public class EMFCustomZombieEntityModel<T extends ZombieEntity> extends ZombieEn
 //        setAngles((T)livingEntity,f,g,h,i,j);
 //    }
     @Override
-    public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
+    public void setAngles(A livingEntity, float f, float g, float h, float i, float j) {
 
             thisEMFModel.child = child;
             thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
             thisEMFModel.handSwingProgress = handSwingProgress;
-            thisEMFModel.setAngles(livingEntity, f, g, h, i, j);
+            try {
+                thisEMFModel.setAngles((T) livingEntity, f, g, h, i, j);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
 
     }
 
@@ -67,10 +72,14 @@ public class EMFCustomZombieEntityModel<T extends ZombieEntity> extends ZombieEn
 //        animateModel((T)livingEntity, f, g, h);
 //    }
     @Override
-    public void animateModel(T livingEntity, float f, float g, float h) {
+    public void animateModel(A livingEntity, float f, float g, float h) {
         //super.animateModel(livingEntity, f, g, h);
 
-            thisEMFModel.animateModel(livingEntity, f, g, h);
+            try {
+                thisEMFModel.animateModel((T) livingEntity, f, g, h);
+            } catch (ClassCastException e) {
+                e.printStackTrace();
+            }
 
     }
 

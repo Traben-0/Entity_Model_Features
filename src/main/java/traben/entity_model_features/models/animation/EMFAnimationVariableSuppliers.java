@@ -6,10 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.Angerable;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.CatEntity;
-import net.minecraft.entity.passive.FoxEntity;
-import net.minecraft.entity.passive.ParrotEntity;
-import net.minecraft.entity.passive.TameableEntity;
+import net.minecraft.entity.passive.*;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -100,7 +97,13 @@ public class EMFAnimationVariableSuppliers {
 
         //long changed to double... should be fine tbh
         public double getTime () {
-            return entity == null || entity.getWorld() == null ? 0 : entity.getWorld().getTime() % Integer.MAX_VALUE + tickDelta;
+            if(entity == null || entity.getWorld() == null ){
+                return 0+tickDelta;
+            } else {
+                //limit value upper limit to preserve floating point precision
+                double val = entity.getWorld().getTime() ;
+                return (val >= 24000 ? val % 24000 : val) + tickDelta;
+            }
         }
 
         public double getHealth () {
@@ -257,10 +260,10 @@ public class EMFAnimationVariableSuppliers {
 
         public boolean isSitting () {
             return entity != null && (
-                    entity instanceof TameableEntity tame && tame.isSitting() ||
-                            entity instanceof FoxEntity fox && fox.isSitting()||
-                            entity instanceof ParrotEntity parrot && parrot.isSitting()||
-                            entity instanceof CatEntity cat && cat.isSitting()
+                    (entity instanceof TameableEntity tame && tame.isSitting()) ||
+                            (entity instanceof FoxEntity fox && fox.isSitting())||
+                            (entity instanceof ParrotEntity parrot && parrot.isSitting())||
+                            (entity instanceof CatEntity cat && cat.isSitting())
 
             );
         }
@@ -287,7 +290,12 @@ public class EMFAnimationVariableSuppliers {
 
         public double getAge () {
             //return entity == null ? 0 : entity.age + tickDelta;
-            return animationProgress;
+            //return animationProgress;
+            if(entity == null) {
+                return 0+tickDelta;
+            }
+            double age = entity.age;
+            return (age >= 24000 ? age % 24000 : age) + tickDelta;
         }
         //public static long lastFrameTime = System.currentTimeMillis();
         private final Object2LongOpenHashMap<UUID> lastFrameTimeMap = new Object2LongOpenHashMap<>();

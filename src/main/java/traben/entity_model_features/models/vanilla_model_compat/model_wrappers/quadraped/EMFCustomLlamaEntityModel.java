@@ -85,9 +85,13 @@ public class EMFCustomLlamaEntityModel<T extends LivingEntity> extends LlamaEnti
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-
-            thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
-
+           matrices.push();
+           if(child){
+               matrices.scale(0.45454544F, 0.41322312F, 0.45454544F);
+               matrices.translate(0.0F, 2.0625F, 0.0F);
+           }
+           thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+           matrices.pop();
     }
 
 //    @Override
