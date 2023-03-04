@@ -23,7 +23,8 @@ import traben.entity_model_features.models.vanilla_model_compat.VanillaModelPart
 import traben.entity_model_features.models.vanilla_model_compat.VanillaModelWrapperHandler;
 import traben.entity_model_features.models.vanilla_model_compat.model_wrappers.biped.EMFCustomPlayerEntityModel;
 import traben.entity_model_features.utils.EMFUtils;
-import traben.entity_model_features.utils.etfPropertyReader;
+import traben.entity_model_features.utils.ETFCheck;
+import traben.entity_model_features.utils.ETFPropertyReader;
 
 import java.io.File;
 import java.io.FileReader;
@@ -51,7 +52,12 @@ public class EMFData {
 
 
     private EMFData(){
-        isETFPresent = FabricLoader.getInstance().isModLoaded("entity_texture_features");
+
+        if (FabricLoader.getInstance().isModLoaded("entity_texture_features")){
+            isETFPresentAndValid = ETFCheck.isETFValidAPI();
+        }else{
+            isETFPresentAndValid = false;
+        }
         alreadyCalculatedForRenderer.defaultReturnValue(false);
 
         // must be called at least once to reset config
@@ -186,7 +192,7 @@ public class EMFData {
         return getModelVariantPossibleNew(id, entity, entityTypeName, vanillaModel);
     }
 
-    private final boolean isETFPresent;
+    private final boolean isETFPresentAndValid;
     private<T extends LivingEntity, M extends EntityModel<T>> M getModelVariantPossibleNew(CacheUUIDAndTypeKey id, Entity entity, String entityTypeName, EntityModel<T> vanillaModel){
        // System.out.println("ran");
         EMFGenericCustomEntityModel<T> emfModel = createEMFModelOnly(entityTypeName,vanillaModel);
@@ -194,12 +200,12 @@ public class EMFData {
         if(emfModel != null) {
             // jem exists so decide if variation occurs
             //System.out.println("rans="+isETFPresent+etfPropertyReader.isValidETF());
-            if (isETFPresent) {
+            if (isETFPresentAndValid) {
 
                 if(!MODEL_CASES.containsKey(entityTypeName)) {
                     Identifier propertyID = new Identifier("optifine/cem/" + entityTypeName + ".properties");
                     if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
-                        EMFPropertyTester emfTester = etfPropertyReader.getAllValidPropertyObjects(propertyID);
+                        EMFPropertyTester emfTester = ETFPropertyReader.getAllValidPropertyObjects(propertyID);
                         MODEL_CASES.put(entityTypeName, emfTester);
                     }
                 }
