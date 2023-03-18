@@ -2,6 +2,7 @@ package traben.entity_model_features.models.animation;
 
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.EMFModelPart;
 
 public enum EMFDefaultModelVariable {
@@ -11,6 +12,26 @@ public enum EMFDefaultModelVariable {
     visible(),
     visible_boxes(),
     CUSTOM();
+
+    //nessecary as default valueOf doesnt work correctly
+    @Nullable
+    public static EMFDefaultModelVariable get(String id){
+        if(id == null) return null;
+        return switch (id){
+            case "tx" -> tx;
+            case "ty" -> ty;
+            case "tz" -> tz;
+            case "rx" -> rx;
+            case "ry" -> ry;
+            case "rz" -> rz;
+            case "sx" -> sx;
+            case "sy" -> sy;
+            case "sz" -> sz;
+            case "visible" -> visible;
+            case "visible_boxes" -> visible_boxes;
+            default -> null;
+        };
+    }
 
     EMFDefaultModelVariable(boolean val) {
         isRotation = val;
@@ -67,11 +88,23 @@ public enum EMFDefaultModelVariable {
                 //part.sz = value;
                 part.zScale = value;
             }
+            case visible -> {
+                part.visible = value == 1;
+                part.visibilityIsOveridden = true;
+                //System.out.println("1");
+            }
+            case visible_boxes -> {//todo check correct
+                part.hidden = value != 1;
+                part.visibilityIsOveridden = true;
+                //System.out.println("2");
+            }
             case CUSTOM -> {//todo visibles
                 //todo pain.jpeg
             }
         }
     }
+
+
 
     public void setValueAsAnimated(EMFModelPart part) {
         if (part == null) {
@@ -161,9 +194,13 @@ public enum EMFDefaultModelVariable {
                 //return modelPart.sz.floatValue();
                 return modelPart.zScale;
             }
-            case visible, visible_boxes -> {//todo
+            case visible-> {//todo
                 //return modelPart.sz.floatValue();
                 return modelPart.visible ? 1 : 0;
+            }
+            case visible_boxes -> {//todo
+                //return modelPart.sz.floatValue();
+                return modelPart.hidden ? 0 : 1;
             }
             default -> {
                 System.out.println("model variable was defaulted cannot get its value");
@@ -203,8 +240,11 @@ public enum EMFDefaultModelVariable {
                 else
                     return 1;
             }
-            case visible, visible_boxes -> {
-                return 1;//todo
+            case visible -> {
+                return modelPart.visible ? 1 : 0;
+            }
+            case visible_boxes -> {
+                return modelPart.hidden ? 0 : 1;
             }
             default -> {
                 System.out.println("model variable was defaulted cannot get its default value");
@@ -246,8 +286,12 @@ public enum EMFDefaultModelVariable {
             case sz -> {
                 return modelPart.zScale;
             }
-            case visible, visible_boxes -> {//todo
+            case visible
+                    -> {//todo
                 return modelPart.visible ? 1 : 0;
+            }
+            case visible_boxes -> {//todo
+                return modelPart.hidden ? 0 : 1;
             }
             default -> {
                 System.out.println("model variable was defaulted cannot get its value");

@@ -11,6 +11,8 @@ import traben.entity_model_features.models.EMFCustomEntityModel;
 import traben.entity_model_features.models.EMFGenericCustomEntityModel;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class EMFCustomLlamaEntityModel<T extends LivingEntity> extends LlamaEntityModel<AbstractDonkeyEntity> implements EMFCustomEntityModel<T> {
 
@@ -83,15 +85,47 @@ public class EMFCustomLlamaEntityModel<T extends LivingEntity> extends LlamaEnti
 ////        setNonEmptyPart(rBLegCandidates,((QuadrupedEntityModelAccessor)this)::setRightHindLeg);
     }
 
+
+    private final Set<String> headSet = new HashSet<>(){{add("head");}};
+    private final Set<String> bodySet = new HashSet<>(){{add("body");}};
+
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-           matrices.push();
+
+           //matrices.push();
            if(child){
+
+               //selectively hide parts to mimic vanilla child scaling
+               matrices.push();
+               matrices.scale(0.71428573F, 0.64935064F, 0.7936508F);
+               matrices.translate(0.0F, 1.3125F, 0.22F);
+               thisEMFModel.setVisibleToplvl(false);
+               thisEMFModel.setVisibleToplvl(headSet,true);
+               thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+               matrices.pop();
+               matrices.push();
+               matrices.scale(0.625F, 0.45454544F, 0.45454544F);
+               matrices.translate(0.0F, 2.0625F, 0.0F);
+               thisEMFModel.setVisibleToplvl(false);
+               thisEMFModel.setVisibleToplvl(bodySet,true);
+               thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+               matrices.pop();
+               matrices.push();
                matrices.scale(0.45454544F, 0.41322312F, 0.45454544F);
                matrices.translate(0.0F, 2.0625F, 0.0F);
+               thisEMFModel.setVisibleToplvl(true);
+               thisEMFModel.setVisibleToplvl(bodySet,false);
+               thisEMFModel.setVisibleToplvl(headSet,false);
+               thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+//               ImmutableList.of(this.rightHindLeg, this.leftHindLeg, this.rightFrontLeg, this.leftFrontLeg, this.rightChest, this.leftChest).forEach((part) -> {
+//                   part.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+//               });
+               thisEMFModel.setVisibleToplvl(true);
+               matrices.pop();
+           }else {
+               thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
            }
-           thisEMFModel.render(matrices, vertices, light, overlay, red, green, blue, alpha);
-           matrices.pop();
+           //matrices.pop();
     }
 
 //    @Override

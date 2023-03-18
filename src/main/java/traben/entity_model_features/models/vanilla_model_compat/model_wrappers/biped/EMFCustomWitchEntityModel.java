@@ -85,5 +85,9 @@ public class EMFCustomWitchEntityModel<T extends LivingEntity> extends WitchEnti
         return thisEMFModel.getArmourModel(getInner);
     }
 
-
+    @Override
+    public void setLiftingNose(boolean liftingNose) {
+        if(thisEMFModel.vanillaModel instanceof WitchEntityModel<T> witchEntityModel)
+            witchEntityModel.setLiftingNose(liftingNose);
+    }
 }

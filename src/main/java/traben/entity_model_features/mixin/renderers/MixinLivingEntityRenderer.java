@@ -108,7 +108,12 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                         for (FeatureRenderer<?, ?> feature :
                                 features) {
                             if (feature instanceof SaddleFeatureRenderer saddle) {
-                                ((SaddleFeatureRendererAccessor<T, M>) saddle).setModel(emf$newModel);
+                                M model = emfData.getModelVariant(null, getTypeName(livingEntity)+"_saddle", getModel());
+                                if (model != null) {
+                                    ((SaddleFeatureRendererAccessor<T, M>) saddle).setModel(model);
+                                }else {
+                                    ((SaddleFeatureRendererAccessor<T, M>) saddle).setModel(emf$newModel);
+                                }
 
                             }
                             break;

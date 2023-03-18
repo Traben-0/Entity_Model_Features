@@ -129,9 +129,17 @@ public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityM
         ///animation processing/////////////
         Object2ObjectLinkedOpenHashMap<String, EMFModelPart> parts = getAllParts();
 
+        //this section loads the parts in the alphabetical order of parts for processing
+        //this seems to work but my only relevant data point is the FA 1.8 strider
+        //this might actually be irrelevant and just coincidentally a fix
+        /////////////////////
+        SortedMap<String, EMFModelPart> parts2 = new TreeMap<>(Comparator.naturalOrder());
+        parts2.putAll(parts);
+        ///////////////////////if(modelPathIdentifier.contains("strider")) System.out.println(parts2);
+
         LinkedList<LinkedHashMap<String,String>>  allProperties = new LinkedList<>();
         for (EMFModelPart part :
-                parts.values()) {
+                parts2.values()) {
             if (part.selfModelData.animations != null && part.selfModelData.animations.length != 0) {
                 //todo replace 'this' to represent actual model part
                 allProperties.addAll(Arrays.asList(part.selfModelData.animations));
@@ -152,12 +160,12 @@ public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityM
                 String modelId = animKey.split("\\.")[0];
                 String modelVariable = animKey.split("\\.")[1];
 
-                EMFDefaultModelVariable thisVariable = null;
-                try {
-                    thisVariable = EMFDefaultModelVariable.valueOf(modelVariable);
-                }catch (IllegalArgumentException e){
-                    if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("custom variable located: ["+animKey+"].");
-                }
+                EMFDefaultModelVariable thisVariable = EMFDefaultModelVariable.get(modelVariable);
+//                try {
+//                    thisVariable = EMFDefaultModelVariable.valueOf(modelVariable);
+//                }catch (IllegalArgumentException e){
+//                    if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("custom variable located: ["+animKey+"].");
+//                }
                 //System.out.println(modelId +", "+animKey);
                 EMFModelPart thisPart = parts.get(modelId);
                 EMFAnimation thisCalculator = null;

@@ -172,6 +172,7 @@ public class EMFAnimation {
 
 
     public void calculateAndSet(LivingEntity entity0){
+        //if(animKey.equals("var.potion")) System.out.println("potion "+getResultViaCalculate(entity0));
         if (isVariable) {
             getResultViaCalculate(entity0);
         } else {
@@ -180,6 +181,7 @@ public class EMFAnimation {
     }
 
     private void handleResult(float result){
+        //if(animKey.equals("left_rein2.visible")) System.out.println("result rein "+result+varToChange);
         if(Float.isNaN(result)){
             if(varToChange != null)
                 varToChange.set(modelPart, Float.MAX_VALUE);

@@ -127,7 +127,7 @@ public class EMFAnimationVariableSuppliers {
         }
 
         public double getHurtTime () {
-            return entity instanceof LivingEntity alive ? alive.hurtTime : 0;
+            return entity instanceof LivingEntity alive ? (alive.hurtTime > 0 ? alive.hurtTime - tickDelta : 0) : 0;
         }
 
         public boolean isInWater () {
@@ -259,11 +259,13 @@ public class EMFAnimationVariableSuppliers {
         }
 
         public boolean isSitting () {
+            //if(new Random().nextInt(100) == 1) System.out.println("check was "+check);
             return entity != null && (
-                    (entity instanceof TameableEntity tame && tame.isSitting()) ||
+                    (entity instanceof TameableEntity tame && tame.isInSittingPose()) ||
                             (entity instanceof FoxEntity fox && fox.isSitting())||
-                            (entity instanceof ParrotEntity parrot && parrot.isSitting())||
-                            (entity instanceof CatEntity cat && cat.isSitting())
+                            (entity instanceof ParrotEntity parrot && parrot.isInSittingPose())||
+                            (entity instanceof CatEntity cat && cat.isInSittingPose())||
+                            (entity instanceof WolfEntity wolf && wolf.isInSittingPose())
 
             );
         }

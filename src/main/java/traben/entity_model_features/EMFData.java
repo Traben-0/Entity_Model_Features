@@ -173,11 +173,15 @@ public class EMFData {
 //        }else {
 //            id = entity.getUuid();
 //        }
-        CacheUUIDAndTypeKey id = new CacheUUIDAndTypeKey(entity.getUuid(), entity.getType());
+        UUID uuid =entity.getUuid();
+        CacheUUIDAndTypeKey id = new CacheUUIDAndTypeKey(uuid, entity.getType());
+
+
+       // if (entity instanceof VillagerEntity) System.out.println( "villager updates "+UUID_MOB_MODEL_UPDATES.getBoolean(uuid));
 
         EMFCustomEntityModel<?> knownModel = UUID_TO_MODEL.get(id);
         if (knownModel != null) {
-            if (UUID_MOB_MODEL_UPDATES.getBoolean(id)) {
+            if (UUID_MOB_MODEL_UPDATES.getBoolean(uuid)) {
                 long time = System.currentTimeMillis();
                 if (time > 1000 + UUID_LAST_UPDATE_TIME.getLong(id)) {
                     UUID_LAST_UPDATE_TIME.put(id, time);
@@ -216,6 +220,7 @@ public class EMFData {
                         //if (emfCase.testCase(entity,false,UUID_MOB_MODEL_UPDATES)){
                           //  System.out.println("was true");
                     int suffix = emfProperty.getSuffixOfEntity(entity,UUID_MOB_MODEL_UPDATES.containsKey(entity.getUuid()),UUID_MOB_MODEL_UPDATES);
+                    //int suffix = emfProperty.getSuffixOfEntity(entity,false,UUID_MOB_MODEL_UPDATES);
                     if(suffix > 1) { // ignore 0 & 1
                         String variantName = entityTypeName + suffix;
                         EMFGenericCustomEntityModel<T> emfModelVariant = createEMFModelOnly(variantName, vanillaModel);

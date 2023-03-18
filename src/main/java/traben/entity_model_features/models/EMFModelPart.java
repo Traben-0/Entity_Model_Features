@@ -46,6 +46,8 @@ public class EMFModelPart extends ModelPart  {
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+
+       // if("left_rein2".equals(selfModelData.id) && new Random().nextInt(100) == 1) System.out.println("rein visible? " + visible +", "+hidden+","+visibilityIsOveridden);
         if(vanillaPart != null && !visibilityIsOveridden){
             this.visible = vanillaPart.visible;
             this.hidden = vanillaPart.hidden;
@@ -144,6 +146,7 @@ public class EMFModelPart extends ModelPart  {
         }
     }
     public float getPitchWithPossibleVanillaParentTransforms(){
+//        if("saddle".equals(selfModelData.id)) System.out.println("parent= "+vanillaParentPart);
         if(vanillaParentPart == null){
             return this.pitch;
         } else if (vanillaParentPart instanceof EMFModelPart emf){
@@ -162,9 +165,9 @@ public class EMFModelPart extends ModelPart  {
         float pivotY = (doesAnimty || vanillaPart == null ? getPivotYWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotY +*/ getVanillaPivotYWithPossibleVanillaParentTransforms() );
         float pivotZ = (doesAnimtz || vanillaPart == null ? getPivotZWithPossibleVanillaParentTransforms() : /*getDefaultTransform().pivotZ +*/ getVanillaPivotZWithPossibleVanillaParentTransforms() );
 
-        float roll  = (doesAnimrz || vanillaPart == null ? getRollWithPossibleVanillaParentTransforms()  : getDefaultTransform().roll  + vanillaPart.roll );
-        float yaw   = (doesAnimry || vanillaPart == null ? getYawWithPossibleVanillaParentTransforms()   : getDefaultTransform().yaw   + vanillaPart.yaw  );
-        float pitch = (doesAnimrx || vanillaPart == null ? getPitchWithPossibleVanillaParentTransforms() : getDefaultTransform().pitch + vanillaPart.pitch);
+        float roll  = (doesAnimrz || vanillaParentPart != null || vanillaPart == null ? getRollWithPossibleVanillaParentTransforms()  : getDefaultTransform().roll  + vanillaPart.roll );
+        float yaw   = (doesAnimry || vanillaParentPart != null || vanillaPart == null ? getYawWithPossibleVanillaParentTransforms()   : getDefaultTransform().yaw   + vanillaPart.yaw  );
+        float pitch = (doesAnimrx || vanillaParentPart != null || vanillaPart == null ? getPitchWithPossibleVanillaParentTransforms() : getDefaultTransform().pitch + vanillaPart.pitch);
 //        if(new Random().nextInt(100)==1 && "right_leg".equals( selfModelData.part)){
 //            System.out.println(vanillaPart==null);
 //            System.out.println("pitch "+pitch +", "+vanillaPart.pitch+", "+getDefaultTransform().pitch+","+doesAnimrx);

@@ -909,13 +909,14 @@ public class VanillaModelPartOptiFineMappings {
                     bodyParts.add(part);
                 }
                 //Map<String, ModelPart> body_parts = ((ModelPartAccessor) bodyParts.get(0)).getChildren();
+
+                vanillaPartsList.put("body", getEntry(bodyParts.get(0)));
                 if (bodyParts.get(0).hasChild("tail"))
                     vanillaPartsList.put("tail",getEntry(bodyParts.get(0).getChild("tail"),"body"));
                 if (bodyParts.get(0).hasChild("saddle"))
                     vanillaPartsList.put("saddle",getEntry(bodyParts.get(0).getChild("saddle"),"body"));
 
 
-                vanillaPartsList.put("body",            getEntry(bodyParts.get(0)));
                 vanillaPartsList.put("back_right_leg",  getEntry(bodyParts.get(1)));
                 vanillaPartsList.put("back_left_leg",   getEntry(bodyParts.get(2)));
                 vanillaPartsList.put("front_right_leg", getEntry(bodyParts.get(3)));
