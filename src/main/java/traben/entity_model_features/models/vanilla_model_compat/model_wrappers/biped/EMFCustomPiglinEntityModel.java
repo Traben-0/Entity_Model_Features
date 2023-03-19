@@ -84,4 +84,22 @@ public class EMFCustomPiglinEntityModel<T extends LivingEntity> extends PiglinEn
     public void setHatVisible(boolean visible) {
         thisEMFModel.setHatVisible(visible);
     }
+
+//    @Override
+//    public void setArmAngle(Arm arm, MatrixStack matrices) {
+//        //super.setArmAngle(arm, matrices);
+//        if(thisEMFModel.vanillaModel instanceof PiglinEntityModel<?> model){
+//            model.setArmAngle(arm, matrices);
+//        }
+//    }
+
+
+    @Override
+    public void animateArms(MobEntity mobEntity, float f) {
+        if(thisEMFModel.vanillaModel instanceof PiglinEntityModel ){
+            ((PiglinEntityModel<MobEntity>)thisEMFModel.vanillaModel).animateArms( mobEntity, f);
+        }
+    }
+
+
 }

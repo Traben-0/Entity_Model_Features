@@ -95,4 +95,12 @@ public class EMFCustomSkeletonEntityModel<T extends LivingEntity,A extends MobEn
     public void setHatVisible(boolean visible) {
         thisEMFModel.setHatVisible(visible);
     }
+
+//    @Override
+//    public void setArmAngle(Arm arm, MatrixStack matrices) {
+//        //super.setArmAngle(arm, matrices);
+//        if(thisEMFModel.vanillaModel instanceof SkeletonEntityModel<?> model){
+//            model.setArmAngle(arm, matrices);
+//        }
+//    }
 }

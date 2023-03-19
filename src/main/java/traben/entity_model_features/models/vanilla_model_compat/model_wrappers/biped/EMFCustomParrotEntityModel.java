@@ -80,5 +80,10 @@ public class EMFCustomParrotEntityModel<T extends LivingEntity> extends ParrotEn
 
     }
 
-
+    @Override
+    public void poseOnShoulder(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float limbAngle, float limbDistance, float headYaw, float headPitch, int danceAngle) {
+        if(thisEMFModel.vanillaModel instanceof ParrotEntityModel model){
+            model.poseOnShoulder(matrices, vertexConsumer, light, overlay, limbAngle, limbDistance, headYaw, headPitch, danceAngle);
+        }
+    }
 }

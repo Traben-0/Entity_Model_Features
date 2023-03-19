@@ -46,7 +46,9 @@ public class EMFCustomBipedEntityModel<T extends LivingEntity> extends BipedEnti
 
     @Override
     public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
-
+        if(thisEMFModel.vanillaModel instanceof BipedEntityModel model){
+            model.leaningPitch = leaningPitch;
+        }
             thisEMFModel.child = child;
             thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
@@ -74,4 +76,12 @@ public class EMFCustomBipedEntityModel<T extends LivingEntity> extends BipedEnti
     public void setHatVisible(boolean visible) {
         thisEMFModel.setHatVisible(visible);
     }
+
+//    @Override
+//    public void setArmAngle(Arm arm, MatrixStack matrices) {
+//        //super.setArmAngle(arm, matrices);
+//        if(thisEMFModel.vanillaModel instanceof BipedEntityModel<?> model){
+//            model.setArmAngle(arm, matrices);
+//        }
+//    }
 }

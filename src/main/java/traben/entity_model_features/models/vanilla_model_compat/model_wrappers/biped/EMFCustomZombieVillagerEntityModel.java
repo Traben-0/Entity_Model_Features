@@ -82,4 +82,12 @@ public class EMFCustomZombieVillagerEntityModel<T extends LivingEntity,A extends
     public void setHatVisible(boolean visible) {
         thisEMFModel.setHatVisible(visible);
     }
+
+//    @Override
+//    public void setArmAngle(Arm arm, MatrixStack matrices) {
+//        //super.setArmAngle(arm, matrices);
+//        if(thisEMFModel.vanillaModel instanceof ZombieVillagerEntityModel<?> model){
+//            model.setArmAngle(arm, matrices);
+//        }
+//    }
 }

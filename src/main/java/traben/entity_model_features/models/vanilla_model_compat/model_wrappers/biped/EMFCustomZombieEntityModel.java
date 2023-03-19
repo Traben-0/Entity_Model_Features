@@ -7,6 +7,7 @@ import net.minecraft.client.render.entity.model.ZombieEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.ZombieEntity;
+import net.minecraft.util.Arm;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomEntityModel;
@@ -94,4 +95,12 @@ public class EMFCustomZombieEntityModel<T extends LivingEntity,A extends ZombieE
     public void setHatVisible(boolean visible) {
         thisEMFModel.setHatVisible(visible);
     }
+
+//    @Override
+//    public void setArmAngle(Arm arm, MatrixStack matrices) {
+//        //super.setArmAngle(arm, matrices);
+//        if(thisEMFModel.vanillaModel instanceof ZombieEntityModel<?> model){
+//            model.setArmAngle(arm, matrices);
+//        }
+//    }
 }

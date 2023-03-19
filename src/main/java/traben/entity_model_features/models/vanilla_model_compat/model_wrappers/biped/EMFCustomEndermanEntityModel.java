@@ -46,6 +46,11 @@ public class EMFCustomEndermanEntityModel<T extends LivingEntity> extends Enderm
     @Override
     public void setAngles(T livingEntity, float f, float g, float h, float i, float j) {
 
+            if(thisEMFModel.vanillaModel instanceof EndermanEntityModel<T> endermanEntityModel){
+                endermanEntityModel.leaningPitch = leaningPitch;
+                endermanEntityModel.carryingBlock = carryingBlock;
+                endermanEntityModel.angry = angry;
+            }
             thisEMFModel.child = child;
             thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;

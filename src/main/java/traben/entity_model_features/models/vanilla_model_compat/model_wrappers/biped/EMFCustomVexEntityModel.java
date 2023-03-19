@@ -87,4 +87,12 @@ public class EMFCustomVexEntityModel<T extends LivingEntity> extends VexEntityMo
     public void setHatVisible(boolean visible) {
         thisEMFModel.setHatVisible(visible);
     }
+
+//    @Override
+//    public void setArmAngle(Arm arm, MatrixStack matrices) {
+//        //super.setArmAngle(arm, matrices);
+//        if(thisEMFModel.vanillaModel instanceof VexEntityModel model){
+//            model.setArmAngle(arm, matrices);
+//        }
+//    }
 }

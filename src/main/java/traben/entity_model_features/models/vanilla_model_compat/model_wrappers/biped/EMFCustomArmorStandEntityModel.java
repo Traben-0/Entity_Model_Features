@@ -2,10 +2,12 @@ package traben.entity_model_features.models.vanilla_model_compat.model_wrappers.
 
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.ArmorStandEntityModel;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.ModelWithHat;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
+import net.minecraft.util.Arm;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomEntityModel;
@@ -48,7 +50,9 @@ public class EMFCustomArmorStandEntityModel<T extends LivingEntity> extends Armo
 
     @Override
     public void setAngles(ArmorStandEntity livingEntity, float f, float g, float h, float i, float j) {
-
+        if(thisEMFModel.vanillaModel instanceof BipedEntityModel<?> model){
+            model.leaningPitch = leaningPitch;
+        }
             thisEMFModel.child = child;
             thisEMFModel.sneaking = sneaking;
             thisEMFModel.riding = riding;
@@ -83,5 +87,12 @@ public class EMFCustomArmorStandEntityModel<T extends LivingEntity> extends Armo
     @Override
     public void setHatVisible(boolean visible) {
         thisEMFModel.setHatVisible(visible);
+    }
+
+    @Override
+    public void setArmAngle(Arm arm, MatrixStack matrices) {
+        if(thisEMFModel.vanillaModel instanceof ArmorStandEntityModel model){
+            model.setArmAngle(arm, matrices);
+        }
     }
 }

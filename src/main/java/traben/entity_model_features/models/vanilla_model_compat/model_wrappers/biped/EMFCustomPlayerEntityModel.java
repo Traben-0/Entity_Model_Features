@@ -85,4 +85,12 @@ public class EMFCustomPlayerEntityModel<T extends LivingEntity> extends PlayerEn
     public void setHatVisible(boolean visible) {
         thisEMFModel.setHatVisible(visible);
     }
+
+//    @Override
+//    public void setArmAngle(Arm arm, MatrixStack matrices) {
+//        super.setArmAngle(arm, matrices);
+////        if(thisEMFModel.vanillaModel instanceof PlayerEntityModel<?> model){
+////            model.setArmAngle(arm, matrices);
+////        }
+//    }
 }

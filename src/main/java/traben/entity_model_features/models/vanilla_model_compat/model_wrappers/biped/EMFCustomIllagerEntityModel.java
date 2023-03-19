@@ -5,7 +5,6 @@ import net.minecraft.client.render.entity.model.IllagerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.IllagerEntity;
-import net.minecraft.util.Arm;
 import traben.entity_model_features.mixin.accessor.ModelAccessor;
 import traben.entity_model_features.models.EMFArmorableModel;
 import traben.entity_model_features.models.EMFCustomEntityModel;
@@ -99,14 +98,16 @@ public class EMFCustomIllagerEntityModel<T extends LivingEntity> extends Illager
         return thisEMFModel.getArmourModel(getInner);
     }
 
-    @Override
-    public void setArmAngle(Arm arm, MatrixStack matrices) {
-        //((IllagerEntityModel<M>)thisEMFModel.getThisEMFModel().vanillaModel).setArmAngle(arm, matrices);
-        //ModelPart armP =(arm == Arm.LEFT ? ((IllagerEntityModelAccessor)this).getLeftArm() : ((IllagerEntityModelAccessor)this).getRightArm());
-        //if(armP instanceof EMF_ModelPart emf)
-        //    emf.rotateV3(matrices);
+//    @Override
+//    public void setArmAngle(Arm arm, MatrixStack matrices) {
+//        //((IllagerEntityModel<M>)thisEMFModel.getThisEMFModel().vanillaModel).setArmAngle(arm, matrices);
+//        //ModelPart armP =(arm == Arm.LEFT ? ((IllagerEntityModelAccessor)this).getLeftArm() : ((IllagerEntityModelAccessor)this).getRightArm());
+//        //if(armP instanceof EMF_ModelPart emf)
+//        //    emf.rotateV3(matrices);
+//
+//        //todo check this
+//        super.setArmAngle(arm, matrices);
+//    }
 
 
-        super.setArmAngle(arm, matrices);
-    }
 }

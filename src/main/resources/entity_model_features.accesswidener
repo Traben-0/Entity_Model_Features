@@ -2,3 +2,5 @@ accessWidener	v1 named
 
 extendable class net/minecraft/client/model/ModelPart
 accessible class net/minecraft/client/model/ModelPart
+
+accessible method net/minecraft/client/render/entity/model/PiglinEntityModel animateArms (Lnet/minecraft/entity/mob/MobEntity;F)V
