@@ -23,6 +23,7 @@ public class EMFCustomFrogEntityModel<T extends LivingEntity> extends FrogEntity
 
 
     public EMFCustomFrogEntityModel(EMFGenericCustomEntityModel<T> model) {
+
         //super(QuadrupedEntityModel.getModelData(1,Dilation.NONE).getRoot().createPart(0,0));
         super( EMFCustomEntityModel.getFinalModelRootData(
                 FrogEntityModel.getTexturedModelData().createModel(),

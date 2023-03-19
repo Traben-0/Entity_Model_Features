@@ -140,6 +140,9 @@ public class VanillaModelPartOptiFineMappings {
             return VanillaModelPartOptiFineMappings::getFoxMap;
         }
 // ✅ frog                     head, body, eyes, tongue, left_arm, right_arm, left_leg, right_leg, croaking_body
+        if (vanillaModel instanceof FrogEntityModel) {
+            return VanillaModelPartOptiFineMappings::getFrogMap;
+        }
 
 //todo furnace_minecart         bottom, back, front, right, left
 
@@ -400,13 +403,28 @@ public class VanillaModelPartOptiFineMappings {
         HashMap<String, ModelAndParent> vanillaPartsList = new HashMap<>();
         if (vanillaModel instanceof SinglePartEntityModel model) {
             ModelPart root = model.getPart();
+            vanillaPartsList.put("root", getEntry(root));
             Map<String, ModelPart> sourceChildren = ((ModelPartAccessor) root).getChildren();
-            vanillaPartsList.putAll(iterateOverRootPartsChildren(sourceChildren, null));
+            vanillaPartsList.putAll(iterateOverRootPartsChildren(sourceChildren, "root"));
 
         }
         return vanillaPartsList;
     }
 
+    // ✅ frog                     head, body, eyes, tongue, left_arm, right_arm, left_leg, right_leg, croaking_body
+    private static HashMap<String, ModelAndParent> getFrogMap(EntityModel<?> vanillaModel) {
+        //# silverfish               body1 ... body7, wing1 ... wing3
+        HashMap<String, ModelAndParent> vanillaPartsList = getSinglePartModelMap(vanillaModel);
+        //vanillaPartsList.put("right_arm", getEntry( vanillaPartsList.get("right_arm").part,"root"));
+//        if (vanillaModel instanceof SinglePartEntityModel model) {
+//            ModelPart root = model.getPart();
+//            vanillaPartsList.put("root", getEntry(root));
+//
+//            vanillaPartsList.put("body", vanillaPartsList.get("body"));
+//        }
+
+        return vanillaPartsList;
+    }
     private static Map<String, ModelAndParent> getAllRootPartsChildren(ModelPart root) {
         Map<String, ModelPart> sourceChildren = ((ModelPartAccessor) root).getChildren();
         return iterateOverRootPartsChildren(sourceChildren, null);

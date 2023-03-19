@@ -112,7 +112,21 @@ public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityM
                 }
             }
         });
-
+//        if(value.vanillaParentPartName != null){
+//            value.vanillaParentParts = new LinkedList<>();
+//            if (childrenMap.containsKey(value.vanillaParentPartName)){
+//                value.vanillaParentParts.add(childrenMap.get(value.vanillaParentPartName));
+//            }else if (vanModelParts.containsKey(value.vanillaParentPartName)){
+//                value.vanillaParentParts.addAll(iterateVanillaParentsList(vanModelParts.get(value.vanillaParentPartName),vanModelParts));
+//            }
+//            if(value.vanillaParentParts.size()>=1) value.vanillaParentPart = value.vanillaParentParts.get(0);
+//            if (value.vanillaParentParts.isEmpty()) value.vanillaParentParts = null;
+//
+//        }
+        if(vanModelParts.containsKey("root")){
+            ModelPart root = vanModelParts.get("root").part();
+            rootTransform = root.getDefaultTransform();
+        }
 
         if(EMFData.getInstance().getConfig().printModelCreationInfoToLog)   EMFUtils.EMF_modMessage("start anim creation for "+modelPathIdentifier);
         preprocessAnimationStrings();
@@ -121,7 +135,20 @@ public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityM
 
         //stillInInit = false;
     }
+    public ModelTransform rootTransform = null;
 
+    private LinkedList<ModelPart> iterateVanillaParentsList(VanillaModelPartOptiFineMappings.ModelAndParent entry, HashMap<String, VanillaModelPartOptiFineMappings.ModelAndParent> vanModelParts){
+        LinkedList<ModelPart> list = new LinkedList<>();
+        String parentName = entry.parentName();
+        if(parentName != null) {
+            if (childrenMap.containsKey(parentName)){
+                list.add(childrenMap.get(parentName));
+            }else if (vanModelParts.containsKey(parentName)){
+                list.addAll(iterateVanillaParentsList(vanModelParts.get(parentName),vanModelParts));
+            }
+        }
+        return list;
+    }
 
 
 

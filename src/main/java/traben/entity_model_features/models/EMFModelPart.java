@@ -35,6 +35,10 @@ public class EMFModelPart extends ModelPart  {
 
     public boolean visibilityIsOveridden = false;
 
+    private boolean invX = false;
+    private boolean invY = false;
+    private boolean invZ = false;
+
 
 
     @Override
@@ -93,6 +97,8 @@ public class EMFModelPart extends ModelPart  {
             return vanillaPart.pivotY + vanillaParentPart.pivotY;
         }
         return vanillaPart.pivotY;
+                //vanillaPart.pivotY + (parent == null && !doesAnimtx && vanillaPart != null && vanillaParentPart == null?
+                //getDefaultTransform().pivotY : 0);
     }
     public float getVanillaPivotZWithPossibleVanillaParentTransforms(){
         if (vanillaParentPart != null){
@@ -104,6 +110,9 @@ public class EMFModelPart extends ModelPart  {
         if(vanillaParentPart == null){
             return this.pivotX;
         } else if (vanillaParentPart instanceof EMFModelPart emf){
+            if(thisModel.rootTransform != null) return this.pivotX
+                    -(invX? -emf.getPivotXWithPossibleVanillaParentTransforms() : emf.getPivotXWithPossibleVanillaParentTransforms())
+                    + (invX? -thisModel.rootTransform.pivotX : thisModel.rootTransform.pivotX);
             return this.pivotX + emf.getPivotXWithPossibleVanillaParentTransforms();
         } else{
             return this.pivotX + vanillaParentPart.pivotX;
@@ -112,8 +121,18 @@ public class EMFModelPart extends ModelPart  {
     public float getPivotYWithPossibleVanillaParentTransforms(){
         if(vanillaParentPart == null){
             return this.pivotY;
+//        } else if (vanillaParentParts != null){
+//            float count = 0;
+//            for (ModelPart part:
+//                    vanillaParentParts) {
+//                count += part.pivotY;
+//            }
+//            return this.pivotY + count;
         } else if (vanillaParentPart instanceof EMFModelPart emf){
-            return this.pivotY + emf.getPivotYWithPossibleVanillaParentTransforms();
+            if(thisModel.rootTransform != null) return this.pivotY
+                    -(invY? -emf.getPivotYWithPossibleVanillaParentTransforms() : emf.getPivotYWithPossibleVanillaParentTransforms())
+                    + (invY? -thisModel.rootTransform.pivotY : thisModel.rootTransform.pivotY);
+            return this.pivotY + emf.getPivotYWithPossibleVanillaParentTransforms() ;
         } else{
             return this.pivotY + vanillaParentPart.pivotY;
         }
@@ -122,6 +141,9 @@ public class EMFModelPart extends ModelPart  {
         if(vanillaParentPart == null){
             return this.pivotZ;
         } else if (vanillaParentPart instanceof EMFModelPart emf){
+            if(thisModel.rootTransform != null) return this.pivotZ
+                    -(invZ? -emf.getPivotZWithPossibleVanillaParentTransforms() : emf.getPivotZWithPossibleVanillaParentTransforms())
+                    + (invZ? -thisModel.rootTransform.pivotZ : thisModel.rootTransform.pivotZ);
             return this.pivotZ + emf.getPivotZWithPossibleVanillaParentTransforms();
         } else{
             return this.pivotZ + vanillaParentPart.pivotZ;
@@ -258,7 +280,10 @@ public class EMFModelPart extends ModelPart  {
     private final EMFGenericCustomEntityModel<?> thisModel;
      final Identifier customTexture;
     public final ModelPart vanillaPart;
+    public LinkedList<ModelPart> vanillaParentParts = null;
     public ModelPart vanillaParentPart = null;
+
+
 
 
 
@@ -272,7 +297,7 @@ public class EMFModelPart extends ModelPart  {
                         EMFGenericCustomEntityModel<?> thisModel){//,//float[] parentalTransforms) {
 
         super(new ArrayList<>(), new HashMap<>());
-
+        //if("root".equals(vanillaParentPartName)) parentNumber = -1;
         this.vanillaParentPartName = vanillaParentPartName;
         this.thisModel = thisModel;
         this.parent = parent;
@@ -298,9 +323,9 @@ public class EMFModelPart extends ModelPart  {
         boolean invY = selfModelData.invertAxis.contains("y");
         boolean invZ = selfModelData.invertAxis.contains("z");
 
-       // this.invX = invX;
-        //this.invY = invY;
-        //this.invZ = invZ;
+        this.invX = invX;
+        this.invY = invY;
+        this.invZ = invZ;
         //selfModelData.
 
         //these ones need to change due to some unknown bullshit
