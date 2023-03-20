@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[44,)"
+issueTrackerURL = "https://github.com/Traben-0/Entity_Texture_Features/issues"
+license = "LGPL-3.0"
+showAsResourcePack = false
+
+[[mods]]
+modId = "entity_model_features"
+version = "${version}"
+displayName = "Entity Model Features"
+authors = "Traben"
+description = '''
+Adds support for OptiFine format Custom Entity Models (CEM) resourcepacks.
+ETF is recommended as well for full functionality
+'''
+logoFile = "icon.png"
+
+[[dependencies.entity_model_features]]
+modId = "forge"
+mandatory = true
+versionRange = "[44,)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.entity_model_features]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.19.3,)"
+ordering = "NONE"
+side = "CLIENT"
+

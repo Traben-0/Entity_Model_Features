@@ -1,0 +1,44 @@
+{
+  "required": true,
+  "package": "traben.entity_model_features.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "MixinSimpleResourceReload",
+    "accessor.CatCollarFeatureRendererAccessor",
+    "accessor.CuboidAccessor",
+    "accessor.FeatureRendererAccessor",
+    "accessor.FoxHeldItemFeatureRendererAccessor",
+    "accessor.ModelAccessor",
+    "accessor.ModelPartAccessor",
+    "accessor.entity.LivingEntityRendererAccessor",
+    "accessor.entity.feature.CreeperChargeFeatureRendererAccessor",
+    "accessor.entity.feature.HorseArmorFeatureRendererAccessor",
+    "accessor.entity.feature.LlamaDecorFeatureRendererAccessor",
+    "accessor.entity.feature.SaddleFeatureRendererAccessor",
+    "accessor.entity.feature.SlimeOverlayFeatureRendererAccessor",
+    "accessor.entity.model.AnimalModelAccessor",
+    "accessor.entity.model.BipedEntityModelAccessor",
+    "accessor.entity.model.DonkeyEntityModelAccessor",
+    "accessor.entity.model.FoxEntityModelAccessor",
+    "accessor.entity.model.HorseEntityModelAccessor",
+    "accessor.entity.model.IllagerEntityModelAccessor",
+    "accessor.entity.model.IronGolemEntityModelAccessor",
+    "accessor.entity.model.LlamaEntityModelAccessor",
+    "accessor.entity.model.PlayerEntityModelAccessor",
+    "accessor.entity.model.QuadrupedEntityModelAccessor",
+    "accessor.entity.model.RabbitEntityModelAccessor",
+    "accessor.entity.model.VillagerResemblingModelAccessor",
+    "renderers.MixinLivingEntityRenderer",
+    "renderers.MixinPlayerEntityRenderer",
+    "renderers.features.MixinCreeperChargeFeatureEntityRenderer",
+    "renderers.features.MixinSheepWoolFeatureRenderer",
+    "renderers.features.MixinTropicalFishFeatureRenderer"
+  ],
+  "mixins": [
+    "accessor.DrownedOverlayFeatureRendererAccessor",
+    "accessor.StrayOverlayFeatureRendererAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
