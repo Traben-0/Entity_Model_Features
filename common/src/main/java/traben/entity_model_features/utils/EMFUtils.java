@@ -152,6 +152,7 @@ public class EMFUtils {
 
                 EMFJemData jem = gson.fromJson(reader, EMFJemData.class);
                 reader.close();
+                jem.sendFileName(pathOfJem);
                 jem.prepare();
                 return jem;
             //}

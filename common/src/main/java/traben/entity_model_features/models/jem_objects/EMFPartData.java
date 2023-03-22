@@ -22,6 +22,7 @@ public class EMFPartData {
     public String baseId = "";  //- Model parent ID, all parent properties are inherited
     public String model = "";  //- Part model jemJsonObjects, from which to load the part model definition
     public String id = "";            //- Model ID, can be used to reference the model as parent
+
     public String part = null;//"!!!!!";     //- Entity part to which the part model is atached
     public boolean attach = false; //- True: attach to the entity part, False: replace it
     public float scale = 1.0f;
@@ -133,17 +134,20 @@ public class EMFPartData {
         if(parentCount == 0){// && selfModelData.boxes.length == 0){
             //sendToFirstChild = new float[]{translateX, translateY, translateZ};
             nextModify = new float[]{translate[0], translate[1], translate[2]};
-            translate[0] = translateX;
+            translate[0] = -translateX;
             translate[1] = 24 - translateY;
-            translate[2] = translateZ;
+            translate[2] = -translateZ;//todo this negative might be an inverse due to FA's xy inverting :/
 //                    pivotX = translateX;//0;
 //            pivotY = 24 - translateY ;//24;//0; 24 makes it look nice normally but animations need to include it separately
 //            pivotZ = translateZ;//0;
         }else// if(parentCount == 1 )
         {
-            translate[0] = translateX - modifyyTranslates[0];
-            translate[1] = translateY - modifyyTranslates[1];
-            translate[2] = translateZ + modifyyTranslates[2];
+//////////////            translate[0] = translateX - modifyyTranslates[0];
+//////////////            translate[1] = translateY - modifyyTranslates[1];
+//////////////            translate[2] = translateZ + modifyyTranslates[2];
+            translate[0] = translateX +(invX ? -modifyyTranslates[0] : modifyyTranslates[0]);
+            translate[1] = translateY +(invY ? -modifyyTranslates[1] : modifyyTranslates[1]);
+            translate[2] = translateZ +(invZ ? -modifyyTranslates[2] : modifyyTranslates[2]);
 
 //            float parent0sTX = fromFirstChild[0];
 //            float parent0sTY = fromFirstChild[1];

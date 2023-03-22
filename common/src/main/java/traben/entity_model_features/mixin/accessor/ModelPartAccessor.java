@@ -20,4 +20,7 @@ public interface ModelPartAccessor {
     @Mutable
     @Accessor
     void setCuboids(List<ModelPart.Cuboid> cuboids);
+
+    @Accessor
+    List<ModelPart.Cuboid> getCuboids();
 }
