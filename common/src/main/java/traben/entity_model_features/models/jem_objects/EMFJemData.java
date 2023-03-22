@@ -19,7 +19,7 @@ public class EMFJemData {
 
         for (EMFPartData model:
              models) {
-            model.prepare( 0,textureSize,texture);
+            model.prepare( 0,textureSize,texture, new float[]{0,0,0});
         }
     }
 

@@ -46,7 +46,7 @@ public class EMFPartData {
         this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
     }
 
-    public void prepare(int parentCount, int[] textureSize, String texture){
+    public void prepare(int parentCount, int[] textureSize, String texture, float[] modifyyTranslates){
 
 //        for (LinkedHashMap<String,String> map:
 //             animations) {
@@ -95,23 +95,89 @@ public class EMFPartData {
 //            }
 //        }
 
-        if (!model.equals("")){
-            //TODO load json model part files to this object
+        boolean invX = invertAxis.contains("x");
+        boolean invY = invertAxis.contains("y");
+        boolean invZ = invertAxis.contains("z");
+
+
+        //selfModelData.
+
+        //these ones need to change due to some unknown bullshit
+        float translateX= translate[0];
+        float translateY= translate[1];
+        float translateZ= translate[2];
+
+        float rotateX= (float) Math.toRadians(rotate[0]);
+        float rotateY= (float) Math.toRadians(rotate[1]);
+        float rotateZ= (float) Math.toRadians(rotate[2]);
+
+
+        //figure out the bullshit
+        if( invX){
+            rotateX = -rotateX;
+            translateX = -translateX;
+        }else{
+            //nothing? just an invert?
         }
+        if( invY){
+            rotateY = -rotateY;
+            translateY = -translateY;
+        }
+        if( invZ){
+            rotateZ = -rotateZ;
+            translateZ = -translateZ;
+        }
+
+        float[] nextModify = {0,0,0};
+
+        if(parentCount == 0){// && selfModelData.boxes.length == 0){
+            //sendToFirstChild = new float[]{translateX, translateY, translateZ};
+            nextModify = new float[]{translate[0], translate[1], translate[2]};
+            translate[0] = translateX;
+            translate[1] = 24 - translateY;
+            translate[2] = translateZ;
+//                    pivotX = translateX;//0;
+//            pivotY = 24 - translateY ;//24;//0; 24 makes it look nice normally but animations need to include it separately
+//            pivotZ = translateZ;//0;
+        }else// if(parentCount == 1 )
+        {
+            translate[0] = translateX - modifyyTranslates[0];
+            translate[1] = translateY - modifyyTranslates[1];
+            translate[2] = translateZ + modifyyTranslates[2];
+
+//            float parent0sTX = fromFirstChild[0];
+//            float parent0sTY = fromFirstChild[1];
+//            float parent0sTZ = fromFirstChild[2];
+//            pivotX = parent0sTX + translateX;
+//            pivotY = parent0sTY + translateY;// pivotModifyForParNum1Only[1];
+//            pivotZ = parent0sTZ + translateZ;
+        }
+//        else{// of course it just suddenly acts normal after the first 2 :L
+//            translate[0] = translateX;
+//            translate[1] = translateY;
+//            translate[2] = translateZ;
+//        }
+
+        rotate[0] = rotateX;
+        rotate[1] = rotateY;
+        rotate[2] = rotateZ;
+
+
         for (EMFBoxData box:
-             boxes) {
-            box.prepare();
+                boxes) {
+            box.prepare(invX,invY,invZ,nextModify[0],nextModify[1],nextModify[2]);
         }
+
         for (EMFSpriteData sprite:
                 sprites) {
             sprite.prepare();
         }
         if (submodel !=null){
-            submodel.prepare(parentCount+1, this.textureSize, this.texture);
+            submodel.prepare(parentCount+1, this.textureSize, this.texture,nextModify);
         }
         for (EMFPartData model:
                 submodels) {
-            model.prepare(parentCount+1, this.textureSize, this.texture);
+            model.prepare(parentCount+1, this.textureSize, this.texture,nextModify);
         }
     }
 
