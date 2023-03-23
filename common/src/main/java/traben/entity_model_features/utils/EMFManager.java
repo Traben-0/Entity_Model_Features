@@ -51,7 +51,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public static ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
 
-        if (layer == EntityModelLayers.IRON_GOLEM ||layer == EntityModelLayers.ZOMBIE || layer == EntityModelLayers.COW || layer == EntityModelLayers.SHEEP || layer == EntityModelLayers.VILLAGER) {
+        if (layer == EntityModelLayers.SPIDER ||layer == EntityModelLayers.IRON_GOLEM ||layer == EntityModelLayers.ZOMBIE || layer == EntityModelLayers.COW || layer == EntityModelLayers.SHEEP || layer == EntityModelLayers.VILLAGER) {
             System.out.println("ran zomb and sheep");
             String jemName = "optifine/cem/" + layer.getId().getPath() + ".jem";
             EMFJemData jemData = getJemData(jemName);

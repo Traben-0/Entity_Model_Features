@@ -154,7 +154,7 @@ public class EMFPartData {
             translate[2] = translateZ +(invZ ? -modifyyTranslates[2] : modifyyTranslates[2]);
 
             underATopLevelModel = parentCount == 1;
-            parentModified = new float[]{0, (invY ? -modifyyTranslates[1] : modifyyTranslates[1]), 0};
+            parentModified = new float[]{invX ? -modifyyTranslates[0] : modifyyTranslates[0], (invY ? -modifyyTranslates[1] : modifyyTranslates[1]), invZ ? -modifyyTranslates[2] : modifyyTranslates[2]};
 //            float parent0sTX = fromFirstChild[0];
 //            float parent0sTY = fromFirstChild[1];
 //            float parent0sTZ = fromFirstChild[2];

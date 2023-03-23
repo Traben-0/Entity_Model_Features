@@ -97,22 +97,23 @@ public enum EMFDefaultModelVariable {
             System.out.println("model part was null cannot get its value");
             return 0;
         }
-        float modify = 0;
 
+        float[] parentModify;
             if( modelPart.selfModelData != null){
-                float[] parentModify = modelPart.selfModelData.parentModified;
-                modify = parentModify[1];
+                parentModify = modelPart.selfModelData.parentModified;
+            }else{
+                parentModify = new float[]{0, 0, 0};
             }
         ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;
         switch (this) {
             case tx -> {
-                return modelPart.pivotX;
+                return modelPart.pivotX - parentModify[0];
             }
             case ty -> {
-                return modelPart.pivotY -modify;
+                return modelPart.pivotY - parentModify[1];
             }
             case tz -> {
-                return modelPart.pivotZ;
+                return modelPart.pivotZ - parentModify[2];
             }
             case rx -> {
                 return modelPart.pitch ;
@@ -150,22 +151,23 @@ public enum EMFDefaultModelVariable {
                 System.out.println("model part was null cannot set its value");
                 return;
             }
-            float modify =0;
+            float[] parentModify;
             if( modelPart.selfModelData != null){
-                float[] parentModify = modelPart.selfModelData.parentModified;
-                modify = parentModify[1];
+                parentModify = modelPart.selfModelData.parentModified;
+            }else{
+                parentModify = new float[]{0, 0, 0};
             }
 
             ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;
             switch (this){
                 case tx -> {
-                     modelPart.pivotX = value;
+                     modelPart.pivotX = value + parentModify[0];
                 }
                 case ty -> {
-                     modelPart.pivotY = value + modify;
+                     modelPart.pivotY = value + parentModify[1];
                 }
                 case tz -> {
-                     modelPart.pivotZ = value;
+                     modelPart.pivotZ = value + parentModify[2];
                 }
                 case rx -> {
                      modelPart.pitch = value ;
