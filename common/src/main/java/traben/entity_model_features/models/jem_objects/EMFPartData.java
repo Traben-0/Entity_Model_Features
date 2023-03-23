@@ -5,6 +5,7 @@ import traben.entity_model_features.utils.EMFUtils;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 public class EMFPartData {
 
@@ -27,6 +28,31 @@ public class EMFPartData {
     public boolean attach = false; //- True: attach to the entity part, False: replace it
     public float scale = 1.0f;
 
+
+    public static final EMFPartData BLANK_PART_DATA = new EMFPartData(){{
+        id = "EMF_BLANK_MODEL_PART";
+        textureSize = new int[]{1, 1};
+        scale = 0;
+    }};
+
+    public static EMFPartData getBlankPartWithIDOf(String id2){
+        return new EMFPartData(){{
+            id = id2;
+            part= id2;
+            textureSize = new int[]{1, 1};
+            scale = 0;
+        }};
+    }
+    public static EMFPartData getBlankPartWithIDOfAndChildren(String id2, List<String> children){
+        return new EMFPartData(){{
+            id = id2;
+            part= id2;
+            textureSize = new int[]{1, 1};
+            scale = 0;
+            submodels = new LinkedList<>();
+            children.forEach((name)->submodels.add(getBlankPartWithIDOf(name)));
+        }};
+    }
 
     public LinkedHashMap<String,String>[] animations = null;
 

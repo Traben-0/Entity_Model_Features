@@ -3,17 +3,17 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "Mixin_2_QuadrupedEntityModel",
-    "Mixin_2_SheepEntityModel",
-    "Mixin_2_VillagerResemblingModel",
-    "Mixin_2_ZombieEntityModel",
+    "rewrite.Mixin_2_QuadrupedEntityModel",
+    "rewrite.Mixin_2_SheepEntityModel",
+    "rewrite.Mixin_2_VillagerResemblingModel",
+    "rewrite.Mixin_2_ZombieEntityModel",
     "MixinModelLoadingTest",
     "MixinSimpleResourceReload",
     "accessor.CatCollarFeatureRendererAccessor",
     "accessor.CuboidAccessor",
     "accessor.FeatureRendererAccessor",
     "accessor.FoxHeldItemFeatureRendererAccessor",
-    "accessor.Mixin_2_SpiderEntityModel",
+    "rewrite.Mixin_2_SpiderEntityModel",
     "accessor.ModelAccessor",
     "accessor.ModelPartAccessor",
     "accessor.entity.LivingEntityRendererAccessor",
@@ -34,7 +34,7 @@
     "accessor.entity.model.QuadrupedEntityModelAccessor",
     "accessor.entity.model.RabbitEntityModelAccessor",
     "accessor.entity.model.VillagerResemblingModelAccessor",
-    "renderers.Mixin_2_IronGolemEntityModel"
+    "rewrite.Mixin_2_IronGolemEntityModel"
   ],
   "mixins": [
   ],

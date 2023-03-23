@@ -1,8 +1,7 @@
 package traben.entity_model_features.models.jem_objects;
 
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.EMFData;
+import traben.entity_model_features.utils.EMFOptiFineMappings2;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
@@ -65,71 +64,9 @@ public class EMFJemData {
         }
 
         //vanilla parenting adjustments
-        Map<String, PartAndChildName> map = new HashMap<>();
+        Map<String, EMFOptiFineMappings2.PartAndChildName> map = EMFOptiFineMappings2.getMapOf(mobName);
         Set<String> foundChildren = new HashSet<>();
-        if(mobName.equals("villager")){//todo
-            map = Map.ofEntries(
-                    getEntryOptifineWithChildList("head","head",List.of("hat","nose")),
-                    getEntryOptifineWithChild("headwear","hat", "hat_rim"),
-                    getEntryOptifineDifferent("headwear2", "hat_rim"),
-                    getEntryOptifineDifferent("bodywear", "jacket"),
-                    getEntryOptifineWithChild("body","body","jacket"),
-                    getEntryOptifineSameAsVanilla("arms"),
-                    getEntryOptifineSameAsVanilla("right_leg"),
-                    getEntryOptifineSameAsVanilla("left_leg"),
-                    getEntryOptifineSameAsVanilla("nose"));
-        } else if(mobName.equals("iron_golem")){//iron_golem               head, body, left_arm, right_arm, left_leg, right_leg
-            map = Map.ofEntries(
-                    getEntryOptifineSameAsVanilla("head"),
-                    getEntryOptifineSameAsVanilla("body"),
-                    getEntryOptifineSameAsVanilla("left_arm"),
-                    getEntryOptifineSameAsVanilla("right_arm"),
-                    getEntryOptifineSameAsVanilla("left_leg"),
-                    getEntryOptifineSameAsVanilla("right_leg")
-            );
-        } else if(mobName.equals("spider")){//head, neck, body, leg1, ... leg8
-            map = Map.ofEntries(
-                    getEntryOptifineSameAsVanilla("head"),
-                    getEntryOptifineDifferent("neck","body0"),
-                    getEntryOptifineDifferent("body","body1"),
-                    getEntryOptifineDifferent("leg1","right_hind_leg"),
-                    getEntryOptifineDifferent("leg2","left_hind_leg"),
-                    getEntryOptifineDifferent("leg3","right_middle_hind_leg"),
-                    getEntryOptifineDifferent("leg4","left_middle_hind_leg"),
-                    getEntryOptifineDifferent("leg5","right_middle_front_leg"),
-                    getEntryOptifineDifferent("leg6","left_middle_front_leg"),
-                    getEntryOptifineDifferent("leg7","right_front_leg"),
-                    getEntryOptifineDifferent("leg8","left_front_leg")
-            );
-        } else if(mobName.equals("sheep")) {
-            map = Map.ofEntries(
-                    getEntryOptifineSameAsVanilla("head"),
-                    getEntryOptifineSameAsVanilla("body"),
-                    getEntryOptifineDifferent("leg1", "right_hind_leg"),
-                    getEntryOptifineDifferent("leg2", "left_hind_leg"),
-                    getEntryOptifineDifferent("leg3", "right_front_leg"),
-                    getEntryOptifineDifferent("leg4", "left_front_leg"));
-        }else if(mobName.equals("cow")) {
-            map = Map.ofEntries(
-                    getEntryOptifineSameAsVanilla("head"),
-                    getEntryOptifineSameAsVanilla("body"),
-                    getEntryOptifineDifferent("leg1", "right_hind_leg"),
-                    getEntryOptifineDifferent("leg2", "left_hind_leg"),
-                    getEntryOptifineDifferent("leg3", "right_front_leg"),
-                    getEntryOptifineDifferent("leg4", "left_front_leg"));
-        }else if(mobName.equals("zombie")){
-            // head, headwear, body, left_arm, right_arm, left_leg, right_leg
-            map = Map.ofEntries(
-                    getEntryOptifineSameAsVanilla("head"),
-                    getEntryOptifineDifferent("headwear","hat"),
-                    getEntryOptifineSameAsVanilla("body"),
-                    getEntryOptifineSameAsVanilla("left_arm"),
-                    getEntryOptifineSameAsVanilla("right_arm"),
-                    getEntryOptifineSameAsVanilla("left_leg"),
-                    getEntryOptifineSameAsVanilla("right_leg")
-                    );
 
-        }
         //change all part values to their vanilla counterparts
         for (EMFPartData partData:
                 models) {
@@ -143,8 +80,26 @@ public class EMFJemData {
             }
         }
 
+
+        //add any missing parts as blank before children removal checks
+        LinkedList<EMFPartData> missingModels = new LinkedList<EMFPartData>();
+        for (EMFOptiFineMappings2.PartAndChildName data:
+                map.values()) {
+            String name = data.partName();
+            boolean found = false;
+            for (EMFPartData partData:
+                    models) {
+                if(name.equals(partData.part)){
+                    found=true;
+                    break;
+                }
+            }
+            if(!found) missingModels.add(EMFPartData.getBlankPartWithIDOf(name));
+        }
+        models.addAll(missingModels);
+
         //copy all children into their parents lists
-        for (Map.Entry<String, PartAndChildName> entry:
+        for (Map.Entry<String, EMFOptiFineMappings2.PartAndChildName> entry:
              map.entrySet()) {
 
             if(entry.getValue().childNamesToExpect().size() >0){
@@ -156,14 +111,22 @@ public class EMFJemData {
                         EMFPartData child = getFirstPartInModels(childName);
                         if(child != null) {
                             parent.submodels.add(child);
-                            foundChildren.add(childName);
+                        }else{
+                            //oof no child, this can happen with the shitty things in vanilla like wolves real_tail :/
+                            parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName));
                         }
+                        foundChildren.add(childName);
                     }
                 }
             }
         }
+
+
+
         //all children have been added to their parents time to remove children from the top level list
         models.removeIf(topLevelPart -> foundChildren.contains(topLevelPart.part));
+
+
 
         //now all parts follow exactly the vanilla model root parent structure
         //attaches have also been applied currently only as children
@@ -205,10 +168,10 @@ public class EMFJemData {
                 //there is no way out of this we have to loop each mapping for each entry to cover all possible part pointers
                 //todo can likely optimize further
                 if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("map = "+ map);
-                for (Map.Entry<String, PartAndChildName> optifineMapEntry :
+                for (Map.Entry<String, EMFOptiFineMappings2.PartAndChildName> optifineMapEntry :
                         map.entrySet()) {
                     String optifinePartName = optifineMapEntry.getKey();
-                    String vanillaPartName = optifineMapEntry.getValue().partName;
+                    String vanillaPartName = optifineMapEntry.getValue().partName();
                     if(!optifinePartName.equals(vanillaPartName)) {//skip if no change needed
                         if (animationKey.contains(optifinePartName)) {//this is faster than the lookbehind and ahead regex it will save us time if the string does not contain a part reference
                             animationKey = animationKey.replaceAll(
@@ -254,29 +217,4 @@ public class EMFJemData {
                 '}';
     }
 
-    private static  Map.Entry<String,PartAndChildName> getEntryOptifineSameAsVanilla(String name){
-        return new MutablePair<>(name,_getPartAndChild(name));
-    }
-    private static  Map.Entry<String,PartAndChildName> getEntryOptifineDifferent(String name,String vanillaName){
-        return new MutablePair<>(name,_getPartAndChild(vanillaName));
-    }
-    private static  Map.Entry<String,PartAndChildName> getEntryOptifineWithChild(String name,String vanillaName,String childName){
-        return new MutablePair<>(name,_getPartAndChild( vanillaName,childName));
-    }
-    private static  Map.Entry<String,PartAndChildName> getEntryOptifineWithChildList(String name,String vanillaName,List<String> childNames){
-        return new MutablePair<>(name,_getPartAndChild( vanillaName,childNames));
-    }
-
-    private record PartAndChildName(@NotNull String partName, @NotNull List<String> childNamesToExpect){
-
-    }
-    private static PartAndChildName _getPartAndChild(String partName, String childName){
-        return new PartAndChildName(partName, Collections.singletonList(childName));
-    }
-    private static PartAndChildName _getPartAndChild(String partName){
-        return new PartAndChildName(partName, new ArrayList<>());
-    }
-    private static PartAndChildName _getPartAndChild(String partName, List<String> childNamesToExpect){
-        return new PartAndChildName(partName, childNamesToExpect);
-    }
 }

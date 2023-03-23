@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin;
+package traben.entity_model_features.mixin.rewrite;
 
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.LivingEntity;

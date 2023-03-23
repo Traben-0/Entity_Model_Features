@@ -31,6 +31,8 @@ public class EMFModelPart3 extends ModelPart  {
     private boolean invZ = false;
 
 
+    public static final EMFModelPart3 BLANK_MODEL_PART = new EMFModelPart3(EMFPartData.BLANK_PART_DATA);
+
 
 //    @Override
 //    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay) {
