@@ -5,6 +5,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.EMFData;
+import traben.entity_model_features.utils.EMFManager;
 
 
 @Mixin(SimpleResourceReload.class)
@@ -20,6 +21,7 @@ public abstract class MixinSimpleResourceReload {
                 //do reset
                 System.out.println("resetting emf");
                 EMFData.reset();
+                EMFManager.resetInstance();
             }
         } else {
             emf$falseAfterFirstRun = true;

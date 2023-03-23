@@ -197,31 +197,31 @@ public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityM
                 EMFModelPart thisPart = parts.get(modelId);
                 EMFAnimation thisCalculator = null;
 
-                if (thisPart != null){
-
-                    thisCalculator =
-                            new EMFAnimation(
-                                    this,
-                                    (EMFModelPart)thisPart,
-                                    thisVariable,
-                                    animKey,
-                                    animationExpression);
-                }else if(vanillaModelPartsById.containsKey(modelId)){
-                    thisCalculator = new EMFAnimation(
-                                    this,
-                                    vanillaModelPartsById.get(modelId).part(),
-                                    thisVariable,
-                                    animKey,
-                                    animationExpression);
-                }else{
-                    //not a custom model or vanilla must be a custom variable
-                    thisCalculator = new EMFAnimation(
-                                    this,
-                                    null,
-                                    null,
-                                    animKey,
-                                    animationExpression);
-                }
+//                if (thisPart != null){
+//
+//                    thisCalculator =
+//                            new EMFAnimation(
+//                                    this,
+//                                    (EMFModelPart)thisPart,
+//                                    thisVariable,
+//                                    animKey,
+//                                    animationExpression);
+//                }else if(vanillaModelPartsById.containsKey(modelId)){
+//                    thisCalculator = new EMFAnimation(
+//                                    this,
+//                                    vanillaModelPartsById.get(modelId).part(),
+//                                    thisVariable,
+//                                    animKey,
+//                                    animationExpression);
+//                }else{
+//                    //not a custom model or vanilla must be a custom variable
+//                    thisCalculator = new EMFAnimation(
+//                                    this,
+//                                    null,
+//                                    null,
+//                                    animKey,
+//                                    animationExpression);
+//                }
 
                // if(thisCalculator.isValid()){
                   //  System.out.println("found and added valid animation: "+animKey+"="+animationExpression);
@@ -236,10 +236,10 @@ public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityM
 
             //init expressions after all available variables have been loaded to the animation map
             // utilise a new map over the iteration to ensure non variable calls can consider value availability for mapping to vanilla parts
-            animationKeyToCalculatorObject.forEach((key,anim)->{
-                anim.initExpression();
-                alreadyCalculatedThisInitTickAnimations.put(key,anim);
-            });
+//            animationKeyToCalculatorObject.forEach((key,anim)->{
+//                anim.initExpression();
+//                alreadyCalculatedThisInitTickAnimations.put(key,anim);
+//            });
             
         }
     }
@@ -339,72 +339,73 @@ public class EMFGenericCustomEntityModel<T extends LivingEntity> extends EntityM
     public MathValue.AnimationValueSupplier getAnimationResultOfKeyAsSupplier(
             EMFModelPart parentForCheck,
             String key) {
-        //if(stillInInit) return 1;
-
-        //if(key.contains("arm")) System.out.println(vanillaModelPartsById.keySet());;
-        if (!alreadyCalculatedThisInitTickAnimations.containsKey(key)) {
-            //if (!animationKeyToCalculatorObject.containsKey(key)) {
-            String partName = key.split("\\.")[0];
-
-            if (vanillaModelPartsById.containsKey(partName)) {
-
-                EMFDefaultModelVariable variableToGet;
-                try {
-                    variableToGet = EMFDefaultModelVariable.valueOf(key.split("\\.")[1]);
-                    //attempt to cache an interpolating animation variable pointing to the vanilla part so that vanilla values can match EMF interpolation when needed
-                    //////////////////
-//                    if(!variableToGet.isRotation &&
-//                            !animationKeyToCalculatorObject.containsKey(key) &&
-//                            !needToBeAddedToAnimationMap.containsKey(key)){
-//                        //this means we have not added a custom interpolating variable yet, so add one
-//                        AnimationCalculation interpolatingVanillaGetter =  new AnimationCalculation(
-//                                this,
-//                                getAllParts().get(partName),//null if no mapping is correct
-//                                variableToGet,
-//                                key,
-//                                key);
-//                        //add to start of anims for next loop to be able to use interpolating value
-//                        needToBeAddedToAnimationMap.putAndMoveToFirst(key,interpolatingVanillaGetter);
-//                        //now that it has been put this section will not run again for the same vanilla value
+        return null;
+//        //if(stillInInit) return 1;
+//
+//        //if(key.contains("arm")) System.out.println(vanillaModelPartsById.keySet());;
+//        if (!alreadyCalculatedThisInitTickAnimations.containsKey(key)) {
+//            //if (!animationKeyToCalculatorObject.containsKey(key)) {
+//            String partName = key.split("\\.")[0];
+//
+//            if (vanillaModelPartsById.containsKey(partName)) {
+//
+//                EMFDefaultModelVariable variableToGet;
+//                try {
+//                    variableToGet = EMFDefaultModelVariable.valueOf(key.split("\\.")[1]);
+//                    //attempt to cache an interpolating animation variable pointing to the vanilla part so that vanilla values can match EMF interpolation when needed
+//                    //////////////////
+////                    if(!variableToGet.isRotation &&
+////                            !animationKeyToCalculatorObject.containsKey(key) &&
+////                            !needToBeAddedToAnimationMap.containsKey(key)){
+////                        //this means we have not added a custom interpolating variable yet, so add one
+////                        AnimationCalculation interpolatingVanillaGetter =  new AnimationCalculation(
+////                                this,
+////                                getAllParts().get(partName),//null if no mapping is correct
+////                                variableToGet,
+////                                key,
+////                                key);
+////                        //add to start of anims for next loop to be able to use interpolating value
+////                        needToBeAddedToAnimationMap.putAndMoveToFirst(key,interpolatingVanillaGetter);
+////                        //now that it has been put this section will not run again for the same vanilla value
+////                    }
+//                    //////////////////
+//
+//                    //if (key.contains("arm")) System.out.println(key + "=" + value);
+//
+//                    ModelPart part =vanillaModelPartsById.get(partName).part();
+//                    return (entity2) -> variableToGet.getFromVanillaModel(part);
+//
+//                } catch (IllegalArgumentException e) {
+//                    EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
+//                    return (ent)->0;
+//                }
+//
+//            } else if (getAllParts().containsKey(partName)) {
+//                EMFDefaultModelVariable variableToGet;
+//                EMFModelPart otherPart = getAllParts().get(partName);
+//                try {
+//                    variableToGet = EMFDefaultModelVariable.valueOf(key.split("\\.")[1]);
+//                    if (parentForCheck != null && parentForCheck.equals(otherPart.parent)) {
+//                        return (ent)-> variableToGet.getFromEMFModel(otherPart, true);
+//                    } else {
+//                        return (ent)-> variableToGet.getFromEMFModel(otherPart);
 //                    }
-                    //////////////////
-
-                    //if (key.contains("arm")) System.out.println(key + "=" + value);
-
-                    ModelPart part =vanillaModelPartsById.get(partName).part();
-                    return (entity2) -> variableToGet.getFromVanillaModel(part);
-
-                } catch (IllegalArgumentException e) {
-                    EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
-                    return (ent)->0;
-                }
-
-            } else if (getAllParts().containsKey(partName)) {
-                EMFDefaultModelVariable variableToGet;
-                EMFModelPart otherPart = getAllParts().get(partName);
-                try {
-                    variableToGet = EMFDefaultModelVariable.valueOf(key.split("\\.")[1]);
-                    if (parentForCheck != null && parentForCheck.equals(otherPart.parent)) {
-                        return (ent)-> variableToGet.getFromEMFModel(otherPart, true);
-                    } else {
-                        return (ent)-> variableToGet.getFromEMFModel(otherPart);
-                    }
-
-                } catch (IllegalArgumentException e) {
-                    EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
-                    return (ent)->0;
-                }
-
-            } else {
-                EMFUtils.EMF_modWarn("no animation expression value found for: " + key + " in " + modelPathIdentifier);
-                //System.out.println(animationKeyToCalculatorObject.keySet());
-                //System.out.println(vanillaModelPartsById.keySet());
-                return (ent)-> 0;
-            }
-
-        }
-        EMFAnimation variable =alreadyCalculatedThisInitTickAnimations.get(key);
-        return (entity2) -> variable.getLastResultOnly((LivingEntity) entity2);
+//
+//                } catch (IllegalArgumentException e) {
+//                    EMFUtils.EMF_modWarn("no animation expression part variable value found for: " + key + " in " + modelPathIdentifier);
+//                    return (ent)->0;
+//                }
+//
+//            } else {
+//                EMFUtils.EMF_modWarn("no animation expression value found for: " + key + " in " + modelPathIdentifier);
+//                //System.out.println(animationKeyToCalculatorObject.keySet());
+//                //System.out.println(vanillaModelPartsById.keySet());
+//                return (ent)-> 0;
+//            }
+//
+//        }
+//        EMFAnimation variable =alreadyCalculatedThisInitTickAnimations.get(key);
+//        return (entity2) -> variable.getLastResultOnly((LivingEntity) entity2);
         //return alreadyCalculatedThisTickAnimations.get(key).getLastResultOnly((LivingEntity) entity);
     }
     //same as above method but optimized for variable loading as they only exist in animations map and can be loaded out of execution order

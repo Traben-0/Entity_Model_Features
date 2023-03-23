@@ -64,7 +64,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
              if(expression.isValid()){
                  return expression;
              }else{
-                 EMFUtils.EMF_modWarn("null animation expression: ["+expressionString+"] in ["+ calculationInstance.parentModel.modelPathIdentifier+"]");
+                 EMFUtils.EMF_modWarn("null animation expression: ["+expressionString+"]");
                  return NULL_EXPRESSION;
              }
          return expression.optimizedAlternativeToThis;
@@ -108,7 +108,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                             case "||" -> MathAction.or;
                             case ">=" -> MathAction.largerThanOrEquals;
                             case "<=" -> MathAction.smallerThanOrEquals;
-                            default -> throw new EMFMathException("ERROR: with boolean processing for operator ["+firstBooleanChar+""+ch+"] for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].");
+                            default -> throw new EMFMathException("ERROR: with boolean processing for operator ["+firstBooleanChar+""+ch+"] for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].");
                         };
                         //add complete double boolean action
                         components.add(action);
@@ -127,7 +127,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                                 case '|' -> MathAction.or;
                                 case '<' -> MathAction.smallerThan;
                                 case '>' -> MathAction.largerThan;
-                                default -> throw new EMFMathException("ERROR: with boolean processing for operator ["+firstBooleanChar+"] for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].");
+                                default -> throw new EMFMathException("ERROR: with boolean processing for operator ["+firstBooleanChar+"] for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].");
                             });
                         }
                     }
@@ -232,7 +232,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                 ///////////////////////////////////////////
             }
 
-            if(components.isEmpty()) throw new EMFMathException("ERROR: math components found to be empty for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"]");
+            if(components.isEmpty()) throw new EMFMathException("ERROR: math components found to be empty for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"]");
 
             //resolve unnecessary and unwanted math logic issue like 1 + +2
             CalculationList newComponents = new CalculationList();
@@ -319,7 +319,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
         }catch (EMFMathException e){
             caughtExceptionString = e.toString();
         }catch (Exception e){
-            caughtExceptionString = "EMF animation ERROR: for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"] cause ["+e+"].";
+            caughtExceptionString = "EMF animation ERROR: for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"] cause ["+e+"].";
             e.printStackTrace();
         }
     }
@@ -500,11 +500,11 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                 }
                 return result;
             } else {
-                System.out.println("ERROR: calculation did not result in 1 component, found: " + componentsDuringCalculate+ " in ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].");
+                System.out.println("ERROR: calculation did not result in 1 component, found: " + componentsDuringCalculate+ " in ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].");
                 System.out.println("\texpression was ["+originalExpression+"].");
             }
         }catch (Exception e){
-            System.out.println("EMF animation ERROR: expression error in ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"] caused by ["+e+"].");
+            System.out.println("EMF animation ERROR: expression error in ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"] caused by ["+e+"].");
         }
 
         return Float.NaN;

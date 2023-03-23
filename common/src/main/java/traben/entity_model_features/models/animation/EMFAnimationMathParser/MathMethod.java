@@ -140,7 +140,7 @@ public class MathMethod extends MathValue implements MathComponent{
 
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in IN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in IN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -164,7 +164,7 @@ public class MathMethod extends MathValue implements MathComponent{
 
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in EQUALS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in EQUALS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -184,7 +184,7 @@ public class MathMethod extends MathValue implements MathComponent{
 
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in BETWEEN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in BETWEEN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -210,7 +210,7 @@ public class MathMethod extends MathValue implements MathComponent{
 
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in PRINTB method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in PRINTB method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -231,7 +231,7 @@ public class MathMethod extends MathValue implements MathComponent{
 
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in PRINT method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in PRINT method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -245,7 +245,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in LERP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in LERP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -262,7 +262,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in FMOD method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in FMOD method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -285,7 +285,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in SQRT method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in SQRT method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -300,7 +300,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in SIGNUM method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in SIGNUM method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -315,7 +315,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ROUND method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in ROUND method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -332,7 +332,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in RANDOM method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in RANDOM method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -348,7 +348,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in POW method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in POW method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -363,7 +363,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in LOG method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in LOG method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -389,7 +389,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in FRAC method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in FRAC method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -405,7 +405,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in EXP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in EXP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -422,7 +422,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in CEIL method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in CEIL method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -439,7 +439,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in FLOOR method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in FLOOR method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -456,7 +456,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ABS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in ABS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -494,7 +494,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in CLAMP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in CLAMP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -519,7 +519,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(exps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in MAX method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in MAX method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -545,7 +545,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(exps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in MIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in MIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -564,7 +564,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in TORAD method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in TORAD method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -579,7 +579,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in TODEG method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in TODEG method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -604,7 +604,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in SIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in SIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -621,7 +621,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ASIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in ASIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -638,7 +638,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in COS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in COS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -654,7 +654,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ACOS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in ACOS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -670,7 +670,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in TAN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in TAN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -685,7 +685,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ATAN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in ATAN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -703,7 +703,7 @@ public class MathMethod extends MathValue implements MathComponent{
             setOptimizedIfPossible(comps,valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ATAN2 method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in ATAN2 method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
@@ -756,14 +756,14 @@ public class MathMethod extends MathValue implements MathComponent{
                         return expList.get(i).get();
                     }
                 }
-                String s = "ERROR: in IF method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+                String s = "ERROR: in IF method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
                 System.out.println(s);
                 return Double.NaN;
             };
 
         }
             //not odd invalid if
-        String s = "ERROR: wrong number of arguments "+ args +" in IF method for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+        String s = "ERROR: wrong number of arguments "+ args +" in IF method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
         System.out.println(s);
         throw new EMFMathException(s);
 

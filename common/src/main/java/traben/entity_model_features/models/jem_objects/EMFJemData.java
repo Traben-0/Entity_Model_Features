@@ -2,6 +2,8 @@ package traben.entity_model_features.models.jem_objects;
 
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.NotNull;
+import traben.entity_model_features.EMFData;
+import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
 
@@ -10,15 +12,22 @@ public class EMFJemData {
     public int[] textureSize = null;
     public double shadow_size = 1.0;
     public LinkedList<EMFPartData> models = new LinkedList<>();
+    public LinkedList<EMFPartData> originalModelsForReadingOnly;
 
-    String fileName = "none";
-    String mobName = "none";
+    public final LinkedHashMap<String,String> finalAnimationsForModel = new LinkedHashMap<>();
+
+
+
+    public String fileName = "none";
+    public String mobName = "none";
     public void sendFileName(String fileName){
         this.fileName = fileName;
         this.mobName = fileName.replace("optifine/cem/","").replace(".jem","");
     }
 
     public void prepare(){
+        originalModelsForReadingOnly = new LinkedList<>(models);
+
         if(!texture.isBlank()) {
             if (!this.texture.contains(".png")) this.texture = this.texture + ".png";
             //if no folder parenting assume it is relative to model
@@ -69,7 +78,38 @@ public class EMFJemData {
                     getEntryOptifineSameAsVanilla("right_leg"),
                     getEntryOptifineSameAsVanilla("left_leg"),
                     getEntryOptifineSameAsVanilla("nose"));
+        } else if(mobName.equals("iron_golem")){//iron_golem               head, body, left_arm, right_arm, left_leg, right_leg
+            map = Map.ofEntries(
+                    getEntryOptifineSameAsVanilla("head"),
+                    getEntryOptifineSameAsVanilla("body"),
+                    getEntryOptifineSameAsVanilla("left_arm"),
+                    getEntryOptifineSameAsVanilla("right_arm"),
+                    getEntryOptifineSameAsVanilla("left_leg"),
+                    getEntryOptifineSameAsVanilla("right_leg")
+            );
+        } else if(mobName.equals("spider")){//head, neck, body, leg1, ... leg8
+            map = Map.ofEntries(
+                    getEntryOptifineSameAsVanilla("head"),
+                    getEntryOptifineDifferent("neck","body0"),
+                    getEntryOptifineDifferent("body","body1"),
+                    getEntryOptifineDifferent("leg1","right_hind_leg"),
+                    getEntryOptifineDifferent("leg2","left_hind_leg"),
+                    getEntryOptifineDifferent("leg3","right_middle_hind_leg"),
+                    getEntryOptifineDifferent("leg4","left_middle_hind_leg"),
+                    getEntryOptifineDifferent("leg5","right_middle_front_leg"),
+                    getEntryOptifineDifferent("leg6","left_middle_front_leg"),
+                    getEntryOptifineDifferent("leg7","right_front_leg"),
+                    getEntryOptifineDifferent("leg8","left_front_leg")
+            );
         } else if(mobName.equals("sheep")) {
+            map = Map.ofEntries(
+                    getEntryOptifineSameAsVanilla("head"),
+                    getEntryOptifineSameAsVanilla("body"),
+                    getEntryOptifineDifferent("leg1", "right_hind_leg"),
+                    getEntryOptifineDifferent("leg2", "left_hind_leg"),
+                    getEntryOptifineDifferent("leg3", "right_front_leg"),
+                    getEntryOptifineDifferent("leg4", "left_front_leg"));
+        }else if(mobName.equals("cow")) {
             map = Map.ofEntries(
                     getEntryOptifineSameAsVanilla("head"),
                     getEntryOptifineSameAsVanilla("body"),
@@ -93,7 +133,14 @@ public class EMFJemData {
         //change all part values to their vanilla counterparts
         for (EMFPartData partData:
                 models) {
-            if(map.containsKey(partData.part)) partData.part = map.get(partData.part).partName();
+            if(map.containsKey(partData.part)) {
+                String newPartName = map.get(partData.part).partName();
+                if(partData.id.equals(partData.part)){
+                    partData.id = newPartName;
+                }
+                partData.part = newPartName;
+
+            }
         }
 
         //copy all children into their parents lists
@@ -121,8 +168,69 @@ public class EMFJemData {
         //now all parts follow exactly the vanilla model root parent structure
         //attaches have also been applied currently only as children
 
-        //todo remap all animation part names to use vanilla with the optifine map
+        ///prep animations
+        SortedMap<String, EMFPartData> alphabeticalOrderedParts = new TreeMap<>(Comparator.naturalOrder());
+        if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("originalModelsForReadingOnly #= "+ originalModelsForReadingOnly.size());
+        for (EMFPartData partData:
+             originalModelsForReadingOnly) {
+            alphabeticalOrderedParts.put(partData.id, partData);
+        }
+
+        LinkedList<LinkedHashMap<String,String>>  allTopLevelPropertiesOrdered = new LinkedList<>();
+        if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("alphabeticalOrderedParts = "+ alphabeticalOrderedParts);
+        for (EMFPartData part :
+                alphabeticalOrderedParts.values()) {
+            if (part.animations != null && part.animations.length != 0) {
+                //todo replace 'this' and parenting to represent actual model part
+                allTopLevelPropertiesOrdered.addAll(Arrays.asList(part.animations));
+            }
+        }
+        LinkedHashMap<String,String>  combinedPropertiesOrdered = new LinkedHashMap<>();
+        if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("allTopLevelPropertiesOrdered = "+ allTopLevelPropertiesOrdered);
+        for (LinkedHashMap<String,String> properties :
+                allTopLevelPropertiesOrdered) {
+            if (!properties.isEmpty()) {
+                combinedPropertiesOrdered.putAll(properties);
+            }
+        }
+        //LinkedHashMap<String,String>  finalNameFilteredPropertiesOrdered = new LinkedHashMap<>();
+        if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("combinedPropertiesOrdered = "+ combinedPropertiesOrdered);
+        for (Map.Entry<String,String> entry :
+                combinedPropertiesOrdered.entrySet()) {
+            if(entry.getKey()!=null && !entry.getKey().isEmpty()) {
+                String animationKey = entry.getKey().replaceAll("\\s", "");
+                String animationExpression = entry.getValue().replaceAll("\\s", "");
+
+
+                //there is no way out of this we have to loop each mapping for each entry to cover all possible part pointers
+                //todo can likely optimize further
+                if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("map = "+ map);
+                for (Map.Entry<String, PartAndChildName> optifineMapEntry :
+                        map.entrySet()) {
+                    String optifinePartName = optifineMapEntry.getKey();
+                    String vanillaPartName = optifineMapEntry.getValue().partName;
+                    if(!optifinePartName.equals(vanillaPartName)) {//skip if no change needed
+                        if (animationKey.contains(optifinePartName)) {//this is faster than the lookbehind and ahead regex it will save us time if the string does not contain a part reference
+                            animationKey = animationKey.replaceAll(
+                                    REGEX_PREFIX + optifinePartName + REGEX_SUFFIX, vanillaPartName);//very costly but the look ahead and behind are essential
+                        }
+                        if (animationExpression.contains(optifinePartName)) {
+                            animationExpression = animationExpression.replaceAll(
+                                    REGEX_PREFIX + optifinePartName + REGEX_SUFFIX, vanillaPartName);//very costly
+                        }
+                    }
+                }
+                //expression and key now have vanilla part names and references as well as no spaces
+                finalAnimationsForModel.put(animationKey, animationExpression);
+            }else{
+                System.out.println("null key 1346341");
+            }
+            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("finalAnimationsForModel ="+ finalAnimationsForModel);
+        }
+        ///finished animations preprocess
     }
+    private final String REGEX_PREFIX = "(?<=([^a-zA-Z0-9_]|^))";
+    private final String REGEX_SUFFIX = "(?=([^a-zA-Z0-9_]|$))";
 
 
     private EMFPartData getFirstPartInModels(String partName){

@@ -8,13 +8,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import traben.entity_model_features.utils.modelLoadTest;
+import traben.entity_model_features.utils.EMFManager;
 
 @Mixin(EntityModelLoader.class)
 public class MixinModelLoadingTest {
     @Inject(method = "getModelPart",
             at = @At(value = "RETURN"), cancellable = true)
     private void emf$injectModelLoad(EntityModelLayer layer, CallbackInfoReturnable<ModelPart> cir) {
-        cir.setReturnValue(modelLoadTest.injectIntoModelRootGetter(layer,cir.getReturnValue()));
+        cir.setReturnValue(EMFManager.injectIntoModelRootGetter(layer,cir.getReturnValue()));
     }
 }

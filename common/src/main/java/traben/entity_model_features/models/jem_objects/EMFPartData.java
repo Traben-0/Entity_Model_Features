@@ -46,7 +46,9 @@ public class EMFPartData {
 
         this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
     }
-
+    public float[] parentModified = {0,0,0};
+    public boolean topLevelModel = false;
+    public boolean underATopLevelModel = false;
     public void prepare(int parentCount, int[] textureSize, String texture, float[] modifyyTranslates){
 
 //        for (LinkedHashMap<String,String> map:
@@ -134,8 +136,10 @@ public class EMFPartData {
         if(parentCount == 0){// && selfModelData.boxes.length == 0){
             //sendToFirstChild = new float[]{translateX, translateY, translateZ};
             nextModify = new float[]{translate[0], translate[1], translate[2]};
+
+            topLevelModel = true;
             translate[0] = -translateX;
-            translate[1] = 24 - translateY;
+            translate[1] = 24 -translateY;
             translate[2] = -translateZ;//todo this negative might be an inverse due to FA's xy inverting :/
 //                    pivotX = translateX;//0;
 //            pivotY = 24 - translateY ;//24;//0; 24 makes it look nice normally but animations need to include it separately
@@ -149,6 +153,8 @@ public class EMFPartData {
             translate[1] = translateY +(invY ? -modifyyTranslates[1] : modifyyTranslates[1]);
             translate[2] = translateZ +(invZ ? -modifyyTranslates[2] : modifyyTranslates[2]);
 
+            underATopLevelModel = parentCount == 1;
+            parentModified = new float[]{0, (invY ? -modifyyTranslates[1] : modifyyTranslates[1]), 0};
 //            float parent0sTX = fromFirstChild[0];
 //            float parent0sTY = fromFirstChild[1];
 //            float parent0sTZ = fromFirstChild[2];

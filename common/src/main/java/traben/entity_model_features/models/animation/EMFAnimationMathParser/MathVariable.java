@@ -1,8 +1,9 @@
 package traben.entity_model_features.models.animation.EMFAnimationMathParser;
 
-import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationVariableSuppliers;
+import traben.entity_model_features.models.animation.EMFDefaultModelVariable;
+import traben.entity_model_features.utils.EMFModelPart3;
 
 
 public class MathVariable extends MathValue implements  MathComponent{
@@ -37,7 +38,7 @@ public class MathVariable extends MathValue implements  MathComponent{
             invertBooleans = true;
         }
 
-        EMFAnimationVariableSuppliers getter = calculationInstance.parentModel.EMFAnimationVariableSuppliers;
+        EMFAnimationVariableSuppliers getter = calculationInstance.variableSuppliers;
 
         //discover supplier needed
         valueSupplier = switch (value){
@@ -140,48 +141,36 @@ public class MathVariable extends MathValue implements  MathComponent{
             default -> {
                 //process model part variable   e.g.  head.rx
                 if(variableKey.matches("[a-zA-Z0-9_]+\\.([trs][xyz]$|visible$|visible_boxes$)")){
-                    //System.out.println("found and setup for otherKey :" + variableKey);
-//            if (variableKey.equals(calculationInstance.animKey)) {
-//                //todo check this
-//                if (calculationInstance.vanillaModelPart != null && calculationInstance.varToChange != null) {
-//                    return () -> (float) (calculationInstance.varToChange.getFromVanillaModel(calculationInstance.vanillaModelPart));
-//                }else{
-//                    return () -> (float) (calculationInstance.getEntity() == null ? 0 : calculationInstance.prevResults.getFloat(calculationInstance.getEntity().getUuid()));
-//                }
-//            } else {
-                    EMFModelPart partParent = calculationInstance.modelPart == null? null : calculationInstance.modelPart.parent;
-                    isOtherAnimVariable = true;
-                    AnimationValueSupplier SUPPLIER = calculationInstance.parentModel.getAnimationResultOfKeyAsSupplier(partParent, variableKey);
-                    return () -> SUPPLIER.get(getter.getEntity());
-
-//            }
+                    String[] split = variableKey.split("\\.");//todo only works with one split point
+                    String partName = split[0];
+                    EMFDefaultModelVariable partVariable = EMFDefaultModelVariable.get(split[1]);
+                    EMFModelPart3 part = calculationInstance.allPartByName.get(partName);
+                    if(partVariable != null && part!= null){
+                        return ()-> partVariable.getFrom3Model(part, calculationInstance.partToApplyTo );
+                    }else{
+                        throw new EMFMathException("no part variable found for: ["+variableKey+"] + "+ calculationInstance.allPartByName.keySet());
+                    }
 
                 }
                 //process float variable  e.g.   var.asdf
-                if(variableKey.matches("var\\.\\w+")) {
-                    if (variableKey.equals(calculationInstance.animKey)) {
-                        return () ->  (getter.getEntity() == null ? 0 : calculationInstance.prevResult.getFloat(getter.getEntity().getUuid()));
-                    }else {
-                        // EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
-                        isOtherAnimVariable = true;
-                        AnimationValueSupplier SUPPLIER = calculationInstance.parentModel.getAnimationResultOfKeyOptimiseForVariableAsSupplier(variableKey );
-                        return () -> SUPPLIER.get(getter.getEntity());
+                if(variableKey.matches("(var|varb)\\.\\w+")) {
+                    EMFAnimation variableCalculator = calculationInstance.emfAnimationVariables.get(variableKey);
+                    if(variableCalculator != null){
+                        return ()-> variableCalculator.getLastResultOnly(getter.getEntity());
+                    }else{
+                        throw new EMFMathException("no variable animation found for: ["+variableKey+"] + "+ calculationInstance.emfAnimationVariables.keySet());
                     }
-
                 }
-                //process boolean variable  e.g.   varb.asdf
-                if(variableKey.matches("varb\\.\\w+")) {
-                    if (variableKey.equals(calculationInstance.animKey)) {
-                        return () -> (getter.getEntity() == null ? 0 : calculationInstance.prevResult.getFloat(getter.getEntity().getUuid()));
-                    }else {
-                        //EMF_ModelPart partParent = calculationInstance.modelPart == null ? null : calculationInstance.modelPart.parent;
-                        isOtherAnimVariable = true;
-                        AnimationValueSupplier SUPPLIER = calculationInstance.parentModel.getAnimationResultOfKeyOptimiseForVariableAsSupplier(  variableKey);
-                        return () ->  SUPPLIER.get(getter.getEntity()) == (invertBooleans ? 1 : 0) ? 0 : 1;
-                    }
-
-                }
-                String s = "ERROR: could not identify EMF animation variable ["+variableKey+"] for ["+calculationInstance.animKey+"] in ["+calculationInstance.parentModel.modelPathIdentifier+"].";
+//                //process boolean variable  e.g.   varb.asdf
+//                if(variableKey.matches("varb\\.\\w+")) {
+//                    EMFAnimation variableCalculator = calculationInstance.emfAnimationVariables.get(variableKey);
+//                    if(variableCalculator != null){
+//                        return ()-> variableCalculator.getLastResultOnly(getter.getEntity());
+//                    }else{
+//                        throw new EMFMathException("no part variable found for: ["+variableKey+"]");
+//                    }
+//                }
+                String s = "ERROR: could not identify EMF animation variable ["+variableKey+"] for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
                 System.out.println(s);
                 throw new EMFMathException(s);
             }

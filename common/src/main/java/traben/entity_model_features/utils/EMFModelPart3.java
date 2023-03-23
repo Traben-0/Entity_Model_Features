@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
@@ -40,7 +41,9 @@ public class EMFModelPart3 extends ModelPart  {
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //assertChildrenAndCuboids();
         //if(new Random().nextInt(100)==1) System.out.println("rendered");
+
         super.render(matrices, vertices, light, overlay, red, 0.0f, blue, alpha);
+
     }
 //     final Identifier customTexture;
 //    public final ModelPart vanillaPart;
@@ -581,14 +584,38 @@ public class EMFModelPart3 extends ModelPart  {
 
     }
 
+    public ModelTransform vanillaTransform = null;
+
+    public void applyDefaultModelRotatesToChildren(ModelTransform defaults){
+        for (ModelPart part:
+        ((ModelPartAccessor)this).getChildren().values()) {
+            if(part instanceof EMFModelPart3 p3) p3.applyDefaultModelRotates(defaults);
+        }
+    }
+    public void applyDefaultModelRotates(ModelTransform defaults){
+        //todo its possible here lies the actual cause of all the parent 1 stuff if i factor in transforms here
+        //highly possible
+        //todo seriously look into the above
+        vanillaTransform = defaults;
+//        ModelTransform defaultOfThis = getDefaultTransform();
+//        float newPitch = defaultOfThis.pitch - defaults.pitch;
+//        float newYaw = defaultOfThis.yaw - defaults.yaw;
+//        float newRoll = defaultOfThis.roll + defaults.roll;
+//
+//        setDefaultTransform(ModelTransform.of(defaultOfThis.pivotX,defaultOfThis.pivotY,defaultOfThis.pivotZ,newPitch,newYaw,newRoll));
+
+    }
 
 
-    public Object2ReferenceOpenHashMap<String, EMFModelPart3> getAllParts(){
+    public Object2ReferenceOpenHashMap<String, EMFModelPart3> getAllChildPartsAsMap(){
         Object2ReferenceOpenHashMap<String, EMFModelPart3> list = new Object2ReferenceOpenHashMap<>();
-        for (EMFModelPart3 part :
-                emfChildren.values()) {
-            list.put(part.selfModelData.id,part);
-            list.putAll(part.getAllParts());
+        for (ModelPart part :
+                ((ModelPartAccessor)this).getChildren().values()) {
+            if(part instanceof EMFModelPart3 part3) {
+
+                list.put(part3.selfModelData.part == null? part3.selfModelData.id :part3.selfModelData.part, part3);
+                list.putAll(part3.getAllChildPartsAsMap());
+            }
         }
         return list;
     }
