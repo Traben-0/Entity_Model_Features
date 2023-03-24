@@ -1,6 +1,7 @@
 package traben.entity_model_features.utils;
 
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -24,14 +25,15 @@ import java.util.Map;
 public class EMFModelPart3 extends ModelPart  {
     public final List<EMFCuboid> emfCuboids = new ArrayList<>();
     public final Map<String, EMFModelPart3> emfChildren = new HashMap<>();
-
+    //public final Map<String, EMFModelPart3> cannonicalChildren = new HashMap<>();
 
     public final EMFPartData selfModelData;
 
+    public int currentModelVariantState = 0;
 
-    private boolean invX = false;
-    private boolean invY = false;
-    private boolean invZ = false;
+    public boolean isValidToRenderInThisState = true;
+
+    public Int2ObjectArrayMap<EMFModelState> allKnownStateVariants = new Int2ObjectArrayMap<>();
 
 
     //public static final EMFModelPart3 BLANK_MODEL_PART = new EMFModelPart3(EMFPartData.BLANK_PART_DATA);
@@ -47,25 +49,28 @@ public class EMFModelPart3 extends ModelPart  {
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //assertChildrenAndCuboids();
         //if(new Random().nextInt(100)==1) System.out.println("rendered");
-        super.render(matrices, vertices, light, overlay, red, 0.0f, blue, alpha);
+        if(isValidToRenderInThisState)
+            super.render(matrices, vertices, light, overlay, red, 0.0f, blue, alpha);
 
     }
 //     final Identifier customTexture;
 //    public final ModelPart vanillaPart;
 
 
-    public EMFModelPart3(List<Cuboid> cuboids, Map<String, ModelPart> children){
+    public EMFModelPart3(List<Cuboid> cuboids, Map<String, ModelPart> children,int variantNumber){
         //create empty root model object
         super(cuboids, children);
         selfModelData = null;
 
+        if(variantNumber== 0)
+            allKnownStateVariants.put(variantNumber,getCurrentState());
     }
 
     private static List<Cuboid> getCuboidsFromData(EMFPartData emfPartData){
         return createCuboidsFromBoxDataV3(emfPartData);//false remove pivot value
 
     }
-    private static Map<String, ModelPart> getChildrenFromData(EMFPartData emfPartData){
+    private static Map<String, ModelPart> getChildrenFromData(EMFPartData emfPartData, int variantNumber){
         Map<String, ModelPart> emfChildren = new HashMap<>();
         for (EMFPartData sub : emfPartData.submodels) {
 
@@ -76,135 +81,17 @@ public class EMFModelPart3 extends ModelPart  {
             }
             if(EMFData.getInstance().getConfig().printModelCreationInfoToLog)
                 System.out.println(" > > > > EMF sub part made: "+sub.toString(false));
-            emfChildren.put(idForMap, new EMFModelPart3(sub));
+            emfChildren.put(idForMap, new EMFModelPart3(sub,variantNumber));
         }
         return emfChildren;
     }
 
-    public EMFModelPart3(EMFPartData emfPartData){//,//float[] parentalTransforms) {
+    public EMFModelPart3(EMFPartData emfPartData, int variantNumber){//,//float[] parentalTransforms) {
 
-        super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData));
+        super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData,variantNumber));
 
         selfModelData = emfPartData;
-       // if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("data = " + selfModelData.toString(false));
 
-
-        //check if texture ovvveride needs to happen
-        // i am keeping it an identifier as opposed to storing a renderlayer to allow future etf api support
-//        if (!selfModelData.texture.isEmpty()){
-//            Identifier texture =new Identifier( selfModelData.texture);
-//            if(MinecraftClient.getInstance().getResourceManager().getResource(texture).isPresent()){
-//                customTexture = texture;
-//            }else{
-//                customTexture = null;
-//            }
-//        }else{
-//            customTexture = null;
-//        }
-//
-//        //grab booleans to avoid further contains checks
-//        boolean invX = selfModelData.invertAxis.contains("x");
-//        boolean invY = selfModelData.invertAxis.contains("y");
-//        boolean invZ = selfModelData.invertAxis.contains("z");
-//
-//        this.invX = invX;
-//        this.invY = invY;
-//        this.invZ = invZ;
-//        //selfModelData.
-//
-//        //these ones need to change due to some unknown bullshit
-//        float translateX= selfModelData.translate[0];
-//        float translateY= selfModelData.translate[1];
-//        float translateZ= selfModelData.translate[2];
-//
-//        double rotateX= Math.toRadians( selfModelData.rotate[0]);
-//        double rotateY= Math.toRadians(selfModelData.rotate[1]);
-//        double rotateZ= Math.toRadians(selfModelData.rotate[2]);
-//
-//
-////        if (vanillaPartOfThis != null && selfModelData.attach) {
-////            System.out.println("ran");
-////            ModelTransform def = vanillaPartOfThis.getTransform();
-////            translateX= def.pivotX*2;
-////            translateY= def.pivotY*2;
-////            translateZ= def.pivotZ*2;
-////
-////            rotateX= def.pitch;
-////            rotateY= def.yaw;
-////            rotateZ= def.roll;
-////
-////        }
-//
-//        //figure out the bullshit
-//        if( invX){
-//            rotateX = -rotateX;
-//            translateX = -translateX;
-//        }else{
-//            //nothing? just an invert?
-//        }
-//        if( invY){
-//            rotateY = -rotateY;
-//            translateY = -translateY;
-//        }
-//        if( invZ){
-//            rotateZ = -rotateZ;
-//            translateZ = -translateZ;
-//        }
-//
-//
-//
-////        // this if statement aged me by like 5 years to brute force figure out
-////        // the logic of this is utterly essential to correct model positioning of jems
-////        // and isn't #$@%!@$# documented anywhere that I found
-////        // I cannot even articulate how many variations of this I had to try
-//        if(parentNumber == 0){// && selfModelData.boxes.length == 0){
-//            //sendToFirstChild = new float[]{translateX, translateY, translateZ};
-//            pivotX = translateX;//0;
-//            pivotY = 24 - translateY ;//24;//0; 24 makes it look nice normally but animations need to include it separately
-//            pivotZ = translateZ;//0;
-//        }else if(parentNumber == 1 ){
-//            float parent0sTX = fromFirstChild[0];
-//            float parent0sTY = fromFirstChild[1];
-//            float parent0sTZ = fromFirstChild[2];
-//            pivotX = parent0sTX + translateX;
-//            pivotY = parent0sTY + translateY;// pivotModifyForParNum1Only[1];
-//            pivotZ = parent0sTZ + translateZ;
-//        }else{// of course it just suddenly acts normal after the first 2 :L
-//            pivotX = translateX;
-//            pivotY = translateY;
-//            pivotZ = translateZ;
-//        }
-
-        //this seems to fix the issue with sheep cows pigs etc where the body emf part isn't aligned right when not animated
-        // this attempts to copy over model default transforms from vanilla parts
-//        if (vanillaPartOfThis != null ){
-//
-//            ModelTransform defaults = vanillaPartOfThis.getDefaultTransform();
-//            if(defaults.pitch != 0 || defaults.yaw != 0 || defaults.roll != 0) {
-//                rotateX += defaults.pitch;
-//                rotateY += defaults.yaw;
-//                rotateZ += defaults.roll;
-//
-//                // seems this is a factor as it has proved functional for pigs sheep and cows despite their varied offsets
-////                float stanceWidthMaybe = -defaults.pivotY + 15;
-////                //sheep 10   pig 4
-////
-////                pivotX = defaults.pivotX;
-////                pivotY = defaults.pivotY + (stanceWidthMaybe / 4);//+2;
-////                pivotZ = (float) (defaults.pivotZ + (stanceWidthMaybe * 1.8));//+20;
-//
-//                //nvm lol had something else disabled while testing
-//                pivotX = defaults.pivotX;
-//                pivotY = defaults.pivotY;
-//                pivotZ = defaults.pivotZ;
-//            }
-//        }
-
-        //try the vanilla model values
-//
-//        pitch = (float) rotateX;
-//        yaw = (float) rotateY;
-//        roll = (float) rotateZ;
 
         //seems to be just straight into model no bullshit?
         //todo check up on scale?
@@ -224,9 +111,20 @@ public class EMFModelPart3 extends ModelPart  {
         this.setDefaultTransform(this.getTransform());
 
 
+//        for (Map.Entry<String,ModelPart> part:
+//        ((ModelPartAccessor)this).getChildren().entrySet()) {
+//            if(part.getValue() instanceof EMFModelPart3 m3 && m3.selfModelData.part!= null){
+//                cannonicalChildren.put(part.getKey(),m3);
+//            }
+//        }
 
         //assertChildrenAndCuboids();
+        if(variantNumber== 0)
+            allKnownStateVariants.put(variantNumber,getCurrentState());
+
     }
+
+
 
     public void assertChildrenAndCuboids() {
         ((ModelPartAccessor)this).setChildren(new HashMap<String, ModelPart>(emfChildren));
@@ -240,17 +138,6 @@ public class EMFModelPart3 extends ModelPart  {
                 for (EMFBoxData box :
                         emfPartData.boxes) {
                     EMFCuboid cube;
-
-                    //already figures this out in v1
-                    //figures it would match to the invert values fml...
-
-                    //seems it needs to include the full box value aswell
-                    //moved all coord processing to here
-
-
-
-
-
 
                     if (box.textureOffset.length == 2) {
                         //System.out.println("non custom uv box ignoring for now");
@@ -628,7 +515,7 @@ public class EMFModelPart3 extends ModelPart  {
                 ((ModelPartAccessor)this).getChildren().values()) {
             if(part instanceof EMFModelPart3 part3) {
 
-                list.put(part3.selfModelData.part == null? part3.selfModelData.id :part3.selfModelData.part, part3);
+                list.put(part3.selfModelData.part == null? part3.selfModelData.id : part3.selfModelData.part, part3);
                 list.putAll(part3.getAllChildPartsAsMap());
             }
         }
@@ -639,4 +526,88 @@ public class EMFModelPart3 extends ModelPart  {
     public String toString() {
         return "emfPart3{id="+selfModelData.id +", part="+ selfModelData.part+"}";
     }
+
+    public Map<String, ModelPart> getChildrenEMF(){
+        return ((ModelPartAccessor)this).getChildren();
+    }
+    public void setChildrenEMF(Map<String, ModelPart> children){
+        ((ModelPartAccessor)this).setChildren(children);
+    }
+
+    public void mergePartVariant(int variantNumber,EMFModelPart3 partToMergeIntoThisAsVariant){
+        EMFModelState incomingPartState = partToMergeIntoThisAsVariant.getCurrentState();
+        allKnownStateVariants.put(variantNumber,incomingPartState);
+        for (Map.Entry<String,ModelPart> childEntry:
+             partToMergeIntoThisAsVariant.getChildrenEMF().entrySet()) {
+            if(childEntry.getValue() instanceof EMFModelPart3 p2 && getChildrenEMF().get(childEntry.getKey()) instanceof EMFModelPart3 p3){
+                p3.mergePartVariant(variantNumber,p2);
+            }else{
+                Map<String, ModelPart> children = getChildrenEMF();
+                children.put(childEntry.getKey(),childEntry.getValue());
+                //setChildren(children);//todo might be redundant idk how accessors get the value
+            }
+        }
+    }
+
+    public void setVariantStateTo(int newVariantState){
+        if(currentModelVariantState != newVariantState) {
+            if (allKnownStateVariants.containsKey(newVariantState)) {
+                currentModelVariantState = newVariantState;
+                setFromState(allKnownStateVariants.get(newVariantState));
+                isValidToRenderInThisState = true;
+            } else if (selfModelData != null && selfModelData.part == null) {
+                currentModelVariantState = newVariantState;
+                isValidToRenderInThisState = false;
+            } else {
+                EMFUtils.EMF_modWarn("no state for top level part????");
+                currentModelVariantState = newVariantState;
+                isValidToRenderInThisState = false;
+            }
+            for (ModelPart part:
+                 getChildrenEMF().values()) {
+                if(part instanceof EMFModelPart3 p3)
+                    p3.setVariantStateTo(newVariantState);
+            }
+        }else{
+            System.out.println("same state emf part");
+        }
+
+    }
+
+    private EMFModelState getCurrentState(){
+        return new EMFModelState(
+                getDefaultTransform(),
+                ((ModelPartAccessor)this).getCuboids(),
+                //((ModelPartAccessor)this).getChildren(),
+                xScale,yScale,zScale,
+                visible, hidden
+
+        );
+    }
+    private void setFromState(EMFModelState newState){
+        setDefaultTransform(newState.defaultTransform());
+        setTransform(getDefaultTransform());
+        ((ModelPartAccessor)this).setCuboids(newState.cuboids());
+        xScale = newState.xScale();
+        yScale = newState.yScale();
+        zScale = newState.zScale();
+        visible = newState.visible();
+        hidden = newState.hidden();
+    }
+
+    private record EMFModelState(
+            ModelTransform defaultTransform,
+           // ModelTransform currentTransform,
+            List<Cuboid> cuboids,
+           // Map<String, ModelPart> children,
+            float xScale,
+            float yScale,
+            float zScale,
+            boolean visible,
+            boolean hidden
+    ){
+
+    }
+
+
 }

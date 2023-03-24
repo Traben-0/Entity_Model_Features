@@ -59,9 +59,9 @@ public class EMFJemData {
                 //pls no
             }
         }
-
+        String mobNameMinusVariant = mobName.replaceAll("(?<=\\w)[0-9]","");
         //vanilla parenting adjustments
-        Map<String, EMFOptiFineMappings2.PartAndChildName> map = EMFOptiFineMappings2.getMapOf(mobName);
+        Map<String, EMFOptiFineMappings2.PartAndChildName> map = EMFOptiFineMappings2.getMapOf(mobNameMinusVariant);
         Set<String> foundChildren = new HashSet<>();
 
         //change all part values to their vanilla counterparts

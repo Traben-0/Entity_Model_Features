@@ -36,7 +36,6 @@ public class EMFOptiFineMappings2 {
     }
 
     public static Map<String, PartAndChildName> getMapOf(String mobName) {
-
         if(mobName.contains("_inner_armor")) mobName = mobName.replace("_inner_armor","");
         if(mobName.contains("_outer_armor")) mobName = mobName.replace("_outer_armor","");
 

@@ -2,13 +2,12 @@ package traben.entity_model_features.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.LlamaEntity;
 import net.minecraft.entity.passive.PufferfishEntity;
 import net.minecraft.entity.passive.TropicalFishEntity;
@@ -17,6 +16,7 @@ import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFData;
+import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationVariableSuppliers;
@@ -28,14 +28,23 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class EMFManager {//singleton for data holding and resetting needs
+public class EMFManager{//singleton for data holding and resetting needs
 
 
-    private Object2ObjectOpenHashMap<String,EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
-    private Object2IntOpenHashMap<String> cache_AmountOfMobNameAlreadyDone = new Object2IntOpenHashMap<>();
-    private Object2ObjectOpenHashMap<String, EMFAnimationExecutor> cache_EntityNameToAnimationExecutable = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectOpenHashMap<String,EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<String,EMFJemData>();
+    private final Object2IntOpenHashMap<String> cache_AmountOfMobNameAlreadyDone = new Object2IntOpenHashMap<String>();
+    private final Object2ObjectOpenHashMap<String, EMFAnimationExecutor> cache_EntityNameToAnimationExecutable = new Object2ObjectOpenHashMap<String, EMFAnimationExecutor>();
 
-    private static Object2ObjectOpenHashMap<String,String> map_MultiMobVariantMap = new Object2ObjectOpenHashMap<>(){{
+
+    private final Object2ObjectOpenHashMap<String, EMFModelPart3> cache_JemNameToCannonModelRoot = new Object2ObjectOpenHashMap<String, EMFModelPart3>();
+    private final Object2ObjectOpenHashMap<String, ModelPart> cache_JemNameToVanillaModelRoot = new Object2ObjectOpenHashMap<>();
+    private final Object2BooleanOpenHashMap<String> cache_JemNameDoesHaveVariants = new Object2BooleanOpenHashMap<>(){{defaultReturnValue(false);}};
+    private final Object2BooleanOpenHashMap<UUID> cache_UUIDDoUpdating = new Object2BooleanOpenHashMap<>(){{defaultReturnValue(true);}};
+    private final Object2IntOpenHashMap<UUIDAndMobTypeKey> cache_UUIDAndTypeToCurrentVariantInt = new Object2IntOpenHashMap<UUIDAndMobTypeKey>(){{defaultReturnValue(0);}};
+    private final Object2LongOpenHashMap<UUIDAndMobTypeKey> cache_UUIDAndTypeToLastVariantCheckTime = new Object2LongOpenHashMap<UUIDAndMobTypeKey>(){{defaultReturnValue(0);}};
+    private record UUIDAndMobTypeKey(UUID uuid, EntityType<?> entityType){}
+
+    private static final Object2ObjectOpenHashMap<String,String> map_MultiMobVariantMap = new Object2ObjectOpenHashMap<>(){{
         put("cat2","cat_collar");
         put("wither_skeleton2","wither_skeleton_inner_armor");
         put("wither_skeleton3","wither_skeleton_outer_armor");
@@ -90,8 +99,13 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     private static EMFManager self = null;
     private EMFManager(){
-
+        if (EMFVersionDifferenceManager.isThisModLoaded("entity_texture_features")){
+            isETFPresentAndValid = EMFVersionDifferenceManager.isETFValidAPI();
+        }else{
+            isETFPresentAndValid = false;
+        }
     }
+    private boolean isETFPresentAndValid = false;
 
 
 
@@ -119,125 +133,21 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
         if(printing) System.out.println(" > EMF try to find a model for: "+mobModelName);
 
+        ///jem name is final and correct from here
+
+
         if(EMFOptiFineMappings2.getMapOf(mobModelName)!= null) {
             if(printing) System.out.println(" >> EMF trying to find: optifine/cem/"+mobModelName + ".jem");
             String jemName = "optifine/cem/" + mobModelName + ".jem";//todo mod namespaces
             EMFJemData jemData = getJemData(jemName);
             if (jemData != null) {
-                Map<String, ModelPart> rootChildren = new HashMap<>();
+                EMFModelPart3 part = EMFManager.getInstance().getEMFRootModelFromJem(jemData,root);
+                EMFManager.getInstance().cache_JemNameToCannonModelRoot.put(mobModelName,part);
+                EMFManager.getInstance().cache_JemNameToVanillaModelRoot.put(mobModelName,root);
+                if(MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobModelName + ".properties")).isPresent())
+                    EMFManager.getInstance().cache_JemNameDoesHaveVariants.put(mobModelName,true);
 
-                for (EMFPartData partData :
-                        jemData.models) {
-                    if (partData != null && partData.part != null) {
-                        ModelPart oldPart = traverseRootForChildOrNull(root,partData.part);
-                        EMFModelPart3 newPart = new EMFModelPart3(partData);
-                        if (oldPart != null) {
-                           newPart.applyDefaultModelRotates(oldPart.getDefaultTransform());
-                        }
-                        if(printing) System.out.println(" >>> EMF part made: "+partData.toString(false));
-
-                        rootChildren.put(partData.part, newPart);
-
-                    } else {
-                        //part is not mapped to a vanilla part
-                        System.out.println("no part definition");
-                    }
-                }
-                //have iterated over all parts in jem and made them
-
-
-                EMFModelPart3 emfRootModelPart = new EMFModelPart3(new ArrayList<ModelPart.Cuboid>(), rootChildren);
-                //try
-                //todo pretty sure we must match root transforms because of fucking frogs, maybe?
-                //emfRootModelPart.pivotY = 24;
-                //todo check all were mapped correctly before return
-                if(printing) System.out.println(" > EMF model returned");
-
-                //emfRootModelPart.assertChildrenAndCuboids();
-                ///////SETUP ANIMATION EXECUTABLES////////////////
-                Object2ObjectOpenHashMap<String, EMFModelPart3> allPartByName = new Object2ObjectOpenHashMap<>();
-                allPartByName.put("root", emfRootModelPart);
-                allPartByName.putAll(emfRootModelPart.getAllChildPartsAsMap());
-
-                Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
-
-                final EMFAnimationVariableSuppliers variableSuppliers = new EMFAnimationVariableSuppliers();
-                if (printing) System.out.println("finalAnimationsForModel =" + jemData.finalAnimationsForModel);
-                jemData.finalAnimationsForModel.forEach((animKey, animationExpression) -> {
-
-                    if (EMFData.getInstance().getConfig().printModelCreationInfoToLog)
-                        EMFUtils.EMF_modMessage("parsing animation value: [" + animKey + "]");
-                    String modelId = animKey.split("\\.")[0];
-                    String modelVariable = animKey.split("\\.")[1];
-
-                    EMFDefaultModelVariable thisVariable = EMFDefaultModelVariable.get(modelVariable);
-
-                    EMFModelPart3 thisPart = allPartByName.get(modelId);
-                    EMFAnimation thisCalculator = null;
-
-                    if (thisPart != null) {
-                        thisCalculator =
-                                new EMFAnimation(
-                                        thisPart,
-                                        thisVariable,
-                                        animKey,
-                                        animationExpression,
-                                        jemData.fileName,
-                                        variableSuppliers);
-                    } else {
-                        //not a custom model or vanilla must be a custom variable
-                        thisCalculator = new EMFAnimation(
-                                null,
-                                null,
-                                animKey,
-                                animationExpression,
-                                jemData.fileName,
-                                variableSuppliers);
-                    }
-                    emfAnimations.put(animKey, thisCalculator);
-                });
-                LinkedList<EMFAnimation> orderedAnimations = new LinkedList<>();
-                //System.out.println("> anims: " + emfAnimations);
-                emfAnimations.forEach((key, anim) -> {
-                    //System.out.println(">> anim key: " + key);
-                    if (anim != null) {
-                        //System.out.println(">> anim: " + anim.expressionString);
-                        anim.initExpression(emfAnimations, allPartByName);
-                        //System.out.println(">>> valid: " + anim.isValid());
-                        if (anim.isValid())
-                            orderedAnimations.add(anim);
-                        else
-                            EMFUtils.EMF_modWarn("animations was invalid: "+anim.animKey +" = "+anim.expressionString);
-                    }
-                });
-
-                EMFAnimationExecutor executor = new EMFAnimationExecutor(variableSuppliers, orderedAnimations);
-
-                EMFManager.getInstance().cache_EntityNameToAnimationExecutable.put(jemData.mobName, executor);
-                ///////////////////////////
-
-                // check for if root is expected below the top level modelpart
-                // as in some single part entity models
-                if(root.hasChild("root") && !emfRootModelPart.hasChild("root")) {
-                    ModelPart subRoot = root.getChild("root");
-                    if(subRoot.pivotX != 0 ||
-                            subRoot.pivotY != 0 ||
-                            subRoot.pivotZ != 0 ||
-                            subRoot.pitch != 0 ||
-                            subRoot.yaw != 0 ||
-                            subRoot.roll != 0 ||
-                            subRoot.xScale != 0 ||
-                            subRoot.yScale != 0 ||
-                            subRoot.zScale != 0
-
-                    ) {
-                        //this covers things like frogs who pivot their root for some reason
-                        emfRootModelPart.setTransform(subRoot.getTransform());
-                        emfRootModelPart.setDefaultTransform(subRoot.getDefaultTransform());
-                    }
-                    return new EMFModelPart3(new ArrayList<ModelPart.Cuboid>(), Map.of("root", emfRootModelPart));
-                }
-                return emfRootModelPart;
+                return part;
 
             } else {
                 //not a cem mob
@@ -263,6 +173,146 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
         return null;
     }
+
+    private EMFModelPart3 getEMFRootModelFromJem(EMFJemData jemData, ModelPart vanillaRoot){
+        return getEMFRootModelFromJem(jemData, vanillaRoot,0);
+    }
+    private EMFModelPart3 getEMFRootModelFromJem(EMFJemData jemData, ModelPart vanillaRoot, int variantNumber){
+        Map<String, ModelPart> rootChildren = new HashMap<>();
+
+        boolean printing = EMFData.getInstance().getConfig().printModelCreationInfoToLog;
+
+        for (EMFPartData partData :
+                jemData.models) {
+            if (partData != null && partData.part != null) {
+                ModelPart oldPart = traverseRootForChildOrNull(vanillaRoot,partData.part);
+                EMFModelPart3 newPart = new EMFModelPart3(partData,variantNumber);
+                if (oldPart != null) {
+                    newPart.applyDefaultModelRotates(oldPart.getDefaultTransform());
+                }
+                if(printing) System.out.println(" >>> EMF part made: "+partData.toString(false));
+
+                rootChildren.put(partData.part, newPart);
+
+            } else {
+                //part is not mapped to a vanilla part
+                System.out.println("no part definition");
+            }
+        }
+        //have iterated over all parts in jem and made them
+
+
+        EMFModelPart3 emfRootModelPart = new EMFModelPart3(new ArrayList<ModelPart.Cuboid>(), rootChildren,variantNumber);
+        //try
+        //todo pretty sure we must match root transforms because of fucking frogs, maybe?
+        //emfRootModelPart.pivotY = 24;
+        //todo check all were mapped correctly before return
+        if(printing) System.out.println(" > EMF model returned");
+
+        //emfRootModelPart.assertChildrenAndCuboids();
+
+        setupAnimationsFromJemToModel(jemData,emfRootModelPart);
+
+        // check for if root is expected below the top level modelpart
+        // as in some single part entity models
+        if(vanillaRoot.hasChild("root") && !emfRootModelPart.hasChild("root")) {
+            ModelPart subRoot = vanillaRoot.getChild("root");
+            if(subRoot.pivotX != 0 ||
+                    subRoot.pivotY != 0 ||
+                    subRoot.pivotZ != 0 ||
+                    subRoot.pitch != 0 ||
+                    subRoot.yaw != 0 ||
+                    subRoot.roll != 0 ||
+                    subRoot.xScale != 0 ||
+                    subRoot.yScale != 0 ||
+                    subRoot.zScale != 0
+
+            ) {
+                //this covers things like frogs who pivot their root for some reason
+                emfRootModelPart.setTransform(subRoot.getTransform());
+                emfRootModelPart.setDefaultTransform(subRoot.getDefaultTransform());
+            }
+            return new EMFModelPart3(new ArrayList<ModelPart.Cuboid>(), Map.of("root", emfRootModelPart),variantNumber);
+        }
+        return emfRootModelPart;
+    }
+
+    private void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPart3 emfRootModelPart){
+        ///////SETUP ANIMATION EXECUTABLES////////////////
+
+        boolean printing = EMFData.getInstance().getConfig().printModelCreationInfoToLog;
+
+        Object2ObjectOpenHashMap<String, EMFModelPart3> allPartByName = new Object2ObjectOpenHashMap<>();
+        allPartByName.put("root", emfRootModelPart);
+        allPartByName.putAll(emfRootModelPart.getAllChildPartsAsMap());
+
+        Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
+
+        final EMFAnimationVariableSuppliers variableSuppliers = new EMFAnimationVariableSuppliers();
+        if (printing) System.out.println("finalAnimationsForModel =" + jemData.finalAnimationsForModel);
+        jemData.finalAnimationsForModel.forEach((animKey, animationExpression) -> {
+
+            if (EMFData.getInstance().getConfig().printModelCreationInfoToLog)
+                EMFUtils.EMF_modMessage("parsing animation value: [" + animKey + "]");
+            String modelId = animKey.split("\\.")[0];
+            String modelVariable = animKey.split("\\.")[1];
+
+            EMFDefaultModelVariable thisVariable = EMFDefaultModelVariable.get(modelVariable);
+
+            EMFModelPart3 thisPart = allPartByName.get(modelId);
+            EMFAnimation thisCalculator = null;
+
+            if (thisPart != null) {
+                thisCalculator =
+                        new EMFAnimation(
+                                thisPart,
+                                thisVariable,
+                                animKey,
+                                animationExpression,
+                                jemData.fileName,
+                                variableSuppliers);
+            } else {
+                //not a custom model or vanilla must be a custom variable
+                thisCalculator = new EMFAnimation(
+                        null,
+                        null,
+                        animKey,
+                        animationExpression,
+                        jemData.fileName,
+                        variableSuppliers);
+            }
+            emfAnimations.put(animKey, thisCalculator);
+        });
+        LinkedList<EMFAnimation> orderedAnimations = new LinkedList<>();
+        //System.out.println("> anims: " + emfAnimations);
+        emfAnimations.forEach((key, anim) -> {
+            //System.out.println(">> anim key: " + key);
+            if (anim != null) {
+                //System.out.println(">> anim: " + anim.expressionString);
+                anim.initExpression(emfAnimations, allPartByName);
+                //System.out.println(">>> valid: " + anim.isValid());
+                if (anim.isValid())
+                    orderedAnimations.add(anim);
+                else
+                    EMFUtils.EMF_modWarn("animations was invalid: "+anim.animKey +" = "+anim.expressionString);
+            }
+        });
+
+        EMFAnimationExecutor executor = new EMFAnimationExecutor(variableSuppliers, orderedAnimations);
+
+        cache_EntityNameToAnimationExecutable.put(jemData.mobName, executor);
+        ///////////////////////////
+    }
+
+
+
+
+
+
+
+
+
+
 
     public static class EMFAnimationExecutor {
 
@@ -310,6 +360,8 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         boolean print =false;//new Random().nextInt(500)==1;
         if (print) System.out.println("mobName = "+modelName);
+        int suffix = cache_UUIDAndTypeToCurrentVariantInt.getInt(new UUIDAndMobTypeKey(entity.getUuid(),entity.getType()));
+        if(suffix >1) modelName = modelName + suffix;
         if(cache_EntityNameToAnimationExecutable.containsKey(modelName)){
             cache_EntityNameToAnimationExecutable.get(modelName).executeAnimations(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch,print);
         }
@@ -347,7 +399,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     public static EMFJemData getJemData(String pathOfJem){
         //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
         if(EMFManager.getInstance().cache_JemDataByFileName.containsKey(pathOfJem)){
-            return EMFManager.getInstance().cache_JemDataByFileName.get(pathOfJem);
+            return  EMFManager.getInstance().cache_JemDataByFileName.get(pathOfJem);
         }
         try {
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
@@ -372,8 +424,61 @@ public class EMFManager {//singleton for data holding and resetting needs
             //}
         } catch (Exception e) {
             if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("jem failed "+e, false);
+            e.printStackTrace();
         }
         return null;
     }
 
+    public Object2ObjectOpenHashMap<String, EMFData.EMFPropertyTester> cache_mobJemNameToPropertyTester = new Object2ObjectOpenHashMap<>();
+    public void doVariantCheckFor(Entity entity){
+        String mobName = getTypeName(entity);
+        if(cache_JemNameDoesHaveVariants.getBoolean(mobName) && cache_UUIDDoUpdating.getBoolean(entity.getUuid())){
+            UUIDAndMobTypeKey key = new UUIDAndMobTypeKey(entity.getUuid(),entity.getType());
+            if(cache_UUIDAndTypeToLastVariantCheckTime.getLong(key) + 1500 < System.currentTimeMillis()){
+                if (isETFPresentAndValid) {
+                    if(!cache_mobJemNameToPropertyTester.containsKey(mobName)) {
+                        Identifier propertyID = new Identifier("optifine/cem/" + mobName + ".properties");
+                        if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
+                            EMFData.EMFPropertyTester emfTester = EMFVersionDifferenceManager.getAllValidPropertyObjects(propertyID);
+                            cache_mobJemNameToPropertyTester.put(mobName, emfTester);
+                        }else{
+                            EMFUtils.EMF_modWarn("no property" + propertyID.toString());
+                            cache_JemNameDoesHaveVariants.put(mobName,false);
+                            return;
+                        }
+                    }
+                    EMFData.EMFPropertyTester emfProperty = cache_mobJemNameToPropertyTester.get(mobName);
+                    if (emfProperty != null){
+                        int suffix = emfProperty.getSuffixOfEntity(entity,cache_UUIDDoUpdating.containsKey(entity.getUuid()),cache_UUIDDoUpdating);
+                        if(suffix > 1) { // ignore 0 & 1
+                            System.out.println(" > apply model variant: "+suffix +", to "+mobName);
+                            EMFModelPart3 cannonicalRoot =cache_JemNameToCannonModelRoot.get(mobName);
+                            if(!cannonicalRoot.allKnownStateVariants.containsKey(suffix)){
+
+                                String jemName = "optifine/cem/" + mobName+suffix + ".jem";//todo mod namespaces
+                                System.out.println(" >> first time load of : "+jemName);
+                                EMFJemData jemData = getJemData(jemName);
+                                if (jemData != null) {
+                                    ModelPart vanillaRoot = cache_JemNameToVanillaModelRoot.get(mobName);
+                                    if(vanillaRoot != null) {
+                                        EMFModelPart3 variantRoot = getEMFRootModelFromJem(jemData,vanillaRoot,suffix);
+                                        cannonicalRoot.mergePartVariant(suffix,variantRoot);
+                                        setupAnimationsFromJemToModel(jemData,cannonicalRoot);
+                                    }
+                                }else{
+                                    System.out.println("invalid jem");
+                                }
+                            }
+                            cannonicalRoot.setVariantStateTo(suffix);
+                            cache_UUIDAndTypeToCurrentVariantInt.put(key,suffix);
+                        }else{
+                            cache_UUIDAndTypeToCurrentVariantInt.put(key,0);
+                        }
+
+                    }
+                }
+                cache_UUIDAndTypeToLastVariantCheckTime.put(key,System.currentTimeMillis());
+            }
+        }
+    }
 }
