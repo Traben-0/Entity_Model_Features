@@ -17,6 +17,7 @@ import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFData;
+import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationVariableSuppliers;
 import traben.entity_model_features.models.animation.EMFDefaultModelVariable;
@@ -100,6 +101,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public static ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
 
+        boolean printing = (EMFData.getInstance().getConfig().printModelCreationInfoToLog);
 //        if (layer == EntityModelLayers.SPIDER ||layer == EntityModelLayers.IRON_GOLEM ||layer == EntityModelLayers.ZOMBIE || layer == EntityModelLayers.COW || layer == EntityModelLayers.SHEEP || layer == EntityModelLayers.VILLAGER) {
 //            System.out.println("ran zomb and sheep");
         String mobModelName =layer.getId().getPath();
@@ -115,9 +117,10 @@ public class EMFManager {//singleton for data holding and resetting needs
         }else{
             EMFManager.getInstance().cache_AmountOfMobNameAlreadyDone.put(mobModelName,1);
         }
+        if(printing) System.out.println(" > EMF try to find a model for: "+mobModelName);
 
         if(EMFOptiFineMappings2.getMapOf(mobModelName)!= null) {
-
+            if(printing) System.out.println(" >> EMF trying to find: optifine/cem/"+mobModelName + ".jem");
             String jemName = "optifine/cem/" + mobModelName + ".jem";//todo mod namespaces
             EMFJemData jemData = getJemData(jemName);
             if (jemData != null) {
@@ -126,13 +129,12 @@ public class EMFManager {//singleton for data holding and resetting needs
                 for (EMFPartData partData :
                         jemData.models) {
                     if (partData != null && partData.part != null) {
-                        ModelPart oldPart = root.hasChild(partData.part) ? root.getChild(partData.part) : null;
+                        ModelPart oldPart = traverseRootForChildOrNull(root,partData.part);
                         EMFModelPart3 newPart = new EMFModelPart3(partData);
                         if (oldPart != null) {
                            newPart.applyDefaultModelRotates(oldPart.getDefaultTransform());
                         }
-
-                        System.out.println("part made = " + partData.id + " - " + partData.part);
+                        if(printing) System.out.println(" >>> EMF part made: "+partData.toString(false));
 
                         rootChildren.put(partData.part, newPart);
 
@@ -149,7 +151,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 //todo pretty sure we must match root transforms because of fucking frogs, maybe?
                 //emfRootModelPart.pivotY = 24;
                 //todo check all were mapped correctly before return
-                System.out.println("emf returned");
+                if(printing) System.out.println(" > EMF model returned");
 
                 //emfRootModelPart.assertChildrenAndCuboids();
                 ///////SETUP ANIMATION EXECUTABLES////////////////
@@ -160,7 +162,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
 
                 final EMFAnimationVariableSuppliers variableSuppliers = new EMFAnimationVariableSuppliers();
-                System.out.println("finalAnimationsForModel =" + jemData.finalAnimationsForModel);
+                if (printing) System.out.println("finalAnimationsForModel =" + jemData.finalAnimationsForModel);
                 jemData.finalAnimationsForModel.forEach((animKey, animationExpression) -> {
 
                     if (EMFData.getInstance().getConfig().printModelCreationInfoToLog)
@@ -195,14 +197,17 @@ public class EMFManager {//singleton for data holding and resetting needs
                     emfAnimations.put(animKey, thisCalculator);
                 });
                 LinkedList<EMFAnimation> orderedAnimations = new LinkedList<>();
-                System.out.println("> anims: " + emfAnimations);
+                //System.out.println("> anims: " + emfAnimations);
                 emfAnimations.forEach((key, anim) -> {
-                    System.out.println(">> anim key: " + key);
+                    //System.out.println(">> anim key: " + key);
                     if (anim != null) {
-                        System.out.println(">> anim: " + anim.expressionString);
+                        //System.out.println(">> anim: " + anim.expressionString);
                         anim.initExpression(emfAnimations, allPartByName);
-                        System.out.println(">>> valid: " + anim.isValid());
-                        if (anim.isValid()) orderedAnimations.add(anim);
+                        //System.out.println(">>> valid: " + anim.isValid());
+                        if (anim.isValid())
+                            orderedAnimations.add(anim);
+                        else
+                            EMFUtils.EMF_modWarn("animations was invalid: "+anim.animKey +" = "+anim.expressionString);
                     }
                 });
 
@@ -236,14 +241,27 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             } else {
                 //not a cem mob
-                System.out.println("nocem");
+
+                if(printing) System.out.println(" >> EMF mob does not have a .jem file");
             }
         } else {
             //not a cem mob
-            System.out.println("no mapping");//todo modded mob handling
+            if(printing) System.out.println(" >> no EMF mapping found");//todo modded mob handling
         }
-        System.out.println("root returned for: " + mobModelName);
+        if(printing) System.out.println(" > Vanilla model root returned for: " + mobModelName);
         return root;
+    }
+
+    public static ModelPart traverseRootForChildOrNull(ModelPart root,String nameOfModelToFind){
+        if(root.hasChild(nameOfModelToFind))
+            return root.getChild(nameOfModelToFind);
+        for (ModelPart part:
+        ((ModelPartAccessor)root).getChildren().values()) {
+            ModelPart found = traverseRootForChildOrNull(part,nameOfModelToFind);
+            if(found!= null)
+                return found;
+        }
+        return null;
     }
 
     public static class EMFAnimationExecutor {

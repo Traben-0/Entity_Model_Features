@@ -293,7 +293,7 @@ public class EMFOptiFineMappings2 {
                     getOptifineMapEntry("tail")
             );
             case "frog" -> Map.ofEntries(//TODO INVESTIGATE IF CORRECT ABOUT OPTIFINE MAPPING
-                    getOptifineMapEntry("root","root",List.of("body","left_leg","right_leg")),//,"!left_leg","!right_leg")),
+                    //getOptifineMapEntry("root","root",List.of("body","left_leg","right_leg")),//,"!left_leg","!right_leg")),
                     getOptifineMapEntry("head","head",List.of("eyes")),
                     getOptifineMapEntry("body","body",List.of("head","tongue","left_arm","right_arm","croaking_body")),//,"left_leg","right_leg")),
                     getOptifineMapEntry("left_leg"),

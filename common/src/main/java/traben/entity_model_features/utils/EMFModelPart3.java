@@ -34,7 +34,7 @@ public class EMFModelPart3 extends ModelPart  {
     private boolean invZ = false;
 
 
-    public static final EMFModelPart3 BLANK_MODEL_PART = new EMFModelPart3(EMFPartData.BLANK_PART_DATA);
+    //public static final EMFModelPart3 BLANK_MODEL_PART = new EMFModelPart3(EMFPartData.BLANK_PART_DATA);
 
 
 //    @Override
@@ -42,37 +42,12 @@ public class EMFModelPart3 extends ModelPart  {
 //        render(matrices,vertices,light,overlay, 1,1,1,1);
 //    }
 
-    public void render2(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-        if (this.visible) {
-            if (!((ModelPartAccessor)this).getCuboids().isEmpty() || !((ModelPartAccessor)this).getChildren().isEmpty()) {
-                matrices.push();
-                this.rotate(matrices);
-
-                if (!this.hidden) {
-                    matrices.push();
-                    if(vanillaTransform!= null) {
-                        this.setTransform(vanillaTransform);
-//                        this.rotate(matrices);
-                    }
-
-                    this.renderCuboids(matrices.peek(), vertices, light, overlay, red, green, blue, alpha);
-                    matrices.pop();
-                }
-                for (ModelPart modelPart : ((ModelPartAccessor) this).getChildren().values()) {
-                    modelPart.render(matrices, vertices, light, overlay, red, green, blue, alpha);
-                }
-
-                matrices.pop();
-            }
-        }
-    }
-
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //assertChildrenAndCuboids();
         //if(new Random().nextInt(100)==1) System.out.println("rendered");
-        render2(matrices, vertices, light, overlay, red, 0.0f, blue, alpha);
+        super.render(matrices, vertices, light, overlay, red, 0.0f, blue, alpha);
 
     }
 //     final Identifier customTexture;
@@ -99,6 +74,8 @@ public class EMFModelPart3 extends ModelPart  {
             while(emfChildren.containsKey(idForMap)){
                 idForMap = idForMap+"-";
             }
+            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog)
+                System.out.println(" > > > > EMF sub part made: "+sub.toString(false));
             emfChildren.put(idForMap, new EMFModelPart3(sub));
         }
         return emfChildren;
@@ -109,7 +86,7 @@ public class EMFModelPart3 extends ModelPart  {
         super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData));
 
         selfModelData = emfPartData;
-        if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("data = " + selfModelData.toString(false));
+       // if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("data = " + selfModelData.toString(false));
 
 
         //check if texture ovvveride needs to happen
@@ -615,46 +592,32 @@ public class EMFModelPart3 extends ModelPart  {
 
     }
 
-    public ModelTransform vanillaTransform = null;
+   // public ModelTransform vanillaTransform = null;
 
-    public void applyDefaultModelRotatesToChildren(ModelTransform defaults){
-//        ModelTransform thisDefaults = getDefaultTransform();
-//        ModelTransform newDefaults = ModelTransform.of(
-//                defaults.pivotX- thisDefaults.pivotX,
-//                defaults.pivotY- thisDefaults.pivotY,
-//                defaults.pivotZ- thisDefaults.pivotZ,
-//                defaults.pitch- thisDefaults.pitch,
-//                defaults.yaw- thisDefaults.yaw,
-//                defaults.roll- thisDefaults.roll
-//        );
-
-        for (ModelPart part:
-        ((ModelPartAccessor)this).getChildren().values()) {
-            if(part instanceof EMFModelPart3 p3) p3.applyDefaultModelRotates(defaults);
-        }
-    }
+//    public void applyDefaultModelRotatesToChildren(ModelTransform defaults){
+////        ModelTransform thisDefaults = getDefaultTransform();
+////        ModelTransform newDefaults = ModelTransform.of(
+////                defaults.pivotX- thisDefaults.pivotX,
+////                defaults.pivotY- thisDefaults.pivotY,
+////                defaults.pivotZ- thisDefaults.pivotZ,
+////                defaults.pitch- thisDefaults.pitch,
+////                defaults.yaw- thisDefaults.yaw,
+////                defaults.roll- thisDefaults.roll
+////        );
+//
+//        for (ModelPart part:
+//        ((ModelPartAccessor)this).getChildren().values()) {
+//            if(part instanceof EMFModelPart3 p3) p3.applyDefaultModelRotates(defaults);
+//        }
+//    }
     public void applyDefaultModelRotates(ModelTransform defaults){
         //todo its possible here lies the actual cause of all the parent 1 stuff if i factor in transforms here
         //highly possible
         //todo seriously look into the above
 
-//        ModelTransform thisDefaults = getDefaultTransform();
-//        ModelTransform newDefaults = ModelTransform.of(
-//                defaults.pivotX- thisDefaults.pivotX,
-//                defaults.pivotY- thisDefaults.pivotY,
-//                defaults.pivotZ- thisDefaults.pivotZ,
-//                defaults.pitch- thisDefaults.pitch,
-//                defaults.yaw- thisDefaults.yaw,
-//                defaults.roll- thisDefaults.roll
-//        );
-
-        vanillaTransform = defaults;
-//        ModelTransform defaultOfThis = getDefaultTransform();
-//        float newPitch = defaultOfThis.pitch - defaults.pitch;
-//        float newYaw = defaultOfThis.yaw - defaults.yaw;
-//        float newRoll = defaultOfThis.roll + defaults.roll;
-//
-//        setDefaultTransform(ModelTransform.of(defaultOfThis.pivotX,defaultOfThis.pivotY,defaultOfThis.pivotZ,newPitch,newYaw,newRoll));
+        if(defaults!= null) {
+            this.setTransform(defaults);
+        }
 
     }
 

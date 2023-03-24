@@ -4,6 +4,7 @@ import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationVariableSuppliers;
 import traben.entity_model_features.models.animation.EMFDefaultModelVariable;
 import traben.entity_model_features.utils.EMFModelPart3;
+import traben.entity_model_features.utils.EMFUtils;
 
 
 public class MathVariable extends MathValue implements  MathComponent{
@@ -148,7 +149,9 @@ public class MathVariable extends MathValue implements  MathComponent{
                     if(partVariable != null && part!= null){
                         return ()-> partVariable.getFrom3Model(part, calculationInstance.partToApplyTo );
                     }else{
-                        throw new EMFMathException("no part variable found for: ["+variableKey+"] + "+ calculationInstance.allPartByName.keySet());
+                        EMFUtils.EMF_modError("no part variable found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.allPartByName.keySet());
+                        return ()-> 0;
+                        //throw new EMFMathException("no part variable found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.allPartByName.keySet());
                     }
 
                 }
@@ -158,7 +161,9 @@ public class MathVariable extends MathValue implements  MathComponent{
                     if(variableCalculator != null){
                         return ()-> variableCalculator.getLastResultOnly(getter.getEntity());
                     }else{
-                        throw new EMFMathException("no variable animation found for: ["+variableKey+"] + "+ calculationInstance.emfAnimationVariables.keySet());
+                        EMFUtils.EMF_modError("no variable animation found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.emfAnimationVariables.keySet());
+                        return ()-> 0;
+                        //throw new EMFMathException("no variable animation found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.emfAnimationVariables.keySet());
                     }
                 }
 //                //process boolean variable  e.g.   varb.asdf

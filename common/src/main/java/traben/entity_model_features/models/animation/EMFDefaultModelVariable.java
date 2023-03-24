@@ -104,7 +104,7 @@ public enum EMFDefaultModelVariable {
             }else{
                 parentModify = new float[]{0, 0, 0};
             }
-        ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;
+       // ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;
         switch (this) {
             case tx -> {
                 return modelPart.pivotX - parentModify[0];
@@ -158,7 +158,7 @@ public enum EMFDefaultModelVariable {
                 parentModify = new float[]{0, 0, 0};
             }
 
-            ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;
+            //ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;
             switch (this){
                 case tx -> {
                      modelPart.pivotX = value + parentModify[0];

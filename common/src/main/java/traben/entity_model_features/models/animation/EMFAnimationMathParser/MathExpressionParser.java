@@ -490,7 +490,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                 //lastResultThisTick = result;
                 if (calculationInstance.verboseMode) print(" = " + result);
                 if(Double.isNaN(result)){
-                    print(" result was NaN for expression: " + originalExpression+" as "+ components);
+                    print(" result was NaN in ["+calculationInstance.modelName+"] for expression: " + originalExpression+" as "+ components);
                 }else{
                     //save optimized version of valid expression
                     optimizedAlternativeToThis = componentsDuringCalculate.getLast();
