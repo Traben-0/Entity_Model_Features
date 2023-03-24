@@ -3,17 +3,12 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "rewrite.Mixin_2_QuadrupedEntityModel",
-    "rewrite.Mixin_2_SheepEntityModel",
-    "rewrite.Mixin_2_VillagerResemblingModel",
-    "rewrite.Mixin_2_ZombieEntityModel",
     "MixinModelLoadingTest",
     "MixinSimpleResourceReload",
     "accessor.CatCollarFeatureRendererAccessor",
     "accessor.CuboidAccessor",
     "accessor.FeatureRendererAccessor",
     "accessor.FoxHeldItemFeatureRendererAccessor",
-    "rewrite.Mixin_2_SpiderEntityModel",
     "accessor.ModelAccessor",
     "accessor.ModelPartAccessor",
     "accessor.entity.LivingEntityRendererAccessor",
@@ -34,7 +29,14 @@
     "accessor.entity.model.QuadrupedEntityModelAccessor",
     "accessor.entity.model.RabbitEntityModelAccessor",
     "accessor.entity.model.VillagerResemblingModelAccessor",
-    "rewrite.Mixin_2_IronGolemEntityModel"
+    "rewrite.Mixin_2_CreeperChargeFeatureRenderer",
+    "rewrite.Mixin_2_FeatureRenderer",
+    "rewrite.Mixin_2_HorseArmorFeatureRenderer",
+    "rewrite.Mixin_2_LivingEntityRenderer",
+    "rewrite.Mixin_2_LlamaDecorFeatureRenderer",
+    "rewrite.Mixin_2_SaddleFeatureRenderer",
+    "rewrite.Mixin_2_SheepWoolEntityModel",
+    "rewrite.Mixin_2_SlimeOverlayFeatureRenderer"
   ],
   "mixins": [
   ],

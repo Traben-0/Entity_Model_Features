@@ -89,7 +89,7 @@ public class EMFJemData {
             boolean found = false;
             for (EMFPartData partData:
                     models) {
-                if(name.equals(partData.part)){
+                if(name.equals(partData.part) && !partData.attach){//dont count attached parts for now
                     found=true;
                     break;
                 }
@@ -108,14 +108,18 @@ public class EMFJemData {
                 if(parent != null){
                     for (String childName:
                             entry.getValue().childNamesToExpect()) {
-                        EMFPartData child = getFirstPartInModels(childName);
-                        if(child != null) {
-                            parent.submodels.add(child);
-                        }else{
-                            //oof no child, this can happen with the shitty things in vanilla like wolves real_tail :/
-                            parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName));
+                        if(childName.startsWith("!")){//map marker to put an empty child and not to move this child because OPTIFINE FUCKED UP FROGS
+                            parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName.replaceFirst("!","")));
+                        }else {
+                            EMFPartData child = getFirstPartInModels(childName);
+                            if (child != null) {
+                                parent.submodels.add(child);
+                            } else {
+                                //oof no child, this can happen with the shitty things in vanilla like wolves real_tail :/
+                                parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName));
+                            }
+                            foundChildren.add(childName);
                         }
-                        foundChildren.add(childName);
                     }
                 }
             }
