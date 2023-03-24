@@ -37,6 +37,9 @@ public class EMFOptiFineMappings2 {
 
     public static Map<String, PartAndChildName> getMapOf(String mobName) {
 
+        if(mobName.contains("_inner_armor")) mobName = mobName.replace("_inner_armor","");
+        if(mobName.contains("_outer_armor")) mobName = mobName.replace("_outer_armor","");
+
         //todo extract all maps once done to make them all static final for faster reloads
         return switch (mobName){
             case "villager","wandering_trader" -> Map.ofEntries(
@@ -138,7 +141,7 @@ public class EMFOptiFineMappings2 {
             }};
             case "evoker","illusioner","pillager","vindicator"
                     -> genericIllager;
-            case "llama","llama decor","trader_llam","trader_llama_decor"
+            case "llama","llama_decor","trader_llama","trader_llama_decor"
                     -> genericLlama;
             case "armor_stand" -> new HashMap<String, PartAndChildName>(genericNonPlayerBiped){{
                 putAll(Map.ofEntries(
@@ -290,9 +293,9 @@ public class EMFOptiFineMappings2 {
                     getOptifineMapEntry("tail")
             );
             case "frog" -> Map.ofEntries(//TODO INVESTIGATE IF CORRECT ABOUT OPTIFINE MAPPING
-                    getOptifineMapEntry("root","root",List.of("body","!left_leg","!right_leg")),//the ! indicates a child is expected there by vanilla but optifine fucked up and it actually isnt considered a child by cem
+                    getOptifineMapEntry("root","root",List.of("body","left_leg","right_leg")),//,"!left_leg","!right_leg")),
                     getOptifineMapEntry("head","head",List.of("eyes")),
-                    getOptifineMapEntry("body","body",List.of("head","tongue","left_arm","right_arm","croaking_body","left_leg","right_leg")),
+                    getOptifineMapEntry("body","body",List.of("head","tongue","left_arm","right_arm","croaking_body")),//,"left_leg","right_leg")),
                     getOptifineMapEntry("left_leg"),
                     getOptifineMapEntry("right_leg"),
                     getOptifineMapEntry("croaking_body"),

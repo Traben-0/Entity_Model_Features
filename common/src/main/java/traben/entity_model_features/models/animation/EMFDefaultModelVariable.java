@@ -116,13 +116,13 @@ public enum EMFDefaultModelVariable {
                 return modelPart.pivotZ - parentModify[2];
             }
             case rx -> {
-                return modelPart.pitch ;
+                return modelPart.pitch;// -defaults.pitch;
             }
             case ry -> {
-                return modelPart.yaw ;
+                return modelPart.yaw ;// - defaults.yaw;
             }
             case rz -> {
-                return modelPart.roll ;
+                return modelPart.roll ;// - defaults.roll;
             }
             case sx -> {
                 return modelPart.xScale;
@@ -170,13 +170,13 @@ public enum EMFDefaultModelVariable {
                      modelPart.pivotZ = value + parentModify[2];
                 }
                 case rx -> {
-                     modelPart.pitch = value ;
+                     modelPart.pitch = value;// + defaults.pitch;
                 }
                 case ry -> {
-                     modelPart.yaw = value ;
+                     modelPart.yaw = value ;// + defaults.yaw;
                 }
                 case rz -> {
-                     modelPart.roll = value ;
+                     modelPart.roll = value ;// + defaults.roll;
                 }
                 case sx -> {
                      modelPart.xScale = value;

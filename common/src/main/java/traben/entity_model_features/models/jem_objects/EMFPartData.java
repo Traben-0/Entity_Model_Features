@@ -158,7 +158,7 @@ public class EMFPartData {
         }
 
         float[] nextModify = {0,0,0};
-
+        if(part!= null) parentCount = 0;
         if(parentCount == 0){// && selfModelData.boxes.length == 0){
             //sendToFirstChild = new float[]{translateX, translateY, translateZ};
             nextModify = new float[]{translate[0], translate[1], translate[2]};

@@ -15,7 +15,10 @@ import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Environment(value = EnvType.CLIENT)
 public class EMFModelPart3 extends ModelPart  {
@@ -39,12 +42,37 @@ public class EMFModelPart3 extends ModelPart  {
 //        render(matrices,vertices,light,overlay, 1,1,1,1);
 //    }
 
+    public void render2(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+        if (this.visible) {
+            if (!((ModelPartAccessor)this).getCuboids().isEmpty() || !((ModelPartAccessor)this).getChildren().isEmpty()) {
+                matrices.push();
+                this.rotate(matrices);
+
+                if (!this.hidden) {
+                    matrices.push();
+                    if(vanillaTransform!= null) {
+                        this.setTransform(vanillaTransform);
+//                        this.rotate(matrices);
+                    }
+
+                    this.renderCuboids(matrices.peek(), vertices, light, overlay, red, green, blue, alpha);
+                    matrices.pop();
+                }
+                for (ModelPart modelPart : ((ModelPartAccessor) this).getChildren().values()) {
+                    modelPart.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+                }
+
+                matrices.pop();
+            }
+        }
+    }
+
+
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //assertChildrenAndCuboids();
         //if(new Random().nextInt(100)==1) System.out.println("rendered");
-
-        super.render(matrices, vertices, light, overlay, red, 0.0f, blue, alpha);
+        render2(matrices, vertices, light, overlay, red, 0.0f, blue, alpha);
 
     }
 //     final Identifier customTexture;
@@ -283,6 +311,7 @@ public class EMFModelPart3 extends ModelPart  {
     @Override // overrides to circumvent sodium optimizations that mess with custom uv quad creation
     protected void renderCuboids(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
         //this is a copy of the vanilla renderCuboids() method
+
         for (Cuboid cuboid : ((ModelPartAccessor) this).getCuboids()) {
             cuboid.renderCuboid(entry, vertexConsumer, light, overlay, red, green, blue, alpha);
         }
@@ -589,6 +618,16 @@ public class EMFModelPart3 extends ModelPart  {
     public ModelTransform vanillaTransform = null;
 
     public void applyDefaultModelRotatesToChildren(ModelTransform defaults){
+//        ModelTransform thisDefaults = getDefaultTransform();
+//        ModelTransform newDefaults = ModelTransform.of(
+//                defaults.pivotX- thisDefaults.pivotX,
+//                defaults.pivotY- thisDefaults.pivotY,
+//                defaults.pivotZ- thisDefaults.pivotZ,
+//                defaults.pitch- thisDefaults.pitch,
+//                defaults.yaw- thisDefaults.yaw,
+//                defaults.roll- thisDefaults.roll
+//        );
+
         for (ModelPart part:
         ((ModelPartAccessor)this).getChildren().values()) {
             if(part instanceof EMFModelPart3 p3) p3.applyDefaultModelRotates(defaults);
@@ -598,6 +637,17 @@ public class EMFModelPart3 extends ModelPart  {
         //todo its possible here lies the actual cause of all the parent 1 stuff if i factor in transforms here
         //highly possible
         //todo seriously look into the above
+
+//        ModelTransform thisDefaults = getDefaultTransform();
+//        ModelTransform newDefaults = ModelTransform.of(
+//                defaults.pivotX- thisDefaults.pivotX,
+//                defaults.pivotY- thisDefaults.pivotY,
+//                defaults.pivotZ- thisDefaults.pivotZ,
+//                defaults.pitch- thisDefaults.pitch,
+//                defaults.yaw- thisDefaults.yaw,
+//                defaults.roll- thisDefaults.roll
+//        );
+
         vanillaTransform = defaults;
 //        ModelTransform defaultOfThis = getDefaultTransform();
 //        float newPitch = defaultOfThis.pitch - defaults.pitch;

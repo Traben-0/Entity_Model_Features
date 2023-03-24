@@ -33,10 +33,7 @@ public class EMFJemData {
             if (!this.texture.contains("/")) this.texture = "optifine/cem/" + this.texture;
         }
 
-        for (EMFPartData model:
-             models) {
-            model.prepare( 0,textureSize,texture, new float[]{0,0,0});
-        }
+
 
         //attach logic
         LinkedList<EMFPartData> modelsAttach = new LinkedList<>();
@@ -134,6 +131,13 @@ public class EMFJemData {
 
         //now all parts follow exactly the vanilla model root parent structure
         //attaches have also been applied currently only as children
+
+        for (EMFPartData model:
+                models) {
+            model.prepare( 0,textureSize,texture, new float[]{0,0,0});
+        }
+
+
 
         ///prep animations
         SortedMap<String, EMFPartData> alphabeticalOrderedParts = new TreeMap<>(Comparator.naturalOrder());

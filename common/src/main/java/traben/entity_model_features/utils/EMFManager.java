@@ -65,8 +65,10 @@ public class EMFManager {//singleton for data holding and resetting needs
         put("shulker2","shulker_bullet");
         put("husk2","husk_inner_armor");
         put("husk3","husk_outer_armor");
+        put("player_slim2","player_slim_inner_armor");
+        put("player_slim3","player_slim_outer_armor");
         put("llama2","llama_decor");
-        put("llama3","llama_spit");
+        put("llama3","trader_llama_decor");
         put("creeper2","creeper_charge");
         put("pig2","pig_saddle");
         put("strider2","strider_saddle");
@@ -77,7 +79,6 @@ public class EMFManager {//singleton for data holding and resetting needs
         put("parrot3","parrot_?shoulder3?");//todo
 
     }};
-
     public static EMFManager getInstance(){
         if(self == null) self = new EMFManager();
         return self;
@@ -101,7 +102,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 //        if (layer == EntityModelLayers.SPIDER ||layer == EntityModelLayers.IRON_GOLEM ||layer == EntityModelLayers.ZOMBIE || layer == EntityModelLayers.COW || layer == EntityModelLayers.SHEEP || layer == EntityModelLayers.VILLAGER) {
 //            System.out.println("ran zomb and sheep");
-        String mobModelName =( layer.getId().getPath());
+        String mobModelName =layer.getId().getPath();
         if(mobModelName.contains("pufferfish"))
             mobModelName = mobModelName.replace("pufferfish","puffer_fish");
 
@@ -128,7 +129,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         ModelPart oldPart = root.hasChild(partData.part) ? root.getChild(partData.part) : null;
                         EMFModelPart3 newPart = new EMFModelPart3(partData);
                         if (oldPart != null) {
-                            newPart.applyDefaultModelRotatesToChildren(oldPart.getDefaultTransform());
+                           newPart.applyDefaultModelRotates(oldPart.getDefaultTransform());
                         }
 
                         System.out.println("part made = " + partData.id + " - " + partData.part);
