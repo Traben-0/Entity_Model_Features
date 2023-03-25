@@ -139,7 +139,7 @@ public class EMFManager{//singleton for data holding and resetting needs
         ///jem name is final and correct from here
 
 
-        if(EMFOptiFineMappings2.getMapOf(mobModelName)!= null) {
+        if(!EMFOptiFineMappings2.getMapOf(mobModelName).isEmpty()) {
             if(printing) System.out.println(" >> EMF trying to find: optifine/cem/"+mobModelName + ".jem");
             String jemName = "optifine/cem/" + mobModelName + ".jem";//todo mod namespaces
             EMFJemData jemData = getJemData(jemName);
@@ -200,7 +200,9 @@ public class EMFManager{//singleton for data holding and resetting needs
                     newPart.applyDefaultModelRotates(oldPart.getDefaultTransform());
                 }
                 if(printing) System.out.println(" >>> EMF part made: "+partData.toString(false));
-
+                if("skeleton".equals(jemData.mobName)) {
+                    System.out.println(" >>>>>>>>> skeleton part made: " + partData.toString(false));
+                }
                 rootChildren.put(partData.part, newPart);
 
             } else {

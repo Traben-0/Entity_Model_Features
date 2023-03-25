@@ -2,6 +2,7 @@ package traben.entity_model_features.utils;
 
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.NotNull;
+import traben.entity_model_features.EMFData;
 
 import java.util.*;
 
@@ -132,11 +133,17 @@ public class EMFOptiFineMappings2 {
                         getOptifineMapEntry("body","body",List.of("tail","saddle","left_chest","right_chest"))
                 ));
             }};
-            case "zombie_villager" -> new HashMap<String, PartAndChildName>(genericNonPlayerBiped){{
-                putAll(Map.ofEntries(
-                        getOptifineMapEntry("hat","hat","hat_rim")
-                ));
-            }};
+            case "zombie_villager" -> Map.ofEntries(
+                        getOptifineMapEntry("head"),
+                        getOptifineMapEntry("headwear", "hat","hat_rim"),
+                        getOptifineMapEntry("hat_rim"),
+                        getOptifineMapEntry("body"),
+                        getOptifineMapEntry("left_arm"),
+                        getOptifineMapEntry("right_arm"),
+                        getOptifineMapEntry("left_leg"),
+                        getOptifineMapEntry("right_leg")
+                );
+
             case "evoker","illusioner","pillager","vindicator"
                     -> genericIllager;
             case "llama","llama_decor","trader_llama","trader_llama_decor"
@@ -453,7 +460,7 @@ public class EMFOptiFineMappings2 {
             case "snow_golem" -> Map.ofEntries(
                     getOptifineMapEntry("body","upper_body"),
                     getOptifineMapEntry("body_bottom","lower_body"),
-                    getOptifineMapEntry("head","cube"),
+                    getOptifineMapEntry("head"),
                     getOptifineMapEntry("left_hand","left_arm"),
                     getOptifineMapEntry("right_hand","right_arm")
             );
@@ -534,7 +541,7 @@ public class EMFOptiFineMappings2 {
 
             default -> {
                 //throw new RuntimeException("EMF doesn't map: "+mobName);
-                EMFUtils.EMF_modError("no model part mapping found for: " + mobName);
+                if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modError("no model part mapping found for: " + mobName);
                 //todo custom mappings
                 yield Map.of();
             }

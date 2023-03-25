@@ -40,7 +40,7 @@ public class EMFJemData {
         Iterator<EMFPartData> modelsIterator = models.iterator();
         while(modelsIterator.hasNext()){
             EMFPartData model  = modelsIterator.next();
-            if(model.attach){
+            if(model.attach && !model.id.equals(model.part)){
                 modelsAttach.add(model);
                 modelsIterator.remove();
             }
@@ -59,10 +59,14 @@ public class EMFJemData {
                 //pls no
             }
         }
+
+
         String mobNameMinusVariant = mobName.replaceAll("(?<=\\w)[0-9]","");
         //vanilla parenting adjustments
         Map<String, EMFOptiFineMappings2.PartAndChildName> map = EMFOptiFineMappings2.getMapOf(mobNameMinusVariant);
         Set<String> foundChildren = new HashSet<>();
+
+
 
         //change all part values to their vanilla counterparts
         for (EMFPartData partData:
@@ -79,7 +83,6 @@ public class EMFJemData {
             }
         }
 
-
         //add any missing parts as blank before children removal checks
         LinkedList<EMFPartData> missingModels = new LinkedList<EMFPartData>();
         for (EMFOptiFineMappings2.PartAndChildName data:
@@ -88,14 +91,17 @@ public class EMFJemData {
             boolean found = false;
             for (EMFPartData partData:
                     models) {
-                if(name.equals(partData.part) && !partData.attach){//dont count attached parts for now
+                if(name.equals(partData.part) && (!partData.attach|| partData.id.equals(partData.part))){//dont count attached parts for now
                     found=true;
                     break;
                 }
             }
             if(!found) missingModels.add(EMFPartData.getBlankPartWithIDOf(name));
         }
-        models.addAll(missingModels);
+        if(missingModels.size()>0) {
+            EMFUtils.EMF_modError("These parts were missing from ["+fileName+"]: "+ missingModels);
+            models.addAll(missingModels);
+        }
 
         //copy all children into their parents lists
         for (Map.Entry<String, EMFOptiFineMappings2.PartAndChildName> entry:
@@ -103,14 +109,14 @@ public class EMFJemData {
 
             if(entry.getValue().childNamesToExpect().size() >0){
                 //found entry with child
-                EMFPartData parent = getFirstPartInModels(entry.getValue().partName());
+                EMFPartData parent = getFirstPartInModelsIgnoreAttach(entry.getValue().partName());
                 if(parent != null){
                     for (String childName:
                             entry.getValue().childNamesToExpect()) {
                         if(childName.startsWith("!")){//map marker to put an empty child and not to move this child because OPTIFINE FUCKED UP FROGS
                             parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName.replaceFirst("!","")));
                         }else {
-                            EMFPartData child = getFirstPartInModels(childName);
+                            EMFPartData child = getFirstPartInModelsIgnoreAttach(childName);
                             if (child != null) {
                                 parent.submodels.add(child);
                             } else {
@@ -206,11 +212,12 @@ public class EMFJemData {
     private final String REGEX_SUFFIX = "(?=([^a-zA-Z0-9_]|$))";
 
 
-    private EMFPartData getFirstPartInModels(String partName){
+    private EMFPartData getFirstPartInModelsIgnoreAttach(String partName){
 
         for (EMFPartData emfPartData:
              models) {
-            if(emfPartData.part.equals(partName)) return emfPartData;
+            if(emfPartData.part.equals(partName) && (!emfPartData.attach || emfPartData.part.equals(emfPartData.id)))
+                return emfPartData;
         }
         return null;
     }

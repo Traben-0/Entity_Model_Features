@@ -31,6 +31,8 @@ public class EMFPartData {
 
     public static final EMFPartData BLANK_PART_DATA = new EMFPartData(){{
         id = "EMF_BLANK_MODEL_PART";
+        texture = "EMF_BLANK_MODEL_PART";
+        invertAxis = "EMF_BLANK_MODEL_PART";
         textureSize = new int[]{1, 1};
         scale = 0;
     }};

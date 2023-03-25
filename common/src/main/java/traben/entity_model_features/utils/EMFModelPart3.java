@@ -16,10 +16,7 @@ import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Environment(value = EnvType.CLIENT)
 public class EMFModelPart3 extends ModelPart  {
@@ -32,6 +29,8 @@ public class EMFModelPart3 extends ModelPart  {
     public int currentModelVariantState = 0;
 
     public boolean isValidToRenderInThisState = true;
+
+    private static final Cuboid EMPTY_CUBOID = new Cuboid(0,0,0,0,0,0,0,0,0,0,0,false,0,0);
 
     public Int2ObjectArrayMap<EMFModelState> allKnownStateVariants = new Int2ObjectArrayMap<>();
 
@@ -59,7 +58,8 @@ public class EMFModelPart3 extends ModelPart  {
 
     public EMFModelPart3(List<Cuboid> cuboids, Map<String, ModelPart> children,int variantNumber){
         //create empty root model object
-        super(cuboids, children);
+        //noinspection ConstantValue
+        super(/*cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod")? List.of(EMPTY_CUBOID) :*/ cuboids, children);
         selfModelData = null;
 
         if(variantNumber== 0)
@@ -67,6 +67,9 @@ public class EMFModelPart3 extends ModelPart  {
     }
 
     private static List<Cuboid> getCuboidsFromData(EMFPartData emfPartData){
+
+        //if(cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod"))
+        //    cuboids.add(EMPTY_CUBOID);
         return createCuboidsFromBoxDataV3(emfPartData);//false remove pivot value
 
     }
@@ -132,7 +135,7 @@ public class EMFModelPart3 extends ModelPart  {
     }
 
     private static List<Cuboid> createCuboidsFromBoxDataV3(EMFPartData emfPartData) {
-        List<Cuboid> emfCuboids = new ArrayList<>();
+        List<Cuboid> emfCuboids = new LinkedList<>();
         if (emfPartData.boxes.length > 0) {
             try {
                 for (EMFBoxData box :
