@@ -77,7 +77,6 @@ public class EMFOptiFineMappings2 {
                     -> genericQuadraped;
             case "zombie","husk","drowned","drowned_outer","enderman","giant","skeleton","stray","stray_outer","wither_skeleton","zombie_pigman"
                     -> genericNonPlayerBiped;
-            case "player"-> genericPlayerBiped;
             case "piglin","piglin_brute","zombified_piglin" -> genericPiglinBiped;
             case "allay","vex" -> Map.ofEntries(//# allay                    head, body, left_arm, right_arm, left_wing, right_wing
                         getOptifineMapEntry("head"),
@@ -531,8 +530,15 @@ public class EMFOptiFineMappings2 {
                     getOptifineMapEntry("nose","nose","mole"),
                     getOptifineMapEntry("mole")
             );
+            case "player","player_slim" -> genericPlayerBiped;
 
-            default -> null; //throw new RuntimeException("EMF doesn't map: "+mobName); //todo
+            default -> {
+                //throw new RuntimeException("EMF doesn't map: "+mobName);
+                EMFUtils.EMF_modError("no model part mapping found for: " + mobName);
+                //todo custom mappings
+                yield Map.of();
+            }
+
         };
 
 

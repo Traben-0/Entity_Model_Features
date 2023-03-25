@@ -111,7 +111,7 @@ public class EMFAnimation {
 
 
         if(entity0 == null) {
-            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getLastResultOnly, (okay for model init)");
+           // if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getLastResultOnly, (okay for model init)");
             return 0;
         }
 
@@ -123,7 +123,7 @@ public class EMFAnimation {
     public float getResultViaCalculate(Entity entity0, boolean storeResult){
 
         if(entity0 == null) {
-            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
+           // if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
             return 0;
         }
 

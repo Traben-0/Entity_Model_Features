@@ -14,6 +14,8 @@ import net.minecraft.entity.passive.TropicalFishEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFData;
 import traben.entity_model_features.EMFVersionDifferenceManager;
@@ -25,6 +27,7 @@ import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.*;
 
@@ -185,7 +188,13 @@ public class EMFManager{//singleton for data holding and resetting needs
         for (EMFPartData partData :
                 jemData.models) {
             if (partData != null && partData.part != null) {
+
                 ModelPart oldPart = traverseRootForChildOrNull(vanillaRoot,partData.part);
+//                ModelPart oldPart = vanillaRoot.hasChild("root") ?
+//                        ((ModelPartAccessor) vanillaRoot.getChild("root")).getChildren().getOrDefault(partData.part, null)
+//                        :
+//                        ((ModelPartAccessor) vanillaRoot).getChildren().getOrDefault(partData.part, null);
+
                 EMFModelPart3 newPart = new EMFModelPart3(partData,variantNumber);
                 if (oldPart != null) {
                     newPart.applyDefaultModelRotates(oldPart.getDefaultTransform());
@@ -422,6 +431,8 @@ public class EMFManager{//singleton for data holding and resetting needs
             EMFManager.getInstance().cache_JemDataByFileName.put(pathOfJem,jem);
             return jem;
             //}
+        } catch (InvalidIdentifierException | FileNotFoundException e) {
+            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("jem failed "+e, false);
         } catch (Exception e) {
             if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) EMFUtils.EMF_modMessage("jem failed "+e, false);
             e.printStackTrace();
@@ -451,7 +462,7 @@ public class EMFManager{//singleton for data holding and resetting needs
                     if (emfProperty != null){
                         int suffix = emfProperty.getSuffixOfEntity(entity,cache_UUIDDoUpdating.containsKey(entity.getUuid()),cache_UUIDDoUpdating);
                         if(suffix > 1) { // ignore 0 & 1
-                            System.out.println(" > apply model variant: "+suffix +", to "+mobName);
+                            //System.out.println(" > apply model variant: "+suffix +", to "+mobName);
                             EMFModelPart3 cannonicalRoot =cache_JemNameToCannonModelRoot.get(mobName);
                             if(!cannonicalRoot.allKnownStateVariants.containsKey(suffix)){
 
@@ -466,7 +477,7 @@ public class EMFManager{//singleton for data holding and resetting needs
                                         setupAnimationsFromJemToModel(jemData,cannonicalRoot);
                                     }
                                 }else{
-                                    System.out.println("invalid jem");
+                                    System.out.println("invalid jem: "+jemName);
                                 }
                             }
                             cannonicalRoot.setVariantStateTo(suffix);
@@ -481,4 +492,8 @@ public class EMFManager{//singleton for data holding and resetting needs
             }
         }
     }
+
+    @NotNull
+    public Runnable deferPlayerSetAngles = ()->{};
+
 }

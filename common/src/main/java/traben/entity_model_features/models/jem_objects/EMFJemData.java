@@ -67,13 +67,15 @@ public class EMFJemData {
         //change all part values to their vanilla counterparts
         for (EMFPartData partData:
                 models) {
-            if(map.containsKey(partData.part)) {
-                String newPartName = map.get(partData.part).partName();
-                if(partData.id.equals(partData.part)){
-                    partData.id = newPartName;
-                }
-                partData.part = newPartName;
+            if(partData.part!= null) {
+                if (map.containsKey(partData.part)) {
+                    String newPartName = map.get(partData.part).partName();
+                    if (partData.id.equals(partData.part)) {
+                        partData.id = newPartName;
+                    }
+                    partData.part = newPartName;
 
+                }
             }
         }
 

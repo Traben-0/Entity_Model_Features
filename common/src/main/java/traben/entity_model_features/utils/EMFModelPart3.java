@@ -568,9 +568,9 @@ public class EMFModelPart3 extends ModelPart  {
                 if(part instanceof EMFModelPart3 p3)
                     p3.setVariantStateTo(newVariantState);
             }
-        }else{
-            System.out.println("same state emf part");
-        }
+        }//else{
+            //System.out.println("same state emf part");
+        //}
 
     }
 
