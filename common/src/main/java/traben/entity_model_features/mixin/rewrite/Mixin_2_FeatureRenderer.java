@@ -21,22 +21,22 @@ import traben.entity_model_features.utils.EMFManager;
 public class Mixin_2_FeatureRenderer {
 
     @Inject(method = "render(Lnet/minecraft/client/render/entity/model/EntityModel;Lnet/minecraft/client/render/entity/model/EntityModel;Lnet/minecraft/util/Identifier;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFFFFF)V",
-            at = @At(value = "INVOKE",target = "Lnet/minecraft/client/render/entity/model/EntityModel;setAngles(Lnet/minecraft/entity/Entity;FFFFF)V",shift = At.Shift.AFTER),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;setAngles(Lnet/minecraft/entity/Entity;FFFFF)V", shift = At.Shift.AFTER),
             locals = LocalCapture.CAPTURE_FAILHARD)
-    private static <T extends LivingEntity>  void emf$setAngles(EntityModel<T> contextModel, EntityModel<T> model, Identifier texture, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float age, float headYaw, float headPitch, float tickDelta, float red, float green, float blue, CallbackInfo ci) {
+    private static <T extends LivingEntity> void emf$setAngles(EntityModel<T> contextModel, EntityModel<T> model, Identifier texture, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float age, float headYaw, float headPitch, float tickDelta, float red, float green, float blue, CallbackInfo ci) {
         String modelName;
-        if(entity instanceof DrownedEntity){
+        if (entity instanceof DrownedEntity) {
             modelName = "drowned_outer";
-        }else if(entity instanceof SheepEntity){
+        } else if (entity instanceof SheepEntity) {
             modelName = "sheep_wool";
-        }else if(entity instanceof StrayEntity){
+        } else if (entity instanceof StrayEntity) {
             modelName = "stray_outer";
-        }else if(entity instanceof CatEntity){
+        } else if (entity instanceof CatEntity) {
             modelName = "cat_collar";
-        }else{//todo its possible tropical fish go here too
+        } else {//todo its possible tropical fish go here too
             modelName = null;
         }
-        if(modelName != null)
-            EMFManager.getInstance().setAnglesOnParts(modelName,entity,limbAngle,limbDistance,age,headYaw,headPitch);
+        if (modelName != null)
+            EMFManager.getInstance().setAnglesOnParts(modelName, entity, limbAngle, limbDistance, age, headYaw, headPitch);
     }
 }

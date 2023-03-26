@@ -15,6 +15,6 @@ public class MixinModelLoadingTest {
     @Inject(method = "getModelPart",
             at = @At(value = "RETURN"), cancellable = true)
     private void emf$injectModelLoad(EntityModelLayer layer, CallbackInfoReturnable<ModelPart> cir) {
-        cir.setReturnValue(EMFManager.injectIntoModelRootGetter(layer,cir.getReturnValue()));
+        cir.setReturnValue(EMFManager.getInstance().injectIntoModelRootGetter(layer, cir.getReturnValue()));
     }
 }

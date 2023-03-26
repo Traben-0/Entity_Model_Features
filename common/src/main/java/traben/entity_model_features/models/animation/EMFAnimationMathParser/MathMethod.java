@@ -1,7 +1,6 @@
 package traben.entity_model_features.models.animation.EMFAnimationMathParser;
 
 import net.minecraft.util.math.MathHelper;
-import traben.entity_model_features.EMFData;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.animation.EMFAnimation;
 
@@ -9,22 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MathMethod extends MathValue implements MathComponent{
+public class MathMethod extends MathValue implements MathComponent {
 
-
-    String methodName;
-
-    public static MathComponent getOptimizedExpression(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException{
-        MathMethod method = new MathMethod(methodName, args, isNegative, calculationInstance);
-        if(method.optimizedAlternativeToThis == null)
-            return method;
-        return method.optimizedAlternativeToThis;
-    }
 
     public MathComponent optimizedAlternativeToThis = null;
+    String methodName;
+    ValueSupplier supplier;
+    private int printCount = 0;
+
 
     private MathMethod(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
-        super(isNegative,calculationInstance);
+        super(isNegative, calculationInstance);
 
         this.methodName = methodName;
         //first lets split the args into a list
@@ -32,9 +26,9 @@ public class MathMethod extends MathValue implements MathComponent{
 
         int openBracketCount = 0;
         StringBuilder builder = new StringBuilder();
-        for (char ch:
-             args.toCharArray()) {
-            switch (ch){
+        for (char ch :
+                args.toCharArray()) {
+            switch (ch) {
                 case '(' -> {
                     openBracketCount++;
                     builder.append(ch);
@@ -44,10 +38,10 @@ public class MathMethod extends MathValue implements MathComponent{
                     builder.append(ch);
                 }
                 case ',' -> {
-                    if(openBracketCount == 0){
+                    if (openBracketCount == 0) {
                         argsList.add(builder.toString());
                         builder = new StringBuilder();
-                    }else{
+                    } else {
                         builder.append(ch);
                     }
                 }
@@ -57,7 +51,7 @@ public class MathMethod extends MathValue implements MathComponent{
         argsList.add(builder.toString());
         //args list is now a list of top level arguments ready to be categorized into MathComponents depending on the method
 
-        supplier = switch (methodName){
+        supplier = switch (methodName) {
             case "if" -> EMF_IF(argsList);
             case "sin" -> SIN(argsList);
             case "asin" -> ASIN(argsList);
@@ -90,45 +84,50 @@ public class MathMethod extends MathValue implements MathComponent{
             case "equals" -> EQUALS(argsList);
             case "in" -> IN(argsList);
             default ->
-                throw new EMFMathException("ERROR: Unknown method ["+methodName+"], rejecting animation expression for ["+calculationInstance.animKey+"].");
-             //()-> 0d;
+                    throw new EMFMathException("ERROR: Unknown method [" + methodName + "], rejecting animation expression for [" + calculationInstance.animKey + "].");
+            //()-> 0d;
         };
 
     }
 
-
-    private void setOptimizedIfPossible(List<MathComponent> allComponents, ValueSupplier supplier){
-        //check if method only contains constants, if so precalculate the result and replace this with a constant
-            boolean foundNonConstant = false;
-            for (MathComponent comp :
-                    allComponents) {
-                if (!comp.isConstant()) {
-                    foundNonConstant = true;
-                    break;
-                }
-            }
-            if (!foundNonConstant) {
-                //precalculate expression that only contains constants
-                double constantResult = supplier.get();
-                if (!Double.isNaN(constantResult))
-                    optimizedAlternativeToThis = new MathConstant(constantResult,isNegative);
-            }
+    public static MathComponent getOptimizedExpression(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
+        MathMethod method = new MathMethod(methodName, args, isNegative, calculationInstance);
+        if (method.optimizedAlternativeToThis == null)
+            return method;
+        return method.optimizedAlternativeToThis;
     }
 
+    private void setOptimizedIfPossible(List<MathComponent> allComponents, ValueSupplier supplier) {
+        //check if method only contains constants, if so precalculate the result and replace this with a constant
+        boolean foundNonConstant = false;
+        for (MathComponent comp :
+                allComponents) {
+            if (!comp.isConstant()) {
+                foundNonConstant = true;
+                break;
+            }
+        }
+        if (!foundNonConstant) {
+            //precalculate expression that only contains constants
+            double constantResult = supplier.get();
+            if (!Double.isNaN(constantResult))
+                optimizedAlternativeToThis = new MathConstant(constantResult, isNegative);
+        }
+    }
 
     private ValueSupplier IN(List<String> args) throws EMFMathException {
-        if(args.size() >= 3){
-            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() >= 3) {
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             List<MathComponent> vals = new ArrayList<>();
             for (int i = 1; i < args.size(); i++) {
-                vals.add(MathExpressionParser.getOptimizedExpression(args.get(i),false,calculationInstance));
+                vals.add(MathExpressionParser.getOptimizedExpression(args.get(i), false, calculationInstance));
             }
 
-            ValueSupplier valueSupplier = ()-> {
+            ValueSupplier valueSupplier = () -> {
                 double X = x.get();
-                for (MathComponent expression:
+                for (MathComponent expression :
                         vals) {
-                    if(expression.get() == X){
+                    if (expression.get() == X) {
                         return 1f;
                     }
                 }
@@ -136,139 +135,146 @@ public class MathMethod extends MathValue implements MathComponent{
             };
             List<MathComponent> comps = new ArrayList<>(vals);
             comps.add(x);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
 
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in IN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in IN method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private ValueSupplier EQUALS(List<String> args) throws EMFMathException {
-        if(args.size() == 3){
-            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent epsilon = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
 
-            ValueSupplier valueSupplier =()-> {
+    private ValueSupplier EQUALS(List<String> args) throws EMFMathException {
+        if (args.size() == 3) {
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
+            MathComponent epsilon = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
+
+            ValueSupplier valueSupplier = () -> {
                 double X = x.get();
                 double Y = y.get();
-                double BIGGER = Math.max(X,Y);
-                double SMALLER = Math.min(X,Y);
+                double BIGGER = Math.max(X, Y);
+                double SMALLER = Math.min(X, Y);
                 double EPSILON = epsilon.get();
                 return Math.abs(BIGGER - SMALLER) <= EPSILON ? 1f : 0f;
                 // return X >= Y - EPSILON ? 0 : (X <= Y + EPSILON ? 0 : 1f);
             };
-            List<MathComponent> comps = List.of(x,y,epsilon);
-            setOptimizedIfPossible(comps,valueSupplier);
+            List<MathComponent> comps = List.of(x, y, epsilon);
+            setOptimizedIfPossible(comps, valueSupplier);
 
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in EQUALS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in EQUALS method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier BETWEEN(List<String> args) throws EMFMathException {
-        if(args.size() == 3){
-            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent min = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent max = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
-            ValueSupplier valueSupplier = ()-> {
+        if (args.size() == 3) {
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+            MathComponent min = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
+            MathComponent max = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
+            ValueSupplier valueSupplier = () -> {
                 double X = x.get();
                 double MAX = max.get();
                 return X > MAX ? 0 : (X < min.get() ? 0 : 1f);
             };
 
-            List<MathComponent> comps = List.of(x,min,max);
-            setOptimizedIfPossible(comps,valueSupplier);
+            List<MathComponent> comps = List.of(x, min, max);
+            setOptimizedIfPossible(comps, valueSupplier);
 
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in BETWEEN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in BETWEEN method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private int printCount = 0;
-    private int getPrintCount(){
+
+    private int getPrintCount() {
         printCount++;
         return printCount;
     }
+
     private ValueSupplier PRINTB(List<String> args) throws EMFMathException {
-        if(args.size() == 3){
+        if (args.size() == 3) {
             String id = args.get(0);
-            MathComponent n = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
-            ValueSupplier valueSupplier = ()-> {
+            MathComponent n = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
+            ValueSupplier valueSupplier = () -> {
                 double xVal = x.get();
-                if(getPrintCount() % n.get() == 0){
-                    print("EMF printb: ["+id+"] = "+(xVal == 1));
+                if (getPrintCount() % n.get() == 0) {
+                    print("EMF printb: [" + id + "] = " + (xVal == 1));
                 }
                 return xVal;
             };
-            List<MathComponent> comps = List.of(n,x);
-            setOptimizedIfPossible(comps,valueSupplier);
+            List<MathComponent> comps = List.of(n, x);
+            setOptimizedIfPossible(comps, valueSupplier);
 
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in PRINTB method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in PRINTB method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier PRINT(List<String> args) throws EMFMathException {
-        if(args.size() == 3){
+        if (args.size() == 3) {
             String id = args.get(0);
-            MathComponent n = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
-            ValueSupplier valueSupplier = ()-> {
+            MathComponent n = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
+            ValueSupplier valueSupplier = () -> {
                 double xVal = x.get();
-                if(getPrintCount() % n.get() == 0){
-                    print("EMF print: ["+id+"] = "+xVal);
+                if (getPrintCount() % n.get() == 0) {
+                    print("EMF print: [" + id + "] = " + xVal);
                 }
                 return xVal;
             };
-            List<MathComponent> comps = List.of(n,x);
-            setOptimizedIfPossible(comps,valueSupplier);
+            List<MathComponent> comps = List.of(n, x);
+            setOptimizedIfPossible(comps, valueSupplier);
 
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in PRINT method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in PRINT method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier LERP(List<String> args) throws EMFMathException {
-        if(args.size() == 3){
-            MathComponent k = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
-            ValueSupplier valueSupplier = ()-> MathHelper.lerp(k.get(),x.get(),y.get());
-            List<MathComponent> comps = List.of(k,x,y);
-            setOptimizedIfPossible(comps,valueSupplier);
+        if (args.size() == 3) {
+            MathComponent k = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
+            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
+            ValueSupplier valueSupplier = () -> MathHelper.lerp(k.get(), x.get(), y.get());
+            List<MathComponent> comps = List.of(k, x, y);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in LERP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in LERP method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier FMOD(List<String> args) throws EMFMathException {
-        if(args.size() == 2){
-            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
+        if (args.size() == 2) {
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
             //ValueSupplier valueSupplier = ()-> Math.floorMod((int) Math.floor(x.get()), (int) Math.floor(y.get()));
-            ValueSupplier valueSupplier = EMFData.getInstance().getConfig().mathFunctionChoice== EMFConfig.MathFunctionChoice.MinecraftMath ?
-                    () -> MathHelper.floorMod(x.get(),y.get()):
+            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
+                    () -> MathHelper.floorMod(x.get(), y.get()) :
                     () -> Math.floorMod((int) x.get(), (int) y.get());
 
-            List<MathComponent> comps = List.of(x,y);
-            setOptimizedIfPossible(comps,valueSupplier);
+            List<MathComponent> comps = List.of(x, y);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in FMOD method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in FMOD method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier SQRT(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
 //            ValueSupplier valueSupplier = ()-> {
 //                double result = Math.sqrt(arg.get());
 //                if(Double.isNaN(result)){
@@ -276,195 +282,205 @@ public class MathMethod extends MathValue implements MathComponent{
 //                }
 //                return  result;
 //            };
-            ValueSupplier valueSupplier = EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                //case FastMath -> () -> FastMath.sqrt(arg.get());
-                 () -> MathHelper.sqrt((float) arg.get()) :
-                 () -> Math.sqrt(arg.get());
+            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
+                    //case FastMath -> () -> FastMath.sqrt(arg.get());
+                    () -> MathHelper.sqrt((float) arg.get()) :
+                    () -> Math.sqrt(arg.get());
 
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in SQRT method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in SQRT method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier SIGNUM(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
-           // ValueSupplier valueSupplier = ()-> Math.signum(arg.get());
-            ValueSupplier valueSupplier = //EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
-                   // () -> FastMath.signum(arg.get()) :
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+            // ValueSupplier valueSupplier = ()-> Math.signum(arg.get());
+            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
+                    // () -> FastMath.signum(arg.get()) :
                     () -> Math.signum(arg.get());
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in SIGNUM method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in SIGNUM method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier ROUND(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier = ()-> Math.round(arg.get());
-            ValueSupplier valueSupplier = //EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
+            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
                     //() -> FastMath.round(arg.get()) :
                     () -> Math.round(arg.get());
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ROUND method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in ROUND method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
 
     //private final Random random = new Random();
     private ValueSupplier RANDOM(List<String> args) throws EMFMathException {
-        if(args.size() ==0 ){
+        if (args.size() == 0) {
             //cannot optimize further
             return Math::random;
-        }else if(args.size() == 1){
-            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
-            ValueSupplier valueSupplier = ()-> new Random((long) x.get()).nextFloat(1);
+        } else if (args.size() == 1) {
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+            ValueSupplier valueSupplier = () -> new Random((long) x.get()).nextFloat(1);
             List<MathComponent> comps = List.of(x);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in RANDOM method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in RANDOM method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier POW(List<String> args) throws EMFMathException {
-        if(args.size() == 2){
-            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
+        if (args.size() == 2) {
+            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+            MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
             //ValueSupplier valueSupplier = ()->  Math.pow(x.get(),y.get());
-            ValueSupplier valueSupplier = //EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
+            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
                     //() -> FastMath.pow(x.get(),y.get()) :
                     () -> Math.pow(x.get(), y.get());
-            List<MathComponent> comps = List.of(x,y);
-            setOptimizedIfPossible(comps,valueSupplier);
+            List<MathComponent> comps = List.of(x, y);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in POW method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in POW method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier LOG(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier = ()->  Math.log(arg.get());
-            ValueSupplier valueSupplier = //EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
+            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
                     //() -> FastMath.log(arg.get()) :
                     () -> Math.log(arg.get());
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in LOG method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in LOG method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier FRAC(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
 //            ValueSupplier valueSupplier = ()->{
 //                double d =arg.get();
 //                return d > 0 ? d -  Math.floor(d) : d +  Math.ceil(d);
 //            };
-            ValueSupplier valueSupplier =  EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
+            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
 //                case FastMath -> () -> {
 //                    double x = arg.get();
 //                    return x - FastMath.floor(x);
 //                };
-                    () -> MathHelper.fractionalPart(arg.get()):
+                    () -> MathHelper.fractionalPart(arg.get()) :
                     () -> {
-                    double x = arg.get();
-                    return x - Math.floor(x);
+                        double x = arg.get();
+                        return x - Math.floor(x);
                     };
 
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in FRAC method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in FRAC method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier EXP(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier = ()->  Math.exp(arg.get());
-            ValueSupplier valueSupplier = //EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
-                   // () -> FastMath.exp(arg.get()) :
+            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
+                    // () -> FastMath.exp(arg.get()) :
                     () -> Math.exp(arg.get());
 
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in EXP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in EXP method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier CEIL(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier = ()->  Math.ceil(arg.get());
-            ValueSupplier valueSupplier =  EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                //case FastMath -> () -> FastMath.ceil(arg.get());
-                () -> MathHelper.ceil(arg.get()) :
-                () -> Math.ceil(arg.get());
+            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
+                    //case FastMath -> () -> FastMath.ceil(arg.get());
+                    () -> MathHelper.ceil(arg.get()) :
+                    () -> Math.ceil(arg.get());
 
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in CEIL method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in CEIL method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier FLOOR(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier = ()->  Math.floor(arg.get());
-            ValueSupplier valueSupplier =  EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                //case FastMath -> () -> FastMath.floor(arg.get());
-                () -> MathHelper.floor(arg.get()) :
-                () -> Math.floor(arg.get());
+            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
+                    //case FastMath -> () -> FastMath.floor(arg.get());
+                    () -> MathHelper.floor(arg.get()) :
+                    () -> Math.floor(arg.get());
 
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in FLOOR method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in FLOOR method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier ABS(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier = ()-> Math.abs(arg.get());
-            ValueSupplier valueSupplier =  EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                //case FastMath -> () -> FastMath.abs(arg.get());
-                () -> MathHelper.abs((float) arg.get()) :
-                () -> Math.abs(arg.get());
+            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
+                    //case FastMath -> () -> FastMath.abs(arg.get());
+                    () -> MathHelper.abs((float) arg.get()) :
+                    () -> Math.abs(arg.get());
 
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ABS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in ABS method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier CLAMP(List<String> args) throws EMFMathException {
-        if(args.size() == 3){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent arg1 = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
+        if (args.size() == 3) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+            MathComponent arg1 = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
+            MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
 
 //            ValueSupplier valueSupplier = ()->{
 //                double x = arg.get();
@@ -473,7 +489,7 @@ public class MathMethod extends MathValue implements MathComponent{
 //                if(calculationInstance.verboseMode) print("clamp="+x+", "+min+", "+max);
 //                return x > max ? max : (FastMath.max(x, min));
 //            };
-            ValueSupplier valueSupplier = EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
+            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
 //                case FastMath -> ()->{
 //                    double x = arg.get();
 //                    double min = arg1.get();
@@ -481,241 +497,252 @@ public class MathMethod extends MathValue implements MathComponent{
 //                    //if(calculationInstance.verboseMode) print("clamp="+x+", "+min+", "+max);
 //                    return x > max ? max : (FastMath.max(x, min));
 //                };
-                () -> MathHelper.clamp(arg.get(),arg1.get(),arg2.get()) :
-                ()->{
-                    double x = arg.get();
-                    double min = arg1.get();
-                    double max = arg2.get();
-                    //if(calculationInstance.verboseMode) print("clamp="+x+", "+min+", "+max);
-                    return x > max ? max : (Math.max(x, min));
-                };
+                    () -> MathHelper.clamp(arg.get(), arg1.get(), arg2.get()) :
+                    () -> {
+                        double x = arg.get();
+                        double min = arg1.get();
+                        double max = arg2.get();
+                        //if(calculationInstance.verboseMode) print("clamp="+x+", "+min+", "+max);
+                        return x > max ? max : (Math.max(x, min));
+                    };
 
-            List<MathComponent> comps = List.of(arg1,arg2,arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            List<MathComponent> comps = List.of(arg1, arg2, arg);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in CLAMP method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in CLAMP method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier MAX(List<String> args) throws EMFMathException {
-        if(args.size() >= 2){
+        if (args.size() >= 2) {
             List<MathComponent> exps = new ArrayList<>();
-            for (String arg:
+            for (String arg :
                     args) {
-                exps.add(MathExpressionParser.getOptimizedExpression(arg,false,calculationInstance));
+                exps.add(MathExpressionParser.getOptimizedExpression(arg, false, calculationInstance));
             }
-            ValueSupplier valueSupplier = ()-> {
+            ValueSupplier valueSupplier = () -> {
                 double largest = Double.MIN_VALUE;
-                for (MathComponent expression:
+                for (MathComponent expression :
                         exps) {
-                    double get =expression.get();
-                    if(get > largest){
+                    double get = expression.get();
+                    if (get > largest) {
                         largest = get;
                     }
                 }
                 return largest;
             };
-            setOptimizedIfPossible(exps,valueSupplier);
+            setOptimizedIfPossible(exps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in MAX method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in MAX method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier MIN(List<String> args) throws EMFMathException {
-        if(args.size() >= 2){
+        if (args.size() >= 2) {
             List<MathComponent> exps = new ArrayList<>();
-            for (String arg:
-                 args) {
-                exps.add(MathExpressionParser.getOptimizedExpression(arg,false,calculationInstance));
+            for (String arg :
+                    args) {
+                exps.add(MathExpressionParser.getOptimizedExpression(arg, false, calculationInstance));
             }
-            ValueSupplier valueSupplier = ()-> {
+            ValueSupplier valueSupplier = () -> {
                 double smallest = Double.MAX_VALUE;
-                for (MathComponent expression:
-                     exps) {
-                    double get =expression.get();
-                    if(get < smallest){
+                for (MathComponent expression :
+                        exps) {
+                    double get = expression.get();
+                    if (get < smallest) {
                         smallest = get;
                     }
                 }
                 return smallest;
             };
 
-            setOptimizedIfPossible(exps,valueSupplier);
+            setOptimizedIfPossible(exps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in MIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in MIN method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier TORAD(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
 //            ValueSupplier valueSupplier = ()->{
 //                double x =arg.get();
 //                if(calculationInstance.verboseMode) print("torad ="+x);
 //                return  Math.toRadians(x);
 //            };
-            ValueSupplier valueSupplier = //EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
+            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
                     //() -> FastMath.toRadians(arg.get()) :
                     () -> Math.toRadians(arg.get());
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in TORAD method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in TORAD method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier TODEG(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier  = ()->  FastMath.toDegrees(arg.get());
-            ValueSupplier valueSupplier = //EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
+            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
                     //() -> FastMath.toDegrees(arg.get()) :
                     () -> Math.toDegrees(arg.get());
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in TODEG method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in TODEG method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier SIN(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
-            ValueSupplier valueSupplier =  EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
 //                case FastMath -> () -> {
 //                    //if(calculationInstance.verboseMode) print("sin = "+ arg);
 //                    return  FastMath.sin(arg.get());
 //                };
-                () -> {
-                    //if(calculationInstance.verboseMode) print("sin = "+ arg);
-                    return  MathHelper.sin((float) arg.get());
-                } :
-                () -> {
-                    //if(calculationInstance.verboseMode) print("sin = "+ arg);
-                    return  Math.sin(arg.get());
-                };
+                    () -> {
+                        //if(calculationInstance.verboseMode) print("sin = "+ arg);
+                        return MathHelper.sin((float) arg.get());
+                    } :
+                    () -> {
+                        //if(calculationInstance.verboseMode) print("sin = "+ arg);
+                        return Math.sin(arg.get());
+                    };
 
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in SIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in SIN method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier ASIN(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier = ()->  Math.asin(arg.get());
-            ValueSupplier valueSupplier = //switch (EMFData.getInstance().getConfig().mathFunctionChoice) {
-                //case FastMath -> () -> FastMath.asin(arg.get());
-                //default ->
-                        () -> Math.asin(arg.get());
+            ValueSupplier valueSupplier = //switch ( EMFConfig.getConfig().mathFunctionChoice) {
+                    //case FastMath -> () -> FastMath.asin(arg.get());
+                    //default ->
+                    () -> Math.asin(arg.get());
             //};
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ASIN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in ASIN method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier COS(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier = ()->  Math.cos(arg.get());
-            ValueSupplier valueSupplier =  EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                //case FastMath -> () -> FastMath.cos(arg.get());
-                () -> MathHelper.cos((float) arg.get()) :
-                () -> Math.cos(arg.get());
+            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
+                    //case FastMath -> () -> FastMath.cos(arg.get());
+                    () -> MathHelper.cos((float) arg.get()) :
+                    () -> Math.cos(arg.get());
 
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in COS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in COS method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier ACOS(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier = ()->  Math.acos(arg.get());
-            ValueSupplier valueSupplier = //switch (EMFData.getInstance().getConfig().mathFunctionChoice) {
-                //case FastMath -> () -> FastMath.acos(arg.get());
-                () -> Math.acos(arg.get());
+            ValueSupplier valueSupplier = //switch ( EMFConfig.getConfig().mathFunctionChoice) {
+                    //case FastMath -> () -> FastMath.acos(arg.get());
+                    () -> Math.acos(arg.get());
 
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ACOS method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in ACOS method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier TAN(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier = ()->  Math.tan(arg.get());
-            ValueSupplier valueSupplier = //EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
+            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
                     //() -> FastMath.tan(arg.get()) :
                     () -> Math.tan(arg.get());
 
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in TAN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in TAN method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
+
     private ValueSupplier ATAN(List<String> args) throws EMFMathException {
-        if(args.size() == 1){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+        if (args.size() == 1) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             //ValueSupplier valueSupplier = ()->  Math.atan(arg.get());
-            ValueSupplier valueSupplier = //EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
+            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
                     //() -> FastMath.atan(arg.get()) :
                     () -> Math.atan(arg.get());
             List<MathComponent> comps = List.of(arg);
-            setOptimizedIfPossible(comps,valueSupplier);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ATAN method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in ATAN method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
-    private ValueSupplier ATAN2(List<String> args) throws EMFMathException {
-        if(args.size() == 2){
-            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
-            MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
-            //ValueSupplier valueSupplier = ()->  Math.atan2(arg.get(), arg2.get());
-            ValueSupplier valueSupplier =  EMFData.getInstance().getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                //case FastMath -> () -> FastMath.atan2(arg.get(), arg2.get());
-                () -> MathHelper.atan2(arg.get(), arg2.get()) :
-                () -> Math.atan2(arg.get(), arg2.get());
 
-            List<MathComponent> comps = List.of(arg,arg2);
-            setOptimizedIfPossible(comps,valueSupplier);
+    private ValueSupplier ATAN2(List<String> args) throws EMFMathException {
+        if (args.size() == 2) {
+            MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+            MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
+            //ValueSupplier valueSupplier = ()->  Math.atan2(arg.get(), arg2.get());
+            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
+                    //case FastMath -> () -> FastMath.atan2(arg.get(), arg2.get());
+                    () -> MathHelper.atan2(arg.get(), arg2.get()) :
+                    () -> Math.atan2(arg.get(), arg2.get());
+
+            List<MathComponent> comps = List.of(arg, arg2);
+            setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments "+ args +" in ATAN2 method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        String s = "ERROR: wrong number of arguments " + args + " in ATAN2 method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
     }
 
     private ValueSupplier EMF_IF(List<String> args) throws EMFMathException {
 
-        if(args.size() == 3){
+        if (args.size() == 3) {
             //easy if
-            MathComponent bool = MathExpressionParser.getOptimizedExpression(args.get(0),false,calculationInstance);
+            MathComponent bool = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
 
-            MathComponent tru = MathExpressionParser.getOptimizedExpression(args.get(1),false,calculationInstance);
-            MathComponent fals = MathExpressionParser.getOptimizedExpression(args.get(2),false,calculationInstance);
+            MathComponent tru = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
+            MathComponent fals = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
 //            if(calculationInstance.animKey.equals("var.float")){
 //                System.out.println("var.float = " + args.get(0));
 //                System.out.println("var.float as string = "+ bool.toString());
@@ -727,43 +754,43 @@ public class MathMethod extends MathValue implements MathComponent{
             if (bool.isConstant()) {
                 optimizedAlternativeToThis = bool.get() == 1 ? tru : fals;
             }
-            return ()->{
+            return () -> {
                 //if(calculationInstance.verboseMode) print("if = "+bool+", "+tru+", "+fals);
                 return bool.get() == 1 ? tru.get() : fals.get();
             };
-        }else if(args.size() % 2 == 1){
+        } else if (args.size() % 2 == 1) {
             //elif
             List<MathComponent> expList = new ArrayList<>();
-            for (String str:
-                 args) {
-                expList.add(MathExpressionParser.getOptimizedExpression(str,false,calculationInstance));
+            for (String str :
+                    args) {
+                expList.add(MathExpressionParser.getOptimizedExpression(str, false, calculationInstance));
             }
 
-            return ()->{
+            return () -> {
                 boolean lastCondition = false;
                 for (int i = 0; i < expList.size(); i++) {
-                    if(i == expList.size()-1){
+                    if (i == expList.size() - 1) {
                         //last
                         //if(calculationInstance.verboseMode) print("elif else = "+ expList.get(i));
                         return expList.get(i).get();
-                    }else if(i % 2 == 0){
+                    } else if (i % 2 == 0) {
                         //boolean
                         //if(calculationInstance.verboseMode) print("elif = "+ expList.get(i));
                         lastCondition = expList.get(i).get() == 1;
-                    }else if(lastCondition){
+                    } else if (lastCondition) {
                         //true condition to return
                         //if(calculationInstance.verboseMode) print("elif true = "+ expList.get(i));
                         return expList.get(i).get();
                     }
                 }
-                String s = "ERROR: in IF method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+                String s = "ERROR: in IF method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
                 System.out.println(s);
                 return Double.NaN;
             };
 
         }
-            //not odd invalid if
-        String s = "ERROR: wrong number of arguments "+ args +" in IF method for ["+calculationInstance.animKey+"] in ["+calculationInstance.modelName+"].";
+        //not odd invalid if
+        String s = "ERROR: wrong number of arguments " + args + " in IF method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
 
@@ -774,15 +801,10 @@ public class MathMethod extends MathValue implements MathComponent{
         return methodName;
     }
 
-    ValueSupplier supplier;
     @Override
     public ValueSupplier getSupplier() {
         return supplier;
     }
-
-
-
-
 
 
 }
