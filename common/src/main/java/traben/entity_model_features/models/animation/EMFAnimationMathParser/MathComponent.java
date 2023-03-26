@@ -1,25 +1,28 @@
 package traben.entity_model_features.models.animation.EMFAnimationMathParser;
 
-public interface MathComponent{
+public interface MathComponent {
 
 
-     double get();// throws EMFMathException;
+    double get();// throws EMFMathException;
 
 
-     default boolean isConstant(){return false;}
-     class EMFMathException extends Exception {
+    default boolean isConstant() {
+        return false;
+    }
 
-          public EMFMathException(String s) {
-                errorMsg=s;
-          }
+    class EMFMathException extends Exception {
 
-          String errorMsg;
+        String errorMsg;
 
-          @Override
-          public String toString() {
-               return errorMsg;
-          }
-     }
+        public EMFMathException(String s) {
+            errorMsg = s;
+        }
+
+        @Override
+        public String toString() {
+            return errorMsg;
+        }
+    }
 
 
 }

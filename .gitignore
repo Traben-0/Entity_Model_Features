@@ -18,3 +18,4 @@ classes/
 .settings
 *.launch
 /.architectury-transformer/debug.log
+/common/old_emf/

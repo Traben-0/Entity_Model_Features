@@ -1,6 +1,22 @@
 package traben.entity_model_features.config;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import traben.entity_model_features.EMFVersionDifferenceManager;
+import traben.entity_model_features.utils.EMFUtils;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class EMFConfig {
+
+    private static EMFConfig EMFConfigData;
+    //public  VanillaModelRenderMode displayVanillaModelHologram = VanillaModelRenderMode.Off;
+    public boolean printModelCreationInfoToLog = false;
+    public boolean printAllMaths = false;
+    public boolean forceTranslucentMobRendering = false;
 
 
 //    private boolean dontReduceFps = false;
@@ -39,45 +55,84 @@ public class EMFConfig {
 //
 //   // public int animationFPS = 30;
 //    public float minimumAnimationFPS = 0.3F;
-
-    public  VanillaModelRenderMode displayVanillaModelHologram = VanillaModelRenderMode.Off;
-    public boolean printModelCreationInfoToLog = false;
+    public boolean renderCustomModelsGreen = false;
 //    public float animationRateMinimumDistanceDropOff = 8;
 //    public float animationRateDistanceDropOffRate = 10;
-
-
-    public boolean printAllMaths = false;
-
-   // public boolean useCustomPlayerHandInFPS = false;
-
-    public boolean forceTranslucentMobRendering = false;
-
-
-
-    public SpawnAnimation spawnAnim = SpawnAnimation.None;
-    public float spawnAnimTime = 4;
-
-
     public MathFunctionChoice mathFunctionChoice = MathFunctionChoice.JavaMath;
 
-    public enum SpawnAnimation{
-        None,
-        Rise,
-        InflateGround,
-        InflateCenter,
-        Fall,
-        Fade,
-        Dark,
-        Bright,
-        Pitch,
-        Yaw
+    // public boolean useCustomPlayerHandInFPS = false;
+
+    public boolean attemptToCopyVanillaModelIntoMissingModelPart = false;
+    public static EMFConfig getConfig() {
+        if (EMFConfigData == null) {
+            loadConfig();
+        }
+        return EMFConfigData;
     }
-    public enum VanillaModelRenderMode{
-        Off,
-        Position_normal,
-        Positon_offset
+
+    public static void EMF_saveConfig() {
+        File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), "entity_model_features.json");
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        if (!config.getParentFile().exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            config.getParentFile().mkdir();
+        }
+        try {
+            FileWriter fileWriter = new FileWriter(config);
+            fileWriter.write(gson.toJson(EMFConfigData));
+            fileWriter.close();
+        } catch (IOException e) {
+            EMFUtils.EMFModMessage("Config could not be saved", false);
+        }
     }
-    public enum MathFunctionChoice{
+
+    // public SpawnAnimation spawnAnim = SpawnAnimation.None;
+//    public float spawnAnimTime = 4;
+
+    public static void loadConfig() {
+        try {
+            File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), "entity_model_features.json");
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            if (config.exists()) {
+                try {
+                    FileReader fileReader = new FileReader(config);
+                    EMFConfigData = gson.fromJson(fileReader, EMFConfig.class);
+                    fileReader.close();
+                    EMF_saveConfig();
+                } catch (IOException e) {
+                    EMFUtils.EMFModMessage("Config could not be loaded, using defaults", false);
+                }
+            } else {
+                EMFConfigData = new EMFConfig();
+                EMF_saveConfig();
+            }
+            if (EMFConfigData == null) {
+                EMFConfigData = new EMFConfig();
+                EMF_saveConfig();
+            }
+        } catch (Exception e) {
+            EMFConfigData = new EMFConfig();
+        }
+    }
+
+    //    public enum SpawnAnimation{
+//        None,
+//        Rise,
+//        InflateGround,
+//        InflateCenter,
+//        Fall,
+//        Fade,
+//        Dark,
+//        Bright,
+//        Pitch,
+//        Yaw
+//    }
+//    public enum VanillaModelRenderMode{
+//        Off,
+//        Position_normal,
+//        Positon_offset
+//    }
+    public enum MathFunctionChoice {
         JavaMath,
         MinecraftMath//bugged for some reason
         //FastMath
@@ -103,5 +158,5 @@ public class EMFConfig {
 //    }
 
 
-    public boolean patchFeatures = false;
+    // public boolean patchFeatures = false;
 }

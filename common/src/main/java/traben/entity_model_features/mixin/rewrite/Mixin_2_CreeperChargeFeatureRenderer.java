@@ -20,7 +20,7 @@ public class Mixin_2_CreeperChargeFeatureRenderer<T extends Entity> {
     @Inject(method = "render",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;setAngles(Lnet/minecraft/entity/Entity;FFFFF)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
     private void emf$setAngles(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch, CallbackInfo ci, float f, EntityModel entityModel, VertexConsumer vertexConsumer) {
-        if(entity instanceof CreeperEntity)
-            EMFManager.getInstance().setAnglesOnParts("creeper_charge",entity,  limbAngle,  limbDistance,  animationProgress,  headYaw,  headPitch);
+        if (entity instanceof CreeperEntity)
+            EMFManager.getInstance().setAnglesOnParts("creeper_charge", entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
     }
 }

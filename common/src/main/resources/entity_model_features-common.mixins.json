@@ -5,30 +5,8 @@
   "client": [
     "MixinModelLoadingTest",
     "MixinSimpleResourceReload",
-    "accessor.CatCollarFeatureRendererAccessor",
     "accessor.CuboidAccessor",
-    "accessor.FeatureRendererAccessor",
-    "accessor.FoxHeldItemFeatureRendererAccessor",
-    "accessor.ModelAccessor",
     "accessor.ModelPartAccessor",
-    "accessor.entity.LivingEntityRendererAccessor",
-    "accessor.entity.feature.CreeperChargeFeatureRendererAccessor",
-    "accessor.entity.feature.HorseArmorFeatureRendererAccessor",
-    "accessor.entity.feature.LlamaDecorFeatureRendererAccessor",
-    "accessor.entity.feature.SaddleFeatureRendererAccessor",
-    "accessor.entity.feature.SlimeOverlayFeatureRendererAccessor",
-    "accessor.entity.model.AnimalModelAccessor",
-    "accessor.entity.model.BipedEntityModelAccessor",
-    "accessor.entity.model.DonkeyEntityModelAccessor",
-    "accessor.entity.model.FoxEntityModelAccessor",
-    "accessor.entity.model.HorseEntityModelAccessor",
-    "accessor.entity.model.IllagerEntityModelAccessor",
-    "accessor.entity.model.IronGolemEntityModelAccessor",
-    "accessor.entity.model.LlamaEntityModelAccessor",
-    "accessor.entity.model.PlayerEntityModelAccessor",
-    "accessor.entity.model.QuadrupedEntityModelAccessor",
-    "accessor.entity.model.RabbitEntityModelAccessor",
-    "accessor.entity.model.VillagerResemblingModelAccessor",
     "rewrite.Mixin_2_CreeperChargeFeatureRenderer",
     "rewrite.Mixin_2_FeatureRenderer",
     "rewrite.Mixin_2_HorseArmorFeatureRenderer",
@@ -39,6 +17,7 @@
     "rewrite.Mixin_2_SlimeOverlayFeatureRenderer"
   ],
   "mixins": [
+    "accessor.PlayerEntityModelAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
