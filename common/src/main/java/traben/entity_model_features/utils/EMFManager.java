@@ -143,7 +143,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 default -> "big";
             };
         } else if (entity instanceof TropicalFishEntity fish) {
-            forReturn = forReturn + (fish.getVariant().getSize() == TropicalFishEntity.Size.LARGE ? "_b" : "_a");
+            forReturn =  (fish.getVariant().getSize() == TropicalFishEntity.Size.LARGE ? "tropical_fish_b" : "tropical_fish_a");
 //        } else if (entity instanceof LlamaEntity llama) {
 //            forReturn = llama.isTrader() ? "trader_llama" : "llama";
         }
@@ -189,34 +189,51 @@ public class EMFManager {//singleton for data holding and resetting needs
     private boolean traderLlamaHappened = false;
     public ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
 
-        boolean printing = layer.getId().getPath().contains("horse") ;// (EMFConfig.getConfig().printModelCreationInfoToLog);
+        boolean printing =  (EMFConfig.getConfig().printModelCreationInfoToLog);
 //        if (layer == EntityModelLayers.SPIDER ||layer == EntityModelLayers.IRON_GOLEM ||layer == EntityModelLayers.ZOMBIE || layer == EntityModelLayers.COW || layer == EntityModelLayers.SHEEP || layer == EntityModelLayers.VILLAGER) {
 //            System.out.println("ran zomb and sheep");
         String mobModelName = layer.getId().getPath();
         if (mobModelName.contains("pufferfish"))
             mobModelName = mobModelName.replace("pufferfish", "puffer_fish");
 
-        //llamas are fucked cause they share models and never in the same order so i have to figure it out
-        if (mobModelName.equals("trader_llama")) {
-            traderLlamaHappened = true;
-        } else if (mobModelName.equals("llama")) {
-            if(layer.getName().equals("main")){
-                traderLlamaHappened = false;
-            }else{
-                mobModelName = traderLlamaHappened ? "trader_llama_decor" : "llama_decor";
+        switch (mobModelName){
+            case "tropical_fish_large" ->{
+                if("pattern".equals(layer.getName())){
+                    mobModelName = "tropical_fish_pattern_b";
+                }else{
+                    mobModelName = "tropical_fish_b";
+                }
             }
-        } else if (cache_AmountOfMobNameAlreadyDone.containsKey(mobModelName)) {
-            int amount = cache_AmountOfMobNameAlreadyDone.getInt(mobModelName);
-            amount++;
-            cache_AmountOfMobNameAlreadyDone.put(mobModelName, amount);
-            //System.out.println("higherCount: "+ mobModelName+amount);
-            mobModelName = map_MultiMobVariantMap.getOrDefault(mobModelName + amount, mobModelName + amount);
-        } else {
-            EMFManager.getInstance().cache_AmountOfMobNameAlreadyDone.put(mobModelName, 1);
+            case "tropical_fish_small" ->{
+                if("pattern".equals(layer.getName())){
+                    mobModelName = "tropical_fish_pattern_a";
+                }else{
+                    mobModelName = "tropical_fish_a";
+                }
+            }
+            case "trader_llama" ->traderLlamaHappened = true;
+            case "llama" ->{
+                if("main".equals(layer.getName())){
+                    traderLlamaHappened = false;
+                }else{
+                    mobModelName = traderLlamaHappened ? "trader_llama_decor" : "llama_decor";
+                }
+            }
+            default -> {
+                if (cache_AmountOfMobNameAlreadyDone.containsKey(mobModelName)) {
+                    int amount = cache_AmountOfMobNameAlreadyDone.getInt(mobModelName);
+                    amount++;
+                    cache_AmountOfMobNameAlreadyDone.put(mobModelName, amount);
+                    //System.out.println("higherCount: "+ mobModelName+amount);
+                    mobModelName = map_MultiMobVariantMap.getOrDefault(mobModelName + amount, mobModelName + amount);
+                } else {
+                    EMFManager.getInstance().cache_AmountOfMobNameAlreadyDone.put(mobModelName, 1);
+                }
+            }
         }
         if (printing) System.out.println(" > EMF try to find a model for: " + mobModelName);
 
-       System.out.println("foundlayer: "+ layer.getId() +" _ "+ layer.getName() +", returned: "+mobModelName);
+       //System.out.println("foundlayer: "+ layer.getId() +" _ "+ layer.getName() +", returned: "+mobModelName);
         ///jem name is final and correct from here
 
         if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobModelName + ".jem");
@@ -256,7 +273,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     private EMFModelPart3 getEMFRootModelFromJem(EMFJemData jemData, ModelPart vanillaRoot, int variantNumber) {
         Map<String, ModelPart> rootChildren = new HashMap<>();
 
-        boolean printing = jemData.mobName.contains("horse") ;// EMFConfig.getConfig().printModelCreationInfoToLog;
+        boolean printing = EMFConfig.getConfig().printModelCreationInfoToLog;
 
         for (EMFPartData partData :
                 jemData.models) {

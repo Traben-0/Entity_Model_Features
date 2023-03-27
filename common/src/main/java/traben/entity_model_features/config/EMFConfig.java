@@ -16,7 +16,7 @@ public class EMFConfig {
     //public  VanillaModelRenderMode displayVanillaModelHologram = VanillaModelRenderMode.Off;
     public boolean printModelCreationInfoToLog = false;
     public boolean printAllMaths = false;
-    public boolean forceTranslucentMobRendering = false;
+//    public boolean forceTranslucentMobRendering = false;
 
 
 //    private boolean dontReduceFps = false;

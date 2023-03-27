@@ -9,6 +9,7 @@ import net.minecraft.entity.mob.DrownedEntity;
 import net.minecraft.entity.mob.StrayEntity;
 import net.minecraft.entity.passive.CatEntity;
 import net.minecraft.entity.passive.SheepEntity;
+import net.minecraft.entity.passive.TropicalFishEntity;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -33,7 +34,13 @@ public class Mixin_2_FeatureRenderer {
             modelName = "stray_outer";
         } else if (entity instanceof CatEntity) {
             modelName = "cat_collar";
-        } else {//todo its possible tropical fish go here too
+        } else  if (entity instanceof TropicalFishEntity fish) {
+            if(fish.getVariant().getSize() == TropicalFishEntity.Size.LARGE){
+                modelName = "tropical_fish_pattern_b";
+            }else{
+                modelName = "tropical_fish_pattern_a";
+            }
+        } else {
             modelName = null;
         }
         if (modelName != null)

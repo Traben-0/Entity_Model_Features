@@ -1,7 +1,6 @@
 package traben.entity_model_features.mixin.rewrite;
 
 
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -12,15 +11,12 @@ import net.minecraft.client.render.entity.model.PiglinEntityModel;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.PlayerEntityModelAccessor;
 import traben.entity_model_features.utils.EMFManager;
 
@@ -54,47 +50,47 @@ public abstract class Mixin_2_LivingEntityRenderer<T extends LivingEntity, M ext
         EMFManager.getInstance().doVariantCheckFor(livingEntity);
     }
 
-    @Inject(
-            method = "getRenderLayer",
-            at = @At(value = "RETURN"), cancellable = true)
-    private void etf$alterTexture(T entity, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderLayer> cir) {
-        //todo reimpliment in model variating code
-        Identifier overrideTextureFromEMF = EMFManager.getInstance().getEMFOverrideTexture(entity);
-        if (overrideTextureFromEMF != null) {
-            if (translucent) {
-                cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
-            } else if (showBody) {
-                if (EMFConfig.getConfig().forceTranslucentMobRendering) {
-                    cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
-                } else {
-                    cir.setReturnValue(this.getModel().getLayer(overrideTextureFromEMF));
-                }
-            } else {
-                cir.setReturnValue(showOutline ? RenderLayer.getOutline(overrideTextureFromEMF) : null);
-            }
-        }
-    }
+//    @Inject(
+//            method = "getRenderLayer",
+//            at = @At(value = "RETURN"), cancellable = true)
+//    private void etf$alterTexture(T entity, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderLayer> cir) {
+//        //todo reimpliment in model variating code
+//        Identifier overrideTextureFromEMF = EMFManager.getInstance().getEMFOverrideTexture(entity);
+//        if (overrideTextureFromEMF != null) {
+//            if (translucent) {
+//                cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
+//            } else if (showBody) {
+//                if (EMFConfig.getConfig().forceTranslucentMobRendering) {
+//                    cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
+//                } else {
+//                    cir.setReturnValue(this.getModel().getLayer(overrideTextureFromEMF));
+//                }
+//            } else {
+//                cir.setReturnValue(showOutline ? RenderLayer.getOutline(overrideTextureFromEMF) : null);
+//            }
+//        }
+//    }
 
 
-    @Inject(
-            method = "getRenderLayer",
-            at = @At(value = "RETURN"), cancellable = true)
-    private void etf$alterTexture(T entity, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderLayer> cir) {
-        //todo reimpliment in model variating code
-        Identifier overrideTextureFromEMF = EMFManager.getInstance().getEMFOverrideTexture(entity);
-        if (overrideTextureFromEMF != null) {
-            if (translucent) {
-                cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
-            } else if (showBody) {
-                if (EMFConfig.getConfig().forceTranslucentMobRendering) {
-                    cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
-                } else {
-                    cir.setReturnValue(this.getModel().getLayer(overrideTextureFromEMF));
-                }
-            } else {
-                cir.setReturnValue(showOutline ? RenderLayer.getOutline(overrideTextureFromEMF) : null);
-            }
-        }
-    }
+//    @Inject(
+//            method = "getRenderLayer",
+//            at = @At(value = "RETURN"), cancellable = true)
+//    private void emf$alterTexture(T entity, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderLayer> cir) {
+//        //todo reimpliment in model variating code
+//        Identifier overrideTextureFromEMF = EMFManager.getInstance().getEMFOverrideTexture(entity);
+//        if (overrideTextureFromEMF != null) {
+//            if (translucent) {
+//                cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
+//            } else if (showBody) {
+//                if (EMFConfig.getConfig().forceTranslucentMobRendering) {
+//                    cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
+//                } else {
+//                    cir.setReturnValue(this.getModel().getLayer(overrideTextureFromEMF));
+//                }
+//            } else {
+//                cir.setReturnValue(showOutline ? RenderLayer.getOutline(overrideTextureFromEMF) : null);
+//            }
+//        }
+//    }
 
 }

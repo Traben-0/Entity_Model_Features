@@ -31,16 +31,16 @@ public class EMFYACL{
         return ConfigCategory.createBuilder()
                 .name(Text.of("General"))
                 .tooltip(Text.of("General settings"))
-                .option(Option.createBuilder(boolean.class)
-                        .name(Text.of("force translucent rendering"))
-                        .tooltip(Text.of("forces models to render using translucency support\n might break things idk")) // optional
-                        .binding(
-                                false, // default
-                                () -> EMFConfig.getConfig().forceTranslucentMobRendering, // getter
-                                newValue -> EMFConfig.getConfig().forceTranslucentMobRendering = newValue // setter
-                        )
-                        .controller(BooleanController::new)
-                        .build())
+//                .option(Option.createBuilder(boolean.class)
+//                        .name(Text.of("force translucent rendering"))
+//                        .tooltip(Text.of("forces models to render using translucency support\n might break things idk")) // optional
+//                        .binding(
+//                                false, // default
+//                                () -> EMFConfig.getConfig().forceTranslucentMobRendering, // getter
+//                                newValue -> EMFConfig.getConfig().forceTranslucentMobRendering = newValue // setter
+//                        )
+//                        .controller(BooleanController::new)
+//                        .build())
                 .option(Option.createBuilder(boolean.class)
                         .name(Text.of("try replacing missing model parts"))
                         .tooltip(Text.of("EMF will try to replace missing part in the jem\n model file with the vanilla counterpart")) // optional
