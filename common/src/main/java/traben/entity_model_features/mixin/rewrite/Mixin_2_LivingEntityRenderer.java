@@ -54,6 +54,26 @@ public abstract class Mixin_2_LivingEntityRenderer<T extends LivingEntity, M ext
         EMFManager.getInstance().doVariantCheckFor(livingEntity);
     }
 
+    @Inject(
+            method = "getRenderLayer",
+            at = @At(value = "RETURN"), cancellable = true)
+    private void etf$alterTexture(T entity, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderLayer> cir) {
+        //todo reimpliment in model variating code
+        Identifier overrideTextureFromEMF = EMFManager.getInstance().getEMFOverrideTexture(entity);
+        if (overrideTextureFromEMF != null) {
+            if (translucent) {
+                cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
+            } else if (showBody) {
+                if (EMFConfig.getConfig().forceTranslucentMobRendering) {
+                    cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
+                } else {
+                    cir.setReturnValue(this.getModel().getLayer(overrideTextureFromEMF));
+                }
+            } else {
+                cir.setReturnValue(showOutline ? RenderLayer.getOutline(overrideTextureFromEMF) : null);
+            }
+        }
+    }
 
 
     @Inject(
