@@ -39,7 +39,7 @@
   "depends": {
     "fabricloader": ">=0.14",
     "fabric": "*",
-    "minecraft": "1.19.3"
+    "minecraft": "1.19.2"
   },
   "conflicts": {
     "optifabric": "*",
