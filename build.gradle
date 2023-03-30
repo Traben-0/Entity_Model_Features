@@ -7,6 +7,8 @@ architectury {
     minecraft = rootProject.minecraft_version
 }
 
+
+
 subprojects {
     apply plugin: "dev.architectury.loom"
 
@@ -25,6 +27,8 @@ subprojects {
 }
 
 allprojects {
+
+
     apply plugin: "java"
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"

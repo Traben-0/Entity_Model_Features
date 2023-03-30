@@ -3,6 +3,7 @@
   "package": "traben.entity_model_features.forge.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+      "Mixin_2_LivingEntityRenderer"
   ],
   "mixins": [
   ],

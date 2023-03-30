@@ -1,10 +1,11 @@
 package traben.entity_model_features.mixin;
+
 import net.minecraft.resource.SimpleResourceReload;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import traben.entity_model_features.EMFData;
+import traben.entity_model_features.utils.EMFManager;
 
 
 @Mixin(SimpleResourceReload.class)
@@ -19,7 +20,8 @@ public abstract class MixinSimpleResourceReload {
                 emf$falseAfterFirstRun = false;
                 //do reset
                 System.out.println("resetting emf");
-                EMFData.reset();
+                //EMFData.reset();
+                EMFManager.resetInstance();
             }
         } else {
             emf$falseAfterFirstRun = true;

@@ -17,6 +17,9 @@ public interface ModelPartAccessor {
     @Accessor
     void setChildren(Map<String, ModelPart> children);
 
+    @Accessor
+    List<ModelPart.Cuboid> getCuboids();
+
     @Mutable
     @Accessor
     void setCuboids(List<ModelPart.Cuboid> cuboids);

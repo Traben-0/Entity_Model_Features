@@ -4,13 +4,13 @@ import java.util.Arrays;
 
 public class EMFSpriteData {
 
-   // https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_part.txt#L15
+    // https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_part.txt#L15
 
     public int[] textureOffset = {};
     public double[] coordinates = {};
     public double[] sizeAdd = {}; // just part dilation lol
 
-    public void prepare(){
+    public void prepare() {
         //nothing to do yet
     }
 
