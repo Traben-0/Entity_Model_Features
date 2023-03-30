@@ -35,10 +35,10 @@ public class Mixin_2_FeatureRenderer {
         } else if (entity instanceof CatEntity) {
             modelName = "cat_collar";
         } else  if (entity instanceof TropicalFishEntity fish) {
-            if(fish.getVariant().getSize() == TropicalFishEntity.Size.LARGE){
-                modelName = "tropical_fish_pattern_b";
-            }else{
+            if (fish.getShape() == 0) {
                 modelName = "tropical_fish_pattern_a";
+            } else {
+                modelName = "tropical_fish_pattern_b";
             }
         } else {
             modelName = null;

@@ -10,10 +10,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.PufferfishEntity;
 import net.minecraft.entity.passive.TropicalFishEntity;
-import net.minecraft.registry.Registries;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
+import net.minecraft.util.registry.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFVersionDifferenceManager;
@@ -132,7 +132,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     private static String getTypeName(Entity entity) {
-        String forReturn = Registries.ENTITY_TYPE.getId(entity.getType()).toString().replace("minecraft:", "");
+        String forReturn = Registry.ENTITY_TYPE.getId(entity.getType()).toString().replace("minecraft:", "");
 //        if (entity instanceof PlayerEntity plyr && plyr.thin ((PlayerEntityModelAccessor) plyr).isThinArms()) {
 //            forReturn = entityTypeBaseName + "_slim";
 //        } else
@@ -143,7 +143,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 default -> "big";
             };
         } else if (entity instanceof TropicalFishEntity fish) {
-            forReturn =  (fish.getVariant().getSize() == TropicalFishEntity.Size.LARGE ? "tropical_fish_b" : "tropical_fish_a");
+            forReturn =  (fish.getShape() == 0 ? "tropical_fish_a" : "tropical_fish_b");
 //        } else if (entity instanceof LlamaEntity llama) {
 //            forReturn = llama.isTrader() ? "trader_llama" : "llama";
         }
