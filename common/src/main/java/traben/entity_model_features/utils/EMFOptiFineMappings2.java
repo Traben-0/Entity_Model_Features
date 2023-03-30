@@ -186,7 +186,7 @@ public class EMFOptiFineMappings2 {
             case "zombie", "husk", "drowned", "drowned_outer", "enderman", "giant", "skeleton", "stray", "stray_outer", "wither_skeleton", "zombie_pigman" ->
                     genericNonPlayerBiped;
             case "piglin", "piglin_brute", "zombified_piglin" -> genericPiglinBiped;
-            case "allay", "vex" ->
+            case "allay" ->
                     Map.ofEntries(//# allay                    head, body, left_arm, right_arm, left_wing, right_wing
                             getOptifineMapEntry("head"),
                             getOptifineMapEntry("body", "body", List.of("left_arm", "right_arm", "left_wing", "right_wing")),
@@ -195,7 +195,18 @@ public class EMFOptiFineMappings2 {
                             getOptifineMapEntry("left_wing"),
                             getOptifineMapEntry("right_wing")
                     );
-
+            case "vex" ->
+                Map.ofEntries(
+                    getOptifineMapEntry("head"),
+                    getOptifineMapEntry("headwear", "hat"),
+                    getOptifineMapEntry("body"),
+                    getOptifineMapEntry("left_arm"),
+                    getOptifineMapEntry("right_arm"),
+                    getOptifineMapEntry("left_leg"),
+                    getOptifineMapEntry("right_leg"),
+                    getOptifineMapEntry("left_wing"),
+                    getOptifineMapEntry("right_wing")
+                );
             case "squid", "glow_squid" -> Map.ofEntries(//body, tentacle1 ... tentacle8
                     getOptifineMapEntry("body"),
                     getOptifineMapEntry("tentacle1", "tentacle0"),
