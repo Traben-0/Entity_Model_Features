@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin.rewrite;
+package traben.entity_model_features.forge.mixin;
 
 
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -7,10 +7,10 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.client.render.entity.model.PiglinEntityModel;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,12 +32,11 @@ public abstract class Mixin_2_LivingEntityRenderer<T extends LivingEntity, M ext
     @Shadow
     public abstract M getModel();
 
-    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+    @Inject(method = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/entity/model/EntityModel;setAngles(Lnet/minecraft/entity/Entity;FFFFF)V",
-                    shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void emf$SetAngles(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci, float h, float j, float k, float m, float l, float n, float o) {
-        if (getModel() instanceof PlayerEntityModel<?> plyr && !(plyr instanceof PiglinEntityModel<?>)) {
+                    target = "Lnet/minecraft/client/MinecraftClient;getInstance()Lnet/minecraft/client/MinecraftClient;"), locals = LocalCapture.CAPTURE_FAILHARD)
+    private void emf$SetAngles(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci, boolean forgeAddsThis, float h, float j, float k, float m, float l, float n, float o) {
+        if (getModel() instanceof PlayerEntityModel<?> plyr && livingEntity instanceof PlayerEntity){// !(plyr instanceof PiglinEntityModel<?>)) {
             EMFManager.getInstance().setAnglesOnParts(((PlayerEntityModelAccessor) plyr).isThinArms() ? "player_slim" : "player", livingEntity, o, n, l, k, m);
         } else {
             EMFManager.getInstance().setAnglesOnParts(livingEntity, o, n, l, k, m);
@@ -45,7 +44,7 @@ public abstract class Mixin_2_LivingEntityRenderer<T extends LivingEntity, M ext
     }
 
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-            at = @At(value = "HEAD"), locals = LocalCapture.CAPTURE_FAILHARD)
+            at = @At(value = "HEAD"))
     private void emf$SetModelVariant(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
         EMFManager.getInstance().doVariantCheckFor(livingEntity);
     }
