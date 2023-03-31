@@ -29,7 +29,8 @@ Everything else seems to work 100% with FA
 3. attach = true; behaviour hasn't been finalised but will work to an extent
 4. texture overrides being set in the model worked in the Alpha but haven't been readded to the Beta yet
 5. Wither, EnderDragon, block entity, minecart and boat models are not supported yet as they havent been a priority but are planned;
-6. an optional emf/cem overriding directory for models to account for emf differences
+6. modded mob .jem support has not been added yet but there are plans
+7. an optional emf/cem overriding directory for models to account for emf differences
 
 ##Added
 
