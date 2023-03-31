@@ -4,7 +4,6 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "MixinModelLoadingTest",
-    "MixinSimpleResourceReload",
     "accessor.CuboidAccessor",
     "accessor.ModelPartAccessor",
     "rewrite.Mixin_2_CreeperChargeFeatureRenderer",
@@ -13,10 +12,11 @@
     "rewrite.Mixin_2_LlamaDecorFeatureRenderer",
     "rewrite.Mixin_2_SaddleFeatureRenderer",
     "rewrite.Mixin_2_SheepWoolEntityModel",
-    "rewrite.Mixin_2_SlimeOverlayFeatureRenderer"
+    "rewrite.Mixin_2_SlimeOverlayFeatureRenderer",
+    "MixinResourceReload",
+    "accessor.PlayerEntityModelAccessor"
   ],
   "mixins": [
-    "accessor.PlayerEntityModelAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

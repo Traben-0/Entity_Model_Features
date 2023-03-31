@@ -3,7 +3,7 @@
   "id": "entity_model_features",
   "version": "${version}",
   "name": "Entity Model Features",
-  "description": "Adds support for OptiFine format Custom Entity Models (CEM) resourcepacks.\n\nETF is recommended as well for full functionality",
+  "description": "Adds support for OptiFine format Custom Entity Models (CEM) resourcepacks.\nFabric can use YACL for a settings screen during the Beta\nETF is recommended for full functionality",
   "authors": [
     {
       "name": "Traben",
