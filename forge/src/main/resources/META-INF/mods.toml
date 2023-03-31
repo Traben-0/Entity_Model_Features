@@ -11,7 +11,10 @@ displayName = "Entity Model Features"
 authors = "Traben"
 description = '''
 Adds support for OptiFine format Custom Entity Models (CEM) resourcepacks.
-ETF is recommended as well for full functionality
+
+Forge does not yet have a config screen during the Beta, you will need either fabric or edit the config file yourself
+
+ETF is recommended for full functionality
 '''
 logoFile = "icon.png"
 

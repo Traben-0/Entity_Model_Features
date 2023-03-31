@@ -1,3 +1,17 @@
 {
-  "item.examplemod.example_item": "Example Item"
+  "entity_model_features.title": "Entity Model features",
+  "entity_model_features.config.general": "General",
+  "entity_model_features.config.general.tooltip": "General settings",
+  "entity_model_features.config.substitute_vanilla": "Substitute missing model parts",
+  "entity_model_features.config.substitute_vanilla.tooltip": "EMF will try to replace missing part in the .jem\n model file with the vanilla counterpart",
+  "entity_model_features.config.optimizations": "Optimization",
+  "entity_model_features.config.optimizations.tooltip": "Settings related to animation optimization",
+  "entity_model_features.config.debug": "Debug",
+  "entity_model_features.config.debug.tooltip": "Debug options, can be helpful to figure some things out",
+  "entity_model_features.config.green_render": "Make custom models green",
+  "entity_model_features.config.green_render.tooltip": "Makes CEM mobs appear green\n to distinguish them from vanilla models\nand check they are loading correctly",
+  "entity_model_features.config.log_models": "Log model construction info",
+  "entity_model_features.config.log_models.tooltip": "Prints model creation debug data to the log",
+  "entity_model_features.config.log_math": "Log animation calculations",
+  "entity_model_features.config.log_math.tooltip": "Prints animation math debug data to the log\nWARNING EXTREMELY LAG INDUCING!"
 }
