@@ -1,0 +1,19 @@
+{
+  "entity_model_features.title": "Entity Model features",
+  "entity_model_features.config.general": "Основные",
+  "entity_model_features.config.general.tooltip": "Основные настройки.",
+  "entity_model_features.config.substitute_vanilla": "Добавлять пропущенные части",
+  "entity_model_features.config.substitute_vanilla.tooltip": "EMF попытается заменить пропущенные в .jem-файле части модели стандартными аналогами.",
+  "entity_model_features.config.optimizations": "Оптимизация",
+  "entity_model_features.config.optimizations.tooltip": "Настройки, связанные с оптимизацией анимации.",
+  "entity_model_features.config.debug": "Отладка",
+  "entity_model_features.config.debug.tooltip": "Настройки отладки. Помогут разобраться в разных вещах.",
+  "entity_model_features.config.green_render": "Зелёные пользовательские модели",
+  "entity_model_features.config.green_render.tooltip": "Окрасить изменённые модели сущностей в зелёный цвет, чтобы визуально отделить их от стандартных и помочь убедиться, что они загружаются корректно.",
+  "entity_model_features.config.log_models": "Вести запись создания моделей",
+  "entity_model_features.config.log_models.tooltip": "Записывать в журнал отладочные данные при создании модели.",
+  "entity_model_features.config.log_math": "Вести запись расчётов анимации",
+  "entity_model_features.config.log_math.tooltip": "Записывать в журнал отладочные данные о расчётах анимации.\n§cКРАЙНЕ ТРЕБОВАТЕЛЬНАЯ НАСТРОЙКА!",
+  "modmenu.summaryTranslation.entity_model_features": "Новые возможности в улучшении моделей сущностей при помощи наборов ресурсов.",
+  "modmenu.descriptionTranslation.entity_model_features": "Этот мод добавляет поддержку наборов ресурсов, использующих формат особых сущностей Optifine (CEM).\nНа время бета-тестирования для доступа к настройкам пользователи Fabric могут использовать YACL.\nТакже для полноценной работы функций рекомендуется использовать ETF."
+}
