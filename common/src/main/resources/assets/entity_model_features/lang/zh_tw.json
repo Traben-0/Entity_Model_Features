@@ -1,0 +1,17 @@
+{
+  "entity_model_features.title": "Entity Model Features",
+  "entity_model_features.config.general": "一般",
+  "entity_model_features.config.general.tooltip": "一般設定",
+  "entity_model_features.config.substitute_vanilla": "替代缺失的模型部分",
+  "entity_model_features.config.substitute_vanilla.tooltip": "EMF 將嘗試使用基礎模型來替換\n在 .jem 模型文件中缺失的部分",
+  "entity_model_features.config.optimizations": "優化",
+  "entity_model_features.config.optimizations.tooltip": "與動畫優化相關的設定",
+  "entity_model_features.config.debug": "除錯",
+  "entity_model_features.config.debug.tooltip": "除錯選項，有助於找出一些問題",
+  "entity_model_features.config.green_render": "使自定義模型呈綠色",
+  "entity_model_features.config.green_render.tooltip": "使 CEM 實體呈現綠色\n以區分它們與基礎模型的區別\n並檢查它們是否正確加載",
+  "entity_model_features.config.log_models": "記錄模型構建信息",
+  "entity_model_features.config.log_models.tooltip": "將模型創建除錯數據輸出到日誌中",
+  "entity_model_features.config.log_math": "記錄動畫計算",
+  "entity_model_features.config.log_math.tooltip": "將動畫計算除錯數據輸出到日誌中\n警告：會極大地影響性能！"
+}
