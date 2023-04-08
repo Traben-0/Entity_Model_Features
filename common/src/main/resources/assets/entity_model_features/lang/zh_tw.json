@@ -13,5 +13,5 @@
   "entity_model_features.config.log_models": "記錄模型構建信息",
   "entity_model_features.config.log_models.tooltip": "將模型創建除錯數據輸出到日誌中",
   "entity_model_features.config.log_math": "記錄動畫計算",
-  "entity_model_features.config.log_math.tooltip": "將動畫計算除錯數據輸出到日誌中\n警告：會極大地影響性能！"
+  "entity_model_features.config.log_math.tooltip": "將動畫計算除錯數據輸出到日誌中\n警告：會極大地影響效能！"
 }
