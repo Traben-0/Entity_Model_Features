@@ -18,7 +18,7 @@ Entity Model Features (EMF) is a Fabric, Quilt & Forge mod that adds support for
 
 ## ⚠️ 🚧 Work in Progress!
 
-EMF is in a beta stage, meaning some things will probably work, but is expected for many not to. Before reporting an issue, make sure to read [the roadmap]() and check [the active issues](https://github.com/Traben-0/Entity_Model_Features/issues). If your issue is mentioned there, don't report it and wait for it to be implemented. If not, report it in the [Issues section](https://github.com/Traben-0/Entity_Model_Features/issues/new/choose).
+EMF is in a beta stage, meaning some things will probably work, but is expected for many not to. Before reporting an issue, make sure to read [the roadmap](README.md#Roadmap) and check [the active issues](https://github.com/Traben-0/Entity_Model_Features/issues). If your issue is mentioned there, don't report it and wait for it to be implemented. If not, report it in the [Issues section](https://github.com/Traben-0/Entity_Model_Features/issues/new/choose).
 
 ## Fresh Animations?
 
@@ -55,9 +55,9 @@ Everything else seems to work 100%!
 
 ## FAQ
 
- > Q: What's different between EMF and dorianpb's [CEM](https://modrinth.com/mod/cem)?
+ > **Q:** What's different between EMF and dorianpb's [CEM](https://modrinth.com/mod/cem)?
 
-OptiFine CEM is a tricky and time consuming thing to reproduce, with all of its weird quirks, both EMF and dorianpb's CEM can be entirely broken depending on the resource pack models loaded.
+**A:** OptiFine CEM is a tricky and time consuming thing to reproduce, with all of its weird quirks, both EMF and dorianpb's CEM can be entirely broken depending on the resource pack models loaded.
 
 Keeping this in mind, EMF was built with a primary focus on Fresh Animations as the working goal. It's the reason why FA works better than most other resource packs in EMF, without need for a fork or an alternative resource pack. EMF also utilises ETF's random property reading to enable support for random entity models, mimicing the latest OptiFine behaviour.
 
