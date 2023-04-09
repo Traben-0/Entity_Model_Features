@@ -24,8 +24,7 @@ EMF is in a beta stage, meaning some things will probably work, but is expected 
 
 ## Fresh Animations?
 
-<img align="right" width="450" src="https://cdn.modrinth.com/data/4I1XuqiY/images/2f32dbeadc25e46ef6c56f0e47e5eb5d305c8ea2.png">Markdown magic uses comment blocks in markdown files to automatically sync or transform its contents.
-
+<img align="right" width="450" src="https://cdn.modrinth.com/data/4I1XuqiY/images/2f32dbeadc25e46ef6c56f0e47e5eb5d305c8ea2.png">
 
 Since EMF is in beta, not everything works. However, the brilliant [Fresh Animations](https://www.planetminecraft.com/texture-pack/fresh-animations-v1-0/) resource pack **almost entirely** works out of the box, as it was the primary focus for this mod, no fork/pack editing required.<br />
 There are 4 things broken in Fresh Animations 1.8 with EMF in its current state:<br />
