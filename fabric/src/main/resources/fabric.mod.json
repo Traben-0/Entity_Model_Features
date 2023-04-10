@@ -41,7 +41,7 @@
     "fabric": "*",
     "minecraft": "1.19.3"
   },
-  "conflicts": {
+  "breaks": {
     "optifabric": "*",
     "cem": "*"
   },
