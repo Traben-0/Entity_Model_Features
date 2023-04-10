@@ -24,7 +24,7 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Crashlog**
-If applicable, add your crshlog or latest.log to help explain your problem.
+If applicable, add your crashlog or latest.log to help explain your problem.
 
 **(please complete the following information):**
  - Minecraft Version: [e.g. 1.19.4]
