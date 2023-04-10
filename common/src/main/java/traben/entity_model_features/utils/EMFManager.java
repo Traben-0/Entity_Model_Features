@@ -233,6 +233,12 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
         if (printing) System.out.println(" > EMF try to find a model for: " + mobModelName);
 
+        //add simple namespace logic
+        String nameSpace = layer.getId().getNamespace();
+        if(!"minecraft".equals(nameSpace)){
+            mobModelName = "modded/"+nameSpace+"/"+mobModelName;
+        }
+
        //System.out.println("foundlayer: "+ layer.getId() +" _ "+ layer.getName() +", returned: "+mobModelName);
         ///jem name is final and correct from here
 
@@ -454,9 +460,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                     EMFPropertyTester emfProperty = cache_mobJemNameToPropertyTester.get(mobName);
                     if (emfProperty != null) {
                         int suffix = emfProperty.getSuffixOfEntity(entity, cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
+                        EMFModelPart3 cannonicalRoot = cache_JemNameToCannonModelRoot.get(mobName);
                         if (suffix > 1) { // ignore 0 & 1
                             //System.out.println(" > apply model variant: "+suffix +", to "+mobName);
-                            EMFModelPart3 cannonicalRoot = cache_JemNameToCannonModelRoot.get(mobName);
                             if (!cannonicalRoot.allKnownStateVariants.containsKey(suffix)) {
 
                                 String jemName = "optifine/cem/" + mobName + suffix + ".jem";//todo mod namespaces
@@ -476,26 +482,21 @@ public class EMFManager {//singleton for data holding and resetting needs
                             cannonicalRoot.setVariantStateTo(suffix);
                             cache_UUIDAndTypeToCurrentVariantInt.put(key, suffix);
                         } else {
+                            cannonicalRoot.setVariantStateTo(0);
                             cache_UUIDAndTypeToCurrentVariantInt.put(key, 0);
                         }
 
                     }
                 }
                 cache_UUIDAndTypeToLastVariantCheckTime.put(key, System.currentTimeMillis());
+            }else{
+                EMFModelPart3 cannonicalRoot = cache_JemNameToCannonModelRoot.get(mobName);
+                cannonicalRoot.setVariantStateTo(cache_UUIDAndTypeToCurrentVariantInt.getInt(key));
             }
         }
     }
 
-    public Identifier getEMFOverrideTexture(Entity entity) {
-        //todo not yet etf compatible :/ ill need to change that
-        String modelName = getTypeName(entity);
-        int suffix = cache_UUIDAndTypeToCurrentVariantInt.getInt(new UUIDAndMobTypeKey(entity.getUuid(), entity.getType()));
-        if (suffix > 1) {
-            modelName = modelName + suffix;
-        }
 
-        return cache_JemNameToTextureOverride.get(modelName);
-    }
 
 
     public interface EMFPropertyTester {
@@ -521,6 +522,12 @@ public class EMFManager {//singleton for data holding and resetting needs
 //                System.out.println("animations length =" + orderedAnimations.size());
 //                System.out.println("animations =" + orderedAnimations);
 //            }
+            //constrain head yaw amount
+            if(headYaw >= 360){
+                headYaw %= 360;
+            }else if(headYaw <= -360){
+                headYaw %= -360;
+            }
 
             variableSuppliers.entity = entity;
             variableSuppliers.limbAngle = limbAngle;

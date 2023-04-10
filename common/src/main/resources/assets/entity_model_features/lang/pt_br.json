@@ -1,0 +1,17 @@
+{
+  "entity_model_features.title": "Entity Model Features",
+  "entity_model_features.config.general": "Geral",
+  "entity_model_features.config.general.tooltip": "Configurações gerais",
+  "entity_model_features.config.substitute_vanilla": "Substituir partes de modelo faltando",
+  "entity_model_features.config.substitute_vanilla.tooltip": "O EMF tentará substituir as partes faltando do arquivo de modelo.jem\n com seu correspondente padrão",
+  "entity_model_features.config.optimizations": "Otimização",
+  "entity_model_features.config.optimizations.tooltip": "Configurações relacionadas a otimização das animações",
+  "entity_model_features.config.debug": "Depuração",
+  "entity_model_features.config.debug.tooltip": "Opções de depuração, podem ser úteis para descobrir algumas coisas",
+  "entity_model_features.config.green_render": "Deixar modelos personalizados verdes",
+  "entity_model_features.config.green_render.tooltip": "Faz com que criaturas CEM fiquem verdes\n para distinguí-las dos modelos padrão\npara checar se estão carregando corretamente",
+  "entity_model_features.config.log_models": "Registrar informações de construção do modelo",
+  "entity_model_features.config.log_models.tooltip": "Registra os dados de depuração da criação dos modelos",
+  "entity_model_features.config.log_math": "Registrar cálculos das animações",
+  "entity_model_features.config.log_math.tooltip": "Registra os dados de depuração da matemática de animação\nATENÇÃO: O DESEMPENHO SERÁ AFETADO!"
+}
