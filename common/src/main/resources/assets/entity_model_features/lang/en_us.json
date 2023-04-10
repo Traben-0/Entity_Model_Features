@@ -1,5 +1,5 @@
 {
-  "entity_model_features.title": "Entity Model features",
+  "entity_model_features.title": "Entity Model Features",
   "entity_model_features.config.general": "General",
   "entity_model_features.config.general.tooltip": "General settings",
   "entity_model_features.config.substitute_vanilla": "Substitute missing model parts",

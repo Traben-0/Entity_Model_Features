@@ -38,28 +38,38 @@ Everything else seems to work 100%!
 
 ## Roadmap
 
+*(these are roughly in order but are all subject to change at any time during development)*
+
 - [X] `.jem` loading 
 - [X] Model animations
 - [X] Random models
-- [ ] Sprite support
-- [ ] Position `.jpm`s correctly
-- [ ] Fully implement `attach = true`
+- [ ] Re-add model overrides as the beta currently injects into the vanilla models *(this will likely substantially fix many reported compatibility issues)*
 - [ ] Re-add texture overrides
 - [ ] Support for Wither, Ender Dragon, block entity, minecart and boat models
-- [ ] Support modded mob `.jem`s
+- [ ] Support modded mob `.jem` models
 - [ ] Add an optional EMF/CEM overriding directory for models to account for EMF differences
+- [ ] Fix `attach = true` cases
+- [ ] Position `.jpm`s correctly
+- [ ] Fix remaining model issues
+- [ ] Sprite support
+- [ ] Full parity with OptiFine CEM
+- [ ] Backport to still commonly used older MC versions e.g. 1.16
+
 
 ### EMF _exclusive_ features
 
-- Custom armor models for bipeds
-- Player skin CEM support including animations, including slim skin!
+- Custom armor models for bipeds 
+`File names: "MOBNAME_inner_armor.jem" & "MOBNAME_outer_armor.jem"`
+- Player skin CEM support including animations, including slim skin! 
+[[Example player model pack without animations]](Vanilla_player_models_No_animations.zip)
+`File names: "player.jem" & "player_slim.jem"`
 - The `is_climbing` animation variable 😈
 
 ## FAQ
 
 > **Q:** What's different between EMF and dorianpb's [CEM](https://modrinth.com/mod/cem)?
 
-**A:** OptiFine CEM is a tricky and time consuming thing to reproduce, with all of its weird quirks, both EMF and dorianpb's CEM can be entirely broken depending on the resource pack models loaded.
+**A:** OptiFine CEM is a tricky and time-consuming thing to reproduce, with all of its weird quirks, both EMF and dorianpb's CEM can be entirely broken depending on the resource pack models loaded.
 
 Keeping this in mind, EMF was built with a primary focus on Fresh Animations as the working goal. It's the reason why FA works better than most other resource packs in EMF, without need for a fork or an alternative resource pack. EMF also utilises ETF's random property reading to enable support for random entity models, mimicing the latest OptiFine behaviour.
 
@@ -77,7 +87,7 @@ For all other packs you might find one mod or the other works best for the time 
 
 > **Q:** Backports?
 
-**A:** Once EMF reaches a stable release, backports will then be made.
+**A:** Once EMF reaches a stable state, backports will then be made regularly, to still popular Minecraft versions such as 1.16.
 
 ## License
 
