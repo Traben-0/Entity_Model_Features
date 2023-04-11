@@ -1,0 +1,17 @@
+{
+  "entity_model_features.title": "Entity Model Features",
+  "entity_model_features.config.general": "Γενικά",
+  "entity_model_features.config.general.tooltip": "Γενικές ρυθμίσεις",
+  "entity_model_features.config.substitute_vanilla": "Αντικατάσταση ελλειπών μοντέλων",
+  "entity_model_features.config.substitute_vanilla.tooltip": "Το EMF θα προσπαθήσει να αντικαταστήσει τα κομμάτια των .jem μοντέλων που λείπουν\n με το αντίστοιχο vanilla κομμάτι",
+  "entity_model_features.config.optimizations": "Βελτίωση απόδοσης",
+  "entity_model_features.config.optimizations.tooltip": "Ρυθμίσεις για καλύτερη απόδοση των animations",
+  "entity_model_features.config.debug": "Αποσφαλμάτωση",
+  "entity_model_features.config.debug.tooltip": "Ρυθμίσεις αποσφαλμάτωσης που βοηθούν στην επίλυση προβλημάτων",
+  "entity_model_features.config.green_render": "Πρασίνισμα το αλλαγμένων μοντέλων",
+  "entity_model_features.config.green_render.tooltip": "Κάνει τα CEM όντα να εμφανίζονται πράσινα,\n ώστε να ξεχωρίζουν απ' τα vanilla\nκαι να τσεκάρεται αν φορτώνουν σωστά",
+  "entity_model_features.config.log_models": "Εγγραφή πληροφοριών δημιουργίας μοντέλων",
+  "entity_model_features.config.log_models.tooltip": "Εκτυπώνει τα δεδομενα αποσφαλμάτωσης της δημιουργίας των μοντέλων στο αρχείο εγγραφής",
+  "entity_model_features.config.log_math": "Εγγραφή υπολογισμών των animations",
+  "entity_model_features.config.log_math.tooltip": "Εκτυπώνει τα δεδομένα αποσφαλμάτωσης των υπολογισμών στο αρχείο εγγραφής\nΠΡΟΣΟΧΗ! ΤΟ ΠΑΙΧΝΙΔΙ ΘΑ ΚΟΛΛΑΕΙ ΠΟΛΥ!!"
+}
