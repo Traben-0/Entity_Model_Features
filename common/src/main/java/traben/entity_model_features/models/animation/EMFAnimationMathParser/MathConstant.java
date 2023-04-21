@@ -2,19 +2,19 @@ package traben.entity_model_features.models.animation.EMFAnimationMathParser;
 
 public class MathConstant extends MathValue implements MathComponent {
 
-    double hardCodedValue;
+    float hardCodedValue;
 
-    public MathConstant(double number, boolean isNegative) {
+    public MathConstant(float number, boolean isNegative) {
         //super(isNegative);
 
         hardCodedValue = isNegative ? -number : number;
         reciprocal = 1/hardCodedValue;
     }
 
-    public double reciprocal;
+    public float reciprocal;
 
 
-    public MathConstant(double number) {
+    public MathConstant(float number) {
         hardCodedValue = number;
         reciprocal = 1/ hardCodedValue;
     }
@@ -42,7 +42,7 @@ public class MathConstant extends MathValue implements MathComponent {
     }
 
     @Override // make fastest return
-    public double get() {
+    public float get() {
         //if(calculationInstance != null)
         //calculationInstance.indentCount++;
         //if(calculationInstance != null)

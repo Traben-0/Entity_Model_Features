@@ -1,9 +1,8 @@
-accessWidener   v2  named
+accessWidener v2  named
 
 extendable method net/minecraft/client/model/ModelPart renderCuboids (Lnet/minecraft/client/util/math/MatrixStack$Entry;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V
 
 extendable class net/minecraft/client/model/ModelPart
-
 
 accessible class net/minecraft/client/model/ModelPart$Quad
 accessible class net/minecraft/client/model/ModelPart$Vertex

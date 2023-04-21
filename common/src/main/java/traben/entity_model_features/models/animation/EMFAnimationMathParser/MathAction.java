@@ -38,7 +38,7 @@ public enum MathAction implements MathComponent {
         };
     }
 
-    public double run(MathComponent first, MathComponent second) {
+    public float run(MathComponent first, MathComponent second) {
 
         //if(EMFData.getInstance().getConfig().printAllMaths) System.out.println("run: "+first+this+second+"="+result);
         return switch (this) {
@@ -57,17 +57,17 @@ public enum MathAction implements MathComponent {
             }//reciprocal division should have a speed benefit depending on cpu
             case divisionRemainder -> first.get() % second.get();
             //boolean results
-            case largerThan -> ((float) first.get() > (float) second.get()) ? 1 : 0;
-            case largerThanOrEquals -> ((float) first.get() >= (float) second.get()) ? 1 : 0;
-            case smallerThan -> ((float) first.get() < (float) second.get()) ? 1 : 0;
-            case smallerThanOrEquals -> ((float) first.get() <= (float) second.get()) ? 1 : 0;
-            case equals -> ((float) first.get() == (float) second.get()) ? 1 : 0;
-            case notEquals -> ((float) first.get() != (float) second.get()) ? 1 : 0;
+            case largerThan -> ( first.get() >  second.get()) ? 1 : 0;
+            case largerThanOrEquals -> ( first.get() >=  second.get()) ? 1 : 0;
+            case smallerThan -> ( first.get() <  second.get()) ? 1 : 0;
+            case smallerThanOrEquals -> ( first.get() <=  second.get()) ? 1 : 0;
+            case equals -> ( first.get() ==  second.get()) ? 1 : 0;
+            case notEquals -> ( first.get() !=  second.get()) ? 1 : 0;
             //boolean result and inputs
             case and -> ((first.get() == 1) && (second.get() == 1)) ? 1 : 0;
             case or -> ((first.get() == 1) || (second.get() == 1)) ? 1 : 0;
             //NaN
-            default -> Double.NaN;
+            default -> Float.NaN;
         };
     }
 
@@ -100,7 +100,7 @@ public enum MathAction implements MathComponent {
             case and -> () -> ((first.get() == 1) && (second.get() == 1)) ? 1 : 0;
             case or -> () -> ((first.get() == 1) || (second.get() == 1)) ? 1 : 0;
             //NaN
-            default -> () -> Double.NaN;
+            default -> () -> Float.NaN;
         };
     }
 
@@ -110,8 +110,8 @@ public enum MathAction implements MathComponent {
     }
 
     @Override
-    public double get() {
+    public float get() {
         System.out.println("ERROR: math action incorrectly called [" + this + "].");
-        return Double.NaN;
+        return Float.NaN;
     }
 }

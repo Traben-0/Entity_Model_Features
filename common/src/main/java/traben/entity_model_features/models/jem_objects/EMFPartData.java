@@ -166,19 +166,27 @@ public class EMFPartData {
         }
 
         float[] nextModify = {0, 0, 0};
-        if (part != null) parentCount = 0;
-        if (parentCount == 0) {// && selfModelData.boxes.length == 0){
+       // if (part != null) parentCount = 0;
+        if (part != null) {// && selfModelData.boxes.length == 0){
             //sendToFirstChild = new float[]{translateX, translateY, translateZ};
             nextModify = new float[]{translate[0], translate[1], translate[2]};
-
-            topLevelModel = true;
-            translate[0] = -translateX;
-            translate[1] = 24 - translateY;
-            translate[2] = -translateZ;//todo this negative might be an inverse due to FA's xy inverting :/
-//                    pivotX = translateX;//0;
+            if (parentCount == 0) {//todo there is more to do here with saddle fixing possibly
+                topLevelModel = true;
+                translate[0] = -translateX;
+                translate[1] = 24 - translateY;
+                translate[2] = -translateZ;//todo this negative might be an inverse due to FA's xy inverting :/
+            }else{
+                topLevelModel = false;
+                underATopLevelModel = parentCount == 1;
+                translate[0] = -translateX + (invX ? -modifyyTranslates[0] : modifyyTranslates[0]);
+                translate[1] = -translateY + (invY ? -modifyyTranslates[1] : modifyyTranslates[1]);
+                translate[2] = -translateZ + (invZ ? -modifyyTranslates[2] : modifyyTranslates[2]);
+            }
+//
+//                   pivotX = translateX;//0;
 //            pivotY = 24 - translateY ;//24;//0; 24 makes it look nice normally but animations need to include it separately
 //            pivotZ = translateZ;//0;
-        } else// if(parentCount == 1 )
+        } else //if(parentCount == 1 )
         {
 //////////////            translate[0] = translateX - modifyyTranslates[0];
 //////////////            translate[1] = translateY - modifyyTranslates[1];

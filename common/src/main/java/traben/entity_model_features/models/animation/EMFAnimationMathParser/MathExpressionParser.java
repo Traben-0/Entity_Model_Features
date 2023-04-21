@@ -12,7 +12,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
     public static final MathExpressionParser NULL_EXPRESSION = new MathExpressionParser("null") {
         @Override
-        public double get() {
+        public float get() {
             return Float.NaN;
         }
 
@@ -323,7 +323,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
         return neg;
     }
 
-    public double validateCalculationAndOptimize() {
+    public float validateCalculationAndOptimize() {
 
         try {
 
@@ -476,7 +476,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                 print("finish calculating [" + originalExpression + "] as [" + components + "].");
             if (componentsDuringCalculate.size() == 1) {
                 //if(verboseMode) System.out.print("group result");
-                double result = componentsDuringCalculate.getLast().get();
+                float result = componentsDuringCalculate.getLast().get();
                 //lastResultThisTick = result;
                 if (calculationInstance.verboseMode) print(" = " + result);
                 if (Double.isNaN(result)) {
@@ -508,9 +508,9 @@ public class MathExpressionParser extends MathValue implements MathComponent {
     }
 
     @Override
-    public double get() {
+    public float get() {
         EMFUtils.EMFModWarn("this should not happen this object should have been optimized");
-        double value;
+        float value;
         if (wasInvertedBooleanExpression) {
             value = super.get() == 1 ? 0 : 1;
         } else {

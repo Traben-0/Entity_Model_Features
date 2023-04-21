@@ -425,11 +425,11 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
         boolean print = false;//new Random().nextInt(500)==1;
-        if (print) System.out.println("mobName = " + modelName);
+        //if (print) System.out.println("mobName = " + modelName);
         int suffix = cache_UUIDAndTypeToCurrentVariantInt.getInt(new UUIDAndMobTypeKey(entity.getUuid(), entity.getType()));
         if (suffix > 1) modelName = modelName + suffix;
         if (cache_EntityNameToAnimationExecutable.containsKey(modelName)) {
-            cache_EntityNameToAnimationExecutable.get(modelName).executeAnimations(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, print);
+            cache_EntityNameToAnimationExecutable.get(modelName).executeAnimations(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
         }
     }
 
@@ -516,18 +516,20 @@ public class EMFManager {//singleton for data holding and resetting needs
             this.orderedAnimations = orderedAnimations;
         }
 
-        public void executeAnimations(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, boolean print) {
+        public void executeAnimations(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 //            if(entity instanceof PiglinEntity){
 //                System.out.println("ran animations for: "+entity.getType());
 //                System.out.println("animations length =" + orderedAnimations.size());
 //                System.out.println("animations =" + orderedAnimations);
 //            }
             //constrain head yaw amount
-            if(headYaw >= 360){
-                headYaw %= 360;
-            }else if(headYaw <= -360){
-                headYaw %= -360;
+            boolean isNegative = headYaw < 0;
+            float newHeadYaw = Math.abs(headYaw) % 360;
+            if(newHeadYaw >= 180){
+                newHeadYaw = 180 - (newHeadYaw-180);
+                isNegative = !isNegative;
             }
+            headYaw = isNegative ? -newHeadYaw : newHeadYaw;
 
             variableSuppliers.entity = entity;
             variableSuppliers.limbAngle = limbAngle;
