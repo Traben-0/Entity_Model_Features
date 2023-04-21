@@ -1,3 +1,14 @@
+
+0.2.6
+
+- fixed an issue with the head_yaw constraint fix in 0.2.5
+- ensured floating point value consistency across all animation expression code
+- fixed a IncompatibleClassChangeError crash with EMF when loading forge with unrelated mod dependency issues
+- fixed a model creation crash
+- improved non animated horse and ravager head model positioning, fixed horse saddle positioning, horse chests still broken
+
+
+
 0.2.5
 
 - fixed random models only changing the animations correctly not the models themselves

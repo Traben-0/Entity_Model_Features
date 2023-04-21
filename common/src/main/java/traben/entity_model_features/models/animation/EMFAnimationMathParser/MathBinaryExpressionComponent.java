@@ -36,7 +36,7 @@ public class MathBinaryExpressionComponent extends MathValue implements MathComp
     }
 
     @Override
-    public double get() {
+    public float get() {
         return isNegative ? -action.run(first, second) : action.run(first, second);
 
        // return isNegative ? -supplier.get() : supplier.get();

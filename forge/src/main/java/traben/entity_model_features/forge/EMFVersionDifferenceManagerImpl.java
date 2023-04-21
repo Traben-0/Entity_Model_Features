@@ -24,4 +24,8 @@ public class EMFVersionDifferenceManagerImpl {
     public static EMFManager.EMFPropertyTester getAllValidPropertyObjects(Identifier propsID){
         return ETFPropertyReader.getAllValidPropertyObjects(propsID);
     }
+
+    public static boolean isForge() {
+        return true;
+    }
 }

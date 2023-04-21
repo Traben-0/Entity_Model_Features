@@ -12,10 +12,9 @@ public class MathVariable extends MathValue implements MathComponent {
 
     private static final MathConstant TRUE_CONSTANT = new MathConstant(1);
     private static final MathConstant FALSE_CONSTANT = new MathConstant(0);
-    private static final MathConstant PI_CONSTANT = new MathConstant(Math.PI);
-    private static final MathConstant PI_NEGATIVE_CONSTANT = new MathConstant(Math.PI, true);
+    private static final MathConstant PI_CONSTANT = new MathConstant((float) Math.PI);
+    private static final MathConstant PI_NEGATIVE_CONSTANT = new MathConstant((float) Math.PI, true);
     final String variableName;
-    public boolean isOtherAnimVariable = false;
     public MathComponent optimizedAlternativeToThis = null;
 
     //final float PI = (float) Math.PI;
@@ -63,9 +62,9 @@ public class MathVariable extends MathValue implements MathComponent {
             case "id" -> getter::getId;
 
 
-            case "collisionX" -> getter::getClosestCollisionX;
-            case "collisionY" -> getter::getClosestCollisionY;
-            case "collisionZ" -> getter::getClosestCollisionZ;
+//            case "collisionX" -> getter::getClosestCollisionX;
+//            case "collisionY" -> getter::getClosestCollisionY;
+//            case "collisionZ" -> getter::getClosestCollisionZ;
 
             case "is_climbing" -> getBooleanAsFloat(getter::isClimbing);
             //constants
@@ -117,7 +116,7 @@ public class MathVariable extends MathValue implements MathComponent {
         switch (variableKey) {
             case "pi" -> {
                 optimizedAlternativeToThis = isNegative ? PI_NEGATIVE_CONSTANT : PI_CONSTANT;
-                return () -> Math.PI;
+                return () -> (float) Math.PI;
             }
             case "true" -> {
                 float bool = invertBooleans ? 0f : 1f;
@@ -179,7 +178,7 @@ public class MathVariable extends MathValue implements MathComponent {
         return () -> {
             boolean value = invertBooleans != boolGetter.get();
 
-            return value ? 1d : 0d;
+            return value ? 1f : 0f;
         };
     }
 

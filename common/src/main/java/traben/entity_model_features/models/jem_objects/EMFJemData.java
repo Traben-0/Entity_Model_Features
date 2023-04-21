@@ -43,7 +43,7 @@ public class EMFJemData {
         String mobNameMinusVariant = mobName.replaceAll("(?<=\\w)[0-9]", "");
         //vanilla parenting adjustments
         Map<String, EMFOptiFineMappings2.PartAndChildName> map = EMFOptiFineMappings2.getMapOf(mobNameMinusVariant);
-        Set<String> foundChildren = new HashSet<>();
+
 
 
         //change all part values to their vanilla counterparts
@@ -107,7 +107,8 @@ public class EMFJemData {
         }
 
 
-
+        Set<String> foundChildren = new HashSet<>();
+        Set<EMFPartData> foundChildrenPart = new HashSet<>();
 
         //copy all children into their parents lists
         for (Map.Entry<String, EMFOptiFineMappings2.PartAndChildName> entry :
@@ -125,6 +126,9 @@ public class EMFJemData {
                             EMFPartData child = getFirstPartInModelsIgnoreAttach(childName);
                             if (child != null) {
                                 parent.submodels.add(child);
+                               // foundChildrenPart.add(child);
+
+                               //child.part=null;
                             } else {
                                 //oof no child, this can happen with the shitty things in vanilla like wolves real_tail :/
                                 parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName));
@@ -137,8 +141,16 @@ public class EMFJemData {
         }
 
 
+
         //all children have been added to their parents time to remove children from the top level list
         models.removeIf(topLevelPart -> foundChildren.contains(topLevelPart.part));
+
+//        for (EMFPartData part:
+//             foundChildrenPart) {
+//            part.part=null;
+//        }
+
+        //System.out.println("model="+mobName+"\n"+models);
 
 
         //now all parts follow exactly the vanilla model root parent structure
