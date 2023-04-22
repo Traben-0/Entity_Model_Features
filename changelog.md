@@ -1,4 +1,13 @@
 
+
+0.2.7
+
+- fixed all remaining base Fresh animations issues, **yes ***ALL*** of them**, *(the addons are still broken as are .jpms)*
+- fixed several positional issues with models in general, almost every default generated model from blockbench matches exactly in game
+- fixed flickering in pause menu for animations that factor in tick delta
+- fixed texture size issues plaguing wardens and guardians in their blockbench default models
+- added wither and ender dragon support, *(ender dragon doesn't support custom animations yet and when they do they will be limited)*
+
 0.2.6
 
 - fixed an issue with the head_yaw constraint fix in 0.2.5
@@ -6,7 +15,7 @@
 - fixed a IncompatibleClassChangeError crash with EMF when loading forge with unrelated mod dependency issues
 - fixed a model creation crash
 - improved non animated horse and ravager head model positioning, fixed horse saddle positioning, horse chests still broken
-
+- added translations fr_fr, de_de, & el_gr
 
 
 0.2.5

@@ -8,6 +8,7 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.passive.PufferfishEntity;
 import net.minecraft.entity.passive.TropicalFishEntity;
 import net.minecraft.resource.Resource;
@@ -18,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.EMFModelPart3;
 import traben.entity_model_features.models.animation.EMFAnimation;
@@ -146,6 +148,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             forReturn =  (fish.getShape() == 0 ? "tropical_fish_a" : "tropical_fish_b");
 //        } else if (entity instanceof LlamaEntity llama) {
 //            forReturn = llama.isTrader() ? "trader_llama" : "llama";
+        } else if (entity instanceof EnderDragonEntity) {
+            forReturn = "dragon";
         }
         return forReturn;
     }
@@ -219,6 +223,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                     mobModelName = traderLlamaHappened ? "trader_llama_decor" : "llama_decor";
                 }
             }
+            case "ender_dragon" -> mobModelName = "dragon";
             default -> {
                 if (cache_AmountOfMobNameAlreadyDone.containsKey(mobModelName)) {
                     int amount = cache_AmountOfMobNameAlreadyDone.getInt(mobModelName);
@@ -292,8 +297,9 @@ public class EMFManager {//singleton for data holding and resetting needs
 //                        ((ModelPartAccessor) vanillaRoot).getChildren().getOrDefault(partData.part, null);
 
                 EMFModelPart3 newPart = new EMFModelPart3(partData, variantNumber);
-                if (oldPart != null  && !"tadpole".equals(jemData.mobName)) {//TODO this can't be right with the tadpole but i have nothing else to compare with
+                if (oldPart != null){
                     newPart.applyDefaultModelRotates(oldPart.getDefaultTransform());
+                    iterateChildTransformCopy(newPart,oldPart);
                 }
                 if (printing) System.out.println(" >>> EMF part made: " + partData.toString(false));
 //                if ("piglin".equals(jemData.mobName)) {
@@ -322,30 +328,48 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         // check for if root is expected below the top level modelpart
         // as in some single part entity models
-        if (vanillaRoot.hasChild("root") && !emfRootModelPart.hasChild("root")) {
-            ModelPart subRoot = vanillaRoot.getChild("root");
-//            if (subRoot.pivotX != 0 ||
-//                    subRoot.pivotY != 0 ||
-//                    subRoot.pivotZ != 0 ||
-//                    subRoot.pitch != 0 ||
-//                    subRoot.yaw != 0 ||
-//                    subRoot.roll != 0 ||
-//                    subRoot.xScale != 0 ||
-//                    subRoot.yScale != 0 ||
-//                    subRoot.zScale != 0
-//
-//            ) {
-//                //this covers things like frogs who pivot their root for some reason
-//                emfRootModelPart.setTransform(subRoot.getTransform());
-//                emfRootModelPart.setDefaultTransform(subRoot.getDefaultTransform());
-//            }
+        if (vanillaRoot.hasChild("root")){
+            if(!emfRootModelPart.hasChild("root")) {
+                ModelPart subRoot = vanillaRoot.getChild("root");
+                if (subRoot.pivotX != 0 ||
+                        subRoot.pivotY != 0 ||
+                        subRoot.pivotZ != 0 ||
+                        subRoot.pitch != 0 ||
+                        subRoot.yaw != 0 ||
+                        subRoot.roll != 0 ||
+                        subRoot.xScale != 0 ||
+                        subRoot.yScale != 0 ||
+                        subRoot.zScale != 0
 
-            emfRootModelPart = new EMFModelPart3(new ArrayList<ModelPart.Cuboid>(), Map.of("root", emfRootModelPart), variantNumber, jemData);
+                ) {
+                    //this covers things like frogs who pivot their root for some reason
+                    emfRootModelPart.setTransform(subRoot.getTransform());
+                    emfRootModelPart.setDefaultTransform(subRoot.getDefaultTransform());
+                }
+
+                emfRootModelPart = new EMFModelPart3(new ArrayList<ModelPart.Cuboid>(), Map.of("root", emfRootModelPart), variantNumber, jemData);
+            }
+        }else if (emfRootModelPart.hasChild("root")){
+            //should only be tadpoles
+            emfRootModelPart = (EMFModelPart3) emfRootModelPart.getChild("root");
         }
         if(EMFConfig.getConfig().attemptToCopyVanillaModelIntoMissingModelPart)
             emfRootModelPart.mergeInVanillaWhereRequired(vanillaRoot);
         return emfRootModelPart;
     }
+
+    private void iterateChildTransformCopy(EMFModelPart3 newPart, ModelPart oldPart){
+        for (String emfChildId:
+                newPart.getChildrenEMF().keySet()) {
+            if(oldPart.hasChild(emfChildId)){
+                EMFModelPart3 newNewPart = ((EMFModelPart3)newPart.getChildrenEMF().get(emfChildId));
+                ModelPart oldOldPart =oldPart.getChild(emfChildId);
+                newNewPart.applyDefaultModelRotates(oldOldPart.getDefaultTransform());
+                iterateChildTransformCopy(newNewPart,oldOldPart);
+            }
+        }
+    }
+
 
     private void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPart3 emfRootModelPart) {
         ///////SETUP ANIMATION EXECUTABLES////////////////
@@ -522,21 +546,26 @@ public class EMFManager {//singleton for data holding and resetting needs
 //                System.out.println("animations length =" + orderedAnimations.size());
 //                System.out.println("animations =" + orderedAnimations);
 //            }
+
             //constrain head yaw amount
-            boolean isNegative = headYaw < 0;
-            float newHeadYaw = Math.abs(headYaw) % 360;
-            if(newHeadYaw >= 180){
-                newHeadYaw = 180 - (newHeadYaw-180);
-                isNegative = !isNegative;
+            if(headYaw >= 180 || headYaw <= -180) {
+                boolean isNegative = headYaw < 0;
+                float newHeadYaw = Math.abs(headYaw) % 360;
+                if (newHeadYaw >= 180) {
+                    newHeadYaw = 180 - (newHeadYaw - 180);
+                    isNegative = !isNegative;
+                }
+                headYaw = isNegative ? -newHeadYaw : newHeadYaw;
             }
-            headYaw = isNegative ? -newHeadYaw : newHeadYaw;
 
             variableSuppliers.entity = entity;
             variableSuppliers.limbAngle = limbAngle;
             variableSuppliers.limbDistance = limbDistance;
             variableSuppliers.headYaw = headYaw;
             variableSuppliers.headPitch = headPitch;
-            variableSuppliers.tickDelta = MinecraftClient.getInstance().getTickDelta();
+            //using the minecraft client we get a much smoother and accurate tick delta for animations
+            // the downside is a flickering in the pause menu that I have to catch
+            variableSuppliers.tickDelta = MinecraftClient.getInstance().isPaused() ? ((MinecraftClientAccessor)MinecraftClient.getInstance()).getPausedTickDelta() : MinecraftClient.getInstance().getTickDelta();
 
             variableSuppliers.animationProgress = alterAnimationProgress(animationProgress);
 

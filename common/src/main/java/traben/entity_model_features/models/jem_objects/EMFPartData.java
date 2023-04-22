@@ -4,6 +4,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.utils.EMFUtils;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -42,11 +43,12 @@ public class EMFPartData {
     public boolean underATopLevelModel = false;
     public Identifier customTexture = null;
 
-    public static EMFPartData getBlankPartWithIDOf(String id2) {
+    public static EMFPartData getBlankPartWithIDOf(String id2, @Nullable int[] textureSizeIn) {
+
         return new EMFPartData() {{
             id = id2;
             part = id2;
-            textureSize = new int[]{1, 1};
+            textureSize = textureSizeIn;
             scale = 0;
             thisNeedsToMergeWithVanilla = true;
         }};
@@ -59,7 +61,7 @@ public class EMFPartData {
             textureSize = new int[]{1, 1};
             scale = 0;
             submodels = new LinkedList<>();
-            children.forEach((name) -> submodels.add(getBlankPartWithIDOf(name)));
+            children.forEach((name) -> submodels.add(getBlankPartWithIDOf(name,new int[]{1, 1})));
             thisNeedsToMergeWithVanilla = true;
         }};
     }

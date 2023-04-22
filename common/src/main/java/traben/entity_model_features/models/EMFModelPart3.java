@@ -209,6 +209,10 @@ public class EMFModelPart3 extends ModelPart {
 
         if (defaults != null) {
             this.setTransform(defaults);
+            //if(!"root".equals(this.selfModelData.part))
+                this.setDefaultTransform(defaults);
+
+
         }
 
     }
