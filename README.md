@@ -22,19 +22,28 @@ Entity Model Features (EMF) is a Fabric, Quilt & Forge mod that adds support for
 
 EMF is in a beta stage, meaning some things will probably work, but is expected for many not to. Before reporting an issue, make sure to read [the roadmap](README.md#Roadmap) and check [the active issues](https://github.com/Traben-0/Entity_Model_Features/issues). If your issue is mentioned there, don't report it and wait for it to be implemented. If not, report it in the [Issues section](https://github.com/Traben-0/Entity_Model_Features/issues/new/choose).
 
+## Recommended mods
+Please also install the below mods if you can, the obvious ones such as Sodium are not mentioned.
+
+It should also go without saying EMF is incompatible with dorianpb's CEM and OptiFabric.
+#### highly recommended
+- [Entity Texture Features (ETF)](https://modrinth.com/mod/entitytexturefeatures): 
+  EMF uses several features from my other mod ETF so it is recommended *(and will one day soon be mandatory for some things I have planned)*
+
+- [Entity Culling](https://modrinth.com/mod/entityculling): This mod does wonders for reducing entity rendering lag, doing even more than Sodium's included entity culling. I cannot recommend this enough.
+
+#### Optional
+- [YetAnotherConfigLib (YACL)](https://modrinth.com/mod/yacl): EMF fabric uses YACL to create a settings screen for the time being, eventually it'll copy the ETF config screens to display on forge and fabric
+
 ## Fresh Animations?
 
 <img align="right" width="450" src="https://cdn.modrinth.com/data/4I1XuqiY/images/2f32dbeadc25e46ef6c56f0e47e5eb5d305c8ea2.png">
 
-Since EMF is in beta, not everything works. However, the brilliant [Fresh Animations](https://www.planetminecraft.com/texture-pack/fresh-animations-v1-0/) resource pack **almost entirely** works out of the box, as it was the primary focus for this mod, no fork/pack editing required.<br />
-There are 4 things broken in Fresh Animations 1.8 with EMF in its current state:<br />
+Since EMF is in beta, not everything works. However, the brilliant [Fresh Animations](https://www.planetminecraft.com/texture-pack/fresh-animations-v1-0/) resource pack works out of the box, as it was the primary focus for this mod, no fork/pack editing required.<br />
 
-1. Horse saddles are offset incorrectly
-2. Frog legs are offset incorrectly
-3. Dolphin fins are rotated incorrectly
-4. The FA add-on pack doesn't fully work
+The addon packs for FA 1.8 is still quite broken with EMF in its current state:<br />
 
-Everything else seems to work 100%!
+Everything else in FA works!
 
 ## Roadmap
 
