@@ -94,8 +94,7 @@ public class EMFAnimationVariableSuppliers {
             return 0 + tickDelta;
         } else {
             //limit value upper limit to preserve floating point precision
-            float val = entity.getWorld().getTime();
-            return (val >= 24000 ? val % 24000 : val) + tickDelta;
+            return constrainedFloat(entity.getWorld().getTime()) + tickDelta;
         }
     }
 
@@ -291,8 +290,17 @@ public class EMFAnimationVariableSuppliers {
         if (entity == null) {
             return 0 + tickDelta;
         }
-        float age = entity.age;
-        return (age >= 24000 ? age % 24000 : age) + tickDelta;
+        return constrainedFloat(entity.age) + tickDelta;
+    }
+
+    private float constrainedFloat(float value){
+        return (value >= 24000 ? value % 24000 : value);
+    }
+    private float constrainedFloat(long value){
+        return (value >= 24000 ? value % 24000 : value);
+    }
+    private float constrainedFloat(int value){
+        return (value >= 24000 ? value % 24000 : value);
     }
 
     public float getFrameTime() {
@@ -311,10 +319,7 @@ public class EMFAnimationVariableSuppliers {
         return headYaw;
     }
 
-    public float getHeadPitch() {
-        return headPitch;
-
-    }
+    public float getHeadPitch() { return headPitch; }
 
     public float getTickDelta() {
         return tickDelta;

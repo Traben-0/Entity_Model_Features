@@ -74,7 +74,7 @@ public class EMFJemData {
                     break;
                 }
             }
-            if (!found) missingModels.add(EMFPartData.getBlankPartWithIDOf(name));
+            if (!found) missingModels.add(EMFPartData.getBlankPartWithIDOf(name,textureSize));
         }
         if (missingModels.size() > 0) {
             EMFUtils.EMFModError("These parts were missing from [" + fileName + "]: " + missingModels);
@@ -121,7 +121,7 @@ public class EMFJemData {
                     for (String childName :
                             entry.getValue().childNamesToExpect()) {
                         if (childName.startsWith("!")) {//map marker to put an empty child and not to move this child because OPTIFINE FUCKED UP FROGS
-                            parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName.replaceFirst("!", "")));
+                            parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName.replaceFirst("!", ""),textureSize));
                         } else {
                             EMFPartData child = getFirstPartInModelsIgnoreAttach(childName);
                             if (child != null) {
@@ -131,7 +131,7 @@ public class EMFJemData {
                                //child.part=null;
                             } else {
                                 //oof no child, this can happen with the shitty things in vanilla like wolves real_tail :/
-                                parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName));
+                                parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName,textureSize));
                             }
                             foundChildren.add(childName);
                         }

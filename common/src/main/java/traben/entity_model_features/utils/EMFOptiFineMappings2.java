@@ -588,7 +588,7 @@ public class EMFOptiFineMappings2 {
                     getOptifineMapEntry("hair_left_bottom", "left_bottom_bristle")
             );
             case "tadpole" -> Map.ofEntries(
-                    getOptifineMapEntry("body"),
+                    getOptifineMapEntry("body","root","tail"),
                     getOptifineMapEntry("tail")
             );
 
@@ -641,6 +641,43 @@ public class EMFOptiFineMappings2 {
                     getOptifineMapEntry("left_leg"),
                     getOptifineMapEntry("nose", "nose", "mole"),
                     getOptifineMapEntry("mole")
+            );
+            //# wither                   body1 ... body3, head1 ... head3
+            case "wither" -> Map.ofEntries(
+                    getOptifineMapEntry("body1", "shoulders"),
+                    getOptifineMapEntry("body2", "ribcage"),
+                    getOptifineMapEntry("body3", "tail"),
+                    getOptifineMapEntry("head1", "center_head"),
+                    getOptifineMapEntry("head2", "right_head"),
+                    getOptifineMapEntry("head3", "left_head")
+            );
+
+            case "dragon" -> Map.ofEntries(
+                    getOptifineMapEntry("head", "head","jaw"),
+                    getOptifineMapEntry("jaw", "jaw"),
+                    getOptifineMapEntry("spine", "neck"),
+                    getOptifineMapEntry("body", "body"),
+
+                    getOptifineMapEntry("left_wing", "left_wing","left_wing_tip"),
+                    getOptifineMapEntry("left_wing_tip", "left_wing_tip"),
+                    getOptifineMapEntry("right_wing", "right_wing","right_wing_tip"),
+                    getOptifineMapEntry("right_wing_tip", "right_wing_tip"),
+
+                    getOptifineMapEntry("front_left_leg", "left_front_leg","left_front_leg_tip"),
+                    getOptifineMapEntry("front_left_shin", "left_front_leg_tip","left_front_foot"),
+                    getOptifineMapEntry("front_left_foot", "left_front_foot"),
+
+                    getOptifineMapEntry("back_left_leg", "left_hind_leg","left_hind_leg_tip"),
+                    getOptifineMapEntry("back_left_shin", "left_hind_leg_tip","left_hind_foot"),
+                    getOptifineMapEntry("back_left_foot", "left_hind_foot"),
+
+                    getOptifineMapEntry("front_right_leg", "right_front_leg","right_front_leg_tip"),
+                    getOptifineMapEntry("front_right_shin", "right_front_leg_tip","right_front_foot"),
+                    getOptifineMapEntry("front_right_foot", "right_front_foot"),
+
+                    getOptifineMapEntry("back_right_leg", "right_hind_leg","right_hind_leg_tip"),
+                    getOptifineMapEntry("back_right_shin", "right_hind_leg_tip","right_hind_foot"),
+                    getOptifineMapEntry("back_right_foot", "right_hind_foot")
             );
             case "player", "player_slim" -> genericPlayerBiped;
 
