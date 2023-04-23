@@ -59,7 +59,7 @@ public abstract class Mixin_2_LivingEntityRenderer<T extends LivingEntity, M ext
     private Identifier emf$getTextureRedirect(LivingEntityRenderer<?,?> instance, Entity entity){
         Identifier emfIdentifier = new Identifier("textures/entity/chicken.png");
         return emfIdentifier == null ? getTexture((T) entity) : emfIdentifier;
-
+        //TODO copy to forge mixin
     }
 
 

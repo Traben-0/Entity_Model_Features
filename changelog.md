@@ -3,7 +3,7 @@
 0.2.8-dev
 - made ETF a required dependency
 - random model variations now update according to ETF texture update rate setting
-- 
+- fixed frame_time speed
 
 
 0.2.7

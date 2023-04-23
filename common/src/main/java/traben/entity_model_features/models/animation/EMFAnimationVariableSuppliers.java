@@ -304,7 +304,10 @@ public class EMFAnimationVariableSuppliers {
     }
 
     public float getFrameTime() {
-        return MinecraftClient.getInstance().getLastFrameDuration() / 10;
+
+        //float lastFrameDurationInMiliSecondsDividedBy20 = MinecraftClient.getInstance().getLastFrameDuration();
+        //float lastFrameDurationInSeconds = lastFrameDurationInMiliSecondsDividedBy20 / 50;
+        return MinecraftClient.getInstance().getLastFrameDuration() / 50;
     }
 
     public float getLimbAngle() {
