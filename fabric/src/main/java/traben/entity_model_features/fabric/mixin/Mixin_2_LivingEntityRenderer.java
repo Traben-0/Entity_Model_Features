@@ -9,12 +9,15 @@ import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import traben.entity_model_features.mixin.accessor.PlayerEntityModelAccessor;
@@ -49,7 +52,19 @@ public abstract class Mixin_2_LivingEntityRenderer<T extends LivingEntity, M ext
         EMFManager.getInstance().doVariantCheckFor(livingEntity);
     }
 
-//    @Inject(
+
+    @Redirect(
+            method = "getRenderLayer",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getTexture(Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/Identifier;"))
+    private Identifier emf$getTextureRedirect(LivingEntityRenderer<?,?> instance, Entity entity){
+        Identifier emfIdentifier = new Identifier("textures/entity/chicken.png");
+        return emfIdentifier == null ? getTexture((T) entity) : emfIdentifier;
+
+    }
+
+
+
+    //    @Inject(
 //            method = "getRenderLayer",
 //            at = @At(value = "RETURN"), cancellable = true)
 //    private void etf$alterTexture(T entity, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderLayer> cir) {

@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[44,)"
+loaderVersion = "[45,)"
 issueTrackerURL = "https://github.com/Traben-0/Entity_Texture_Features/issues"
 license = "LGPL-3.0"
 showAsResourcePack = false
@@ -21,14 +21,21 @@ logoFile = "icon.png"
 [[dependencies.entity_model_features]]
 modId = "forge"
 mandatory = true
-versionRange = "[44,)"
+versionRange = "[45,)"
 ordering = "NONE"
 side = "CLIENT"
 
 [[dependencies.entity_model_features]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.3,)"
+versionRange = "[1.19.4,)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.entity_model_features]]
+modId = "entity_texture_features"
+mandatory = true
+versionRange = "[4.4.0,)"
 ordering = "NONE"
 side = "CLIENT"
 

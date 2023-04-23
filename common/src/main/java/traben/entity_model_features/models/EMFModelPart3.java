@@ -23,7 +23,7 @@ import java.util.*;
 
 @Environment(value = EnvType.CLIENT)
 public class EMFModelPart3 extends ModelPart {
-    private static final Cuboid EMPTY_CUBOID = new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0);
+    private static final Cuboid EMPTY_CUBOID = new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, new HashSet<>(){{addAll(List.of(Direction.values()));}} );
     public final List<EMFCuboid> emfCuboids = new ArrayList<>();
     //public final Map<String, EMFModelPart3> cannonicalChildren = new HashMap<>();
     public final Map<String, EMFModelPart3> emfChildren = new HashMap<>();
@@ -357,7 +357,7 @@ public class EMFModelPart3 extends ModelPart {
                     cubeX, cubeY, cubeZ,
                     sizeX, sizeY, sizeZ,
                     extraX, extraY, extraZ, false,
-                    textureWidth, textureHeight);
+                    textureWidth, textureHeight, new HashSet<>(){{addAll(List.of(Direction.values()));}} );
 
             CuboidAccessor accessor = (CuboidAccessor) this;
             accessor.setMinX(cubeX);
@@ -502,7 +502,7 @@ public class EMFModelPart3 extends ModelPart {
                     cubeX, cubeY, cubeZ,
                     sizeX, sizeY, sizeZ,
                     extraX, extraY, extraZ, false,
-                    textureWidth, textureHeight);
+                    textureWidth, textureHeight, new HashSet<>(){{addAll(List.of(Direction.values()));}} );
 
             CuboidAccessor accessor = (CuboidAccessor) this;
             accessor.setMinX(cubeX);

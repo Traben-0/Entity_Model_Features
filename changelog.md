@@ -1,5 +1,11 @@
 
 
+0.2.8-dev
+- made ETF a required dependency
+- random model variations now update according to ETF texture update rate setting
+- 
+
+
 0.2.7
 
 - fixed all remaining base Fresh animations issues, **yes ***ALL*** of them**, *(the addons are still broken as are .jpms)*
