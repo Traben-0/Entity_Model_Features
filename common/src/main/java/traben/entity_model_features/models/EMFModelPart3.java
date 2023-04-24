@@ -25,6 +25,7 @@ import traben.entity_texture_features.ETFApi;
 
 import java.util.*;
 
+
 @Environment(value = EnvType.CLIENT)
 public class EMFModelPart3 extends ModelPart {
     private static final Cuboid EMPTY_CUBOID = new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, new HashSet<>(){{addAll(List.of(Direction.values()));}} );
@@ -177,10 +178,12 @@ public class EMFModelPart3 extends ModelPart {
             }
 
 
-            if (EMFConfig.getConfig().renderCustomModelsGreen)
-                super.render(matrices, vertices, light, overlay, 0, green, 0, alpha);
-            else
+            if (EMFConfig.getConfig().renderCustomModelsGreen) {
+                float flash = (float)Math.abs(Math.sin(System.currentTimeMillis() /1000d));
+                super.render(matrices, vertices, light, overlay, flash, green, flash, alpha);
+            } else {
                 super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+            }
         }
 
     }

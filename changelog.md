@@ -2,9 +2,11 @@
 
 0.2.8-dev
 - made ETF a required dependency
-- random model variations now update according to ETF texture update rate setting
-- fixed frame_time speed
+- added texture override support
+- random model variations now update according to ETF's texture update rate setting
+- fixed `frame_time` value it was about 5 times to large resulting in some animation transitions or counters playing faster
 - fixed logical error in animation math expressions where "!(boolean)" was different to "!boolean"
+- green render mode now pulses to allow accurate viewing of texture colours
 
 
 0.2.7
