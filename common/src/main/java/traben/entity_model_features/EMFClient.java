@@ -10,7 +10,6 @@ public class EMFClient {
 
     public static final String MOD_ID = "entity_model_features";
 
-    public static final long START_TIME = System.currentTimeMillis();
 
     //@Override
     public static void init() {
