@@ -61,6 +61,11 @@ public class MathVariable extends MathValue implements MathComponent {
             case "max_health" -> getter::getMaxHealth;
             case "id" -> getter::getId;
 
+            case "day_time" -> getter::getDayTime;
+            case "day_count" -> getter::getDayCount;
+            case "rule_index" -> getter::getRuleIndex;
+            case "anger_time_start" -> getter::getAngerTimeStart;
+
 
 //            case "collisionX" -> getter::getClosestCollisionX;
 //            case "collisionY" -> getter::getClosestCollisionY;

@@ -5,6 +5,7 @@
 - added texture override support
 - random model variations now update according to ETF's texture update rate setting
 - fixed `frame_time` value it was about 5 times to large resulting in some animation transitions or counters playing faster
+- added animation variables `day_time` & `day_count` and tweaked `time`
 - fixed logical error in animation math expressions where "!(boolean)" was different to "!boolean"
 - green render mode now pulses to allow accurate viewing of texture colours
 

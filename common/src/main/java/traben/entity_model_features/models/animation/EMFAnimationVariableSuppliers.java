@@ -11,6 +11,8 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.dimension.DimensionTypes;
 
+import static traben.entity_model_features.EMFClient.START_TIME;
+
 public class EMFAnimationVariableSuppliers {
 
 
@@ -27,6 +29,16 @@ public class EMFAnimationVariableSuppliers {
     public float headYaw = 0;
     public float headPitch = 0;
     public float tickDelta = 0;
+
+    //TODO
+    public float getRuleIndex(){
+       return 0;
+    }
+
+    //TODO
+    public float getAngerTimeStart(){
+        return 0;
+    }
 
     public Entity getEntity() {
         //System.out.println("ran");
@@ -94,7 +106,24 @@ public class EMFAnimationVariableSuppliers {
             return 0 + tickDelta;
         } else {
             //limit value upper limit to preserve floating point precision
-            return constrainedFloat(entity.getWorld().getTime()) + tickDelta;
+            long upTimeInTicks = (System.currentTimeMillis() - START_TIME)/50;
+            return constrainedFloat(upTimeInTicks,720720 ) + tickDelta;
+        }
+    }
+    public float getDayTime() {
+        if (entity == null || entity.getWorld() == null) {
+            return 0 + tickDelta;
+        } else {
+            //limit value upper limit to preserve floating point precision
+            return constrainedFloat(entity.getWorld().getTimeOfDay(),24000) + tickDelta;
+        }
+    }
+    public float getDayCount() {
+        if (entity == null || entity.getWorld() == null) {
+            return 0 + tickDelta;
+        } else {
+            //limit value upper limit to preserve floating point precision
+            return (float)(entity.getWorld().getTimeOfDay()/24000L) + tickDelta;
         }
     }
 
@@ -293,14 +322,25 @@ public class EMFAnimationVariableSuppliers {
         return constrainedFloat(entity.age) + tickDelta;
     }
 
+    private float constrainedFloat(float value, int constraint ){
+        return (value >= constraint ? value % constraint : value);
+    }
     private float constrainedFloat(float value){
-        return (value >= 24000 ? value % 24000 : value);
+        return constrainedFloat(value,720720);
+    }
+
+    private float constrainedFloat(long value, int constraint){
+        return (value >= constraint ? value % constraint : value);
     }
     private float constrainedFloat(long value){
-        return (value >= 24000 ? value % 24000 : value);
+        return constrainedFloat(value,720720);
     }
+    private float constrainedFloat(int value, int constraint ){
+        return (value >= constraint ? value % constraint : value);
+    }
+
     private float constrainedFloat(int value){
-        return (value >= 24000 ? value % 24000 : value);
+        return constrainedFloat(value,720720);
     }
 
     public float getFrameTime() {
