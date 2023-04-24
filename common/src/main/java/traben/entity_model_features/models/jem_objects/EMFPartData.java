@@ -83,7 +83,7 @@ public class EMFPartData {
         this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
     }
 
-    public void prepare(int parentCount, int[] textureSize, String texture, float[] modifyyTranslates) {
+    public void prepare(int parentCount, int[] textureSize, float[] modifyyTranslates) {
 
 //        for (LinkedHashMap<String,String> map:
 //             animations) {
@@ -111,7 +111,7 @@ public class EMFPartData {
 
 
         if (this.textureSize == null) this.textureSize = textureSize;
-        if (!texture.isBlank()) {
+        if (!texture.equals("")) {
             if (!this.texture.contains(".png")) this.texture = this.texture + ".png";
             //if no folder parenting assume it is relative to model
             if (!this.texture.contains("/")) this.texture = "optifine/cem/" + this.texture;
@@ -227,11 +227,11 @@ public class EMFPartData {
             sprite.prepare();
         }
         if (submodel != null) {
-            submodel.prepare(parentCount + 1, this.textureSize, this.texture, nextModify);
+            submodel.prepare(parentCount + 1, this.textureSize, nextModify);
         }
         for (EMFPartData model :
                 submodels) {
-            model.prepare(parentCount + 1, this.textureSize, this.texture, nextModify);
+            model.prepare(parentCount + 1, this.textureSize, nextModify);
         }
     }
 

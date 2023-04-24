@@ -44,6 +44,6 @@ public class Mixin_2_FeatureRenderer {
             modelName = null;
         }
         if (modelName != null)
-            EMFManager.getInstance().setAnglesOnParts(modelName, entity, limbAngle, limbDistance, age, headYaw, headPitch);
+            EMFManager.getInstance().preRenderEMFActions(modelName, entity, vertexConsumers, limbAngle, limbDistance, age, headYaw, headPitch);
     }
 }

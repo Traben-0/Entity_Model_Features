@@ -256,6 +256,10 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
 
                 //check if expression only contains constants, if so precalculate and save constant result
+
+                //this needs to run
+                isValid();
+
                 //if (isValid()) {//method call will construct validation variant as
 
 //this should now auto build an optimzed replacement
@@ -297,27 +301,29 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
     public static MathComponent getOptimizedExpression(String expressionString, boolean isNegative, EMFAnimation calculationInstance, boolean invertBoolean) {
         MathExpressionParser expression = new MathExpressionParser(expressionString, isNegative, calculationInstance, invertBoolean);
-        if (expression.optimizedAlternativeToThis == null)
+        if (expression.optimizedAlternativeToThis == null) {
             if (expression.isValid()) {
                 return expression;
             } else {
                 EMFUtils.EMFModWarn("null animation expression: [" + expressionString + "]");
                 return NULL_EXPRESSION;
             }
+        }
+        MathComponent optimized = expression.optimizedAlternativeToThis;
         //just an anonymous boolean inverter
         if(expression.wasInvertedBooleanExpression){
             return new MathValue() {
                 @Override
                 public float get() {
-                    return getSupplier().get() == 1 ? 0 : 1;
+                    return optimized.get() == 1 ? 0 : 1;
                 }
                 @Override
                 public ValueSupplier getSupplier() {
-                    return expression.optimizedAlternativeToThis::get;
+                    return null;
                 }
             };
         }
-        return expression.optimizedAlternativeToThis;
+        return optimized;
     }
 
     public boolean isValid() {
@@ -519,7 +525,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
     @Override
     public ValueSupplier getSupplier() {
-        EMFUtils.EMFModWarn("this should not happen this object should have been optimized");
+        //EMFUtils.EMFModWarn("this should not happen this object should have been optimized: supplier");
         return this::get;
     }
 

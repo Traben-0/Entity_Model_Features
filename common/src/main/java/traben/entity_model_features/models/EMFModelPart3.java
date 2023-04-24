@@ -7,8 +7,11 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import traben.entity_model_features.config.EMFConfig;
@@ -18,6 +21,7 @@ import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_texture_features.ETFApi;
 
 import java.util.*;
 
@@ -61,7 +65,7 @@ public class EMFModelPart3 extends ModelPart {
         super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variantNumber));
 
         selfModelData = emfPartData;
-        textureOverride = selfModelData.customTexture;
+        textureOverride = emfPartData.customTexture;
 
         //seems to be just straight into model no bullshit?
         //todo check up on scale?
@@ -163,6 +167,16 @@ public class EMFModelPart3 extends ModelPart {
         //assertChildrenAndCuboids();
         //if(new Random().nextInt(100)==1) System.out.println("rendered");
         if (isValidToRenderInThisState) {
+
+            //todo alternate layers other than translucent
+            if (!isTopLevelModelRoot && textureOverride != null && currentlyHeldProvider != null && currentlyHeldEntity != null) {
+                VertexConsumer newVertex = currentlyHeldProvider.getBuffer(RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride)));
+                if (newVertex != null) {
+                    vertices = newVertex;
+                }
+            }
+
+
             if (EMFConfig.getConfig().renderCustomModelsGreen)
                 super.render(matrices, vertices, light, overlay, 0, green, 0, alpha);
             else
@@ -217,6 +231,20 @@ public class EMFModelPart3 extends ModelPart {
 
     }
 
+
+    private boolean isTopLevelModelRoot = false;
+
+    public void setPartAsTopLevelRoot(){
+        isTopLevelModelRoot = true;
+
+    }
+
+    public static VertexConsumerProvider currentlyHeldProvider = null;
+
+    public static Entity currentlyHeldEntity = null;
+
+
+
     // public ModelTransform vanillaTransform = null;
 
     public Object2ReferenceOpenHashMap<String, EMFModelPart3> getAllChildPartsAsMap() {
@@ -224,7 +252,7 @@ public class EMFModelPart3 extends ModelPart {
         for (ModelPart part :
                 ((ModelPartAccessor) this).getChildren().values()) {
             if (part instanceof EMFModelPart3 part3) {
-                String thisKey = part3.selfModelData.part;
+                String thisKey = part3.selfModelData == null ? String.valueOf(part3.hashCode()) : part3.selfModelData.part;
                 if (thisKey == null) thisKey = part3.selfModelData.id;
                 list.put(thisKey, part3);
                 list.putAll(part3.getAllChildPartsAsMap());

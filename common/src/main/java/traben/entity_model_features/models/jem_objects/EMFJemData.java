@@ -29,7 +29,7 @@ public class EMFJemData {
     public void prepare() {
         originalModelsForReadingOnly = new LinkedList<>(models);
 
-        if (!texture.isBlank()) {
+        if (!texture.equals("")) {
             if (!this.texture.contains(".png")) this.texture = this.texture + ".png";
             //if no folder parenting assume it is relative to model
             if (!this.texture.contains("/")) this.texture = "optifine/cem/" + this.texture;
@@ -158,7 +158,7 @@ public class EMFJemData {
 
         for (EMFPartData model :
                 models) {
-            model.prepare(0, textureSize, texture, new float[]{0, 0, 0});
+            model.prepare(0, textureSize, new float[]{0, 0, 0});
         }
 
 

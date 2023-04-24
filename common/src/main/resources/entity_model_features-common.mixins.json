@@ -11,6 +11,7 @@
     "rewrite.Mixin_2_CreeperChargeFeatureRenderer",
     "rewrite.Mixin_2_FeatureRenderer",
     "rewrite.Mixin_2_HorseArmorFeatureRenderer",
+    "rewrite.Mixin_2_LivingEntityRenderer",
     "rewrite.Mixin_2_LlamaDecorFeatureRenderer",
     "rewrite.Mixin_2_SaddleFeatureRenderer",
     "rewrite.Mixin_2_SheepWoolEntityModel",

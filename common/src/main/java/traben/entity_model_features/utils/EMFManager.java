@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -86,7 +87,6 @@ public class EMFManager {//singleton for data holding and resetting needs
     private final Object2ObjectOpenHashMap<String, EMFAnimationExecutor> cache_EntityNameToAnimationExecutable = new Object2ObjectOpenHashMap<String, EMFAnimationExecutor>();
     private final Object2ObjectOpenHashMap<String, EMFModelPart3> cache_JemNameToCannonModelRoot = new Object2ObjectOpenHashMap<String, EMFModelPart3>();
     private final Object2ObjectOpenHashMap<String, ModelPart> cache_JemNameToVanillaModelRoot = new Object2ObjectOpenHashMap<>();
-    private final Object2ObjectOpenHashMap<String, Identifier> cache_JemNameToTextureOverride = new Object2ObjectOpenHashMap<>();
     private final Object2BooleanOpenHashMap<String> cache_JemNameDoesHaveVariants = new Object2BooleanOpenHashMap<>() {{
         defaultReturnValue(false);
     }};
@@ -130,7 +130,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         return null;
     }
 
-    private static String getTypeName(Entity entity) {
+    public static String getTypeName(Entity entity) {
         String forReturn = Registries.ENTITY_TYPE.getId(entity.getType()).toString().replace("minecraft:", "");
 //        if (entity instanceof PlayerEntity plyr && plyr.thin ((PlayerEntityModelAccessor) plyr).isThinArms()) {
 //            forReturn = entityTypeBaseName + "_slim";
@@ -250,13 +250,15 @@ public class EMFManager {//singleton for data holding and resetting needs
         if (jemData != null) {
             if (!EMFOptiFineMappings2.getMapOf(mobModelName).isEmpty()) {
                 EMFModelPart3 part = getEMFRootModelFromJem(jemData, root);
+
                 cache_JemNameToCannonModelRoot.put(mobModelName, part);
+                part.setPartAsTopLevelRoot();
+
                 cache_JemNameToVanillaModelRoot.put(mobModelName, root);
                 if (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobModelName + ".properties")).isPresent())
                     cache_JemNameDoesHaveVariants.put(mobModelName, true);
 
-                if (part.textureOverride != null)
-                    cache_JemNameToTextureOverride.put(mobModelName, part.textureOverride);
+
 
                 return part;
             } else {
@@ -440,13 +442,15 @@ public class EMFManager {//singleton for data holding and resetting needs
         ///////////////////////////
     }
 
-    public void setAnglesOnParts(String modelName, Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
-        //todo modify for multi model names
-        //todo modify puffer name with model state
+    public void preRenderEMFActions(String modelName, Entity entity, VertexConsumerProvider provider, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 
+//        EMFModelPart3 modelRoot = cache_JemNameToCannonModelRoot.get(modelName);
+//        if (modelRoot != null && modelRoot.containsInternalTextureOverrides){
+//
+//        }
+        EMFModelPart3.currentlyHeldProvider = provider;
+        EMFModelPart3.currentlyHeldEntity = entity;
 
-        boolean print = false;//new Random().nextInt(500)==1;
-        //if (print) System.out.println("mobName = " + modelName);
         int suffix = cache_UUIDAndTypeToCurrentVariantInt.getInt(new UUIDAndMobTypeKey(entity.getUuid(), entity.getType()));
         if (suffix > 1) modelName = modelName + suffix;
         if (cache_EntityNameToAnimationExecutable.containsKey(modelName)) {
@@ -454,15 +458,24 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
     }
 
-    public void setAnglesOnParts(Entity entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+    public void preRenderEMFActions(Entity entity, VertexConsumerProvider provider, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
         String mobName = getTypeName(entity);
-        setAnglesOnParts(mobName, entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+        preRenderEMFActions(mobName, entity, provider, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
 //        if(mobName.contains("llama") && new Random().nextInt(100)==1)
 //            System.out.println("animating: "+mobName);
     }
 
-    public void doVariantCheckFor(Entity entity) {
-        String mobName = getTypeName(entity);
+    @Nullable
+    public Identifier getRootModelTextureOverride(String modelId){
+        EMFModelPart3 modelRoot = cache_JemNameToCannonModelRoot.get(modelId);
+        if (modelRoot != null){
+            return modelRoot.textureOverride;//null if not valid
+        }
+        return null;
+    }
+
+    public void doVariantCheckFor(String mobName,Entity entity) {
+        //String mobName = getTypeName(entity);
         if (cache_JemNameDoesHaveVariants.getBoolean(mobName)
                 && cache_UUIDDoUpdating.getBoolean(entity.getUuid())
             && ETFApi.getETFConfigObject().textureUpdateFrequency_V2 != ETFConfig.UpdateFrequency.Never
