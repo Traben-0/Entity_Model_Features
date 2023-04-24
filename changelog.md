@@ -4,6 +4,7 @@
 - made ETF a required dependency
 - random model variations now update according to ETF texture update rate setting
 - fixed frame_time speed
+- fixed logical error in animation math expressions where "!(boolean)" was different to "!boolean"
 
 
 0.2.7
