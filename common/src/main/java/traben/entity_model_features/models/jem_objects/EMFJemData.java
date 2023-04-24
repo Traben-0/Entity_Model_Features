@@ -10,8 +10,8 @@ import java.util.*;
 
 public class EMFJemData {
     public final LinkedHashMap<String, String> finalAnimationsForModel = new LinkedHashMap<>();
-    private final String REGEX_PREFIX = "(?<=([^a-zA-Z0-9_]|^))";
-    private final String REGEX_SUFFIX = "(?=([^a-zA-Z0-9_]|$))";
+    private static final String REGEX_PREFIX = "(?<=([^a-zA-Z0-9_]|^))";
+    private static final String REGEX_SUFFIX = "(?=([^a-zA-Z0-9_]|$))";
     public String texture = "";
     public int[] textureSize = null;
     public double shadow_size = 1.0;

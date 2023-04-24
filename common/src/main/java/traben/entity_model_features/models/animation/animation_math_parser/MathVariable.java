@@ -1,4 +1,4 @@
-package traben.entity_model_features.models.animation.EMFAnimationMathParser;
+package traben.entity_model_features.models.animation.animation_math_parser;
 
 import traben.entity_model_features.models.EMFModelPart3;
 import traben.entity_model_features.models.animation.EMFAnimation;
@@ -65,6 +65,9 @@ public class MathVariable extends MathValue implements MathComponent {
             case "day_count" -> getter::getDayCount;
             case "rule_index" -> getter::getRuleIndex;
             case "anger_time_start" -> getter::getAngerTimeStart;
+
+            case "move_forward" -> getter::getMoveForward;
+            case "move_strafing" -> getter::getMoveStrafe;
 
 
 //            case "collisionX" -> getter::getClosestCollisionX;

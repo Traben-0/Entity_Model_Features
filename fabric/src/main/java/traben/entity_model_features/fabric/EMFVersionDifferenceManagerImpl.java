@@ -16,6 +16,7 @@ public class EMFVersionDifferenceManagerImpl {
 
 
 
+    @SuppressWarnings("SameReturnValue")
     public static boolean isForge() {
         return false;
     }

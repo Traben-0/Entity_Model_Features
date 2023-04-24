@@ -1,4 +1,4 @@
-package traben.entity_model_features.models.animation.EMFAnimationMathParser;
+package traben.entity_model_features.models.animation.animation_math_parser;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import traben.entity_model_features.models.animation.EMFAnimation;
@@ -555,7 +555,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
     }
 
 
-    private static class CalculationList extends ObjectArrayList<traben.entity_model_features.models.animation.EMFAnimationMathParser.MathComponent> {
+    private static class CalculationList extends ObjectArrayList<traben.entity_model_features.models.animation.animation_math_parser.MathComponent> {
         public CalculationList(CalculationList components) {
             super(components);
         }

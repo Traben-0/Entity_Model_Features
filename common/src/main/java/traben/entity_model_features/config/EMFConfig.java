@@ -58,7 +58,7 @@ public class EMFConfig {
     public boolean renderCustomModelsGreen = false;
 //    public float animationRateMinimumDistanceDropOff = 8;
 //    public float animationRateDistanceDropOffRate = 10;
-    public MathFunctionChoice mathFunctionChoice = MathFunctionChoice.JavaMath;
+    public final MathFunctionChoice mathFunctionChoice = MathFunctionChoice.JavaMath;
 
     // public boolean useCustomPlayerHandInFPS = false;
 

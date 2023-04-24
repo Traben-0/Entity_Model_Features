@@ -6,8 +6,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.Entity;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPart3;
-import traben.entity_model_features.models.animation.EMFAnimationMathParser.MathComponent;
-import traben.entity_model_features.models.animation.EMFAnimationMathParser.MathExpressionParser;
+import traben.entity_model_features.models.animation.animation_math_parser.MathComponent;
+import traben.entity_model_features.models.animation.animation_math_parser.MathExpressionParser;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.Random;
@@ -30,7 +30,7 @@ public class EMFAnimation {
     //private boolean resultIsAngle = false;
     public boolean verboseMode = false;
     // Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
-    public Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
+    public final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
     MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
 
     public EMFAnimation(EMFModelPart3 partToApplyTo,
@@ -149,7 +149,7 @@ public class EMFAnimation {
             EMFUtils.EMFModMessage("animation result: " + animKey + " = " + val);
             return (float) val;
         } else {
-            return (float) EMFCalculator.get();
+            return EMFCalculator.get();
         }
 //        }catch(MathComponent.EMFMathException e){
 //            return Float.NaN;
@@ -182,9 +182,7 @@ public class EMFAnimation {
 
     public void animPrint(String str) {
         StringBuilder indent = new StringBuilder();
-        for (int i = 0; i < indentCount; i++) {
-            indent.append("> ");
-        }
+        indent.append("> ".repeat(Math.max(0, indentCount)));
         System.out.println(indent + str);
     }
 

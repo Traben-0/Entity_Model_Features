@@ -4,10 +4,18 @@
 - made ETF a required dependency
 - added texture override support
 - random model variations now update according to ETF's texture update rate setting
-- fixed `frame_time` value it was about 5 times to large resulting in some animation transitions or counters playing faster
-- added animation variables `day_time` & `day_count` and tweaked `time`
+- fixed `frame_time` value it was about 5 times too large resulting in some animation transitions or counters playing faster
+- added animation variables `day_time`, `day_count`, and tweaked `time`
+- added `anger_time_start` and included tickDelta smoothing in `anger_time`
 - fixed logical error in animation math expressions where "!(boolean)" was different to "!boolean"
 - green render mode now pulses to allow accurate viewing of texture colours
+- added an implementation of `move_forward` & `move_strafing` which are broken in OptiFine, in EMF these values relate 
+how much the entities total movement is in a particular direction. Using a players [wasd] movement as reference a 
+player holding `W` has a `move_forward` of 1, and a player holding `S` has a `move_forward` of -1, and a player 
+holding `D` has a `move_strafing` of 1, and a player holding `A` has a `move_strafing` of -1, and a player holding `WD`
+has a `move_forward` & `move_strafing` of roughly 0.7 . this value is independent of speed and is intended as a measure 
+of the directionality of an entities' movement.
+
 
 
 0.2.7

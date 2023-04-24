@@ -2,7 +2,10 @@ package traben.entity_model_features.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.unimi.dsi.fastutil.objects.*;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -16,7 +19,6 @@ import net.minecraft.registry.Registries;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
@@ -82,10 +84,10 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     }};
     private static EMFManager self = null;
-    private final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<String, EMFJemData>();
-    private final Object2IntOpenHashMap<String> cache_AmountOfMobNameAlreadyDone = new Object2IntOpenHashMap<String>();
-    private final Object2ObjectOpenHashMap<String, EMFAnimationExecutor> cache_EntityNameToAnimationExecutable = new Object2ObjectOpenHashMap<String, EMFAnimationExecutor>();
-    private final Object2ObjectOpenHashMap<String, EMFModelPart3> cache_JemNameToCannonModelRoot = new Object2ObjectOpenHashMap<String, EMFModelPart3>();
+    private final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
+    private final Object2IntOpenHashMap<String> cache_AmountOfMobNameAlreadyDone = new Object2IntOpenHashMap<>();
+    private final Object2ObjectOpenHashMap<String, EMFAnimationExecutor> cache_EntityNameToAnimationExecutable = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectOpenHashMap<String, EMFModelPart3> cache_JemNameToCannonModelRoot = new Object2ObjectOpenHashMap<>();
     private final Object2ObjectOpenHashMap<String, ModelPart> cache_JemNameToVanillaModelRoot = new Object2ObjectOpenHashMap<>();
     private final Object2BooleanOpenHashMap<String> cache_JemNameDoesHaveVariants = new Object2BooleanOpenHashMap<>() {{
         defaultReturnValue(false);
@@ -93,16 +95,14 @@ public class EMFManager {//singleton for data holding and resetting needs
     private final Object2BooleanOpenHashMap<UUID> cache_UUIDDoUpdating = new Object2BooleanOpenHashMap<>() {{
         defaultReturnValue(true);
     }};
-    private final Object2IntOpenHashMap<UUIDAndMobTypeKey> cache_UUIDAndTypeToCurrentVariantInt = new Object2IntOpenHashMap<UUIDAndMobTypeKey>() {{
+    private final Object2IntOpenHashMap<UUIDAndMobTypeKey> cache_UUIDAndTypeToCurrentVariantInt = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
-    private final Object2LongOpenHashMap<UUIDAndMobTypeKey> cache_UUIDAndTypeToLastVariantCheckTime = new Object2LongOpenHashMap<UUIDAndMobTypeKey>() {{
-        defaultReturnValue(0);
-    }};
-    public Object2ObjectOpenHashMap<String, ETFApi.ETFRandomTexturePropertyInstance> cache_mobJemNameToPropertyTester = new Object2ObjectOpenHashMap<>();
-    @NotNull
-    public Runnable deferPlayerSetAngles = () -> {
-    };
+//    private final Object2LongOpenHashMap<UUIDAndMobTypeKey> cache_UUIDAndTypeToLastVariantCheckTime = new Object2LongOpenHashMap<>() {{
+//        defaultReturnValue(0);
+//    }};
+    public final Object2ObjectOpenHashMap<String, ETFApi.ETFRandomTexturePropertyInstance> cache_mobJemNameToPropertyTester = new Object2ObjectOpenHashMap<>();
+
 
 
     private EMFManager() {
@@ -314,7 +314,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         //have iterated over all parts in jem and made them
 
 
-        EMFModelPart3 emfRootModelPart = new EMFModelPart3(new ArrayList<ModelPart.Cuboid>(), rootChildren, variantNumber, jemData);
+        EMFModelPart3 emfRootModelPart = new EMFModelPart3(new ArrayList<>(), rootChildren, variantNumber, jemData);
         //try
         //todo pretty sure we must match root transforms because of fucking frogs, maybe?
         //emfRootModelPart.pivotY = 24;
@@ -346,7 +346,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                     emfRootModelPart.setDefaultTransform(subRoot.getDefaultTransform());
                 }
 
-                emfRootModelPart = new EMFModelPart3(new ArrayList<ModelPart.Cuboid>(), Map.of("root", emfRootModelPart), variantNumber, jemData);
+                emfRootModelPart = new EMFModelPart3(new ArrayList<>(), Map.of("root", emfRootModelPart), variantNumber, jemData);
             }
         }else if (emfRootModelPart.hasChild("root")){
             //should only be tadpoles
@@ -384,9 +384,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         final EMFAnimationVariableSuppliers variableSuppliers = new EMFAnimationVariableSuppliers();
         if (printing) {
             System.out.println(" > finalAnimationsForModel =");
-            jemData.finalAnimationsForModel.forEach((key, expression) -> {
-                System.out.println(" >> " + key + " = " + expression);
-            });
+            jemData.finalAnimationsForModel.forEach((key, expression) -> System.out.println(" >> " + key + " = " + expression));
         }
         jemData.finalAnimationsForModel.forEach((animKey, animationExpression) -> {
 
@@ -398,7 +396,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             EMFDefaultModelVariable thisVariable = EMFDefaultModelVariable.get(modelVariable);
 
             EMFModelPart3 thisPart = allPartByName.get(modelId);
-            EMFAnimation thisCalculator = null;
+            EMFAnimation thisCalculator;
 
             if (thisPart != null) {
                 thisCalculator =
@@ -492,7 +490,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         ETFApi.ETFRandomTexturePropertyInstance emfTester = ETFApi.readRandomPropertiesFileAndReturnTestingObject2(propertyID, "models");
                         cache_mobJemNameToPropertyTester.put(mobName, emfTester);
                     } else {
-                        EMFUtils.EMFModWarn("no property" + propertyID.toString());
+                        EMFUtils.EMFModWarn("no property" + propertyID);
                         cache_JemNameDoesHaveVariants.put(mobName, false);
                         return;
                     }
@@ -526,7 +524,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         cache_UUIDAndTypeToCurrentVariantInt.put(key, 0);
                     }
                 }
-                cache_UUIDAndTypeToLastVariantCheckTime.put(key, System.currentTimeMillis());
+               // cache_UUIDAndTypeToLastVariantCheckTime.put(key, System.currentTimeMillis());
             }else{
                 EMFModelPart3 cannonicalRoot = cache_JemNameToCannonModelRoot.get(mobName);
                 cannonicalRoot.setVariantStateTo(cache_UUIDAndTypeToCurrentVariantInt.getInt(key));

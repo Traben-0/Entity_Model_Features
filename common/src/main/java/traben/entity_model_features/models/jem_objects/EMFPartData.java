@@ -270,7 +270,7 @@ public class EMFPartData {
         StringBuilder str = new StringBuilder();
         for (EMFPartData model :
                 submodels) {
-            str.append(model.id + ", ");
+            str.append(model.id).append(", ");
         }
         return str.toString().trim();
     }

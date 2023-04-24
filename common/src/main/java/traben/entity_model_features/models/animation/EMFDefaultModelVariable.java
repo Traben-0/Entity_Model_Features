@@ -158,44 +158,21 @@ public enum EMFDefaultModelVariable {
 
         //ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;
         switch (this) {
-            case tx -> {
-                modelPart.pivotX = value + parentModify[0];
-            }
-            case ty -> {
-                modelPart.pivotY = value + parentModify[1];
-            }
-            case tz -> {
-                modelPart.pivotZ = value + parentModify[2];
-            }
-            case rx -> {
-                modelPart.pitch = value;// + defaults.pitch;
-            }
-            case ry -> {
-                modelPart.yaw = value;// + defaults.yaw;
-            }
-            case rz -> {
-                modelPart.roll = value;// + defaults.roll;
-            }
-            case sx -> {
-                modelPart.xScale = value;
-            }
-            case sy -> {
-                modelPart.yScale = value;
-            }
-            case sz -> {
-                modelPart.zScale = value;
-            }
-            case visible -> {
-                modelPart.visible = value == 1;
-                //System.out.println("1");
-            }
-            case visible_boxes -> {//todo check correct
-                modelPart.hidden = value != 1;
+            case tx -> modelPart.pivotX = value + parentModify[0];
+            case ty -> modelPart.pivotY = value + parentModify[1];
+            case tz -> modelPart.pivotZ = value + parentModify[2];
+            case rx -> modelPart.pitch = value;// + defaults.pitch;
+            case ry -> modelPart.yaw = value;// + defaults.yaw;
+            case rz -> modelPart.roll = value;// + defaults.roll;
+            case sx -> modelPart.xScale = value;
+            case sy -> modelPart.yScale = value;
+            case sz -> modelPart.zScale = value;
+            case visible -> //System.out.println("1");
+                    modelPart.visible = value == 1;
+            case visible_boxes -> //todo check correct
                 //System.out.println("2");
-            }
-            default -> {
-                System.out.println("model variable was defaulted cannot set its value");
-            }
+                    modelPart.hidden = value != 1;
+            default -> System.out.println("model variable was defaulted cannot set its value");
         }
     }
 }

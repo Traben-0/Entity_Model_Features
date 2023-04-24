@@ -35,7 +35,7 @@ public class EMFModelPart3 extends ModelPart {
     public final EMFPartData selfModelData;
     public int currentModelVariantState = 0;
     public boolean isValidToRenderInThisState = true;
-    public Int2ObjectArrayMap<EMFModelState> allKnownStateVariants = new Int2ObjectArrayMap<>();
+    public final Int2ObjectArrayMap<EMFModelState> allKnownStateVariants = new Int2ObjectArrayMap<>();
 
 
     //public static final EMFModelPart3 BLANK_MODEL_PART = new EMFModelPart3(EMFPartData.BLANK_PART_DATA);
@@ -45,13 +45,13 @@ public class EMFModelPart3 extends ModelPart {
 //    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay) {
 //        render(matrices,vertices,light,overlay, 1,1,1,1);
 //    }
-    public Identifier textureOverride = null;
+    public Identifier textureOverride;
 //     final Identifier customTexture;
 //    public final ModelPart vanillaPart;
 
     public EMFModelPart3(List<Cuboid> cuboids, Map<String, ModelPart> children, int variantNumber, EMFJemData jemData) {
         //create empty root model object
-        //noinspection ConstantValue
+
         super(/*cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod")? List.of(EMPTY_CUBOID) :*/ cuboids, children);
         selfModelData = null;
 
@@ -189,8 +189,8 @@ public class EMFModelPart3 extends ModelPart {
     }
 
     public void assertChildrenAndCuboids() {
-        ((ModelPartAccessor) this).setChildren(new HashMap<String, ModelPart>(emfChildren));
-        ((ModelPartAccessor) this).setCuboids(new ArrayList<Cuboid>(emfCuboids));
+        ((ModelPartAccessor) this).setChildren(new HashMap<>(emfChildren));
+        ((ModelPartAccessor) this).setCuboids(new ArrayList<>(emfCuboids));
     }
 
     //stop trying to optimize my code so it doesn't work sodium :P
@@ -423,12 +423,14 @@ public class EMFModelPart3 extends ModelPart {
             Vertex vertex6 = new Vertex(cubeX2, cubeY, cubeZ2, 0.0f, 8.0f);
             Vertex vertex7 = new Vertex(cubeX2, cubeY2, cubeZ2, 8.0f, 8.0f);
             Vertex vertex8 = new Vertex(cubeX, cubeY2, cubeZ2, 8.0f, 0.0f);
+            @SuppressWarnings("UnnecessaryLocalVariable")
             float j = textureU;
             float k = textureU + sizeZ;
             float l = textureU + sizeZ + sizeX;
             float m = textureU + sizeZ + sizeX + sizeX;
             float n = textureU + sizeZ + sizeX + sizeZ;
             float o = textureU + sizeZ + sizeX + sizeZ + sizeX;
+            @SuppressWarnings("UnnecessaryLocalVariable")
             float p = textureV;
             float q = textureV + sizeZ;
             float r = textureV + sizeZ + sizeY;

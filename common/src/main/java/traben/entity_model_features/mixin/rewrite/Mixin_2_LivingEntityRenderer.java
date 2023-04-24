@@ -69,6 +69,7 @@ public abstract class Mixin_2_LivingEntityRenderer<T extends LivingEntity, M ext
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getTexture(Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/Identifier;"))
     private Identifier emf$getTextureRedirect(LivingEntityRenderer<?,?> instance, Entity entity){
         Identifier emfIdentifier = EMFManager.getInstance().getRootModelTextureOverride(emf$ModelId);
+        //noinspection unchecked
         return emfIdentifier == null ? getTexture((T) entity) : ETFApi.getCurrentETFVariantTextureOfEntity(entity,emfIdentifier) ;
 
     }
