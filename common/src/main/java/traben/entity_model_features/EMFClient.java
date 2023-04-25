@@ -10,7 +10,7 @@ public class EMFClient {
 
     public static final String MOD_ID = "entity_model_features";
 
-    //@Override
+
     public static void init() {
         LogManager.getLogger().info("[Entity Model Features]: Loading! 1.19.3");
         //init data manager

@@ -1,4 +1,4 @@
-package traben.entity_model_features.models.animation.EMFAnimationMathParser;
+package traben.entity_model_features.models.animation.animation_math_parser;
 
 import net.minecraft.util.math.MathHelper;
 import traben.entity_model_features.config.EMFConfig;
@@ -6,13 +6,14 @@ import traben.entity_model_features.models.animation.EMFAnimation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class MathMethod extends MathValue implements MathComponent {
 
 
     public MathComponent optimizedAlternativeToThis = null;
-    String methodName;
+    final String methodName;
     ValueSupplier supplier;
     private int printCount = 0;
 
@@ -92,9 +93,7 @@ public class MathMethod extends MathValue implements MathComponent {
 
     public static MathComponent getOptimizedExpression(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
         MathMethod method = new MathMethod(methodName, args, isNegative, calculationInstance);
-        if (method.optimizedAlternativeToThis == null)
-            return method;
-        return method.optimizedAlternativeToThis;
+        return Objects.requireNonNullElse(method.optimizedAlternativeToThis, method);
     }
 
     private void setOptimizedIfPossible(List<MathComponent> allComponents, ValueSupplier supplier) {
@@ -284,7 +283,7 @@ public class MathMethod extends MathValue implements MathComponent {
 //            };
             ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
                     //case FastMath -> () -> FastMath.sqrt(arg.get());
-                    () -> MathHelper.sqrt((float) arg.get()) :
+                    () -> MathHelper.sqrt(arg.get()) :
                     () -> (float) Math.sqrt(arg.get());
 
             List<MathComponent> comps = List.of(arg);
@@ -464,7 +463,7 @@ public class MathMethod extends MathValue implements MathComponent {
             //ValueSupplier valueSupplier = ()-> Math.abs(arg.get());
             ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
                     //case FastMath -> () -> FastMath.abs(arg.get());
-                    () -> MathHelper.abs((float) arg.get()) :
+                    () -> MathHelper.abs(arg.get()) :
                     () -> Math.abs(arg.get());
 
             List<MathComponent> comps = List.of(arg);
@@ -614,7 +613,7 @@ public class MathMethod extends MathValue implements MathComponent {
 //                };
                     () -> {
                         //if(calculationInstance.verboseMode) print("sin = "+ arg);
-                        return MathHelper.sin((float) arg.get());
+                        return MathHelper.sin(arg.get());
                     } :
                     () -> {
                         //if(calculationInstance.verboseMode) print("sin = "+ arg);
@@ -654,7 +653,7 @@ public class MathMethod extends MathValue implements MathComponent {
             //ValueSupplier valueSupplier = ()->  Math.cos(arg.get());
             ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
                     //case FastMath -> () -> FastMath.cos(arg.get());
-                    () -> MathHelper.cos((float) arg.get()) :
+                    () -> MathHelper.cos(arg.get()) :
                     () -> (float) Math.cos(arg.get());
 
             List<MathComponent> comps = List.of(arg);

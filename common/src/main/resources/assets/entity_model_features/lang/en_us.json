@@ -12,6 +12,10 @@
   "entity_model_features.config.green_render.tooltip": "Makes CEM mobs appear green\n to distinguish them from vanilla models\nand check they are loading correctly",
   "entity_model_features.config.log_models": "Log model construction info",
   "entity_model_features.config.log_models.tooltip": "Prints model creation debug data to the log",
+  "entity_model_features.config.vanilla_render.normal": "normal",
+  "entity_model_features.config.vanilla_render.offset": "offset",
+  "entity_model_features.config.vanilla_render": "Vanilla model display mode",
+  "entity_model_features.config.vanilla_render.tooltip": "tries to render the vanilla model alongside the custom one for comparison\n it will not animate and thus might position a bit weird",
   "entity_model_features.config.log_math": "Log animation calculations",
   "entity_model_features.config.log_math.tooltip": "Prints animation math debug data to the log\nWARNING EXTREMELY LAG INDUCING!"
 }

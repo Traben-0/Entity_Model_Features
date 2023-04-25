@@ -3,15 +3,15 @@ package traben.entity_model_features.models.jem_objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.utils.EMFOptiFineMappings2;
+import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
 
 public class EMFJemData {
     public final LinkedHashMap<String, String> finalAnimationsForModel = new LinkedHashMap<>();
-    private final String REGEX_PREFIX = "(?<=([^a-zA-Z0-9_]|^))";
-    private final String REGEX_SUFFIX = "(?=([^a-zA-Z0-9_]|$))";
+    private static final String REGEX_PREFIX = "(?<=([^a-zA-Z0-9_]|^))";
+    private static final String REGEX_SUFFIX = "(?=([^a-zA-Z0-9_]|$))";
     public String texture = "";
     public int[] textureSize = null;
     public double shadow_size = 1.0;
@@ -29,7 +29,7 @@ public class EMFJemData {
     public void prepare() {
         originalModelsForReadingOnly = new LinkedList<>(models);
 
-        if (!texture.isBlank()) {
+        if (!texture.equals("")) {
             if (!this.texture.contains(".png")) this.texture = this.texture + ".png";
             //if no folder parenting assume it is relative to model
             if (!this.texture.contains("/")) this.texture = "optifine/cem/" + this.texture;
@@ -42,7 +42,7 @@ public class EMFJemData {
 
         String mobNameMinusVariant = mobName.replaceAll("(?<=\\w)[0-9]", "");
         //vanilla parenting adjustments
-        Map<String, EMFOptiFineMappings2.PartAndChildName> map = EMFOptiFineMappings2.getMapOf(mobNameMinusVariant);
+        Map<String, EMFOptiFinePartNameMappings.PartAndChildName> map = EMFOptiFinePartNameMappings.getMapOf(mobNameMinusVariant);
 
 
 
@@ -63,7 +63,7 @@ public class EMFJemData {
 
         //add any missing parts as blank before children removal checks
         LinkedList<EMFPartData> missingModels = new LinkedList<EMFPartData>();
-        for (EMFOptiFineMappings2.PartAndChildName data :
+        for (EMFOptiFinePartNameMappings.PartAndChildName data :
                 map.values()) {
             String name = data.partName();
             boolean found = false;
@@ -111,7 +111,7 @@ public class EMFJemData {
         Set<EMFPartData> foundChildrenPart = new HashSet<>();
 
         //copy all children into their parents lists
-        for (Map.Entry<String, EMFOptiFineMappings2.PartAndChildName> entry :
+        for (Map.Entry<String, EMFOptiFinePartNameMappings.PartAndChildName> entry :
                 map.entrySet()) {
 
             if (entry.getValue().childNamesToExpect().size() > 0) {
@@ -158,7 +158,7 @@ public class EMFJemData {
 
         for (EMFPartData model :
                 models) {
-            model.prepare(0, textureSize, texture, new float[]{0, 0, 0});
+            model.prepare(0, textureSize, new float[]{0, 0, 0});
         }
 
 
@@ -203,7 +203,7 @@ public class EMFJemData {
                 //there is no way out of this we have to loop each mapping for each entry to cover all possible part pointers
                 //todo can likely optimize further
                 if (EMFConfig.getConfig().printModelCreationInfoToLog) EMFUtils.EMFModMessage("map = " + map);
-                for (Map.Entry<String, EMFOptiFineMappings2.PartAndChildName> optifineMapEntry :
+                for (Map.Entry<String, EMFOptiFinePartNameMappings.PartAndChildName> optifineMapEntry :
                         map.entrySet()) {
                     String optifinePartName = optifineMapEntry.getKey();
                     String vanillaPartName = optifineMapEntry.getValue().partName();
