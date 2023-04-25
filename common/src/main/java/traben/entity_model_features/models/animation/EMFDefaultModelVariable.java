@@ -3,7 +3,7 @@ package traben.entity_model_features.models.animation;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.models.EMFModelPart3;
+import traben.entity_model_features.models.EMFModelPartMutable;
 
 public enum EMFDefaultModelVariable {
     tx(), ty(), tz(),
@@ -90,7 +90,7 @@ public enum EMFDefaultModelVariable {
         }
     }
 
-    public float getFrom3Model(EMFModelPart3 modelPart, EMFModelPart3 sourceModel) {
+    public float getFrom3Model(EMFModelPartMutable modelPart, EMFModelPartMutable sourceModel) {
         if (modelPart == null) {
             System.out.println("model part was null cannot get its value");
             return 0;
@@ -144,7 +144,7 @@ public enum EMFDefaultModelVariable {
         }
     }
 
-    public void setValueIn3Model(EMFModelPart3 modelPart, float value) {
+    public void setValueIn3Model(EMFModelPartMutable modelPart, float value) {
         if (modelPart == null) {
             System.out.println("model part was null cannot set its value");
             return;

@@ -1,11 +1,12 @@
 
 
-0.2.8-dev
+0.2.8
 - made ETF a required dependency *(Consider EMF now as an ETF addon, allowing you to still use other model mods without losing ETF)*
 - EMF now has a basic config screen on both Fabric and Forge 
 - added model texture override support
+- re-added option to render the vanilla model underneath the custom one, or offset from it *(they will not animate and are meant to help pack makers position their models)*
 - random model variations now update according to ETF's texture update rate setting
-- fixed `frame_time` value it was about 5 times too large resulting in some animation transitions or counters playing faster
+- fixed `frame_time` value it was about 2 times too large resulting in some animation transitions or counters playing faster
 - added animation variables `day_time`, `day_count`, and tweaked `time`
 - added `anger_time_start` and included tickDelta smoothing in `anger_time`
 - fixed logical error in animation math expressions where "!(boolean)" was different to "!boolean"
@@ -14,7 +15,7 @@
 how much the entities total movement is in a particular direction. Using a players [wasd] movement as reference a 
 player holding `W` has a `move_forward` of 1, and a player holding `S` has a `move_forward` of -1, and a player 
 holding `D` has a `move_strafing` of 1, and a player holding `A` has a `move_strafing` of -1, and a player holding `WD`
-has a `move_forward` & `move_strafing` of roughly 0.7 . this value is independent of speed and is intended as a measure 
+has a `move_forward` & `move_strafing` of roughly 0.7 in both . this value is independent of speed and is intended as a measurement 
 of the directionality of an entities' movement.
 
 

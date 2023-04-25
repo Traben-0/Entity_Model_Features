@@ -104,6 +104,16 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
                 Text.translatable("entity_model_features.config.log_math.tooltip")
         ));
 
+        this.addDrawableChild(getEMFButton((int) (this.width * 0.2), (int) (this.height * 0.6), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("entity_model_features.config.vanilla_render").getString() +
+                        ": " + (tempConfig.vanillaModelRenderMode.asText()).getString()),
+                (button) -> {
+                    tempConfig.vanillaModelRenderMode = tempConfig.vanillaModelRenderMode.next();
+                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.vanilla_render").getString() +
+                            ": " + (tempConfig.vanillaModelRenderMode.asText()).getString()));
+                },
+                Text.translatable("entity_model_features.config.vanilla_render.tooltip")
+        ));
     }
 
 

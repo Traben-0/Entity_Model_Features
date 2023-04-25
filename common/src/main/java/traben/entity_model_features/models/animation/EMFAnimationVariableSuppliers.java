@@ -349,28 +349,28 @@ public class EMFAnimationVariableSuppliers {
         return (value >= constraint ? value % constraint : value);
     }
     private float constrainedFloat(float value){
-        return constrainedFloat(value,720720);
+        return constrainedFloat(value,24000);
     }
 
     private float constrainedFloat(long value, int constraint){
         return (value >= constraint ? value % constraint : value);
     }
     private float constrainedFloat(long value){
-        return constrainedFloat(value,720720);
+        return constrainedFloat(value,24000);
     }
     private float constrainedFloat(int value, int constraint ){
         return (value >= constraint ? value % constraint : value);
     }
 
     private float constrainedFloat(int value){
-        return constrainedFloat(value,720720);
+        return constrainedFloat(value,24000);
     }
 
     public float getFrameTime() {
 
         //float lastFrameDurationInMiliSecondsDividedBy20 = MinecraftClient.getInstance().getLastFrameDuration();
         //float lastFrameDurationInSeconds = lastFrameDurationInMiliSecondsDividedBy20 / 50;
-        return MinecraftClient.getInstance().getLastFrameDuration() / 50;
+        return MinecraftClient.getInstance().getLastFrameDuration() / 20;
     }
 
     public float getLimbAngle() {

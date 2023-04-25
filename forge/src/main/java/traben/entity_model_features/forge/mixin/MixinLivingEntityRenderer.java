@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin.rewrite;
+package traben.entity_model_features.forge.mixin;
 
 
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -26,10 +26,10 @@ import traben.entity_texture_features.ETFApi;
 
 
 @Mixin(LivingEntityRenderer.class)
-public abstract class Mixin_2_LivingEntityRenderer<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements FeatureRendererContext<T, M> {
+public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements FeatureRendererContext<T, M> {
 
 
-    protected Mixin_2_LivingEntityRenderer(EntityRendererFactory.Context ctx) {
+    protected MixinLivingEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
     }
 
@@ -42,12 +42,8 @@ public abstract class Mixin_2_LivingEntityRenderer<T extends LivingEntity, M ext
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V"
             ,shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void emf$SetAngles(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci, float h, float j, float k, float m, float l, float n, float o) {
-//        if (getModel() instanceof PlayerEntityModel<?> plyr && livingEntity instanceof PlayerEntity){// !(plyr instanceof PiglinEntityModel<?>)) {
-//            EMFManager.getInstance().setAnglesOnParts(((PlayerEntityModelAccessor) plyr).isThinArms() ? "player_slim" : "player", livingEntity, o, n, l, k, m);
-//        } else {
+    private void emf$Animate(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci, boolean FORGE_REQUIRED_VALUE, float h, float j, float k, float m, float l, float n, float o) {
             EMFManager.getInstance().preRenderEMFActions(emf$ModelId,livingEntity, vertexConsumerProvider, o, n, l, k, m);
-//        }
     }
 
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
@@ -59,7 +55,6 @@ public abstract class Mixin_2_LivingEntityRenderer<T extends LivingEntity, M ext
         } else {
             emf$ModelId = EMFManager.getTypeName(livingEntity);
         }
-
         EMFManager.getInstance().doVariantCheckFor(emf$ModelId,livingEntity);
     }
 
@@ -74,49 +69,5 @@ public abstract class Mixin_2_LivingEntityRenderer<T extends LivingEntity, M ext
 
     }
 
-
-
-    //    @Inject(
-//            method = "getRenderLayer",
-//            at = @At(value = "RETURN"), cancellable = true)
-//    private void etf$alterTexture(T entity, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderLayer> cir) {
-//        //todo reimpliment in model variating code
-//        Identifier overrideTextureFromEMF = EMFManager.getInstance().getEMFOverrideTexture(entity);
-//        if (overrideTextureFromEMF != null) {
-//            if (translucent) {
-//                cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
-//            } else if (showBody) {
-//                if (EMFConfig.getConfig().forceTranslucentMobRendering) {
-//                    cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
-//                } else {
-//                    cir.setReturnValue(this.getModel().getLayer(overrideTextureFromEMF));
-//                }
-//            } else {
-//                cir.setReturnValue(showOutline ? RenderLayer.getOutline(overrideTextureFromEMF) : null);
-//            }
-//        }
-//    }
-
-
-//    @Inject(
-//            method = "getRenderLayer",
-//            at = @At(value = "RETURN"), cancellable = true)
-//    private void emf$alterTexture(T entity, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderLayer> cir) {
-//        //todo reimpliment in model variating code
-//        Identifier overrideTextureFromEMF = EMFManager.getInstance().getEMFOverrideTexture(entity);
-//        if (overrideTextureFromEMF != null) {
-//            if (translucent) {
-//                cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
-//            } else if (showBody) {
-//                if (EMFConfig.getConfig().forceTranslucentMobRendering) {
-//                    cir.setReturnValue(RenderLayer.getItemEntityTranslucentCull(overrideTextureFromEMF));
-//                } else {
-//                    cir.setReturnValue(this.getModel().getLayer(overrideTextureFromEMF));
-//                }
-//            } else {
-//                cir.setReturnValue(showOutline ? RenderLayer.getOutline(overrideTextureFromEMF) : null);
-//            }
-//        }
-//    }
 
 }

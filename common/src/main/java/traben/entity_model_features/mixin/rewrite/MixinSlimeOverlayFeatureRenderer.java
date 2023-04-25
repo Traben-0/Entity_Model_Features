@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import traben.entity_model_features.utils.EMFManager;
 
 @Mixin(SlimeOverlayFeatureRenderer.class)
-public class Mixin_2_SlimeOverlayFeatureRenderer<T extends LivingEntity> {
+public class MixinSlimeOverlayFeatureRenderer<T extends LivingEntity> {
 
     @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;setAngles(Lnet/minecraft/entity/Entity;FFFFF)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)

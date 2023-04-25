@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import traben.entity_model_features.utils.EMFManager;
 
 @Mixin(EnergySwirlOverlayFeatureRenderer.class)
-public class Mixin_2_CreeperChargeFeatureRenderer<T extends Entity> {
+public class MixinCreeperChargeFeatureRenderer<T extends Entity> {
 
     @Inject(method = "Lnet/minecraft/client/render/entity/feature/EnergySwirlOverlayFeatureRenderer;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/Entity;FFFFFF)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;setAngles(Lnet/minecraft/entity/Entity;FFFFF)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)

@@ -27,11 +27,11 @@ import java.util.*;
 
 
 @Environment(value = EnvType.CLIENT)
-public class EMFModelPart3 extends ModelPart {
+public class EMFModelPartMutable extends ModelPart {
     private static final Cuboid EMPTY_CUBOID = new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, new HashSet<>(){{addAll(List.of(Direction.values()));}} );
     public final List<EMFCuboid> emfCuboids = new ArrayList<>();
     //public final Map<String, EMFModelPart3> cannonicalChildren = new HashMap<>();
-    public final Map<String, EMFModelPart3> emfChildren = new HashMap<>();
+    public final Map<String, EMFModelPartMutable> emfChildren = new HashMap<>();
     public final EMFPartData selfModelData;
     public int currentModelVariantState = 0;
     public boolean isValidToRenderInThisState = true;
@@ -49,7 +49,7 @@ public class EMFModelPart3 extends ModelPart {
 //     final Identifier customTexture;
 //    public final ModelPart vanillaPart;
 
-    public EMFModelPart3(List<Cuboid> cuboids, Map<String, ModelPart> children, int variantNumber, EMFJemData jemData) {
+    public EMFModelPartMutable(List<Cuboid> cuboids, Map<String, ModelPart> children, int variantNumber, EMFJemData jemData) {
         //create empty root model object
 
         super(/*cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod")? List.of(EMPTY_CUBOID) :*/ cuboids, children);
@@ -61,7 +61,7 @@ public class EMFModelPart3 extends ModelPart {
             allKnownStateVariants.put(variantNumber, getCurrentState());
     }
 
-    public EMFModelPart3(EMFPartData emfPartData, int variantNumber) {//,//float[] parentalTransforms) {
+    public EMFModelPartMutable(EMFPartData emfPartData, int variantNumber) {//,//float[] parentalTransforms) {
 
         super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variantNumber));
 
@@ -118,7 +118,7 @@ public class EMFModelPart3 extends ModelPart {
             }
             if (EMFConfig.getConfig().printModelCreationInfoToLog)
                 System.out.println(" > > > > EMF sub part made: " + sub.toString(false));
-            emfChildren.put(idForMap, new EMFModelPart3(sub, variantNumber));
+            emfChildren.put(idForMap, new EMFModelPartMutable(sub, variantNumber));
         }
         return emfChildren;
     }
@@ -250,11 +250,11 @@ public class EMFModelPart3 extends ModelPart {
 
     // public ModelTransform vanillaTransform = null;
 
-    public Object2ReferenceOpenHashMap<String, EMFModelPart3> getAllChildPartsAsMap() {
-        Object2ReferenceOpenHashMap<String, EMFModelPart3> list = new Object2ReferenceOpenHashMap<>();
+    public Object2ReferenceOpenHashMap<String, EMFModelPartMutable> getAllChildPartsAsMap() {
+        Object2ReferenceOpenHashMap<String, EMFModelPartMutable> list = new Object2ReferenceOpenHashMap<>();
         for (ModelPart part :
                 ((ModelPartAccessor) this).getChildren().values()) {
-            if (part instanceof EMFModelPart3 part3) {
+            if (part instanceof EMFModelPartMutable part3) {
                 String thisKey = part3.selfModelData == null ? String.valueOf(part3.hashCode()) : part3.selfModelData.part;
                 if (thisKey == null) thisKey = part3.selfModelData.id;
                 list.put(thisKey, part3);
@@ -277,12 +277,12 @@ public class EMFModelPart3 extends ModelPart {
         ((ModelPartAccessor) this).setChildren(children);
     }
 
-    public void mergePartVariant(int variantNumber, EMFModelPart3 partToMergeIntoThisAsVariant) {
+    public void mergePartVariant(int variantNumber, EMFModelPartMutable partToMergeIntoThisAsVariant) {
         EMFModelState incomingPartState = partToMergeIntoThisAsVariant.getCurrentState();
         allKnownStateVariants.put(variantNumber, incomingPartState);
         for (Map.Entry<String, ModelPart> childEntry :
                 partToMergeIntoThisAsVariant.getChildrenEMF().entrySet()) {
-            if (childEntry.getValue() instanceof EMFModelPart3 p2 && getChildrenEMF().get(childEntry.getKey()) instanceof EMFModelPart3 p3) {
+            if (childEntry.getValue() instanceof EMFModelPartMutable p2 && getChildrenEMF().get(childEntry.getKey()) instanceof EMFModelPartMutable p3) {
                 p3.mergePartVariant(variantNumber, p2);
             } else {
                 Map<String, ModelPart> children = getChildrenEMF();
@@ -300,7 +300,7 @@ public class EMFModelPart3 extends ModelPart {
         for (Map.Entry<String, ModelPart> childEntry :
                 this.getChildrenEMF().entrySet()) {
             if (partToMergeIntoThisAsVanilla.hasChild(childEntry.getKey())
-                    && childEntry.getValue() instanceof EMFModelPart3 p3
+                    && childEntry.getValue() instanceof EMFModelPartMutable p3
             )
                 p3.mergeInVanillaWhereRequired((partToMergeIntoThisAsVanilla.getChild(childEntry.getKey())));
 
@@ -323,7 +323,7 @@ public class EMFModelPart3 extends ModelPart {
             }
             for (ModelPart part :
                     getChildrenEMF().values()) {
-                if (part instanceof EMFModelPart3 p3)
+                if (part instanceof EMFModelPartMutable p3)
                     p3.setVariantStateTo(newVariantState);
             }
         }//else{

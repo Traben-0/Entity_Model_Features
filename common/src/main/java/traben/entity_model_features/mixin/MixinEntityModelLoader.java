@@ -13,7 +13,7 @@ import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 @Mixin(EntityModelLoader.class)
-public class MixinModelLoadingTest {
+public class MixinEntityModelLoader {
     @Inject(method = "getModelPart",
             at = @At(value = "RETURN"), cancellable = true)
     private void emf$injectModelLoad(EntityModelLayer layer, CallbackInfoReturnable<ModelPart> cir) {

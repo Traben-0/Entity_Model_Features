@@ -3,19 +3,18 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "MixinModelLoadingTest",
+    "MixinEntityModelLoader",
     "MixinResourceReload",
     "accessor.CuboidAccessor",
     "accessor.ModelPartAccessor",
     "accessor.PlayerEntityModelAccessor",
-    "rewrite.Mixin_2_CreeperChargeFeatureRenderer",
-    "rewrite.Mixin_2_FeatureRenderer",
-    "rewrite.Mixin_2_HorseArmorFeatureRenderer",
-    "rewrite.Mixin_2_LivingEntityRenderer",
-    "rewrite.Mixin_2_LlamaDecorFeatureRenderer",
-    "rewrite.Mixin_2_SaddleFeatureRenderer",
-    "rewrite.Mixin_2_SheepWoolEntityModel",
-    "rewrite.Mixin_2_SlimeOverlayFeatureRenderer"
+    "rewrite.MixinCreeperChargeFeatureRenderer",
+    "rewrite.MixinFeatureRenderer",
+    "rewrite.MixinHorseArmorFeatureRenderer",
+    "rewrite.MixinLlamaDecorFeatureRenderer",
+    "rewrite.MixinSaddleFeatureRenderer",
+    "rewrite.MixinSheepWoolEntityModel",
+    "rewrite.MixinSlimeOverlayFeatureRenderer"
   ],
   "mixins": [
     "accessor.MinecraftClientAccessor"

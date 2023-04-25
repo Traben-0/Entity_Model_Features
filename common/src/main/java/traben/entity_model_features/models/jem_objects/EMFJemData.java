@@ -3,7 +3,7 @@ package traben.entity_model_features.models.jem_objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.utils.EMFOptiFineMappings2;
+import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
@@ -42,7 +42,7 @@ public class EMFJemData {
 
         String mobNameMinusVariant = mobName.replaceAll("(?<=\\w)[0-9]", "");
         //vanilla parenting adjustments
-        Map<String, EMFOptiFineMappings2.PartAndChildName> map = EMFOptiFineMappings2.getMapOf(mobNameMinusVariant);
+        Map<String, EMFOptiFinePartNameMappings.PartAndChildName> map = EMFOptiFinePartNameMappings.getMapOf(mobNameMinusVariant);
 
 
 
@@ -63,7 +63,7 @@ public class EMFJemData {
 
         //add any missing parts as blank before children removal checks
         LinkedList<EMFPartData> missingModels = new LinkedList<EMFPartData>();
-        for (EMFOptiFineMappings2.PartAndChildName data :
+        for (EMFOptiFinePartNameMappings.PartAndChildName data :
                 map.values()) {
             String name = data.partName();
             boolean found = false;
@@ -111,7 +111,7 @@ public class EMFJemData {
         Set<EMFPartData> foundChildrenPart = new HashSet<>();
 
         //copy all children into their parents lists
-        for (Map.Entry<String, EMFOptiFineMappings2.PartAndChildName> entry :
+        for (Map.Entry<String, EMFOptiFinePartNameMappings.PartAndChildName> entry :
                 map.entrySet()) {
 
             if (entry.getValue().childNamesToExpect().size() > 0) {
@@ -203,7 +203,7 @@ public class EMFJemData {
                 //there is no way out of this we have to loop each mapping for each entry to cover all possible part pointers
                 //todo can likely optimize further
                 if (EMFConfig.getConfig().printModelCreationInfoToLog) EMFUtils.EMFModMessage("map = " + map);
-                for (Map.Entry<String, EMFOptiFineMappings2.PartAndChildName> optifineMapEntry :
+                for (Map.Entry<String, EMFOptiFinePartNameMappings.PartAndChildName> optifineMapEntry :
                         map.entrySet()) {
                     String optifinePartName = optifineMapEntry.getKey();
                     String vanillaPartName = optifineMapEntry.getValue().partName();
