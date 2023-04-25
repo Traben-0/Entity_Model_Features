@@ -1,8 +1,9 @@
 
 
 0.2.8-dev
-- made ETF a required dependency
-- added texture override support
+- made ETF a required dependency *(Consider EMF now as an ETF addon, allowing you to still use other model mods without losing ETF)*
+- EMF now has a basic config screen on both Fabric and Forge 
+- added model texture override support
 - random model variations now update according to ETF's texture update rate setting
 - fixed `frame_time` value it was about 5 times too large resulting in some animation transitions or counters playing faster
 - added animation variables `day_time`, `day_count`, and tweaked `time`

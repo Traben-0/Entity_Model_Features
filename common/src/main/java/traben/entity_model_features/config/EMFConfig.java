@@ -70,6 +70,12 @@ public class EMFConfig {
         return EMFConfigData;
     }
 
+    public static void setConfig(EMFConfig newConfig) {
+        if(newConfig != null)
+            EMFConfigData = newConfig;
+    }
+
+
     public static void EMF_saveConfig() {
         File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), "entity_model_features.json");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -113,6 +119,13 @@ public class EMFConfig {
         } catch (Exception e) {
             EMFConfigData = new EMFConfig();
         }
+    }
+
+    public static EMFConfig copyFrom(EMFConfig source) {
+
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        return gson.fromJson(gson.toJson(source), EMFConfig.class);
     }
 
     //    public enum SpawnAnimation{
