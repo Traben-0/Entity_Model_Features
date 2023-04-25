@@ -1,5 +1,6 @@
 package traben.entity_model_features.models.animation;
 
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -9,7 +10,10 @@ import net.minecraft.entity.passive.*;
 import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionTypes;
+
+import java.util.UUID;
 
 public class EMFAnimationVariableSuppliers {
 
@@ -27,6 +31,12 @@ public class EMFAnimationVariableSuppliers {
     public float headYaw = 0;
     public float headPitch = 0;
     public float tickDelta = 0;
+
+    //TODO
+    public float getRuleIndex(){
+       return 0;
+    }
+
 
     public Entity getEntity() {
         //System.out.println("ran");
@@ -94,7 +104,24 @@ public class EMFAnimationVariableSuppliers {
             return 0 + tickDelta;
         } else {
             //limit value upper limit to preserve floating point precision
-            return constrainedFloat(entity.getWorld().getTime()) + tickDelta;
+            long upTimeInTicks =entity.getWorld().getTime(); // (System.currentTimeMillis() - START_TIME)/50;
+            return constrainedFloat(upTimeInTicks,720720 ) + tickDelta;
+        }
+    }
+    public float getDayTime() {
+        if (entity == null || entity.getWorld() == null) {
+            return 0 + tickDelta;
+        } else {
+            //limit value upper limit to preserve floating point precision
+            return constrainedFloat(entity.getWorld().getTimeOfDay(),24000) + tickDelta;
+        }
+    }
+    public float getDayCount() {
+        if (entity == null || entity.getWorld() == null) {
+            return 0 + tickDelta;
+        } else {
+            //limit value upper limit to preserve floating point precision
+            return (float)(entity.getWorld().getTimeOfDay()/24000L) + tickDelta;
         }
     }
 
@@ -107,7 +134,32 @@ public class EMFAnimationVariableSuppliers {
     }
 
     public float getAngerTime() {
-        return !(entity instanceof Angerable) ? 0 : ((Angerable) entity).getAngerTime();
+        if (!(entity instanceof Angerable) ) return 0;
+
+        float currentKnownHighest = knownHighestAngerTimeByUUID.getInt(entity.getUuid());
+        int angerTime = ((Angerable) entity).getAngerTime();
+
+        //clear anger info if anger is over
+        if(angerTime<=0){
+            knownHighestAngerTimeByUUID.put(entity.getUuid(), 0);
+            return 0;
+        }
+
+        //store this if this is the largest anger time for the entity seen so far
+        if(angerTime > currentKnownHighest) {
+            knownHighestAngerTimeByUUID.put(entity.getUuid(), angerTime);
+        }
+        return angerTime - tickDelta;
+    }
+
+    private final Object2IntOpenHashMap<UUID> knownHighestAngerTimeByUUID = new Object2IntOpenHashMap<>(){{defaultReturnValue(0);}};
+
+    public float getAngerTimeStart(){
+        //this only makes sense if we are calculating it here from the largest known value of anger time
+        // i could also reset it when anger time hits 0
+        //todo this can't be right and wont work if anger time start is called first
+        return !(entity instanceof Angerable) ? 0 : knownHighestAngerTimeByUUID.getInt(entity.getUuid());
+
     }
 
     public float getMaxHealth() {
@@ -290,21 +342,35 @@ public class EMFAnimationVariableSuppliers {
         if (entity == null) {
             return 0 + tickDelta;
         }
-        return constrainedFloat(entity.age) + tickDelta;
+        return constrainedFloat(entity.age,24000) + tickDelta;
     }
 
+    private float constrainedFloat(float value, int constraint ){
+        return (value >= constraint ? value % constraint : value);
+    }
     private float constrainedFloat(float value){
-        return (value >= 24000 ? value % 24000 : value);
+        return constrainedFloat(value,24000);
+    }
+
+    private float constrainedFloat(long value, int constraint){
+        return (value >= constraint ? value % constraint : value);
     }
     private float constrainedFloat(long value){
-        return (value >= 24000 ? value % 24000 : value);
+        return constrainedFloat(value,24000);
     }
+    private float constrainedFloat(int value, int constraint ){
+        return (value >= constraint ? value % constraint : value);
+    }
+
     private float constrainedFloat(int value){
-        return (value >= 24000 ? value % 24000 : value);
+        return constrainedFloat(value,24000);
     }
 
     public float getFrameTime() {
-        return MinecraftClient.getInstance().getLastFrameDuration() / 10;
+
+        //float lastFrameDurationInMiliSecondsDividedBy20 = MinecraftClient.getInstance().getLastFrameDuration();
+        //float lastFrameDurationInSeconds = lastFrameDurationInMiliSecondsDividedBy20 / 50;
+        return MinecraftClient.getInstance().getLastFrameDuration() / 20;
     }
 
     public float getLimbAngle() {
@@ -323,6 +389,51 @@ public class EMFAnimationVariableSuppliers {
 
     public float getTickDelta() {
         return tickDelta;
+    }
+
+    public float getMoveForward(){
+        if(entity == null) return 0;
+        double lookDir = Math.toRadians(90-entity.getYaw());
+        //float speed = entity.horizontalSpeed;
+        Vec3d velocity = entity.getVelocity();
+
+        //consider 2d plane of movement with x y
+        double x = velocity.x;
+        double y = velocity.z;
+
+        // compute the new x and y components after rotation
+        double newX = (x * Math.cos(lookDir)) - (y * Math.sin(lookDir));
+        //double newY = (x * Math.sin(lookDir)) + (y * Math.cos(lookDir));
+
+
+        return processMove(newX,x,y);
+    }
+
+    public float getMoveStrafe(){
+        if(entity == null) return 0;
+        double lookDir = Math.toRadians(90-entity.getYaw());
+        //float speed = entity.horizontalSpeed;
+        Vec3d velocity = entity.getVelocity();
+
+        //consider 2d plane of movement with x y
+        double x = velocity.x;
+        double y = velocity.z;
+
+        // compute the new x and y components after rotation
+        //double newX = (x * Math.cos(lookDir)) - (y * Math.sin(lookDir));
+        double newY = (x * Math.sin(lookDir)) + (y * Math.cos(lookDir));
+        return processMove( newY,x,y);
+    }
+
+    private float processMove(double value, double x, double y){
+
+        double totalMovementVector = Math.sqrt(x*x + y*y);
+
+        if(totalMovementVector == 0) return 0;
+
+        //return percentage that is forward/strafe
+        return (float) -(value / totalMovementVector);
+
     }
 
 }

@@ -7,8 +7,11 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
 import traben.entity_model_features.config.EMFConfig;
@@ -18,19 +21,21 @@ import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_texture_features.ETFApi;
 
 import java.util.*;
 
+
 @Environment(value = EnvType.CLIENT)
-public class EMFModelPart3 extends ModelPart {
+public class EMFModelPartMutable extends ModelPart {
     private static final Cuboid EMPTY_CUBOID = new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0);
     public final List<EMFCuboid> emfCuboids = new ArrayList<>();
     //public final Map<String, EMFModelPart3> cannonicalChildren = new HashMap<>();
-    public final Map<String, EMFModelPart3> emfChildren = new HashMap<>();
+    public final Map<String, EMFModelPartMutable> emfChildren = new HashMap<>();
     public final EMFPartData selfModelData;
     public int currentModelVariantState = 0;
     public boolean isValidToRenderInThisState = true;
-    public Int2ObjectArrayMap<EMFModelState> allKnownStateVariants = new Int2ObjectArrayMap<>();
+    public final Int2ObjectArrayMap<EMFModelState> allKnownStateVariants = new Int2ObjectArrayMap<>();
 
 
     //public static final EMFModelPart3 BLANK_MODEL_PART = new EMFModelPart3(EMFPartData.BLANK_PART_DATA);
@@ -40,13 +45,13 @@ public class EMFModelPart3 extends ModelPart {
 //    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay) {
 //        render(matrices,vertices,light,overlay, 1,1,1,1);
 //    }
-    public Identifier textureOverride = null;
+    public Identifier textureOverride;
 //     final Identifier customTexture;
 //    public final ModelPart vanillaPart;
 
-    public EMFModelPart3(List<Cuboid> cuboids, Map<String, ModelPart> children, int variantNumber, EMFJemData jemData) {
+    public EMFModelPartMutable(List<Cuboid> cuboids, Map<String, ModelPart> children, int variantNumber, EMFJemData jemData) {
         //create empty root model object
-        //noinspection ConstantValue
+
         super(/*cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod")? List.of(EMPTY_CUBOID) :*/ cuboids, children);
         selfModelData = null;
 
@@ -56,12 +61,12 @@ public class EMFModelPart3 extends ModelPart {
             allKnownStateVariants.put(variantNumber, getCurrentState());
     }
 
-    public EMFModelPart3(EMFPartData emfPartData, int variantNumber) {//,//float[] parentalTransforms) {
+    public EMFModelPartMutable(EMFPartData emfPartData, int variantNumber) {//,//float[] parentalTransforms) {
 
         super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variantNumber));
 
         selfModelData = emfPartData;
-        textureOverride = selfModelData.customTexture;
+        textureOverride = emfPartData.customTexture;
 
         //seems to be just straight into model no bullshit?
         //todo check up on scale?
@@ -113,7 +118,7 @@ public class EMFModelPart3 extends ModelPart {
             }
             if (EMFConfig.getConfig().printModelCreationInfoToLog)
                 System.out.println(" > > > > EMF sub part made: " + sub.toString(false));
-            emfChildren.put(idForMap, new EMFModelPart3(sub, variantNumber));
+            emfChildren.put(idForMap, new EMFModelPartMutable(sub, variantNumber));
         }
         return emfChildren;
     }
@@ -163,17 +168,29 @@ public class EMFModelPart3 extends ModelPart {
         //assertChildrenAndCuboids();
         //if(new Random().nextInt(100)==1) System.out.println("rendered");
         if (isValidToRenderInThisState) {
-            if (EMFConfig.getConfig().renderCustomModelsGreen)
-                super.render(matrices, vertices, light, overlay, 0, green, 0, alpha);
-            else
+
+            //todo alternate layers other than translucent
+            if (!isTopLevelModelRoot && textureOverride != null && currentlyHeldProvider != null && currentlyHeldEntity != null) {
+                VertexConsumer newVertex = currentlyHeldProvider.getBuffer(RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride)));
+                if (newVertex != null) {
+                    vertices = newVertex;
+                }
+            }
+
+
+            if (EMFConfig.getConfig().renderCustomModelsGreen) {
+                float flash = (float)Math.abs(Math.sin(System.currentTimeMillis() /1000d));
+                super.render(matrices, vertices, light, overlay, flash, green, flash, alpha);
+            } else {
                 super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+            }
         }
 
     }
 
     public void assertChildrenAndCuboids() {
-        ((ModelPartAccessor) this).setChildren(new HashMap<String, ModelPart>(emfChildren));
-        ((ModelPartAccessor) this).setCuboids(new ArrayList<Cuboid>(emfCuboids));
+        ((ModelPartAccessor) this).setChildren(new HashMap<>(emfChildren));
+        ((ModelPartAccessor) this).setCuboids(new ArrayList<>(emfCuboids));
     }
 
     //stop trying to optimize my code so it doesn't work sodium :P
@@ -217,14 +234,28 @@ public class EMFModelPart3 extends ModelPart {
 
     }
 
+
+    private boolean isTopLevelModelRoot = false;
+
+    public void setPartAsTopLevelRoot(){
+        isTopLevelModelRoot = true;
+
+    }
+
+    public static VertexConsumerProvider currentlyHeldProvider = null;
+
+    public static Entity currentlyHeldEntity = null;
+
+
+
     // public ModelTransform vanillaTransform = null;
 
-    public Object2ReferenceOpenHashMap<String, EMFModelPart3> getAllChildPartsAsMap() {
-        Object2ReferenceOpenHashMap<String, EMFModelPart3> list = new Object2ReferenceOpenHashMap<>();
+    public Object2ReferenceOpenHashMap<String, EMFModelPartMutable> getAllChildPartsAsMap() {
+        Object2ReferenceOpenHashMap<String, EMFModelPartMutable> list = new Object2ReferenceOpenHashMap<>();
         for (ModelPart part :
                 ((ModelPartAccessor) this).getChildren().values()) {
-            if (part instanceof EMFModelPart3 part3) {
-                String thisKey = part3.selfModelData.part;
+            if (part instanceof EMFModelPartMutable part3) {
+                String thisKey = part3.selfModelData == null ? String.valueOf(part3.hashCode()) : part3.selfModelData.part;
                 if (thisKey == null) thisKey = part3.selfModelData.id;
                 list.put(thisKey, part3);
                 list.putAll(part3.getAllChildPartsAsMap());
@@ -246,12 +277,12 @@ public class EMFModelPart3 extends ModelPart {
         ((ModelPartAccessor) this).setChildren(children);
     }
 
-    public void mergePartVariant(int variantNumber, EMFModelPart3 partToMergeIntoThisAsVariant) {
+    public void mergePartVariant(int variantNumber, EMFModelPartMutable partToMergeIntoThisAsVariant) {
         EMFModelState incomingPartState = partToMergeIntoThisAsVariant.getCurrentState();
         allKnownStateVariants.put(variantNumber, incomingPartState);
         for (Map.Entry<String, ModelPart> childEntry :
                 partToMergeIntoThisAsVariant.getChildrenEMF().entrySet()) {
-            if (childEntry.getValue() instanceof EMFModelPart3 p2 && getChildrenEMF().get(childEntry.getKey()) instanceof EMFModelPart3 p3) {
+            if (childEntry.getValue() instanceof EMFModelPartMutable p2 && getChildrenEMF().get(childEntry.getKey()) instanceof EMFModelPartMutable p3) {
                 p3.mergePartVariant(variantNumber, p2);
             } else {
                 Map<String, ModelPart> children = getChildrenEMF();
@@ -269,7 +300,7 @@ public class EMFModelPart3 extends ModelPart {
         for (Map.Entry<String, ModelPart> childEntry :
                 this.getChildrenEMF().entrySet()) {
             if (partToMergeIntoThisAsVanilla.hasChild(childEntry.getKey())
-                    && childEntry.getValue() instanceof EMFModelPart3 p3
+                    && childEntry.getValue() instanceof EMFModelPartMutable p3
             )
                 p3.mergeInVanillaWhereRequired((partToMergeIntoThisAsVanilla.getChild(childEntry.getKey())));
 
@@ -292,7 +323,7 @@ public class EMFModelPart3 extends ModelPart {
             }
             for (ModelPart part :
                     getChildrenEMF().values()) {
-                if (part instanceof EMFModelPart3 p3)
+                if (part instanceof EMFModelPartMutable p3)
                     p3.setVariantStateTo(newVariantState);
             }
         }//else{
@@ -392,12 +423,14 @@ public class EMFModelPart3 extends ModelPart {
             Vertex vertex6 = new Vertex(cubeX2, cubeY, cubeZ2, 0.0f, 8.0f);
             Vertex vertex7 = new Vertex(cubeX2, cubeY2, cubeZ2, 8.0f, 8.0f);
             Vertex vertex8 = new Vertex(cubeX, cubeY2, cubeZ2, 8.0f, 0.0f);
+            @SuppressWarnings("UnnecessaryLocalVariable")
             float j = textureU;
             float k = textureU + sizeZ;
             float l = textureU + sizeZ + sizeX;
             float m = textureU + sizeZ + sizeX + sizeX;
             float n = textureU + sizeZ + sizeX + sizeZ;
             float o = textureU + sizeZ + sizeX + sizeZ + sizeX;
+            @SuppressWarnings("UnnecessaryLocalVariable")
             float p = textureV;
             float q = textureV + sizeZ;
             float r = textureV + sizeZ + sizeY;

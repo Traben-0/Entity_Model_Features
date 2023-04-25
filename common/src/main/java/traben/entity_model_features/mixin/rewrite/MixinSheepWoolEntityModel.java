@@ -10,10 +10,11 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import traben.entity_model_features.utils.EMFManager;
 
 @Mixin(SheepWoolEntityModel.class)
-public class Mixin_2_SheepWoolEntityModel<T extends SheepEntity> {
+public class MixinSheepWoolEntityModel<T extends SheepEntity> {
 
     @Inject(method = "setAngles(Lnet/minecraft/entity/passive/SheepEntity;FFFFF)V", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
     private void emf$setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, CallbackInfo ci) {
-        EMFManager.getInstance().setAnglesOnParts(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+        //todo no texture support cause null vertex lol
+        EMFManager.getInstance().preRenderEMFActions(entity, null, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
     }
 }

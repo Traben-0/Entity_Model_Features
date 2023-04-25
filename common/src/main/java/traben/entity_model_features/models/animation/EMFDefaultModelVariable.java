@@ -3,7 +3,7 @@ package traben.entity_model_features.models.animation;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.models.EMFModelPart3;
+import traben.entity_model_features.models.EMFModelPartMutable;
 
 public enum EMFDefaultModelVariable {
     tx(), ty(), tz(),
@@ -90,7 +90,7 @@ public enum EMFDefaultModelVariable {
         }
     }
 
-    public float getFrom3Model(EMFModelPart3 modelPart, EMFModelPart3 sourceModel) {
+    public float getFrom3Model(EMFModelPartMutable modelPart, EMFModelPartMutable sourceModel) {
         if (modelPart == null) {
             System.out.println("model part was null cannot get its value");
             return 0;
@@ -144,7 +144,7 @@ public enum EMFDefaultModelVariable {
         }
     }
 
-    public void setValueIn3Model(EMFModelPart3 modelPart, float value) {
+    public void setValueIn3Model(EMFModelPartMutable modelPart, float value) {
         if (modelPart == null) {
             System.out.println("model part was null cannot set its value");
             return;
@@ -158,44 +158,21 @@ public enum EMFDefaultModelVariable {
 
         //ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;
         switch (this) {
-            case tx -> {
-                modelPart.pivotX = value + parentModify[0];
-            }
-            case ty -> {
-                modelPart.pivotY = value + parentModify[1];
-            }
-            case tz -> {
-                modelPart.pivotZ = value + parentModify[2];
-            }
-            case rx -> {
-                modelPart.pitch = value;// + defaults.pitch;
-            }
-            case ry -> {
-                modelPart.yaw = value;// + defaults.yaw;
-            }
-            case rz -> {
-                modelPart.roll = value;// + defaults.roll;
-            }
-            case sx -> {
-                modelPart.xScale = value;
-            }
-            case sy -> {
-                modelPart.yScale = value;
-            }
-            case sz -> {
-                modelPart.zScale = value;
-            }
-            case visible -> {
-                modelPart.visible = value == 1;
-                //System.out.println("1");
-            }
-            case visible_boxes -> {//todo check correct
-                modelPart.hidden = value != 1;
+            case tx -> modelPart.pivotX = value + parentModify[0];
+            case ty -> modelPart.pivotY = value + parentModify[1];
+            case tz -> modelPart.pivotZ = value + parentModify[2];
+            case rx -> modelPart.pitch = value;// + defaults.pitch;
+            case ry -> modelPart.yaw = value;// + defaults.yaw;
+            case rz -> modelPart.roll = value;// + defaults.roll;
+            case sx -> modelPart.xScale = value;
+            case sy -> modelPart.yScale = value;
+            case sz -> modelPart.zScale = value;
+            case visible -> //System.out.println("1");
+                    modelPart.visible = value == 1;
+            case visible_boxes -> //todo check correct
                 //System.out.println("2");
-            }
-            default -> {
-                System.out.println("model variable was defaulted cannot set its value");
-            }
+                    modelPart.hidden = value != 1;
+            default -> System.out.println("model variable was defaulted cannot set its value");
         }
     }
 }

@@ -1,6 +1,6 @@
-package traben.entity_model_features.models.animation.EMFAnimationMathParser;
+package traben.entity_model_features.models.animation.animation_math_parser;
 
-import traben.entity_model_features.models.EMFModelPart3;
+import traben.entity_model_features.models.EMFModelPartMutable;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationVariableSuppliers;
 import traben.entity_model_features.models.animation.EMFDefaultModelVariable;
@@ -60,6 +60,14 @@ public class MathVariable extends MathValue implements MathComponent {
             case "anger_time" -> getter::getAngerTime;
             case "max_health" -> getter::getMaxHealth;
             case "id" -> getter::getId;
+
+            case "day_time" -> getter::getDayTime;
+            case "day_count" -> getter::getDayCount;
+            case "rule_index" -> getter::getRuleIndex;
+            case "anger_time_start" -> getter::getAngerTimeStart;
+
+            case "move_forward" -> getter::getMoveForward;
+            case "move_strafing" -> getter::getMoveStrafe;
 
 
 //            case "collisionX" -> getter::getClosestCollisionX;
@@ -136,7 +144,7 @@ public class MathVariable extends MathValue implements MathComponent {
                     String[] split = variableKey.split("\\.");//todo only works with one split point
                     String partName = split[0];
                     EMFDefaultModelVariable partVariable = EMFDefaultModelVariable.get(split[1]);
-                    EMFModelPart3 part = calculationInstance.allPartByName.get(partName);
+                    EMFModelPartMutable part = calculationInstance.allPartByName.get(partName);
                     if (partVariable != null && part != null) {
                         return () -> partVariable.getFrom3Model(part, calculationInstance.partToApplyTo);
                     } else {

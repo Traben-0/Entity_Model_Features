@@ -10,11 +10,8 @@ version = "${version}"
 displayName = "Entity Model Features"
 authors = "Traben"
 description = '''
-Adds support for OptiFine format Custom Entity Models (CEM) resourcepacks.
-
-Forge does not yet have a config screen during the Beta, you will need either fabric or edit the config file yourself
-
-ETF is recommended for full functionality
+This is an expansion of the ETF mod, it adds support for OptiFine format Custom Entity Model (CEM) resource packs.
+While still allowing to you disable this to use a different model mod :)
 '''
 logoFile = "icon.png"
 
@@ -29,6 +26,13 @@ side = "CLIENT"
 modId = "minecraft"
 mandatory = true
 versionRange = "[1.19.2,)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.entity_model_features]]
+modId = "entity_texture_features"
+mandatory = true
+versionRange = "[4.4.0,)"
 ordering = "NONE"
 side = "CLIENT"
 

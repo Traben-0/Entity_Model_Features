@@ -1,4 +1,4 @@
-package traben.entity_model_features.models.animation.EMFAnimationMathParser;
+package traben.entity_model_features.models.animation.animation_math_parser;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import traben.entity_model_features.models.animation.EMFAnimation;
@@ -220,12 +220,15 @@ public class MathExpressionParser extends MathValue implements MathComponent {
             //assess and store content metadata
             if (components.size() == 1) {
                 //this.containsOneComponent = true;
+
+
                 MathComponent comp = components.getLast();
                 if (comp instanceof MathConstant constnt) {
                     if (isNegative) comp = new MathConstant(-constnt.get());
                 } else if (comp instanceof MathValue val) {
                     val.isNegative = isNegative != val.isNegative;
                 }
+
                 optimizedAlternativeToThis = comp;
             } else {
 
@@ -253,7 +256,11 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
 
                 //check if expression only contains constants, if so precalculate and save constant result
-                if (isValid()) {//method call will construct validation variant as
+
+                //this needs to run
+                isValid();
+
+                //if (isValid()) {//method call will construct validation variant as
 
 //this should now auto build an optimzed replacement
 
@@ -274,7 +281,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                        if(!Float.isNaN(constantResult))
 //                            optimizedAlternativeToThis = new MathVariableConstant(constantResult,isNegative);
 //                    }
-                }
+                //}
 
             }
 
@@ -294,14 +301,29 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
     public static MathComponent getOptimizedExpression(String expressionString, boolean isNegative, EMFAnimation calculationInstance, boolean invertBoolean) {
         MathExpressionParser expression = new MathExpressionParser(expressionString, isNegative, calculationInstance, invertBoolean);
-        if (expression.optimizedAlternativeToThis == null)
+        if (expression.optimizedAlternativeToThis == null) {
             if (expression.isValid()) {
                 return expression;
             } else {
                 EMFUtils.EMFModWarn("null animation expression: [" + expressionString + "]");
                 return NULL_EXPRESSION;
             }
-        return expression.optimizedAlternativeToThis;
+        }
+        MathComponent optimized = expression.optimizedAlternativeToThis;
+        //just an anonymous boolean inverter
+        if(expression.wasInvertedBooleanExpression){
+            return new MathValue() {
+                @Override
+                public float get() {
+                    return optimized.get() == 1 ? 0 : 1;
+                }
+                @Override
+                public ValueSupplier getSupplier() {
+                    return null;
+                }
+            };
+        }
+        return optimized;
     }
 
     public boolean isValid() {
@@ -503,7 +525,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
     @Override
     public ValueSupplier getSupplier() {
-        EMFUtils.EMFModWarn("this should not happen this object should have been optimized");
+        //EMFUtils.EMFModWarn("this should not happen this object should have been optimized: supplier");
         return this::get;
     }
 
@@ -533,7 +555,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
     }
 
 
-    private static class CalculationList extends ObjectArrayList<traben.entity_model_features.models.animation.EMFAnimationMathParser.MathComponent> {
+    private static class CalculationList extends ObjectArrayList<traben.entity_model_features.models.animation.animation_math_parser.MathComponent> {
         public CalculationList(CalculationList components) {
             super(components);
         }

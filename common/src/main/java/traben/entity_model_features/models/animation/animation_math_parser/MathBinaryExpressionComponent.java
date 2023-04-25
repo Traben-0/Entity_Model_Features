@@ -1,4 +1,4 @@
-package traben.entity_model_features.models.animation.EMFAnimationMathParser;
+package traben.entity_model_features.models.animation.animation_math_parser;
 
 public class MathBinaryExpressionComponent extends MathValue implements MathComponent {
 
@@ -13,7 +13,7 @@ public class MathBinaryExpressionComponent extends MathValue implements MathComp
         this.first = first;
         this.action = action;
         this.second = second;
-         supplier = action.getBinaryRunnable(first,second);
+        ValueSupplier supplier = action.getBinaryRunnable(first, second);
     }
 
     public static MathComponent getOptimizedExpression(MathComponent first, MathAction action, MathComponent second) {
@@ -29,7 +29,6 @@ public class MathBinaryExpressionComponent extends MathValue implements MathComp
         return component;
     }
 
-    private final ValueSupplier supplier;
     @Override
     public ValueSupplier getSupplier() {
         return null;

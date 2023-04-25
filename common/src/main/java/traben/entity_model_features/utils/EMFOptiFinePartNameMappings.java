@@ -6,7 +6,7 @@ import traben.entity_model_features.config.EMFConfig;
 
 import java.util.*;
 
-public class EMFOptiFineMappings2 {
+public class EMFOptiFinePartNameMappings {
 
     private static final Map<String, PartAndChildName> genericNonPlayerBiped = Map.ofEntries(
             getOptifineMapEntry("head"),

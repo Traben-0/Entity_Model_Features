@@ -3,7 +3,7 @@
   "id": "entity_model_features",
   "version": "${version}",
   "name": "Entity Model Features",
-  "description": "Adds support for OptiFine format Custom Entity Models (CEM) resourcepacks.\nFabric can use YACL for a settings screen during the Beta\nETF is recommended for full functionality",
+  "description": "This is an expansion of the ETF mod, it adds support for OptiFine format Custom Entity Model (CEM) resource packs.\nWhile still allowing you to disable this to use a different model mod :)",
   "authors": [
     {
       "name": "Traben",
@@ -39,7 +39,8 @@
   "depends": {
     "fabricloader": ">=0.14",
     "fabric": "*",
-    "minecraft": "1.19.2"
+    "minecraft": "1.19.2",
+    "entity_texture_features": ">=4.4.0"
   },
   "breaks": {
     "optifabric": "*",
