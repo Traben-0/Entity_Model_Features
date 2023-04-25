@@ -5,9 +5,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.entity.Entity;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.models.EMFModelPart3;
-import traben.entity_model_features.models.animation.EMFAnimationMathParser.MathComponent;
-import traben.entity_model_features.models.animation.EMFAnimationMathParser.MathExpressionParser;
+import traben.entity_model_features.models.EMFModelPartMutable;
+import traben.entity_model_features.models.animation.animation_math_parser.MathComponent;
+import traben.entity_model_features.models.animation.animation_math_parser.MathExpressionParser;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.Random;
@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public class EMFAnimation {
 
-    public final EMFModelPart3 partToApplyTo;
+    public final EMFModelPartMutable partToApplyTo;
     public final EMFDefaultModelVariable variableToChange;
     public final String animKey;
     public final String expressionString;
@@ -26,14 +26,14 @@ public class EMFAnimation {
     private final Random rand = new Random();
     public int indentCount = 0;
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
-    public Object2ObjectOpenHashMap<String, EMFModelPart3> allPartByName = null;
+    public Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartByName = null;
     //private boolean resultIsAngle = false;
     public boolean verboseMode = false;
     // Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
-    public Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
+    public final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
     MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
 
-    public EMFAnimation(EMFModelPart3 partToApplyTo,
+    public EMFAnimation(EMFModelPartMutable partToApplyTo,
                         EMFDefaultModelVariable variableToChange,
                         String animKey,
                         String initialExpression,
@@ -87,7 +87,7 @@ public class EMFAnimation {
 //    }
 
     public void initExpression(Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables,
-                               Object2ObjectOpenHashMap<String, EMFModelPart3> allPartByName) {
+                               Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartByName) {
         this.emfAnimationVariables = emfAnimationVariables;
         this.allPartByName = allPartByName;
         EMFCalculator = MathExpressionParser.getOptimizedExpression(expressionString, false, this);
@@ -149,7 +149,7 @@ public class EMFAnimation {
             EMFUtils.EMFModMessage("animation result: " + animKey + " = " + val);
             return (float) val;
         } else {
-            return (float) EMFCalculator.get();
+            return EMFCalculator.get();
         }
 //        }catch(MathComponent.EMFMathException e){
 //            return Float.NaN;
@@ -182,9 +182,7 @@ public class EMFAnimation {
 
     public void animPrint(String str) {
         StringBuilder indent = new StringBuilder();
-        for (int i = 0; i < indentCount; i++) {
-            indent.append("> ");
-        }
+        indent.append("> ".repeat(Math.max(0, indentCount)));
         System.out.println(indent + str);
     }
 

@@ -22,18 +22,17 @@ Entity Model Features (EMF) is a Fabric, Quilt & Forge mod that adds support for
 
 EMF is in a beta stage, meaning some things will probably work, but is expected for many not to. Before reporting an issue, make sure to read [the roadmap](README.md#Roadmap) and check [the active issues](https://github.com/Traben-0/Entity_Model_Features/issues). If your issue is mentioned there, don't report it and wait for it to be implemented. If not, report it in the [Issues section](https://github.com/Traben-0/Entity_Model_Features/issues/new/choose).
 
-## Recommended mods
+## Mod requirements
 Please also install the below mods if you can, the obvious ones such as Sodium are not mentioned.
 
 It should also go without saying EMF is incompatible with dorianpb's CEM and OptiFabric.
-#### highly recommended
+#### Required
 - [Entity Texture Features (ETF)](https://modrinth.com/mod/entitytexturefeatures): 
   EMF uses several features from my other mod ETF so it is recommended *(and will one day soon be mandatory for some things I have planned)*
 
+#### Highly recommended
 - [Entity Culling](https://modrinth.com/mod/entityculling): This mod does wonders for reducing entity rendering lag, doing even more than Sodium's included entity culling. I cannot recommend this enough.
 
-#### Optional
-- [YetAnotherConfigLib (YACL)](https://modrinth.com/mod/yacl): EMF fabric uses YACL to create a settings screen for the time being, eventually it'll copy the ETF config screens to display on forge and fabric
 
 ## Fresh Animations?
 
@@ -53,8 +52,8 @@ Everything else in FA works!
 - [X] Model animations
 - [X] Random models
 - [ ] Re-add model overrides as the beta currently injects into the vanilla models *(this will likely substantially fix many reported compatibility issues)*
-- [ ] Re-add texture overrides
-- [ ] Support for Wither, Ender Dragon, block entity, minecart and boat models
+- [X] Re-add texture overrides
+- [ ] Support for block entity, minecart and boat models
 - [ ] Support modded mob `.jem` models
 - [ ] Add an optional EMF/CEM overriding directory for models to account for EMF differences
 - [ ] Fix `attach = true` cases
@@ -96,7 +95,7 @@ For all other packs you might find one mod or the other works best for the time 
 
 > **Q:** Backports?
 
-**A:** Once EMF reaches a stable state, backports will then be made regularly, to still popular Minecraft versions such as 1.16.
+**A:** Once EMF reaches a stable state, backports will then be made regularly, to still popular Minecraft versions such as 1.16 & 1.18.
 
 ## License
 

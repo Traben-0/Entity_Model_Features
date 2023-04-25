@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[44,)"
+loaderVersion = "[45,)"
 issueTrackerURL = "https://github.com/Traben-0/Entity_Texture_Features/issues"
 license = "LGPL-3.0"
 showAsResourcePack = false
@@ -10,25 +10,29 @@ version = "${version}"
 displayName = "Entity Model Features"
 authors = "Traben"
 description = '''
-Adds support for OptiFine format Custom Entity Models (CEM) resourcepacks.
-
-Forge does not yet have a config screen during the Beta, you will need either fabric or edit the config file yourself
-
-ETF is recommended for full functionality
+This is an expansion of the ETF mod, it adds support for OptiFine format Custom Entity Model (CEM) resource packs.
+While still allowing to you disable this to use a different model mod :)
 '''
 logoFile = "icon.png"
 
 [[dependencies.entity_model_features]]
 modId = "forge"
 mandatory = true
-versionRange = "[44,)"
+versionRange = "[45,)"
 ordering = "NONE"
 side = "CLIENT"
 
 [[dependencies.entity_model_features]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.3,)"
+versionRange = "[1.19.4,)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.entity_model_features]]
+modId = "entity_texture_features"
+mandatory = true
+versionRange = "[4.4.0,)"
 ordering = "NONE"
 side = "CLIENT"
 

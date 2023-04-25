@@ -1,4 +1,4 @@
-package traben.entity_model_features.models.animation.EMFAnimationMathParser;
+package traben.entity_model_features.models.animation.animation_math_parser;
 
 public interface MathComponent {
 
@@ -12,7 +12,7 @@ public interface MathComponent {
 
     class EMFMathException extends Exception {
 
-        String errorMsg;
+        final String errorMsg;
 
         public EMFMathException(String s) {
             errorMsg = s;
