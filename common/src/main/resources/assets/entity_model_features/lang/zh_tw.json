@@ -8,7 +8,7 @@
   "entity_model_features.config.optimizations.tooltip": "與動畫優化相關的設定",
   "entity_model_features.config.debug": "除錯",
   "entity_model_features.config.debug.tooltip": "除錯選項，有助於找出一些問題",
-  "entity_model_features.config.green_render": "使自定模型呈綠色",
+  "entity_model_features.config.green_render": "讓自訂模型呈現綠色",
   "entity_model_features.config.green_render.tooltip": "使 CEM 實體呈現綠色\n以區分它們與原版模型的區別\n並檢查它們是否正確載入",
   "entity_model_features.config.log_models": "記錄模型建立資訊",
   "entity_model_features.config.log_models.tooltip": "將模型建立除錯資料輸出到紀錄檔中",
