@@ -70,7 +70,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         put("stray2", "stray_inner_armor");
         put("stray3", "stray_outer_armor");
         put("stray4", "stray_outer");
-        put("shulker2", "shulker_bullet");
+        put("shulker2", "shulker_box");
         put("husk2", "husk_inner_armor");
         put("husk3", "husk_outer_armor");
         put("player_slim2", "player_slim_inner_armor");
@@ -161,6 +161,8 @@ public class EMFManager {//singleton for data holding and resetting needs
         } else if (entity instanceof EnderDragonEntity) {
             forReturn = "dragon";
         }
+
+
         return forReturn;
     }
 
@@ -220,6 +222,8 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
         return null;
     }
+
+
     private boolean traderLlamaHappened = false;
     public ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
 
@@ -229,6 +233,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         String mobModelName = layer.getId().getPath();
         if (mobModelName.contains("pufferfish"))
             mobModelName = mobModelName.replace("pufferfish", "puffer_fish");
+
 
         switch (mobModelName){
             case "tropical_fish_large" ->{
@@ -254,6 +259,22 @@ public class EMFManager {//singleton for data holding and resetting needs
                 }
             }
             case "ender_dragon" -> mobModelName = "dragon";
+            case "dragon_skull" -> mobModelName = "head_dragon";
+            case "player_head" -> mobModelName = "head_player";
+            case "skeleton_skull" -> mobModelName = "head_skeleton";
+            case "wither_skeleton_skull" -> mobModelName = "head_wither_skeleton";
+            case "zombie_head" -> mobModelName = "head_zombie";
+            case "creeper_head" -> mobModelName = "head_creeper";
+            case "piglin_head" -> mobModelName = "head_piglin";
+//            case "double_chest_left" -> {
+//                mobModelName = "chest_large";
+//                isChestLeft = true;
+//            }
+//            case"double_chest_right" -> {
+//                mobModelName = "chest_large";
+//                isChestLeft = false;
+//            }
+
             default -> {
                 if (cache_AmountOfMobNameAlreadyDone.containsKey(mobModelName)) {
                     int amount = cache_AmountOfMobNameAlreadyDone.getInt(mobModelName);

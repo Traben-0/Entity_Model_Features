@@ -229,8 +229,35 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("leg3", "right_front_leg"),
                     getOptifineMapEntry("leg4", "left_front_leg")
             );
-            case "wither_skull", "head_zombie", "head_wither_skeleton", "head_skeleton", "head_player" ->
-                    Map.ofEntries(getOptifineMapEntry("head"));
+            case "shulker_bullet"->
+                    Map.ofEntries(getOptifineMapEntry("bullet","main"));
+            case "llama_spit"->
+                    Map.ofEntries(getOptifineMapEntry("body","main"));
+            case "wither_skull", "head_zombie", "head_wither_skeleton", "head_skeleton", "head_player","head_creeper" ->
+                    Map.ofEntries(getOptifineMapEntry("head","head","hat"));
+            case "head_piglin" -> Map.ofEntries(
+                    getOptifineMapEntry("head","head",List.of("hat","left_ear","right_ear"))
+            );
+            case "head_dragon" -> Map.ofEntries(
+                    getOptifineMapEntry("head","head",List.of("jaw","upper_lip")),
+                    getOptifineMapEntry("jaw")
+            );
+
+            case "chest" -> Map.ofEntries(//lid, base, knob
+                    getOptifineMapEntry("lid"),
+                    getOptifineMapEntry("base","bottom"),
+                    getOptifineMapEntry("knob","lock")
+            );
+            //lid_left, base_left, knob_left, lid_right, base_right, knob_right
+            case "chest_large" -> Map.ofEntries(
+                    getOptifineMapEntry("lid_left","lid"),
+                    getOptifineMapEntry("base_left","bottom"),
+                    getOptifineMapEntry("knob_left","lock"),
+
+                    getOptifineMapEntry("lid_right","lid"),
+                    getOptifineMapEntry("base_right","bottom"),
+                    getOptifineMapEntry("knob_right","lock")
+            );
 
             case "horse", "horse_armor", "skeleton_horse", "zombie_horse" -> genericHorse;
             case "donkey", "mule" -> new HashMap<String, PartAndChildName>(genericHorse) {{
@@ -643,7 +670,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("mole")
             );
             //# wither                   body1 ... body3, head1 ... head3
-            case "wither" -> Map.ofEntries(
+            case "wither","wither_armor" -> Map.ofEntries(
                     getOptifineMapEntry("body1", "shoulders"),
                     getOptifineMapEntry("body2", "ribcage"),
                     getOptifineMapEntry("body3", "tail"),
@@ -680,6 +707,8 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("back_right_foot", "right_hind_foot")
             );
             case "player", "player_slim" -> genericPlayerBiped;
+
+
 
             default -> {
                 //throw new RuntimeException("EMF doesn't map: "+mobName);
