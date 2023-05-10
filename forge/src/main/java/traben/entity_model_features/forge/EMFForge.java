@@ -26,7 +26,7 @@ public class EMFForge {
             try {
                 ModLoadingContext.get().registerExtensionPoint(
                         ConfigScreenHandler.ConfigScreenFactory.class,
-                        () -> new ConfigScreenHandler.ConfigScreenFactory((minecraftClient, screen) -> new EMFConfigMainScreen(screen)));
+                        () -> new ConfigScreenHandler.ConfigScreenFactory((minecraftClient, screen) ->  new EMFConfigMainScreen(screen)));
             } catch (NoClassDefFoundError e) {
                 System.out.println("[Entity Model Features]: Mod config screen broken, download latest forge version");
             }

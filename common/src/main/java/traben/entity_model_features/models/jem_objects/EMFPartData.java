@@ -173,11 +173,14 @@ public class EMFPartData {
             //sendToFirstChild = new float[]{translateX, translateY, translateZ};
             nextModify = new float[]{translate[0], translate[1], translate[2]};
             if (parentCount == 0) {//todo there is more to do here with saddle fixing possibly
+
                 topLevelModel = true;
                 translate[0] = -translateX;
                 translate[1] = 24 - translateY;
                 translate[2] = -translateZ;//todo this negative might be an inverse due to FA's xy inverting :/
+
             }else{
+
                 topLevelModel = false;
                 underATopLevelModel = parentCount == 1;
                 translate[0] = -translateX + (invX ? -modifyyTranslates[0] : modifyyTranslates[0]);
@@ -190,16 +193,25 @@ public class EMFPartData {
 //            pivotZ = translateZ;//0;
         } else //if(parentCount == 1 )
         {
-//////////////            translate[0] = translateX - modifyyTranslates[0];
-//////////////            translate[1] = translateY - modifyyTranslates[1];
-//////////////            translate[2] = translateZ + modifyyTranslates[2];
-            translate[0] = translateX + (invX ? -modifyyTranslates[0] : modifyyTranslates[0]);
-            translate[1] = translateY + (invY ? -modifyyTranslates[1] : modifyyTranslates[1]);
-            translate[2] = translateZ + (invZ ? -modifyyTranslates[2] : modifyyTranslates[2]);
 
-            underATopLevelModel = parentCount == 1;
-            parentModified = new float[]{invX ? -modifyyTranslates[0] : modifyyTranslates[0], (invY ? -modifyyTranslates[1] : modifyyTranslates[1]), invZ ? -modifyyTranslates[2] : modifyyTranslates[2]};
-//            float parent0sTX = fromFirstChild[0];
+            if(attach){
+                translate[0] = 0;
+                translate[1] = 0;
+                translate[2] = 0;
+                underATopLevelModel = parentCount == 1;
+                //parentModified = new float[]{invX ? -modifyyTranslates[0] : modifyyTranslates[0], (invY ? -modifyyTranslates[1] : modifyyTranslates[1]), invZ ? -modifyyTranslates[2] : modifyyTranslates[2]};
+
+            }else {
+                translate[0] = translateX + (invX ? -modifyyTranslates[0] : modifyyTranslates[0]);
+                translate[1] = translateY + (invY ? -modifyyTranslates[1] : modifyyTranslates[1]);
+                translate[2] = translateZ + (invZ ? -modifyyTranslates[2] : modifyyTranslates[2]);
+                underATopLevelModel = parentCount == 1;
+                parentModified = new float[]{invX ? -modifyyTranslates[0] : modifyyTranslates[0], (invY ? -modifyyTranslates[1] : modifyyTranslates[1]), invZ ? -modifyyTranslates[2] : modifyyTranslates[2]};
+
+            }
+
+
+     //            float parent0sTX = fromFirstChild[0];
 //            float parent0sTY = fromFirstChild[1];
 //            float parent0sTZ = fromFirstChild[2];
 //            pivotX = parent0sTX + translateX;

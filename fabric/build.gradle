@@ -37,7 +37,7 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
-    modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+   // modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
 
 //    implementation("org.apache.commons:commons-math3:3.0")
