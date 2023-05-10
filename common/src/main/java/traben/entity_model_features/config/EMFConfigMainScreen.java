@@ -2,27 +2,20 @@ package traben.entity_model_features.config;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import traben.entity_texture_features.ETFVersionDifferenceHandler;
 import traben.entity_texture_features.config.screens.ETFConfigScreen;
-import traben.entity_texture_features.mixin.accessor.TooltipAccessor;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class EMFConfigMainScreen extends ETFConfigScreen {
 
-    //TODO should be in main config class but forgot to make it public... do that
-    final Screen parent;
+
 
     public EMFConfigMainScreen(Screen parent) {
         super(Text.translatable("entity_model_features.title"),parent);
-        this.parent = parent;
+       // this.parent = parent;
         tempConfig = EMFConfig.copyFrom(EMFConfig.getConfig());
     }
 
@@ -60,7 +53,7 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
 
 
 
-        this.addDrawableChild(getEMFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.substitute_vanilla").getString() +
                         ": " + (tempConfig.attemptToCopyVanillaModelIntoMissingModelPart ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
                 (button) -> {
@@ -71,7 +64,7 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
                 Text.translatable("entity_model_features.config.substitute_vanilla.tooltip")
         ));
 
-        this.addDrawableChild(getEMFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.green_render").getString() +
                         ": " + (tempConfig.renderCustomModelsGreen ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
                 (button) -> {
@@ -82,7 +75,7 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
                 Text.translatable("entity_model_features.config.green_render.tooltip")
         ));
 
-        this.addDrawableChild(getEMFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.log_models").getString() +
                         ": " + (tempConfig.printModelCreationInfoToLog ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
                 (button) -> {
@@ -93,7 +86,7 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
                 Text.translatable("entity_model_features.config.log_models.tooltip")
         ));
 
-        this.addDrawableChild(getEMFButton((int) (this.width * 0.2), (int) (this.height * 0.5), (int) (this.width * 0.6), 20,
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.5), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.log_math").getString() +
                         ": " + (tempConfig.printAllMaths ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
                 (button) -> {
@@ -104,7 +97,7 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
                 Text.translatable("entity_model_features.config.log_math.tooltip")
         ));
 
-        this.addDrawableChild(getEMFButton((int) (this.width * 0.2), (int) (this.height * 0.6), (int) (this.width * 0.6), 20,
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.6), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.vanilla_render").getString() +
                         ": " + (tempConfig.vanillaModelRenderMode.asText()).getString()),
                 (button) -> {
@@ -117,37 +110,4 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
     }
 
 
-
-    //TODO copy of etf button cause i forgot to make it public... do that
-    ButtonWidget getEMFButton(int x, int y, int width, int height, Text buttonText, ButtonWidget.PressAction onPress, Text toolTipText) {
-        int nudgeLeftEdge;
-        if (width > 384) {
-            nudgeLeftEdge = (width - 384) / 2;
-            width = 384;
-        } else {
-            nudgeLeftEdge = 0;
-        }
-
-        boolean tooltipIsEmpty = toolTipText.getString().isBlank();
-        if (tooltipIsEmpty) {
-            return ButtonWidget.builder(buttonText, onPress).dimensions(x + nudgeLeftEdge, y, width, height).build();
-        } else {
-            Tooltip bob = Tooltip.of(toolTipText);
-            if (!ETFVersionDifferenceHandler.isThisModLoaded("adaptive-tooltips")) {
-                String[] strings = toolTipText.getString().split("\n");
-                List<OrderedText> texts = new ArrayList();
-                String[] var13 = strings;
-                int var14 = strings.length;
-
-                for(int var15 = 0; var15 < var14; ++var15) {
-                    String str = var13[var15];
-                    texts.add(Text.of(str).asOrderedText());
-                }
-
-                ((TooltipAccessor)bob).setLines(texts);
-            }
-
-            return ButtonWidget.builder(buttonText, onPress).dimensions(x + nudgeLeftEdge, y, width, height).tooltip(bob).build();
-        }
-    }
 }
