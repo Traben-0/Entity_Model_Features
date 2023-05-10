@@ -1,4 +1,12 @@
 
+0.2.9
+- emf/cem/ override directory added, .jem files here will be used before optifine/cem/ is checked
+- optifine/cem/<entity_name>/... directory support added
+- .jpm positioning vastly improved, now Fresh Animations official addon pack fully works, some others don't fully work
+- now requires ETF 4.4.4 or newer
+- enabled some block entities for testing (mob heads,shulker boxes, and single chests) they don't animate
+- mapped some other optifine name differences to fix these models: llama spit, shulker bullets
+
 
 0.2.8
 - made ETF a required dependency *(Consider EMF now as an ETF addon, allowing you to still use other model mods without losing ETF)*

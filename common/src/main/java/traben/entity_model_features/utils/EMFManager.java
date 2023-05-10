@@ -70,7 +70,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         put("stray2", "stray_inner_armor");
         put("stray3", "stray_outer_armor");
         put("stray4", "stray_outer");
-        put("shulker2", "shulker_bullet");
+        put("shulker2", "shulker_box");
         put("husk2", "husk_inner_armor");
         put("husk3", "husk_outer_armor");
         put("player_slim2", "player_slim_inner_armor");
@@ -138,6 +138,16 @@ public class EMFManager {//singleton for data holding and resetting needs
 //        if (entity instanceof PlayerEntity plyr && plyr.thin ((PlayerEntityModelAccessor) plyr).isThinArms()) {
 //            forReturn = entityTypeBaseName + "_slim";
 //        } else
+
+
+        if(forReturn.contains(":")){
+            forReturn = "modded/"+forReturn.replaceFirst(":","/");
+//            String[] split = forReturn.split(":");
+//            if(split.length == 2 && !split[0].isBlank() && !split[1].isBlank())
+//                forReturn = "modded/"+split[0]+"/"+split[1];
+        }
+
+
         if (entity instanceof PufferfishEntity puffer) {
             forReturn = "puffer_fish_" + switch (puffer.getPuffState()) {
                 case 0 -> "small";
@@ -151,11 +161,31 @@ public class EMFManager {//singleton for data holding and resetting needs
         } else if (entity instanceof EnderDragonEntity) {
             forReturn = "dragon";
         }
+
+
         return forReturn;
     }
 
+
     @Nullable
-    public static EMFJemData getJemData(String pathOfJem) {
+    public static EMFJemData getJemData(String jemFileName,String rawMobName) {
+
+        //try emf folder
+        EMFJemData emfJemData = getJemDataWithDirectory("emf/cem/"+jemFileName);
+        if (emfJemData != null) return emfJemData;
+        emfJemData = getJemDataWithDirectory("emf/cem/"+rawMobName+"/"+jemFileName);
+        if (emfJemData != null) return emfJemData;
+
+        //try read optifine jems
+        emfJemData = getJemDataWithDirectory("optifine/cem/"+jemFileName);
+        if (emfJemData != null) return emfJemData;
+        emfJemData = getJemDataWithDirectory("optifine/cem/"+rawMobName+"/"+jemFileName);
+        return emfJemData;
+
+    }
+
+    @Nullable
+    private static EMFJemData getJemDataWithDirectory(String pathOfJem) {
         //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
         if (EMFManager.getInstance().cache_JemDataByFileName.containsKey(pathOfJem)) {
             return EMFManager.getInstance().cache_JemDataByFileName.get(pathOfJem);
@@ -164,9 +194,11 @@ public class EMFManager {//singleton for data holding and resetting needs
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
             if (res.isEmpty()) {
                 if (EMFConfig.getConfig().printModelCreationInfoToLog)
-                    EMFUtils.EMFModMessage("jem failed " + pathOfJem + " does not exist", false);
+                    EMFUtils.EMFModMessage(".jem read failed " + pathOfJem + " does not exist", false);
                 return null;
             }
+            if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                EMFUtils.EMFModMessage(".jem read success " + pathOfJem + " exists", false);
             Resource jemResource = res.get();
             //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -183,13 +215,15 @@ public class EMFManager {//singleton for data holding and resetting needs
             return jem;
             //}
         } catch (InvalidIdentifierException | FileNotFoundException e) {
-            if (EMFConfig.getConfig().printModelCreationInfoToLog) EMFUtils.EMFModMessage("jem failed " + e, false);
+            if (EMFConfig.getConfig().printModelCreationInfoToLog) EMFUtils.EMFModMessage(".jem failed to load " + e, false);
         } catch (Exception e) {
-            if (EMFConfig.getConfig().printModelCreationInfoToLog) EMFUtils.EMFModMessage("jem failed " + e, false);
+            EMFUtils.EMFModMessage(".jem failed to load " + e, false);
             e.printStackTrace();
         }
         return null;
     }
+
+
     private boolean traderLlamaHappened = false;
     public ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
 
@@ -199,6 +233,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         String mobModelName = layer.getId().getPath();
         if (mobModelName.contains("pufferfish"))
             mobModelName = mobModelName.replace("pufferfish", "puffer_fish");
+
 
         switch (mobModelName){
             case "tropical_fish_large" ->{
@@ -224,6 +259,22 @@ public class EMFManager {//singleton for data holding and resetting needs
                 }
             }
             case "ender_dragon" -> mobModelName = "dragon";
+            case "dragon_skull" -> mobModelName = "head_dragon";
+            case "player_head" -> mobModelName = "head_player";
+            case "skeleton_skull" -> mobModelName = "head_skeleton";
+            case "wither_skeleton_skull" -> mobModelName = "head_wither_skeleton";
+            case "zombie_head" -> mobModelName = "head_zombie";
+            case "creeper_head" -> mobModelName = "head_creeper";
+            case "piglin_head" -> mobModelName = "head_piglin";
+//            case "double_chest_left" -> {
+//                mobModelName = "chest_large";
+//                isChestLeft = true;
+//            }
+//            case"double_chest_right" -> {
+//                mobModelName = "chest_large";
+//                isChestLeft = false;
+//            }
+
             default -> {
                 if (cache_AmountOfMobNameAlreadyDone.containsKey(mobModelName)) {
                     int amount = cache_AmountOfMobNameAlreadyDone.getInt(mobModelName);
@@ -248,8 +299,8 @@ public class EMFManager {//singleton for data holding and resetting needs
         ///jem name is final and correct from here
 
         if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobModelName + ".jem");
-        String jemName = "optifine/cem/" + mobModelName + ".jem";//todo mod namespaces
-        EMFJemData jemData = getJemData(jemName);
+        String jemName = /*"optifine/cem/" +*/ mobModelName + ".jem";//todo mod namespaces
+        EMFJemData jemData = getJemData(jemName,mobModelName);
         if (jemData != null) {
             if (!EMFOptiFinePartNameMappings.getMapOf(mobModelName).isEmpty()) {
                 EMFModelPartMutable part = getEMFRootModelFromJem(jemData, root);
@@ -506,9 +557,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                         //System.out.println(" > apply model variant: "+suffix +", to "+mobName);
                         if (!cannonicalRoot.allKnownStateVariants.containsKey(suffix)) {
 
-                            String jemName = "optifine/cem/" + mobName + suffix + ".jem";//todo mod namespaces
+                            String jemName = /*"optifine/cem/" +*/ mobName + suffix + ".jem";//todo mod namespaces
                             System.out.println(" >> first time load of : " + jemName);
-                            EMFJemData jemData = getJemData(jemName);
+                            EMFJemData jemData = getJemData(jemName,mobName);
                             if (jemData != null) {
                                 ModelPart vanillaRoot = cache_JemNameToVanillaModelRoot.get(mobName);
                                 if (vanillaRoot != null) {
@@ -606,4 +657,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             return variableSuppliers.entity.age + variableSuppliers.tickDelta;//(System.currentTimeMillis()/50d+ tickDelta);
         }
     }
+
+
+
+
 }
