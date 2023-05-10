@@ -138,6 +138,16 @@ public class EMFManager {//singleton for data holding and resetting needs
 //        if (entity instanceof PlayerEntity plyr && plyr.thin ((PlayerEntityModelAccessor) plyr).isThinArms()) {
 //            forReturn = entityTypeBaseName + "_slim";
 //        } else
+
+
+        if(forReturn.contains(":")){
+            forReturn = "modded/"+forReturn.replaceFirst(":","/");
+//            String[] split = forReturn.split(":");
+//            if(split.length == 2 && !split[0].isBlank() && !split[1].isBlank())
+//                forReturn = "modded/"+split[0]+"/"+split[1];
+        }
+
+
         if (entity instanceof PufferfishEntity puffer) {
             forReturn = "puffer_fish_" + switch (puffer.getPuffState()) {
                 case 0 -> "small";
@@ -154,8 +164,26 @@ public class EMFManager {//singleton for data holding and resetting needs
         return forReturn;
     }
 
+
     @Nullable
-    public static EMFJemData getJemData(String pathOfJem) {
+    public static EMFJemData getJemData(String jemFileName,String rawMobName) {
+
+        //try emf folder
+        EMFJemData emfJemData = getJemDataWithDirectory("emf/cem/"+jemFileName);
+        if (emfJemData != null) return emfJemData;
+        emfJemData = getJemDataWithDirectory("emf/cem/"+rawMobName+"/"+jemFileName);
+        if (emfJemData != null) return emfJemData;
+
+        //try read optifine jems
+        emfJemData = getJemDataWithDirectory("optifine/cem/"+jemFileName);
+        if (emfJemData != null) return emfJemData;
+        emfJemData = getJemDataWithDirectory("optifine/cem/"+rawMobName+"/"+jemFileName);
+        return emfJemData;
+
+    }
+
+    @Nullable
+    private static EMFJemData getJemDataWithDirectory(String pathOfJem) {
         //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
         if (EMFManager.getInstance().cache_JemDataByFileName.containsKey(pathOfJem)) {
             return EMFManager.getInstance().cache_JemDataByFileName.get(pathOfJem);
@@ -164,9 +192,11 @@ public class EMFManager {//singleton for data holding and resetting needs
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
             if (res.isEmpty()) {
                 if (EMFConfig.getConfig().printModelCreationInfoToLog)
-                    EMFUtils.EMFModMessage("jem failed " + pathOfJem + " does not exist", false);
+                    EMFUtils.EMFModMessage(".jem read failed " + pathOfJem + " does not exist", false);
                 return null;
             }
+            if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                EMFUtils.EMFModMessage(".jem read success " + pathOfJem + " exists", false);
             Resource jemResource = res.get();
             //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -183,9 +213,9 @@ public class EMFManager {//singleton for data holding and resetting needs
             return jem;
             //}
         } catch (InvalidIdentifierException | FileNotFoundException e) {
-            if (EMFConfig.getConfig().printModelCreationInfoToLog) EMFUtils.EMFModMessage("jem failed " + e, false);
+            if (EMFConfig.getConfig().printModelCreationInfoToLog) EMFUtils.EMFModMessage(".jem failed to load " + e, false);
         } catch (Exception e) {
-            if (EMFConfig.getConfig().printModelCreationInfoToLog) EMFUtils.EMFModMessage("jem failed " + e, false);
+            EMFUtils.EMFModMessage(".jem failed to load " + e, false);
             e.printStackTrace();
         }
         return null;
@@ -248,8 +278,8 @@ public class EMFManager {//singleton for data holding and resetting needs
         ///jem name is final and correct from here
 
         if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobModelName + ".jem");
-        String jemName = "optifine/cem/" + mobModelName + ".jem";//todo mod namespaces
-        EMFJemData jemData = getJemData(jemName);
+        String jemName = /*"optifine/cem/" +*/ mobModelName + ".jem";//todo mod namespaces
+        EMFJemData jemData = getJemData(jemName,mobModelName);
         if (jemData != null) {
             if (!EMFOptiFinePartNameMappings.getMapOf(mobModelName).isEmpty()) {
                 EMFModelPartMutable part = getEMFRootModelFromJem(jemData, root);
@@ -506,9 +536,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                         //System.out.println(" > apply model variant: "+suffix +", to "+mobName);
                         if (!cannonicalRoot.allKnownStateVariants.containsKey(suffix)) {
 
-                            String jemName = "optifine/cem/" + mobName + suffix + ".jem";//todo mod namespaces
+                            String jemName = /*"optifine/cem/" +*/ mobName + suffix + ".jem";//todo mod namespaces
                             System.out.println(" >> first time load of : " + jemName);
-                            EMFJemData jemData = getJemData(jemName);
+                            EMFJemData jemData = getJemData(jemName,mobName);
                             if (jemData != null) {
                                 ModelPart vanillaRoot = cache_JemNameToVanillaModelRoot.get(mobName);
                                 if (vanillaRoot != null) {
@@ -606,4 +636,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             return variableSuppliers.entity.age + variableSuppliers.tickDelta;//(System.currentTimeMillis()/50d+ tickDelta);
         }
     }
+
+
+
+
 }
