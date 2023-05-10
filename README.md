@@ -40,10 +40,6 @@ It should also go without saying EMF is incompatible with dorianpb's CEM and Opt
 
 Since EMF is in beta, not everything works. However, the brilliant [Fresh Animations](https://www.planetminecraft.com/texture-pack/fresh-animations-v1-0/) resource pack works out of the box, as it was the primary focus for this mod, no fork/pack editing required.<br />
 
-The addon packs for FA 1.8 is still quite broken with EMF in its current state:<br />
-
-Everything else in FA works!
-
 ## Roadmap
 
 *(these are roughly in order but are all subject to change at any time during development)*
@@ -55,9 +51,9 @@ Everything else in FA works!
 - [X] Re-add texture overrides
 - [ ] Support for block entity, minecart and boat models
 - [ ] Support modded mob `.jem` models
-- [ ] Add an optional EMF/CEM overriding directory for models to account for EMF differences
+- [X] Add an optional EMF/CEM overriding directory for models to account for EMF differences
 - [ ] Fix `attach = true` cases
-- [ ] Position `.jpm`s correctly
+- [X] Position `.jpm`s correctly
 - [ ] Fix remaining model issues
 - [ ] Sprite support
 - [ ] Full parity with OptiFine CEM
