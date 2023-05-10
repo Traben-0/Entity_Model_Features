@@ -12,6 +12,10 @@
   "entity_model_features.config.green_render.tooltip": "Faz com que criaturas CEM fiquem verdes\n para distinguí-las dos modelos padrão\npara checar se estão carregando corretamente",
   "entity_model_features.config.log_models": "Registrar informações de construção do modelo",
   "entity_model_features.config.log_models.tooltip": "Registra os dados de depuração da criação dos modelos",
+  "entity_model_features.config.vanilla_render.normal": "normal",
+  "entity_model_features.config.vanilla_render.offset": "deslocado",
+  "entity_model_features.config.vanilla_render": "Modo de exibição padrão",
+  "entity_model_features.config.vanilla_render.tooltip": "Tenta renderizar o modelo padrão com o personalizado\npara comparação, não será animado e pode ficar estranho",
   "entity_model_features.config.log_math": "Registrar cálculos das animações",
   "entity_model_features.config.log_math.tooltip": "Registra os dados de depuração da matemática de animação\nATENÇÃO: O DESEMPENHO SERÁ AFETADO!"
 }
