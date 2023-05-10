@@ -96,8 +96,13 @@ public class EMFJemData {
             if (model.part != null) {
                 for (EMFPartData partData :
                         models) {
-                    if (partData.part.equals(model.part)) {
+                    if (partData.id.equals(model.part)) {
                         partData.submodels.add(model);//todo check if needs to be merge or just child add :/
+//                        partData.submodels.addAll(model.submodels);
+//                        List<EMFBoxData> boxes = new ArrayList<>(List.of(partData.boxes));
+//                        boxes.addAll(List.of(model.boxes));
+//                        partData.boxes = boxes.toArray(new EMFBoxData[]{});
+//                        partData.texture = model.texture;
                         model.part = null;
                     }
                 }
