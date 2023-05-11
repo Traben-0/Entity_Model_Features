@@ -7,21 +7,21 @@ import traben.entity_model_features.models.EMFModelPartMutable;
 
 public enum EMFDefaultModelVariable {
     tx(), ty(), tz(),
-    rx(true), ry(true), rz(true),
+    rx(), ry(), rz(),
     sx(), sy(), sz(),
     visible(),
     visible_boxes(),
     CUSTOM();
 
-    public final boolean isRotation;
+    //public final boolean isRotation;
 
-    EMFDefaultModelVariable(boolean val) {
-        isRotation = val;
-    }
+//   EMFDefaultModelVariable(boolean val) {
+//      //  isRotation = val;
+//    }
 
-    EMFDefaultModelVariable() {
-        isRotation = false;
-    }
+//    EMFDefaultModelVariable() {
+//      //  isRotation = false;
+//    }
 
     //nessecary as default valueOf doesnt work correctly
     @Nullable
@@ -90,7 +90,9 @@ public enum EMFDefaultModelVariable {
         }
     }
 
-    public float getFrom3Model(EMFModelPartMutable modelPart, EMFModelPartMutable sourceModel) {
+    public float getFromMutableModel(EMFModelPartMutable modelPart//,
+                                     //EMFModelPartMutable sourceModel
+    ) {
         if (modelPart == null) {
             System.out.println("model part was null cannot get its value");
             return 0;
@@ -144,7 +146,7 @@ public enum EMFDefaultModelVariable {
         }
     }
 
-    public void setValueIn3Model(EMFModelPartMutable modelPart, float value) {
+    public void setValueInMutableModel(EMFModelPartMutable modelPart, float value) {
         if (modelPart == null) {
             System.out.println("model part was null cannot set its value");
             return;

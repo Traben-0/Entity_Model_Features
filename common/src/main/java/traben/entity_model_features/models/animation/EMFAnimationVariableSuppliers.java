@@ -25,12 +25,12 @@ public class EMFAnimationVariableSuppliers {
     //public static long lastFrameTime = System.currentTimeMillis();
    // private final Object2LongOpenHashMap<UUID> lastFrameTimeMap = new Object2LongOpenHashMap<>();
     public Entity entity = null;
-    public float limbAngle = 0;
-    public float limbDistance = 0;
-    public float animationProgress = 0;
-    public float headYaw = 0;
-    public float headPitch = 0;
-    public float tickDelta = 0;
+    public float limbAngle = Float.MIN_VALUE;
+    public float limbDistance = Float.MIN_VALUE;
+    public float animationProgress = Float.MIN_VALUE;
+    public float headYaw = Float.MIN_VALUE;
+    public float headPitch = Float.MIN_VALUE;
+    public float tickDelta = Float.MIN_VALUE;
 
     //TODO
     public float getRuleIndex(){
@@ -378,7 +378,7 @@ public class EMFAnimationVariableSuppliers {
     }
 
     public float getLimbDistance() {
-        return limbDistance;
+        return limbDistance == Float.MIN_VALUE? 0 : limbDistance;
     }
 
     public float getHeadYaw() {

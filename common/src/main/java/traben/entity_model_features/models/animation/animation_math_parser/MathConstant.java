@@ -8,15 +8,15 @@ public class MathConstant extends MathValue implements MathComponent {
         //super(isNegative);
 
         hardCodedValue = isNegative ? -number : number;
-        reciprocal = 1/hardCodedValue;
+        //reciprocal = 1/hardCodedValue;
     }
 
-    public float reciprocal;
+    //public float reciprocal;
 
 
     public MathConstant(float number) {
         hardCodedValue = number;
-        reciprocal = 1/ hardCodedValue;
+        //reciprocal = 1/ hardCodedValue;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class MathConstant extends MathValue implements MathComponent {
     @Override
     public void makeNegative(boolean become) {
         if (become) hardCodedValue = -hardCodedValue;
-        reciprocal = 1 / hardCodedValue;
+        //reciprocal = 1 / hardCodedValue;
     }
 
     @Override
