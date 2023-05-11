@@ -67,6 +67,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     }
 
 
+
     @Redirect(
             method = "getRenderLayer",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getTexture(Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/Identifier;"))

@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.RenderLayer;
@@ -171,7 +172,8 @@ public class EMFModelPartMutable extends ModelPart {
 
             //todo alternate layers other than translucent
             if (!isTopLevelModelRoot && textureOverride != null && currentlyHeldProvider != null && currentlyHeldEntity != null) {
-                VertexConsumer newVertex = currentlyHeldProvider.getBuffer(RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride)));
+                VertexConsumerProvider bob = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+                VertexConsumer newVertex = bob.getBuffer(RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride)));
                 if (newVertex != null) {
                     vertices = newVertex;
                 }
