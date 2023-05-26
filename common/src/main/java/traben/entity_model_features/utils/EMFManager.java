@@ -13,7 +13,6 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import org.jetbrains.annotations.NotNull;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.passive.PufferfishEntity;
@@ -22,7 +21,6 @@ import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.registry.Registry;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
@@ -124,7 +122,8 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public static ModelPart traverseRootForChildOrNull(ModelPart root, String nameOfModelToFind) {
-        if (root.hasChild(nameOfModelToFind))
+
+        if (EMFModelPartMutable.modelPartHasChild(root,nameOfModelToFind))
             return root.getChild(nameOfModelToFind);
         for (ModelPart part :
                 ((ModelPartAccessor) root).getChildren().values()) {
@@ -193,21 +192,21 @@ public class EMFManager {//singleton for data holding and resetting needs
             return EMFManager.getInstance().cache_JemDataByFileName.get(pathOfJem);
         }
         try {
-            Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
-            if (res.isEmpty()) {
+            Resource res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
+            if (res == null) {
                 if (EMFConfig.getConfig().printModelCreationInfoToLog)
                     EMFUtils.EMFModMessage(".jem read failed " + pathOfJem + " does not exist", false);
                 return null;
             }
             if (EMFConfig.getConfig().printModelCreationInfoToLog)
                 EMFUtils.EMFModMessage(".jem read success " + pathOfJem + " exists", false);
-            Resource jemResource = res.get();
+
             //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             //System.out.println("jem exists "+ jemFile.exists());
             //if (jemFile.exists()) {
             //FileReader fileReader = new FileReader(jemFile);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(jemResource.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(res.getInputStream()));
 
             EMFJemData jem = gson.fromJson(reader, EMFJemData.class);
             reader.close();
@@ -311,7 +310,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                 part.setPartAsTopLevelRoot();
 
                 cache_JemNameToVanillaModelRoot.put(mobModelName, root);
-                if (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobModelName + ".properties")).isPresent())
+
+                if (isExistingFile(new Identifier("optifine/cem/" + mobModelName + ".properties")))
                     cache_JemNameDoesHaveVariants.put(mobModelName, true);
 
 
@@ -330,6 +330,18 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         if (printing) System.out.println(" > Vanilla model used for: " + mobModelName);
         return root;
+    }
+
+    public static boolean isExistingFile(Identifier id){
+        try{
+            Resource bob = MinecraftClient.getInstance().getResourceManager().getResource(id);
+            return bob != null;
+
+        }catch (Exception e){
+            return false;
+        }
+
+
     }
 
     private EMFModelPartMutable getEMFRootModelFromJem(EMFJemData jemData, ModelPart vanillaRoot) {
@@ -353,7 +365,8 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                 EMFModelPartMutable newPart = new EMFModelPartMutable(partData, variantNumber);
                 if (oldPart != null){
-                    newPart.applyDefaultModelRotates(oldPart.getDefaultTransform());
+                    //todo supposed to be default in 1.19???
+                    newPart.applyDefaultModelRotates(oldPart.getTransform());
                     iterateChildTransformCopy(newPart,oldPart);
                 }
                 if (printing) System.out.println(" >>> EMF part made: " + partData.toString(false));
@@ -383,28 +396,30 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         // check for if root is expected below the top level modelpart
         // as in some single part entity models
-        if (vanillaRoot.hasChild("root")){
-            if(!emfRootModelPart.hasChild("root")) {
+        if (EMFModelPartMutable.modelPartHasChild( vanillaRoot,"root")){
+            if(!EMFModelPartMutable.modelPartHasChild(emfRootModelPart,"root")) {
                 ModelPart subRoot = vanillaRoot.getChild("root");
                 if (subRoot.pivotX != 0 ||
                         subRoot.pivotY != 0 ||
                         subRoot.pivotZ != 0 ||
                         subRoot.pitch != 0 ||
                         subRoot.yaw != 0 ||
-                        subRoot.roll != 0 ||
-                        subRoot.xScale != 0 ||
-                        subRoot.yScale != 0 ||
-                        subRoot.zScale != 0
+                        subRoot.roll != 0
+//                        ||
+//                        subRoot.xScale != 0 ||
+//                        subRoot.yScale != 0 ||
+//                        subRoot.zScale != 0
 
                 ) {
                     //this covers things like frogs who pivot their root for some reason
                     emfRootModelPart.setTransform(subRoot.getTransform());
-                    emfRootModelPart.setDefaultTransform(subRoot.getDefaultTransform());
+                    //todo 1.19 was default
+                    emfRootModelPart.setTransform(subRoot.getTransform());
                 }
 
                 emfRootModelPart = new EMFModelPartMutable(new ArrayList<>(), Map.of("root", emfRootModelPart), variantNumber, jemData);
             }
-        }else if (emfRootModelPart.hasChild("root")){
+        }else if (EMFModelPartMutable.modelPartHasChild(emfRootModelPart,"root")){
             //should only be tadpoles
             emfRootModelPart = (EMFModelPartMutable) emfRootModelPart.getChild("root");
         }
@@ -416,10 +431,11 @@ public class EMFManager {//singleton for data holding and resetting needs
     private void iterateChildTransformCopy(EMFModelPartMutable newPart, ModelPart oldPart){
         for (String emfChildId:
                 newPart.getChildrenEMF().keySet()) {
-            if(oldPart.hasChild(emfChildId)){
+            if(EMFModelPartMutable.modelPartHasChild(oldPart,emfChildId)){
                 EMFModelPartMutable newNewPart = ((EMFModelPartMutable)newPart.getChildrenEMF().get(emfChildId));
                 ModelPart oldOldPart =oldPart.getChild(emfChildId);
-                newNewPart.applyDefaultModelRotates(oldOldPart.getDefaultTransform());
+                //todo 1.19 was default
+                newNewPart.applyDefaultModelRotates(oldOldPart.getTransform());
                 iterateChildTransformCopy(newNewPart,oldOldPart);
             }
         }
@@ -542,7 +558,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                 if (!cache_mobJemNameToPropertyTester.containsKey(mobName)) {
                     Identifier propertyID = new Identifier("optifine/cem/" + mobName + ".properties");
-                    if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
+                    if (isExistingFile(propertyID)) {
                         ETFApi.ETFRandomTexturePropertyInstance emfTester = ETFApi.readRandomPropertiesFileAndReturnTestingObject2(propertyID, "models");
                         cache_mobJemNameToPropertyTester.put(mobName, emfTester);
                     } else {

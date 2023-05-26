@@ -2,8 +2,9 @@ package traben.entity_model_features.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.screen.ScreenTexts;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -91,8 +92,8 @@ public class EMFConfig {
 
     public enum VanillaModelRenderMode{
         Off(ScreenTexts.OFF),
-        Position_normal(Text.translatable("entity_model_features.config.vanilla_render.normal")),
-        Positon_offset(Text.translatable("entity_model_features.config.vanilla_render.offset"));
+        Position_normal(new TranslatableText("entity_model_features.config.vanilla_render.normal")),
+        Positon_offset(new TranslatableText("entity_model_features.config.vanilla_render.offset"));
 
         private final Text text;
         VanillaModelRenderMode(Text text){

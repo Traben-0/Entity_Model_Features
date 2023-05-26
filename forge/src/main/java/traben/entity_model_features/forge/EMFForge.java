@@ -2,7 +2,7 @@ package traben.entity_model_features.forge;
 
 
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ConfigScreenHandler;
+import net.minecraftforge.client.ConfigGuiHandler;
 import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -25,8 +25,8 @@ public class EMFForge {
 
             try {
                 ModLoadingContext.get().registerExtensionPoint(
-                        ConfigScreenHandler.ConfigScreenFactory.class,
-                        () -> new ConfigScreenHandler.ConfigScreenFactory((minecraftClient, screen) ->  new EMFConfigMainScreen(screen)));
+                        ConfigGuiHandler.ConfigGuiFactory.class,
+                        () -> new ConfigGuiHandler.ConfigGuiFactory((minecraftClient, screen) -> new EMFConfigMainScreen(screen)));
             } catch (NoClassDefFoundError e) {
                 System.out.println("[Entity Model Features]: Mod config screen broken, download latest forge version");
             }

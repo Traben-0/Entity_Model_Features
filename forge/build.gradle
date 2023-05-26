@@ -7,7 +7,7 @@ architectury {
     forge()
 }
 
-archivesBaseName = rootProject.archives_base_name + "_forge_1.19.2"
+archivesBaseName = rootProject.archives_base_name + "_forge_1.18.2"
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
@@ -37,7 +37,8 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
-    modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version_forge}")
+    modImplementation files("run/entity_texture_features_forge_1.18.2-4.4.4.jar")
+    //modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version_forge}")
 }
 
 processResources {

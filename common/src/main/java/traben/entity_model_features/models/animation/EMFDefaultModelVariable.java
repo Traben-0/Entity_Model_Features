@@ -48,7 +48,7 @@ public enum EMFDefaultModelVariable {
             System.out.println("model part was null cannot get its default value");
             return 0;
         }
-        ModelTransform transform = modelPart.getDefaultTransform();
+        ModelTransform transform = modelPart.getTransform();
         switch (this) {
             case tx -> {
                 return transform.pivotX;
@@ -69,19 +69,19 @@ public enum EMFDefaultModelVariable {
                 return transform.roll;
             }
             case sx -> {
-                return modelPart.xScale;
+                return modelPart instanceof EMFModelPartMutable part? part.xScale :1;//modelPart.xScale;
             }
             case sy -> {
-                return modelPart.yScale;
+                return modelPart instanceof EMFModelPartMutable part? part.yScale : 1;//modelPart.yScale;
             }
             case sz -> {
-                return modelPart.zScale;
+                return modelPart instanceof EMFModelPartMutable part? part.zScale :1;//modelPart.zScale;
             }
             case visible -> {
                 return modelPart.visible ? 1 : 0;
             }
             case visible_boxes -> {
-                return modelPart.hidden ? 0 : 1;
+                return 0;//modelPart.hidden ? 0 : 1;
             }
             default -> {
                 System.out.println("model variable was defaulted cannot get its default value");

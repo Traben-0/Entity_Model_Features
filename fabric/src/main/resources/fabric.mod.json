@@ -38,9 +38,8 @@
   ],
   "depends": {
     "fabricloader": ">=0.14",
-    "fabric": "*",
-    "minecraft": "1.19.2",
-    "entity_texture_features": ">=4.4.3"
+    "minecraft": "1.18.2",
+    "entity_texture_features": ">=4.4.4"
   },
   "breaks": {
     "optifabric": "*",

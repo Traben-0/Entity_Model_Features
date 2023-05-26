@@ -11,7 +11,7 @@ import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.dimension.DimensionTypes;
+import net.minecraft.world.dimension.DimensionType;
 
 import java.util.UUID;
 
@@ -45,9 +45,9 @@ public class EMFAnimationVariableSuppliers {
 
     public float getDimension() {
         if (entity == null || entity.getWorld() == null) return 0;
-        Identifier id = entity.getWorld().getDimensionKey().getValue();
-        if (id.equals(DimensionTypes.THE_NETHER_ID)) return -1;
-        if (id.equals(DimensionTypes.THE_END_ID)) return 1;
+        Identifier id = entity.getWorld().getDimension().getEffects();
+        if (id.equals(DimensionType.THE_NETHER_ID)) return -1;
+        if (id.equals(DimensionType.THE_END_ID)) return 1;
         return 0;
     }
 
@@ -95,7 +95,7 @@ public class EMFAnimationVariableSuppliers {
 
     public float getEntityRY() {
         return (getEntity() instanceof LivingEntity alive) ?
-                (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, alive.prevBodyYaw, alive.getBodyYaw())) : 0;
+                (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, alive.prevBodyYaw, alive.bodyYaw)) : 0;
     }
 
     //long changed to double... should be fine tbh

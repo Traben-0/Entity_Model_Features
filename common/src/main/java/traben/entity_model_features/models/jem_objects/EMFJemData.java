@@ -1,8 +1,8 @@
 package traben.entity_model_features.models.jem_objects;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -34,7 +34,7 @@ public class EMFJemData {
             //if no folder parenting assume it is relative to model
             if (!this.texture.contains("/")) this.texture = "optifine/cem/" + this.texture;
             Identifier possibleTexture = new Identifier(texture);
-            if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
+            if (EMFManager.isExistingFile(possibleTexture)) {
                 customTexture = possibleTexture;
             }
         }

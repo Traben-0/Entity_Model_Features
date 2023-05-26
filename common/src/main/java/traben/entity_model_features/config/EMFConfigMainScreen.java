@@ -2,9 +2,10 @@ package traben.entity_model_features.config;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import traben.entity_texture_features.ETFVersionDifferenceHandler;
 import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
@@ -15,9 +16,14 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
 
 
     public EMFConfigMainScreen(Screen parent) {
-        super(Text.translatable("entity_model_features.title"),parent);
+        super(new TranslatableText("entity_model_features.title"),parent);
        // this.parent = parent;
         tempConfig = EMFConfig.copyFrom(EMFConfig.getConfig());
+    }
+
+    public EMFConfigMainScreen(Screen parent,EMFConfig newTemp) {
+        super(new TranslatableText("entity_model_features.title"),parent);
+        tempConfig = newTemp;
     }
 
 
@@ -40,8 +46,8 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
         this.addDrawableChild(new ButtonWidget((int) (this.width * 0.4), (int) (this.height * 0.9), (int) (this.width * 0.22), 20,
                 ETFVersionDifferenceHandler.getTextFromTranslation("dataPack.validation.reset"),
                 (button) -> {
-                    tempConfig = new EMFConfig();
-                    this.clearAndInit();
+                    Objects.requireNonNull(client).setScreen(new EMFConfigMainScreen(parent,new EMFConfig()));
+                    this.close();
                 }));
         this.addDrawableChild(new ButtonWidget((int) (this.width * 0.1), (int) (this.height * 0.9), (int) (this.width * 0.2), 20,
                 ScreenTexts.CANCEL,
@@ -53,58 +59,58 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
 
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.substitute_vanilla").getString() +
+                Text.of(new TranslatableText("entity_model_features.config.substitute_vanilla").getString() +
                         ": " + (tempConfig.attemptToCopyVanillaModelIntoMissingModelPart ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
                 (button) -> {
                     tempConfig.attemptToCopyVanillaModelIntoMissingModelPart = !tempConfig.attemptToCopyVanillaModelIntoMissingModelPart;
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.substitute_vanilla").getString() +
+                    button.setMessage(Text.of(new TranslatableText("entity_model_features.config.substitute_vanilla").getString() +
                             ": " + (tempConfig.attemptToCopyVanillaModelIntoMissingModelPart ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
                 },
-                Text.translatable("entity_model_features.config.substitute_vanilla.tooltip")
+                new TranslatableText("entity_model_features.config.substitute_vanilla.tooltip")
         ));
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.green_render").getString() +
+                Text.of(new TranslatableText("entity_model_features.config.green_render").getString() +
                         ": " + (tempConfig.renderCustomModelsGreen ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
                 (button) -> {
                     tempConfig.renderCustomModelsGreen = !tempConfig.renderCustomModelsGreen;
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.green_render").getString() +
+                    button.setMessage(Text.of(new TranslatableText("entity_model_features.config.green_render").getString() +
                             ": " + (tempConfig.renderCustomModelsGreen ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
                 },
-                Text.translatable("entity_model_features.config.green_render.tooltip")
+                new TranslatableText("entity_model_features.config.green_render.tooltip")
         ));
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.log_models").getString() +
+                Text.of(new TranslatableText("entity_model_features.config.log_models").getString() +
                         ": " + (tempConfig.printModelCreationInfoToLog ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
                 (button) -> {
                     tempConfig.printModelCreationInfoToLog = !tempConfig.printModelCreationInfoToLog;
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.log_models").getString() +
+                    button.setMessage(Text.of(new TranslatableText("entity_model_features.config.log_models").getString() +
                             ": " + (tempConfig.printModelCreationInfoToLog ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
                 },
-                Text.translatable("entity_model_features.config.log_models.tooltip")
+                new TranslatableText("entity_model_features.config.log_models.tooltip")
         ));
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.5), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.log_math").getString() +
+                Text.of(new TranslatableText("entity_model_features.config.log_math").getString() +
                         ": " + (tempConfig.printAllMaths ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
                 (button) -> {
                     tempConfig.printAllMaths = !tempConfig.printAllMaths;
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.log_math").getString() +
+                    button.setMessage(Text.of(new TranslatableText("entity_model_features.config.log_math").getString() +
                             ": " + (tempConfig.printAllMaths ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
                 },
-                Text.translatable("entity_model_features.config.log_math.tooltip")
+                new TranslatableText("entity_model_features.config.log_math.tooltip")
         ));
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.6), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.vanilla_render").getString() +
+                Text.of(new TranslatableText("entity_model_features.config.vanilla_render").getString() +
                         ": " + (tempConfig.vanillaModelRenderMode.asText()).getString()),
                 (button) -> {
                     tempConfig.vanillaModelRenderMode = tempConfig.vanillaModelRenderMode.next();
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.vanilla_render").getString() +
+                    button.setMessage(Text.of(new TranslatableText("entity_model_features.config.vanilla_render").getString() +
                             ": " + (tempConfig.vanillaModelRenderMode.asText()).getString()));
                 },
-                Text.translatable("entity_model_features.config.vanilla_render.tooltip")
+                new TranslatableText("entity_model_features.config.vanilla_render.tooltip")
         ));
     }
 

@@ -14,7 +14,6 @@ import traben.entity_model_features.models.jem_objects.EMFPartData;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Optional;
 
 
 public class EMFUtils {
@@ -75,13 +74,13 @@ public class EMFUtils {
         //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
         pathOfJpm = "optifine/cem/" + pathOfJpm;
         try {
-            Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJpm));
-            if (res.isEmpty()) {
+            Resource res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJpm));
+            if (res == null) {
                 if (EMFConfig.getConfig().printModelCreationInfoToLog)
                     EMFModMessage("jpm failed " + pathOfJpm + " does not exist", false);
                 return null;
             }
-            Resource jpmResource = res.get();
+            Resource jpmResource = res;
             //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             //System.out.println("jem exists "+ jemFile.exists());

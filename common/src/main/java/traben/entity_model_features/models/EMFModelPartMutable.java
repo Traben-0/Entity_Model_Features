@@ -38,6 +38,12 @@ public class EMFModelPartMutable extends ModelPart {
     public final Int2ObjectArrayMap<EMFModelState> allKnownStateVariants = new Int2ObjectArrayMap<>();
 
 
+    public boolean hidden = false;
+    public float xScale = 1;
+    public float yScale = 1;
+    public float zScale = 1;
+
+
     //public static final EMFModelPart3 BLANK_MODEL_PART = new EMFModelPart3(EMFPartData.BLANK_PART_DATA);
 
 
@@ -83,7 +89,8 @@ public class EMFModelPartMutable extends ModelPart {
         yaw = selfModelData.rotate[1];
         roll = selfModelData.rotate[2];
 
-        this.setDefaultTransform(this.getTransform());
+        //todo supposed to be default???? in 1.19.2
+        this.setTransform(this.getTransform());
 
 
 //        for (Map.Entry<String,ModelPart> part:
@@ -167,6 +174,12 @@ public class EMFModelPartMutable extends ModelPart {
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //assertChildrenAndCuboids();
         //if(new Random().nextInt(100)==1) System.out.println("rendered");
+
+        if(xScale != 1.0 || yScale != 1.0 || zScale != 1.0){
+            matrices.scale(xScale,yScale,zScale);
+        }
+
+
         if (isValidToRenderInThisState) {
 
             //todo alternate layers other than translucent
@@ -227,7 +240,8 @@ public class EMFModelPartMutable extends ModelPart {
         if (defaults != null) {
             this.setTransform(defaults);
             //if(!"root".equals(this.selfModelData.part))
-                this.setDefaultTransform(defaults);
+            //todo supposed to be default in 1.19????
+                this.setTransform(defaults);
 
 
         }
@@ -299,12 +313,16 @@ public class EMFModelPartMutable extends ModelPart {
         }
         for (Map.Entry<String, ModelPart> childEntry :
                 this.getChildrenEMF().entrySet()) {
-            if (partToMergeIntoThisAsVanilla.hasChild(childEntry.getKey())
+            if (modelPartHasChild(partToMergeIntoThisAsVanilla,childEntry.getKey())
                     && childEntry.getValue() instanceof EMFModelPartMutable p3
             )
                 p3.mergeInVanillaWhereRequired((partToMergeIntoThisAsVanilla.getChild(childEntry.getKey())));
 
         }
+    }
+
+    public static boolean modelPartHasChild(ModelPart part,String key){
+        return ((ModelPartAccessor)part).getChildren().containsKey(key);
     }
 
     public void setVariantStateTo(int newVariantState) {
@@ -334,7 +352,8 @@ public class EMFModelPartMutable extends ModelPart {
 
     private EMFModelState getCurrentState() {
         return new EMFModelState(
-                getDefaultTransform(),
+                //todo supposed to be default in 1.19???
+                getTransform(),
                 ((ModelPartAccessor) this).getCuboids(),
                 //((ModelPartAccessor)this).getChildren(),
                 xScale, yScale, zScale,
@@ -345,18 +364,23 @@ public class EMFModelPartMutable extends ModelPart {
 
     private EMFModelState getStateOf(ModelPart modelPart) {
         return new EMFModelState(
-                modelPart.getDefaultTransform(),
+                //todo supposed to be default in 1.19???
+                modelPart.getTransform(),
                 ((ModelPartAccessor) modelPart).getCuboids(),
                 //((ModelPartAccessor)this).getChildren(),
-                modelPart.xScale, modelPart.yScale, modelPart.zScale,
-                modelPart.visible, modelPart.hidden
+                //modelPart.xScale, modelPart.yScale, modelPart.zScale,
+                modelPart instanceof EMFModelPartMutable part ? part.xScale : 1,
+                modelPart instanceof EMFModelPartMutable part ? part.yScale :1,
+                modelPart instanceof EMFModelPartMutable part ? part.zScale :1,
+                modelPart.visible, false//modelPart.hidden
 
         );
     }
 
     private void setFromState(EMFModelState newState) {
-        setDefaultTransform(newState.defaultTransform());
-        setTransform(getDefaultTransform());
+        //todo supposed to be default in 1.19???
+        setTransform(newState.defaultTransform());
+        setTransform(getTransform());
         ((ModelPartAccessor) this).setCuboids(newState.cuboids());
         xScale = newState.xScale();
         yScale = newState.yScale();
