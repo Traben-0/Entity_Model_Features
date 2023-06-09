@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
+import traben.entity_model_features.utils.EMFManager;
 import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
 import java.util.Objects;
@@ -33,7 +34,9 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
                 (button) -> {
                     EMFConfig.setConfig(tempConfig);
                     EMFConfig.EMF_saveConfig();
-                    //EMFManager.resetInstance(); done in next line
+                    if(EMFConfig.getConfig().reloadMode == EMFConfig.ModelDataRefreshMode.MANUAL) {
+                        EMFManager.resetInstance();
+                    }
                     MinecraftClient.getInstance().reloadResources();
                     Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.7), (int) (this.height * 0.9), (int) (this.width * 0.2), 20).build());
@@ -106,6 +109,17 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
                             ": " + (tempConfig.vanillaModelRenderMode.asText()).getString()));
                 },
                 Text.translatable("entity_model_features.config.vanilla_render.tooltip")
+        ));
+
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.7), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("data reset test mode").getString() +
+                        ": " + tempConfig.reloadMode),
+                (button) -> {
+                    tempConfig.reloadMode = tempConfig.reloadMode.next();
+                    button.setMessage(Text.of(Text.translatable("data reset test mode").getString() +
+                            ": " + tempConfig.reloadMode));
+                },
+                Text.translatable("try the different data resetting mode options\nmanual will only reset EMF data upon leaving this config screen\noriginal means resetting data on every reload the same way its been done so far\n test tries resetting emf data at a different point in the resource reloading stage\nthere will likely be more to come")
         ));
     }
 

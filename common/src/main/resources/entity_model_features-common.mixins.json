@@ -14,10 +14,11 @@
     "rewrite.MixinLlamaDecorFeatureRenderer",
     "rewrite.MixinSaddleFeatureRenderer",
     "rewrite.MixinSheepWoolEntityModel",
-    "rewrite.MixinSlimeOverlayFeatureRenderer"
+    "rewrite.MixinSlimeOverlayFeatureRenderer",
+    "MixinResourceReload2",
+    "accessor.MinecraftClientAccessor"
   ],
   "mixins": [
-    "accessor.MinecraftClientAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

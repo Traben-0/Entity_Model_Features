@@ -117,7 +117,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public static void resetInstance() {
-        EMFUtils.EMFModMessage("clearing EMF data.");
+        EMFUtils.EMFModMessage("Clearing EMF data. Mode="+EMFConfig.getConfig().reloadMode);
         self = new EMFManager();
     }
 

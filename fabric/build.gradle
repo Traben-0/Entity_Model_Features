@@ -7,7 +7,7 @@ architectury {
     fabric()
 }
 
-archivesBaseName = rootProject.archives_base_name + "_fabric_1.20-pre1"
+archivesBaseName = rootProject.archives_base_name + "_fabric_1.20"
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
@@ -33,7 +33,7 @@ dependencies {
     shadowCommon(project(path: ":fabric-like", configuration: "transformProductionFabric")) { transitive false }
 
 
-    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}") {
+    modImplementation("maven.modrinth:modmenu:${project.modmenu_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
 

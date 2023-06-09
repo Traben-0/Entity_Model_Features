@@ -1,4 +1,10 @@
 
+0.2.10
+- 1.20 update
+- fixed an issues with the max() animation method
+- added a temporary config option to experiment with how EMF handles resetting its data (intended to be used to troubleshoot with users when a known bug occurs that I haven't yet been able to replicate myself)
+
+
 0.2.9
 - emf/cem/ override directory added, .jem files here will be used before optifine/cem/ is checked
 - optifine/cem/<entity_name>/... directory support added
