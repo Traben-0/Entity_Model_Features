@@ -58,9 +58,11 @@ public class EMFModelPartMutable extends ModelPart {
 
         textureOverride = jemData.customTexture;
 
-        if (variantNumber == 0)
+        //if (variantNumber == 0)
             allKnownStateVariants.put(variantNumber, getCurrentState());
     }
+
+
 
     public EMFModelPartMutable(EMFPartData emfPartData, int variantNumber) {//,//float[] parentalTransforms) {
 
@@ -95,7 +97,7 @@ public class EMFModelPartMutable extends ModelPart {
 //        }
 
         //assertChildrenAndCuboids();
-        if (variantNumber == 0)
+        //if (variantNumber == 0)
             allKnownStateVariants.put(variantNumber, getCurrentState());
 
     }
@@ -231,7 +233,10 @@ public class EMFModelPartMutable extends ModelPart {
             //if(!"root".equals(this.selfModelData.part))
                 this.setDefaultTransform(defaults);
 
-
+            //this change needs to propogate into variant 0's state
+            if(allKnownStateVariants.containsKey(0) && allKnownStateVariants.size()==1){
+                allKnownStateVariants.put(0, getCurrentState());
+            }
         }
 
     }

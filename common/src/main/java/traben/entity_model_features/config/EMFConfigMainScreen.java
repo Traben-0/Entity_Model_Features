@@ -5,7 +5,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
-import traben.entity_model_features.utils.EMFManager;
 import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
 import java.util.Objects;
@@ -34,9 +33,9 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
                 (button) -> {
                     EMFConfig.setConfig(tempConfig);
                     EMFConfig.EMF_saveConfig();
-                    if(EMFConfig.getConfig().reloadMode == EMFConfig.ModelDataRefreshMode.MANUAL) {
-                        EMFManager.resetInstance();
-                    }
+//                    if(EMFConfig.getConfig().reloadMode == EMFConfig.ModelDataRefreshMode.MANUAL) {
+//                        EMFManager.resetInstance();
+//                    }
                     MinecraftClient.getInstance().reloadResources();
                     Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.7), (int) (this.height * 0.9), (int) (this.width * 0.2), 20).build());
@@ -112,14 +111,25 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
         ));
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.7), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("data reset test mode").getString() +
-                        ": " + tempConfig.reloadMode),
+                Text.of(Text.translatable("Try to enforce emf models").getString() +
+                        ": " + tempConfig.tryForceEmfModels),
                 (button) -> {
-                    tempConfig.reloadMode = tempConfig.reloadMode.next();
-                    button.setMessage(Text.of(Text.translatable("data reset test mode").getString() +
-                            ": " + tempConfig.reloadMode));
+                    tempConfig.tryForceEmfModels = !tempConfig.tryForceEmfModels;
+                    button.setMessage(Text.of(Text.translatable("Try to enforce emf models").getString() +
+                            ": " + tempConfig.tryForceEmfModels));
                 },
-                Text.translatable("try the different data resetting mode options\nmanual will only reset EMF data upon leaving this config screen\noriginal means resetting data on every reload the same way its been done so far\n test tries resetting emf data at a different point in the resource reloading stage\nthere will likely be more to come")
+                Text.translatable("Will try and force entity renderers to use the models set by EMF\n this can override vanilla models changed by other mods\n this wont work with all mods")
+        ));
+
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.8), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("Log details about modded mobs").getString() +
+                        ": " + tempConfig.printModdedMappingHelp),
+                (button) -> {
+                    tempConfig.printModdedMappingHelp = !tempConfig.printModdedMappingHelp;
+                    button.setMessage(Text.of(Text.translatable("Log details about modded mobs").getString() +
+                            ": " + tempConfig.printModdedMappingHelp));
+                },
+                Text.translatable("prints to log the part and jem file names of all unknown models emf can theoretically modify")
         ));
     }
 

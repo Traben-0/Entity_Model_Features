@@ -23,8 +23,11 @@ public class EMFConfig {
     public VanillaModelRenderMode vanillaModelRenderMode =  VanillaModelRenderMode.Off;
     public final MathFunctionChoice mathFunctionChoice = MathFunctionChoice.JavaMath;
 
-    public ModelDataRefreshMode reloadMode = ModelDataRefreshMode.ORIGINAL;
+   // public ModelDataRefreshMode reloadMode = ModelDataRefreshMode.ORIGINAL;
 
+    public boolean tryForceEmfModels = true;
+
+    public boolean printModdedMappingHelp = false;
 
     public boolean attemptToCopyVanillaModelIntoMissingModelPart = false;
     public static EMFConfig getConfig() {
@@ -90,19 +93,19 @@ public class EMFConfig {
         return gson.fromJson(gson.toJson(source), EMFConfig.class);
     }
 
-    public enum ModelDataRefreshMode{
-        MANUAL,
-        ORIGINAL,
-        TEST;
-
-        public ModelDataRefreshMode next(){
-            return switch (this){
-                case MANUAL -> TEST;
-                case ORIGINAL -> MANUAL;
-                default -> ORIGINAL;
-            };
-        }
-    }
+//    public enum ModelDataRefreshMode{
+//        MANUAL,
+//        ORIGINAL,
+//        TEST;
+//
+//        public ModelDataRefreshMode next(){
+//            return switch (this){
+//                case MANUAL -> TEST;
+//                case ORIGINAL -> MANUAL;
+//                default -> ORIGINAL;
+//            };
+//        }
+//    }
 
     public enum VanillaModelRenderMode{
         Off(ScreenTexts.OFF),

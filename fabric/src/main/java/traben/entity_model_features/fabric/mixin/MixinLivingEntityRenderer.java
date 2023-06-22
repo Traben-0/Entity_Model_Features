@@ -12,6 +12,7 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
@@ -39,13 +40,35 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     @Shadow
     public abstract M getModel();
 
+    @Shadow protected M model;
     protected String emf$ModelId = null;
+
+    private M heldModelToForce = null;
+
+    @Inject(method = "<init>",
+            at = @At(value = "TAIL"))
+    private void emf$saveEMFModel(EntityRendererFactory.Context ctx, EntityModel<T> model, float shadowRadius, CallbackInfo ci) {
+        if(EMFConfig.getConfig().tryForceEmfModels){
+            heldModelToForce = getModel();
+        }
+    }
+
+
+
 
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V"
             ,shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
         private void emf$Animate(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci, float h, float j, float k, float m, float l, float n, float o) {
+
+        if(heldModelToForce != null) {
+            if(EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace())) {
+                model = heldModelToForce;
+            }
+            heldModelToForce = null;
+        }
+
             EMFManager.getInstance().preRenderEMFActions(emf$ModelId,livingEntity, vertexConsumerProvider, o, n, l, k, m);
             if (EMFConfig.getConfig().vanillaModelRenderMode != EMFConfig.VanillaModelRenderMode.Off){
                 EMFManager.getInstance().tryRenderVanillaRoot(emf$ModelId,matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);

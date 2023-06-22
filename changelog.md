@@ -1,4 +1,31 @@
 
+
+0.2.11
+Did someone say mod compatibility?
+This update adds a few features regarding `EMF` and other mods the most notable of which being an initial trial of modded entity support.
+The following rules for modded entities are subject to change at any time during the beta.
+As a rule of thumb all modded entities jem files will need to be placed at `optifine/cem/modded/{NAMESPACE}/{MOBNAME}.jem`
+To see if a modded entity can be altered by EMF enable the option to print modded entity model details to the game log, 
+if it shows up in the log it will give you the .jem file path and all the root part names and their default values to work with.
+If the mod creator for some reason gave the entity a different type name from its model name they will not currently animate, I have some plans for this eventually.
+
+Secondly this change opens up the entirety of the minecraft entity model loading system to be customized via jem files safely without restriction,
+for example I have yet to add any code specifically to model or animate signs but the modded printout option will reveal that 
+`optifine/cem/sign/oak.jem` is a detected valid model file for signs now, this will be true for many unexpected vanilla models 
+such as `elytra` and `block entities`. **HOWEVER** if they appear in this printout it means they are effectively "unknown" models,
+they **DO NOT** yet use the OptiFine part names and are very unlikely to animate. 
+The OptiFine part names are something I need to add manually because they differ from the internal code names.
+And all of these modded or unknown models that are not the main model of a LivingEntity need to have animation support manually added in the code.
+
+There is also a new option, enabled by default, to try and force the game to use the CEM models for vanilla entities even 
+if another mod has tried to replace them, I'm not too sure how well this will work with all mods, but it seems to work nicely with the few I've tested with
+
+- added modded entity support and, as a byproduct, "model only" support for every single entity model in the vanilla game
+- added an option to print out part_name and default pivot/rotation/scale details for all modded or unknown entity models
+- added an option to try and force `EMF` models to not be overridden by other mods *(probably won't work with all mods)*
+- fixed several issues with variant models breaking *(random models feature)*
+- fixed vanilla model rendering option not working on forge
+
 0.2.10
 - 1.20 update
 - fixed an issues with the max() animation method
