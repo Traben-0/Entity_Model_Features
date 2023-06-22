@@ -107,7 +107,9 @@ public class EMFAnimation {
             return 0;
         }
 
-        return prevResult.getFloat(entity0.getUuid());
+        float value =prevResult.getFloat(entity0.getUuid());
+
+        return value == Float.MIN_VALUE ? 0f : value;
 
     }
 
@@ -139,10 +141,9 @@ public class EMFAnimation {
 //        try {
         if (
                 EMFConfig.getConfig().printAllMaths &&
-                        //  animKey.equals("var.pounce") &&
+                          animKey.equals("left_leg.ry") &&
                         rand.nextInt(100) == 1) {
             setVerbose(true);
-
             //  System.out.println("vanilla body.rx ="+ parentModel.getAnimationResultOfKeyAsSupplier(null, "body.rx").get(entity0));
             double val = EMFCalculator.get();
             System.out.println(EMFCalculator.toString() + " is " + EMFCalculator.getClass());

@@ -522,7 +522,7 @@ public class MathMethod extends MathValue implements MathComponent {
                 exps.add(MathExpressionParser.getOptimizedExpression(arg, false, calculationInstance));
             }
             ValueSupplier valueSupplier = () -> {
-                float largest = Float.MIN_VALUE;
+                float largest = -Float.MAX_VALUE;
                 for (MathComponent expression :
                         exps) {
                     float get = expression.get();

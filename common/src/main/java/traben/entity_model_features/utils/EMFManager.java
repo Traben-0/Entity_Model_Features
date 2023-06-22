@@ -43,46 +43,46 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
     private static final Object2ObjectOpenHashMap<String, String> map_MultiMobVariantMap = new Object2ObjectOpenHashMap<>() {{
-        put("cat2", "cat_collar");
-        put("wither_skeleton2", "wither_skeleton_inner_armor");
-        put("wither_skeleton3", "wither_skeleton_outer_armor");
-        put("zombie2", "zombie_inner_armor");
-        put("zombie3", "zombie_outer_armor");
-        put("skeleton2", "skeleton_inner_armor");
-        put("skeleton3", "skeleton_outer_armor");
-        put("zombified_piglin2", "zombified_piglin_inner_armor");
-        put("zombified_piglin3", "zombified_piglin_outer_armor");
-        put("piglin2", "piglin_inner_armor");
-        put("piglin3", "piglin_outer_armor");
-        put("piglin_brute2", "piglin_brute_inner_armor");
-        put("piglin_brute3", "piglin_brute_outer_armor");
-        put("armor_stand2", "armor_stand_inner_armor");
-        put("armor_stand3", "armor_stand_outer_armor");
-        put("zombie_villager2", "zombie_villager_inner_armor");
-        put("zombie_villager3", "zombie_villager_outer_armor");
-        put("giant2", "giant_inner_armor");
-        put("giant3", "giant_outer_armor");
-        put("player2", "player_inner_armor");
-        put("player3", "player_outer_armor");
-        put("drowned2", "drowned_inner_armor");
-        put("drowned3", "drowned_outer_armor");
-        put("drowned4", "drowned_outer");
-        put("stray2", "stray_inner_armor");
-        put("stray3", "stray_outer_armor");
-        put("stray4", "stray_outer");
-        put("shulker2", "shulker_box");
-        put("husk2", "husk_inner_armor");
-        put("husk3", "husk_outer_armor");
-        put("player_slim2", "player_slim_inner_armor");
-        put("player_slim3", "player_slim_outer_armor");
-        put("creeper2", "creeper_charge");
-        put("pig2", "pig_saddle");
-        put("strider2", "strider_saddle");
-        put("sheep2", "sheep_wool");
-        put("slime2", "slime_outer");
-
-        put("parrot2", "parrot_?shoulder2?");//todo
-        put("parrot3", "parrot_?shoulder3?");//todo
+//        put("cat_b", "cat_collar");
+//        put("wither_skeleton_b", "wither_skeleton_inner_armor");
+//        put("wither_skeleton_c", "wither_skeleton_outer_armor");
+//        put("zombie_b", "zombie_inner_armor");
+//        put("zombie_c", "zombie_outer_armor");
+//        put("skeleton_b", "skeleton_inner_armor");
+//        put("skeleton_c", "skeleton_outer_armor");
+//        put("zombified_piglin_b", "zombified_piglin_inner_armor");
+//        put("zombified_piglin_c", "zombified_piglin_outer_armor");
+//        put("piglin_b", "piglin_inner_armor");
+//        put("piglin_c", "piglin_outer_armor");
+//        put("piglin_brute_b", "piglin_brute_inner_armor");
+//        put("piglin_brute_c", "piglin_brute_outer_armor");
+//        put("armor_stand_b", "armor_stand_inner_armor");
+//        put("armor_stand_c", "armor_stand_outer_armor");
+//        put("zombie_villager_b", "zombie_villager_inner_armor");
+//        put("zombie_villager_c", "zombie_villager_outer_armor");
+//        put("giant_b", "giant_inner_armor");
+//        put("giant_c", "giant_outer_armor");
+//        put("player_b", "player_inner_armor");
+//        put("player_c", "player_outer_armor");
+//        put("drowned_b", "drowned_inner_armor");
+//        put("drowned_c", "drowned_outer_armor");
+//        put("drowned_d", "drowned_outer");
+//        put("stray_b", "stray_inner_armor");
+//        put("stray_c", "stray_outer_armor");
+//        put("stray_d", "stray_outer");
+        put("shulker_b", "shulker_box");//todo this entire map appears redundant now, follow up!
+//        put("husk_b", "husk_inner_armor");
+//        put("husk_c", "husk_outer_armor");
+//        put("player_slim_b", "player_slim_inner_armor");
+//        put("player_slim_c", "player_slim_outer_armor");
+//        put("creeper_b", "creeper_charge");
+//        put("pig_b", "pig_saddle");
+//        put("strider_b", "strider_saddle");
+//        put("sheep_b", "sheep_wool");
+//        put("slime_b", "slime_outer");
+//
+//        put("parrot_b", "parrot");//todo
+//        put("parrot_c", "parrot");//todo
 
     }};
     private static EMFManager self = null;
@@ -117,7 +117,8 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public static void resetInstance() {
-        EMFUtils.EMFModMessage("clearing EMF data.");
+        EMFUtils.EMFModMessage("Clearing EMF data.");
+        EMFOptiFinePartNameMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
         self = new EMFManager();
     }
 
@@ -227,45 +228,61 @@ public class EMFManager {//singleton for data holding and resetting needs
     private boolean traderLlamaHappened = false;
     public ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
 
+
         boolean printing =  (EMFConfig.getConfig().printModelCreationInfoToLog);
 //        if (layer == EntityModelLayers.SPIDER ||layer == EntityModelLayers.IRON_GOLEM ||layer == EntityModelLayers.ZOMBIE || layer == EntityModelLayers.COW || layer == EntityModelLayers.SHEEP || layer == EntityModelLayers.VILLAGER) {
 //            System.out.println("ran zomb and sheep");
         String mobModelName = layer.getId().getPath();
-        if (mobModelName.contains("pufferfish"))
-            mobModelName = mobModelName.replace("pufferfish", "puffer_fish");
+
+        if(!"main".equals(layer.getName())){
+            mobModelName += "_" + layer.getName();
+        }
+
+        //add simple modded check
+        if(!"minecraft".equals(layer.getId().getNamespace())){
+            mobModelName = "modded/"+layer.getId().getNamespace()+"/"+mobModelName;
+        }else {
+            //vanilla model
+            if (mobModelName.contains("pufferfish"))
+                mobModelName = mobModelName.replace("pufferfish", "puffer_fish");
 
 
-        switch (mobModelName){
-            case "tropical_fish_large" ->{
-                if("pattern".equals(layer.getName())){
-                    mobModelName = "tropical_fish_pattern_b";
-                }else{
-                    mobModelName = "tropical_fish_b";
-                }
-            }
-            case "tropical_fish_small" ->{
-                if("pattern".equals(layer.getName())){
-                    mobModelName = "tropical_fish_pattern_a";
-                }else{
-                    mobModelName = "tropical_fish_a";
-                }
-            }
-            case "trader_llama" ->traderLlamaHappened = true;
-            case "llama" ->{
-                if("main".equals(layer.getName())){
-                    traderLlamaHappened = false;
-                }else{
+            switch (mobModelName) {
+                case "tropical_fish_large" -> mobModelName = "tropical_fish_b";
+                case "tropical_fish_small" -> mobModelName = "tropical_fish_a";
+                case "tropical_fish_large_pattern" -> mobModelName = "tropical_fish_pattern_b";
+                case "tropical_fish_small_pattern" -> mobModelName = "tropical_fish_pattern_a";
+//            case "tropical_fish_large" ->{
+//                if("pattern".equals(layer.getName())){
+//                    mobModelName = "tropical_fish_pattern_b";
+//                }else{
+//                    mobModelName = "tropical_fish_b";
+//                }
+//            }
+//            case "tropical_fish_small" ->{
+//                if("pattern".equals(layer.getName())){
+//                    mobModelName = "tropical_fish_pattern_a";
+//                }else{
+//                    mobModelName = "tropical_fish_a";
+//                }
+//            }
+                case "trader_llama" -> traderLlamaHappened = true;
+                case "llama" -> traderLlamaHappened = false;
+                case "llama_decor" -> {
+//                if("main".equals(layer.getName())){
+//                    traderLlamaHappened = false;
+//                }else{
                     mobModelName = traderLlamaHappened ? "trader_llama_decor" : "llama_decor";
+//                }
                 }
-            }
-            case "ender_dragon" -> mobModelName = "dragon";
-            case "dragon_skull" -> mobModelName = "head_dragon";
-            case "player_head" -> mobModelName = "head_player";
-            case "skeleton_skull" -> mobModelName = "head_skeleton";
-            case "wither_skeleton_skull" -> mobModelName = "head_wither_skeleton";
-            case "zombie_head" -> mobModelName = "head_zombie";
-            case "creeper_head" -> mobModelName = "head_creeper";
-            case "piglin_head" -> mobModelName = "head_piglin";
+                case "ender_dragon" -> mobModelName = "dragon";
+                case "dragon_skull" -> mobModelName = "head_dragon";
+                case "player_head" -> mobModelName = "head_player";
+                case "skeleton_skull" -> mobModelName = "head_skeleton";
+                case "wither_skeleton_skull" -> mobModelName = "head_wither_skeleton";
+                case "zombie_head" -> mobModelName = "head_zombie";
+                case "creeper_head" -> mobModelName = "head_creeper";
+                case "piglin_head" -> mobModelName = "head_piglin";
 //            case "double_chest_left" -> {
 //                mobModelName = "chest_large";
 //                isChestLeft = true;
@@ -275,34 +292,46 @@ public class EMFManager {//singleton for data holding and resetting needs
 //                isChestLeft = false;
 //            }
 
-            default -> {
-                if (cache_AmountOfMobNameAlreadyDone.containsKey(mobModelName)) {
-                    int amount = cache_AmountOfMobNameAlreadyDone.getInt(mobModelName);
-                    amount++;
-                    cache_AmountOfMobNameAlreadyDone.put(mobModelName, amount);
-                    //System.out.println("higherCount: "+ mobModelName+amount);
-                    mobModelName = map_MultiMobVariantMap.getOrDefault(mobModelName + amount, mobModelName + amount);
-                } else {
-                    EMFManager.getInstance().cache_AmountOfMobNameAlreadyDone.put(mobModelName, 1);
+
+                case "creeper_armor" -> mobModelName = "creeper_charge";
+                case "sheep_fur" -> mobModelName = "sheep_wool";
+
+
+                //case "parrot" -> mobModelName = "parrot";//todo check on shoulder parrot models they can technically be different
+
+
+
+                default -> {
+                    if (cache_AmountOfMobNameAlreadyDone.containsKey(mobModelName)) {
+                        int amount = cache_AmountOfMobNameAlreadyDone.getInt(mobModelName);
+                        amount++;
+                        cache_AmountOfMobNameAlreadyDone.put(mobModelName, amount);
+                        //System.out.println("higherCount: "+ mobModelName+amount);
+                        String modelVariantAlias = mobModelName + '_' + (amount > 0 && amount < 27 ? String.valueOf((char) (amount + 'a' - 1)) : amount);
+
+                        mobModelName = map_MultiMobVariantMap.getOrDefault(modelVariantAlias, modelVariantAlias);
+                    } else {
+                        EMFManager.getInstance().cache_AmountOfMobNameAlreadyDone.put(mobModelName, 1);
+                    }
                 }
             }
         }
         if (printing) System.out.println(" > EMF try to find a model for: " + mobModelName);
 
-        //add simple namespace logic
-        String nameSpace = layer.getId().getNamespace();
-        if(!"minecraft".equals(nameSpace)){
-            mobModelName = "modded/"+nameSpace+"/"+mobModelName;
+
+        ///jem name is final and correct from here
+
+        if (EMFOptiFinePartNameMappings.getMapOf(mobModelName).isEmpty()) {
+            //construct simple map for modded or unknown entities
+            EMFOptiFinePartNameMappings.createMapForModdedOrUnknownEntityModel(root,mobModelName);
         }
 
-       //System.out.println("foundlayer: "+ layer.getId() +" _ "+ layer.getName() +", returned: "+mobModelName);
-        ///jem name is final and correct from here
 
         if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobModelName + ".jem");
         String jemName = /*"optifine/cem/" +*/ mobModelName + ".jem";//todo mod namespaces
         EMFJemData jemData = getJemData(jemName,mobModelName);
         if (jemData != null) {
-            if (!EMFOptiFinePartNameMappings.getMapOf(mobModelName).isEmpty()) {
+//            if (!EMFOptiFinePartNameMappings.getMapOf(mobModelName).isEmpty()) {
                 EMFModelPartMutable part = getEMFRootModelFromJem(jemData, root);
 
                 cache_JemNameToCannonModelRoot.put(mobModelName, part);
@@ -315,11 +344,11 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
                 return part;
-            } else {
-                //not a cem mob
-                if (printing) System.out.println(" >> no EMF mapping found");//todo modded mob handling
-                EMFUtils.EMFModWarn("EMF Beta does not have the code to read unknown model [" + jemName+ "] yet, soon though." );
-            }
+//            } else {
+//                //not a cem mob
+//                if (printing) System.out.println(" >> no EMF mapping found");//todo modded mob handling
+//                EMFUtils.EMFModWarn("EMF Beta does not have the code to read unknown model [" + jemName+ "] yet, soon though." );
+//            }
         } else {
             //no mob .jem
 

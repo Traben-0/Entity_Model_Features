@@ -44,12 +44,18 @@ public class EMFPartData {
     public Identifier customTexture = null;
 
     public static EMFPartData getBlankPartWithIDOf(String id2, @Nullable int[] textureSizeIn) {
-
+        if("root".equals(id2)){
+            return new EMFPartData() {{
+                id = id2;
+                part = id2;
+                textureSize = textureSizeIn;
+            }};
+        }
         return new EMFPartData() {{
             id = id2;
             part = id2;
             textureSize = textureSizeIn;
-            scale = 0;
+            //scale = 0;
             thisNeedsToMergeWithVanilla = true;
         }};
     }

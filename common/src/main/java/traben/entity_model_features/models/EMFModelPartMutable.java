@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.RenderLayer;
@@ -57,9 +58,11 @@ public class EMFModelPartMutable extends ModelPart {
 
         textureOverride = jemData.customTexture;
 
-        if (variantNumber == 0)
+        //if (variantNumber == 0)
             allKnownStateVariants.put(variantNumber, getCurrentState());
     }
+
+
 
     public EMFModelPartMutable(EMFPartData emfPartData, int variantNumber) {//,//float[] parentalTransforms) {
 
@@ -94,7 +97,7 @@ public class EMFModelPartMutable extends ModelPart {
 //        }
 
         //assertChildrenAndCuboids();
-        if (variantNumber == 0)
+        //if (variantNumber == 0)
             allKnownStateVariants.put(variantNumber, getCurrentState());
 
     }
@@ -171,7 +174,8 @@ public class EMFModelPartMutable extends ModelPart {
 
             //todo alternate layers other than translucent
             if (!isTopLevelModelRoot && textureOverride != null && currentlyHeldProvider != null && currentlyHeldEntity != null) {
-                VertexConsumer newVertex = currentlyHeldProvider.getBuffer(RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride)));
+                VertexConsumerProvider bob = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+                VertexConsumer newVertex = bob.getBuffer(RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride)));
                 if (newVertex != null) {
                     vertices = newVertex;
                 }
@@ -229,7 +233,10 @@ public class EMFModelPartMutable extends ModelPart {
             //if(!"root".equals(this.selfModelData.part))
                 this.setDefaultTransform(defaults);
 
-
+            //this change needs to propogate into variant 0's state
+            if(allKnownStateVariants.containsKey(0) && allKnownStateVariants.size()==1){
+                allKnownStateVariants.put(0, getCurrentState());
+            }
         }
 
     }

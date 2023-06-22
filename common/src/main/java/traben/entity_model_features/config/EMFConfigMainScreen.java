@@ -33,7 +33,9 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
                 (button) -> {
                     EMFConfig.setConfig(tempConfig);
                     EMFConfig.EMF_saveConfig();
-                    //EMFManager.resetInstance(); done in next line
+//                    if(EMFConfig.getConfig().reloadMode == EMFConfig.ModelDataRefreshMode.MANUAL) {
+//                        EMFManager.resetInstance();
+//                    }
                     MinecraftClient.getInstance().reloadResources();
                     Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.7), (int) (this.height * 0.9), (int) (this.width * 0.2), 20).build());
@@ -106,6 +108,28 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
                             ": " + (tempConfig.vanillaModelRenderMode.asText()).getString()));
                 },
                 Text.translatable("entity_model_features.config.vanilla_render.tooltip")
+        ));
+
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.7), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("Try to enforce emf models").getString() +
+                        ": " + tempConfig.tryForceEmfModels),
+                (button) -> {
+                    tempConfig.tryForceEmfModels = !tempConfig.tryForceEmfModels;
+                    button.setMessage(Text.of(Text.translatable("Try to enforce emf models").getString() +
+                            ": " + tempConfig.tryForceEmfModels));
+                },
+                Text.translatable("Will try and force entity renderers to use the models set by EMF\n this can override vanilla models changed by other mods\n this wont work with all mods")
+        ));
+
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.8), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("Log details about modded mobs").getString() +
+                        ": " + tempConfig.printModdedMappingHelp),
+                (button) -> {
+                    tempConfig.printModdedMappingHelp = !tempConfig.printModdedMappingHelp;
+                    button.setMessage(Text.of(Text.translatable("Log details about modded mobs").getString() +
+                            ": " + tempConfig.printModdedMappingHelp));
+                },
+                Text.translatable("prints to log the part and jem file names of all unknown models emf can theoretically modify")
         ));
     }
 
