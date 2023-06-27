@@ -27,7 +27,8 @@ public class EMFConfig {
 
     public boolean tryForceEmfModels = true;
 
-    public boolean printModdedMappingHelp = false;
+
+    public UnknownModelPrintMode printUnknownModelsMode = UnknownModelPrintMode.NONE;
 
     public boolean attemptToCopyVanillaModelIntoMissingModelPart = false;
     public static EMFConfig getConfig() {
@@ -93,19 +94,27 @@ public class EMFConfig {
         return gson.fromJson(gson.toJson(source), EMFConfig.class);
     }
 
-//    public enum ModelDataRefreshMode{
-//        MANUAL,
-//        ORIGINAL,
-//        TEST;
-//
-//        public ModelDataRefreshMode next(){
-//            return switch (this){
-//                case MANUAL -> TEST;
-//                case ORIGINAL -> MANUAL;
-//                default -> ORIGINAL;
-//            };
-//        }
-//    }
+    public enum UnknownModelPrintMode{
+        NONE(ScreenTexts.OFF),
+        LOG_ONLY(Text.translatable("entity_model_features.config.unknown_model_print_mode.log")),
+        LOG_AND_JEM(Text.translatable("entity_model_features.config.unknown_model_print_mode.log_jem"));
+
+        private final Text text;
+        UnknownModelPrintMode(Text text){
+            this.text = text;
+        }
+
+        public Text asText(){
+            return text;
+        }
+        public UnknownModelPrintMode next(){
+            return switch (this){
+                case NONE -> LOG_ONLY;
+                case LOG_ONLY -> LOG_AND_JEM;
+                default -> NONE;
+            };
+        }
+    }
 
     public enum VanillaModelRenderMode{
         Off(ScreenTexts.OFF),

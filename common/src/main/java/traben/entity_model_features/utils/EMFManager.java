@@ -523,6 +523,10 @@ public class EMFManager {//singleton for data holding and resetting needs
         ///////////////////////////
     }
 
+    public boolean isKnownJemName(String nameOfJem){
+        return cache_JemNameToCannonModelRoot.containsKey(nameOfJem);
+    }
+
     public void preRenderEMFActions(String modelName, Entity entity, VertexConsumerProvider provider, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
 
 //        EMFModelPart3 modelRoot = cache_JemNameToCannonModelRoot.get(modelName);
@@ -539,12 +543,12 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
     }
 
-    public void preRenderEMFActions(Entity entity, VertexConsumerProvider provider, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
-        String mobName = getTypeName(entity);
-        preRenderEMFActions(mobName, entity, provider, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
-//        if(mobName.contains("llama") && new Random().nextInt(100)==1)
-//            System.out.println("animating: "+mobName);
-    }
+//    public void preRenderEMFActions(Entity entity, VertexConsumerProvider provider, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+//        String mobName = getTypeName(entity);
+//        preRenderEMFActions(mobName, entity, provider, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+////        if(mobName.contains("llama") && new Random().nextInt(100)==1)
+////            System.out.println("animating: "+mobName);
+//    }
 
     @Nullable
     public Identifier getRootModelTextureOverride(String modelId){

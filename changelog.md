@@ -1,5 +1,12 @@
 
 
+0.2.12
+- tweaked the config screens into categories and altered translations
+- extended the option to the setting to print out all unknown model information, to also try and make an example .jem file for that entity model *(it is not a perfect match, they are meant as a starting point for you)*
+- fixed the option to try and force EMF models back onto modified entities, triggering for entities without emf models
+- fixed limb_speed idling at the minimum float value it should now idle at 0 instead
+
+
 0.2.11
 Did someone say mod compatibility?
 This update adds a few features regarding `EMF` and other mods the most notable of which being an initial trial of modded entity support.

@@ -20,7 +20,7 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
     }
 
 
-    EMFConfig tempConfig = null;
+    public EMFConfig tempConfig = null;
 
     @Override
     protected void init() {
@@ -56,81 +56,27 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
 
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.substitute_vanilla").getString() +
-                        ": " + (tempConfig.attemptToCopyVanillaModelIntoMissingModelPart ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                Text.translatable("entity_model_features.config.options"),
                 (button) -> {
-                    tempConfig.attemptToCopyVanillaModelIntoMissingModelPart = !tempConfig.attemptToCopyVanillaModelIntoMissingModelPart;
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.substitute_vanilla").getString() +
-                            ": " + (tempConfig.attemptToCopyVanillaModelIntoMissingModelPart ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                    Objects.requireNonNull(client).setScreen(new EMFConfigOptionsScreen(this));
                 },
-                Text.translatable("entity_model_features.config.substitute_vanilla.tooltip")
+                Text.translatable("entity_model_features.config.options.tooltip")
         ));
-
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.green_render").getString() +
-                        ": " + (tempConfig.renderCustomModelsGreen ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                Text.translatable("entity_model_features.config.tools"),
                 (button) -> {
-                    tempConfig.renderCustomModelsGreen = !tempConfig.renderCustomModelsGreen;
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.green_render").getString() +
-                            ": " + (tempConfig.renderCustomModelsGreen ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                    Objects.requireNonNull(client).setScreen(new EMFConfigToolsScreen(this));
                 },
-                Text.translatable("entity_model_features.config.green_render.tooltip")
+                Text.translatable("entity_model_features.config.tools.tooltip")
         ));
-
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.log_models").getString() +
-                        ": " + (tempConfig.printModelCreationInfoToLog ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                Text.translatable("entity_model_features.config.debug"),
                 (button) -> {
-                    tempConfig.printModelCreationInfoToLog = !tempConfig.printModelCreationInfoToLog;
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.log_models").getString() +
-                            ": " + (tempConfig.printModelCreationInfoToLog ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                    Objects.requireNonNull(client).setScreen(new EMFConfigDebugLogOptionsScreen(this));
                 },
-                Text.translatable("entity_model_features.config.log_models.tooltip")
+                Text.translatable("entity_model_features.config.debug.tooltip")
         ));
 
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.5), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.log_math").getString() +
-                        ": " + (tempConfig.printAllMaths ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
-                (button) -> {
-                    tempConfig.printAllMaths = !tempConfig.printAllMaths;
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.log_math").getString() +
-                            ": " + (tempConfig.printAllMaths ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
-                },
-                Text.translatable("entity_model_features.config.log_math.tooltip")
-        ));
-
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.6), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.vanilla_render").getString() +
-                        ": " + (tempConfig.vanillaModelRenderMode.asText()).getString()),
-                (button) -> {
-                    tempConfig.vanillaModelRenderMode = tempConfig.vanillaModelRenderMode.next();
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.vanilla_render").getString() +
-                            ": " + (tempConfig.vanillaModelRenderMode.asText()).getString()));
-                },
-                Text.translatable("entity_model_features.config.vanilla_render.tooltip")
-        ));
-
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.7), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("Try to enforce emf models").getString() +
-                        ": " + tempConfig.tryForceEmfModels),
-                (button) -> {
-                    tempConfig.tryForceEmfModels = !tempConfig.tryForceEmfModels;
-                    button.setMessage(Text.of(Text.translatable("Try to enforce emf models").getString() +
-                            ": " + tempConfig.tryForceEmfModels));
-                },
-                Text.translatable("Will try and force entity renderers to use the models set by EMF\n this can override vanilla models changed by other mods\n this wont work with all mods")
-        ));
-
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.8), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("Log details about modded mobs").getString() +
-                        ": " + tempConfig.printModdedMappingHelp),
-                (button) -> {
-                    tempConfig.printModdedMappingHelp = !tempConfig.printModdedMappingHelp;
-                    button.setMessage(Text.of(Text.translatable("Log details about modded mobs").getString() +
-                            ": " + tempConfig.printModdedMappingHelp));
-                },
-                Text.translatable("prints to log the part and jem file names of all unknown models emf can theoretically modify")
-        ));
     }
 
 

@@ -58,7 +58,10 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             ,shift = At.Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
     private void emf$Animate(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci, boolean FORGE_REQUIRED_VALUE, float h, float j, float k, float m, float l, float n, float o) {
         if(heldModelToForce != null) {
-            if(EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace())) {
+            if(EMFConfig.getConfig().tryForceEmfModels
+                    && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace())
+                    && EMFManager.getInstance().isKnownJemName(emf$ModelId)
+            ){
                 model = heldModelToForce;
             }
             heldModelToForce = null;

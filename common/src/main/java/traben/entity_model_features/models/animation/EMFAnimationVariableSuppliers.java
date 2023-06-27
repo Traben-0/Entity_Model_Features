@@ -378,7 +378,7 @@ public class EMFAnimationVariableSuppliers {
     }
 
     public float getLimbDistance() {
-        return limbDistance;
+        return limbDistance == Float.MIN_VALUE? 0 : limbDistance;
     }
 
     public float getHeadYaw() {
