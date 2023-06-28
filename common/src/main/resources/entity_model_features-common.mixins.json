@@ -13,6 +13,7 @@
     "rewrite.MixinCreeperChargeFeatureRenderer",
     "rewrite.MixinDrownedOverlayFeatureRenderer",
     "rewrite.MixinEnergySwirlFeatureRenderer",
+    "rewrite.MixinEyesFeatureRenderer",
     "rewrite.MixinFeatureRenderer",
     "rewrite.MixinHorseArmorFeatureRenderer",
     "rewrite.MixinLlamaDecorFeatureRenderer",
@@ -24,7 +25,6 @@
     "rewrite.MixinTropicalFishPatternFeatureRenderer"
   ],
   "mixins": [
-    "LivingEntityRendererAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

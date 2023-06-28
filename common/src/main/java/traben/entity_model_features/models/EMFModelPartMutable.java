@@ -1,16 +1,14 @@
 package traben.entity_model_features.models;
 
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
@@ -166,27 +164,40 @@ public class EMFModelPartMutable extends ModelPart {
         return emfCuboids;
     }
 
+    static private final BufferBuilder MODIFIED_RENDER_BUFFER =new BufferBuilder(256);
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //assertChildrenAndCuboids();
         //if(new Random().nextInt(100)==1) System.out.println("rendered");
         if (isValidToRenderInThisState) {
 
-            //todo alternate layers other than translucent
-            if (!isTopLevelModelRoot && textureOverride != null && currentlyHeldProvider != null && currentlyHeldEntity != null) {
-                VertexConsumerProvider bob = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-                VertexConsumer newVertex = bob.getBuffer(RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride)));
-                if (newVertex != null) {
-                    vertices = newVertex;
+            if (!isTopLevelModelRoot
+                    && textureOverride != null
+                    && light != LightmapTextureManager.MAX_LIGHT_COORDINATE+1 // this is only the case for EyesFeatureRenderer
+                    && currentlyHeldEntity != null) {
+
+                //todo alternate layers other than translucent
+                RenderLayer layer =RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride));
+
+                MODIFIED_RENDER_BUFFER.begin(layer.getDrawMode(),layer.getVertexFormat());
+
+                if (EMFConfig.getConfig().renderCustomModelsGreen) {
+                    float flash = (float)Math.abs(Math.sin(System.currentTimeMillis() /1000d));
+                    super.render(matrices, MODIFIED_RENDER_BUFFER, light, overlay, flash, green, flash, alpha);
+                } else {
+                    super.render(matrices, MODIFIED_RENDER_BUFFER, light, overlay, red, green, blue, alpha);
                 }
-            }
 
-
-            if (EMFConfig.getConfig().renderCustomModelsGreen) {
-                float flash = (float)Math.abs(Math.sin(System.currentTimeMillis() /1000d));
-                super.render(matrices, vertices, light, overlay, flash, green, flash, alpha);
-            } else {
-                super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+                layer.draw(MODIFIED_RENDER_BUFFER, RenderSystem.getVertexSorting());
+                MODIFIED_RENDER_BUFFER.clear();
+            }else {
+                //normal vertex consumer
+                if (EMFConfig.getConfig().renderCustomModelsGreen) {
+                    float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
+                    super.render(matrices, vertices, light, overlay, flash, green, flash, alpha);
+                } else {
+                    super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+                }
             }
         }
 

@@ -1,10 +1,15 @@
 
 
 0.2.12
+
+A bug fix update before I backport down to 1.19
+
 - tweaked the config screens into categories and altered translations
 - extended the option to the setting to print out all unknown model information, to also try and make an example .jem file for that entity model *(it is not a perfect match, they are meant as a starting point for you)*
 - fixed the option to try and force EMF models back onto modified entities, triggering for entities without emf models
 - fixed limb_speed idling at the minimum float value it should now idle at 0 instead
+- improved texture overrides when used internally within models *(no longer relies on a broken behaviour of iris)* *(will have lighting glitches when used on mobs that have glowing eyes or ETF emissive textures until ETFs next update)*
+
 
 
 0.2.11
