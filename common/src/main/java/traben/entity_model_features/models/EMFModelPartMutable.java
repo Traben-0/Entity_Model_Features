@@ -164,7 +164,7 @@ public class EMFModelPartMutable extends ModelPart {
         return emfCuboids;
     }
 
-    static private final BufferBuilder MODIFIED_RENDER_BUFFER =new BufferBuilder(256);
+    static private final BufferBuilder MODIFIED_RENDER_BUFFER =new BufferBuilder(8);
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //assertChildrenAndCuboids();
@@ -176,37 +176,46 @@ public class EMFModelPartMutable extends ModelPart {
                     && light != LightmapTextureManager.MAX_LIGHT_COORDINATE+1 // this is only the case for EyesFeatureRenderer
                     && currentlyHeldEntity != null) {
 
-                //todo alternate layers other than translucent
-                RenderLayer layer =RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride));
-
-                MODIFIED_RENDER_BUFFER.begin(layer.getDrawMode(),layer.getVertexFormat());
-
-                if (EMFConfig.getConfig().renderCustomModelsGreen) {
-                    float flash = (float)Math.abs(Math.sin(System.currentTimeMillis() /1000d));
-                    super.render(matrices, MODIFIED_RENDER_BUFFER, light, overlay, flash, green, flash, alpha);
-                } else {
-                    super.render(matrices, MODIFIED_RENDER_BUFFER, light, overlay, red, green, blue, alpha);
+                Identifier texture;
+                if(light == LightmapTextureManager.MAX_LIGHT_COORDINATE+2){
+                    //require emissive texture variant
+                    texture = ETFApi.getCurrentETFEmissiveTextureOfEntityOrNull(currentlyHeldEntity, textureOverride);
+                }else{
+                    //otherwise normal texture
+                    texture = ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride);
                 }
 
-                layer.draw(MODIFIED_RENDER_BUFFER, RenderSystem.getVertexSorting());
-                MODIFIED_RENDER_BUFFER.clear();
+                if (texture != null){
+                    //todo alternate layers other than translucent
+                    RenderLayer layer = RenderLayer.getEntityTranslucent(texture);
+
+                    MODIFIED_RENDER_BUFFER.begin(layer.getDrawMode(), layer.getVertexFormat());
+
+                    renderToSuper(matrices, MODIFIED_RENDER_BUFFER, light, overlay, red, green, blue, alpha);
+
+                    layer.draw(MODIFIED_RENDER_BUFFER, RenderSystem.getVertexSorting());
+                    MODIFIED_RENDER_BUFFER.clear();
+                }
             }else {
                 //normal vertex consumer
-                if (EMFConfig.getConfig().renderCustomModelsGreen) {
-                    float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
-                    super.render(matrices, vertices, light, overlay, flash, green, flash, alpha);
-                } else {
-                    super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
-                }
+                renderToSuper(matrices, vertices, light, overlay, red, green, blue, alpha);
             }
         }
-
     }
 
-    public void assertChildrenAndCuboids() {
-        ((ModelPartAccessor) this).setChildren(new HashMap<>(emfChildren));
-        ((ModelPartAccessor) this).setCuboids(new ArrayList<>(emfCuboids));
+    private void renderToSuper(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha){
+        if (EMFConfig.getConfig().renderCustomModelsGreen) {
+            float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
+            super.render(matrices, vertices, light, overlay, flash, green, flash, alpha);
+        } else {
+            super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+        }
     }
+
+//    public void assertChildrenAndCuboids() {
+//        ((ModelPartAccessor) this).setChildren(new HashMap<>(emfChildren));
+//        ((ModelPartAccessor) this).setCuboids(new ArrayList<>(emfCuboids));
+//    }
 
     //stop trying to optimize my code so it doesn't work sodium :P
     @Override // overrides to circumvent sodium optimizations that mess with custom uv quad creation
@@ -291,9 +300,9 @@ public class EMFModelPartMutable extends ModelPart {
         return ((ModelPartAccessor) this).getChildren();
     }
 
-    public void setChildrenEMF(Map<String, ModelPart> children) {
-        ((ModelPartAccessor) this).setChildren(children);
-    }
+//    public void setChildrenEMF(Map<String, ModelPart> children) {
+//        ((ModelPartAccessor) this).setChildren(children);
+//    }
 
     public void mergePartVariant(int variantNumber, EMFModelPartMutable partToMergeIntoThisAsVariant) {
         EMFModelState incomingPartState = partToMergeIntoThisAsVariant.getCurrentState();
