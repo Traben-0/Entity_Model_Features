@@ -17,5 +17,5 @@
   "entity_model_features.config.vanilla_render": "Chế độ hiển thị mô hình truyền thống",
   "entity_model_features.config.vanilla_render.tooltip": "cố gắng hiển thị mô hình truyền thống cùng với mô hình tùy chỉnh để so sánh\n mô hình này sẽ không có hoạt ảnh và do đó có thể có vị trí hơi kỳ lạ",
   "entity_model_features.config.log_math": "Ghi nhật ký tính toán hoạt hình",
-  "entity_model_features.config.log_math.tooltip": "In dữ liệu gỡ lỗi tính toán hoạt hình vào nhật ký\nCẢNH BÁO GÂY TRỄ CỰC KỲ!"
+  "entity_model_features.config.log_math.tooltip": "Ghi dữ liệu gỡ lỗi tính toán hoạt hình vào nhật ký\nCẢNH BÁO GÂY TRỄ CỰC KỲ!"
 }
