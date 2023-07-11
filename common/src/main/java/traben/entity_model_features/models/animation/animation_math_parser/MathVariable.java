@@ -146,7 +146,7 @@ public class MathVariable extends MathValue implements MathComponent {
                     EMFDefaultModelVariable partVariable = EMFDefaultModelVariable.get(split[1]);
                     EMFModelPartMutable part = calculationInstance.allPartByName.get(partName);
                     if (partVariable != null && part != null) {
-                        return () -> partVariable.getFrom3Model(part, calculationInstance.partToApplyTo);
+                        return () -> partVariable.getFromMutableModel(part/*, calculationInstance.partToApplyTo*/);
                     } else {
                         EMFUtils.EMFModError("no part variable found for: [" + variableKey + "] in [" + calculationInstance.modelName + "] + " + calculationInstance.allPartByName.keySet());
                         return () -> 0;

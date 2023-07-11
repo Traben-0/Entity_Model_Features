@@ -107,7 +107,9 @@ public class EMFAnimation {
             return 0;
         }
 
-        return prevResult.getFloat(entity0.getUuid());
+        float value =prevResult.getFloat(entity0.getUuid());
+
+        return value == Float.MIN_VALUE ? 0f : value;
 
     }
 
@@ -139,10 +141,9 @@ public class EMFAnimation {
 //        try {
         if (
                 EMFConfig.getConfig().printAllMaths &&
-                        //  animKey.equals("var.pounce") &&
+                          animKey.equals("left_leg.ry") &&
                         rand.nextInt(100) == 1) {
             setVerbose(true);
-
             //  System.out.println("vanilla body.rx ="+ parentModel.getAnimationResultOfKeyAsSupplier(null, "body.rx").get(entity0));
             double val = EMFCalculator.get();
             System.out.println(EMFCalculator.toString() + " is " + EMFCalculator.getClass());
@@ -170,9 +171,9 @@ public class EMFAnimation {
         //if(animKey.equals("left_rein2.visible")) System.out.println("result rein "+result+varToChange);
         if (Double.isNaN(result)) {
             if (variableToChange != null)
-                variableToChange.setValueIn3Model(partToApplyTo, Float.MAX_VALUE);
+                variableToChange.setValueInMutableModel(partToApplyTo, Float.MAX_VALUE);
         } else if (partToApplyTo != null) {
-            variableToChange.setValueIn3Model(partToApplyTo, result);
+            variableToChange.setValueInMutableModel(partToApplyTo, result);
         }
     }
 
@@ -181,9 +182,7 @@ public class EMFAnimation {
     }
 
     public void animPrint(String str) {
-        StringBuilder indent = new StringBuilder();
-        indent.append("> ".repeat(Math.max(0, indentCount)));
-        System.out.println(indent + str);
+        System.out.println("> ".repeat(Math.max(0, indentCount)) + str);
     }
 
 
