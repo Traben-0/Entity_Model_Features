@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.NetworkConstants;
 import traben.entity_model_features.EMFClient;
-import traben.entity_model_features.config.EMFConfigMainScreen;
+import traben.entity_model_features.config.EMFConfigScreenMain;
 
 @Mod(EMFClient.MOD_ID)
 public class EMFForge {
@@ -26,7 +26,7 @@ public class EMFForge {
             try {
                 ModLoadingContext.get().registerExtensionPoint(
                         ConfigScreenHandler.ConfigScreenFactory.class,
-                        () -> new ConfigScreenHandler.ConfigScreenFactory((minecraftClient, screen) ->  new EMFConfigMainScreen(screen)));
+                        () -> new ConfigScreenHandler.ConfigScreenFactory((minecraftClient, screen) ->  new EMFConfigScreenMain(screen)));
             } catch (NoClassDefFoundError e) {
                 System.out.println("[Entity Model Features]: Mod config screen broken, download latest forge version");
             }

@@ -1,4 +1,51 @@
 
+
+0.2.12
+
+A bug fix update before I backport down to 1.19
+
+- added a workaround to render the vanilla models parts when an entity dies for physics mod compatibility *(THIS IS FAR FROM PERFECT and really just a test)*
+- prevented animation variables from invalidating expressions during division testing by defaulting to 0 during setup phase
+- tweaked the config screens into categories and altered translations
+- extended the option to the setting to print out all unknown model information, to also try and make an example .jem file for that entity model *(it is not a perfect match, they are meant as a starting point for you)*
+- fixed the option to try and force EMF models back onto modified entities, triggering for entities without emf models
+- fixed limb_speed idling at the minimum float value it should now idle at 0 instead
+- improved texture overrides when used internally within models *(no longer relies on a broken behaviour of iris)* *(will have lighting glitches when used on mobs that have glowing eyes or ETF emissive textures until ETFs next update)**(isn't identical between 1.19 and 1.20)*
+
+
+
+0.2.11
+Did someone say mod compatibility?
+This update adds a few features regarding `EMF` and other mods the most notable of which being an initial trial of modded entity support.
+The following rules for modded entities are subject to change at any time during the beta.
+As a rule of thumb all modded entities jem files will need to be placed at `optifine/cem/modded/{NAMESPACE}/{MOBNAME}.jem`
+To see if a modded entity can be altered by EMF enable the option to print modded entity model details to the game log, 
+if it shows up in the log it will give you the .jem file path and all the root part names and their default values to work with.
+If the mod creator for some reason gave the entity a different type name from its model name they will not currently animate, I have some plans for this eventually.
+
+Secondly this change opens up the entirety of the minecraft entity model loading system to be customized via jem files safely without restriction,
+for example I have yet to add any code specifically to model or animate signs but the modded printout option will reveal that 
+`optifine/cem/sign/oak.jem` is a detected valid model file for signs now, this will be true for many unexpected vanilla models 
+such as `elytra` and `block entities`. **HOWEVER** if they appear in this printout it means they are effectively "unknown" models,
+they **DO NOT** yet use the OptiFine part names and are very unlikely to animate. 
+The OptiFine part names are something I need to add manually because they differ from the internal code names.
+And all of these modded or unknown models that are not the main model of a LivingEntity need to have animation support manually added in the code.
+
+There is also a new option, enabled by default, to try and force the game to use the CEM models for vanilla entities even 
+if another mod has tried to replace them, I'm not too sure how well this will work with all mods, but it seems to work nicely with the few I've tested with
+
+- added modded entity support and, as a byproduct, "model only" support for every single entity model in the vanilla game
+- added an option to print out part_name and default pivot/rotation/scale details for all modded or unknown entity models
+- added an option to try and force `EMF` models to not be overridden by other mods *(probably won't work with all mods)*
+- fixed several issues with variant models breaking *(random models feature)*
+- fixed vanilla model rendering option not working on forge
+
+0.2.10
+- 1.20 update
+- fixed an issues with the max() animation method
+- added a temporary config option to experiment with how EMF handles resetting its data (intended to be used to troubleshoot with users when a known bug occurs that I haven't yet been able to replicate myself)
+
+
 0.2.9
 - emf/cem/ override directory added, .jem files here will be used before optifine/cem/ is checked
 - optifine/cem/<entity_name>/... directory support added

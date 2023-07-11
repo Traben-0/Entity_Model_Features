@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.jem_objects;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.block.entity.ChestBlockEntityRenderer;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
@@ -261,4 +262,10 @@ public class EMFJemData {
                 '}';
     }
 
+    public static class EMFJemPrinter {
+        public String texture = "";
+        public int[] textureSize = {16,16};
+        public double shadow_size = 1.0;
+        public LinkedList<EMFPartData.EMFPartPrinter> models = new LinkedList<>();
+    }
 }

@@ -1,12 +1,26 @@
 package traben.entity_model_features.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.minecraft.client.model.ModelPart;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.NotNull;
+import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
+import traben.entity_model_features.models.jem_objects.EMFBoxData;
+import traben.entity_model_features.models.jem_objects.EMFJemData;
+import traben.entity_model_features.models.jem_objects.EMFPartData;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class EMFOptiFinePartNameMappings {
+
+
+
 
     private static final Map<String, PartAndChildName> genericNonPlayerBiped = Map.ofEntries(
             getOptifineMapEntry("head"),
@@ -495,7 +509,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("left_wing_tip"),
                     getOptifineMapEntry("right_wing_tip")
             );
-            case "parrot" -> Map.ofEntries(
+            case "parrot","parrot_b","parrot_c" -> Map.ofEntries(
                     getOptifineMapEntry("head", "head", "feather"),
                     getOptifineMapEntry("body"),
                     getOptifineMapEntry("tail"),
@@ -725,13 +739,130 @@ public class EMFOptiFinePartNameMappings {
                 //throw new RuntimeException("EMF doesn't map: "+mobName);
                 if ( EMFConfig.getConfig().printModelCreationInfoToLog)
                     EMFUtils.EMFModError("no model part mapping found for: " + mobName);
-                //todo custom mappings
+                //try discovered mob cache
+                if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName))
+                    yield UNKNOWN_MODEL_MAP_CACHE.get(mobName);
                 yield Map.of();
             }
 
         };
 
 
+    }
+
+    public static final Map<String,Map<String, PartAndChildName>> UNKNOWN_MODEL_MAP_CACHE = new HashMap<>();
+
+    //this would make a usable mapping of the given model but with no part name changing as it would not be optifine customized
+    public static Map<String, PartAndChildName> createMapForModdedOrUnknownEntityModel(ModelPart originalModel, String mobName){
+        Map<String, PartAndChildName> newMap = new HashMap<>();
+        Map<String, String> detailsMap = new HashMap<>();
+        mapThisAndChildren("root",originalModel,newMap,detailsMap);
+        //cache result;
+        UNKNOWN_MODEL_MAP_CACHE.put(mobName,newMap);
+        if(EMFConfig.getConfig().printUnknownModelsMode != EMFConfig.UnknownModelPrintMode.NONE) {
+            StringBuilder mapString = new StringBuilder();
+            mapString.append(" |-[optifine/cem/" + mobName + ".jem]\n");
+            newMap.forEach((key, entry) ->{
+                mapString.append( " | |-[" + ("root".equals(key) ? "(optional) ":"") +"part=" + key +
+                    (entry.childNamesToExpect.isEmpty()? "" : ", child_parts = " + entry.childNamesToExpect)+"]\n");
+                mapString.append(detailsMap.get(key));
+            });
+            mapString.append("  \\-\\{{end of unknown model}}");
+
+            EMFUtils.EMFModMessage("Unknown possibly modded model detected, Mapping now...\n"+mapString);
+
+            if(EMFConfig.getConfig().printUnknownModelsMode == EMFConfig.UnknownModelPrintMode.LOG_AND_JEM) {
+                EMFUtils.EMFModMessage("creating example .jem file for "+mobName);
+                EMFJemData.EMFJemPrinter jemPrinter = new EMFJemData.EMFJemPrinter();
+                for (Map.Entry<String, PartAndChildName> entry:
+                     newMap.entrySet()) {
+                    if(!"root".equals(entry.getKey())) {
+                        EMFPartData.EMFPartPrinter partPrinter = new EMFPartData.EMFPartPrinter();
+                        partPrinter.part = entry.getKey();
+                        partPrinter.id = entry.getKey();
+                        ModelPart vanillaModelPart = getChildByName(entry.getKey(), originalModel);
+                        if(vanillaModelPart != null){
+                            partPrinter.translate = new float[]{
+                                    vanillaModelPart.pivotX,
+                                    vanillaModelPart.pivotY,
+                                    vanillaModelPart.pivotZ};
+                            partPrinter.rotate = new float[]{
+                                    (float) Math.toDegrees(vanillaModelPart.pitch),
+                                    (float) Math.toDegrees(vanillaModelPart.yaw),
+                                    (float) Math.toDegrees(vanillaModelPart.roll)};
+                            partPrinter.scale = vanillaModelPart.xScale;
+                            List<ModelPart.Cuboid> cuboids = ((ModelPartAccessor)vanillaModelPart).getCuboids();
+                            for (ModelPart.Cuboid cube:
+                                 cuboids) {
+                                EMFBoxData.EMFBoxPrinter boxPrinter = new EMFBoxData.EMFBoxPrinter();
+                                boxPrinter.coordinates = new float[]{
+                                        cube.minX - vanillaModelPart.getDefaultTransform().pivotX,
+                                        cube.minY - vanillaModelPart.getDefaultTransform().pivotY,
+                                        cube.minZ - vanillaModelPart.getDefaultTransform().pivotZ,
+                                        cube.maxX - cube.minX,
+                                        cube.maxY - cube.minY,
+                                        cube.maxZ - cube.minZ};
+                                //add to array
+                                partPrinter.boxes = Arrays.copyOf(partPrinter.boxes, partPrinter.boxes.length+1);
+                                partPrinter.boxes[partPrinter.boxes.length-1] = boxPrinter;
+                            }
+
+                        }
+                        jemPrinter.models.add(partPrinter);
+                    }
+                }
+                String path = EMFVersionDifferenceManager.getConfigDirectory().toFile().getParent() + "/emf/unknown_cem/" + mobName + ".jem";
+                File outFile = new File(path);
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+                if (!outFile.getParentFile().exists()) {
+                    //noinspection ResultOfMethodCallIgnored
+                    outFile.getParentFile().mkdirs();
+                }
+                try {
+                    FileWriter fileWriter = new FileWriter(outFile);
+                    fileWriter.write(gson.toJson(jemPrinter));
+                    fileWriter.close();
+
+                    EMFUtils.EMFModMessage(".jem file creation succeeded for [" + path + "]");
+                } catch (IOException e) {
+                    EMFUtils.EMFModMessage(".jem file creation failed for [" + path + "]");
+                }
+            }
+        }
+        return newMap;
+    }
+
+
+
+    private static ModelPart getChildByName(String name, ModelPart part){
+        if(part.hasChild(name)) return part.getChild(name);
+        for (ModelPart childPart:
+        ((ModelPartAccessor)part).getChildren().values()) {
+            ModelPart possibleReturn = getChildByName(name ,childPart);
+            if (possibleReturn != null) return possibleReturn;
+        }
+        return null;
+    }
+
+    private static void mapThisAndChildren(String partName,ModelPart originalModel, Map<String, PartAndChildName> newMap,Map<String, String> detailsMap){
+        ArrayList<String> childrenList = new ArrayList<>();
+        //iterate over children while collecting their names in a list
+        for (Map.Entry<String, ModelPart> entry:
+             ((ModelPartAccessor)originalModel).getChildren().entrySet()) {
+            childrenList.add(entry.getKey());
+            mapThisAndChildren(entry.getKey(),entry.getValue(),newMap, detailsMap);
+        }
+        //add this part and its children names
+        newMap.put(partName,new PartAndChildName(partName,childrenList));
+        if(EMFConfig.getConfig().printUnknownModelsMode != EMFConfig.UnknownModelPrintMode.NONE) {
+            detailsMap.put(partName,
+                      " | | |-pivots=" + originalModel.pivotX + ", " + originalModel.pivotY + ", " + originalModel.pivotZ +
+                    "\n | | |-rotations=" + Math.toDegrees( originalModel.pitch) + ", " + Math.toDegrees(originalModel.yaw) + ", " + Math.toDegrees(originalModel.roll) +
+                    "\n | | |-scales=" + originalModel.xScale + ", " + originalModel.yScale + ", " + originalModel.zScale +
+                    "\n | |  \\visibles=" + originalModel.visible + ", " + originalModel.hidden+"\n"
+            );
+        }
     }
 
     public static record PartAndChildName(@NotNull String partName, @NotNull List<String> childNamesToExpect) {

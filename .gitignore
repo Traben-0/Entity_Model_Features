@@ -19,3 +19,4 @@ classes/
 *.launch
 /.architectury-transformer/debug.log
 /common/old_emf/
+/common/src/test/

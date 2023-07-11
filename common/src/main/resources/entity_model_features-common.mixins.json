@@ -6,18 +6,25 @@
     "MixinEntityModelLoader",
     "MixinResourceReload",
     "accessor.CuboidAccessor",
+    "accessor.MinecraftClientAccessor",
     "accessor.ModelPartAccessor",
     "accessor.PlayerEntityModelAccessor",
-    "rewrite.MixinCreeperChargeFeatureRenderer",
-    "rewrite.MixinFeatureRenderer",
-    "rewrite.MixinHorseArmorFeatureRenderer",
-    "rewrite.MixinLlamaDecorFeatureRenderer",
-    "rewrite.MixinSaddleFeatureRenderer",
-    "rewrite.MixinSheepWoolEntityModel",
-    "rewrite.MixinSlimeOverlayFeatureRenderer"
+    "rendering.MixinCatCollarFeatureRenderer",
+    "rendering.MixinCreeperChargeFeatureRenderer",
+    "rendering.MixinDrownedOverlayFeatureRenderer",
+    "rendering.MixinEnergySwirlFeatureRenderer",
+    "rendering.MixinEyesFeatureRenderer",
+    "rendering.MixinFeatureRenderer",
+    "rendering.MixinHorseArmorFeatureRenderer",
+    "rendering.MixinLlamaDecorFeatureRenderer",
+    "rendering.MixinSaddleFeatureRenderer",
+    "rendering.MixinSheepWoolEntityModel",
+    "rendering.MixinSheepWoolFeatureRenderer",
+    "rendering.MixinSlimeOverlayFeatureRenderer",
+    "rendering.MixinStrayOverlayFeatureRenderer",
+    "rendering.MixinTropicalFishPatternFeatureRenderer"
   ],
   "mixins": [
-    "accessor.MinecraftClientAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
