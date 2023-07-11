@@ -1,0 +1,21 @@
+{
+  "entity_model_features.title": "Entity Model Features",
+  "entity_model_features.config.general": "Chung",
+  "entity_model_features.config.general.tooltip": "Cài đặt chung",
+  "entity_model_features.config.substitute_vanilla": "Thay thế các bộ phận mô hình bị thiếu",
+  "entity_model_features.config.substitute_vanilla.tooltip": "EMF sẽ cố gắng thay thế phần bị thiếu trong tệp mô hình .jem\n bằng bản sao truyền thống",
+  "entity_model_features.config.optimizations": "Tối ưu hóa",
+  "entity_model_features.config.optimizations.tooltip": "Cài đặt liên quan đến tối ưu hóa hoạt ảnh",
+  "entity_model_features.config.debug": "Gỡ lỗi",
+  "entity_model_features.config.debug.tooltip": "Tùy chọn gỡ lỗi, có thể hữu ích để tìm ra một số thứ",
+  "entity_model_features.config.green_render": "Làm cho các mô hình tùy chỉnh có màu xanh lá cây",
+  "entity_model_features.config.green_render.tooltip": "Làm cho mob CEM xuất hiện màu xanh lá cây\n để phân biệt chúng với các mô hình thông thường\nvà kiểm tra xem chúng có đang tải chính xác không",
+  "entity_model_features.config.log_models": "Ghi nhật ký thông tin xây dựng mô hình",
+  "entity_model_features.config.log_models.tooltip": "In dữ liệu gỡ lỗi tạo mô hình vào nhật ký",
+  "entity_model_features.config.vanilla_render.normal": "bình thường",
+  "entity_model_features.config.vanilla_render.offset": "bù lại",
+  "entity_model_features.config.vanilla_render": "Chế độ hiển thị mô hình truyền thống",
+  "entity_model_features.config.vanilla_render.tooltip": "cố gắng hiển thị mô hình truyền thống cùng với mô hình tùy chỉnh để so sánh\n mô hình này sẽ không có hoạt ảnh và do đó có thể có vị trí hơi kỳ lạ",
+  "entity_model_features.config.log_math": "Ghi nhật ký tính toán hoạt hình",
+  "entity_model_features.config.log_math.tooltip": "Ghi dữ liệu gỡ lỗi tính toán hoạt hình vào nhật ký\nCẢNH BÁO GÂY TRỄ CỰC KỲ!"
+}
