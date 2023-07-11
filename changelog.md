@@ -4,6 +4,8 @@
 
 A bug fix update before I backport down to 1.19
 
+- added a workaround to render the vanilla models parts when an entity dies for physics mod compatibility *(THIS IS FAR FROM PERFECT and really just a test)*
+- prevented animation variables from invalidating expressions during division testing by defaulting to 0 during setup phase
 - tweaked the config screens into categories and altered translations
 - extended the option to the setting to print out all unknown model information, to also try and make an example .jem file for that entity model *(it is not a perfect match, they are meant as a starting point for you)*
 - fixed the option to try and force EMF models back onto modified entities, triggering for entities without emf models

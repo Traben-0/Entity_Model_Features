@@ -7,16 +7,16 @@ import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
 import java.util.Objects;
 
-public class EMFConfigToolsScreen extends ETFConfigScreen {
+public class EMFConfigScreenTools extends ETFConfigScreen {
 
 
 
-    public EMFConfigToolsScreen(EMFConfigMainScreen parent) {
+    public EMFConfigScreenTools(EMFConfigScreenMain parent) {
         super(Text.translatable("entity_model_features.tools"),parent);
         emfParent = parent;
     }
 
-    private final EMFConfigMainScreen emfParent;
+    private final EMFConfigScreenMain emfParent;
 
 
     @Override

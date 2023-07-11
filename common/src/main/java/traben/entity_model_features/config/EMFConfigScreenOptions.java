@@ -7,16 +7,16 @@ import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
 import java.util.Objects;
 
-public class EMFConfigOptionsScreen extends ETFConfigScreen {
+public class EMFConfigScreenOptions extends ETFConfigScreen {
 
 
 
-    public EMFConfigOptionsScreen(EMFConfigMainScreen parent) {
+    public EMFConfigScreenOptions(EMFConfigScreenMain parent) {
         super(Text.translatable("entity_model_features.options"),parent);
         emfParent = parent;
     }
 
-    private final EMFConfigMainScreen emfParent;
+    private final EMFConfigScreenMain emfParent;
 
 
 
@@ -32,6 +32,7 @@ public class EMFConfigOptionsScreen extends ETFConfigScreen {
                 (button) -> {
                     emfParent.tempConfig.attemptToCopyVanillaModelIntoMissingModelPart = false;
                     emfParent.tempConfig.tryForceEmfModels = true;
+                    emfParent.tempConfig.attemptPhysicsModPatch_1 = false;
                     this.clearAndInit();
                     //Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.4), (int) (this.height * 0.9), (int) (this.width * 0.22), 20).build());
@@ -67,7 +68,16 @@ public class EMFConfigOptionsScreen extends ETFConfigScreen {
                 Text.translatable("entity_model_features.config.force_models.tooltip")
         ));
 
-
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("entity_model_features.config.physics").getString() +
+                        ": " + (emfParent.tempConfig.attemptPhysicsModPatch_1 ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                (button) -> {
+                    emfParent.tempConfig.attemptPhysicsModPatch_1 = !emfParent.tempConfig.attemptPhysicsModPatch_1;
+                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.physics").getString() +
+                            ": " + (emfParent.tempConfig.attemptPhysicsModPatch_1 ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                },
+                Text.translatable("entity_model_features.config.physics.tooltip")
+        ));
     }
 
 

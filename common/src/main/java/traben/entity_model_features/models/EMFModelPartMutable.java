@@ -27,7 +27,11 @@ import java.util.*;
 
 @Environment(value = EnvType.CLIENT)
 public class EMFModelPartMutable extends ModelPart {
-    private static final Cuboid EMPTY_CUBOID = new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, new HashSet<>(){{addAll(List.of(Direction.values()));}} );
+    private static final Cuboid EMPTY_CUBOID = new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, new HashSet<>()/*{{addAll(List.of(Direction.values()));}}*/){
+        @Override
+        public void renderCuboid(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
+        }
+    };
     public final List<EMFCuboid> emfCuboids = new ArrayList<>();
     //public final Map<String, EMFModelPart3> cannonicalChildren = new HashMap<>();
     public final Map<String, EMFModelPartMutable> emfChildren = new HashMap<>();
@@ -48,10 +52,11 @@ public class EMFModelPartMutable extends ModelPart {
 //     final Identifier customTexture;
 //    public final ModelPart vanillaPart;
 
-    public EMFModelPartMutable(List<Cuboid> cuboids, Map<String, ModelPart> children, int variantNumber, EMFJemData jemData) {
+    public EMFModelPartMutable( Map<String, ModelPart> children, int variantNumber, EMFJemData jemData) {
         //create empty root model object
 
-        super(/*cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod")? List.of(EMPTY_CUBOID) :*/ cuboids, children);
+        super(/*cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod")? List.of(EMPTY_CUBOID) :*/
+                List.of(), children);
         selfModelData = null;
 
         textureOverride = jemData.customTexture;
@@ -101,10 +106,18 @@ public class EMFModelPartMutable extends ModelPart {
     }
 
     private static List<Cuboid> getCuboidsFromData(EMFPartData emfPartData) {
-
         //if(cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod"))
-        //    cuboids.add(EMPTY_CUBOID);
-        return createCuboidsFromBoxDataV3(emfPartData);//false remove pivot value
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+        return createCuboidsFromBoxDataV3(emfPartData);
 
     }
 

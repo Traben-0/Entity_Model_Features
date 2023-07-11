@@ -13,7 +13,7 @@ public class MathBinaryExpressionComponent extends MathValue implements MathComp
         this.first = first;
         this.action = action;
         this.second = second;
-        ValueSupplier supplier = action.getBinaryRunnable(first, second);
+        //ValueSupplier supplier = action.getBinaryRunnable(first, second);
     }
 
     public static MathComponent getOptimizedExpression(MathComponent first, MathAction action, MathComponent second) {

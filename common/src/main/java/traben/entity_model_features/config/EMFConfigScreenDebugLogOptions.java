@@ -7,16 +7,16 @@ import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
 import java.util.Objects;
 
-public class EMFConfigDebugLogOptionsScreen extends ETFConfigScreen {
+public class EMFConfigScreenDebugLogOptions extends ETFConfigScreen {
 
 
 
-    public EMFConfigDebugLogOptionsScreen(EMFConfigMainScreen parent) {
+    public EMFConfigScreenDebugLogOptions(EMFConfigScreenMain parent) {
         super(Text.translatable("entity_model_features.debug"),parent);
         emfParent = parent;
     }
 
-    private final EMFConfigMainScreen emfParent;
+    private final EMFConfigScreenMain emfParent;
 
 
     @Override

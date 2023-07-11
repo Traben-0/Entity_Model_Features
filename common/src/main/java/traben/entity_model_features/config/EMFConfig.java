@@ -30,7 +30,9 @@ public class EMFConfig {
 
     public UnknownModelPrintMode printUnknownModelsMode = UnknownModelPrintMode.NONE;
 
+    public boolean attemptPhysicsModPatch_1 = false;
     public boolean attemptToCopyVanillaModelIntoMissingModelPart = false;
+
     public static EMFConfig getConfig() {
         if (EMFConfigData == null) {
             loadConfig();

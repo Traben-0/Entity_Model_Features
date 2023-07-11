@@ -27,5 +27,7 @@
   "entity_model_features.config.unknown_model_print_mode.log": "Log only",
   "entity_model_features.config.unknown_model_print_mode.log_jem": "Log & .jem file",
   "entity_model_features.config.unknown_model_print_mode.tooltip": "this will print out the information or a complete .jem file\n for any unknown or modded model EMF can access\nNOTE: the .jem files will not be perfect yet but will give you a starting point",
-  "entity_model_features.config.unknown_model_print_mode": "Print out unknown model info"
+  "entity_model_features.config.unknown_model_print_mode": "Print out unknown model info",
+  "entity_model_features.config.physics": "Physics mod patch #1",
+  "entity_model_features.config.physics.tooltip": "Will only render the original vanilla model parts on death if physics mod is enabled\n this partially works but is not a perfect solution"
 }

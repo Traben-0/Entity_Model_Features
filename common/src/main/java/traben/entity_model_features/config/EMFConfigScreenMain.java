@@ -9,11 +9,11 @@ import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
 import java.util.Objects;
 
-public class EMFConfigMainScreen extends ETFConfigScreen {
+public class EMFConfigScreenMain extends ETFConfigScreen {
 
 
 
-    public EMFConfigMainScreen(Screen parent) {
+    public EMFConfigScreenMain(Screen parent) {
         super(Text.translatable("entity_model_features.title"),parent);
        // this.parent = parent;
         tempConfig = EMFConfig.copyFrom(EMFConfig.getConfig());
@@ -58,21 +58,21 @@ public class EMFConfigMainScreen extends ETFConfigScreen {
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
                 Text.translatable("entity_model_features.config.options"),
                 (button) -> {
-                    Objects.requireNonNull(client).setScreen(new EMFConfigOptionsScreen(this));
+                    Objects.requireNonNull(client).setScreen(new EMFConfigScreenOptions(this));
                 },
                 Text.translatable("entity_model_features.config.options.tooltip")
         ));
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
                 Text.translatable("entity_model_features.config.tools"),
                 (button) -> {
-                    Objects.requireNonNull(client).setScreen(new EMFConfigToolsScreen(this));
+                    Objects.requireNonNull(client).setScreen(new EMFConfigScreenTools(this));
                 },
                 Text.translatable("entity_model_features.config.tools.tooltip")
         ));
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
                 Text.translatable("entity_model_features.config.debug"),
                 (button) -> {
-                    Objects.requireNonNull(client).setScreen(new EMFConfigDebugLogOptionsScreen(this));
+                    Objects.requireNonNull(client).setScreen(new EMFConfigScreenDebugLogOptions(this));
                 },
                 Text.translatable("entity_model_features.config.debug.tooltip")
         ));
