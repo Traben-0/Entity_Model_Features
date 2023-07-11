@@ -1,0 +1,21 @@
+{
+  "entity_model_features.title": "Entity Model Features",
+  "entity_model_features.config.general": "常规",
+  "entity_model_features.config.general.tooltip": "常规设置",
+  "entity_model_features.config.substitute_vanilla": "替换丢失的模型部分",
+  "entity_model_features.config.substitute_vanilla.tooltip": "EMF将尝试用原版文件替换 .jem\n 模型文件中缺失的部分",
+  "entity_model_features.config.optimizations": "优化",
+  "entity_model_features.config.optimizations.tooltip": "动画优化的相关设置",
+  "entity_model_features.config.debug": "调试",
+  "entity_model_features.config.debug.tooltip": "调试选项，有助于解决一些问题",
+  "entity_model_features.config.green_render": "使自定义模型变绿",
+  "entity_model_features.config.green_render.tooltip": "使CEM生物显示为绿色\n以便将它们与原版模型区分开来\n并检查它们是否被正确加载",
+  "entity_model_features.config.log_models": "记录模型构建信息",
+  "entity_model_features.config.log_models.tooltip": "打印模型的创建调试数据到日志中",
+  "entity_model_features.config.vanilla_render.normal": "普通",
+  "entity_model_features.config.vanilla_render.offset": "偏移",
+  "entity_model_features.config.vanilla_render": "显示原版模型模式",
+  "entity_model_features.config.vanilla_render.tooltip": "尝试将原版模型与自定义模型一起渲染以进行比较\n它不会有动画，因此一些位置可能会有些奇怪。",
+  "entity_model_features.config.log_math": "记录动画计算",
+  "entity_model_features.config.log_math.tooltip": "将动画计算调试数据打印到日志中\n警告：会导致极大的滞后！"
+}
