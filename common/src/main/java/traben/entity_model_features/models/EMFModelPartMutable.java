@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.*;
@@ -18,6 +19,7 @@ import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
+import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETFApi;
 
@@ -176,7 +178,7 @@ public class EMFModelPartMutable extends ModelPart {
         return emfCuboids;
     }
 
-    static private final BufferBuilder MODIFIED_RENDER_BUFFER =new BufferBuilder(8);
+    private  BufferBuilder MODIFIED_RENDER_BUFFER = null;
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //assertChildrenAndCuboids();
@@ -185,6 +187,7 @@ public class EMFModelPartMutable extends ModelPart {
 
             if (!isTopLevelModelRoot
                     && textureOverride != null
+                    && EMFConfig.getConfig().textureOverrideMode != EMFConfig.TextureOverrideMode.OFF
                     && light != LightmapTextureManager.MAX_LIGHT_COORDINATE+1 // this is only the case for EyesFeatureRenderer
                     && currentlyHeldEntity != null) {
 
@@ -197,15 +200,29 @@ public class EMFModelPartMutable extends ModelPart {
                     texture = ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride);
                 }
 
+                //todo alternate layers other than translucent
                 if (texture != null){
-                    //todo alternate layers other than translucent
-                    RenderLayer layer = RenderLayer.getEntityTranslucent(texture);
-
-                    MODIFIED_RENDER_BUFFER.begin(layer.getDrawMode(), layer.getVertexFormat());
-                    renderToSuper(matrices, MODIFIED_RENDER_BUFFER, light, overlay, red, green, blue, alpha);
-
-                    layer.draw(MODIFIED_RENDER_BUFFER,0,0,0);// RenderSystem.getVertexSorting());
-                    MODIFIED_RENDER_BUFFER.clear();
+                    if(EMFManager.getInstance().irisInstalled
+                            && EMFConfig.getConfig().textureOverrideMode == EMFConfig.TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE){
+                        //this simple code seems to work with iris
+                        VertexConsumerProvider vertexConsumers = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+                        VertexConsumer newVertex = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride)));
+                        if (newVertex != null) {
+                            renderToSuper(matrices, newVertex, light, overlay, red, green, blue, alpha);
+                        }
+                    }else{
+                        //this code works otherwise, and is entirely brute forced from what I could teach myself about buffers through experimentation
+                        //todo I would appreciate feedback on this from someone who understands the buffer system better
+                        try {
+                            RenderLayer layer = RenderLayer.getEntityTranslucent(texture);
+                            if (MODIFIED_RENDER_BUFFER == null)
+                                MODIFIED_RENDER_BUFFER = new BufferBuilder(layer.getExpectedBufferSize());
+                            MODIFIED_RENDER_BUFFER.begin(layer.getDrawMode(), layer.getVertexFormat());
+                            renderToSuper(matrices, MODIFIED_RENDER_BUFFER, light, overlay, red, green, blue, alpha);
+                            layer.draw(MODIFIED_RENDER_BUFFER, 0,0,0);
+                            MODIFIED_RENDER_BUFFER.clear();
+                        }catch (Exception ignored){}
+                    }
                 }
             }else {
                 //normal vertex consumer
