@@ -110,8 +110,10 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
 
+    public final boolean irisInstalled;
     private EMFManager() {
         physicsModInstalled = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
+        irisInstalled = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
     }
 
     public static EMFManager getInstance() {
