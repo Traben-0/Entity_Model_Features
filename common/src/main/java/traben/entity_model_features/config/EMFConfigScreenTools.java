@@ -12,7 +12,7 @@ public class EMFConfigScreenTools extends ETFConfigScreen {
 
 
     public EMFConfigScreenTools(EMFConfigScreenMain parent) {
-        super(Text.translatable("entity_model_features.tools"),parent);
+        super(Text.translatable("entity_model_features.config.tools"),parent);
         emfParent = parent;
     }
 

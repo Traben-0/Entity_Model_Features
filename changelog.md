@@ -1,5 +1,11 @@
 
 
+0.2.13
+
+- fixed `IndexOutOfBoundsException` & `already building` crashes related to texture overrides in sub-models
+- added an option to select how to handle texture overrides on sub-model parts, whether to rely on EMF's rendering code, an Iris rendering quirk, or to disable them.*(this should almost always be left on default except when debugging texture overrides in sub-models)*
+
+
 0.2.12
 
 A bug fix update before I backport down to 1.19
