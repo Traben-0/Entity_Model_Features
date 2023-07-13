@@ -171,9 +171,9 @@ public class EMFAnimation {
         //if(animKey.equals("left_rein2.visible")) System.out.println("result rein "+result+varToChange);
         if (Double.isNaN(result)) {
             if (variableToChange != null)
-                variableToChange.setValueIn3Model(partToApplyTo, Float.MAX_VALUE);
+                variableToChange.setValueInMutableModel(partToApplyTo, Float.MAX_VALUE);
         } else if (partToApplyTo != null) {
-            variableToChange.setValueIn3Model(partToApplyTo, result);
+            variableToChange.setValueInMutableModel(partToApplyTo, result);
         }
     }
 
@@ -182,9 +182,7 @@ public class EMFAnimation {
     }
 
     public void animPrint(String str) {
-        StringBuilder indent = new StringBuilder();
-        indent.append("> ".repeat(Math.max(0, indentCount)));
-        System.out.println(indent + str);
+        System.out.println("> ".repeat(Math.max(0, indentCount)) + str);
     }
 
 

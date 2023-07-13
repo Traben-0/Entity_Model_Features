@@ -63,7 +63,11 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         private void emf$Animate(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci, float h, float j, float k, float m, float l, float n, float o) {
 
         if(heldModelToForce != null) {
-            if(EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace())) {
+            if(EMFConfig.getConfig().tryForceEmfModels
+                    && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace())
+                    && EMFManager.getInstance().isKnownJemName(emf$ModelId)
+            ) {
+
                 model = heldModelToForce;
             }
             heldModelToForce = null;
@@ -72,6 +76,11 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             EMFManager.getInstance().preRenderEMFActions(emf$ModelId,livingEntity, vertexConsumerProvider, o, n, l, k, m);
             if (EMFConfig.getConfig().vanillaModelRenderMode != EMFConfig.VanillaModelRenderMode.Off){
                 EMFManager.getInstance().tryRenderVanillaRoot(emf$ModelId,matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);
+            }
+            //simple attempt at a physics mod workaround
+            if(livingEntity.isDead() && EMFConfig.getConfig().attemptPhysicsModPatch_1 && EMFManager.getInstance().physicsModInstalled){
+                EMFManager.getInstance().tryRenderVanillaRootNormally(emf$ModelId,matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);
+                //the regular render will get cancelled anyway nothing further to do
             }
     }
 

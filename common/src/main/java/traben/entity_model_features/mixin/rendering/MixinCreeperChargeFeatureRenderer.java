@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin.rewrite;
+package traben.entity_model_features.mixin.rendering;
 
 import net.minecraft.client.render.entity.feature.CreeperChargeFeatureRenderer;
 import net.minecraft.entity.Entity;

@@ -14,6 +14,7 @@ dependencies {
     //modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 
     modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version}")
+    //modImplementation ("maven.modrinth:physicsmod:4xSgtf9P")
 }
 
 publishing {

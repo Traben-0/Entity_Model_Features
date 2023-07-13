@@ -22,6 +22,7 @@ import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
@@ -81,10 +82,12 @@ public class EMFManager {//singleton for data holding and resetting needs
 //        put("sheep_b", "sheep_wool");
 //        put("slime_b", "slime_outer");
 //
-//        put("parrot_b", "parrot");//todo
+//        put("parrot_b", "parrot");//todo shoulder parrots
 //        put("parrot_c", "parrot");//todo
 
     }};
+
+    public final boolean physicsModInstalled;
     private static EMFManager self = null;
     private final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
     private final Object2IntOpenHashMap<String> cache_AmountOfMobNameAlreadyDone = new Object2IntOpenHashMap<>();
@@ -107,8 +110,10 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
 
+    public final boolean irisInstalled;
     private EMFManager() {
-
+        physicsModInstalled = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
+        irisInstalled = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
     }
 
     public static EMFManager getInstance() {
@@ -397,7 +402,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         //have iterated over all parts in jem and made them
 
 
-        EMFModelPartMutable emfRootModelPart = new EMFModelPartMutable(new ArrayList<>(), rootChildren, variantNumber, jemData);
+        EMFModelPartMutable emfRootModelPart = new EMFModelPartMutable( rootChildren, variantNumber, jemData);
         //try
         //todo pretty sure we must match root transforms because of fucking frogs, maybe?
         //emfRootModelPart.pivotY = 24;
@@ -429,7 +434,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                     emfRootModelPart.setDefaultTransform(subRoot.getDefaultTransform());
                 }
 
-                emfRootModelPart = new EMFModelPartMutable(new ArrayList<>(), Map.of("root", emfRootModelPart), variantNumber, jemData);
+                emfRootModelPart = new EMFModelPartMutable( Map.of("root", emfRootModelPart), variantNumber, jemData);
             }
         }else if (emfRootModelPart.hasChild("root")){
             //should only be tadpoles
@@ -504,6 +509,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         });
         LinkedList<EMFAnimation> orderedAnimations = new LinkedList<>();
         //System.out.println("> anims: " + emfAnimations);
+        isAnimationValidationPhase = true;
         emfAnimations.forEach((key, anim) -> {
             //System.out.println(">> anim key: " + key);
             if (anim != null) {
@@ -516,11 +522,18 @@ public class EMFManager {//singleton for data holding and resetting needs
                     EMFUtils.EMFModWarn("animations was invalid: " + anim.animKey + " = " + anim.expressionString);
             }
         });
+        isAnimationValidationPhase = false;
 
         EMFAnimationExecutor executor = new EMFAnimationExecutor(variableSuppliers, orderedAnimations);
 
         cache_EntityNameToAnimationExecutable.put(jemData.mobName, executor);
         ///////////////////////////
+    }
+
+    public boolean isAnimationValidationPhase = false;
+
+    public boolean isKnownJemName(String nameOfJem){
+        return cache_JemNameToCannonModelRoot.containsKey(nameOfJem);
     }
 
     public void preRenderEMFActions(String modelName, Entity entity, VertexConsumerProvider provider, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
@@ -539,12 +552,12 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
     }
 
-    public void preRenderEMFActions(Entity entity, VertexConsumerProvider provider, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
-        String mobName = getTypeName(entity);
-        preRenderEMFActions(mobName, entity, provider, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
-//        if(mobName.contains("llama") && new Random().nextInt(100)==1)
-//            System.out.println("animating: "+mobName);
-    }
+//    public void preRenderEMFActions(Entity entity, VertexConsumerProvider provider, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+//        String mobName = getTypeName(entity);
+//        preRenderEMFActions(mobName, entity, provider, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
+////        if(mobName.contains("llama") && new Random().nextInt(100)==1)
+////            System.out.println("animating: "+mobName);
+//    }
 
     @Nullable
     public Identifier getRootModelTextureOverride(String modelId){
@@ -629,7 +642,12 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
     }
 
-
+    public void tryRenderVanillaRootNormally(String modelId,MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay){
+        ModelPart vanillaRoot = cache_JemNameToVanillaModelRoot.get(modelId);
+        if(vanillaRoot != null) {
+            vanillaRoot.render(matrixStack,vertexConsumer,light,overlay,1,1,1,1);
+        }
+    }
 
     private record UUIDAndMobTypeKey(UUID uuid, EntityType<?> entityType) {
     }

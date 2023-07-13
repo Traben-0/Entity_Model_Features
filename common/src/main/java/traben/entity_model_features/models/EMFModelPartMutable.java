@@ -1,6 +1,7 @@
 package traben.entity_model_features.models;
 
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.api.EnvType;
@@ -8,9 +9,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
@@ -21,6 +20,7 @@ import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
+import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETFApi;
 
@@ -29,7 +29,11 @@ import java.util.*;
 
 @Environment(value = EnvType.CLIENT)
 public class EMFModelPartMutable extends ModelPart {
-    private static final Cuboid EMPTY_CUBOID = new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, new HashSet<>(){{addAll(List.of(Direction.values()));}} );
+    private static final Cuboid EMPTY_CUBOID = new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, new HashSet<>()/*{{addAll(List.of(Direction.values()));}}*/){
+        @Override
+        public void renderCuboid(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
+        }
+    };
     public final List<EMFCuboid> emfCuboids = new ArrayList<>();
     //public final Map<String, EMFModelPart3> cannonicalChildren = new HashMap<>();
     public final Map<String, EMFModelPartMutable> emfChildren = new HashMap<>();
@@ -50,10 +54,11 @@ public class EMFModelPartMutable extends ModelPart {
 //     final Identifier customTexture;
 //    public final ModelPart vanillaPart;
 
-    public EMFModelPartMutable(List<Cuboid> cuboids, Map<String, ModelPart> children, int variantNumber, EMFJemData jemData) {
+    public EMFModelPartMutable( Map<String, ModelPart> children, int variantNumber, EMFJemData jemData) {
         //create empty root model object
 
-        super(/*cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod")? List.of(EMPTY_CUBOID) :*/ cuboids, children);
+        super(/*cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod")? List.of(EMPTY_CUBOID) :*/
+                List.of(), children);
         selfModelData = null;
 
         textureOverride = jemData.customTexture;
@@ -103,10 +108,18 @@ public class EMFModelPartMutable extends ModelPart {
     }
 
     private static List<Cuboid> getCuboidsFromData(EMFPartData emfPartData) {
-
         //if(cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod"))
-        //    cuboids.add(EMPTY_CUBOID);
-        return createCuboidsFromBoxDataV3(emfPartData);//false remove pivot value
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+//            cuboids.add(EMPTY_CUBOID);
+        return createCuboidsFromBoxDataV3(emfPartData);
 
     }
 
@@ -166,36 +179,71 @@ public class EMFModelPartMutable extends ModelPart {
         return emfCuboids;
     }
 
+    private  BufferBuilder MODIFIED_RENDER_BUFFER = null;
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //assertChildrenAndCuboids();
         //if(new Random().nextInt(100)==1) System.out.println("rendered");
         if (isValidToRenderInThisState) {
 
-            //todo alternate layers other than translucent
-            if (!isTopLevelModelRoot && textureOverride != null && currentlyHeldProvider != null && currentlyHeldEntity != null) {
-                VertexConsumerProvider bob = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-                VertexConsumer newVertex = bob.getBuffer(RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride)));
-                if (newVertex != null) {
-                    vertices = newVertex;
+            if (!isTopLevelModelRoot
+                    && textureOverride != null
+                    && EMFConfig.getConfig().textureOverrideMode != EMFConfig.TextureOverrideMode.OFF
+                    && light != LightmapTextureManager.MAX_LIGHT_COORDINATE+1 // this is only the case for EyesFeatureRenderer
+                    && currentlyHeldEntity != null) {
+
+                Identifier texture;
+                if(light == LightmapTextureManager.MAX_LIGHT_COORDINATE+2){
+                    //require emissive texture variant
+                    texture = ETFApi.getCurrentETFEmissiveTextureOfEntityOrNull(currentlyHeldEntity, textureOverride);
+                }else{
+                    //otherwise normal texture
+                    texture = ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride);
                 }
-            }
-
-
-            if (EMFConfig.getConfig().renderCustomModelsGreen) {
-                float flash = (float)Math.abs(Math.sin(System.currentTimeMillis() /1000d));
-                super.render(matrices, vertices, light, overlay, flash, green, flash, alpha);
-            } else {
-                super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+                //todo alternate layers other than translucent
+                if (texture != null){
+                    if(EMFManager.getInstance().irisInstalled
+                            && EMFConfig.getConfig().textureOverrideMode == EMFConfig.TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE){
+                        //this simple code seems to work with iris
+                        VertexConsumerProvider vertexConsumers = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+                        VertexConsumer newVertex = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride)));
+                        if (newVertex != null) {
+                            renderToSuper(matrices, newVertex, light, overlay, red, green, blue, alpha);
+                        }
+                    }else{
+                        //this code works otherwise, and is entirely brute forced from what I could teach myself about buffers through experimentation
+                        //todo I would appreciate feedback on this from someone who understands the buffer system better
+                        try {
+                            RenderLayer layer = RenderLayer.getEntityTranslucent(texture);
+                            if (MODIFIED_RENDER_BUFFER == null)
+                                MODIFIED_RENDER_BUFFER = new BufferBuilder(layer.getExpectedBufferSize());
+                            MODIFIED_RENDER_BUFFER.begin(layer.getDrawMode(), layer.getVertexFormat());
+                            renderToSuper(matrices, MODIFIED_RENDER_BUFFER, light, overlay, red, green, blue, alpha);
+                            layer.draw(MODIFIED_RENDER_BUFFER, RenderSystem.getVertexSorting());
+                            MODIFIED_RENDER_BUFFER.clear();
+                        }catch (Exception ignored){}
+                    }
+                }
+            }else {
+                //normal vertex consumer
+                renderToSuper(matrices, vertices, light, overlay, red, green, blue, alpha);
             }
         }
-
     }
 
-    public void assertChildrenAndCuboids() {
-        ((ModelPartAccessor) this).setChildren(new HashMap<>(emfChildren));
-        ((ModelPartAccessor) this).setCuboids(new ArrayList<>(emfCuboids));
+    private void renderToSuper(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha){
+        if (EMFConfig.getConfig().renderCustomModelsGreen) {
+            float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
+            super.render(matrices, vertices, light, overlay, flash, green, flash, alpha);
+        } else {
+            super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+        }
     }
+
+//    public void assertChildrenAndCuboids() {
+//        ((ModelPartAccessor) this).setChildren(new HashMap<>(emfChildren));
+//        ((ModelPartAccessor) this).setCuboids(new ArrayList<>(emfCuboids));
+//    }
 
     //stop trying to optimize my code so it doesn't work sodium :P
     @Override // overrides to circumvent sodium optimizations that mess with custom uv quad creation
@@ -280,9 +328,9 @@ public class EMFModelPartMutable extends ModelPart {
         return ((ModelPartAccessor) this).getChildren();
     }
 
-    public void setChildrenEMF(Map<String, ModelPart> children) {
-        ((ModelPartAccessor) this).setChildren(children);
-    }
+//    public void setChildrenEMF(Map<String, ModelPart> children) {
+//        ((ModelPartAccessor) this).setChildren(children);
+//    }
 
     public void mergePartVariant(int variantNumber, EMFModelPartMutable partToMergeIntoThisAsVariant) {
         EMFModelState incomingPartState = partToMergeIntoThisAsVariant.getCurrentState();

@@ -27,9 +27,14 @@ public class EMFConfig {
 
     public boolean tryForceEmfModels = true;
 
-    public boolean printModdedMappingHelp = false;
 
+    public UnknownModelPrintMode printUnknownModelsMode = UnknownModelPrintMode.NONE;
+
+    public boolean attemptPhysicsModPatch_1 = false;
     public boolean attemptToCopyVanillaModelIntoMissingModelPart = false;
+
+    public TextureOverrideMode textureOverrideMode = TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
+
     public static EMFConfig getConfig() {
         if (EMFConfigData == null) {
             loadConfig();
@@ -93,19 +98,50 @@ public class EMFConfig {
         return gson.fromJson(gson.toJson(source), EMFConfig.class);
     }
 
-//    public enum ModelDataRefreshMode{
-//        MANUAL,
-//        ORIGINAL,
-//        TEST;
-//
-//        public ModelDataRefreshMode next(){
-//            return switch (this){
-//                case MANUAL -> TEST;
-//                case ORIGINAL -> MANUAL;
-//                default -> ORIGINAL;
-//            };
-//        }
-//    }
+
+    public enum TextureOverrideMode{
+        OFF(Text.translatable("entity_model_features.config.texture_override_mode.dont")),
+        EMF_CODE(Text.translatable("entity_model_features.config.texture_override_mode.emf")),
+        USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE(Text.translatable("entity_model_features.config.texture_override_mode.iris"));
+
+        private final Text text;
+        TextureOverrideMode(Text text){
+            this.text = text;
+        }
+
+        public Text asText(){
+            return text;
+        }
+        public TextureOverrideMode next(){
+            return switch (this){
+                case OFF -> EMF_CODE;
+                case EMF_CODE -> USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
+                default -> OFF;
+            };
+        }
+    }
+
+    public enum UnknownModelPrintMode{
+        NONE(ScreenTexts.OFF),
+        LOG_ONLY(Text.translatable("entity_model_features.config.unknown_model_print_mode.log")),
+        LOG_AND_JEM(Text.translatable("entity_model_features.config.unknown_model_print_mode.log_jem"));
+
+        private final Text text;
+        UnknownModelPrintMode(Text text){
+            this.text = text;
+        }
+
+        public Text asText(){
+            return text;
+        }
+        public UnknownModelPrintMode next(){
+            return switch (this){
+                case NONE -> LOG_ONLY;
+                case LOG_ONLY -> LOG_AND_JEM;
+                default -> NONE;
+            };
+        }
+    }
 
     public enum VanillaModelRenderMode{
         Off(ScreenTexts.OFF),

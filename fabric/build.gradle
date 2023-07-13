@@ -33,6 +33,7 @@ dependencies {
     shadowCommon(project(path: ":fabric-like", configuration: "transformProductionFabric")) { transitive false }
 
 
+    //modImplementation ("maven.modrinth:physicsmod:4xSgtf9P")
     modImplementation("maven.modrinth:modmenu:${project.modmenu_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }

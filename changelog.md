@@ -1,5 +1,25 @@
 
 
+0.2.13
+
+- fixed `IndexOutOfBoundsException` & `already building` crashes related to texture overrides in sub-models
+- added an option to select how to handle texture overrides on sub-model parts, whether to rely on EMF's rendering code, an Iris rendering quirk, or to disable them.*(this should almost always be left on default except when debugging texture overrides in sub-models)*
+
+
+0.2.12
+
+A bug fix update before I backport down to 1.19
+
+- added a workaround to render the vanilla models parts when an entity dies for physics mod compatibility *(THIS IS FAR FROM PERFECT and really just a test)*
+- prevented animation variables from invalidating expressions during division testing by defaulting to 0 during setup phase
+- tweaked the config screens into categories and altered translations
+- extended the option to the setting to print out all unknown model information, to also try and make an example .jem file for that entity model *(it is not a perfect match, they are meant as a starting point for you)*
+- fixed the option to try and force EMF models back onto modified entities, triggering for entities without emf models
+- fixed limb_speed idling at the minimum float value it should now idle at 0 instead
+- improved texture overrides when used internally within models *(no longer relies on a broken behaviour of iris)* *(will have lighting glitches when used on mobs that have glowing eyes or ETF emissive textures until ETFs next update)*
+
+
+
 0.2.11
 Did someone say mod compatibility?
 This update adds a few features regarding `EMF` and other mods the most notable of which being an initial trial of modded entity support.

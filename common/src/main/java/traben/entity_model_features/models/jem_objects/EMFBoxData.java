@@ -70,4 +70,18 @@ public class EMFBoxData {
                 ", sizeAdd=" + sizeAdd +
                 '}';
     }
+
+    public static class EMFBoxPrinter {
+        public float[] textureOffset = {};
+        public float[] uvDown = {0,0,0,0};
+        public float[] uvUp = {0,0,0,0};
+
+        public float[] uvNorth, uvFront = {0,0,0,0};
+        public float[] uvSouth, uvBack = {0,0,0,0};
+        public float[] uvWest, uvLeft = {0,0,0,0};
+        public float[] uvEast, uvRight = {0,0,0,0};
+
+        public float[] coordinates = {0,0,0,0,0,0};
+        public float sizeAdd = 0.0f;
+    }
 }
