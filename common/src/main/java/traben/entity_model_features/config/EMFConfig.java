@@ -33,6 +33,8 @@ public class EMFConfig {
     public boolean attemptPhysicsModPatch_1 = false;
     public boolean attemptToCopyVanillaModelIntoMissingModelPart = false;
 
+    public TextureOverrideMode textureOverrideMode = TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
+
     public static EMFConfig getConfig() {
         if (EMFConfigData == null) {
             loadConfig();
@@ -94,6 +96,29 @@ public class EMFConfig {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         return gson.fromJson(gson.toJson(source), EMFConfig.class);
+    }
+
+
+    public enum TextureOverrideMode{
+        OFF(Text.translatable("entity_model_features.config.texture_override_mode.dont")),
+        EMF_CODE(Text.translatable("entity_model_features.config.texture_override_mode.emf")),
+        USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE(Text.translatable("entity_model_features.config.texture_override_mode.iris"));
+
+        private final Text text;
+        TextureOverrideMode(Text text){
+            this.text = text;
+        }
+
+        public Text asText(){
+            return text;
+        }
+        public TextureOverrideMode next(){
+            return switch (this){
+                case OFF -> EMF_CODE;
+                case EMF_CODE -> USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
+                default -> OFF;
+            };
+        }
     }
 
     public enum UnknownModelPrintMode{

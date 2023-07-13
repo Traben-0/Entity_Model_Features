@@ -12,7 +12,7 @@ public class EMFConfigScreenDebugLogOptions extends ETFConfigScreen {
 
 
     public EMFConfigScreenDebugLogOptions(EMFConfigScreenMain parent) {
-        super(Text.translatable("entity_model_features.debug"),parent);
+        super(Text.translatable("entity_model_features.config.debug"),parent);
         emfParent = parent;
     }
 
