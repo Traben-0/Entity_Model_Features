@@ -1,4 +1,14 @@
 
+dev
+
+-large rework, reimplementation, and internalisation of animation code and model variant checking. 
+preventing all occurrences of animation de-sync and fixing animations for all modded/replaced entities/models and
+block entities.
+-block entity support is now theoretically fully realised pending OptiFine format implementation.
+-various stability fixes to model variants including texture support.
+-animation code ready for block entities
+-variation code ready for block entities
+
 
 0.2.13
 

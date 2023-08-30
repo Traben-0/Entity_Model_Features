@@ -1,7 +1,6 @@
 package traben.entity_model_features.models.jem_objects;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.block.entity.ChestBlockEntityRenderer;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
@@ -63,7 +62,7 @@ public class EMFJemData {
         }
 
         //add any missing parts as blank before children removal checks
-        LinkedList<EMFPartData> missingModels = new LinkedList<EMFPartData>();
+        LinkedList<EMFPartData> missingModels = new LinkedList<>();
         for (EMFOptiFinePartNameMappings.PartAndChildName data :
                 map.values()) {
             String name = data.partName();
@@ -107,14 +106,14 @@ public class EMFJemData {
                         model.part = null;
                     }
                 }
-            } else {
+            } //else {
                 //pls no
-            }
+            //}
         }
 
 
         Set<String> foundChildren = new HashSet<>();
-        Set<EMFPartData> foundChildrenPart = new HashSet<>();
+        //Set<EMFPartData> foundChildrenPart = new HashSet<>(); todo what was this for again?
 
         //copy all children into their parents lists
         for (Map.Entry<String, EMFOptiFinePartNameMappings.PartAndChildName> entry :
@@ -130,15 +129,10 @@ public class EMFJemData {
                             parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName.replaceFirst("!", ""),textureSize));
                         } else {
                             EMFPartData child = getFirstPartInModelsIgnoreAttach(childName);
-                            if (child != null) {
-                                parent.submodels.add(child);
-                               // foundChildrenPart.add(child);
-
-                               //child.part=null;
-                            } else {
-                                //oof no child, this can happen with the shitty things in vanilla like wolves real_tail :/
-                                parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName,textureSize));
-                            }
+                            // foundChildrenPart.add(child);
+                            //child.part=null;
+                            //oof no child, this can happen with the shitty things in vanilla like wolves real_tail :/
+                            parent.submodels.add(Objects.requireNonNullElseGet(child, () -> EMFPartData.getBlankPartWithIDOf(childName, textureSize)));
                             foundChildren.add(childName);
                         }
                     }
@@ -262,7 +256,7 @@ public class EMFJemData {
                 '}';
     }
 
-    public static class EMFJemPrinter {
+    public static class EMFJemPrinter {//todo use and assign values
         public String texture = "";
         public int[] textureSize = {16,16};
         public double shadow_size = 1.0;

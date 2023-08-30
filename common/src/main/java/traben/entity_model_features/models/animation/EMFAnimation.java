@@ -3,7 +3,6 @@ package traben.entity_model_features.models.animation;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.entity.Entity;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPartMutable;
 import traben.entity_model_features.models.animation.animation_math_parser.MathComponent;
@@ -20,7 +19,7 @@ public class EMFAnimation {
     public final String animKey;
     public final String expressionString;
     public final String modelName;
-    public final EMFAnimationVariableSuppliers variableSuppliers;
+    //public final EMFAnimationHelper variableSuppliers;
     public final boolean isVariable;
     final float defaultValue;
     private final Random rand = new Random();
@@ -37,9 +36,10 @@ public class EMFAnimation {
                         EMFDefaultModelVariable variableToChange,
                         String animKey,
                         String initialExpression,
-                        String modelName,
-                        EMFAnimationVariableSuppliers variableSuppliers) {
-        this.variableSuppliers = variableSuppliers;
+                        String modelName//,
+                        //EMFAnimationHelper variableSuppliers
+    ) {
+        //this.variableSuppliers = variableSuppliers;
         this.modelName = modelName;
         this.animKey = animKey;
         isVariable = animKey.startsWith("var");
@@ -99,49 +99,47 @@ public class EMFAnimation {
         verboseMode = val;
     }
 
-    public float getLastResultOnly(Entity entity0) {
+    public float getLastResultOnly() {
 
 
-        if (entity0 == null) {
+        if (EMFAnimationHelper.getEMFEntity() == null) {
             // if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getLastResultOnly, (okay for model init)");
             return 0;
         }
 
-        float value =prevResult.getFloat(entity0.getUuid());
+        float value =prevResult.getFloat(EMFAnimationHelper.getEMFEntity() .getUuid());
 
         return value == Float.MIN_VALUE ? 0f : value;
 
     }
 
-    public float getResultViaCalculate(Entity entity0, boolean storeResult) {
-
-        if (entity0 == null) {
+    public float getResultViaCalculate(){// boolean storeResult) {
+        UUID id = EMFAnimationHelper.getEMFEntity() == null ? null: EMFAnimationHelper.getEMFEntity().getUuid();
+        if (id == null) {
             // if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
             return 0;
         }
 
-
         float result = calculatorRun();
 
         //float oldResult = prevResults.getFloat(id);
-        if (storeResult) {
+        //if (storeResult) {
             //prevPrevResults.put(id, oldResult);
-            prevResult.put(entity0.getUuid(), result);
-        }
+            prevResult.put(id, result);
+        //}
         return result;
         //return oldResult;
     }
 
-    public float getResultViaCalculate(Entity entity0) {
-        return getResultViaCalculate(entity0, true);
-    }
+//    public float getResultViaCalculate() {
+//        return getResultViaCalculate( );//true);
+//    }
 
     //use float up at this level as minecraft uses it
     public float calculatorRun() {
 //        try {
         if (
                 EMFConfig.getConfig().printAllMaths &&
-                          animKey.equals("left_leg.ry") &&
                         rand.nextInt(100) == 1) {
             setVerbose(true);
             //  System.out.println("vanilla body.rx ="+ parentModel.getAnimationResultOfKeyAsSupplier(null, "body.rx").get(entity0));
@@ -158,17 +156,18 @@ public class EMFAnimation {
 
     }
 
-    public void calculateAndSet(Entity entity0) {
+    public void calculateAndSet() {
         //if(animKey.equals("var.potion")) System.out.println("potion "+getResultViaCalculate(entity0));
         if (isVariable) {
-            getResultViaCalculate(entity0);
+            getResultViaCalculate();
         } else {
-            handleResult(getResultViaCalculate(entity0));
+            handleResult(getResultViaCalculate());
         }
     }
 
     private void handleResult(float result) {
         //if(animKey.equals("left_rein2.visible")) System.out.println("result rein "+result+varToChange);
+
         if (Double.isNaN(result)) {
             if (variableToChange != null)
                 variableToChange.setValueInMutableModel(partToApplyTo, Float.MAX_VALUE);

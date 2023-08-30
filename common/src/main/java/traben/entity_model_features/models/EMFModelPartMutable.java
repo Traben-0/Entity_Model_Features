@@ -11,12 +11,14 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Direction;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.CuboidAccessor;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
+import traben.entity_model_features.models.animation.EMFAnimation;
+import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
@@ -29,20 +31,18 @@ import java.util.*;
 
 @Environment(value = EnvType.CLIENT)
 public class EMFModelPartMutable extends ModelPart {
-    private static final Cuboid EMPTY_CUBOID = new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, new HashSet<>()/*{{addAll(List.of(Direction.values()));}}*/){
-        @Override
-        public void renderCuboid(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
-        }
-    };
-    public final List<EMFCuboid> emfCuboids = new ArrayList<>();
+//    private static final Cuboid EMPTY_CUBOID = new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, new HashSet<>()/*{{addAll(List.of(Direction.values()));}}*/){
+//        @Override
+//        public void renderCuboid(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
+//        }
+//    };
+//    public final List<EMFCuboid> emfCuboids = new ArrayList<>();
     //public final Map<String, EMFModelPart3> cannonicalChildren = new HashMap<>();
-    public final Map<String, EMFModelPartMutable> emfChildren = new HashMap<>();
+//    public final Map<String, EMFModelPartMutable> emfChildren = new HashMap<>();
     public final EMFPartData selfModelData;
-    public int currentModelVariantState = 0;
+    public int currentModelVariantState = 1;
     public boolean isValidToRenderInThisState = true;
     public final Int2ObjectArrayMap<EMFModelState> allKnownStateVariants = new Int2ObjectArrayMap<>();
-
-
     //public static final EMFModelPart3 BLANK_MODEL_PART = new EMFModelPart3(EMFPartData.BLANK_PART_DATA);
 
 
@@ -182,23 +182,40 @@ public class EMFModelPartMutable extends ModelPart {
     private  BufferBuilder MODIFIED_RENDER_BUFFER = null;
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+
+        if(variantCheck != null){
+            variantCheck.run();
+        }
+
         //assertChildrenAndCuboids();
         //if(new Random().nextInt(100)==1) System.out.println("rendered");
         if (isValidToRenderInThisState) {
+            if(tryAnimate != null){
+                tryAnimate.run();
+            }
 
             if (!isTopLevelModelRoot
                     && textureOverride != null
                     && EMFConfig.getConfig().textureOverrideMode != EMFConfig.TextureOverrideMode.OFF
                     && light != LightmapTextureManager.MAX_LIGHT_COORDINATE+1 // this is only the case for EyesFeatureRenderer
-                    && currentlyHeldEntity != null) {
+                    && EMFAnimationHelper.getEMFEntity() != null) {
 
                 Identifier texture;
                 if(light == LightmapTextureManager.MAX_LIGHT_COORDINATE+2){
                     //require emissive texture variant
-                    texture = ETFApi.getCurrentETFEmissiveTextureOfEntityOrNull(currentlyHeldEntity, textureOverride);
+                    if(EMFAnimationHelper.getEMFEntity().entity() == null){
+                        texture = null;//todo ETFApi.get(EMFAnimationHelper.getEMFEntity().getBlockEntity(),EMFAnimationHelper.getEMFEntity().getUuid(), textureOverride);
+                    }else{
+                        texture = ETFApi.getCurrentETFEmissiveTextureOfEntityOrNull(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
+                    }
+
                 }else{
                     //otherwise normal texture
-                    texture = ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride);
+                    if(EMFAnimationHelper.getEMFEntity().entity() == null) {
+                        texture = ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().getBlockEntity(), textureOverride,EMFAnimationHelper.getEMFEntity().getUuid());
+                    }else{
+                        texture = ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
+                    }
                 }
                 //todo alternate layers other than translucent
                 if (texture != null){
@@ -206,7 +223,12 @@ public class EMFModelPartMutable extends ModelPart {
                             && EMFConfig.getConfig().textureOverrideMode == EMFConfig.TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE){
                         //this simple code seems to work with iris
                         VertexConsumerProvider vertexConsumers = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-                        VertexConsumer newVertex = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(ETFApi.getCurrentETFVariantTextureOfEntity(currentlyHeldEntity, textureOverride)));
+                        VertexConsumer newVertex = EMFAnimationHelper.getEMFEntity() == null ? null : vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(
+                                EMFAnimationHelper.getEMFEntity().entity() == null?
+                                ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().getBlockEntity(), textureOverride,EMFAnimationHelper.getEMFEntity().getUuid()):
+                                ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().entity(), textureOverride)
+
+                        ));
                         if (newVertex != null) {
                             renderToSuper(matrices, newVertex, light, overlay, red, green, blue, alpha);
                         }
@@ -282,8 +304,8 @@ public class EMFModelPartMutable extends ModelPart {
                 this.setDefaultTransform(defaults);
 
             //this change needs to propogate into variant 0's state
-            if(allKnownStateVariants.containsKey(0) && allKnownStateVariants.size()==1){
-                allKnownStateVariants.put(0, getCurrentState());
+            if(allKnownStateVariants.containsKey(1) && allKnownStateVariants.size()==1){
+                allKnownStateVariants.put(1, getCurrentState());
             }
         }
 
@@ -292,15 +314,104 @@ public class EMFModelPartMutable extends ModelPart {
 
     private boolean isTopLevelModelRoot = false;
 
-    public void setPartAsTopLevelRoot(){
-        isTopLevelModelRoot = true;
+    public String modelName = null;
+    public EMFJemData jemData = null;
+    public boolean hasVariants = false;
+    public ETFApi.ETFRandomTexturePropertyInstance variantTester = null;
 
+    public ModelPart vanillaRoot = null;
+
+    public void tryRenderVanillaRoot(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay){
+        if(vanillaRoot != null) {
+            matrixStack.push();
+            if (EMFConfig.getConfig().vanillaModelRenderMode == EMFConfig.VanillaModelRenderMode.Positon_offset) {
+                matrixStack.translate(1, 0, 0);
+            }
+            vanillaRoot.render(matrixStack,vertexConsumer,light,overlay,1,0.5f,0.5f,0.5f);
+            matrixStack.pop();
+        }
     }
 
-    public static VertexConsumerProvider currentlyHeldProvider = null;
+    public void tryRenderVanillaRootNormally(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay){
 
-    public static Entity currentlyHeldEntity = null;
+        if(vanillaRoot != null) {
+            vanillaRoot.render(matrixStack,vertexConsumer,light,overlay,1,1,1,1);
+        }
+    }
 
+    public void setPartAsTopLevelRoot(String mobModelName,EMFJemData jemData, boolean hasVariants,ModelPart vanillaRoot){
+        isTopLevelModelRoot = true;
+        this.hasVariants = hasVariants;
+        this.jemData = jemData;
+        this.modelName = mobModelName;
+        receiveRootVariationRunnable(()->{
+            if(this.lastFrameVariatedOn != EMFManager.getInstance().entityRenderCount){
+                this.lastFrameVariatedOn = EMFManager.getInstance().entityRenderCount;
+                EMFManager.getInstance().doVariantCheckFor(this);
+            }
+        });
+        this.vanillaRoot = vanillaRoot;
+    }
+    private long lastFrameVariatedOn = -1;
+
+    private Runnable variantCheck = null;
+
+    //public static VertexConsumerProvider currentlyHeldProvider = null;
+    private void receiveRootVariationRunnable(Runnable run){
+        variantCheck = run;
+        getChildrenEMF().values().forEach((child)->{
+            if(child instanceof EMFModelPartMutable emf){
+                emf.receiveRootVariationRunnable(run);
+            }
+        });
+    }
+
+    //public void doVariantCheck(){
+    //    if(variantCheck != null) variantCheck.run();
+    //}
+
+
+
+
+
+    public void receiveAnimations(int variant,LinkedList<EMFAnimation> orderedAnimations){
+        if(orderedAnimations.size()>0) {
+            //this.orderedAnimations = orderedAnimations;
+
+            Runnable run = ()->{
+                if(this.lastFrameAnimatedOn != EMFManager.getInstance().entityRenderCount){
+                    this.lastFrameAnimatedOn = EMFManager.getInstance().entityRenderCount;
+                    orderedAnimations.forEach((EMFAnimation::calculateAndSet));
+                }
+            };
+            if(variant == currentModelVariantState){
+                this.tryAnimate.setAnimation(run);
+            }
+            allKnownStateVariants.get(variant).animation.setAnimation(run);
+            getChildrenEMF().values().forEach((child) -> {
+                if (child instanceof EMFModelPartMutable emf) {
+                    emf.receiveRootAnimationRunnable(variant,run);
+                }
+            });
+
+        }
+    }
+
+    public void receiveRootAnimationRunnable(int variant, Runnable run){
+        //tryAnimate = run;
+        allKnownStateVariants.get(variant).animation.setAnimation(run);
+        if(variant == currentModelVariantState){
+            this.tryAnimate.setAnimation(run);
+        }
+        getChildrenEMF().values().forEach((child)->{
+            if(child instanceof EMFModelPartMutable emf){
+                emf.receiveRootAnimationRunnable(variant,run);
+            }
+        });
+    }
+    private Animator tryAnimate = new Animator();
+
+    private long lastFrameAnimatedOn = -1;
 
 
     // public ModelTransform vanillaTransform = null;
@@ -358,15 +469,14 @@ public class EMFModelPartMutable extends ModelPart {
                     && childEntry.getValue() instanceof EMFModelPartMutable p3
             )
                 p3.mergeInVanillaWhereRequired((partToMergeIntoThisAsVanilla.getChild(childEntry.getKey())));
-
         }
     }
 
     public void setVariantStateTo(int newVariantState) {
         if (currentModelVariantState != newVariantState) {
             if (allKnownStateVariants.containsKey(newVariantState)) {
+                setFromStateVariate(allKnownStateVariants.get(newVariantState),allKnownStateVariants.get(currentModelVariantState));
                 currentModelVariantState = newVariantState;
-                setFromState(allKnownStateVariants.get(newVariantState));
                 isValidToRenderInThisState = true;
             } else if (selfModelData != null && selfModelData.part == null) {
                 currentModelVariantState = newVariantState;
@@ -393,19 +503,29 @@ public class EMFModelPartMutable extends ModelPart {
                 ((ModelPartAccessor) this).getCuboids(),
                 //((ModelPartAccessor)this).getChildren(),
                 xScale, yScale, zScale,
-                visible, hidden
-
+                visible, hidden,
+                textureOverride, tryAnimate
         );
     }
 
     private EMFModelState getStateOf(ModelPart modelPart) {
+        if(modelPart instanceof EMFModelPartMutable emf){
+            return new EMFModelState(
+                    modelPart.getDefaultTransform(),
+                    ((ModelPartAccessor) modelPart).getCuboids(),
+                    //((ModelPartAccessor)this).getChildren(),
+                    modelPart.xScale, modelPart.yScale, modelPart.zScale,
+                    modelPart.visible, modelPart.hidden,
+                    emf.textureOverride, emf.tryAnimate
+            );
+        }
         return new EMFModelState(
                 modelPart.getDefaultTransform(),
                 ((ModelPartAccessor) modelPart).getCuboids(),
                 //((ModelPartAccessor)this).getChildren(),
                 modelPart.xScale, modelPart.yScale, modelPart.zScale,
-                modelPart.visible, modelPart.hidden
-
+                modelPart.visible, modelPart.hidden,
+                null, new Animator()
         );
     }
 
@@ -418,6 +538,46 @@ public class EMFModelPartMutable extends ModelPart {
         zScale = newState.zScale();
         visible = newState.visible();
         hidden = newState.hidden();
+        textureOverride = newState.texture();
+        tryAnimate = newState.animation;
+    }
+
+
+    private void setFromStateVariate(EMFModelState newState,@Nullable EMFModelState oldState) {
+        ModelTransform oldDefault = getDefaultTransform();
+        setDefaultTransform(newState.defaultTransform());
+        setTransformOnlyChangingDefaults(getDefaultTransform(),oldDefault);
+        ((ModelPartAccessor) this).setCuboids(newState.cuboids());
+        if(oldState == null || xScale == oldState.xScale()) xScale = newState.xScale();
+        if(oldState == null || yScale == oldState.yScale()) yScale = newState.yScale();
+        if(oldState == null || zScale == oldState.zScale()) zScale = newState.zScale();
+        if(oldState == null || visible == oldState.visible()) visible = newState.visible();
+        if(oldState == null || hidden == oldState.hidden()) hidden = newState.hidden();
+//        xScale = newState.xScale();
+//        yScale = newState.yScale();
+//        zScale = newState.zScale();
+//        visible = newState.visible();
+//        hidden = newState.hidden();
+        textureOverride = newState.texture();
+        tryAnimate = newState.animation;
+    }
+
+    public void setTransformOnlyChangingDefaults(ModelTransform newDefault,ModelTransform oldDefault) {
+        if(this.pivotX == oldDefault.pivotX) this.pivotX = newDefault.pivotX;
+        if(this.pivotY == oldDefault.pivotY) this.pivotY = newDefault.pivotY;
+        if(this.pivotZ == oldDefault.pivotX) this.pivotZ = newDefault.pivotZ;
+        if(this.pitch == oldDefault.pitch) this.pitch = newDefault.pitch;
+        if(this.yaw == oldDefault.yaw) this.yaw = newDefault.yaw;
+        if(this.roll == oldDefault.roll) this.roll = newDefault.roll;
+//        this.pivotX = rotationData.pivotX;
+//        this.pivotY = rotationData.pivotY;
+//        this.pivotZ = rotationData.pivotZ;
+//        this.pitch = rotationData.pitch;
+//        this.yaw = rotationData.yaw;
+//        this.roll = rotationData.roll;
+//        this.xScale = 1.0F;
+//        this.yScale = 1.0F;
+//        this.zScale = 1.0F;
     }
 
     @Environment(value = EnvType.CLIENT)
@@ -729,9 +889,26 @@ public class EMFModelPartMutable extends ModelPart {
             float yScale,
             float zScale,
             boolean visible,
-            boolean hidden
+            boolean hidden,
+            Identifier texture,
+            Animator animation
     ) {
 
+    }
+
+    public static class Animator implements Runnable {
+        private Runnable animation = null;
+        Animator(){
+
+        }
+
+        public void setAnimation(Runnable animation){
+            this.animation = animation;
+        }
+
+        public void run(){
+            if(animation != null) animation.run();
+        }
     }
 
 

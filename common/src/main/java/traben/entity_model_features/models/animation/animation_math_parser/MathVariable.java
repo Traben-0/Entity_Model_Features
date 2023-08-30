@@ -2,9 +2,11 @@ package traben.entity_model_features.models.animation.animation_math_parser;
 
 import traben.entity_model_features.models.EMFModelPartMutable;
 import traben.entity_model_features.models.animation.EMFAnimation;
-import traben.entity_model_features.models.animation.EMFAnimationVariableSuppliers;
+import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.models.animation.EMFDefaultModelVariable;
 import traben.entity_model_features.utils.EMFUtils;
+
+import java.util.Objects;
 
 
 public class MathVariable extends MathValue implements MathComponent {
@@ -31,93 +33,93 @@ public class MathVariable extends MathValue implements MathComponent {
             invertBooleans = true;
         }
 
-        EMFAnimationVariableSuppliers getter = calculationInstance.variableSuppliers;
+        //EMFAnimationHelper getter = calculationInstance.variableSuppliers;
 
         //discover supplier needed
         valueSupplier = switch (value) {
-            case "limb_swing" -> getter::getLimbAngle;
-            case "frame_time" -> getter::getFrameTime;
-            case "limb_speed" -> getter::getLimbDistance;
-            case "age" -> getter::getAge;
-            case "head_pitch" -> getter::getHeadPitch;
-            case "head_yaw" -> getter::getHeadYaw;
-            case "swing_progress" -> getter::getSwingProgress;
-            case "hurt_time" -> getter::getHurtTime;
-            case "dimension" -> getter::getDimension;
-            case "time" -> getter::getTime;
-            case "player_pos_x" -> getter::getPlayerX;
-            case "player_pos_y" -> getter::getPlayerY;
-            case "player_pos_z" -> getter::getPlayerZ;
-            case "pos_x" -> getter::getEntityX;
-            case "pos_y" -> getter::getEntityY;
-            case "pos_z" -> getter::getEntityZ;
-            case "player_rot_x" -> getter::getPlayerRX;
-            case "player_rot_y" -> getter::getPlayerRY;
-            case "rot_x" -> getter::getEntityRX;
-            case "rot_y" -> getter::getEntityRY;
-            case "health" -> getter::getHealth;
-            case "death_time" -> getter::getDeathTime;
-            case "anger_time" -> getter::getAngerTime;
-            case "max_health" -> getter::getMaxHealth;
-            case "id" -> getter::getId;
+            case "limb_swing" -> EMFAnimationHelper::getLimbAngle;
+            case "frame_time" -> EMFAnimationHelper::getFrameTime;
+            case "limb_speed" -> EMFAnimationHelper::getLimbDistance;
+            case "age" -> EMFAnimationHelper::getAge;
+            case "head_pitch" -> EMFAnimationHelper::getHeadPitch;
+            case "head_yaw" -> EMFAnimationHelper::getHeadYaw;
+            case "swing_progress" -> EMFAnimationHelper::getSwingProgress;
+            case "hurt_time" -> EMFAnimationHelper::getHurtTime;
+            case "dimension" -> EMFAnimationHelper::getDimension;
+            case "time" -> EMFAnimationHelper::getTime;
+            case "player_pos_x" -> EMFAnimationHelper::getPlayerX;
+            case "player_pos_y" -> EMFAnimationHelper::getPlayerY;
+            case "player_pos_z" -> EMFAnimationHelper::getPlayerZ;
+            case "pos_x" -> EMFAnimationHelper::getEntityX;
+            case "pos_y" -> EMFAnimationHelper::getEntityY;
+            case "pos_z" -> EMFAnimationHelper::getEntityZ;
+            case "player_rot_x" -> EMFAnimationHelper::getPlayerRX;
+            case "player_rot_y" -> EMFAnimationHelper::getPlayerRY;
+            case "rot_x" -> EMFAnimationHelper::getEntityRX;
+            case "rot_y" -> EMFAnimationHelper::getEntityRY;
+            case "health" -> EMFAnimationHelper::getHealth;
+            case "death_time" -> EMFAnimationHelper::getDeathTime;
+            case "anger_time" -> EMFAnimationHelper::getAngerTime;
+            case "max_health" -> EMFAnimationHelper::getMaxHealth;
+            case "id" -> EMFAnimationHelper::getId;
 
-            case "day_time" -> getter::getDayTime;
-            case "day_count" -> getter::getDayCount;
-            case "rule_index" -> getter::getRuleIndex;
-            case "anger_time_start" -> getter::getAngerTimeStart;
+            case "day_time" -> EMFAnimationHelper::getDayTime;
+            case "day_count" -> EMFAnimationHelper::getDayCount;
+            case "rule_index" -> EMFAnimationHelper::getRuleIndex;
+            case "anger_time_start" -> EMFAnimationHelper::getAngerTimeStart;
 
-            case "move_forward" -> getter::getMoveForward;
-            case "move_strafing" -> getter::getMoveStrafe;
+            case "move_forward" -> EMFAnimationHelper::getMoveForward;
+            case "move_strafing" -> EMFAnimationHelper::getMoveStrafe;
 
 
 //            case "collisionX" -> getter::getClosestCollisionX;
 //            case "collisionY" -> getter::getClosestCollisionY;
 //            case "collisionZ" -> getter::getClosestCollisionZ;
 
-            case "is_climbing" -> getBooleanAsFloat(getter::isClimbing);
+            case "is_climbing" -> getBooleanAsFloat(EMFAnimationHelper::isClimbing);
             //constants
 //            case "pi" -> ()->PI;//3.1415926f;
 //            case "true" ->  ()-> invertBooleans ? 0f : 1f;
 //            case "false" -> ()-> invertBooleans ? 1f : 0f;
 
             //boolean
-            case "is_child" -> getBooleanAsFloat(getter::isChild);
-            case "is_in_water" -> getBooleanAsFloat(getter::isInWater);
-            case "is_riding" -> getBooleanAsFloat(getter::isRiding);
-            case "is_on_ground" -> getBooleanAsFloat(getter::isOnGround);
-            case "is_burning" -> getBooleanAsFloat(getter::isBurning);
-            case "is_alive" -> getBooleanAsFloat(getter::isAlive);
-            case "is_glowing" -> getBooleanAsFloat(getter::isGlowing);
-            case "is_aggressive" -> getBooleanAsFloat(getter::isAggressive);
-            case "is_hurt" -> getBooleanAsFloat(getter::isHurt);
-            case "is_in_hand" -> getBooleanAsFloat(getter::isInHand);
-            case "is_in_item_frame" -> getBooleanAsFloat(getter::isInItemFrame);
-            case "is_in_ground" -> getBooleanAsFloat(getter::isInGround);
-            case "is_in_gui" -> getBooleanAsFloat(getter::isInGui);
-            case "is_in_lava" -> getBooleanAsFloat(getter::isInLava);
-            case "is_invisible" -> getBooleanAsFloat(getter::isInvisible);
-            case "is_on_head" -> getBooleanAsFloat(getter::isOnHead);
-            case "is_on_shoulder" -> getBooleanAsFloat(getter::isOnShoulder);
-            case "is_ridden" -> getBooleanAsFloat(getter::isRidden);
-            case "is_sitting" -> getBooleanAsFloat(getter::isSitting);
-            case "is_sneaking" -> getBooleanAsFloat(getter::isSneaking);
-            case "is_sprinting" -> getBooleanAsFloat(getter::isSprinting);
-            case "is_tamed" -> getBooleanAsFloat(getter::isTamed);
-            case "is_wet" -> getBooleanAsFloat(getter::isWet);
+            case "is_child" -> getBooleanAsFloat(EMFAnimationHelper::isChild);
+            case "is_in_water" -> getBooleanAsFloat(EMFAnimationHelper::isInWater);
+            case "is_riding" -> getBooleanAsFloat(EMFAnimationHelper::isRiding);
+            case "is_on_ground" -> getBooleanAsFloat(EMFAnimationHelper::isOnGround);
+            case "is_burning" -> getBooleanAsFloat(EMFAnimationHelper::isBurning);
+            case "is_alive" -> getBooleanAsFloat(EMFAnimationHelper::isAlive);
+            case "is_glowing" -> getBooleanAsFloat(EMFAnimationHelper::isGlowing);
+            case "is_aggressive" -> getBooleanAsFloat(EMFAnimationHelper::isAggressive);
+            case "is_hurt" -> getBooleanAsFloat(EMFAnimationHelper::isHurt);
+            case "is_in_hand" -> getBooleanAsFloat(EMFAnimationHelper::isInHand);
+            case "is_in_item_frame" -> getBooleanAsFloat(EMFAnimationHelper::isInItemFrame);
+            case "is_in_ground" -> getBooleanAsFloat(EMFAnimationHelper::isInGround);
+            case "is_in_gui" -> getBooleanAsFloat(EMFAnimationHelper::isInGui);
+            case "is_in_lava" -> getBooleanAsFloat(EMFAnimationHelper::isInLava);
+            case "is_invisible" -> getBooleanAsFloat(EMFAnimationHelper::isInvisible);
+            case "is_on_head" -> getBooleanAsFloat(EMFAnimationHelper::isOnHead);
+            case "is_on_shoulder" -> getBooleanAsFloat(EMFAnimationHelper::isOnShoulder);
+            case "is_ridden" -> getBooleanAsFloat(EMFAnimationHelper::isRidden);
+            case "is_sitting" -> getBooleanAsFloat(EMFAnimationHelper::isSitting);
+            case "is_sneaking" -> getBooleanAsFloat(EMFAnimationHelper::isSneaking);
+            case "is_sprinting" -> getBooleanAsFloat(EMFAnimationHelper::isSprinting);
+            case "is_tamed" -> getBooleanAsFloat(EMFAnimationHelper::isTamed);
+            case "is_wet" -> getBooleanAsFloat(EMFAnimationHelper::isWet);
 
             //unknown variable
-            default -> getVariable(value, getter);
+            default -> getVariable(value);//, EMFAnimationHelper);
         };
     }
 
     public static MathComponent getOptimizedVariable(String value, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
         MathVariable method = new MathVariable(value, isNegative, calculationInstance);
-        if (method.optimizedAlternativeToThis == null)
-            return method;
-        return method.optimizedAlternativeToThis;
+        return Objects.requireNonNullElse(method.optimizedAlternativeToThis, method);
     }
 
-    private ValueSupplier getVariable(String variableKey, EMFAnimationVariableSuppliers getter) throws EMFMathException {
+    private ValueSupplier getVariable(String variableKey) throws EMFMathException {
+            //, EMFAnimationHelper getter
+
 //            case "pi" -> ()->PI;//3.1415926f;
 //            case "true" ->  ()-> invertBooleans ? 0f : 1f;
 //            case "false" -> ()-> invertBooleans ? 1f : 0f;
@@ -158,7 +160,7 @@ public class MathVariable extends MathValue implements MathComponent {
                 if (variableKey.matches("(var|varb)\\.\\w+")) {
                     EMFAnimation variableCalculator = calculationInstance.emfAnimationVariables.get(variableKey);
                     if (variableCalculator != null) {
-                        return () -> variableCalculator.getLastResultOnly(getter.getEntity());
+                        return variableCalculator::getLastResultOnly;
                     } else {
                         EMFUtils.EMFModError("no variable animation found for: [" + variableKey + "] in [" + calculationInstance.modelName + "] + " + calculationInstance.emfAnimationVariables.keySet());
                         return () -> 0;
