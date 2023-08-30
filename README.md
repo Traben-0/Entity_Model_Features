@@ -28,7 +28,7 @@ Please also install the below mods if you can, the obvious ones such as Sodium a
 It should also go without saying EMF is incompatible with dorianpb's CEM and OptiFabric.
 #### Required
 - [Entity Texture Features (ETF)](https://modrinth.com/mod/entitytexturefeatures): 
-  EMF uses several features from my other mod ETF so it is recommended *(and will one day soon be mandatory for some things I have planned)*
+  EMF uses several features from my other mod ETF, so it is recommended *(and will one day soon be mandatory for some things I have planned)*
 
 #### Highly recommended
 - [Entity Culling](https://modrinth.com/mod/entityculling): This mod does wonders for reducing entity rendering lag, doing even more than Sodium's included entity culling. I cannot recommend this enough.
@@ -47,17 +47,18 @@ Since EMF is in beta, not everything works. However, the brilliant [Fresh Animat
 - [X] `.jem` loading 
 - [X] Model animations
 - [X] Random models
-- [ ] Re-add model overrides as the beta currently injects into the vanilla models *(this will likely substantially fix many reported compatibility issues)*
 - [X] Re-add texture overrides
+- [X] Prep for block entity support
+- [X] Animations and Random models working in all circumstances
 - [ ] Support for block entity, minecart and boat models
-- [ ] Support modded mob `.jem` models
+- [X] Support modded mob `.jem` models
 - [X] Add an optional EMF/CEM overriding directory for models to account for EMF differences
 - [ ] Fix `attach = true` cases
 - [X] Position `.jpm`s correctly
 - [ ] Fix remaining model issues
 - [ ] Sprite support
 - [ ] Full parity with OptiFine CEM
-- [ ] Backport to still commonly used older MC versions e.g. 1.16
+- [ ] Backport to still commonly used older MC versions e.g. 1.18
 
 
 ### EMF _exclusive_ features
@@ -91,7 +92,7 @@ For all other packs you might find one mod or the other works best for the time 
 
 > **Q:** Backports?
 
-**A:** Once EMF reaches a stable state, backports will then be made regularly, to still popular Minecraft versions such as 1.16 & 1.18.
+**A:** Once EMF reaches a stable state, backports will then be made, at this stage I only plan to do this for 1.18 & 1.19. 1.16 is not planned.
 
 ## License
 
