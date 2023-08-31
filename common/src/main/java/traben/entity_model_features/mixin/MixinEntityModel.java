@@ -19,6 +19,7 @@ public class MixinEntityModel implements IEMFModel {
             at = @At(value = "TAIL"))
     private void emf$discoverEMFModel(Function<?,?> layerFactory, CallbackInfo ci) {
         emf$thisEMFModelRoot = EMFManager.lastCreatedRootModelPart;
+        EMFManager.lastCreatedRootModelPart = null;
     }
 
     @Unique

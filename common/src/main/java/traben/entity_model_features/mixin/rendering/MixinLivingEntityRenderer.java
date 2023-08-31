@@ -77,30 +77,16 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             EMFModelPartMutable root = ((IEMFModel)getModel()).emf$getEMFRootModel();
             if(root!= null) {
                 if (EMFConfig.getConfig().vanillaModelRenderMode != EMFConfig.VanillaModelRenderMode.Off){
-                    root.tryRenderVanillaRoot(matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);
+                    root.tryRenderVanillaRootNormally(matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);
                 }
                 //simple attempt at a physics mod workaround
-                if(livingEntity.isDead() && EMFConfig.getConfig().attemptPhysicsModPatch_1 && EMFManager.getInstance().physicsModInstalled){
-                    root.tryRenderVanillaRootNormally(matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);
+                if(livingEntity.isDead() && EMFManager.getInstance().physicsModInstalled && EMFConfig.getConfig().attemptPhysicsModPatch_2 != EMFConfig.PhysicsModCompatChoice.OFF){
+                    root.tryRenderVanillaFormatRoot(matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);
                     //the regular render will get cancelled anyway nothing further to do
                 }
             }
         }
     }
-
-
-
-//    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-//            at = @At(value = "HEAD"))
-//    private void emf$SetModelVariant(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-////        if (getModel() instanceof PlayerEntityModel<?> plyr && livingEntity instanceof PlayerEntity){// !(plyr instanceof PiglinEntityModel<?>)) {
-////            //done separately because i need model access to test arm size
-////            emf$ModelId = ((PlayerEntityModelAccessor) plyr).isThinArms() ? "player_slim" : "player";
-////        } else {
-////            emf$ModelId = EMFManager.getTypeName(livingEntity);
-////        }
-//
-//    }
 
 
 

@@ -30,10 +30,10 @@ public class EMFConfig {
 
     public UnknownModelPrintMode printUnknownModelsMode = UnknownModelPrintMode.NONE;
 
-    public boolean attemptPhysicsModPatch_1 = false;
+    public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public boolean attemptToCopyVanillaModelIntoMissingModelPart = false;
 
-    public TextureOverrideMode textureOverrideMode = TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
+    public TextureOverrideMode textureOverrideMode = TextureOverrideMode.EMF_CODE;
 
     public static EMFConfig getConfig() {
         if (EMFConfigData == null) {
@@ -162,6 +162,29 @@ public class EMFConfig {
                 case Off -> Position_normal;
                 case Position_normal -> Positon_offset;
                 default -> Off;
+            };
+        }
+
+    }
+    public enum PhysicsModCompatChoice{
+        OFF(ScreenTexts.OFF),
+        VANILLA(Text.translatable("entity_model_features.config.physics.1")),
+        CUSTOM(Text.translatable("entity_model_features.config.physics.2"));
+
+        private final Text text;
+        PhysicsModCompatChoice(Text text){
+            this.text = text;
+        }
+
+        public Text asText(){
+            return text;
+        }
+
+        public PhysicsModCompatChoice next(){
+            return switch (this){
+                case OFF -> CUSTOM;
+                case CUSTOM -> VANILLA;
+                default -> OFF;
             };
         }
 

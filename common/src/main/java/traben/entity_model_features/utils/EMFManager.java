@@ -232,6 +232,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     private boolean traderLlamaHappened = false;
     public ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
 
+        EMFManager.lastCreatedRootModelPart = null;
 
         boolean printing =  (EMFConfig.getConfig().printModelCreationInfoToLog);
 //        if (layer == EntityModelLayers.SPIDER ||layer == EntityModelLayers.IRON_GOLEM ||layer == EntityModelLayers.ZOMBIE || layer == EntityModelLayers.COW || layer == EntityModelLayers.SHEEP || layer == EntityModelLayers.VILLAGER) {

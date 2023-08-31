@@ -461,22 +461,7 @@ public  class EMFAnimationHelper {
     public static float getLimbAngle() {
         if(emfEntity==null)return 0;
         if(Float.isNaN(limbAngle)){
-            float o = 0;
-            float n = 0;
-            LivingEntity alive = emfEntity.getLiving();
-            if (!emfEntity.hasVehicle() && alive != null) {
-                o = alive.limbAnimator.getPos(tickDelta);
-                n = alive.limbAnimator.getSpeed(tickDelta);
-                if (alive.isBaby()) {
-                    o *= 3.0F;
-
-                }
-                if (n > 1.0F) {
-                    n = 1.0F;
-                }
-            }
-            limbDistance = n;
-            limbAngle = o;
+            doLimbValues();
         }
         return limbAngle;
     }
@@ -484,75 +469,34 @@ public  class EMFAnimationHelper {
     public static float getLimbDistance() {
         if(emfEntity==null)return 0;
         if(Float.isNaN(limbDistance)){
-            float o = 0;
-            float n = 0;
-            LivingEntity alive = emfEntity.getLiving();
-            if (!emfEntity.hasVehicle() && alive != null) {
-                o = alive.limbAnimator.getPos(tickDelta);
-                n = alive.limbAnimator.getSpeed(tickDelta);
-                if (alive.isBaby()) {
-                    o *= 3.0F;
-
-                }
-                if (n > 1.0F) {
-                    n = 1.0F;
-                }
-            }
-            limbDistance = n;
-            limbAngle = o;
+            doLimbValues();
         }
         return limbDistance == Float.MIN_VALUE? 0 : limbDistance;
+    }
+
+    private static void doLimbValues(){
+        float o = 0;
+        float n = 0;
+        LivingEntity alive = emfEntity.getLiving();
+        if (!emfEntity.hasVehicle() && alive != null) {
+            o = alive.limbAnimator.getPos(tickDelta);
+            n = alive.limbAnimator.getSpeed(tickDelta);
+            if (alive.isBaby()) {
+                o *= 3.0F;
+
+            }
+            if (n > 1.0F) {
+                n = 1.0F;
+            }
+        }
+        limbDistance = n;
+        limbAngle = o;
     }
 
     public static float getHeadYaw() {
         if(emfEntity==null)return 0;
         if(Float.isNaN(headYaw)){
-            LivingEntity livingEntity = emfEntity.getLiving();
-            if(livingEntity != null) {
-                float h = MathHelper.lerpAngleDegrees(tickDelta, livingEntity.prevBodyYaw, livingEntity.bodyYaw);
-                float j = MathHelper.lerpAngleDegrees(tickDelta, livingEntity.prevHeadYaw, livingEntity.headYaw);
-                float k = j - h;
-                float l;
-                if (livingEntity.hasVehicle() && livingEntity.getVehicle() instanceof LivingEntity livingEntity2) {
-                    h = MathHelper.lerpAngleDegrees(tickDelta, livingEntity2.prevBodyYaw, livingEntity2.bodyYaw);
-                    k = j - h;
-                    l = MathHelper.wrapDegrees(k);
-                    if (l < -85.0F) {
-                        l = -85.0F;
-                    }
-
-                    if (l >= 85.0F) {
-                        l = 85.0F;
-                    }
-
-                    h = j - l;
-                    if (l * l > 2500.0F) {
-                        h += l * 0.2F;
-                    }
-
-                    k = j - h;
-                }
-
-                float m = MathHelper.lerp(tickDelta, livingEntity.prevPitch, livingEntity.getPitch());
-                if (LivingEntityRenderer.shouldFlipUpsideDown(livingEntity)) {
-                    m *= -1.0F;
-                    k *= -1.0F;
-                }
-                headPitch = m;
-                headYaw = k;
-                //constrain head yaw amount
-                if(headYaw >= 180 || headYaw <= -180) {
-                    boolean isNegative = headYaw < 0;
-                    float newHeadYaw = Math.abs(headYaw) % 360;
-                    if (newHeadYaw >= 180) {
-                        newHeadYaw = 180 - (newHeadYaw - 180);
-                        isNegative = !isNegative;
-                    }
-                    headYaw = isNegative ? -newHeadYaw : newHeadYaw;
-                }
-            }else{
-                headYaw = 0;
-            }
+            doHeadValues();
         }
         return headYaw;
     }
@@ -560,54 +504,61 @@ public  class EMFAnimationHelper {
     public static float getHeadPitch() {
         if(emfEntity==null)return 0;
         if(Float.isNaN(headPitch)){
-            LivingEntity livingEntity = emfEntity.getLiving();
-            if(livingEntity != null) {
-                float h = MathHelper.lerpAngleDegrees(tickDelta, livingEntity.prevBodyYaw, livingEntity.bodyYaw);
-                float j = MathHelper.lerpAngleDegrees(tickDelta, livingEntity.prevHeadYaw, livingEntity.headYaw);
-                float k = j - h;
-                float l;
-                if (livingEntity.hasVehicle() && livingEntity.getVehicle() instanceof LivingEntity livingEntity2) {
-                    h = MathHelper.lerpAngleDegrees(tickDelta, livingEntity2.prevBodyYaw, livingEntity2.bodyYaw);
-                    k = j - h;
-                    l = MathHelper.wrapDegrees(k);
-                    if (l < -85.0F) {
-                        l = -85.0F;
-                    }
-
-                    if (l >= 85.0F) {
-                        l = 85.0F;
-                    }
-
-                    h = j - l;
-                    if (l * l > 2500.0F) {
-                        h += l * 0.2F;
-                    }
-
-                    k = j - h;
-                }
-
-                float m = MathHelper.lerp(tickDelta, livingEntity.prevPitch, livingEntity.getPitch());
-                if (LivingEntityRenderer.shouldFlipUpsideDown(livingEntity)) {
-                    m *= -1.0F;
-                    k *= -1.0F;
-                }
-                headPitch = m;
-                headYaw = k;
-                //constrain head yaw amount
-                if(headYaw >= 180 || headYaw <= -180) {
-                    boolean isNegative = headYaw < 0;
-                    float newHeadYaw = Math.abs(headYaw) % 360;
-                    if (newHeadYaw >= 180) {
-                        newHeadYaw = 180 - (newHeadYaw - 180);
-                        isNegative = !isNegative;
-                    }
-                    headYaw = isNegative ? -newHeadYaw : newHeadYaw;
-                }
-            }else{
-                headPitch = 0;
-            }
+            doHeadValues();
         }
         return headPitch;
+    }
+
+    private static void doHeadValues(){
+        LivingEntity livingEntity = emfEntity.getLiving();
+        if(livingEntity != null) {
+            float h = MathHelper.lerpAngleDegrees(tickDelta, livingEntity.prevBodyYaw, livingEntity.bodyYaw);
+            float j = MathHelper.lerpAngleDegrees(tickDelta, livingEntity.prevHeadYaw, livingEntity.headYaw);
+            float k = j - h;
+            float l;
+            if (livingEntity.hasVehicle() && livingEntity.getVehicle() instanceof LivingEntity livingEntity2) {
+                h = MathHelper.lerpAngleDegrees(tickDelta, livingEntity2.prevBodyYaw, livingEntity2.bodyYaw);
+                k = j - h;
+                l = MathHelper.wrapDegrees(k);
+                if (l < -85.0F) {
+                    l = -85.0F;
+                }
+
+                if (l >= 85.0F) {
+                    l = 85.0F;
+                }
+
+                h = j - l;
+                if (l * l > 2500.0F) {
+                    h += l * 0.2F;
+                }
+
+                k = j - h;
+            }
+
+            float m = MathHelper.lerp(tickDelta, livingEntity.prevPitch, livingEntity.getPitch());
+            if (LivingEntityRenderer.shouldFlipUpsideDown(livingEntity)) {
+                m *= -1.0F;
+                k *= -1.0F;
+            }
+            headPitch = m;
+            //headYaw = k;
+            //constrain head yaw amount
+            if(k > 180 || k < -180) {
+                float normalizedAngle = k % 360;
+                if (normalizedAngle > 180) {
+                    normalizedAngle -= 360;
+                } else if (normalizedAngle < -180) {
+                    normalizedAngle += 360;
+                }
+                headYaw = normalizedAngle;
+            }else{
+                headYaw = k;
+            }
+        }else{
+            headPitch = 0;
+            headYaw = 0;
+        }
     }
 
     public static float getTickDelta() {

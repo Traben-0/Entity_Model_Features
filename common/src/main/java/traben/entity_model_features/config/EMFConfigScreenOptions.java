@@ -32,7 +32,7 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                 (button) -> {
                     emfParent.tempConfig.attemptToCopyVanillaModelIntoMissingModelPart = false;
                     emfParent.tempConfig.tryForceEmfModels = true;
-                    emfParent.tempConfig.attemptPhysicsModPatch_1 = false;
+                    emfParent.tempConfig.attemptPhysicsModPatch_2 = EMFConfig.PhysicsModCompatChoice.CUSTOM;
                     emfParent.tempConfig.textureOverrideMode = EMFConfig.TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
                     this.clearAndInit();
                     //Objects.requireNonNull(client).setScreen(parent);
@@ -71,11 +71,11 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.physics").getString() +
-                        ": " + (emfParent.tempConfig.attemptPhysicsModPatch_1 ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                        ": " + (emfParent.tempConfig.attemptPhysicsModPatch_2.asText()).getString()),
                 (button) -> {
-                    emfParent.tempConfig.attemptPhysicsModPatch_1 = !emfParent.tempConfig.attemptPhysicsModPatch_1;
+                    emfParent.tempConfig.attemptPhysicsModPatch_2 = emfParent.tempConfig.attemptPhysicsModPatch_2.next();
                     button.setMessage(Text.of(Text.translatable("entity_model_features.config.physics").getString() +
-                            ": " + (emfParent.tempConfig.attemptPhysicsModPatch_1 ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                            ": " + (emfParent.tempConfig.attemptPhysicsModPatch_2.asText()).getString()));
                 },
                 Text.translatable("entity_model_features.config.physics.tooltip")
         ));

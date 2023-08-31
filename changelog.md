@@ -8,6 +8,7 @@ block entities.
 -various stability fixes to model variants including texture support.
 -animation code ready for block entities
 -variation code ready for block entities
+-physics mod compat can now choose to try render the vanilla model or the custom EMF model
 
 
 0.2.13

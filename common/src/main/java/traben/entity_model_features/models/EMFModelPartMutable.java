@@ -3,6 +3,7 @@ package traben.entity_model_features.models;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -36,9 +37,7 @@ public class EMFModelPartMutable extends ModelPart {
 //        public void renderCuboid(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
 //        }
 //    };
-//    public final List<EMFCuboid> emfCuboids = new ArrayList<>();
-    //public final Map<String, EMFModelPart3> cannonicalChildren = new HashMap<>();
-//    public final Map<String, EMFModelPartMutable> emfChildren = new HashMap<>();
+
     public final EMFPartData selfModelData;
     public int currentModelVariantState = 1;
     public boolean isValidToRenderInThisState = true;
@@ -46,13 +45,9 @@ public class EMFModelPartMutable extends ModelPart {
     //public static final EMFModelPart3 BLANK_MODEL_PART = new EMFModelPart3(EMFPartData.BLANK_PART_DATA);
 
 
-//    @Override
-//    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay) {
-//        render(matrices,vertices,light,overlay, 1,1,1,1);
-//    }
+
     public Identifier textureOverride;
-//     final Identifier customTexture;
-//    public final ModelPart vanillaPart;
+
 
     public EMFModelPartMutable( Map<String, ModelPart> children, int variantNumber, EMFJemData jemData) {
         //create empty root model object
@@ -94,31 +89,13 @@ public class EMFModelPartMutable extends ModelPart {
         this.setDefaultTransform(this.getTransform());
 
 
-//        for (Map.Entry<String,ModelPart> part:
-//        ((ModelPartAccessor)this).getChildren().entrySet()) {
-//            if(part.getValue() instanceof EMFModelPart3 m3 && m3.selfModelData.part!= null){
-//                cannonicalChildren.put(part.getKey(),m3);
-//            }
-//        }
-
-        //assertChildrenAndCuboids();
         //if (variantNumber == 0)
             allKnownStateVariants.put(variantNumber, getCurrentState());
 
     }
 
     private static List<Cuboid> getCuboidsFromData(EMFPartData emfPartData) {
-        //if(cuboids.isEmpty() && EMFVersionDifferenceManager.isThisModLoaded("physicsmod"))
-//            cuboids.add(EMPTY_CUBOID);
-//            cuboids.add(EMPTY_CUBOID);
-//            cuboids.add(EMPTY_CUBOID);
-//            cuboids.add(EMPTY_CUBOID);
-//            cuboids.add(EMPTY_CUBOID);
-//            cuboids.add(EMPTY_CUBOID);
-//            cuboids.add(EMPTY_CUBOID);
-//            cuboids.add(EMPTY_CUBOID);
-//            cuboids.add(EMPTY_CUBOID);
-//            cuboids.add(EMPTY_CUBOID);
+
         return createCuboidsFromBoxDataV3(emfPartData);
 
     }
@@ -262,37 +239,16 @@ public class EMFModelPartMutable extends ModelPart {
         }
     }
 
-//    public void assertChildrenAndCuboids() {
-//        ((ModelPartAccessor) this).setChildren(new HashMap<>(emfChildren));
-//        ((ModelPartAccessor) this).setCuboids(new ArrayList<>(emfCuboids));
-//    }
 
     //stop trying to optimize my code so it doesn't work sodium :P
     @Override // overrides to circumvent sodium optimizations that mess with custom uv quad creation
     protected void renderCuboids(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
         //this is a copy of the vanilla renderCuboids() method
-
         for (Cuboid cuboid : ((ModelPartAccessor) this).getCuboids()) {
             cuboid.renderCuboid(entry, vertexConsumer, light, overlay, red, green, blue, alpha);
         }
     }
 
-    //    public void applyDefaultModelRotatesToChildren(ModelTransform defaults){
-////        ModelTransform thisDefaults = getDefaultTransform();
-////        ModelTransform newDefaults = ModelTransform.of(
-////                defaults.pivotX- thisDefaults.pivotX,
-////                defaults.pivotY- thisDefaults.pivotY,
-////                defaults.pivotZ- thisDefaults.pivotZ,
-////                defaults.pitch- thisDefaults.pitch,
-////                defaults.yaw- thisDefaults.yaw,
-////                defaults.roll- thisDefaults.roll
-////        );
-//
-//        for (ModelPart part:
-//        ((ModelPartAccessor)this).getChildren().values()) {
-//            if(part instanceof EMFModelPart3 p3) p3.applyDefaultModelRotates(defaults);
-//        }
-//    }
     public void applyDefaultModelRotates(ModelTransform defaults) {
         //todo its possible here lies the actual cause of all the parent 1 stuff if i factor in transforms here
         //highly possible
@@ -321,7 +277,9 @@ public class EMFModelPartMutable extends ModelPart {
 
     public ModelPart vanillaRoot = null;
 
-    public void tryRenderVanillaRoot(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay){
+    private final Int2ObjectOpenHashMap<ModelPart> vanillaFormatModelPartOfEachState = new Int2ObjectOpenHashMap<>();
+
+    public void tryRenderVanillaRootNormally(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay){
         if(vanillaRoot != null) {
             matrixStack.push();
             if (EMFConfig.getConfig().vanillaModelRenderMode == EMFConfig.VanillaModelRenderMode.Positon_offset) {
@@ -332,10 +290,46 @@ public class EMFModelPartMutable extends ModelPart {
         }
     }
 
-    public void tryRenderVanillaRootNormally(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay){
+    private ModelPart getVanillaModelPartsOfCurrentState(){
+        Map<String, ModelPart> children = new HashMap<>();
+        for (Map.Entry<String,ModelPart> child:
+             getChildrenEMF().entrySet()) {
+            if(child.getValue() instanceof EMFModelPartMutable emf){
+                children.put(child.getKey(),emf.getVanillaModelPartsOfCurrentState());
+            }
+        }
 
-        if(vanillaRoot != null) {
-            vanillaRoot.render(matrixStack,vertexConsumer,light,overlay,1,1,1,1);
+        ModelPart part = new ModelPart(((ModelPartAccessor)this).getCuboids(),children);
+        part.setDefaultTransform(getDefaultTransform());
+        part.pitch = pitch;
+        part.roll = roll;
+        part.yaw = yaw;
+        part.pivotZ = pivotZ;
+        part.pivotY = pivotY;
+        part.pivotX = pivotX;
+        part.xScale = xScale;
+        part.yScale = yScale;
+        part.zScale = zScale;
+
+        return part;
+    }
+
+
+
+
+    public void tryRenderVanillaFormatRoot(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay){
+        if(EMFConfig.getConfig().attemptPhysicsModPatch_2 == EMFConfig.PhysicsModCompatChoice.VANILLA){
+            if (vanillaRoot != null) {
+                vanillaRoot.render(matrixStack, vertexConsumer, light, overlay, 1, 1, 1, 1);
+            }
+        }else{
+            if (!vanillaFormatModelPartOfEachState.containsKey(currentModelVariantState)) {
+                vanillaFormatModelPartOfEachState.put(currentModelVariantState, getVanillaModelPartsOfCurrentState());
+            }
+            ModelPart vanillaFormat = vanillaFormatModelPartOfEachState.get(currentModelVariantState);
+            if (vanillaFormat != null) {
+                vanillaFormat.render(matrixStack, vertexConsumer, light, overlay, 1, 1, 1, 1);
+            }
         }
     }
 
@@ -365,14 +359,6 @@ public class EMFModelPartMutable extends ModelPart {
             }
         });
     }
-
-    //public void doVariantCheck(){
-    //    if(variantCheck != null) variantCheck.run();
-    //}
-
-
-
-
 
     public void receiveAnimations(int variant,LinkedList<EMFAnimation> orderedAnimations){
         if(orderedAnimations.size()>0) {
@@ -413,9 +399,6 @@ public class EMFModelPartMutable extends ModelPart {
 
     private long lastFrameAnimatedOn = -1;
 
-
-    // public ModelTransform vanillaTransform = null;
-
     public Object2ReferenceOpenHashMap<String, EMFModelPartMutable> getAllChildPartsAsMap() {
         Object2ReferenceOpenHashMap<String, EMFModelPartMutable> list = new Object2ReferenceOpenHashMap<>();
         for (ModelPart part :
@@ -438,10 +421,6 @@ public class EMFModelPartMutable extends ModelPart {
     public Map<String, ModelPart> getChildrenEMF() {
         return ((ModelPartAccessor) this).getChildren();
     }
-
-//    public void setChildrenEMF(Map<String, ModelPart> children) {
-//        ((ModelPartAccessor) this).setChildren(children);
-//    }
 
     public void mergePartVariant(int variantNumber, EMFModelPartMutable partToMergeIntoThisAsVariant) {
         EMFModelState incomingPartState = partToMergeIntoThisAsVariant.getCurrentState();
@@ -569,15 +548,6 @@ public class EMFModelPartMutable extends ModelPart {
         if(this.pitch == oldDefault.pitch) this.pitch = newDefault.pitch;
         if(this.yaw == oldDefault.yaw) this.yaw = newDefault.yaw;
         if(this.roll == oldDefault.roll) this.roll = newDefault.roll;
-//        this.pivotX = rotationData.pivotX;
-//        this.pivotY = rotationData.pivotY;
-//        this.pivotZ = rotationData.pivotZ;
-//        this.pitch = rotationData.pitch;
-//        this.yaw = rotationData.yaw;
-//        this.roll = rotationData.roll;
-//        this.xScale = 1.0F;
-//        this.yScale = 1.0F;
-//        this.zScale = 1.0F;
     }
 
     @Environment(value = EnvType.CLIENT)
