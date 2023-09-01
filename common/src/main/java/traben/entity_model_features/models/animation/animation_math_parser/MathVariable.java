@@ -4,6 +4,7 @@ import traben.entity_model_features.models.EMFModelPartMutable;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.models.animation.EMFDefaultModelVariable;
+import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.Objects;
@@ -146,11 +147,11 @@ public class MathVariable extends MathValue implements MathComponent {
                     String[] split = variableKey.split("\\.");//todo only works with one split point
                     String partName = split[0];
                     EMFDefaultModelVariable partVariable = EMFDefaultModelVariable.get(split[1]);
-                    EMFModelPartMutable part = calculationInstance.allPartByName.get(partName);
+                    EMFModelPartMutable part = EMFManager.getModelFromHierarchichalId(partName,calculationInstance.allPartsBySingleAndFullHeirachicalId);
                     if (partVariable != null && part != null) {
                         return () -> partVariable.getFromMutableModel(part/*, calculationInstance.partToApplyTo*/);
                     } else {
-                        EMFUtils.EMFModError("no part variable found for: [" + variableKey + "] in [" + calculationInstance.modelName + "] + " + calculationInstance.allPartByName.keySet());
+                        EMFUtils.EMFModError("no part variable found for: [" + variableKey + "] in [" + calculationInstance.modelName + "] + " + calculationInstance.allPartsBySingleAndFullHeirachicalId.keySet());
                         return () -> 0;
                         //throw new EMFMathException("no part variable found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.allPartByName.keySet());
                     }

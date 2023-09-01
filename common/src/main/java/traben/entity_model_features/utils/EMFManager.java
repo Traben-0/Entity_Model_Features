@@ -469,9 +469,9 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         boolean printing =   EMFConfig.getConfig().printModelCreationInfoToLog;
 
-        Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartByName = new Object2ObjectOpenHashMap<>();
-        allPartByName.put("root", emfRootPart);
-        allPartByName.putAll(emfRootPart.getAllChildPartsAsMap());
+        Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
+        allPartsBySingleAndFullHeirachicalId.put("root", emfRootPart);
+        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap(""));
 
         Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
 
@@ -489,7 +489,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             EMFDefaultModelVariable thisVariable = EMFDefaultModelVariable.get(modelVariable);
 
-            EMFModelPartMutable thisPart = allPartByName.get(modelId);
+            EMFModelPartMutable thisPart = getModelFromHierarchichalId(modelId,allPartsBySingleAndFullHeirachicalId);
             EMFAnimation thisCalculator;
 
             if (thisPart != null) {
@@ -520,7 +520,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             //System.out.println(">> anim key: " + key);
             if (anim != null) {
                 //System.out.println(">> anim: " + anim.expressionString);
-                anim.initExpression(emfAnimations, allPartByName);
+                anim.initExpression(emfAnimations, allPartsBySingleAndFullHeirachicalId);
                 //System.out.println(">>> valid: " + anim.isValid());
                 if (anim.isValid())
                     orderedAnimations.add(anim);
@@ -541,6 +541,27 @@ public class EMFManager {//singleton for data holding and resetting needs
     public boolean isAnimationValidationPhase = false;
 
 
+    public static EMFModelPartMutable getModelFromHierarchichalId(String hierarchId,Map<String,EMFModelPartMutable> map){
+        if(hierarchId == null || hierarchId.isBlank()) return null;
+        if(!hierarchId.contains(":")) return map.get(hierarchId);
+        for (Map.Entry<String,EMFModelPartMutable> entry:
+             map.entrySet()) {
+            if(entry.getKey().equals(hierarchId) || (entry.getKey().endsWith(hierarchId))) return entry.getValue();
+            boolean anyMissing = false;
+            String last = "";
+            for (String str:
+                 hierarchId.split(":")) {
+                last = str;
+                if(!entry.getKey().contains(str)){
+                    anyMissing = true;
+                    break;
+                }
+            }
+            if(!anyMissing && entry.getKey().endsWith(last)) return entry.getValue();
+        }
+        //all possible occurances should be accounted for above must be null
+        return null;
+    }
 
 
     public void doVariantCheckFor(EMFModelPartMutable cannonRoot) {
@@ -623,58 +644,6 @@ public class EMFManager {//singleton for data holding and resetting needs
     private record UUIDAndMobTypeKey(UUID uuid, EntityType<?> entityType) {
     }
 
-//    public static class EMFAnimationExecutor {
-//
-//        //private final EMFAnimationHelper variableSuppliers;
-//        private final LinkedList<EMFAnimation> orderedAnimations;
-//
-//        EMFAnimationExecutor(EMFAnimationHelper variableSuppliers, LinkedList<EMFAnimation> orderedAnimations) {
-//            //this.variableSuppliers = variableSuppliers;
-//            this.orderedAnimations = orderedAnimations;
-//        }
-//
-//        public void executeAnimations() {
-////            if(entity instanceof PiglinEntity){
-////                System.out.println("ran animations for: "+entity.getType());
-////                System.out.println("animations length =" + orderedAnimations.size());
-////                System.out.println("animations =" + orderedAnimations);
-////            }
-//
-////            //constrain head yaw amount
-////            if(headYaw >= 180 || headYaw <= -180) {
-////                boolean isNegative = headYaw < 0;
-////                float newHeadYaw = Math.abs(headYaw) % 360;
-////                if (newHeadYaw >= 180) {
-////                    newHeadYaw = 180 - (newHeadYaw - 180);
-////                    isNegative = !isNegative;
-////                }
-////                headYaw = isNegative ? -newHeadYaw : newHeadYaw;
-////            }
-////
-////            variableSuppliers.entity = entity;
-////            variableSuppliers.limbAngle = limbAngle;
-////            variableSuppliers.limbDistance = limbDistance;
-////            variableSuppliers.headYaw = headYaw;
-////            variableSuppliers.headPitch = headPitch;
-////            //using the minecraft client we get a much smoother and accurate tick delta for animations
-////            // the downside is a flickering in the pause menu that I have to catch
-////            variableSuppliers.tickDelta = MinecraftClient.getInstance().isPaused() ? ((MinecraftClientAccessor)MinecraftClient.getInstance()).getPausedTickDelta() : MinecraftClient.getInstance().getTickDelta();
-////
-////            variableSuppliers.animationProgress = alterAnimationProgress(animationProgress);
-//
-//            for (EMFAnimation animation :
-//                    orderedAnimations) {
-//                animation.calculateAndSet();
-//            }
-//        }
-//
-////        private float alterAnimationProgress(float animationProgress) {
-////            if (variableSuppliers.entity == null)
-////                return animationProgress;
-////            // if(new Random().nextInt(100)==1 && currentEntity.world != null) System.out.println((System.currentTimeMillis()/50d+tickDelta));
-////            return variableSuppliers.entity.age + variableSuppliers.tickDelta;//(System.currentTimeMillis()/50d+ tickDelta);
-////        }
-//    }
 
 
 

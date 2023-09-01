@@ -171,8 +171,8 @@ public class EMFModelPartMutable extends ModelPart {
                 tryAnimate.run();
             }
 
-            if (!isTopLevelModelRoot
-                    && textureOverride != null
+            if (//!isTopLevelModelRoot &&
+                    textureOverride != null
                     && EMFConfig.getConfig().textureOverrideMode != EMFConfig.TextureOverrideMode.OFF
                     && light != LightmapTextureManager.MAX_LIGHT_COORDINATE+1 // this is only the case for EyesFeatureRenderer
                     && EMFAnimationHelper.getEMFEntity() != null) {
@@ -268,7 +268,7 @@ public class EMFModelPartMutable extends ModelPart {
     }
 
 
-    private boolean isTopLevelModelRoot = false;
+    private boolean isTopLevelModelRoot = false;//todo still relevant?
 
     public String modelName = null;
     public EMFJemData jemData = null;
@@ -399,7 +399,20 @@ public class EMFModelPartMutable extends ModelPart {
 
     private long lastFrameAnimatedOn = -1;
 
-    public Object2ReferenceOpenHashMap<String, EMFModelPartMutable> getAllChildPartsAsMap() {
+//    public Object2ReferenceOpenHashMap<String, EMFModelPartMutable> getAllChildPartsAsMap() {
+//        Object2ReferenceOpenHashMap<String, EMFModelPartMutable> list = new Object2ReferenceOpenHashMap<>();
+//        for (ModelPart part :
+//                ((ModelPartAccessor) this).getChildren().values()) {
+//            if (part instanceof EMFModelPartMutable part3) {
+//                String thisKey = part3.selfModelData == null ? String.valueOf(part3.hashCode()) : part3.selfModelData.part;
+//                if (thisKey == null) thisKey = part3.selfModelData.id;
+//                list.put(thisKey, part3);
+//                list.putAll(part3.getAllChildPartsAsMap());
+//            }
+//        }
+//        return list;
+//    }
+    public Object2ReferenceOpenHashMap<String, EMFModelPartMutable> getAllChildPartsAsAnimationMap(String prefixableParents) {
         Object2ReferenceOpenHashMap<String, EMFModelPartMutable> list = new Object2ReferenceOpenHashMap<>();
         for (ModelPart part :
                 ((ModelPartAccessor) this).getChildren().values()) {
@@ -407,7 +420,13 @@ public class EMFModelPartMutable extends ModelPart {
                 String thisKey = part3.selfModelData == null ? String.valueOf(part3.hashCode()) : part3.selfModelData.part;
                 if (thisKey == null) thisKey = part3.selfModelData.id;
                 list.put(thisKey, part3);
-                list.putAll(part3.getAllChildPartsAsMap());
+                if (prefixableParents.isBlank()) {
+                    list.putAll(part3.getAllChildPartsAsAnimationMap(thisKey));
+                } else {
+                    list.put(prefixableParents +':'+ thisKey, part3);
+                    list.putAll(part3.getAllChildPartsAsAnimationMap(prefixableParents +':'+thisKey));
+                }
+
             }
         }
         return list;

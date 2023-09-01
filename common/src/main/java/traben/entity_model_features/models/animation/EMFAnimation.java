@@ -25,7 +25,7 @@ public class EMFAnimation {
     private final Random rand = new Random();
     public int indentCount = 0;
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
-    public Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartByName = null;
+    public Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartsBySingleAndFullHeirachicalId = null;
     //private boolean resultIsAngle = false;
     public boolean verboseMode = false;
     // Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
@@ -89,10 +89,10 @@ public class EMFAnimation {
     public void initExpression(Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables,
                                Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartByName) {
         this.emfAnimationVariables = emfAnimationVariables;
-        this.allPartByName = allPartByName;
+        this.allPartsBySingleAndFullHeirachicalId = allPartByName;
         EMFCalculator = MathExpressionParser.getOptimizedExpression(expressionString, false, this);
         this.emfAnimationVariables = null;
-        this.allPartByName = null;
+        this.allPartsBySingleAndFullHeirachicalId = null;
     }
 
     public void setVerbose(boolean val) {
