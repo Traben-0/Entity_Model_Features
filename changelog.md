@@ -9,6 +9,7 @@ block entities.
 -animation code ready for block entities
 -variation code ready for block entities
 -physics mod compat can now choose to try render the vanilla model or the custom EMF model
+-warning structure added to detected model overrides prompting to disable setting if it crashes or to warn users of models modified by other mods
 
 
 0.2.13

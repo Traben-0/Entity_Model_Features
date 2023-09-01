@@ -18,6 +18,12 @@ import java.util.Optional;
 
 
 public class EMFUtils {
+
+    public static void EMFOverrideMessage(String originalClass, String overriddenClassFromMod, boolean wasReverted) {
+        LogManager.getLogger().warn("[Entity Model Features]: Entity model ["+originalClass+"] has been overridden by ["+overriddenClassFromMod+"] likely from a mod.");
+        if(wasReverted) LogManager.getLogger().warn("[Entity Model Features]: Prevent model overrides option is enabled! EMF will attempt to revert the new model ["+overriddenClassFromMod+"] back into the original model ["+originalClass+"]. THIS MAY HAVE UNINTENDED EFFECTS ON THE OTHER MOD, DISABLE THIS EMF SETTING IF IT CAUSES CRASHES!");
+
+    }
     public static void EMFModMessage(String message) {
         EMFModMessage(message, false);
     }

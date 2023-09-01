@@ -40,7 +40,7 @@ public class MixinBlockEntityRenderDispatcher {
 
     @Unique
     private static UUID emf$getUuid(BlockEntity entity){
-        String seed = entity.getType().toString() + entity.getPos().toString();
+        String seed = entity.getType().toString() + entity.getPos().toString() + entity.getCachedState().getBlock().toString();
         if (entity instanceof Nameable nameable && nameable.hasCustomName()) {
             //noinspection ConstantConditions
             seed += nameable.getCustomName().getString();

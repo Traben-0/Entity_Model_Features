@@ -25,6 +25,7 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPartMutable;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETFApi;
 
 
@@ -48,7 +49,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
     private void emf$saveEMFModel(EntityRendererFactory.Context ctx, EntityModel<T> model, float shadowRadius, CallbackInfo ci) {
-        if(EMFConfig.getConfig().tryForceEmfModels && ((IEMFModel)getModel()).emf$isEMFModel()){
+        if(((IEMFModel)getModel()).emf$isEMFModel()){
             emf$heldModelToForce = getModel();
         }
     }
@@ -63,10 +64,12 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         private void emf$Animate(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
 
         if(emf$heldModelToForce != null) {
-            if(EMFConfig.getConfig().tryForceEmfModels
-                    && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace())
-            ) {
-                model = emf$heldModelToForce;
+            if(!emf$heldModelToForce.equals(model)){
+                boolean replace = EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace());
+                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(),model == null ? "null" : model.getClass().getName(),replace);
+                if(replace) {
+                    model = emf$heldModelToForce;
+                }
             }
             emf$heldModelToForce = null;
         }
