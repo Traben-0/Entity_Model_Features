@@ -25,6 +25,7 @@ import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 import traben.entity_texture_features.ETFApi;
 
 import java.util.*;
@@ -270,7 +271,7 @@ public class EMFModelPartMutable extends ModelPart {
 
     private boolean isTopLevelModelRoot = false;//todo still relevant?
 
-    public String modelName = null;
+    public OptifineMobNameForFileAndEMFMapId modelName = null;
     public EMFJemData jemData = null;
     public EMFManager.CemDirectoryApplier variantDirectoryApplier = null;
     public ETFApi.ETFRandomTexturePropertyInstance variantTester = null;
@@ -333,7 +334,7 @@ public class EMFModelPartMutable extends ModelPart {
         }
     }
 
-    public void setPartAsTopLevelRoot(String mobModelName, EMFJemData jemData, EMFManager.CemDirectoryApplier variantDirectoryApplier, ModelPart vanillaRoot){
+    public void setPartAsTopLevelRoot(OptifineMobNameForFileAndEMFMapId mobModelName, EMFJemData jemData, EMFManager.CemDirectoryApplier variantDirectoryApplier, ModelPart vanillaRoot){
         isTopLevelModelRoot = true;
         this.variantDirectoryApplier = variantDirectoryApplier;
         this.jemData = jemData;

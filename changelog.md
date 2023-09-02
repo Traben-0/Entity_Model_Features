@@ -14,6 +14,8 @@ block entities.
 -fixed emf/ & mobName/mobName directory issues
 -animations now support model part name hierarchy as in OptiFine. i.e   `left_arm:hand:finger1` works to separate part `finger1` in the `left_arm` model group from the `right_arm` one
 -warning structure added to detected model overrides prompting to disable setting if it crashes or to warn users of models modified by other mods
+- added OptiFine name format support for sniffer and camel
+
 
 
 0.2.13

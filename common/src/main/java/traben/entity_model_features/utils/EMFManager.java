@@ -160,18 +160,18 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
     @Nullable
-    public static EMFJemData getJemData(String jemFileName,String rawMobName) {
+    public static EMFJemData getJemData(String jemFileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
 
         //try emf folder
-        EMFJemData emfJemData = getJemDataWithDirectory("emf/cem/"+jemFileName);
+        EMFJemData emfJemData = getJemDataWithDirectory("emf/cem/"+jemFileName,mobModelIDInfo);
         if (emfJemData != null) return emfJemData;
-        emfJemData = getJemDataWithDirectory("emf/cem/"+rawMobName+"/"+jemFileName);
+        emfJemData = getJemDataWithDirectory("emf/cem/"+mobModelIDInfo+"/"+jemFileName,mobModelIDInfo);
         if (emfJemData != null) return emfJemData;
 
         //try read optifine jems
-        emfJemData = getJemDataWithDirectory("optifine/cem/"+jemFileName);
+        emfJemData = getJemDataWithDirectory("optifine/cem/"+jemFileName,mobModelIDInfo);
         if (emfJemData != null) return emfJemData;
-        emfJemData = getJemDataWithDirectory("optifine/cem/"+rawMobName+"/"+jemFileName);
+        emfJemData = getJemDataWithDirectory("optifine/cem/"+mobModelIDInfo+"/"+jemFileName,mobModelIDInfo);
         return emfJemData;
 
     }
@@ -211,7 +211,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     @Nullable
-    private static EMFJemData getJemDataWithDirectory(String pathOfJem) {
+    private static EMFJemData getJemDataWithDirectory(String pathOfJem, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
         //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
         if (EMFManager.getInstance().cache_JemDataByFileName.containsKey(pathOfJem)) {
             return EMFManager.getInstance().cache_JemDataByFileName.get(pathOfJem);
@@ -235,7 +235,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             EMFJemData jem = gson.fromJson(reader, EMFJemData.class);
             reader.close();
-            jem.sendFileName(pathOfJem);
+            jem.sendFileName(pathOfJem,mobModelIDInfo);
             jem.prepare();
             EMFManager.getInstance().cache_JemDataByFileName.put(pathOfJem, jem);
             return jem;
@@ -259,125 +259,110 @@ public class EMFManager {//singleton for data holding and resetting needs
         boolean printing =  (EMFConfig.getConfig().printModelCreationInfoToLog);
 //        if (layer == EntityModelLayers.SPIDER ||layer == EntityModelLayers.IRON_GOLEM ||layer == EntityModelLayers.ZOMBIE || layer == EntityModelLayers.COW || layer == EntityModelLayers.SHEEP || layer == EntityModelLayers.VILLAGER) {
 //            System.out.println("ran zomb and sheep");
-        String mobModelName = layer.getId().getPath();
+        OptifineMobNameForFileAndEMFMapId mobNameForFileAndMap = new OptifineMobNameForFileAndEMFMapId(layer.getId().getPath());
+
 
         if(!"main".equals(layer.getName())){
-            mobModelName += "_" + layer.getName();
+            mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName() + "_" + layer.getName());
         }
 
         //add simple modded check
         if(!"minecraft".equals(layer.getId().getNamespace())){
-            mobModelName = "modded/"+layer.getId().getNamespace()+"/"+mobModelName;
+            mobNameForFileAndMap.setBoth("modded/"+layer.getId().getNamespace()+"/"+mobNameForFileAndMap);
         }else {
             //vanilla model
-            if (mobModelName.contains("pufferfish"))
-                mobModelName = mobModelName.replace("pufferfish", "puffer_fish");
+            if (mobNameForFileAndMap.getfileName().contains("pufferfish"))
+                mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName().replace("pufferfish", "puffer_fish"));
 
 
-            switch (mobModelName) {
-                case "tropical_fish_large" -> mobModelName = "tropical_fish_b";
-                case "tropical_fish_small" -> mobModelName = "tropical_fish_a";
-                case "tropical_fish_large_pattern" -> mobModelName = "tropical_fish_pattern_b";
-                case "tropical_fish_small_pattern" -> mobModelName = "tropical_fish_pattern_a";
-//            case "tropical_fish_large" ->{
-//                if("pattern".equals(layer.getName())){
-//                    mobModelName = "tropical_fish_pattern_b";
-//                }else{
-//                    mobModelName = "tropical_fish_b";
-//                }
-//            }
-//            case "tropical_fish_small" ->{
-//                if("pattern".equals(layer.getName())){
-//                    mobModelName = "tropical_fish_pattern_a";
-//                }else{
-//                    mobModelName = "tropical_fish_a";
-//                }
-//            }
+            switch (mobNameForFileAndMap.getfileName()) {
+                case "tropical_fish_large" -> mobNameForFileAndMap.setBoth( "tropical_fish_b");
+                case "tropical_fish_small" -> mobNameForFileAndMap.setBoth( "tropical_fish_a");
+                case "tropical_fish_large_pattern" -> mobNameForFileAndMap.setBoth( "tropical_fish_pattern_b");
+                case "tropical_fish_small_pattern" -> mobNameForFileAndMap.setBoth( "tropical_fish_pattern_a");
+
                 case "trader_llama" -> traderLlamaHappened = true;
                 case "llama" -> traderLlamaHappened = false;
-                case "llama_decor" -> //                if("main".equals(layer.getName())){
-                    //                    traderLlamaHappened = false;
-                    //                }else{
-                    //                }
-                        mobModelName = traderLlamaHappened ? "trader_llama_decor" : "llama_decor";
-                case "ender_dragon" -> mobModelName = "dragon";
-                case "dragon_skull" -> mobModelName = "head_dragon";
-                case "player_head" -> mobModelName = "head_player";
-                case "skeleton_skull" -> mobModelName = "head_skeleton";
-                case "wither_skeleton_skull" -> mobModelName = "head_wither_skeleton";
-                case "zombie_head" -> mobModelName = "head_zombie";
-                case "creeper_head" -> mobModelName = "head_creeper";
-                case "piglin_head" -> mobModelName = "head_piglin";
-//            case "double_chest_left" -> {
-//                mobModelName = "chest_large";
-//                isChestLeft = true;
-//            }
-//            case"double_chest_right" -> {
-//                mobModelName = "chest_large";
-//                isChestLeft = false;
-//            }
+                case "llama_decor" -> mobNameForFileAndMap.setBoth( traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
+                case "ender_dragon" -> mobNameForFileAndMap.setBoth( "dragon");
+                case "dragon_skull" -> mobNameForFileAndMap.setBoth( "head_dragon");
+                case "player_head" -> mobNameForFileAndMap.setBoth( "head_player");
+                case "skeleton_skull" -> mobNameForFileAndMap.setBoth( "head_skeleton");
+                case "wither_skeleton_skull" -> mobNameForFileAndMap.setBoth( "head_wither_skeleton");
+                case "zombie_head" -> mobNameForFileAndMap.setBoth( "head_zombie");
+                case "creeper_head" -> mobNameForFileAndMap.setBoth( "head_creeper");
+                case "piglin_head" -> mobNameForFileAndMap.setBoth( "head_piglin");
+                case "creeper_armor" -> mobNameForFileAndMap.setBoth( "creeper_charge");
+                case "sheep_fur" -> mobNameForFileAndMap.setBoth( "sheep_wool");
 
 
-                case "creeper_armor" -> mobModelName = "creeper_charge";
-                case "sheep_fur" -> mobModelName = "sheep_wool";
-
-
-                //case "parrot" -> mobModelName = "parrot";//todo check on shoulder parrot models they can technically be different
+                //case "parrot" -> mobNameForFileAndMap = "parrot";//todo check on shoulder parrot models they can technically be different
 
 
 
                 default -> {
                     String countedName;
-                    if (COUNT_OF_MOB_NAME_ALREADY_SEEN.containsKey(mobModelName)) {
-                        int amount = COUNT_OF_MOB_NAME_ALREADY_SEEN.getInt(mobModelName);
+                    if (COUNT_OF_MOB_NAME_ALREADY_SEEN.containsKey(mobNameForFileAndMap.getfileName())) {
+                        int amount = COUNT_OF_MOB_NAME_ALREADY_SEEN.getInt(mobNameForFileAndMap.getfileName());
                         amount++;
-                        COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobModelName, amount);
-                        //System.out.println("higherCount: "+ mobModelName+amount);
-                        //String modelVariantAlias = mobModelName + '_' + (amount > 0 && amount < 27 ? String.valueOf((char) (amount + 'a' - 1)) : amount);
-                        countedName = mobModelName+'#'+amount;
+                        COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobNameForFileAndMap.getfileName(), amount);
+                        //System.out.println("higherCount: "+ mobNameForFileAndMap+amount);
+                        //String modelVariantAlias = mobNameForFileAndMap + '_' + (amount > 0 && amount < 27 ? String.valueOf((char) (amount + 'a' - 1)) : amount);
+                        countedName = mobNameForFileAndMap.getfileName()+'#'+amount;
                     } else {
-                        EMFManager.getInstance().COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobModelName, 1);
-                        countedName = mobModelName;//+'#'+1;
+                        EMFManager.getInstance().COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobNameForFileAndMap.getfileName(), 1);
+                        countedName = mobNameForFileAndMap.getfileName();//+'#'+1;
                     }
                     switch (countedName) {
-                        case "shulker#2" -> mobModelName = "shulker";
-                        case "shulker" -> mobModelName = "shulker_box";
-                        default -> {
-                            System.out.println("DEBUG modelName result: "+countedName + " -> "+mobModelName);
-                        }
-                    }
+                        case "shulker#2" -> mobNameForFileAndMap.setBoth("shulker");
+                        case "shulker" -> mobNameForFileAndMap.setBoth("shulker_box");
+//                        case "chest"->{}
+                        case "double_chest_left"->mobNameForFileAndMap.setFileName("chest_large");
+                        case "double_chest_right"->mobNameForFileAndMap.setFileName("chest_large");
+                        case "chest#2"-> mobNameForFileAndMap.setBoth("ender_chest","chest");
+                        case "double_chest_left#2"-> mobNameForFileAndMap.setBoth("ender_chest_large","double_chest_left");
+                        case "double_chest_right#2"-> mobNameForFileAndMap.setBoth("ender_chest_large","double_chest_right");
+                        case "chest#3"-> mobNameForFileAndMap.setBoth("trapped_chest","chest");
+                        case "double_chest_left#3"-> mobNameForFileAndMap.setBoth("trapped_chest_large","double_chest_left");
+                        case "double_chest_right#3"-> mobNameForFileAndMap.setBoth("trapped_chest_large","double_chest_right");
 
+                        default -> {
+                            //do nothing currently
+                        }
+
+                    }
+                    System.out.println("DEBUG modelName result: "+countedName + " -> "+mobNameForFileAndMap);
                 }
             }
         }
-        if (printing) System.out.println(" > EMF try to find a model for: " + mobModelName);
+        if (printing) System.out.println(" > EMF try to find a model for: " + mobNameForFileAndMap);
 
 
         ///jem name is final and correct from here
 
-        //if (EMFOptiFinePartNameMappings.getMapOf(mobModelName).isEmpty()) {
+        //if (EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap).isEmpty()) {
             //construct simple map for modded or unknown entities
-        EMFOptiFinePartNameMappings.exploreProvidedEntityModel(root,mobModelName);
+        EMFOptiFinePartNameMappings.exploreProvidedEntityModel(root,mobNameForFileAndMap.getMapId());
         //}
 
 
-        if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobModelName + ".jem");
-        String jemName = /*"optifine/cem/" +*/ mobModelName + ".jem";
-        EMFJemData jemData = getJemData(jemName,mobModelName);
+        if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobNameForFileAndMap + ".jem");
+        String jemName = /*"optifine/cem/" +*/ mobNameForFileAndMap + ".jem";
+        EMFJemData jemData = getJemData(jemName,mobNameForFileAndMap);
         if (jemData != null) {
-//            if (!EMFOptiFinePartNameMappings.getMapOf(mobModelName).isEmpty()) {
+//            if (!EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap).isEmpty()) {
                 EMFModelPartMutable part = getEMFRootModelFromJem(jemData, root);
 
-                //cache_JemNameToCannonModelRoot.put(mobModelName, part);
+                //cache_JemNameToCannonModelRoot.put(mobNameForFileAndMap, part);
 
 
-                //cache_JemNameToVanillaModelRoot.put(mobModelName, root);
+                //cache_JemNameToVanillaModelRoot.put(mobNameForFileAndMap, root);
             //todo alternate folders
-            CemDirectoryApplier variantDirectoryApplier = getResourceCemDirectoryApplierOrNull(mobModelName + ".properties",mobModelName);// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobModelName + ".properties")).isPresent());
-                    //cache_JemNameDoesHaveVariants.put(mobModelName, hasVariants);
+            CemDirectoryApplier variantDirectoryApplier = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + ".properties",mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
+                    //cache_JemNameDoesHaveVariants.put(mobNameForFileAndMap, hasVariants);
 
 
-                part.setPartAsTopLevelRoot(mobModelName,jemData,variantDirectoryApplier,root);
+                part.setPartAsTopLevelRoot(mobNameForFileAndMap,jemData,variantDirectoryApplier,root);
                 //tie into emf model discovery
                 lastCreatedRootModelPart = part;
 
@@ -393,7 +378,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             if (printing) System.out.println(" >> EMF mob does not have a .jem file");
         }
 
-        if (printing) System.out.println(" > Vanilla model used for: " + mobModelName);
+        if (printing) System.out.println(" > Vanilla model used for: " + mobNameForFileAndMap);
         return root;
     }
 
@@ -605,7 +590,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 && cache_UUIDDoUpdating.getBoolean(entity.getUuid())
                 && ETFApi.getETFConfigObject().textureUpdateFrequency_V2 != ETFConfig.UpdateFrequency.Never
         ) {
-            String mobName = cannonRoot.modelName;
+            String mobName = cannonRoot.modelName.getfileName();
             UUIDAndMobTypeKey key = new UUIDAndMobTypeKey(entity.getUuid(), entity.getType());
 
             long randomizer = ETFApi.getETFConfigObject().textureUpdateFrequency_V2.getDelay() * 20L;
@@ -638,7 +623,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         if (!cannonRoot.allKnownStateVariants.containsKey(suffix)) {
                             String jemName =cannonRoot.variantDirectoryApplier.getThisDirectoryOfFilename(mobName + suffix + ".jem");
                             System.out.println(" >> first time load of : " + jemName);
-                            EMFJemData jemData = getJemDataWithDirectory(jemName);
+                            EMFJemData jemData = getJemDataWithDirectory(jemName,cannonRoot.modelName);
                             if (jemData != null) {
                                 ModelPart vanillaRoot = cannonRoot.vanillaRoot; //cache_JemNameToVanillaModelRoot.get(mobName);
                                 if (vanillaRoot != null) {

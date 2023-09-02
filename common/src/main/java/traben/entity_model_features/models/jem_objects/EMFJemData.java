@@ -5,6 +5,7 @@ import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 
 import java.util.*;
 
@@ -17,23 +18,27 @@ public class EMFJemData {
     public double shadow_size = 1.0;
     public LinkedList<EMFPartData> models = new LinkedList<>();
     public LinkedList<EMFPartData> originalModelsForReadingOnly;
+
     public String fileName = "none";
-    public String mobName = "none";
+    public OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
+
+    //public String mobName = "none";
     public Identifier customTexture = null;
 
-    public void sendFileName(String fileName) {
+    public void sendFileName(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+        this.mobModelIDInfo = mobModelIDInfo;
         this.fileName = fileName;
-        this.mobName = fileName
-                .replace("optifine/cem/", "")
-                .replace("emf/cem/", "")
-                .replace(".jem", "");
-        //extract folder structure of optifine/cem/pig/pig.jem  which is pig/pig here
-        if(mobName.contains("/")){
-            String[] split = mobName.split("/");
-            if(split.length == 2){
-                if(split[0].equals(split[1])) mobName = split[0];
-            }
-        }
+//        this.mobName = fileName
+//                .replace("optifine/cem/", "")
+//                .replace("emf/cem/", "")
+//                .replace(".jem", "");
+//        //extract folder structure of optifine/cem/pig/pig.jem  which is pig/pig here
+//        if(mobName.contains("/")){
+//            String[] split = mobName.split("/");
+//            if(split.length == 2){
+//                if(split[0].equals(split[1])) mobName = split[0];
+//            }
+//        }
     }
 
     public void prepare() {
@@ -50,9 +55,9 @@ public class EMFJemData {
         }
 
 
-        String mobNameMinusVariant = mobName.replaceAll("(?<=\\w)[0-9]", "");
+        String mapId = mobModelIDInfo.getMapId();//.replaceAll("(?<=\\w)[0-9]", "");
         //vanilla parenting adjustments
-        Map<String, EMFOptiFinePartNameMappings.PartAndChildName> map = EMFOptiFinePartNameMappings.getMapOf(mobNameMinusVariant);
+        Map<String, EMFOptiFinePartNameMappings.PartAndChildName> map = EMFOptiFinePartNameMappings.getMapOf(mapId);
 
 
 
