@@ -196,7 +196,7 @@ public class EMFModelPartMutable extends ModelPart {
                 }
                 //todo alternate layers other than translucent
                 if (texture != null){
-                    if(EMFManager.getInstance().irisInstalled
+                    if(EMFManager.getInstance().IS_IRIS_INSTALLED
                             && EMFConfig.getConfig().textureOverrideMode == EMFConfig.TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE){
                         //this simple code seems to work with iris
                         VertexConsumerProvider vertexConsumers = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();

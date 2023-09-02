@@ -83,7 +83,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                     root.tryRenderVanillaRootNormally(matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);
                 }
                 //simple attempt at a physics mod workaround
-                if(livingEntity.isDead() && EMFManager.getInstance().physicsModInstalled && EMFConfig.getConfig().attemptPhysicsModPatch_2 != EMFConfig.PhysicsModCompatChoice.OFF){
+                if(livingEntity.isDead() && EMFManager.getInstance().IS_PHYSICS_MOD_INSTALLED && EMFConfig.getConfig().attemptPhysicsModPatch_2 != EMFConfig.PhysicsModCompatChoice.OFF){
                     root.tryRenderVanillaFormatRoot(matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);
                     //the regular render will get cancelled anyway nothing further to do
                 }

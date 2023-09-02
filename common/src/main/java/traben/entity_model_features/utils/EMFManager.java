@@ -9,12 +9,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.boss.dragon.EnderDragonEntity;
-import net.minecraft.entity.passive.PufferfishEntity;
-import net.minecraft.entity.passive.TropicalFishEntity;
-import net.minecraft.registry.Registries;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
@@ -36,6 +31,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.*;
+
 
 public class EMFManager {//singleton for data holding and resetting needs
 
@@ -87,33 +83,23 @@ public class EMFManager {//singleton for data holding and resetting needs
     public static EMFModelPartMutable lastCreatedRootModelPart = null;
     public long entityRenderCount = 0;
 
-    public final boolean physicsModInstalled;
+    public final boolean IS_PHYSICS_MOD_INSTALLED;
     private static EMFManager self = null;
     private final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
-//    private final Object2IntOpenHashMap<String> cache_AmountOfMobNameAlreadyDone = new Object2IntOpenHashMap<>();
-    //private final Object2ObjectOpenHashMap<String, EMFAnimationExecutor> cache_EntityNameToAnimationExecutable = new Object2ObjectOpenHashMap<>();
-//    private final Object2ObjectOpenHashMap<String, EMFModelPartMutable> cache_JemNameToCannonModelRoot = new Object2ObjectOpenHashMap<>();
-//    private final Object2ObjectOpenHashMap<String, ModelPart> cache_JemNameToVanillaModelRoot = new Object2ObjectOpenHashMap<>();
-//    private final Object2BooleanOpenHashMap<String> cache_JemNameDoesHaveVariants = new Object2BooleanOpenHashMap<>() {{
-//        defaultReturnValue(false);
-//    }};
+
     private final Object2BooleanOpenHashMap<UUID> cache_UUIDDoUpdating = new Object2BooleanOpenHashMap<>() {{
         defaultReturnValue(true);
     }};
     private final Object2IntOpenHashMap<UUIDAndMobTypeKey> cache_UUIDAndTypeToCurrentVariantInt = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(1);
     }};
-//    private final Object2LongOpenHashMap<UUIDAndMobTypeKey> cache_UUIDAndTypeToLastVariantCheckTime = new Object2LongOpenHashMap<>() {{
-//        defaultReturnValue(0);
-//    }};
-//    public final Object2ObjectOpenHashMap<String, ETFApi.ETFRandomTexturePropertyInstance> cache_mobJemNameToPropertyTester = new Object2ObjectOpenHashMap<>();
 
 
 
-    public final boolean irisInstalled;
+    public final boolean IS_IRIS_INSTALLED;
     private EMFManager() {
-        physicsModInstalled = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
-        irisInstalled = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
+        IS_PHYSICS_MOD_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
+        IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
     }
 
     public static EMFManager getInstance() {
@@ -139,38 +125,38 @@ public class EMFManager {//singleton for data holding and resetting needs
         return null;
     }
 
-    public static String getTypeName(Entity entity) {
-        String forReturn = Registries.ENTITY_TYPE.getId(entity.getType()).toString().replace("minecraft:", "");
-//        if (entity instanceof PlayerEntity plyr && plyr.thin ((PlayerEntityModelAccessor) plyr).isThinArms()) {
-//            forReturn = entityTypeBaseName + "_slim";
-//        } else
-
-
-        if(forReturn.contains(":")){
-            forReturn = "modded/"+forReturn.replaceFirst(":","/");
-//            String[] split = forReturn.split(":");
-//            if(split.length == 2 && !split[0].isBlank() && !split[1].isBlank())
-//                forReturn = "modded/"+split[0]+"/"+split[1];
-        }
-
-
-        if (entity instanceof PufferfishEntity puffer) {
-            forReturn = "puffer_fish_" + switch (puffer.getPuffState()) {
-                case 0 -> "small";
-                case 1 -> "medium";
-                default -> "big";
-            };
-        } else if (entity instanceof TropicalFishEntity fish) {
-            forReturn =  (fish.getVariant().getSize() == TropicalFishEntity.Size.LARGE ? "tropical_fish_b" : "tropical_fish_a");
-//        } else if (entity instanceof LlamaEntity llama) {
-//            forReturn = llama.isTrader() ? "trader_llama" : "llama";
-        } else if (entity instanceof EnderDragonEntity) {
-            forReturn = "dragon";
-        }
-
-
-        return forReturn;
-    }
+//    public static String getTypeName(Entity entity) {
+//        String forReturn = Registries.ENTITY_TYPE.getId(entity.getType()).toString().replace("minecraft:", "");
+////        if (entity instanceof PlayerEntity plyr && plyr.thin ((PlayerEntityModelAccessor) plyr).isThinArms()) {
+////            forReturn = entityTypeBaseName + "_slim";
+////        } else
+//
+//
+//        if(forReturn.contains(":")){
+//            forReturn = "modded/"+forReturn.replaceFirst(":","/");
+////            String[] split = forReturn.split(":");
+////            if(split.length == 2 && !split[0].isBlank() && !split[1].isBlank())
+////                forReturn = "modded/"+split[0]+"/"+split[1];
+//        }
+//
+//
+//        if (entity instanceof PufferfishEntity puffer) {
+//            forReturn = "puffer_fish_" + switch (puffer.getPuffState()) {
+//                case 0 -> "small";
+//                case 1 -> "medium";
+//                default -> "big";
+//            };
+//        } else if (entity instanceof TropicalFishEntity fish) {
+//            forReturn =  (fish.getVariant().getSize() == TropicalFishEntity.Size.LARGE ? "tropical_fish_b" : "tropical_fish_a");
+////        } else if (entity instanceof LlamaEntity llama) {
+////            forReturn = llama.isTrader() ? "trader_llama" : "llama";
+//        } else if (entity instanceof EnderDragonEntity) {
+//            forReturn = "dragon";
+//        }
+//
+//
+//        return forReturn;
+//    }
 
 
     @Nullable
@@ -206,8 +192,11 @@ public class EMFManager {//singleton for data holding and resetting needs
             return (fileName)-> "optifine/cem/"+mobName+"/"+fileName;
         }
     }
+
+
+
     @Nullable
-    public static CemDirectoryApplier isResourceInACemPAth(String inCemPathResource,String rawMobName) {
+    public static CemDirectoryApplier getResourceCemDirectoryApplierOrNull(String inCemPathResource, String rawMobName) {
         ResourceManager resources = MinecraftClient.getInstance().getResourceManager();
         //try emf folder
         if(resources.getResource(new Identifier("emf/cem/"+inCemPathResource)).isPresent())
@@ -261,6 +250,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
 
+    private final Object2IntOpenHashMap<String> COUNT_OF_MOB_NAME_ALREADY_SEEN = new Object2IntOpenHashMap<>();
     private boolean traderLlamaHappened = false;
     public ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
 
@@ -337,17 +327,26 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
                 default -> {
-//                    if (cache_AmountOfMobNameAlreadyDone.containsKey(mobModelName)) {
-//                        int amount = cache_AmountOfMobNameAlreadyDone.getInt(mobModelName);
-//                        amount++;
-//                        cache_AmountOfMobNameAlreadyDone.put(mobModelName, amount);
-//                        //System.out.println("higherCount: "+ mobModelName+amount);
-//                        String modelVariantAlias = mobModelName + '_' + (amount > 0 && amount < 27 ? String.valueOf((char) (amount + 'a' - 1)) : amount);
-//
-//                        mobModelName = map_MultiMobVariantMap.getOrDefault(modelVariantAlias, modelVariantAlias);
-//                    } else {
-//                        EMFManager.getInstance().cache_AmountOfMobNameAlreadyDone.put(mobModelName, 1);
-//                    }
+                    String countedName;
+                    if (COUNT_OF_MOB_NAME_ALREADY_SEEN.containsKey(mobModelName)) {
+                        int amount = COUNT_OF_MOB_NAME_ALREADY_SEEN.getInt(mobModelName);
+                        amount++;
+                        COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobModelName, amount);
+                        //System.out.println("higherCount: "+ mobModelName+amount);
+                        //String modelVariantAlias = mobModelName + '_' + (amount > 0 && amount < 27 ? String.valueOf((char) (amount + 'a' - 1)) : amount);
+                        countedName = mobModelName+'#'+amount;
+                    } else {
+                        EMFManager.getInstance().COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobModelName, 1);
+                        countedName = mobModelName;//+'#'+1;
+                    }
+                    switch (countedName) {
+                        case "shulker#2" -> mobModelName = "shulker";
+                        case "shulker" -> mobModelName = "shulker_box";
+                        default -> {
+                            System.out.println("DEBUG modelName result: "+countedName + " -> "+mobModelName);
+                        }
+                    }
+
                 }
             }
         }
@@ -374,7 +373,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                 //cache_JemNameToVanillaModelRoot.put(mobModelName, root);
             //todo alternate folders
-            CemDirectoryApplier variantDirectoryApplier = isResourceInACemPAth (mobModelName + ".properties",mobModelName);// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobModelName + ".properties")).isPresent());
+            CemDirectoryApplier variantDirectoryApplier = getResourceCemDirectoryApplierOrNull(mobModelName + ".properties",mobModelName);// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobModelName + ".properties")).isPresent());
                     //cache_JemNameDoesHaveVariants.put(mobModelName, hasVariants);
 
 
