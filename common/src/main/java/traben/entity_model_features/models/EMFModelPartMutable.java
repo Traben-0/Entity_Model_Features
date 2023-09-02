@@ -272,7 +272,7 @@ public class EMFModelPartMutable extends ModelPart {
 
     public String modelName = null;
     public EMFJemData jemData = null;
-    public boolean hasVariants = false;
+    public EMFManager.CemDirectoryApplier variantDirectoryApplier = null;
     public ETFApi.ETFRandomTexturePropertyInstance variantTester = null;
 
     public ModelPart vanillaRoot = null;
@@ -333,9 +333,9 @@ public class EMFModelPartMutable extends ModelPart {
         }
     }
 
-    public void setPartAsTopLevelRoot(String mobModelName,EMFJemData jemData, boolean hasVariants,ModelPart vanillaRoot){
+    public void setPartAsTopLevelRoot(String mobModelName, EMFJemData jemData, EMFManager.CemDirectoryApplier variantDirectoryApplier, ModelPart vanillaRoot){
         isTopLevelModelRoot = true;
-        this.hasVariants = hasVariants;
+        this.variantDirectoryApplier = variantDirectoryApplier;
         this.jemData = jemData;
         this.modelName = mobModelName;
         receiveRootVariationRunnable(()->{

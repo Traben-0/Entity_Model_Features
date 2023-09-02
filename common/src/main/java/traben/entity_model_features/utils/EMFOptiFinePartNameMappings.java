@@ -142,22 +142,53 @@ public class EMFOptiFinePartNameMappings {
     }
 
     public static Map.Entry<String, PartAndChildName> getOptifineMapEntry(String optifineName, String vanillaName, List<String> childNames) {
-        return new MutablePair<>(optifineName, _getPartAndChild(vanillaName, childNames));
+
+        return new MutablePair<>(optifineName, _getPartAndChild(vanillaName,new HashSet<>(childNames)));
     }
 
     public static PartAndChildName _getPartAndChild(String partName, String childName) {
-        return new PartAndChildName(partName, Collections.singletonList(childName));
+        return new PartAndChildName(partName, new HashSet<>(Collections.singleton(childName)));
     }
 
     public static PartAndChildName _getPartAndChild(String partName) {
-        return new PartAndChildName(partName, new ArrayList<>());
+        return new PartAndChildName(partName, new HashSet<>());
     }
 
-    public static PartAndChildName _getPartAndChild(String partName, List<String> childNamesToExpect) {
+    public static PartAndChildName _getPartAndChild(String partName, HashSet<String> childNamesToExpect) {
         return new PartAndChildName(partName, childNamesToExpect);
     }
-
     public static Map<String, PartAndChildName> getMapOf(String mobName) {
+        Map<String, PartAndChildName> simpleMap = internalGetMapOf(mobName);
+        //if simple map is useless, return discovered map as optifine name mappings are not needed
+        if(simpleMap.isEmpty()){
+            if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName))
+                return UNKNOWN_MODEL_MAP_CACHE.get(mobName);
+            return simpleMap;
+        }
+        //else try to validate the optifine mapping with the discovered vanilla map for stray missing parts
+        Map<String, PartAndChildName> completeVanillaMap = UNKNOWN_MODEL_MAP_CACHE.get(mobName);
+        if(completeVanillaMap != null && !completeVanillaMap.isEmpty()){
+            Map<String, PartAndChildName> notFound = new HashMap<>(completeVanillaMap);
+            for (Map.Entry<String, PartAndChildName> simpleEntry:
+                 simpleMap.entrySet()) {
+
+                String vanillaPartName = simpleEntry.getValue().partName();
+                PartAndChildName trueData = notFound.get(vanillaPartName);
+                if(trueData != null){
+                    //correct any possible missing children
+                    simpleEntry.getValue().childNamesToExpect.addAll(trueData.childNamesToExpect());
+                    //remove it as part was found to have an optifine format mapping
+                    notFound.remove(vanillaPartName);
+                }
+            }
+            //add any missing parts, these could be small tidbits I don't manually add to the optifine map because they aren't called by vanilla, but a mod calling getChild() and not expecting null would get #spooked
+            notFound.remove("root");
+            notFound.putAll(simpleMap);
+            return notFound;
+        }
+        return simpleMap;
+    }
+    private static Map<String, PartAndChildName> internalGetMapOf(String mobName) {
         if (mobName.contains("_inner_armor")) mobName = mobName.replace("_inner_armor", "");
         if (mobName.contains("_outer_armor")) mobName = mobName.replace("_outer_armor", "");
 
@@ -507,7 +538,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("left_leg"),
                     getOptifineMapEntry("right_leg")
             );
-            case "puffer_fish_big" -> Map.ofEntries( //todo optifine has puffer_fish with a _
+            case "puffer_fish_big" -> Map.ofEntries(
                     getOptifineMapEntry("body"),
                     getOptifineMapEntry("fin_right", "right_blue_fin"),
                     getOptifineMapEntry("fin_left", "left_blue_fin"),
@@ -522,7 +553,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("spikes_back_right", "right_back_fin"),
                     getOptifineMapEntry("spikes_back_left", "left_back_fin")
             );
-            case "puffer_fish_medium" -> Map.ofEntries( //todo optifine has puffer_fish with a _
+            case "puffer_fish_medium" -> Map.ofEntries(
                     getOptifineMapEntry("body"),
                     getOptifineMapEntry("fin_right", "right_blue_fin"),
                     getOptifineMapEntry("fin_left", "left_blue_fin"),
@@ -535,7 +566,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("spikes_back_right", "right_back_fin"),
                     getOptifineMapEntry("spikes_back_left", "left_back_fin")
             );
-            case "puffer_fish_small" -> Map.ofEntries( //todo optifine has puffer_fish with a _
+            case "puffer_fish_small" -> Map.ofEntries(
                     getOptifineMapEntry("body"),
                     getOptifineMapEntry("fin_right", "right_fin"),
                     getOptifineMapEntry("fin_left", "left_fin"),
@@ -724,15 +755,16 @@ public class EMFOptiFinePartNameMappings {
 
 
 
-            default -> {
+            default -> Map.of(); //{
                 //throw new RuntimeException("EMF doesn't map: "+mobName);
-                if ( EMFConfig.getConfig().printModelCreationInfoToLog)
-                    EMFUtils.EMFModError("no model part mapping found for: " + mobName);
+                //if ( EMFConfig.getConfig().printModelCreationInfoToLog)
+                //    EMFUtils.EMFModError("no model part mapping found for: " + mobName);
                 //try discovered mob cache
-                if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName))
-                    yield UNKNOWN_MODEL_MAP_CACHE.get(mobName);
-                yield Map.of();
-            }
+//                if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName))ss
+//                    yield UNKNOWN_MODEL_MAP_CACHE.get(mobName);
+                //yield
+
+            //}
 
         };
 
@@ -742,7 +774,11 @@ public class EMFOptiFinePartNameMappings {
     public static final Map<String,Map<String, PartAndChildName>> UNKNOWN_MODEL_MAP_CACHE = new HashMap<>();
 
     //this would make a usable mapping of the given model but with no part name changing as it would not be optifine customized
-    public static Map<String, PartAndChildName> createMapForModdedOrUnknownEntityModel(ModelPart originalModel, String mobName){
+    public static void exploreProvidedEntityModel(ModelPart originalModel, String mobName){
+
+        if(UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName))
+            return; //UNKNOWN_MODEL_MAP_CACHE.get(mobName);
+
         Map<String, PartAndChildName> newMap = new HashMap<>();
         Map<String, String> detailsMap = new HashMap<>();
         mapThisAndChildren("root",originalModel,newMap,detailsMap);
@@ -750,10 +786,9 @@ public class EMFOptiFinePartNameMappings {
         UNKNOWN_MODEL_MAP_CACHE.put(mobName,newMap);
         if(EMFConfig.getConfig().printUnknownModelsMode != EMFConfig.UnknownModelPrintMode.NONE) {
             StringBuilder mapString = new StringBuilder();
-            mapString.append(" |-[optifine/cem/" + mobName + ".jem]\n");
+            mapString.append(" |-[optifine/cem/").append(mobName).append(".jem]\n");
             newMap.forEach((key, entry) ->{
-                mapString.append( " | |-[" + ("root".equals(key) ? "(optional) ":"") +"part=" + key +
-                    (entry.childNamesToExpect.isEmpty()? "" : ", child_parts = " + entry.childNamesToExpect)+"]\n");
+                mapString.append(" | |-[").append("root".equals(key) ? "(optional) " : "").append("part=").append(key).append(entry.childNamesToExpect.isEmpty() ? "" : ", child_parts = " + entry.childNamesToExpect).append("]\n");
                 mapString.append(detailsMap.get(key));
             });
             mapString.append("  \\-\\{{end of unknown model}}");
@@ -819,7 +854,7 @@ public class EMFOptiFinePartNameMappings {
                 }
             }
         }
-        return newMap;
+       // return newMap;
     }
 
 
@@ -835,7 +870,7 @@ public class EMFOptiFinePartNameMappings {
     }
 
     private static void mapThisAndChildren(String partName,ModelPart originalModel, Map<String, PartAndChildName> newMap,Map<String, String> detailsMap){
-        ArrayList<String> childrenList = new ArrayList<>();
+        Set<String> childrenList = new HashSet<>();
         //iterate over children while collecting their names in a list
         for (Map.Entry<String, ModelPart> entry:
              ((ModelPartAccessor)originalModel).getChildren().entrySet()) {
@@ -854,7 +889,7 @@ public class EMFOptiFinePartNameMappings {
         }
     }
 
-    public static record PartAndChildName(@NotNull String partName, @NotNull List<String> childNamesToExpect) {
+    public record PartAndChildName(@NotNull String partName, @NotNull Set<String> childNamesToExpect) {
 
     }
 }

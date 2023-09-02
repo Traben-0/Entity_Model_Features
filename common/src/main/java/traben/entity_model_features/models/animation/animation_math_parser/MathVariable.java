@@ -7,6 +7,7 @@ import traben.entity_model_features.models.animation.EMFDefaultModelVariable;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 
@@ -151,7 +152,7 @@ public class MathVariable extends MathValue implements MathComponent {
                     if (partVariable != null && part != null) {
                         return () -> partVariable.getFromMutableModel(part/*, calculationInstance.partToApplyTo*/);
                     } else {
-                        EMFUtils.EMFModError("no part variable found for: [" + variableKey + "] in [" + calculationInstance.modelName + "] + " + calculationInstance.allPartsBySingleAndFullHeirachicalId.keySet());
+                        EMFUtils.EMFModError("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.allPartsBySingleAndFullHeirachicalId.keySet());
                         return () -> 0;
                         //throw new EMFMathException("no part variable found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.allPartByName.keySet());
                     }
@@ -163,7 +164,12 @@ public class MathVariable extends MathValue implements MathComponent {
                     if (variableCalculator != null) {
                         return variableCalculator::getLastResultOnly;
                     } else {
-                        EMFUtils.EMFModError("no variable animation found for: [" + variableKey + "] in [" + calculationInstance.modelName + "] + " + calculationInstance.emfAnimationVariables.keySet());
+                        ArrayList<String> vars = new ArrayList<>();
+                        for (String var:
+                                calculationInstance.emfAnimationVariables.keySet()) {
+                            if(var.startsWith("var.") || var.startsWith("varb.")) vars.add(var);
+                        }
+                        EMFUtils.EMFModError("no animation variable found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available variables were: " + vars);
                         return () -> 0;
                         //throw new EMFMathException("no variable animation found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.emfAnimationVariables.keySet());
                     }

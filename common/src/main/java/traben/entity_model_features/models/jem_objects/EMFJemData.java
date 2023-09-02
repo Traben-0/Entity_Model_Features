@@ -23,7 +23,17 @@ public class EMFJemData {
 
     public void sendFileName(String fileName) {
         this.fileName = fileName;
-        this.mobName = fileName.replace("optifine/cem/", "").replace(".jem", "");
+        this.mobName = fileName
+                .replace("optifine/cem/", "")
+                .replace("emf/cem/", "")
+                .replace(".jem", "");
+        //extract folder structure of optifine/cem/pig/pig.jem  which is pig/pig here
+        if(mobName.contains("/")){
+            String[] split = mobName.split("/");
+            if(split.length == 2){
+                if(split[0].equals(split[1])) mobName = split[0];
+            }
+        }
     }
 
     public void prepare() {
@@ -77,7 +87,12 @@ public class EMFJemData {
             if (!found) missingModels.add(EMFPartData.getBlankPartWithIDOf(name,textureSize));
         }
         if (missingModels.size() > 0) {
-            EMFUtils.EMFModError("These parts were missing from [" + fileName + "]: " + missingModels);
+            ArrayList<String> parts = new ArrayList<>();
+            for (EMFPartData part:
+            missingModels) {
+                parts.add(part.id);
+            }
+            EMFUtils.EMFModError("These parts were missing from [" + fileName + "]: " + parts);
             models.addAll(missingModels);
         }
 
