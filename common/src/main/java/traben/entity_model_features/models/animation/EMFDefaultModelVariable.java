@@ -3,7 +3,7 @@ package traben.entity_model_features.models.animation;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelTransform;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.models.EMFModelPartMutable;
+import traben.entity_model_features.models.EMFModelPart;
 
 public enum EMFDefaultModelVariable {
     tx(), ty(), tz(),
@@ -90,7 +90,7 @@ public enum EMFDefaultModelVariable {
         }
     }
 
-    public float getFromMutableModel(EMFModelPartMutable modelPart//,
+    public float getFromMutableModel(EMFModelPart modelPart//,
                                      //EMFModelPartMutable sourceModel
     ) {
         if (modelPart == null) {
@@ -99,11 +99,11 @@ public enum EMFDefaultModelVariable {
         }
 
         float[] parentModify;
-        if (modelPart.selfModelData != null) {
-            parentModify = modelPart.selfModelData.parentModified;
-        } else {
+//        if (modelPart.selfModelData != null) {
+//            parentModify = modelPart.selfModelData.parentModified;
+//        } else {
             parentModify = new float[]{0, 0, 0};
-        }
+//        }
         // ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;
         switch (this) {
             case tx -> {
@@ -146,17 +146,17 @@ public enum EMFDefaultModelVariable {
         }
     }
 
-    public void setValueInMutableModel(EMFModelPartMutable modelPart, float value) {
+    public void setValueInMutableModel(EMFModelPart modelPart, float value) {
         if (modelPart == null) {
             System.out.println("model part was null cannot set its value");
             return;
         }
         float[] parentModify;
-        if (modelPart.selfModelData != null) {
-            parentModify = modelPart.selfModelData.parentModified;
-        } else {
+//        if (modelPart.selfModelData != null) {
+//            parentModify = modelPart.selfModelData.parentModified;
+//        } else {
             parentModify = new float[]{0, 0, 0};
-        }
+//        }
 
         //ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;
         switch (this) {

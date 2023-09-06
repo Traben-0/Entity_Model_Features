@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.models.EMFModelPartMutable;
+import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
@@ -77,7 +77,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
             //EMFManager.getInstance().preRenderEMFActions(emf$ModelId,livingEntity, vertexConsumerProvider, o, n, l, k, m);
         if(((IEMFModel)getModel()).emf$isEMFModel()){
-            EMFModelPartMutable root = ((IEMFModel)getModel()).emf$getEMFRootModel();
+            EMFModelPartRoot root = ((IEMFModel)getModel()).emf$getEMFRootModel();
             if(root!= null) {
                 if (EMFConfig.getConfig().vanillaModelRenderMode != EMFConfig.VanillaModelRenderMode.Off){
                     root.tryRenderVanillaRootNormally(matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);
@@ -99,7 +99,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     private Identifier emf$getTextureRedirect(LivingEntityRenderer<?,?> instance, Entity entity){
 
         if(((IEMFModel)getModel()).emf$isEMFModel()){
-            EMFModelPartMutable root = ((IEMFModel)getModel()).emf$getEMFRootModel();
+            EMFModelPartRoot root = ((IEMFModel)getModel()).emf$getEMFRootModel();
             if(root!= null) {
                 //noinspection unchecked
                 return root.textureOverride == null ? getTexture((T) entity) : ETFApi.getCurrentETFVariantTextureOfEntity(entity, root.textureOverride);

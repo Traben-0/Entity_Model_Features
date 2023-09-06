@@ -1,6 +1,6 @@
 package traben.entity_model_features.models.animation.animation_math_parser;
 
-import traben.entity_model_features.models.EMFModelPartMutable;
+import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.models.animation.EMFDefaultModelVariable;
@@ -148,7 +148,7 @@ public class MathVariable extends MathValue implements MathComponent {
                     String[] split = variableKey.split("\\.");//todo only works with one split point
                     String partName = split[0];
                     EMFDefaultModelVariable partVariable = EMFDefaultModelVariable.get(split[1]);
-                    EMFModelPartMutable part = EMFManager.getModelFromHierarchichalId(partName,calculationInstance.allPartsBySingleAndFullHeirachicalId);
+                    EMFModelPart part = EMFManager.getModelFromHierarchichalId(partName,calculationInstance.allPartsBySingleAndFullHeirachicalId);
                     if (partVariable != null && part != null) {
                         return () -> partVariable.getFromMutableModel(part/*, calculationInstance.partToApplyTo*/);
                     } else {

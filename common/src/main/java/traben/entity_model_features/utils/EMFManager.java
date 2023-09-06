@@ -18,19 +18,22 @@ import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
-import traben.entity_model_features.models.EMFModelPartMutable;
+import traben.entity_model_features.models.EMFModelPart;
+import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.models.animation.EMFDefaultModelVariable;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
-import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.config.ETFConfig;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 
 public class EMFManager {//singleton for data holding and resetting needs
@@ -80,7 +83,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 //
 //    }};
 
-    public static EMFModelPartMutable lastCreatedRootModelPart = null;
+    public static EMFModelPartRoot lastCreatedRootModelPart = null;
     public long entityRenderCount = 0;
 
     public final boolean IS_PHYSICS_MOD_INSTALLED;
@@ -331,7 +334,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         }
 
                     }
-                    System.out.println("DEBUG modelName result: "+countedName + " -> "+mobNameForFileAndMap);
+                    //System.out.println("DEBUG modelName result: "+countedName + " -> "+mobNameForFileAndMap);
                 }
             }
         }
@@ -342,153 +345,168 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         //if (EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap).isEmpty()) {
             //construct simple map for modded or unknown entities
-        EMFOptiFinePartNameMappings.exploreProvidedEntityModel(root,mobNameForFileAndMap.getMapId());
+        Map<String, String> optifinePartNameMap = EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap.getMapId(),root);
         //}
 
 
         if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobNameForFileAndMap + ".jem");
         String jemName = /*"optifine/cem/" +*/ mobNameForFileAndMap + ".jem";
         EMFJemData jemData = getJemData(jemName,mobNameForFileAndMap);
-        if (jemData != null) {
-//            if (!EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap).isEmpty()) {
-                EMFModelPartMutable part = getEMFRootModelFromJem(jemData, root);
+        CemDirectoryApplier variantDirectoryApplier = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + ".properties",mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
 
-                //cache_JemNameToCannonModelRoot.put(mobNameForFileAndMap, part);
+        if(jemData!=null || variantDirectoryApplier != null){
+            //we do indeed need custom models
+            EMFModelPartRoot emfRoot = new EMFModelPartRoot(mobNameForFileAndMap, variantDirectoryApplier,root,optifinePartNameMap);
+            if(jemData!= null) {
+                emfRoot.addVariantOfJem(jemData, 1);
+                emfRoot.setVariantStateTo(1);
+                setupAnimationsFromJemToModel(jemData,emfRoot,1);
+            }
 
-
-                //cache_JemNameToVanillaModelRoot.put(mobNameForFileAndMap, root);
-            //todo alternate folders
-            CemDirectoryApplier variantDirectoryApplier = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + ".properties",mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
-                    //cache_JemNameDoesHaveVariants.put(mobNameForFileAndMap, hasVariants);
-
-
-                part.setPartAsTopLevelRoot(mobNameForFileAndMap,jemData,variantDirectoryApplier,root);
-                //tie into emf model discovery
-                lastCreatedRootModelPart = part;
-
-                return part;
-//            } else {
-//                //not a cem mob
-//                if (printing) System.out.println(" >> no EMF mapping found");//todo modded mob handling
-//                EMFUtils.EMFModWarn("EMF Beta does not have the code to read unknown model [" + jemName+ "] yet, soon though." );
-//            }
-        } else {
-            //no mob .jem
-
-            if (printing) System.out.println(" >> EMF mob does not have a .jem file");
+            lastCreatedRootModelPart = emfRoot;
+            return emfRoot;
         }
+
+
+
+//        if (jemData != null) {
+////            if (!EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap).isEmpty()) {
+//                EMFModelPartMutable part = getEMFRootModelFromJem(jemData, root);
+//
+//                //cache_JemNameToCannonModelRoot.put(mobNameForFileAndMap, part);
+//
+//
+//                //cache_JemNameToVanillaModelRoot.put(mobNameForFileAndMap, root);
+//            //todo alternate folders
+//            //cache_JemNameDoesHaveVariants.put(mobNameForFileAndMap, hasVariants);
+//
+//
+//                part.setPartAsTopLevelRoot(mobNameForFileAndMap,jemData,variantDirectoryApplier,root);
+//                //tie into emf model discovery
+//
+//                return part;
+////            } else {
+////                //not a cem mob
+////                if (printing) System.out.println(" >> no EMF mapping found");//todo modded mob handling
+////                EMFUtils.EMFModWarn("EMF Beta does not have the code to read unknown model [" + jemName+ "] yet, soon though." );
+////            }
+//        } else {
+//            //no mob .jem
+//
+//            if (printing) System.out.println(" >> EMF mob does not have a .jem file");
+//        }
 
         if (printing) System.out.println(" > Vanilla model used for: " + mobNameForFileAndMap);
         return root;
     }
 
-    private EMFModelPartMutable getEMFRootModelFromJem(EMFJemData jemData, ModelPart vanillaRoot) {
-        EMFModelPartMutable part = getEMFRootModelFromJem(jemData, vanillaRoot, 1);
-        setupAnimationsFromJemToModel(jemData, part, 1);
-        return part;
-    }
+//    private EMFModelPartMutable getEMFRootModelFromJem(EMFJemData jemData, ModelPart vanillaRoot) {
+//        EMFModelPartMutable part = getEMFRootModelFromJem(jemData, vanillaRoot, 1);
+//        setupAnimationsFromJemToModel(jemData, part, 1);
+//        return part;
+//    }
 
-    private EMFModelPartMutable getEMFRootModelFromJem(EMFJemData jemData, ModelPart vanillaRoot, int variantNumber) {
-        Map<String, ModelPart> rootChildren = new HashMap<>();
-
-        boolean printing = EMFConfig.getConfig().printModelCreationInfoToLog;
-
-        for (EMFPartData partData :
-                jemData.models) {
-            if (partData != null && partData.part != null) {
-
-                ModelPart oldPart = traverseRootForChildOrNull(vanillaRoot, partData.part);
-//                ModelPart oldPart = vanillaRoot.hasChild("root") ?
-//                        ((ModelPartAccessor) vanillaRoot.getChild("root")).getChildren().getOrDefault(partData.part, null)
-//                        :
-//                        ((ModelPartAccessor) vanillaRoot).getChildren().getOrDefault(partData.part, null);
-
-                EMFModelPartMutable newPart = new EMFModelPartMutable(partData, variantNumber);
-                if (oldPart != null){
-                    newPart.applyDefaultModelRotates(oldPart.getDefaultTransform());
-                    iterateChildTransformCopy(newPart,oldPart);
-                }
-                if (printing) System.out.println(" >>> EMF part made: " + partData.toString(false));
-//                if ("piglin".equals(jemData.mobName)) {
-//                    System.out.println(" >>>>>>>>> piglin part made: " + partData.toString(false));
+//    private EMFModelPartMutable getEMFRootModelFromJem(EMFJemData jemData, ModelPart vanillaRoot, int variantNumber) {
+//        Map<String, ModelPart> rootChildren = new HashMap<>();
+//
+//        boolean printing = EMFConfig.getConfig().printModelCreationInfoToLog;
+//
+//        for (EMFPartData partData :
+//                jemData.models) {
+//            if (partData != null && partData.part != null) {
+//
+//                ModelPart oldPart = traverseRootForChildOrNull(vanillaRoot, partData.part);
+////                ModelPart oldPart = vanillaRoot.hasChild("root") ?
+////                        ((ModelPartAccessor) vanillaRoot.getChild("root")).getChildren().getOrDefault(partData.part, null)
+////                        :
+////                        ((ModelPartAccessor) vanillaRoot).getChildren().getOrDefault(partData.part, null);
+//
+//                EMFModelPartMutable newPart = new EMFModelPartMutable(partData, variantNumber);
+//                if (oldPart != null){
+//                    newPart.applyDefaultModelRotates(oldPart.getDefaultTransform());
+//                    iterateChildTransformCopy(newPart,oldPart);
 //                }
-                rootChildren.put(partData.part, newPart);
+//                if (printing) System.out.println(" >>> EMF part made: " + partData.toString(false));
+////                if ("piglin".equals(jemData.mobName)) {
+////                    System.out.println(" >>>>>>>>> piglin part made: " + partData.toString(false));
+////                }
+//                rootChildren.put(partData.part, newPart);
+//
+//            } else {
+//                //part is not mapped to a vanilla part
+//                System.out.println("no part definition");
+//            }
+//        }
+//        //have iterated over all parts in jem and made them
+//
+//
+//        EMFModelPartMutable emfRootModelPart = new EMFModelPartMutable( rootChildren, variantNumber, jemData);
+//        //try
+//        //todo pretty sure we must match root transforms because of fucking frogs, maybe?
+//        //emfRootModelPart.pivotY = 24;
+//        //todo check all were mapped correctly before return
+//        if (printing) System.out.println(" > EMF model returned");
+//
+//        //emfRootModelPart.assertChildrenAndCuboids();
+//
+//
+//
+//        // check for if root is expected below the top level modelpart
+//        // as in some single part entity models
+//        if (vanillaRoot.hasChild("root")){
+//            if(!emfRootModelPart.hasChild("root")) {
+//                ModelPart subRoot = vanillaRoot.getChild("root");
+//                if (subRoot.pivotX != 0 ||
+//                        subRoot.pivotY != 0 ||
+//                        subRoot.pivotZ != 0 ||
+//                        subRoot.pitch != 0 ||
+//                        subRoot.yaw != 0 ||
+//                        subRoot.roll != 0 ||
+//                        subRoot.xScale != 0 ||
+//                        subRoot.yScale != 0 ||
+//                        subRoot.zScale != 0
+//
+//                ) {
+//                    //this covers things like frogs who pivot their root for some reason
+//                    emfRootModelPart.setTransform(subRoot.getTransform());
+//                    emfRootModelPart.setDefaultTransform(subRoot.getDefaultTransform());
+//                }
+//
+//                emfRootModelPart = new EMFModelPartMutable( Map.of("root", emfRootModelPart), variantNumber, jemData);
+//            }
+//        }else if (emfRootModelPart.hasChild("root")){
+//            //should only be tadpoles
+//            emfRootModelPart = (EMFModelPartMutable) emfRootModelPart.getChild("root");
+//        }
+//
+//
+//
+//        if(EMFConfig.getConfig().attemptToCopyVanillaModelIntoMissingModelPart)
+//            emfRootModelPart.mergeInVanillaWhereRequired(vanillaRoot);
+//        return emfRootModelPart;
+//    }
 
-            } else {
-                //part is not mapped to a vanilla part
-                System.out.println("no part definition");
-            }
-        }
-        //have iterated over all parts in jem and made them
+//    private void iterateChildTransformCopy(EMFModelPartMutable newPart, ModelPart oldPart){
+//        for (String emfChildId:
+//                newPart.getChildrenEMF().keySet()) {
+//            if(oldPart.hasChild(emfChildId)){
+//                EMFModelPartMutable newNewPart = ((EMFModelPartMutable)newPart.getChildrenEMF().get(emfChildId));
+//                ModelPart oldOldPart =oldPart.getChild(emfChildId);
+//                newNewPart.applyDefaultModelRotates(oldOldPart.getDefaultTransform());
+//                iterateChildTransformCopy(newNewPart,oldOldPart);
+//            }
+//        }
+//    }
 
 
-        EMFModelPartMutable emfRootModelPart = new EMFModelPartMutable( rootChildren, variantNumber, jemData);
-        //try
-        //todo pretty sure we must match root transforms because of fucking frogs, maybe?
-        //emfRootModelPart.pivotY = 24;
-        //todo check all were mapped correctly before return
-        if (printing) System.out.println(" > EMF model returned");
-
-        //emfRootModelPart.assertChildrenAndCuboids();
-
-
-
-        // check for if root is expected below the top level modelpart
-        // as in some single part entity models
-        if (vanillaRoot.hasChild("root")){
-            if(!emfRootModelPart.hasChild("root")) {
-                ModelPart subRoot = vanillaRoot.getChild("root");
-                if (subRoot.pivotX != 0 ||
-                        subRoot.pivotY != 0 ||
-                        subRoot.pivotZ != 0 ||
-                        subRoot.pitch != 0 ||
-                        subRoot.yaw != 0 ||
-                        subRoot.roll != 0 ||
-                        subRoot.xScale != 0 ||
-                        subRoot.yScale != 0 ||
-                        subRoot.zScale != 0
-
-                ) {
-                    //this covers things like frogs who pivot their root for some reason
-                    emfRootModelPart.setTransform(subRoot.getTransform());
-                    emfRootModelPart.setDefaultTransform(subRoot.getDefaultTransform());
-                }
-
-                emfRootModelPart = new EMFModelPartMutable( Map.of("root", emfRootModelPart), variantNumber, jemData);
-            }
-        }else if (emfRootModelPart.hasChild("root")){
-            //should only be tadpoles
-            emfRootModelPart = (EMFModelPartMutable) emfRootModelPart.getChild("root");
-        }
-
-
-
-        if(EMFConfig.getConfig().attemptToCopyVanillaModelIntoMissingModelPart)
-            emfRootModelPart.mergeInVanillaWhereRequired(vanillaRoot);
-        return emfRootModelPart;
-    }
-
-    private void iterateChildTransformCopy(EMFModelPartMutable newPart, ModelPart oldPart){
-        for (String emfChildId:
-                newPart.getChildrenEMF().keySet()) {
-            if(oldPart.hasChild(emfChildId)){
-                EMFModelPartMutable newNewPart = ((EMFModelPartMutable)newPart.getChildrenEMF().get(emfChildId));
-                ModelPart oldOldPart =oldPart.getChild(emfChildId);
-                newNewPart.applyDefaultModelRotates(oldOldPart.getDefaultTransform());
-                iterateChildTransformCopy(newNewPart,oldOldPart);
-            }
-        }
-    }
-
-
-    private void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartMutable emfRootPart,int variantNum) {
+    private void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart,int variantNum) {
         ///////SETUP ANIMATION EXECUTABLES////////////////
 
         boolean printing =   EMFConfig.getConfig().printModelCreationInfoToLog;
 
-        Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
+        Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
         allPartsBySingleAndFullHeirachicalId.put("root", emfRootPart);
-        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap(""));
+        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("",variantNum));
 
         Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
 
@@ -506,7 +524,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             EMFDefaultModelVariable thisVariable = EMFDefaultModelVariable.get(modelVariable);
 
-            EMFModelPartMutable thisPart = getModelFromHierarchichalId(modelId,allPartsBySingleAndFullHeirachicalId);
+            EMFModelPart thisPart = getModelFromHierarchichalId(modelId,allPartsBySingleAndFullHeirachicalId);
             EMFAnimation thisCalculator;
 
             if (thisPart != null) {
@@ -558,18 +576,25 @@ public class EMFManager {//singleton for data holding and resetting needs
     public boolean isAnimationValidationPhase = false;
 
 
-    public static EMFModelPartMutable getModelFromHierarchichalId(String hierarchId,Map<String,EMFModelPartMutable> map){
+    public static EMFModelPart getModelFromHierarchichalId(String hierarchId, Map<String, EMFModelPart> map){
         if(hierarchId == null || hierarchId.isBlank()) return null;
-        if(!hierarchId.contains(":")) return map.get(hierarchId);
-        for (Map.Entry<String,EMFModelPartMutable> entry:
+        if(!hierarchId.contains(":")) {
+            EMFModelPart part = map.get(hierarchId);
+            if(part == null)
+                return map.get("EMF_"+hierarchId);
+            return part;
+        }
+        for (Map.Entry<String,EMFModelPart> entry:
              map.entrySet()) {
-            if(entry.getKey().equals(hierarchId) || (entry.getKey().endsWith(hierarchId))) return entry.getValue();
+            if(entry.getKey().equals(hierarchId) || entry.getKey().equals("EMF_"+hierarchId)
+                    || (entry.getKey().endsWith(":"+hierarchId))  || (entry.getKey().endsWith(":EMF_"+hierarchId)))
+                return entry.getValue();
             boolean anyMissing = false;
             String last = "";
             for (String str:
                  hierarchId.split(":")) {
                 last = str;
-                if(!entry.getKey().contains(str)){
+                if(!(entry.getKey().contains(str) || entry.getKey().contains("EMF_"+str)) ){
                     anyMissing = true;
                     break;
                 }
@@ -577,11 +602,12 @@ public class EMFManager {//singleton for data holding and resetting needs
             if(!anyMissing && entry.getKey().endsWith(last)) return entry.getValue();
         }
         //all possible occurances should be accounted for above must be null
+        System.out.println("NULL animation hierachy id result of: "+hierarchId +"\n in "+map);
         return null;
     }
 
 
-    public void doVariantCheckFor(EMFModelPartMutable cannonRoot) {
+    public void doVariantCheckFor(EMFModelPartRoot cannonRoot) {
         EMFEntity entity = EMFAnimationHelper.getEMFEntity();
         //String mobName = getTypeName(entity);
         //cache_JemNameDoesHaveVariants.getBoolean(mobName)
@@ -625,13 +651,15 @@ public class EMFManager {//singleton for data holding and resetting needs
                             System.out.println(" >> first time load of : " + jemName);
                             EMFJemData jemData = getJemDataWithDirectory(jemName,cannonRoot.modelName);
                             if (jemData != null) {
-                                ModelPart vanillaRoot = cannonRoot.vanillaRoot; //cache_JemNameToVanillaModelRoot.get(mobName);
-                                if (vanillaRoot != null) {
-                                    EMFModelPartMutable variantRoot = getEMFRootModelFromJem(jemData, vanillaRoot, suffix);
-
-                                    cannonRoot.mergePartVariant(suffix, variantRoot);
-                                    setupAnimationsFromJemToModel(jemData, cannonRoot,suffix);
-                                }
+                                cannonRoot.addVariantOfJem(jemData, suffix);
+                                cannonRoot.setVariantStateTo(suffix);
+                                setupAnimationsFromJemToModel(jemData,cannonRoot,suffix);
+//                                ModelPart vanillaRoot = cannonRoot.vanillaRoot; //cache_JemNameToVanillaModelRoot.get(mobName);
+//                                if (vanillaRoot != null) {
+//                                    EMFModelPartMutable variantRoot = getEMFRootModelFromJem(jemData, vanillaRoot, suffix);
+//                                    cannonRoot.mergePartVariant(suffix, variantRoot);
+//                                    setupAnimationsFromJemToModel(jemData, cannonRoot,suffix);
+//                                }
                             } else {
                                 System.out.println("invalid jem: " + jemName);
                             }
@@ -644,12 +672,15 @@ public class EMFManager {//singleton for data holding and resetting needs
                     }
                 }else{
                     cannonRoot.variantDirectoryApplier = null;
+                    cannonRoot.setVariantStateTo(1);
                 }
                // cache_UUIDAndTypeToLastVariantCheckTime.put(key, System.currentTimeMillis());
             }else{
                 //EMFModelPartMutable cannonicalRoot = cache_JemNameToCannonModelRoot.get(mobName);
                 cannonRoot.setVariantStateTo(cache_UUIDAndTypeToCurrentVariantInt.getInt(key));
             }
+        }else{
+            cannonRoot.setVariantStateTo(1);
         }
     }
 

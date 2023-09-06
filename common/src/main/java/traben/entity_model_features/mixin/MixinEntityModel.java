@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.EMFModelPartMutable;
+import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.utils.EMFManager;
 
@@ -23,7 +23,7 @@ public class MixinEntityModel implements IEMFModel {
     }
 
     @Unique
-    private EMFModelPartMutable emf$thisEMFModelRoot = null;
+    private EMFModelPartRoot emf$thisEMFModelRoot = null;
 
     @Override
     public boolean emf$isEMFModel() {
@@ -31,7 +31,7 @@ public class MixinEntityModel implements IEMFModel {
     }
 
     @Override
-    public EMFModelPartMutable emf$getEMFRootModel() {
+    public EMFModelPartRoot emf$getEMFRootModel() {
         return emf$thisEMFModelRoot;
     }
 }

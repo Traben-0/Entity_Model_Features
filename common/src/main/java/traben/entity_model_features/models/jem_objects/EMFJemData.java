@@ -57,7 +57,7 @@ public class EMFJemData {
 
         String mapId = mobModelIDInfo.getMapId();//.replaceAll("(?<=\\w)[0-9]", "");
         //vanilla parenting adjustments
-        Map<String, EMFOptiFinePartNameMappings.PartAndChildName> map = EMFOptiFinePartNameMappings.getMapOf(mapId);
+        Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(mapId,null);
 
 
 
@@ -66,104 +66,100 @@ public class EMFJemData {
                 models) {
             if (partData.part != null) {
                 if (map.containsKey(partData.part)) {
-                    String newPartName = map.get(partData.part).partName();
-                    if (partData.id.equals(partData.part)) {//|| partData.id.isBlank()
-                        partData.id = newPartName;
-                    }
-                    partData.part = newPartName;
+                    partData.part = map.get(partData.part);
 
                 }
             }
         }
 
-        //add any missing parts as blank before children removal checks
-        LinkedList<EMFPartData> missingModels = new LinkedList<>();
-        for (EMFOptiFinePartNameMappings.PartAndChildName data :
-                map.values()) {
-            String name = data.partName();
-            boolean found = false;
-            for (EMFPartData partData :
-                    models) {
-                if (name.equals(partData.part) && (!partData.attach|| partData.id.equals(partData.part))){//dont count attached parts for now
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) missingModels.add(EMFPartData.getBlankPartWithIDOf(name,textureSize));
-        }
-        if (missingModels.size() > 0) {
-            ArrayList<String> parts = new ArrayList<>();
-            for (EMFPartData part:
-            missingModels) {
-                parts.add(part.id);
-            }
-            EMFUtils.EMFModError("These parts were missing from [" + fileName + "]: " + parts);
-            models.addAll(missingModels);
-        }
+//        //add any missing parts as blank before children removal checks
+//        LinkedList<EMFPartData> missingModels = new LinkedList<>();
+//        for (EMFOptiFinePartNameMappings.PartAndChildName data :
+//                map.values()) {
+//            String name = data.partName();
+//            boolean found = false;
+//            for (EMFPartData partData :
+//                    models) {
+//                if (name.equals(partData.part) && (!partData.attach|| partData.id.equals(partData.part))){//dont count attached parts for now
+//                    found = true;
+//                    break;
+//                }
+//            }
+//            if (!found) missingModels.add(EMFPartData.getBlankPartWithIDOf(name,textureSize));
+//        }
+//        if (missingModels.size() > 0) {
+//            ArrayList<String> parts = new ArrayList<>();
+//            for (EMFPartData part:
+//            missingModels) {
+//                parts.add(part.id);
+//            }
+//            EMFUtils.EMFModError("These parts were missing from [" + fileName + "]: " + parts);
+//            models.addAll(missingModels);
+//        }
 
-        //attach logic
-        LinkedList<EMFPartData> modelsAttach = new LinkedList<>();
-        Iterator<EMFPartData> modelsIterator = models.iterator();
-        while (modelsIterator.hasNext()) {
-            EMFPartData model = modelsIterator.next();
-            if (model.attach && !model.id.equals(model.part)) {
-                modelsAttach.add(model);
-                modelsIterator.remove();
-            }
-        }
-        for (EMFPartData model :
-                modelsAttach) {
-            if (model.part != null) {
-                for (EMFPartData partData :
-                        models) {
-                    if (partData.id.equals(model.part)) {
-                        partData.submodels.add(model);//todo check if needs to be merge or just child add :/
-//                        partData.submodels.addAll(model.submodels);
-//                        List<EMFBoxData> boxes = new ArrayList<>(List.of(partData.boxes));
-//                        boxes.addAll(List.of(model.boxes));
-//                        partData.boxes = boxes.toArray(new EMFBoxData[]{});
-//                        partData.texture = model.texture;
-                        model.part = null;
-                    }
-                }
-            } //else {
-                //pls no
-            //}
-        }
-
-
-        Set<String> foundChildren = new HashSet<>();
-        //Set<EMFPartData> foundChildrenPart = new HashSet<>(); todo what was this for again?
-
-        //copy all children into their parents lists
-        for (Map.Entry<String, EMFOptiFinePartNameMappings.PartAndChildName> entry :
-                map.entrySet()) {
-
-            if (entry.getValue().childNamesToExpect().size() > 0) {
-                //found entry with child
-                EMFPartData parent = getFirstPartInModelsIgnoreAttach(entry.getValue().partName());
-                if (parent != null) {
-                    for (String childName :
-                            entry.getValue().childNamesToExpect()) {
-                        if (childName.startsWith("!")) {//map marker to put an empty child and not to move this child because OPTIFINE FUCKED UP FROGS
-                            parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName.replaceFirst("!", ""),textureSize));
-                        } else {
-                            EMFPartData child = getFirstPartInModelsIgnoreAttach(childName);
-                            // foundChildrenPart.add(child);
-                            //child.part=null;
-                            //oof no child, this can happen with the shitty things in vanilla like wolves real_tail :/
-                            parent.submodels.add(Objects.requireNonNullElseGet(child, () -> EMFPartData.getBlankPartWithIDOf(childName, textureSize)));
-                            foundChildren.add(childName);
-                        }
-                    }
-                }
-            }
-        }
+//        //attach logic
+//        LinkedList<EMFPartData> modelsAttach = new LinkedList<>();
+//        Iterator<EMFPartData> modelsIterator = models.iterator();
+//        while (modelsIterator.hasNext()) {
+//            EMFPartData model = modelsIterator.next();
+//            if (model.attach && !model.id.equals(model.part)) {
+//                modelsAttach.add(model);
+//                modelsIterator.remove();
+//            }
+//        }
+//        for (EMFPartData model :
+//                modelsAttach) {
+//            if (model.part != null) {
+//                for (EMFPartData partData :
+//                        models) {
+//                    if (partData.id.equals(model.part)) {
+//                        partData.submodels.add(model);//todo check if needs to be merge or just child add :/
+////                        partData.submodels.addAll(model.submodels);
+////                        List<EMFBoxData> boxes = new ArrayList<>(List.of(partData.boxes));
+////                        boxes.addAll(List.of(model.boxes));
+////                        partData.boxes = boxes.toArray(new EMFBoxData[]{});
+////                        partData.texture = model.texture;
+//                        model.part = null;
+//                    }
+//                }
+//            } //else {
+//                //pls no
+//            //}
+//        }
 
 
-
-        //all children have been added to their parents time to remove children from the top level list
-        models.removeIf(topLevelPart -> foundChildren.contains(topLevelPart.part));
+//        Set<String> foundChildren = new HashSet<>();
+//        //Set<EMFPartData> foundChildrenPart = new HashSet<>(); todo what was this for again?
+//
+//        //copy all children into their parents lists
+//        for (Map.Entry<String, EMFOptiFinePartNameMappings.PartAndChildName> entry :
+//                map.entrySet()) {
+//
+//            if (entry.getValue().childNamesToExpect().size() > 0) {
+//                //found entry with child
+//                EMFPartData parent = getFirstPartInModelsIgnoreAttach(entry.getValue().partName());
+//                if (parent != null) {
+//                    for (String childName :
+//                            entry.getValue().childNamesToExpect()) {
+//                        if (childName.startsWith("!")) {//map marker to put an empty child and not to move this child because OPTIFINE FUCKED UP FROGS
+//                            parent.submodels.add(EMFPartData.getBlankPartWithIDOf(childName.replaceFirst("!", ""),textureSize));
+//                        } else {
+//                            EMFPartData child = getFirstPartInModelsIgnoreAttach(childName);
+//                            // foundChildrenPart.add(child);
+//                            //child.part=null;
+//                            //oof no child, this can happen with the shitty things in vanilla like wolves real_tail :/
+//                            parent.submodels.add(Objects.requireNonNullElseGet(child, () -> EMFPartData.getBlankPartWithIDOf(childName, textureSize)));
+//                            foundChildren.add(childName);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//
+//        //all children have been added to their parents time to remove children from the top level list
+//        models.removeIf(topLevelPart -> foundChildren.contains(topLevelPart.part));
 
 //        for (EMFPartData part:
 //             foundChildrenPart) {
@@ -197,8 +193,17 @@ public class EMFJemData {
         for (EMFPartData part :
                 alphabeticalOrderedParts.values()) {
             if (part.animations != null && part.animations.length != 0) {
-                //todo replace 'this' and parenting to represent actual model part
-                allTopLevelPropertiesOrdered.addAll(Arrays.asList(part.animations));
+                for (LinkedHashMap<String, String> animation : part.animations) {
+                    LinkedHashMap<String, String> newAnimation = new LinkedHashMap<>();
+                    animation.forEach((key,anim)->{
+                        if(key.startsWith("this."))key = key.replaceFirst("this",part.id);
+                        if(anim.contains("this."))anim = anim.replaceAll("this",part.id);
+                        newAnimation.put(key,anim);
+                    });
+                    allTopLevelPropertiesOrdered.add(newAnimation);
+                }
+
+                //allTopLevelPropertiesOrdered.addAll(Arrays.asList(part.animations));
             }
         }
         LinkedHashMap<String, String> combinedPropertiesOrdered = new LinkedHashMap<>();
@@ -223,12 +228,12 @@ public class EMFJemData {
                 //there is no way out of this we have to loop each mapping for each entry to cover all possible part pointers
                 //todo can likely optimize further
                 if (EMFConfig.getConfig().printModelCreationInfoToLog) EMFUtils.EMFModMessage("map = " + map);
-                for (Map.Entry<String, EMFOptiFinePartNameMappings.PartAndChildName> optifineMapEntry :
+                for (Map.Entry<String, String> optifineMapEntry :
                         map.entrySet()) {
                     String optifinePartName = optifineMapEntry.getKey();
-                    String vanillaPartName = optifineMapEntry.getValue().partName();
+                    String vanillaPartName = optifineMapEntry.getValue();
                     if (!optifinePartName.equals(vanillaPartName)) {//skip if no change needed
-                        if (animationKey.contains(optifinePartName)) {//this is faster than the lookbehind and ahead regex it will save us time if the string does not contain a part reference
+                        if (animationKey.startsWith(optifinePartName)) {//this is faster than the lookbehind and ahead regex it will save us time if the string does not contain a part reference
                             animationKey = animationKey.replaceAll(
                                     REGEX_PREFIX + optifinePartName + REGEX_SUFFIX, vanillaPartName);//very costly but the look ahead and behind are essential
                         }

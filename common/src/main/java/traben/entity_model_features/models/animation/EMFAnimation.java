@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.models.EMFModelPartMutable;
+import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.animation_math_parser.MathComponent;
 import traben.entity_model_features.models.animation.animation_math_parser.MathExpressionParser;
 import traben.entity_model_features.utils.EMFUtils;
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class EMFAnimation {
 
-    public final EMFModelPartMutable partToApplyTo;
+    public final EMFModelPart partToApplyTo;
     public final EMFDefaultModelVariable variableToChange;
     public final String animKey;
     public final String expressionString;
@@ -25,14 +25,14 @@ public class EMFAnimation {
     private final Random rand = new Random();
     public int indentCount = 0;
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
-    public Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartsBySingleAndFullHeirachicalId = null;
+    public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
     //private boolean resultIsAngle = false;
     public boolean verboseMode = false;
     // Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
     public final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
     MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
 
-    public EMFAnimation(EMFModelPartMutable partToApplyTo,
+    public EMFAnimation(EMFModelPart partToApplyTo,
                         EMFDefaultModelVariable variableToChange,
                         String animKey,
                         String initialExpression,
@@ -87,7 +87,7 @@ public class EMFAnimation {
 //    }
 
     public void initExpression(Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables,
-                               Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartByName) {
+                               Object2ObjectOpenHashMap<String, EMFModelPart> allPartByName) {
         this.emfAnimationVariables = emfAnimationVariables;
         this.allPartsBySingleAndFullHeirachicalId = allPartByName;
         EMFCalculator = MathExpressionParser.getOptimizedExpression(expressionString, false, this);

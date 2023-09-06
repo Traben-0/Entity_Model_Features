@@ -5,6 +5,6 @@ public interface IEMFModel {
 
     boolean emf$isEMFModel();
 
-    EMFModelPartMutable emf$getEMFRootModel();
+    EMFModelPartRoot emf$getEMFRootModel();
 
 }
