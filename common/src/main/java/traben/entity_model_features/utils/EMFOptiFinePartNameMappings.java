@@ -117,35 +117,15 @@ public class EMFOptiFinePartNameMappings {
 
     }};
 
-    //todo cleanup
+
     public static Map.Entry<String, String> getOptifineMapEntry(String optifineName) {
-        return new MutablePair<>(optifineName,optifineName);// _getPartAndChild(optifineName));
+        return new MutablePair<>(optifineName,optifineName);
     }
 
     public static Map.Entry<String, String> getOptifineMapEntry(String optifineName, String vanillaName) {
-        return new MutablePair<>(optifineName,vanillaName);// _getPartAndChild(vanillaName));
+        return new MutablePair<>(optifineName,vanillaName);
     }
 
-//    public static Map.Entry<String, String> getOptifineMapEntry(String optifineName, String vanillaName, String childName) {
-//        return new MutablePair<>(optifineName,vanillaName);// _getPartAndChild(vanillaName, childName));
-//    }
-//
-//    public static Map.Entry<String, String> getOptifineMapEntry(String optifineName, String vanillaName, Collection<String> childNames) {
-//
-//        return new MutablePair<>(optifineName,vanillaName);// _getPartAndChild(vanillaName,new HashSet<>(childNames)));
-//    }
-
-//    public static String _getPartAndChild(String partName, String childName) {
-//        return new String(partName, new HashSet<>(Collections.singleton(childName)));
-//    }
-//
-//    public static String _getPartAndChild(String partName) {
-//        return new String(partName, new HashSet<>());
-//    }
-//
-//    public static String _getPartAndChild(String partName, HashSet<String> childNamesToExpect) {
-//        return new String(partName, childNamesToExpect);
-//    }
 
     public static Map<String, String> getMapOf(String mobName, @Nullable ModelPart root) {
         if (mobName.contains("_inner_armor")) mobName = mobName.replace("_inner_armor", "");
@@ -287,25 +267,21 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("base","bottom"),
                     getOptifineMapEntry("knob","lock")
             );
-            //lid_left, base_left, knob_left, lid_right, base_right, knob_right
-//            case "chest_large" -> Map.ofEntries(
-//                    getOptifineMapEntry("lid_left","lid"),
-//                    getOptifineMapEntry("base_left","bottom"),
-//                    getOptifineMapEntry("knob_left","lock"),
-//
-//                    getOptifineMapEntry("lid_right","lid"),
-//                    getOptifineMapEntry("base_right","bottom"),
-//                    getOptifineMapEntry("knob_right","lock")
-//            );
-            case "double_chest_right","ender_double_chest_right","trapped_double_chest_right" -> Map.ofEntries(
-                    getOptifineMapEntry("lid_right","lid"),
-                    getOptifineMapEntry("base_right","bottom"),
-                    getOptifineMapEntry("knob_right","lock")
-            );
-            case "double_chest_left","ender_double_chest_left","trapped_double_chest_left" -> Map.ofEntries(
+
+            case "chest_large" ->{
+                System.out.println("CHEST_LARGE SHOULDN'T HAVE RUN");
+                yield Map.of();
+            }
+
+            case "double_chest_right","trapped_double_chest_right","ender_double_chest_right" -> Map.ofEntries(
                     getOptifineMapEntry("lid_left","lid"),
                     getOptifineMapEntry("base_left","bottom"),
                     getOptifineMapEntry("knob_left","lock")
+            );
+            case "double_chest_left","trapped_double_chest_left","ender_double_chest_left" -> Map.ofEntries(
+                    getOptifineMapEntry("lid_right","lid"),
+                    getOptifineMapEntry("base_right","bottom"),
+                    getOptifineMapEntry("knob_right","lock")
             );
 
             case "horse", "horse_armor", "skeleton_horse", "zombie_horse" -> genericHorse;
@@ -861,7 +837,7 @@ public class EMFOptiFinePartNameMappings {
         }
     }
 
-   // public record String(@NotNull String partName, @NotNull Set<String> childNamesToExpect) {
+
 
 
 }

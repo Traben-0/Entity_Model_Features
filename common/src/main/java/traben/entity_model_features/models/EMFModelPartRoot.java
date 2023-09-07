@@ -82,6 +82,8 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                  newEmfParts.entrySet()) {
                 EMFModelPartCustom newPart = newPartEntry.getValue();
                 if(thisPartName.equals(newPart.partToBeAttached)){
+                    if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                        System.out.println(" > > > EMF custom part attached: " + newPartEntry.getKey());
                     if(!newPart.attach){
                         ((ModelPartAccessor)thisPart).setCuboids(List.of());
                     }

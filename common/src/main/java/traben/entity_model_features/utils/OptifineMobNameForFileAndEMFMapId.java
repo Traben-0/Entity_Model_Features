@@ -12,12 +12,16 @@ public class OptifineMobNameForFileAndEMFMapId {
 
     public OptifineMobNameForFileAndEMFMapId(String both) {
         this.fileName = both;
-        this.mapId = both;
+        this.mapId = null;
     }
 
     public void setBoth(String both) {
         this.fileName = both;
-        this.mapId = both;
+        this.mapId = null;
+    }
+
+    public boolean areBothSame(){
+        return mapId == null || fileName.equals(mapId);
     }
 
     public void setBoth(String fileName, String mapId) {
@@ -29,17 +33,9 @@ public class OptifineMobNameForFileAndEMFMapId {
         return this.fileName;
     }
 
-    @SuppressWarnings("unused")
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
     public String getMapId() {
-        return this.mapId;
+        return mapId == null ? fileName : mapId;
     }
 
-    @SuppressWarnings("unused")
-    public void setMapId(String mapId) {
-        this.mapId = mapId;
-    }
+
 }

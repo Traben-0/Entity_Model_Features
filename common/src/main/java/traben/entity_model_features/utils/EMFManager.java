@@ -237,7 +237,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             reader.close();
             jem.sendFileName(pathOfJem,mobModelIDInfo);
             jem.prepare();
-            EMFManager.getInstance().cache_JemDataByFileName.put(pathOfJem, jem);
+            if(mobModelIDInfo.areBothSame())
+                EMFManager.getInstance().cache_JemDataByFileName.put(pathOfJem, jem);
             return jem;
             //}
         } catch (InvalidIdentifierException | FileNotFoundException e) {
@@ -316,15 +317,15 @@ public class EMFManager {//singleton for data holding and resetting needs
                     switch (countedName) {
                         case "shulker#2" -> mobNameForFileAndMap.setBoth("shulker");
                         case "shulker" -> mobNameForFileAndMap.setBoth("shulker_box");
-//                        case "chest"->{}
-                        case "double_chest_left"->mobNameForFileAndMap.setFileName("chest_large");
-                        case "double_chest_right"->mobNameForFileAndMap.setFileName("chest_large");
-                        case "chest#2"-> mobNameForFileAndMap.setBoth("ender_chest","chest");
-                        case "double_chest_left#2"-> mobNameForFileAndMap.setBoth("ender_chest_large","double_chest_left");
-                        case "double_chest_right#2"-> mobNameForFileAndMap.setBoth("ender_chest_large","double_chest_right");
                         case "chest#3"-> mobNameForFileAndMap.setBoth("trapped_chest","chest");
-                        case "double_chest_left#3"-> mobNameForFileAndMap.setBoth("trapped_chest_large","double_chest_left");
-                        case "double_chest_right#3"-> mobNameForFileAndMap.setBoth("trapped_chest_large","double_chest_right");
+                        case "double_chest_left#3"->mobNameForFileAndMap.setBoth("trapped_chest_large","double_chest_left");
+                        case "double_chest_right#3"->mobNameForFileAndMap.setBoth("trapped_chest_large","double_chest_right");
+                        case "chest#2"-> mobNameForFileAndMap.setBoth("chest","chest");
+                        case "double_chest_left#2"-> mobNameForFileAndMap.setBoth("chest_large","double_chest_left");
+                        case "double_chest_right#2"-> mobNameForFileAndMap.setBoth("chest_large","double_chest_right");
+                        case "chest"-> mobNameForFileAndMap.setBoth("ender_chest","chest");
+                        case "double_chest_left"->mobNameForFileAndMap.setBoth("ender_chest_large","double_chest_left");//???
+                        case "double_chest_right"->mobNameForFileAndMap.setBoth("ender_chest_large","double_chest_right");//???
 
                         default -> {
                             //do nothing currently
