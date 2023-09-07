@@ -5,12 +5,12 @@ import net.minecraft.util.Identifier;
 import traben.entity_model_features.utils.EMFUtils;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 public class EMFPartData {
+
 
     public static final EMFPartData BLANK_PART_DATA = new EMFPartData() {{
         id = "EMF_BLANK_MODEL_PART";
@@ -264,24 +264,7 @@ public class EMFPartData {
 
 
     public String toString(boolean printFullChild) {
-        return "EMF_ModelData{" +
-                "baseId='" + baseId + '\'' +
-                ", model='" + model + '\'' +
-                ", id='" + id + '\'' +
-                ", part='" + part + '\'' +
-                ", attach=" + attach +
-                ", scale=" + scale +
-                ", animations=" + Arrays.toString(animations) +
-                ", texture='" + texture + '\'' +
-                ", textureSize=" + Arrays.toString(textureSize) +
-                ", invertAxis='" + invertAxis + '\'' +
-                ", translate=" + Arrays.toString(translate) +
-                ", rotate=" + Arrays.toString(rotate) +
-                ", mirrorTexture='" + mirrorTexture + '\'' +
-                ", boxes=" + Arrays.toString(boxes) +
-                ", sprites=" + Arrays.toString(sprites) +
-                ", submodel=" + submodel +
-                ", submodels=" + (
+        return "modelData{ id='" + id + "', part='" + part + "\', submodels=" + (
                 printFullChild ?
                         submodels.toString() :
                         printChildNamesOnly()) +

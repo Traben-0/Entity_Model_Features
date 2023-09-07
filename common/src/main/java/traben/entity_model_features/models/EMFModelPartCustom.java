@@ -62,12 +62,12 @@ public class EMFModelPartCustom extends EMFModelPart {
 
         this.setDefaultTransform(this.getTransform());
 
-
+        if (EMFConfig.getConfig().printModelCreationInfoToLog)
+            System.out.println(" > > EMF custom part made: " + emfPartData.id);
         //if (variantNumber == 0)
 
 
     }
-
     private static List<Cuboid> getCuboidsFromData(EMFPartData emfPartData) {
 
         return createCuboidsFromBoxDataV3(emfPartData);
@@ -84,8 +84,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 //            while (emfChildren.containsKey(idForMap)) {
 //                idForMap = idForMap + "-";
 //            }
-            if (EMFConfig.getConfig().printModelCreationInfoToLog)
-                System.out.println(" > > > > EMF sub part made: " + sub.toString(false));
+
             emfChildren.put(sub.id, new EMFModelPartCustom(sub,variant,null));
         }
         return emfChildren;

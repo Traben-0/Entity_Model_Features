@@ -101,10 +101,12 @@ public abstract class EMFModelPart extends ModelPart {
         }
     }
 
+
     @Override
     public String toString() {
-        return "emfPart";
+        return "generic emf part";
     }
+
     public Map<String, ModelPart> getChildrenEMF() {
         return ((ModelPartAccessor) this).getChildren();
     }

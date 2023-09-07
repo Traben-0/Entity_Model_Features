@@ -20,30 +20,30 @@ import java.util.*;
 
 
 @Environment(value = EnvType.CLIENT)
-public class EMFModelPartRoot extends EMFModelPartWithState {
+public class EMFModelPartRoot extends EMFModelPartVanilla {
 
 
     //construct vanilla root
     public EMFModelPartRoot(OptifineMobNameForFileAndEMFMapId mobNameForFileAndMap,
                             EMFManager.CemDirectoryApplier variantDirectoryApplier,
                             ModelPart vanillaRoot,
-                            Map<String, String> optifinePartNameMap) {
+                            Collection<String> optifinePartNames,
+                            Map<String,EMFModelPartVanilla> mapForCreatedParts) {
         //create vanilla root model object
-        super(new ArrayList<>(),new HashMap<>());
+        super("EMF_root",vanillaRoot,optifinePartNames, mapForCreatedParts);
+        allVanillaParts = mapForCreatedParts;
+        allVanillaParts.put(name,this);
+
         this.modelName = mobNameForFileAndMap;
         this.variantDirectoryApplier = variantDirectoryApplier;
-//        EMFModelState state = getStateOf(vanillaRoot);
-//        setFromState(state);
-//        allKnownStateVariants.put(0, state);
 
-
-        Map<String,ModelPart> children = getChildrenEMF();
-        for (Map.Entry<String,ModelPart> child:
-             ((ModelPartAccessor) vanillaRoot).getChildren().entrySet()) {
-            EMFModelPartVanilla vanilla =new EMFModelPartVanilla(child.getKey(),child.getValue(),optifinePartNameMap.values(), allVanillaParts);
-            children.put(child.getKey(), vanilla);
-            allVanillaParts.put(child.getKey(), vanilla);
-        }
+//        Map<String,ModelPart> children = getChildrenEMF();
+//        for (Map.Entry<String,ModelPart> child:
+//             ((ModelPartAccessor) vanillaRoot).getChildren().entrySet()) {
+//            EMFModelPartVanilla vanilla =new EMFModelPartVanilla(child.getKey(),child.getValue(),optifinePartNameMap.values(), allVanillaParts);
+//            children.put(child.getKey(), vanilla);
+//            allVanillaParts.put(child.getKey(), vanilla);
+//        }
 
         receiveRootVariationRunnable(()->{
             if(this.lastFrameVariatedOn != EMFManager.getInstance().entityRenderCount){
@@ -53,14 +53,17 @@ public class EMFModelPartRoot extends EMFModelPartWithState {
         });
         this.vanillaRoot = vanillaRoot;
 
-        vanillaChildren = getChildrenEMF();
-        allKnownStateVariants.put(0,getCurrentState());
+        //vanillaChildren = getChildrenEMF();
+       // allKnownStateVariants.put(0,getCurrentState());
     }
 
-    Map<String,EMFModelPartVanilla> allVanillaParts = new HashMap<>();
+    private final Map<String,EMFModelPartVanilla> allVanillaParts;
 
     //root only
     public void addVariantOfJem(EMFJemData jemData, int variant){
+        if (EMFConfig.getConfig().printModelCreationInfoToLog)
+            System.out.println(" > "+jemData.mobModelIDInfo.getfileName()+", constructing variant #" + variant);
+
         Map<String, EMFModelPartCustom> newEmfParts = new HashMap<>();
         for (EMFPartData part:
              jemData.models) {
@@ -89,13 +92,13 @@ public class EMFModelPartRoot extends EMFModelPartWithState {
             }
             thisPart.allKnownStateVariants.put(variant,thisPart.getCurrentState());
         }
-        allKnownStateVariants.put(variant,EMFModelState.copy(allKnownStateVariants.get(0)));
+        if(!allKnownStateVariants.containsKey(variant))
+            allKnownStateVariants.put(variant,EMFModelState.copy(allKnownStateVariants.get(0)));
         //done?
     }
 
     @Override
     public void setVariantStateTo(int newVariantState) {
-        System.out.println("set= "+newVariantState);
         if (currentModelVariantState != newVariantState) {
             if (newVariantState == 1 && !allKnownStateVariants.containsKey(1)) {
                 super.setVariantStateTo(0);
@@ -117,11 +120,10 @@ public class EMFModelPartRoot extends EMFModelPartWithState {
 
 
     public OptifineMobNameForFileAndEMFMapId modelName;
-    public EMFJemData jemData = null;
     public EMFManager.CemDirectoryApplier variantDirectoryApplier;
     public ETFApi.ETFRandomTexturePropertyInstance variantTester = null;
 
-    public ModelPart vanillaRoot = null;
+    public ModelPart vanillaRoot;
 
     private final Int2ObjectOpenHashMap<ModelPart> vanillaFormatModelPartOfEachState = new Int2ObjectOpenHashMap<>();
 
@@ -135,31 +137,6 @@ public class EMFModelPartRoot extends EMFModelPartWithState {
             matrixStack.pop();
         }
     }
-
-    ModelPart getVanillaModelPartsOfCurrentState(){
-        Map<String, ModelPart> children = new HashMap<>();
-        for (Map.Entry<String,ModelPart> child:
-             getChildrenEMF().entrySet()) {
-            if(child.getValue() instanceof EMFModelPartRoot emf){
-                children.put(child.getKey(),emf.getVanillaModelPartsOfCurrentState());
-            }
-        }
-
-        ModelPart part = new ModelPart(((ModelPartAccessor)this).getCuboids(),children);
-        part.setDefaultTransform(getDefaultTransform());
-        part.pitch = pitch;
-        part.roll = roll;
-        part.yaw = yaw;
-        part.pivotZ = pivotZ;
-        part.pivotY = pivotY;
-        part.pivotX = pivotX;
-        part.xScale = xScale;
-        part.yScale = yScale;
-        part.zScale = zScale;
-
-        return part;
-    }
-
 
 
 
@@ -191,7 +168,6 @@ public class EMFModelPartRoot extends EMFModelPartWithState {
             Runnable run = ()->{
                 if(this.lastFrameAnimatedOn != EMFManager.getInstance().entityRenderCount){
                     this.lastFrameAnimatedOn = EMFManager.getInstance().entityRenderCount;
-                    System.out.println("anim= "+variant);
                     orderedAnimations.forEach((EMFAnimation::calculateAndSet));
                 }
             };

@@ -675,7 +675,8 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("hair_left_bottom", "left_bottom_bristle")
             );
             case "tadpole" -> Map.ofEntries(
-                    getOptifineMapEntry("body","root","tail"),
+                    getOptifineMapEntry("body","EMF_root"),//body = root for some reason because we don't need things to make sense when it comes to optifine
+                    getOptifineMapEntry("EMPTY","body"),//EMPTY is important
                     getOptifineMapEntry("tail")
             );
 

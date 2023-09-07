@@ -6,6 +6,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
+import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 
 import java.util.ArrayList;
@@ -20,30 +21,40 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     final String name;
     //construct single vanilla
-    final boolean isOptifinePartSpecified;
-    public EMFModelPartVanilla(String name, ModelPart vanillaRoot, Collection<String> optifinePartNames, Map<String,EMFModelPartVanilla> allVanillaParts) {
+    final boolean isOptiFinePartSpecified;
+    final boolean rootType;
+    public EMFModelPartVanilla(String name,
+                               ModelPart vanillaPart,
+                               Collection<String> optifinePartNames,
+                               Map<String,EMFModelPartVanilla> allVanillaParts) {
         //create vanilla root model object
         super(new ArrayList<>(),new HashMap<>());
         this.name = name;
-        isOptifinePartSpecified = optifinePartNames.contains(name);
 
-        EMFModelState state = getStateOf(vanillaRoot);
+        if (EMFConfig.getConfig().printModelCreationInfoToLog)
+            System.out.println(" > EMF vanilla part made: " + name);
+
+        isOptiFinePartSpecified = optifinePartNames.contains(name);
+        rootType = name.equals("root") || name.equals("EMF_root");
+
+        EMFModelState state = getStateOf(vanillaPart);
+        setFromState(state);
         Map<String,ModelPart> children = getChildrenEMF();
         for (Map.Entry<String,ModelPart> child:
-                ((ModelPartAccessor) vanillaRoot).getChildren().entrySet()) {
+                ((ModelPartAccessor) vanillaPart).getChildren().entrySet()) {
             EMFModelPartVanilla vanilla =new EMFModelPartVanilla(child.getKey(), child.getValue(),optifinePartNames, allVanillaParts);
             children.put(child.getKey(),vanilla);
             allVanillaParts.put(child.getKey(), vanilla);
         }
         vanillaChildren = getChildrenEMF();
-        setFromState(state);
         allKnownStateVariants.put(0,getCurrentState());
+
     }
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //ignore non optifine specified parts when not vanilla variant
-        if(currentModelVariantState == 0 || isOptifinePartSpecified)
+        if(rootType || currentModelVariantState == 0 || isOptiFinePartSpecified)
             super.render(matrices,vertices,light,overlay,red,green,blue,alpha);
     }
 

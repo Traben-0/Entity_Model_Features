@@ -30,10 +30,7 @@ import traben.entity_texture_features.config.ETFConfig;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 
 public class EMFManager {//singleton for data holding and resetting needs
@@ -356,7 +353,17 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         if(jemData!=null || variantDirectoryApplier != null){
             //we do indeed need custom models
-            EMFModelPartRoot emfRoot = new EMFModelPartRoot(mobNameForFileAndMap, variantDirectoryApplier,root,optifinePartNameMap);
+
+            //specification for the optifine map
+            // only used for tadpole head parts currently as optifine actually uses the root as the body
+            Set<String> optifinePartNames = new HashSet<>();
+            optifinePartNameMap.forEach((optifine,vanilla)->{
+                if(!optifine.equals("EMPTY")){
+                    optifinePartNames.add(vanilla);
+                }
+            });
+
+            EMFModelPartRoot emfRoot = new EMFModelPartRoot(mobNameForFileAndMap, variantDirectoryApplier,root,optifinePartNames, new HashMap<>());
             if(jemData!= null) {
                 emfRoot.addVariantOfJem(jemData, 1);
                 emfRoot.setVariantStateTo(1);
