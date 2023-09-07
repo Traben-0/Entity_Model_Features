@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Traben-0/Entity_Model_Features/master/fabric/src/main/resources/icon.png" alt="EMF icon" width=200>
+<img src="icon.png" alt="EMF icon" width=200>
 
 # Entity Model Features
  
@@ -50,14 +50,14 @@ Since EMF is in beta, not everything works. However, the brilliant [Fresh Animat
 - [X] Re-add texture overrides
 - [X] Prep for block entity support
 - [X] Animations and Random models working in all circumstances
-- [ ] Support for block entity, minecart and boat models
+- [X] Support for block entity, minecart and boat models
 - [X] Support modded mob `.jem` models
 - [X] Add an optional EMF/CEM overriding directory for models to account for EMF differences
-- [ ] Fix `attach = true` cases
+- [X] Fix `attach = true` cases
 - [X] Position `.jpm`s correctly
-- [ ] Fix remaining model issues
+- [X] Fix remaining model issues
 - [ ] Sprite support
-- [ ] Full parity with OptiFine CEM
+- [X] Full parity with OptiFine CEM
 - [ ] Backport to still commonly used older MC versions e.g. 1.18
 
 

@@ -60,7 +60,7 @@ public  class EMFAnimationHelper {
         headYaw = Float.NaN;
         headPitch = Float.NaN;
         tickDelta = MinecraftClient.getInstance().isPaused() ? ((MinecraftClientAccessor)MinecraftClient.getInstance()).getPausedTickDelta() : MinecraftClient.getInstance().getTickDelta();
-
+        ruleIndex = 0;
     }
 
 
@@ -74,10 +74,13 @@ public  class EMFAnimationHelper {
     private static  float headYaw = Float.NaN;
     private static  float headPitch = Float.NaN;
     private static  float tickDelta = 0;
+    private static int ruleIndex = 0;
 
-    //TODO
+    public static void setRuleIndex(int newIndex){
+        ruleIndex = newIndex;
+    }
     public static  float getRuleIndex(){
-       return 0;
+       return ruleIndex;
     }
 
 

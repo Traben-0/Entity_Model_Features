@@ -295,8 +295,14 @@ public class EMFManager {//singleton for data holding and resetting needs
                 case "piglin_head" -> mobNameForFileAndMap.setBoth( "head_piglin");
                 case "creeper_armor" -> mobNameForFileAndMap.setBoth( "creeper_charge");
                 case "sheep_fur" -> mobNameForFileAndMap.setBoth( "sheep_wool");
-
-
+                case "bed_head" -> mobNameForFileAndMap.setBoth( "bed","bed_head");
+                case "bed_foot" -> mobNameForFileAndMap.setBoth( "bed","bed_foot");
+                case "conduit_cage" -> mobNameForFileAndMap.setBoth( "conduit","conduit_cage");
+                case "conduit_eye" -> mobNameForFileAndMap.setBoth( "conduit","conduit_eye");
+                case "conduit_shell" -> mobNameForFileAndMap.setBoth( "conduit","conduit_shell");
+                case "conduit_wind" -> mobNameForFileAndMap.setBoth( "conduit","conduit_wind");
+                case "decorated_pot_base" -> mobNameForFileAndMap.setBoth( "decorated_pot","decorated_pot_base");
+                case "decorated_pot_sides" -> mobNameForFileAndMap.setBoth( "decorated_pot","decorated_pot_sides");
                 //case "parrot" -> mobNameForFileAndMap = "parrot";//todo check on shoulder parrot models they can technically be different
 
 
@@ -326,7 +332,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "chest"-> mobNameForFileAndMap.setBoth("ender_chest","chest");
                         case "double_chest_left"->mobNameForFileAndMap.setBoth("ender_chest_large","double_chest_left");//???
                         case "double_chest_right"->mobNameForFileAndMap.setBoth("ender_chest_large","double_chest_right");//???
-
+                        case "book" -> mobNameForFileAndMap.setBoth("enchanting_book","book");
+                        case "book#2" -> mobNameForFileAndMap.setBoth("lectern_book","book");
                         default -> {
                             //do nothing currently
                         }

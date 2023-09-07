@@ -20,6 +20,15 @@ import java.util.*;
 public class EMFOptiFinePartNameMappings {
 
 
+
+    //# minecart                 bottom, back, front, right, left
+    private static final Map<String, String> genericMinecart = Map.ofEntries(
+            getOptifineMapEntry("bottom"),
+            getOptifineMapEntry("back"),
+            getOptifineMapEntry("front"),
+            getOptifineMapEntry("right"),
+            getOptifineMapEntry("left")
+    );
     private static final Map<String, String> genericNonPlayerBiped = Map.ofEntries(
             getOptifineMapEntry("head"),
             getOptifineMapEntry("headwear", "hat"),
@@ -712,6 +721,115 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("back_right_foot", "right_hind_foot")
             );
             case "player", "player_slim" -> genericPlayerBiped;
+
+//# boat                     bottom, back, front, right, left, paddle_left, paddle_right, bottom_no_water
+            case "boat" ->Map.ofEntries(
+                    getOptifineMapEntry("bottom","water_patch"),//todo check
+                    getOptifineMapEntry("back"),
+                    getOptifineMapEntry("front"),
+                    getOptifineMapEntry("right"),
+                    getOptifineMapEntry("left"),
+                    getOptifineMapEntry("paddle_left","left_paddle"),
+                    getOptifineMapEntry("paddle_right","right_paddle"),
+                    getOptifineMapEntry("bottom_no_water","bottom")//todo check
+            );
+//# banner                   slate, stand, top
+            case "banner" ->Map.ofEntries(
+                    getOptifineMapEntry("slate","flag"),
+                    getOptifineMapEntry("stand","pole"),
+                    getOptifineMapEntry("top","bar")
+            );
+//# bed                      head, foot, leg1 ... leg4
+            case "bed_head" ->Map.ofEntries(
+                    getOptifineMapEntry("head","main"),
+                    getOptifineMapEntry("leg1","left_leg"),//todo check
+                    getOptifineMapEntry("leg2","right_leg")//todo check
+            );
+            case "bed_foot" ->Map.ofEntries(
+                    getOptifineMapEntry("foot","main"),
+                    getOptifineMapEntry("leg3","left_leg"),//todo check
+                    getOptifineMapEntry("leg4","right_leg")//todo check
+            );
+//# bell                     body
+            case "bell" ->Map.ofEntries(
+                    getOptifineMapEntry("body","bell_body")
+            );
+//# chest_boat               bottom, back, front, right, left, paddle_left, paddle_right, bottom_no_water, chest_base, chest_lid, chest_knob
+            case "chest_boat" ->Map.ofEntries(
+                    getOptifineMapEntry("bottom","water_patch"),//todo check
+                    getOptifineMapEntry("back"),
+                    getOptifineMapEntry("front"),
+                    getOptifineMapEntry("right"),
+                    getOptifineMapEntry("left"),
+                    getOptifineMapEntry("paddle_left","left_paddle"),
+                    getOptifineMapEntry("paddle_right","right_paddle"),
+                    getOptifineMapEntry("bottom_no_water","bottom"),//todo check
+
+                    getOptifineMapEntry("chest_base","chest_bottom"),
+                    getOptifineMapEntry("chest_lid"),
+                    getOptifineMapEntry("chest_knob","chest_lock")
+            );
+//# raft                     bottom, paddle_left, paddle_right
+            case "raft" ->Map.ofEntries(
+                    getOptifineMapEntry("bottom"),
+                    getOptifineMapEntry("paddle_left","left_paddle"),
+                    getOptifineMapEntry("paddle_right","right_paddle")
+            );
+//# chest_raft               bottom, paddle_left, paddle_right, chest_base, chest_lid, chest_knob
+            case "chest_raft" ->Map.ofEntries(
+                    getOptifineMapEntry("bottom"),
+                    getOptifineMapEntry("paddle_left","left_paddle"),
+                    getOptifineMapEntry("paddle_right","right_paddle"),
+
+                    getOptifineMapEntry("chest_base","chest_bottom"),
+                    getOptifineMapEntry("chest_lid"),
+                    getOptifineMapEntry("chest_knob","chest_lock")
+            );
+//# chest_minecart           bottom, back, front, right, left
+//# command_block_minecart   bottom, back, front, right, left
+//# spawner_minecart         bottom, back, front, right, left
+//# tnt_minecart             bottom, back, front, right, left
+//# furnace_minecart         bottom, back, front, right, left
+//# hopper_minecart          bottom, back, front, right, left
+//# minecart                 bottom, back, front, right, left
+            case "minecart","chest_minecart","command_block_minecart","spawner_minecart","tnt_minecart","furnace_minecart","hopper_minecart" -> genericMinecart;
+//# conduit                  base, eye, cage, wind
+            case "conduit_cage" -> Map.ofEntries(getOptifineMapEntry("cage","shell"));
+            case "conduit_eye" -> Map.ofEntries(getOptifineMapEntry("eye"));
+            case "conduit_shell" -> Map.ofEntries(getOptifineMapEntry("base","shell"));
+            case "conduit_wind" -> Map.ofEntries(getOptifineMapEntry("wind"));
+//# decorated_pot            neck, front, back, left, right, top, bottom
+            case "decorated_pot_base" ->Map.ofEntries(
+                    getOptifineMapEntry("neck"),
+                    getOptifineMapEntry("top"),
+                    getOptifineMapEntry("bottom")
+            );
+            case "decorated_pot_sides" ->Map.ofEntries(
+                    getOptifineMapEntry("front"),
+                    getOptifineMapEntry("back"),
+                    getOptifineMapEntry("left"),
+                    getOptifineMapEntry("right")
+            );
+//# enchanting_book          cover_right, cover_left, pages_right, pages_left, flipping_page_right, flipping_page_left, book_spine
+//# lectern_book             cover_right, cover_left, pages_right, pages_left, flipping_page_right, flipping_page_left, book_spine
+            case "book" ->Map.ofEntries(
+                    getOptifineMapEntry("cover_right","right_lid"),
+                    getOptifineMapEntry("cover_left","left_lid"),
+                    getOptifineMapEntry("pages_right","right_pages"),
+                    getOptifineMapEntry("pages_left","left_pages"),
+                    getOptifineMapEntry("flipping_page_right","flip_page2"),//todo check
+                    getOptifineMapEntry("flipping_page_left","flip_page1"),//todo check
+                    getOptifineMapEntry("book_spine","seam")
+            );
+//# end_crystal              cube, glass, base
+//# evoker_fangs             base, upper_jaw, lower_jaw
+//# hanging_sign             board, plank, chains, chain_left1, chain_left2, chain_right1, chain_right2, chains_v
+//# lead_knot                knot
+//# shulker_bullet           bullet
+//# sign                     board, stick
+//# trident                  body
+
+
 
             default -> root == null ? Map.of() : exploreProvidedEntityModel(root,mobName);
         };
