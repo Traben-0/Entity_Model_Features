@@ -17,6 +17,7 @@ public abstract class MathValue implements MathComponent {
         this.isNegative = isNegative;
         this.calculationInstance = null;
     }
+
     MathValue() {
         this.isNegative = false;
         this.calculationInstance = null;
@@ -47,13 +48,6 @@ public abstract class MathValue implements MathComponent {
         float get();
     }
 
-//    public interface AnimationValueSupplier {
-//
-//        //        default float get(){
-////            return get(null);
-////        }
-//        float get(Entity entity);
-//
-//    }
+
 
 }

@@ -14,6 +14,6 @@ public class MixinEyesFeatureRenderer {
             index = 2
     )
     private int emf$markEyeLight(int i) {
-        return LightmapTextureManager.MAX_LIGHT_COORDINATE+1;
+        return LightmapTextureManager.MAX_LIGHT_COORDINATE + 1;
     }
 }

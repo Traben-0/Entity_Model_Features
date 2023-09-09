@@ -33,41 +33,39 @@ import traben.entity_texture_features.ETFApi;
 public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements FeatureRendererContext<T, M> {
 
 
+    @Shadow
+    protected M model;
+    @Unique
+    private M emf$heldModelToForce = null;
+
     protected MixinLivingEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
     }
+    //protected String emf$ModelId = null;
 
     @Shadow
     public abstract M getModel();
 
-    @Shadow protected M model;
-    //protected String emf$ModelId = null;
-
-    @Unique
-    private M emf$heldModelToForce = null;
-
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
     private void emf$saveEMFModel(EntityRendererFactory.Context ctx, EntityModel<T> model, float shadowRadius, CallbackInfo ci) {
-        if(((IEMFModel)getModel()).emf$isEMFModel()){
+        if (((IEMFModel) getModel()).emf$isEMFModel()) {
             emf$heldModelToForce = getModel();
         }
     }
 
 
-
-
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V"
-            ,shift = At.Shift.BEFORE))
-        private void emf$Animate(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+                    , shift = At.Shift.BEFORE))
+    private void emf$Animate(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
 
-        if(emf$heldModelToForce != null) {
-            if(!emf$heldModelToForce.equals(model)){
+        if (emf$heldModelToForce != null) {
+            if (!emf$heldModelToForce.equals(model)) {
                 boolean replace = EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace());
-                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(),model == null ? "null" : model.getClass().getName(),replace);
-                if(replace) {
+                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
+                if (replace) {
                     model = emf$heldModelToForce;
                 }
             }
@@ -75,16 +73,16 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         }
 
 
-            //EMFManager.getInstance().preRenderEMFActions(emf$ModelId,livingEntity, vertexConsumerProvider, o, n, l, k, m);
-        if(((IEMFModel)getModel()).emf$isEMFModel()){
-            EMFModelPartRoot root = ((IEMFModel)getModel()).emf$getEMFRootModel();
-            if(root!= null) {
-                if (EMFConfig.getConfig().vanillaModelRenderMode != EMFConfig.VanillaModelRenderMode.Off){
-                    root.tryRenderVanillaRootNormally(matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);
+        //EMFManager.getInstance().preRenderEMFActions(emf$ModelId,livingEntity, vertexConsumerProvider, o, n, l, k, m);
+        if (((IEMFModel) getModel()).emf$isEMFModel()) {
+            EMFModelPartRoot root = ((IEMFModel) getModel()).emf$getEMFRootModel();
+            if (root != null) {
+                if (EMFConfig.getConfig().vanillaModelRenderMode != EMFConfig.VanillaModelRenderMode.Off) {
+                    root.tryRenderVanillaRootNormally(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))), i, OverlayTexture.DEFAULT_UV);
                 }
                 //simple attempt at a physics mod workaround
-                if(livingEntity.isDead() && EMFManager.getInstance().IS_PHYSICS_MOD_INSTALLED && EMFConfig.getConfig().attemptPhysicsModPatch_2 != EMFConfig.PhysicsModCompatChoice.OFF){
-                    root.tryRenderVanillaFormatRoot(matrixStack,vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))),i, OverlayTexture.DEFAULT_UV);
+                if (livingEntity.isDead() && EMFManager.getInstance().IS_PHYSICS_MOD_INSTALLED && EMFConfig.getConfig().attemptPhysicsModPatch_2 != EMFConfig.PhysicsModCompatChoice.OFF) {
+                    root.tryRenderVanillaFormatRoot(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))), i, OverlayTexture.DEFAULT_UV);
                     //the regular render will get cancelled anyway nothing further to do
                 }
             }
@@ -92,15 +90,14 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     }
 
 
-
     @Redirect(
             method = "getRenderLayer",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getTexture(Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/Identifier;"))
-    private Identifier emf$getTextureRedirect(LivingEntityRenderer<?,?> instance, Entity entity){
+    private Identifier emf$getTextureRedirect(LivingEntityRenderer<?, ?> instance, Entity entity) {
 
-        if(((IEMFModel)getModel()).emf$isEMFModel()){
-            EMFModelPartRoot root = ((IEMFModel)getModel()).emf$getEMFRootModel();
-            if(root!= null) {
+        if (((IEMFModel) getModel()).emf$isEMFModel()) {
+            EMFModelPartRoot root = ((IEMFModel) getModel()).emf$getEMFRootModel();
+            if (root != null) {
                 //noinspection unchecked
                 return root.textureOverride == null ? getTexture((T) entity) : ETFApi.getCurrentETFVariantTextureOfEntity(entity, root.textureOverride);
             }

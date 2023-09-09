@@ -20,7 +20,7 @@ import java.util.*;
 public class EMFOptiFinePartNameMappings {
 
 
-
+    public static final Map<String, Map<String, String>> UNKNOWN_MODEL_MAP_CACHE = new HashMap<>();
     //# minecart                 bottom, back, front, right, left
     private static final Map<String, String> genericMinecart = Map.ofEntries(
             getOptifineMapEntry("bottom"),
@@ -126,15 +126,13 @@ public class EMFOptiFinePartNameMappings {
 
     }};
 
-
     public static Map.Entry<String, String> getOptifineMapEntry(String optifineName) {
-        return new MutablePair<>(optifineName,optifineName);
+        return new MutablePair<>(optifineName, optifineName);
     }
 
     public static Map.Entry<String, String> getOptifineMapEntry(String optifineName, String vanillaName) {
-        return new MutablePair<>(optifineName,vanillaName);
+        return new MutablePair<>(optifineName, vanillaName);
     }
-
 
     public static Map<String, String> getMapOf(String mobName, @Nullable ModelPart root) {
         if (mobName.contains("_inner_armor")) mobName = mobName.replace("_inner_armor", "");
@@ -222,11 +220,9 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("leg3", "right_front_leg"),
                     getOptifineMapEntry("leg4", "left_front_leg")
             );
-            case "shulker_bullet"->
-                    Map.ofEntries(getOptifineMapEntry("bullet","main"));
-            case "llama_spit"->
-                    Map.ofEntries(getOptifineMapEntry("body","main"));
-            case "wither_skull", "head_zombie", "head_wither_skeleton", "head_skeleton", "head_player","head_creeper" ->
+            case "shulker_bullet" -> Map.ofEntries(getOptifineMapEntry("bullet", "main"));
+            case "llama_spit" -> Map.ofEntries(getOptifineMapEntry("body", "main"));
+            case "wither_skull", "head_zombie", "head_wither_skeleton", "head_skeleton", "head_player", "head_creeper" ->
                     Map.ofEntries(getOptifineMapEntry("head"));
             case "head_piglin" -> Map.ofEntries(
                     getOptifineMapEntry("head")
@@ -235,7 +231,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("head"),
                     getOptifineMapEntry("jaw")
             );
-            case "camel"-> Map.ofEntries(
+            case "camel" -> Map.ofEntries(
                     //# camel                    body, hump, tail, head, left_ear, right_ear, back_left_leg, back_right_leg, front_left_leg, front_right_leg,
                     //#                          saddle, reins, bridle
                     getOptifineMapEntry("body"),
@@ -244,53 +240,53 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("head"),
                     getOptifineMapEntry("left_ear"),
                     getOptifineMapEntry("right_ear"),
-                    getOptifineMapEntry("back_left_leg","left_hind_leg"),
-                    getOptifineMapEntry("back_right_leg","right_hind_leg"),
-                    getOptifineMapEntry("front_left_leg","left_front_leg"),
-                    getOptifineMapEntry("front_right_leg","right_front_leg"),
+                    getOptifineMapEntry("back_left_leg", "left_hind_leg"),
+                    getOptifineMapEntry("back_right_leg", "right_hind_leg"),
+                    getOptifineMapEntry("front_left_leg", "left_front_leg"),
+                    getOptifineMapEntry("front_right_leg", "right_front_leg"),
                     getOptifineMapEntry("saddle"),
                     getOptifineMapEntry("reins"),
                     getOptifineMapEntry("bridle")
 
             );
-            case "sniffer"-> Map.ofEntries(
+            case "sniffer" -> Map.ofEntries(
                     //# sniffer                  body, back_left_leg, back_right_leg, middle_left_leg, middle_right_leg, front_left_leg, front_right_leg,
                     //#                          head, left_ear, right_ear, nose, lower_beak
                     getOptifineMapEntry("root"),
                     getOptifineMapEntry("bone"),
                     getOptifineMapEntry("body"),
-                    getOptifineMapEntry("front_right_leg","right_front_leg"),
-                    getOptifineMapEntry("middle_right_leg","right_mid_leg"),
-                    getOptifineMapEntry("back_right_leg","right_hind_leg"),
-                    getOptifineMapEntry("front_left_leg","left_front_leg"),
-                    getOptifineMapEntry("middle_left_leg","left_mid_leg"),
-                    getOptifineMapEntry("back_left_leg","left_hind_leg"),
+                    getOptifineMapEntry("front_right_leg", "right_front_leg"),
+                    getOptifineMapEntry("middle_right_leg", "right_mid_leg"),
+                    getOptifineMapEntry("back_right_leg", "right_hind_leg"),
+                    getOptifineMapEntry("front_left_leg", "left_front_leg"),
+                    getOptifineMapEntry("middle_left_leg", "left_mid_leg"),
+                    getOptifineMapEntry("back_left_leg", "left_hind_leg"),
                     getOptifineMapEntry("head"),
                     getOptifineMapEntry("left_ear"),
                     getOptifineMapEntry("right_ear"),
                     getOptifineMapEntry("nose"),
                     getOptifineMapEntry("lower_beak")
             );
-            case "chest","ender_chest","trapped_chest" -> Map.ofEntries(//lid, base, knob
+            case "chest", "ender_chest", "trapped_chest" -> Map.ofEntries(//lid, base, knob
                     getOptifineMapEntry("lid"),
-                    getOptifineMapEntry("base","bottom"),
-                    getOptifineMapEntry("knob","lock")
+                    getOptifineMapEntry("base", "bottom"),
+                    getOptifineMapEntry("knob", "lock")
             );
 
-            case "chest_large" ->{
+            case "chest_large" -> {
                 System.out.println("CHEST_LARGE SHOULDN'T HAVE RUN");
                 yield Map.of();
             }
 
-            case "double_chest_right","trapped_double_chest_right","ender_double_chest_right" -> Map.ofEntries(
-                    getOptifineMapEntry("lid_left","lid"),
-                    getOptifineMapEntry("base_left","bottom"),
-                    getOptifineMapEntry("knob_left","lock")
+            case "double_chest_right", "trapped_double_chest_right", "ender_double_chest_right" -> Map.ofEntries(
+                    getOptifineMapEntry("lid_left", "lid"),
+                    getOptifineMapEntry("base_left", "bottom"),
+                    getOptifineMapEntry("knob_left", "lock")
             );
-            case "double_chest_left","trapped_double_chest_left","ender_double_chest_left" -> Map.ofEntries(
-                    getOptifineMapEntry("lid_right","lid"),
-                    getOptifineMapEntry("base_right","bottom"),
-                    getOptifineMapEntry("knob_right","lock")
+            case "double_chest_left", "trapped_double_chest_left", "ender_double_chest_left" -> Map.ofEntries(
+                    getOptifineMapEntry("lid_right", "lid"),
+                    getOptifineMapEntry("base_right", "bottom"),
+                    getOptifineMapEntry("knob_right", "lock")
             );
 
             case "horse", "horse_armor", "skeleton_horse", "zombie_horse" -> genericHorse;
@@ -304,7 +300,7 @@ public class EMFOptiFinePartNameMappings {
             case "zombie_villager" -> Map.ofEntries(
                     getOptifineMapEntry("head"),
                     getOptifineMapEntry("headwear", "hat"),
-                    getOptifineMapEntry("hat_rim"),
+                    //getOptifineMapEntry("hat_rim"),
                     getOptifineMapEntry("body"),
                     getOptifineMapEntry("left_arm"),
                     getOptifineMapEntry("right_arm"),
@@ -504,7 +500,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("left_wing_tip"),
                     getOptifineMapEntry("right_wing_tip")
             );
-            case "parrot","parrot_b","parrot_c" -> Map.ofEntries(
+            case "parrot", "parrot_b", "parrot_c" -> Map.ofEntries(
                     getOptifineMapEntry("head"),
                     getOptifineMapEntry("body"),
                     getOptifineMapEntry("tail"),
@@ -628,8 +624,8 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("hair_left_bottom", "left_bottom_bristle")
             );
             case "tadpole" -> Map.ofEntries(
-                    getOptifineMapEntry("body","EMF_root"),//body = root for some reason because we don't need things to make sense when it comes to optifine
-                    getOptifineMapEntry("EMPTY","body"),//EMPTY is important
+                    getOptifineMapEntry("body", "EMF_root"),//body = root for some reason because we don't need things to make sense when it comes to optifine
+                    getOptifineMapEntry("EMPTY", "body"),//EMPTY is important
                     getOptifineMapEntry("tail")
             );
 
@@ -684,7 +680,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("mole")
             );
             //# wither                   body1 ... body3, head1 ... head3
-            case "wither","wither_armor" -> Map.ofEntries(
+            case "wither", "wither_armor" -> Map.ofEntries(
                     getOptifineMapEntry("body1", "shoulders"),
                     getOptifineMapEntry("body2", "ribcage"),
                     getOptifineMapEntry("body3", "tail"),
@@ -723,67 +719,67 @@ public class EMFOptiFinePartNameMappings {
             case "player", "player_slim" -> genericPlayerBiped;
 
 //# boat                     bottom, back, front, right, left, paddle_left, paddle_right, bottom_no_water
-            case "boat" ->Map.ofEntries(
-                    getOptifineMapEntry("bottom","water_patch"),//todo check
+            case "boat" -> Map.ofEntries(
+                    getOptifineMapEntry("bottom"),//todo check
                     getOptifineMapEntry("back"),
                     getOptifineMapEntry("front"),
                     getOptifineMapEntry("right"),
                     getOptifineMapEntry("left"),
-                    getOptifineMapEntry("paddle_left","left_paddle"),
-                    getOptifineMapEntry("paddle_right","right_paddle"),
-                    getOptifineMapEntry("bottom_no_water","bottom")//todo check
+                    getOptifineMapEntry("paddle_left", "left_paddle"),
+                    getOptifineMapEntry("paddle_right", "right_paddle"),
+                    getOptifineMapEntry("bottom_no_water", "water_patch")//todo check
             );
 //# banner                   slate, stand, top
-            case "banner" ->Map.ofEntries(
-                    getOptifineMapEntry("slate","flag"),
-                    getOptifineMapEntry("stand","pole"),
-                    getOptifineMapEntry("top","bar")
+            case "banner" -> Map.ofEntries(
+                    getOptifineMapEntry("slate", "flag"),
+                    getOptifineMapEntry("stand", "pole"),
+                    getOptifineMapEntry("top", "bar")
             );
 //# bed                      head, foot, leg1 ... leg4
-            case "bed_head" ->Map.ofEntries(
-                    getOptifineMapEntry("head","main"),
-                    getOptifineMapEntry("leg1","left_leg"),//todo check
-                    getOptifineMapEntry("leg2","right_leg")//todo check
+            case "bed_head" -> Map.ofEntries(
+                    getOptifineMapEntry("head", "main"),
+                    getOptifineMapEntry("leg1", "left_leg"),//todo check
+                    getOptifineMapEntry("leg2", "right_leg")//todo check
             );
-            case "bed_foot" ->Map.ofEntries(
-                    getOptifineMapEntry("foot","main"),
-                    getOptifineMapEntry("leg3","left_leg"),//todo check
-                    getOptifineMapEntry("leg4","right_leg")//todo check
+            case "bed_foot" -> Map.ofEntries(
+                    getOptifineMapEntry("foot", "main"),
+                    getOptifineMapEntry("leg3", "left_leg"),//todo check
+                    getOptifineMapEntry("leg4", "right_leg")//todo check
             );
 //# bell                     body
-            case "bell" ->Map.ofEntries(
-                    getOptifineMapEntry("body","bell_body")
+            case "bell" -> Map.ofEntries(
+                    getOptifineMapEntry("body", "bell_body")
             );
 //# chest_boat               bottom, back, front, right, left, paddle_left, paddle_right, bottom_no_water, chest_base, chest_lid, chest_knob
-            case "chest_boat" ->Map.ofEntries(
-                    getOptifineMapEntry("bottom","water_patch"),//todo check
+            case "chest_boat" -> Map.ofEntries(
+                    getOptifineMapEntry("bottom"),//todo check
                     getOptifineMapEntry("back"),
                     getOptifineMapEntry("front"),
                     getOptifineMapEntry("right"),
                     getOptifineMapEntry("left"),
-                    getOptifineMapEntry("paddle_left","left_paddle"),
-                    getOptifineMapEntry("paddle_right","right_paddle"),
-                    getOptifineMapEntry("bottom_no_water","bottom"),//todo check
+                    getOptifineMapEntry("paddle_left", "left_paddle"),
+                    getOptifineMapEntry("paddle_right", "right_paddle"),
+                    getOptifineMapEntry("bottom_no_water", "water_patch"),//todo check
 
-                    getOptifineMapEntry("chest_base","chest_bottom"),
+                    getOptifineMapEntry("chest_base", "chest_bottom"),
                     getOptifineMapEntry("chest_lid"),
-                    getOptifineMapEntry("chest_knob","chest_lock")
+                    getOptifineMapEntry("chest_knob", "chest_lock")
             );
 //# raft                     bottom, paddle_left, paddle_right
-            case "raft" ->Map.ofEntries(
+            case "raft" -> Map.ofEntries(
                     getOptifineMapEntry("bottom"),
-                    getOptifineMapEntry("paddle_left","left_paddle"),
-                    getOptifineMapEntry("paddle_right","right_paddle")
+                    getOptifineMapEntry("paddle_left", "left_paddle"),
+                    getOptifineMapEntry("paddle_right", "right_paddle")
             );
 //# chest_raft               bottom, paddle_left, paddle_right, chest_base, chest_lid, chest_knob
-            case "chest_raft" ->Map.ofEntries(
+            case "chest_raft" -> Map.ofEntries(
                     getOptifineMapEntry("bottom"),
-                    getOptifineMapEntry("paddle_left","left_paddle"),
-                    getOptifineMapEntry("paddle_right","right_paddle"),
+                    getOptifineMapEntry("paddle_left", "left_paddle"),
+                    getOptifineMapEntry("paddle_right", "right_paddle"),
 
-                    getOptifineMapEntry("chest_base","chest_bottom"),
+                    getOptifineMapEntry("chest_base", "chest_bottom"),
                     getOptifineMapEntry("chest_lid"),
-                    getOptifineMapEntry("chest_knob","chest_lock")
+                    getOptifineMapEntry("chest_knob", "chest_lock")
             );
 //# chest_minecart           bottom, back, front, right, left
 //# command_block_minecart   bottom, back, front, right, left
@@ -792,19 +788,20 @@ public class EMFOptiFinePartNameMappings {
 //# furnace_minecart         bottom, back, front, right, left
 //# hopper_minecart          bottom, back, front, right, left
 //# minecart                 bottom, back, front, right, left
-            case "minecart","chest_minecart","command_block_minecart","spawner_minecart","tnt_minecart","furnace_minecart","hopper_minecart" -> genericMinecart;
+            case "minecart", "chest_minecart", "command_block_minecart", "spawner_minecart", "tnt_minecart", "furnace_minecart", "hopper_minecart" ->
+                    genericMinecart;
 //# conduit                  base, eye, cage, wind
-            case "conduit_cage" -> Map.ofEntries(getOptifineMapEntry("cage","shell"));
+            case "conduit_cage" -> Map.ofEntries(getOptifineMapEntry("cage", "shell"));
             case "conduit_eye" -> Map.ofEntries(getOptifineMapEntry("eye"));
-            case "conduit_shell" -> Map.ofEntries(getOptifineMapEntry("base","shell"));
+            case "conduit_shell" -> Map.ofEntries(getOptifineMapEntry("base", "shell"));
             case "conduit_wind" -> Map.ofEntries(getOptifineMapEntry("wind"));
 //# decorated_pot            neck, front, back, left, right, top, bottom
-            case "decorated_pot_base" ->Map.ofEntries(
+            case "decorated_pot_base" -> Map.ofEntries(
                     getOptifineMapEntry("neck"),
                     getOptifineMapEntry("top"),
                     getOptifineMapEntry("bottom")
             );
-            case "decorated_pot_sides" ->Map.ofEntries(
+            case "decorated_pot_sides" -> Map.ofEntries(
                     getOptifineMapEntry("front"),
                     getOptifineMapEntry("back"),
                     getOptifineMapEntry("left"),
@@ -812,66 +809,84 @@ public class EMFOptiFinePartNameMappings {
             );
 //# enchanting_book          cover_right, cover_left, pages_right, pages_left, flipping_page_right, flipping_page_left, book_spine
 //# lectern_book             cover_right, cover_left, pages_right, pages_left, flipping_page_right, flipping_page_left, book_spine
-            case "book" ->Map.ofEntries(
-                    getOptifineMapEntry("cover_right","right_lid"),
-                    getOptifineMapEntry("cover_left","left_lid"),
-                    getOptifineMapEntry("pages_right","right_pages"),
-                    getOptifineMapEntry("pages_left","left_pages"),
-                    getOptifineMapEntry("flipping_page_right","flip_page2"),//todo check
-                    getOptifineMapEntry("flipping_page_left","flip_page1"),//todo check
-                    getOptifineMapEntry("book_spine","seam")
+            case "book" -> Map.ofEntries(
+                    getOptifineMapEntry("cover_right", "right_lid"),
+                    getOptifineMapEntry("cover_left", "left_lid"),
+                    getOptifineMapEntry("pages_right", "right_pages"),
+                    getOptifineMapEntry("pages_left", "left_pages"),
+                    getOptifineMapEntry("flipping_page_right", "flip_page2"),//todo check
+                    getOptifineMapEntry("flipping_page_left", "flip_page1"),//todo check
+                    getOptifineMapEntry("book_spine", "seam")
             );
 //# end_crystal              cube, glass, base
-//# evoker_fangs             base, upper_jaw, lower_jaw
+            case "end_crystal" -> Map.ofEntries(
+                    getOptifineMapEntry("cube"),
+                    getOptifineMapEntry("glass"),
+                    getOptifineMapEntry("base")
+            );
+
 //# hanging_sign             board, plank, chains, chain_left1, chain_left2, chain_right1, chain_right2, chains_v
+            case "hanging_sign" -> Map.ofEntries(
+                    getOptifineMapEntry("board"),
+                    getOptifineMapEntry("plank"),
+                    getOptifineMapEntry("chains", "normalChains"),
+                    getOptifineMapEntry("chain_left1", "chainL1"),
+                    getOptifineMapEntry("chain_left2", "chainL2"),
+                    getOptifineMapEntry("chain_right1", "chainR1"),
+                    getOptifineMapEntry("chain_right2", "chainR2"),
+                    getOptifineMapEntry("chains_v", "vChains")
+            );
 //# lead_knot                knot
-//# shulker_bullet           bullet
+            case "lead_knot" -> Map.ofEntries(getOptifineMapEntry("knot"));//todo possibly needs root assigned);
 //# sign                     board, stick
+            case "sign" -> Map.ofEntries(
+                    getOptifineMapEntry("board", "EMF_root"),//todo check
+                    //getOptifineMapEntry("EMPTY","sign"),//todo check
+                    getOptifineMapEntry("stick")
+            );
 //# trident                  body
+            case "trident" -> Map.ofEntries(getOptifineMapEntry("body", "EMF_root"));//todo check
 
-
-
-            default -> root == null ? Map.of() : exploreProvidedEntityModel(root,mobName);
+            default -> root == null ? Map.of() : exploreProvidedEntityModel(root, mobName);
         };
 
 
     }
 
-    public static final Map<String,Map<String, String>> UNKNOWN_MODEL_MAP_CACHE = new HashMap<>();
-//
+    //
     //this would make a usable mapping of the given model but with no part name changing as it would not be optifine customized
-    public static Map<String, String> exploreProvidedEntityModel(ModelPart originalModel, String mobName){
+    public static Map<String, String> exploreProvidedEntityModel(ModelPart originalModel, String mobName) {
 
-        if(UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName))
+        if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName))
             return UNKNOWN_MODEL_MAP_CACHE.get(mobName);
 
         Map<String, String> newMap = new HashMap<>();
         Map<String, String> detailsMap = new HashMap<>();
-        mapThisAndChildren("root",originalModel,newMap,detailsMap);
+        mapThisAndChildren("root", originalModel, newMap, detailsMap);
         //cache result;
-        UNKNOWN_MODEL_MAP_CACHE.put(mobName,newMap);
-        if(EMFConfig.getConfig().printUnknownModelsMode != EMFConfig.UnknownModelPrintMode.NONE) {
+        UNKNOWN_MODEL_MAP_CACHE.put(mobName, newMap);
+        if (EMFConfig.getConfig().printUnknownModelsMode != EMFConfig.UnknownModelPrintMode.NONE) {
             StringBuilder mapString = new StringBuilder();
             mapString.append(" |-[optifine/cem/").append(mobName).append(".jem]\n");
-            newMap.forEach((key, entry) ->{
+            newMap.forEach((key, entry) -> {
                 mapString.append(" | |-[").append("root".equals(key) ? "(optional) " : "").append("part=").append(key).append("]\n");
                 mapString.append(detailsMap.get(key));
             });
             mapString.append("  \\-\\{{end of unknown model}}");
 
-            EMFUtils.EMFModMessage("Unknown possibly modded model detected, Mapping now...\n"+mapString);
+            EMFUtils.EMFModMessage("Unknown possibly modded model detected, Mapping now...\n" + mapString);
 
-            if(EMFConfig.getConfig().printUnknownModelsMode == EMFConfig.UnknownModelPrintMode.LOG_AND_JEM) {
-                EMFUtils.EMFModMessage("creating example .jem file for "+mobName);
+            if (EMFConfig.getConfig().printUnknownModelsMode == EMFConfig.UnknownModelPrintMode.LOG_AND_JEM) {
+                EMFUtils.EMFModMessage("creating example .jem file for " + mobName);
                 EMFJemData.EMFJemPrinter jemPrinter = new EMFJemData.EMFJemPrinter();
-                for (Map.Entry<String, String> entry:
-                     newMap.entrySet()) {
-                    if(!"root".equals(entry.getKey())) {
+                for (Map.Entry<String, String> entry :
+                        newMap.entrySet()) {
+                    if (!"root".equals(entry.getKey())) {
                         EMFPartData.EMFPartPrinter partPrinter = new EMFPartData.EMFPartPrinter();
                         partPrinter.part = entry.getKey();
                         partPrinter.id = entry.getKey();
                         ModelPart vanillaModelPart = getChildByName(entry.getKey(), originalModel);
-                        if(vanillaModelPart != null){
+                        if (vanillaModelPart != null) {
                             partPrinter.translate = new float[]{
                                     vanillaModelPart.pivotX,
                                     vanillaModelPart.pivotY,
@@ -881,9 +896,9 @@ public class EMFOptiFinePartNameMappings {
                                     (float) Math.toDegrees(vanillaModelPart.yaw),
                                     (float) Math.toDegrees(vanillaModelPart.roll)};
                             partPrinter.scale = vanillaModelPart.xScale;
-                            List<ModelPart.Cuboid> cuboids = ((ModelPartAccessor)vanillaModelPart).getCuboids();
-                            for (ModelPart.Cuboid cube:
-                                 cuboids) {
+                            List<ModelPart.Cuboid> cuboids = ((ModelPartAccessor) vanillaModelPart).getCuboids();
+                            for (ModelPart.Cuboid cube :
+                                    cuboids) {
                                 EMFBoxData.EMFBoxPrinter boxPrinter = new EMFBoxData.EMFBoxPrinter();
                                 boxPrinter.coordinates = new float[]{
                                         cube.minX - vanillaModelPart.getDefaultTransform().pivotX,
@@ -893,8 +908,8 @@ public class EMFOptiFinePartNameMappings {
                                         cube.maxY - cube.minY,
                                         cube.maxZ - cube.minZ};
                                 //add to array
-                                partPrinter.boxes = Arrays.copyOf(partPrinter.boxes, partPrinter.boxes.length+1);
-                                partPrinter.boxes[partPrinter.boxes.length-1] = boxPrinter;
+                                partPrinter.boxes = Arrays.copyOf(partPrinter.boxes, partPrinter.boxes.length + 1);
+                                partPrinter.boxes[partPrinter.boxes.length - 1] = boxPrinter;
                             }
 
                         }
@@ -920,42 +935,37 @@ public class EMFOptiFinePartNameMappings {
                 }
             }
         }
-       return newMap;
+        return newMap;
     }
 
 
-
-    private static ModelPart getChildByName(String name, ModelPart part){
-        if(part.hasChild(name)) return part.getChild(name);
-        for (ModelPart childPart:
-        ((ModelPartAccessor)part).getChildren().values()) {
-            ModelPart possibleReturn = getChildByName(name ,childPart);
+    private static ModelPart getChildByName(String name, ModelPart part) {
+        if (part.hasChild(name)) return part.getChild(name);
+        for (ModelPart childPart :
+                ((ModelPartAccessor) part).getChildren().values()) {
+            ModelPart possibleReturn = getChildByName(name, childPart);
             if (possibleReturn != null) return possibleReturn;
         }
         return null;
     }
 
-    private static void mapThisAndChildren(String partName,ModelPart originalModel, Map<String, String> newMap,Map<String, String> detailsMap){
-        Set<String> childrenList = new HashSet<>();
+    private static void mapThisAndChildren(String partName, ModelPart originalModel, Map<String, String> newMap, Map<String, String> detailsMap) {
         //iterate over children while collecting their names in a list
-        for (Map.Entry<String, ModelPart> entry:
-             ((ModelPartAccessor)originalModel).getChildren().entrySet()) {
-            childrenList.add(entry.getKey());
-            mapThisAndChildren(entry.getKey(),entry.getValue(),newMap, detailsMap);
+        for (Map.Entry<String, ModelPart> entry :
+                ((ModelPartAccessor) originalModel).getChildren().entrySet()) {
+            mapThisAndChildren(entry.getKey(), entry.getValue(), newMap, detailsMap);
         }
         //add this part and its children names
-        newMap.put(partName,partName);
-        if(EMFConfig.getConfig().printUnknownModelsMode != EMFConfig.UnknownModelPrintMode.NONE) {
+        newMap.put(partName, partName);
+        if (EMFConfig.getConfig().printUnknownModelsMode != EMFConfig.UnknownModelPrintMode.NONE) {
             detailsMap.put(partName,
-                      " | | |-pivots=" + originalModel.pivotX + ", " + originalModel.pivotY + ", " + originalModel.pivotZ +
-                    "\n | | |-rotations=" + Math.toDegrees( originalModel.pitch) + ", " + Math.toDegrees(originalModel.yaw) + ", " + Math.toDegrees(originalModel.roll) +
-                    "\n | | |-scales=" + originalModel.xScale + ", " + originalModel.yScale + ", " + originalModel.zScale +
-                    "\n | |  \\visibles=" + originalModel.visible + ", " + originalModel.hidden+"\n"
+                    " | | |-pivots=" + originalModel.pivotX + ", " + originalModel.pivotY + ", " + originalModel.pivotZ +
+                            "\n | | |-rotations=" + Math.toDegrees(originalModel.pitch) + ", " + Math.toDegrees(originalModel.yaw) + ", " + Math.toDegrees(originalModel.roll) +
+                            "\n | | |-scales=" + originalModel.xScale + ", " + originalModel.yScale + ", " + originalModel.zScale +
+                            "\n | |  \\visibles=" + originalModel.visible + ", " + originalModel.hidden + "\n"
             );
         }
     }
-
-
 
 
 }

@@ -3,7 +3,7 @@ package traben.entity_model_features.models.animation.animation_math_parser;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
-import traben.entity_model_features.models.animation.EMFDefaultModelVariable;
+import traben.entity_model_features.models.animation.EMFModelOrRenderVariable;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -24,6 +24,7 @@ public class MathVariable extends MathValue implements MathComponent {
     //final float PI = (float) Math.PI;
     ValueSupplier valueSupplier;
     private boolean invertBooleans = false;
+
     private MathVariable(String value, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
         super(isNegative, calculationInstance);
 
@@ -120,11 +121,7 @@ public class MathVariable extends MathValue implements MathComponent {
     }
 
     private ValueSupplier getVariable(String variableKey) throws EMFMathException {
-            //, EMFAnimationHelper getter
 
-//            case "pi" -> ()->PI;//3.1415926f;
-//            case "true" ->  ()-> invertBooleans ? 0f : 1f;
-//            case "false" -> ()-> invertBooleans ? 1f : 0f;
         switch (variableKey) {
             case "pi" -> {
                 optimizedAlternativeToThis = isNegative ? PI_NEGATIVE_CONSTANT : PI_CONSTANT;
@@ -147,8 +144,8 @@ public class MathVariable extends MathValue implements MathComponent {
                 if (variableKey.matches("[a-zA-Z0-9_]+\\.([trs][xyz]$|visible$|visible_boxes$)")) {
                     String[] split = variableKey.split("\\.");//todo only works with one split point
                     String partName = split[0];
-                    EMFDefaultModelVariable partVariable = EMFDefaultModelVariable.get(split[1]);
-                    EMFModelPart part = EMFManager.getModelFromHierarchichalId(partName,calculationInstance.allPartsBySingleAndFullHeirachicalId);
+                    EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
+                    EMFModelPart part = EMFManager.getModelFromHierarchichalId(partName, calculationInstance.allPartsBySingleAndFullHeirachicalId);
                     if (partVariable != null && part != null) {
                         return () -> partVariable.getFromMutableModel(part/*, calculationInstance.partToApplyTo*/);
                     } else {
@@ -165,24 +162,32 @@ public class MathVariable extends MathValue implements MathComponent {
                         return variableCalculator::getLastResultOnly;
                     } else {
                         ArrayList<String> vars = new ArrayList<>();
-                        for (String var:
+                        for (String var :
                                 calculationInstance.emfAnimationVariables.keySet()) {
-                            if(var.startsWith("var.") || var.startsWith("varb.")) vars.add(var);
+                            if (var.startsWith("var.") || var.startsWith("varb.")) vars.add(var);
                         }
                         EMFUtils.EMFModError("no animation variable found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available variables were: " + vars);
                         return () -> 0;
                         //throw new EMFMathException("no variable animation found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.emfAnimationVariables.keySet());
                     }
                 }
-//                //process boolean variable  e.g.   varb.asdf
-//                if(variableKey.matches("varb\\.\\w+")) {
-//                    EMFAnimation variableCalculator = calculationInstance.emfAnimationVariables.get(variableKey);
-//                    if(variableCalculator != null){
-//                        return ()-> variableCalculator.getLastResultOnly(getter.getEntity());
-//                    }else{
-//                        throw new EMFMathException("no part variable found for: ["+variableKey+"]");
-//                    }
-//                }
+
+                //process render variable  e.g.   render.shadow_size
+                if (variableKey.matches("(render)\\.\\w+")) {
+                    EMFAnimation renderVariableCalculator = calculationInstance.emfAnimationVariables.get(variableKey);
+                    if (renderVariableCalculator != null) {
+                        return renderVariableCalculator::getLastResultOnly;
+                    } else {
+                        //try get default
+                        EMFModelOrRenderVariable variable = EMFModelOrRenderVariable.getRenderVariable(variableKey);
+                        if (variable != null && variable.isRenderVariable())
+                            return variable::getRenderVariable;
+                        EMFUtils.EMFModError("no render variable found for: [" + variableKey + "]");
+                        return () -> 0;
+                        //throw new EMFMathException("no variable animation found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.emfAnimationVariables.keySet());
+                    }
+                }
+
                 String s = "ERROR: could not identify EMF animation variable [" + variableKey + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
                 System.out.println(s);
                 throw new EMFMathException(s);

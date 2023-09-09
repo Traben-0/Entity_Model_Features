@@ -10,19 +10,16 @@ import java.util.Objects;
 public class EMFConfigScreenTools extends ETFConfigScreen {
 
 
-
-    public EMFConfigScreenTools(EMFConfigScreenMain parent) {
-        super(Text.translatable("entity_model_features.config.tools"),parent);
-        emfParent = parent;
-    }
-
     private final EMFConfigScreenMain emfParent;
 
+    public EMFConfigScreenTools(EMFConfigScreenMain parent) {
+        super(Text.translatable("entity_model_features.config.tools"), parent);
+        emfParent = parent;
+    }
 
     @Override
     protected void init() {
         super.init();
-
 
 
         this.addDrawableChild(ButtonWidget.builder(
@@ -39,11 +36,6 @@ public class EMFConfigScreenTools extends ETFConfigScreen {
                     //tempConfig = null;
                     Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.1), (int) (this.height * 0.9), (int) (this.width * 0.2), 20).build());
-
-
-
-
-
 
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,

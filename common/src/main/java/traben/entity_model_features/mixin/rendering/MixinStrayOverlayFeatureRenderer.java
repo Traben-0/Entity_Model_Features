@@ -22,14 +22,16 @@ public class MixinStrayOverlayFeatureRenderer<T extends MobEntity & RangedAttack
 
 
     @Mutable
-    @Shadow @Final private SkeletonEntityModel<T> model;
+    @Shadow
+    @Final
+    private SkeletonEntityModel<T> model;
     @Unique
     private SkeletonEntityModel<T> emf$heldModelToForce = null;
 
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
-    private void emf$saveEMFModel(FeatureRendererContext<?,?> context, EntityModelLoader loader, CallbackInfo ci) {
-        if(((IEMFModel)model).emf$isEMFModel()){
+    private void emf$saveEMFModel(FeatureRendererContext<?, ?> context, EntityModelLoader loader, CallbackInfo ci) {
+        if (((IEMFModel) model).emf$isEMFModel()) {
             emf$heldModelToForce = model;
         }
     }
@@ -37,15 +39,15 @@ public class MixinStrayOverlayFeatureRenderer<T extends MobEntity & RangedAttack
     @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/mob/MobEntity;FFFFFF)V",
             at = @At(value = "HEAD"))
     private void emf$resetModel(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T mobEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
-        if(emf$heldModelToForce != null){
-            if(!emf$heldModelToForce.equals(model)){
+        if (emf$heldModelToForce != null) {
+            if (!emf$heldModelToForce.equals(model)) {
                 boolean replace = EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(mobEntity.getType()).getNamespace());
-                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(),model == null ? "null" : model.getClass().getName(),replace);
-                if(replace) {
+                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
+                if (replace) {
                     model = emf$heldModelToForce;
                 }
             }
             emf$heldModelToForce = null;
         }
-   }
+    }
 }

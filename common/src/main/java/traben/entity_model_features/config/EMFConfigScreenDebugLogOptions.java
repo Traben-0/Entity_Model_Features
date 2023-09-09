@@ -10,27 +10,22 @@ import java.util.Objects;
 public class EMFConfigScreenDebugLogOptions extends ETFConfigScreen {
 
 
-
-    public EMFConfigScreenDebugLogOptions(EMFConfigScreenMain parent) {
-        super(Text.translatable("entity_model_features.config.debug"),parent);
-        emfParent = parent;
-    }
-
     private final EMFConfigScreenMain emfParent;
 
+    public EMFConfigScreenDebugLogOptions(EMFConfigScreenMain parent) {
+        super(Text.translatable("entity_model_features.config.debug"), parent);
+        emfParent = parent;
+    }
 
     @Override
     protected void init() {
         super.init();
 
 
-
-
-
         this.addDrawableChild(ButtonWidget.builder(
                 Text.translatable("dataPack.validation.reset"),
                 (button) -> {
-                    emfParent.tempConfig.renderCustomModelsGreen = false;
+                    emfParent.tempConfig.renderModeChoice = EMFConfig.RenderModeChoice.NORMAL;
                     emfParent.tempConfig.printModelCreationInfoToLog = false;
                     emfParent.tempConfig.printAllMaths = false;
                     this.clearAndInit();
@@ -45,14 +40,14 @@ public class EMFConfigScreenDebugLogOptions extends ETFConfigScreen {
 
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.green_render").getString() +
-                        ": " + (emfParent.tempConfig.renderCustomModelsGreen ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                Text.of(Text.translatable("entity_model_features.config.render").getString() +
+                        ": " + emfParent.tempConfig.renderModeChoice.asText().getString()),
                 (button) -> {
-                    emfParent.tempConfig.renderCustomModelsGreen = !emfParent.tempConfig.renderCustomModelsGreen;
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.green_render").getString() +
-                            ": " + (emfParent.tempConfig.renderCustomModelsGreen ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                    emfParent.tempConfig.renderModeChoice = emfParent.tempConfig.renderModeChoice.next();
+                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.render").getString() +
+                            ": " + emfParent.tempConfig.renderModeChoice.asText().getString()));
                 },
-                Text.translatable("entity_model_features.config.green_render.tooltip")
+                Text.translatable("entity_model_features.config.render.tooltip")
         ));
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
@@ -76,8 +71,6 @@ public class EMFConfigScreenDebugLogOptions extends ETFConfigScreen {
                 },
                 Text.translatable("entity_model_features.config.log_math.tooltip")
         ));
-
-
 
 
     }

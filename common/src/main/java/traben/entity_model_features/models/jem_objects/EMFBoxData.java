@@ -10,27 +10,23 @@ public class EMFBoxData {
     public float[] uvDown = {};
     public float[] uvUp = {};
 
-    public float[] uvNorth, uvFront = {};
-    public float[] uvSouth, uvBack = {};
-    public float[] uvWest, uvLeft = {};
-    public float[] uvEast, uvRight = {};
+    public float[] uvFront = {};
+    public float[] uvBack = {};
+    public float[]  uvLeft = {};
+    public float[] uvRight = {};
+    public float[] uvNorth= {};
+    public float[] uvSouth = {};
+    public float[] uvWest = {};
+    public float[] uvEast = {};
 
     public float[] coordinates = {};
     public float sizeAdd = 0.0f; // just part dilation lol
 
 
-    public void prepare(boolean invertX, boolean invertY, boolean invertZ,
-                        float modifyX, float modifyY, float modifyZ) {
+    public void prepare(boolean invertX, boolean invertY, boolean invertZ) {
         checkAndFixUVLegacyDirections();
 
-        //float[] coOrds = coordinates;
 
-        //this should be added
-        //if(parentZero) {
-        coordinates[0] += modifyX;
-        coordinates[1] += modifyY;
-        coordinates[2] += modifyZ;
-        //}
         //then invert?
         if (invertX) {
             coordinates[0] = -coordinates[0] - coordinates[3];
@@ -38,7 +34,7 @@ public class EMFBoxData {
         if (invertY) {
             coordinates[1] = -coordinates[1] - coordinates[4];
         }
-        if (invertZ) {//todo check this as not used in fresh animations
+        if (invertZ) {
             coordinates[2] = -coordinates[2] - coordinates[5];
         }
 
@@ -73,15 +69,15 @@ public class EMFBoxData {
 
     public static class EMFBoxPrinter {
         public float[] textureOffset = {};
-        public float[] uvDown = {0,0,0,0};
-        public float[] uvUp = {0,0,0,0};
+        public float[] uvDown = {0, 0, 0, 0};
+        public float[] uvUp = {0, 0, 0, 0};
 
-        public float[] uvNorth, uvFront = {0,0,0,0};
-        public float[] uvSouth, uvBack = {0,0,0,0};
-        public float[] uvWest, uvLeft = {0,0,0,0};
-        public float[] uvEast, uvRight = {0,0,0,0};
+        public float[] uvNorth, uvFront = {0, 0, 0, 0};
+        public float[] uvSouth, uvBack = {0, 0, 0, 0};
+        public float[] uvWest, uvLeft = {0, 0, 0, 0};
+        public float[] uvEast, uvRight = {0, 0, 0, 0};
 
-        public float[] coordinates = {0,0,0,0,0,0};
+        public float[] coordinates = {0, 0, 0, 0, 0, 0};
         public float sizeAdd = 0.0f;
     }
 }

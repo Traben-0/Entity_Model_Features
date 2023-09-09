@@ -9,7 +9,6 @@
     "accessor.CuboidAccessor",
     "accessor.MinecraftClientAccessor",
     "accessor.ModelPartAccessor",
-    "accessor.PlayerEntityModelAccessor",
     "rendering.MixinBlockEntityRenderDispatcher",
     "rendering.MixinCatCollarFeatureRenderer",
     "rendering.MixinDrownedOverlayFeatureRenderer",
@@ -25,6 +24,8 @@
     "rendering.MixinTropicalFishPatternFeatureRenderer"
   ],
   "mixins": [
+    "MixinEntity",
+    "accessor.EntityRenderDispatcherAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -3,9 +3,13 @@ package traben.entity_model_features.models;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.config.EMFConfig;
@@ -14,7 +18,6 @@ import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFUtils;
-import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 
 import java.util.*;
 
@@ -23,25 +26,15 @@ import java.util.*;
 public class EMFModelPartCustom extends EMFModelPart {
 
 
-    @Override
-    void renderToSuper(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha){
-        if (EMFConfig.getConfig().renderCustomModelsGreen) {
-            float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
-            super.render(matrices, vertices, light, overlay, flash, green, flash, alpha);
-        } else {
-            super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
-        }
-    }
-
     public final String partToBeAttached;
     public final String id;
     public final boolean attach;
-    public EMFModelPartCustom(EMFPartData emfPartData, int variant,@Nullable String part) {//,//float[] parentalTransforms) {
+    public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id) {//,//float[] parentalTransforms) {
 
         super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variant));
         this.attach = emfPartData.attach;
         this.partToBeAttached = part;
-        this.id = emfPartData.id;
+        this.id = id;
         //selfModelData = emfPartData;
         textureOverride = emfPartData.customTexture;
 
@@ -68,24 +61,17 @@ public class EMFModelPartCustom extends EMFModelPart {
 
 
     }
-    private static List<Cuboid> getCuboidsFromData(EMFPartData emfPartData) {
 
+    private static List<Cuboid> getCuboidsFromData(EMFPartData emfPartData) {
         return createCuboidsFromBoxDataV3(emfPartData);
 
     }
 
-
     private static Map<String, ModelPart> getChildrenFromData(EMFPartData emfPartData, int variant) {
         Map<String, ModelPart> emfChildren = new HashMap<>();
         for (EMFPartData sub : emfPartData.submodels) {
-
-            //prefer part name for vanilla model structure mirroring
-            //String idForMap = sub.part == null ? sub.id : sub.part;
-//            while (emfChildren.containsKey(idForMap)) {
-//                idForMap = idForMap + "-";
-//            }
-
-            emfChildren.put(sub.id, new EMFModelPartCustom(sub,variant,null));
+            String idUnique = getIdUnique(emfChildren.keySet(), sub.id);
+            emfChildren.put(idUnique, new EMFModelPartCustom(sub, variant, null, idUnique));
         }
         return emfChildren;
     }
@@ -131,28 +117,62 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
     @Override
+    public String toString() {
+        return "EMFModelPartCustom{" +
+                "partToBeAttached='" + partToBeAttached + '\'' +
+                ", id='" + id + '\'' +
+                ", attach=" + attach +
+                '}';
+    }
+
+    @Override
+    void primaryRender(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+        switch (EMFConfig.getConfig().renderModeChoice) {
+            case NORMAL -> super.primaryRender(matrices, vertices, light, overlay, red, green, blue, alpha);
+            case GREEN -> {
+                float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
+                super.primaryRender(matrices, vertices, light, overlay, flash, green, flash, alpha);
+            }
+            //case TRANSPARENT -> super.primaryRender(matrices, vertices, light, overlay, red, green, blue, 0.5f);
+            case LINES -> {
+                if (this.visible) {
+                    if (!((ModelPartAccessor) this).getCuboids().isEmpty() || !this.getChildrenEMF().isEmpty()) {
+                        matrices.push();
+                        this.rotate(matrices);
+                        if (!this.hidden) {
+                            for (Cuboid cuboid : ((ModelPartAccessor) this).getCuboids()) {
+                                Box box = new Box(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
+                                WorldRenderer.drawBox(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()), box, 1.0F, 1.0F, 1.0F, 1.0F);
+                            }
+                        }
+                        for (ModelPart modelPart : this.getChildrenEMF().values()) {
+                            modelPart.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+                        }
+                        matrices.pop();
+                    }
+                }
+            }
+            case NONE -> {
+
+            }
+        }
+    }
+
+    @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         primaryRender(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 
-
-
-    public OptifineMobNameForFileAndEMFMapId modelName = null;
-
-
-
-
-
-    ModelPart getVanillaModelPartsOfCurrentState(){
+    ModelPart getVanillaModelPartsOfCurrentState() {
         Map<String, ModelPart> children = new HashMap<>();
-        for (Map.Entry<String,ModelPart> child:
-             getChildrenEMF().entrySet()) {
-            if(child.getValue() instanceof EMFModelPartCustom emf){
-                children.put(child.getKey(),emf.getVanillaModelPartsOfCurrentState());
+        for (Map.Entry<String, ModelPart> child :
+                getChildrenEMF().entrySet()) {
+            if (child.getValue() instanceof EMFModelPartCustom emf) {
+                children.put(child.getKey(), emf.getVanillaModelPartsOfCurrentState());
             }
         }
 
-        ModelPart part = new ModelPart(((ModelPartAccessor)this).getCuboids(),children);
+        ModelPart part = new ModelPart(((ModelPartAccessor) this).getCuboids(), children);
         part.setDefaultTransform(getDefaultTransform());
         part.pitch = pitch;
         part.roll = roll;
@@ -168,29 +188,8 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Environment(value = EnvType.CLIENT)
     public static class EMFCuboid extends Cuboid {
-        public final float minXEMF;
-        public final float minYEMF;
-        public final float minZEMF;
-        public final float maxXEMF;
-        public final float maxYEMF;
-        public final float maxZEMF;
         private final Quad[] sidesEMF;
 
         //cuboid without custom UVs
@@ -206,21 +205,17 @@ public class EMFModelPartCustom extends EMFModelPart {
                     cubeX, cubeY, cubeZ,
                     sizeX, sizeY, sizeZ,
                     extraX, extraY, extraZ, false,
-                    textureWidth, textureHeight, new HashSet<>(){{addAll(List.of(Direction.values()));}} );
+                    textureWidth, textureHeight, new HashSet<>() {{
+                        addAll(List.of(Direction.values()));
+                    }});
 
             CuboidAccessor accessor = (CuboidAccessor) this;
             accessor.setMinX(cubeX);
-            this.minXEMF = cubeX;
             accessor.setMinY(cubeY);
-            this.minYEMF = cubeY;
             accessor.setMinZ(cubeZ);
-            this.minZEMF = cubeZ;
             accessor.setMaxX(cubeX + sizeX);
-            this.maxXEMF = cubeX + sizeX;
             accessor.setMaxY(cubeY + sizeY);
-            this.maxYEMF = cubeY + sizeY;
             accessor.setMaxZ(cubeZ + sizeZ);
-            this.maxZEMF = cubeZ + sizeZ;
             //Quad[] sides = new Quad[6];
             ArrayList<Quad> sides = new ArrayList<>();
             float cubeX2 = cubeX + sizeX;
@@ -353,21 +348,17 @@ public class EMFModelPartCustom extends EMFModelPart {
                     cubeX, cubeY, cubeZ,
                     sizeX, sizeY, sizeZ,
                     extraX, extraY, extraZ, false,
-                    textureWidth, textureHeight, new HashSet<>(){{addAll(List.of(Direction.values()));}} );
+                    textureWidth, textureHeight, new HashSet<>() {{
+                        addAll(List.of(Direction.values()));
+                    }});
 
             CuboidAccessor accessor = (CuboidAccessor) this;
             accessor.setMinX(cubeX);
-            this.minXEMF = cubeX;
             accessor.setMinY(cubeY);
-            this.minYEMF = cubeY;
             accessor.setMinZ(cubeZ);
-            this.minZEMF = cubeZ;
             accessor.setMaxX(cubeX + sizeX);
-            this.maxXEMF = cubeX + sizeX;
             accessor.setMaxY(cubeY + sizeY);
-            this.maxYEMF = cubeY + sizeY;
             accessor.setMaxZ(cubeZ + sizeZ);
-            this.maxZEMF = cubeZ + sizeZ;
             //Quad[] sides = new Quad[6];
             ArrayList<Quad> sides = new ArrayList<>();
 
@@ -482,8 +473,6 @@ public class EMFModelPartCustom extends EMFModelPart {
 
 
     }
-
-
 
 
 }

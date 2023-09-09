@@ -5,14 +5,14 @@ public class OptifineMobNameForFileAndEMFMapId {
     private String mapId;
 
 
-    @Override
-    public String toString() {
-        return fileName;
-    }
-
     public OptifineMobNameForFileAndEMFMapId(String both) {
         this.fileName = both;
         this.mapId = null;
+    }
+
+    @Override
+    public String toString() {
+        return fileName;
     }
 
     public void setBoth(String both) {
@@ -20,7 +20,7 @@ public class OptifineMobNameForFileAndEMFMapId {
         this.mapId = null;
     }
 
-    public boolean areBothSame(){
+    public boolean areBothSame() {
         return mapId == null || fileName.equals(mapId);
     }
 

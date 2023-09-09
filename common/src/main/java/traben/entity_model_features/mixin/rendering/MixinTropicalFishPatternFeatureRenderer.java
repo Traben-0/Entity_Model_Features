@@ -22,9 +22,13 @@ public class MixinTropicalFishPatternFeatureRenderer {
 
 
     @Mutable
-    @Shadow @Final private SmallTropicalFishEntityModel<TropicalFishEntity> smallModel;
+    @Shadow
+    @Final
+    private SmallTropicalFishEntityModel<TropicalFishEntity> smallModel;
     @Mutable
-    @Shadow @Final private LargeTropicalFishEntityModel<TropicalFishEntity> largeModel;
+    @Shadow
+    @Final
+    private LargeTropicalFishEntityModel<TropicalFishEntity> largeModel;
     @Unique
     private SmallTropicalFishEntityModel<TropicalFishEntity> emf$heldModelToForce = null;
     @Unique
@@ -32,11 +36,11 @@ public class MixinTropicalFishPatternFeatureRenderer {
 
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
-    private void emf$saveEMFModel(FeatureRendererContext<?,?> context, EntityModelLoader loader, CallbackInfo ci) {
-        if((
-                ((IEMFModel)smallModel).emf$isEMFModel()
-                || ((IEMFModel)largeModel).emf$isEMFModel()
-        )){
+    private void emf$saveEMFModel(FeatureRendererContext<?, ?> context, EntityModelLoader loader, CallbackInfo ci) {
+        if ((
+                ((IEMFModel) smallModel).emf$isEMFModel()
+                        || ((IEMFModel) largeModel).emf$isEMFModel()
+        )) {
             emf$heldModelToForce = smallModel;
             emf$heldModelToForce2 = largeModel;
         }
@@ -45,25 +49,25 @@ public class MixinTropicalFishPatternFeatureRenderer {
     @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/passive/TropicalFishEntity;FFFFFF)V",
             at = @At(value = "HEAD"))
     private void emf$resetModel(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, TropicalFishEntity tropicalFishEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
-        if(emf$heldModelToForce != null){
-            if(!emf$heldModelToForce.equals(smallModel)){
+        if (emf$heldModelToForce != null) {
+            if (!emf$heldModelToForce.equals(smallModel)) {
                 boolean replace = EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(tropicalFishEntity.getType()).getNamespace());
-                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(),smallModel == null ? "null" : smallModel.getClass().getName(),replace);
-                if(replace) {
+                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), smallModel == null ? "null" : smallModel.getClass().getName(), replace);
+                if (replace) {
                     smallModel = emf$heldModelToForce;
                 }
             }
             emf$heldModelToForce = null;
         }
-        if(emf$heldModelToForce2 != null){
-            if(!emf$heldModelToForce2.equals(largeModel)){
+        if (emf$heldModelToForce2 != null) {
+            if (!emf$heldModelToForce2.equals(largeModel)) {
                 boolean replace = EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(tropicalFishEntity.getType()).getNamespace());
-                EMFUtils.EMFOverrideMessage(emf$heldModelToForce2.getClass().getName(),largeModel == null ? "null" : largeModel.getClass().getName(),replace);
-                if(replace) {
+                EMFUtils.EMFOverrideMessage(emf$heldModelToForce2.getClass().getName(), largeModel == null ? "null" : largeModel.getClass().getName(), replace);
+                if (replace) {
                     largeModel = emf$heldModelToForce2;
                 }
             }
             emf$heldModelToForce2 = null;
         }
-   }
+    }
 }

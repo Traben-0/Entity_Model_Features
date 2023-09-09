@@ -9,13 +9,12 @@ import java.util.UUID;
 
 public class EMFBlockEntityWrapper extends ETFBlockEntityWrapper implements EMFEntity {
 
-    public EMFBlockEntityWrapper(BlockEntity entity, UUID id){
-        super(entity,id);
-        this.blockEntity = entity;
-    }
-
     private final BlockEntity blockEntity;
 
+    public EMFBlockEntityWrapper(BlockEntity entity, UUID id) {
+        super(entity, id);
+        this.blockEntity = entity;
+    }
 
     @Override
     public Entity entity() {

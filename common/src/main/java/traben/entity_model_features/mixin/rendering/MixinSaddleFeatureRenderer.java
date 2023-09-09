@@ -30,26 +30,23 @@ public class MixinSaddleFeatureRenderer<T extends Entity & Saddleable, M extends
 
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
-    private void emf$saveEMFModel(FeatureRendererContext<?,?> context, EntityModel<?> model, Identifier texture, CallbackInfo ci) {
-        if(((IEMFModel)model).emf$isEMFModel()){
+    private void emf$saveEMFModel(FeatureRendererContext<?, ?> context, EntityModel<?> model, Identifier texture, CallbackInfo ci) {
+        if (((IEMFModel) model).emf$isEMFModel()) {
             emf$heldModelToForce = this.model;
         }
     }
 
     @Inject(method = "Lnet/minecraft/client/render/entity/feature/SaddleFeatureRenderer;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/Entity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;setAngles(Lnet/minecraft/entity/Entity;FFFFF)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
     private void emf$setAngles(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch, CallbackInfo ci) {
-        if(emf$heldModelToForce != null){
-            if(!emf$heldModelToForce.equals(model)){
+        if (emf$heldModelToForce != null) {
+            if (!emf$heldModelToForce.equals(model)) {
                 boolean replace = EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(entity.getType()).getNamespace());
-                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(),model == null ? "null" : model.getClass().getName(),replace);
-                if(replace) {
+                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
+                if (replace) {
                     model = emf$heldModelToForce;
                 }
             }
             emf$heldModelToForce = null;
         }
-//        EMFManager.getInstance().preRenderEMFActions(
-//                Registries.ENTITY_TYPE.getId(entity.getType()).toString().replace("minecraft:", "") + "_saddle",
-//                entity, vertexConsumers, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
     }
 }

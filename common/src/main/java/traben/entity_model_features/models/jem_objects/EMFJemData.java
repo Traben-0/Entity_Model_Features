@@ -2,17 +2,19 @@ package traben.entity_model_features.models.jem_objects;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 
+import java.io.File;
 import java.util.*;
 
 public class EMFJemData {
-    public final LinkedHashMap<String, String> finalAnimationsForModel = new LinkedHashMap<>();
     private static final String REGEX_PREFIX = "(?<=([^a-zA-Z0-9_]|^))";
     private static final String REGEX_SUFFIX = "(?=([^a-zA-Z0-9_]|$))";
+    public final LinkedHashMap<String, String> finalAnimationsForModel = new LinkedHashMap<>();
     public String texture = "";
     public int[] textureSize = null;
     public double shadow_size = 1.0;
@@ -25,40 +27,39 @@ public class EMFJemData {
     //public String mobName = "none";
     public Identifier customTexture = null;
 
+    @Nullable
+    public static Identifier validateJemTexture(String texture, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+        texture = texture.trim();
+        if (!texture.isBlank()) {
+            if (!texture.endsWith(".png")) texture = texture + ".png";
+            //if no folder parenting assume it is relative to model
+            if (!texture.contains("/")) {
+                String folderOfModel = new File(mobModelIDInfo.getfileName()).getParent();
+                if (folderOfModel != null)
+                    texture = folderOfModel + '/' + texture;
+            }
+            Identifier possibleTexture = new Identifier(texture);
+            if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
+                return possibleTexture;
+            }
+        }
+        return null;
+    }
+
     public void sendFileName(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
         this.mobModelIDInfo = mobModelIDInfo;
         this.fileName = fileName;
-//        this.mobName = fileName
-//                .replace("optifine/cem/", "")
-//                .replace("emf/cem/", "")
-//                .replace(".jem", "");
-//        //extract folder structure of optifine/cem/pig/pig.jem  which is pig/pig here
-//        if(mobName.contains("/")){
-//            String[] split = mobName.split("/");
-//            if(split.length == 2){
-//                if(split[0].equals(split[1])) mobName = split[0];
-//            }
-//        }
     }
 
     public void prepare() {
         originalModelsForReadingOnly = new LinkedList<>(models);
 
-        if (!texture.equals("")) {
-            if (!this.texture.contains(".png")) this.texture = this.texture + ".png";
-            //if no folder parenting assume it is relative to model
-            if (!this.texture.contains("/")) this.texture = "optifine/cem/" + this.texture;
-            Identifier possibleTexture = new Identifier(texture);
-            if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
-                customTexture = possibleTexture;
-            }
-        }
+        customTexture = validateJemTexture(texture, mobModelIDInfo);
 
 
         String mapId = mobModelIDInfo.getMapId();//.replaceAll("(?<=\\w)[0-9]", "");
         //vanilla parenting adjustments
-        Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(mapId,null);
-
+        Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(mapId, null);
 
 
         //change all part values to their vanilla counterparts
@@ -174,7 +175,7 @@ public class EMFJemData {
 
         for (EMFPartData model :
                 models) {
-            model.prepare(0, textureSize, new float[]{0, 0, 0});
+            model.prepare(textureSize, mobModelIDInfo);
         }
 
 
@@ -192,13 +193,13 @@ public class EMFJemData {
             EMFUtils.EMFModMessage("alphabeticalOrderedParts = " + alphabeticalOrderedParts);
         for (EMFPartData part :
                 alphabeticalOrderedParts.values()) {
-            if (part.animations != null && part.animations.length != 0) {
+            if (part.animations != null) {
                 for (LinkedHashMap<String, String> animation : part.animations) {
                     LinkedHashMap<String, String> newAnimation = new LinkedHashMap<>();
-                    animation.forEach((key,anim)->{
-                        if(key.startsWith("this."))key = key.replaceFirst("this",part.id);
-                        if(anim.contains("this."))anim = anim.replaceAll("this",part.id);
-                        newAnimation.put(key,anim);
+                    animation.forEach((key, anim) -> {
+                        if (key.startsWith("this.")) key = key.replaceFirst("this", part.id);
+                        if (anim.contains("this.")) anim = anim.replaceAll("this", part.id);
+                        newAnimation.put(key, anim);
                     });
                     allTopLevelPropertiesOrdered.add(newAnimation);
                 }
@@ -254,21 +255,7 @@ public class EMFJemData {
         ///finished animations preprocess
     }
 
-    private EMFPartData getFirstPartInModelsIgnoreAttach(String partName) {
-        //return override part or first of the attaching parts if no override found
-        EMFPartData first = null;
-        for (EMFPartData emfPartData :
-                models) {
-            if (emfPartData.part.equals(partName)) {// && (!emfPartData.attach || emfPartData.part.equals(emfPartData.id)))
-                if (!emfPartData.attach) {
-                    return emfPartData;
-                } else if (first == null) {
-                    first = emfPartData;
-                }
-            }
-        }
-        return first;
-    }
+
 
 
     @Override
@@ -283,7 +270,7 @@ public class EMFJemData {
 
     public static class EMFJemPrinter {//todo use and assign values
         public String texture = "";
-        public int[] textureSize = {16,16};
+        public int[] textureSize = {16, 16};
         public double shadow_size = 1.0;
         public LinkedList<EMFPartData.EMFPartPrinter> models = new LinkedList<>();
     }

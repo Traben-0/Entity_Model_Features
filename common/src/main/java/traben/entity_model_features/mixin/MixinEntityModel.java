@@ -15,15 +15,15 @@ import java.util.function.Function;
 
 @Mixin(Model.class)
 public class MixinEntityModel implements IEMFModel {
+    @Unique
+    private EMFModelPartRoot emf$thisEMFModelRoot = null;
+
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
-    private void emf$discoverEMFModel(Function<?,?> layerFactory, CallbackInfo ci) {
+    private void emf$discoverEMFModel(Function<?, ?> layerFactory, CallbackInfo ci) {
         emf$thisEMFModelRoot = EMFManager.lastCreatedRootModelPart;
         EMFManager.lastCreatedRootModelPart = null;
     }
-
-    @Unique
-    private EMFModelPartRoot emf$thisEMFModelRoot = null;
 
     @Override
     public boolean emf$isEMFModel() {

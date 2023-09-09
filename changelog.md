@@ -1,21 +1,23 @@
 
-dev
-
--large rework, reimplementation, and internalisation of animation code and model variant checking. 
+RC-1
+- OptiFine CEM appears to be officially solved in EMF and seems to be fully working for almost every single use case :)
+- large rework, reimplementation, and internalisation of animation code and model variant checking. 
 preventing all occurrences of animation de-sync and fixing animations for all modded/replaced entities/models and
 block entities.
--block entity support is now theoretically fully realised pending OptiFine format implementation.
--various stability fixes to model variants including texture support.
--animation code ready for block entities
--variation code ready for block entities
--physics mod compat can now choose to try render the vanilla model or the custom EMF model
--should no longer cause `part not found` crashes or model failures
--reduced the log message length of model loading errors
--fixed emf/ & mobName/mobName directory issues
--animations now support model part name hierarchy as in OptiFine. i.e   `left_arm:hand:finger1` works to separate part `finger1` in the `left_arm` model group from the `right_arm` one
--warning structure added to detected model overrides prompting to disable setting if it crashes or to warn users of models modified by other mods
-- added OptiFine name format support for sniffer and camel
-
+- various stability fixes to model variants including texture support.
+- block entities fully supported *(expect a few missalignments due to possible OptiFine part name differences, report these if you can , `e.g. lectern and enchating table books might be swapped`)*
+- physics mod compat can now choose to try render the vanilla model parts or the custom EMF model parts
+- should no longer cause `part not found` crashes or model failures
+- reduced the log message length of model loading errors
+- fixed emf/ & mobName/mobName directory issues
+- animations now support model part name hierarchy as in OptiFine. i.e   `left_arm:hand:finger1` works to separate part `finger1` in the `left_arm` model group from the `right_arm` one
+- warning structure added to detected model overrides prompting to disable setting if it crashes or to warn users of models modified by other mods
+- added OptiFine name format support for all previously missing entities including sniffer and camel and block entities
+- added support for render variables in animations `e.g. render.shadow_size`
+- expanded animation model variable support to block entities, seemingly matching OptiFines output for these.
+- block entity animations support variables "var.???"
+- added various render modes for custom parts, `NORMAL, GREEN FLASHING, WIREFRAME, OFF`, will not affect vanilla parts.
+- so much more i've probably forgotten some.
 
 
 0.2.13

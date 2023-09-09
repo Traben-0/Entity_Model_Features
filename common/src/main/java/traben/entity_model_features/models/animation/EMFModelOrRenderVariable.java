@@ -5,27 +5,46 @@ import net.minecraft.client.model.ModelTransform;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.EMFModelPart;
 
-public enum EMFDefaultModelVariable {
+public enum EMFModelOrRenderVariable {
     tx(), ty(), tz(),
     rx(), ry(), rz(),
     sx(), sy(), sz(),
     visible(),
     visible_boxes(),
-    CUSTOM();
+    RENDER_shadow_size(),
+    RENDER_shadow_opacity(),
+    RENDER_shadow_x(),
+    RENDER_shadow_z(),
+    //    RENDER_fire_x(),
+//    RENDER_fire_y(),
+//    RENDER_fire_z(),
+    RENDER_leash_x(),
+    RENDER_leash_y(),
+    RENDER_leash_z(),
 
-    //public final boolean isRotation;
 
-//   EMFDefaultModelVariable(boolean val) {
-//      //  isRotation = val;
-//    }
+    ;
 
-//    EMFDefaultModelVariable() {
-//      //  isRotation = false;
-//    }
+
+
+    @Nullable
+    public static EMFModelOrRenderVariable getRenderVariable(String id) {
+        if (id == null) return null;
+        return switch (id) {
+            case "render.shadow_size" -> RENDER_shadow_size;
+            case "render.shadow_opacity" -> RENDER_shadow_opacity;
+            case "render.shadow_offset_x" -> RENDER_shadow_x;
+            case "render.shadow_offset_z" -> RENDER_shadow_z;
+            case "render.leash_offset_x" -> RENDER_leash_x;
+            case "render.leash_offset_y" -> RENDER_leash_y;
+            case "render.leash_offset_z" -> RENDER_leash_z;
+            default -> null;
+        };
+    }
 
     //nessecary as default valueOf doesnt work correctly
     @Nullable
-    public static EMFDefaultModelVariable get(String id) {
+    public static EMFModelOrRenderVariable get(String id) {
         if (id == null) return null;
         return switch (id) {
             case "tx" -> tx;
@@ -41,6 +60,58 @@ public enum EMFDefaultModelVariable {
             case "visible_boxes" -> visible_boxes;
             default -> null;
         };
+    }
+
+    public boolean isRenderVariable() {
+        return switch (this) {
+            case RENDER_leash_x, RENDER_leash_y, RENDER_leash_z, RENDER_shadow_opacity, RENDER_shadow_size, RENDER_shadow_x, RENDER_shadow_z ->
+                    true;
+            default -> false;
+        };
+    }
+
+    public float getDefaultFromRenderVariable() {
+        return switch (this) {
+            //case RENDER_leash_x, RENDER_leash_z, RENDER_leash_y, RENDER_shadow_x, RENDER_shadow_z -> 0;
+            case RENDER_shadow_size, RENDER_shadow_opacity -> 1;
+            default -> 0f;
+        };
+    }
+
+    public void trySetValue(EMFModelPart modelPart, float value) {
+        if (modelPart != null) {
+            setValueInMutableModel(modelPart, value);
+        } else if (isRenderVariable()) {
+            setRenderVariable(value);
+        }
+
+    }
+
+    public float getRenderVariable() {
+        return switch (this) {
+            case RENDER_leash_x -> EMFAnimationHelper.getLeashX();
+            case RENDER_shadow_z -> EMFAnimationHelper.getShadowZ();
+            case RENDER_shadow_x -> EMFAnimationHelper.getShadowX();
+            case RENDER_shadow_size -> EMFAnimationHelper.getShadowSize();
+            case RENDER_shadow_opacity -> EMFAnimationHelper.getShadowOpacity();
+            case RENDER_leash_z -> EMFAnimationHelper.getLeashZ();
+            case RENDER_leash_y -> EMFAnimationHelper.getLeashY();
+            default -> 0;
+        };
+    }
+
+    public void setRenderVariable(float value) {
+        switch (this) {
+            case RENDER_leash_x -> EMFAnimationHelper.setLeashX(value);
+            case RENDER_shadow_z -> EMFAnimationHelper.setShadowZ(value);
+            case RENDER_shadow_x -> EMFAnimationHelper.setShadowX(value);
+            case RENDER_shadow_size -> EMFAnimationHelper.setShadowSize(value);
+            case RENDER_shadow_opacity -> EMFAnimationHelper.setShadowOpacity(value);
+            case RENDER_leash_z -> EMFAnimationHelper.setLeashZ(value);
+            case RENDER_leash_y -> EMFAnimationHelper.setLeashY(value);
+            default -> {
+            }
+        }
     }
 
     public float getDefaultFromModel(ModelPart modelPart) {
@@ -102,7 +173,7 @@ public enum EMFDefaultModelVariable {
 //        if (modelPart.selfModelData != null) {
 //            parentModify = modelPart.selfModelData.parentModified;
 //        } else {
-            parentModify = new float[]{0, 0, 0};
+        parentModify = new float[]{0, 0, 0};
 //        }
         // ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;
         switch (this) {
@@ -155,7 +226,7 @@ public enum EMFDefaultModelVariable {
 //        if (modelPart.selfModelData != null) {
 //            parentModify = modelPart.selfModelData.parentModified;
 //        } else {
-            parentModify = new float[]{0, 0, 0};
+        parentModify = new float[]{0, 0, 0};
 //        }
 
         //ModelTransform defaults = modelPart.vanillaTransform == null? ModelTransform.NONE : modelPart.vanillaTransform;

@@ -12,6 +12,11 @@ import java.util.UUID;
 public record EMFEntityWrapper(Entity entity) implements EMFEntity {
 
     @Override
+    public Entity entity() {
+        return entity;
+    }
+
+    @Override
     public BlockEntity getBlockEntity() {
         return null;
     }
@@ -94,7 +99,7 @@ public record EMFEntityWrapper(Entity entity) implements EMFEntity {
 
     @Override
     public LivingEntity getLiving() {
-        if(entity instanceof LivingEntity alive)
+        if (entity instanceof LivingEntity alive)
             return alive;
         return null;
     }

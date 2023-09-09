@@ -8,8 +8,6 @@
   "entity_model_features.config.optimizations.tooltip": "Settings related to animation optimization",
   "entity_model_features.config.debug": "Debugging",
   "entity_model_features.config.debug.tooltip": "Debug options, can be helpful to figure some things out",
-  "entity_model_features.config.green_render": "Make custom models green",
-  "entity_model_features.config.green_render.tooltip": "Makes CEM mobs appear green\n to distinguish them from vanilla models\nand check they are loading correctly",
   "entity_model_features.config.log_models": "Log model construction info",
   "entity_model_features.config.log_models.tooltip": "Prints model creation debug data to the log",
   "entity_model_features.config.vanilla_render.normal": "normal",
@@ -28,7 +26,7 @@
   "entity_model_features.config.unknown_model_print_mode.log_jem": "Log & .jem file",
   "entity_model_features.config.unknown_model_print_mode.tooltip": "this will print out the information or a complete .jem file\n for any unknown or modded model EMF can access\nNOTE: the .jem files will not be perfect yet but will give you a starting point",
   "entity_model_features.config.unknown_model_print_mode": "Print out unknown model info",
-  "entity_model_features.config.physics": "Physics mod patch #1",
+  "entity_model_features.config.physics": "Physics mod patch #2",
   "entity_model_features.config.physics.tooltip": "Will only render the original vanilla model parts on death if physics mod is enabled\n this partially works but is not a perfect solution",
   "entity_model_features.config.texture_override_mode.emf": "Try with EMF code",
   "entity_model_features.config.texture_override_mode.dont": "Ignore texture overrides",
@@ -36,5 +34,12 @@
   "entity_model_features.config.texture_override_mode.tooltip": "This controls how EMF handles rendering sub-models that have an override texture set\nfor example if a creeper model has a separate texture for the head sub-model\nThere are two ways to do this, rely on my code, or rely on a quirk of the Iris mod\nMy code 'works' but I am not an expert with render buffers and it may cause issues\nThe Iris quirk uses a pretty straightforward and seemingly safe/stable method but i'm told its not intended Iris behaviour\nThe Iris option will default to the EMF code if Iris isn't installed\nthis should almost always be left on default except when debugging texture overrides in sub-models",
   "entity_model_features.config.texture_override_mode": "Sub-model texture handling",
   "entity_model_features.config.physics.1": "Use vanilla model",
-  "entity_model_features.config.physics.2": "Use EMF (CEM) model"
+  "entity_model_features.config.physics.2": "Use EMF (CEM) model",
+  "entity_model_features.config.render.normal": "Normal",
+  "entity_model_features.config.render.green": "Flash green",
+  "entity_model_features.config.render.transparent": "Transparent",
+  "entity_model_features.config.render.lines": "Outlines",
+  "entity_model_features.config.render.none": "Disabled",
+  "entity_model_features.config.render": "How to render custom model parts",
+  "entity_model_features.config.render.tooltip": "Changes how custom model parts are rendered, this does not affect vanilla model parts.\nNormal = normal rendering\nTransparent = 50% opacity\nFlash green = the custom parts will flash green\nOutlines = the outlines of the model parts will render\nDisabled = custom model parts will not render"
 }

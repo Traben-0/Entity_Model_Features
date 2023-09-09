@@ -40,7 +40,7 @@ public class MathBinaryExpressionComponent extends MathValue implements MathComp
         //if(value == Float.MIN_VALUE) return 0;
         return isNegative ? -value : value;
 
-       // return isNegative ? -supplier.get() : supplier.get();
+        // return isNegative ? -supplier.get() : supplier.get();
 
     }
 
