@@ -36,7 +36,9 @@ Yes.
 
 it works :)
 
-<img align="right" width="450" src="https://cdn.modrinth.com/data/4I1XuqiY/images/2f32dbeadc25e46ef6c56f0e47e5eb5d305c8ea2.png">
+<img width="450" src="https://cdn.modrinth.com/data/4I1XuqiY/images/2f32dbeadc25e46ef6c56f0e47e5eb5d305c8ea2.png">
+
+<br>
 
 [Download Fresh Animations](https://www.planetminecraft.com/texture-pack/fresh-animations-v1-0/)
 
