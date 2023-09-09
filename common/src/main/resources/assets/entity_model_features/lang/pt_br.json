@@ -17,5 +17,22 @@
   "entity_model_features.config.vanilla_render": "Modo de exibição padrão",
   "entity_model_features.config.vanilla_render.tooltip": "Tenta renderizar o modelo padrão com o personalizado\npara comparação, não será animado e pode ficar estranho",
   "entity_model_features.config.log_math": "Registrar cálculos das animações",
-  "entity_model_features.config.log_math.tooltip": "Registra os dados de depuração da matemática de animação\nATENÇÃO: O DESEMPENHO SERÁ AFETADO!"
+  "entity_model_features.config.log_math.tooltip": "Registra os dados de depuração da matemática de animação\nATENÇÃO: O DESEMPENHO SERÁ AFETADO!",
+  "entity_model_features.config.options": "Opções e ajustes",
+  "entity_model_features.config.options.tooltip": "Várias opções para recursos fundamentais ou ajustes de compatibilidade com mods",
+  "entity_model_features.config.tools": "Ferramentas",
+  "entity_model_features.config.tools.tooltip": "Ferramentas opcionais para ajudar na criação de modelos ou na diferenciação de modelos personalizados",
+  "entity_model_features.config.force_models": "Prevenção da sobreposição de modelos EMF",
+  "entity_model_features.config.force_models.tooltip": "Tenta e força os renderizadores de entidade para usarem os modelos do EMF\n isto pode sobrepor alguns modelos padrão alterados por outros mods",
+  "entity_model_features.config.unknown_model_print_mode.log": "Registros apenas",
+  "entity_model_features.config.unknown_model_print_mode.log_jem": "Registro e arquivo .jem",
+  "entity_model_features.config.unknown_model_print_mode.tooltip": "Registra a informação ou o arquivo .jem completo\n para qualquer modelo EMF desconhecido ou modificado acessível.\nNOTA: os arquivos .jem não serão perfeitos mas servirão como um bom ponto de partida",
+  "entity_model_features.config.unknown_model_print_mode": "Registrar informações de modelos desconhecidos",
+  "entity_model_features.config.physics": "Mod Physics #1",
+  "entity_model_features.config.physics.tooltip": "Renderiza apenas partes dos modelos padrão ao morrer se o mod Physics estiver ativado\n Isto funciona parcialmente.",
+  "entity_model_features.config.texture_override_mode.emf": "Tentar com o código do EMF",
+  "entity_model_features.config.texture_override_mode.dont": "Ignorar sobreposição de textura",
+  "entity_model_features.config.texture_override_mode.iris": "Tentar com o Iris primeiro",
+  "entity_model_features.config.texture_override_mode.tooltip": "Controla como o EMF renderiza modelos com uma sobreposição,\npor exemplo se o modelo do creeper possuir uma textura separada para a cabeça\nHá duas formas de fazer isso, usar o meu código ou usar o mod Iris.\nMeu código 'funciona' mas não sou experiente com buffers de renderização e podem ocorrer problemas.\nO Iris usa um método seguro e estável mas fui informado que não é um comportamento esperado.\nSem o Iris, a opção padrão será do código do EMF.\nManter no padrão exceto ao depurar a sobreposição de texturas nos modelos.",
+  "entity_model_features.config.texture_override_mode": "Controle da textura de modelos"
 }
