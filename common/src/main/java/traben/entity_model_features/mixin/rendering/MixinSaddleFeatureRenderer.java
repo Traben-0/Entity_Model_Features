@@ -31,7 +31,7 @@ public class MixinSaddleFeatureRenderer<T extends Entity & Saddleable, M extends
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
     private void emf$saveEMFModel(FeatureRendererContext<?, ?> context, EntityModel<?> model, Identifier texture, CallbackInfo ci) {
-        if (((IEMFModel) model).emf$isEMFModel()) {
+        if (this.model != null && ((IEMFModel) model).emf$isEMFModel()) {
             emf$heldModelToForce = this.model;
         }
     }

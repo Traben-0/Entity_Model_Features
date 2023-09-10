@@ -37,10 +37,8 @@ public class MixinTropicalFishPatternFeatureRenderer {
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
     private void emf$saveEMFModel(FeatureRendererContext<?, ?> context, EntityModelLoader loader, CallbackInfo ci) {
-        if ((
-                ((IEMFModel) smallModel).emf$isEMFModel()
-                        || ((IEMFModel) largeModel).emf$isEMFModel()
-        )) {
+        if (((this.smallModel != null && ((IEMFModel) smallModel).emf$isEMFModel())
+                        || (this.largeModel != null && ((IEMFModel) largeModel).emf$isEMFModel()))) {
             emf$heldModelToForce = smallModel;
             emf$heldModelToForce2 = largeModel;
         }

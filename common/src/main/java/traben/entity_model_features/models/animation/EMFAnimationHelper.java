@@ -37,7 +37,6 @@ public class EMFAnimationHelper {
         defaultReturnValue(0);
     }};
     private static EMFEntity emfEntity = null;
-    //todo if animations exists they will set these
     private static float shadowSize = Float.NaN;
     private static float shadowOpacity = Float.NaN;
     private static float leashX = Float.NaN;
@@ -49,11 +48,11 @@ public class EMFAnimationHelper {
     private static float limbDistance = Float.NaN;
     //private static  float animationProgress = Float.NaN;
     private static float headYaw = Float.NaN;
-//todo if i do these add fire rendering offset cause i can lol
     private static float headPitch = Float.NaN;
     private static float tickDelta = 0;
     private static int ruleIndex = 0;
     private static float dimension = Float.NaN;
+    private static boolean onShoulder = false;
     private EMFAnimationHelper() {
 
     }
@@ -85,6 +84,8 @@ public class EMFAnimationHelper {
         leashZ = 0;
         shadowX = 0;
         shadowZ = 0;
+
+        onShoulder = false;
     }
 
     public static float getRuleIndex() {
@@ -394,15 +395,10 @@ public class EMFAnimationHelper {
     }
 
     public static boolean isOnShoulder() {
-        if (emfEntity == null) return false;
-        LivingEntity alive = emfEntity.getLiving();
-        return alive instanceof ParrotEntity
-                && MinecraftClient.getInstance().player != null
-                && ((MinecraftClient.getInstance().player.getShoulderEntityLeft().containsUuid("UUID")
-                && alive.getUuid() == MinecraftClient.getInstance().player.getShoulderEntityLeft().getUuid("UUID"))
-                || (MinecraftClient.getInstance().player.getShoulderEntityRight().containsUuid("UUID")
-                && alive.getUuid() == MinecraftClient.getInstance().player.getShoulderEntityRight().getUuid("UUID"))
-        );
+        return onShoulder;
+    }
+    public static void setCurrentEntityOnShoulder() {
+        onShoulder = true;
     }
 
     public static boolean isRidden() {

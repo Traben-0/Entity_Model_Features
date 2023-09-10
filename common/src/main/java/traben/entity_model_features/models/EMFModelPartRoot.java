@@ -14,6 +14,7 @@ import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 import traben.entity_texture_features.ETFApi;
 
@@ -77,7 +78,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         for (EMFPartData part :
                 jemData.models) {
             if (part.part != null) {
-                String idUnique = getIdUnique(newEmfParts.keySet(), part.id);
+                String idUnique = EMFUtils.getIdUnique(newEmfParts.keySet(), part.id);
                 newEmfParts.put(idUnique, new EMFModelPartCustom(part, variant, part.part, idUnique));
             }
         }
@@ -103,7 +104,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                             if(part instanceof EMFModelPartVanilla vanilla && !vanilla.isOptiFinePartSpecified) vanilla.setHideInTheseStates(variant);
                         });
                     }
-                    children.put(getIdUnique(thisPart.getChildrenEMF().keySet(), newPartEntry.getKey()), newPart);
+                    children.put(EMFUtils.getIdUnique(thisPart.getChildrenEMF().keySet(), newPartEntry.getKey()), newPart);
                 }
             }
             children.putAll(thisPart.vanillaChildren);
@@ -177,5 +178,8 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         }
     }
 
-
+    @Override
+    public String toString() {
+        return "[EMF_root of "+modelName.getfileName()+"]";
+    }
 }

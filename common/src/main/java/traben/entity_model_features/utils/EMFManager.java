@@ -9,7 +9,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.client.render.entity.model.WolfEntityModel;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
@@ -34,6 +36,7 @@ import java.util.*;
 
 public class EMFManager {//singleton for data holding and resetting needs
 
+    public static WolfEntityModel<WolfEntity> wolfCollarModel = null;
     public static EMFModelPartRoot lastCreatedRootModelPart = null;
     private static EMFManager self = null;
     public final boolean IS_PHYSICS_MOD_INSTALLED;
@@ -46,10 +49,13 @@ public class EMFManager {//singleton for data holding and resetting needs
     private final Object2IntOpenHashMap<UUIDAndMobTypeKey> cache_UUIDAndTypeToCurrentVariantInt = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(1);
     }};
-    private final Object2IntOpenHashMap<String> COUNT_OF_MOB_NAME_ALREADY_SEEN = new Object2IntOpenHashMap<>();
+    //private final Object2IntOpenHashMap<String> COUNT_OF_MOB_NAME_ALREADY_SEEN = new Object2IntOpenHashMap<>();
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
     private boolean traderLlamaHappened = false;
+
+    public String currentSpecifiedModelLoading = "";
+
 
     private EMFManager() {
         IS_PHYSICS_MOD_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
@@ -185,7 +191,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
         //add simple modded check
         if (!"minecraft".equals(layer.getId().getNamespace())) {
-            mobNameForFileAndMap.setBoth("modded/" + layer.getId().getNamespace() + "/" + mobNameForFileAndMap);
+            mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + mobNameForFileAndMap).toLowerCase().replaceAll("[^a-z0-9/._-]","_"));
         } else {
             //vanilla model
             if (mobNameForFileAndMap.getfileName().contains("pufferfish"))
@@ -222,6 +228,47 @@ public class EMFManager {//singleton for data holding and resetting needs
                 case "decorated_pot_sides" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_sides");
                 //case "parrot" -> mobNameForFileAndMap = "parrot";//todo check on shoulder parrot models they can technically be different
 
+                case "book" -> {
+                    if(currentSpecifiedModelLoading.equals("enchanting_book")) {
+                        mobNameForFileAndMap.setBoth("enchanting_book", "book");
+                    } else/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/ {
+                        mobNameForFileAndMap.setBoth("lectern_book", "book");
+                    }
+                }
+
+                case "chest" -> {
+                    if(currentSpecifiedModelLoading.equals("ender_chest")) {
+                        mobNameForFileAndMap.setBoth("ender_chest", "chest");
+                    } else if(currentSpecifiedModelLoading.equals("trapped_chest")) {
+                        mobNameForFileAndMap.setBoth("trapped_chest", "chest");
+                    } else{
+                        mobNameForFileAndMap.setBoth("chest", "chest");
+                    }
+                }
+                case "double_chest_left" -> {
+                    if(currentSpecifiedModelLoading.equals("trapped_chest")) {
+                        mobNameForFileAndMap.setBoth("trapped_chest_large", "double_chest_left");
+                    } else{
+                        mobNameForFileAndMap.setBoth("chest_large", "double_chest_left");
+                    }
+                }
+
+                case "double_chest_right" -> {
+                    if(currentSpecifiedModelLoading.equals("trapped_chest")) {
+                        mobNameForFileAndMap.setBoth("trapped_chest_large", "double_chest_right");
+                    } else{
+                        mobNameForFileAndMap.setBoth("chest_large", "double_chest_right");
+                    }
+                }
+                case "shulker" -> {
+                    if(currentSpecifiedModelLoading.equals("shulker_box")) {
+                        mobNameForFileAndMap.setBoth("shulker_box");
+                        currentSpecifiedModelLoading = "";
+                    } else{
+                        mobNameForFileAndMap.setBoth("shulker");
+                    }
+
+                }
 
                 default -> {
                     //todo this if statement mess can likely be looked at for possible expanded features as each model can be different
@@ -236,10 +283,6 @@ public class EMFManager {//singleton for data holding and resetting needs
                             } else {
                                 mobNameForFileAndMap.setBoth("chest_boat");
                             }
-//                        }else if(mobNameForFileAndMap.getfileName().startsWith("chest_raft/")) {//todo these dont actually exist but are prepared for in entity model layers.class????
-//                            mobNameForFileAndMap.setBoth("chest_raft");
-//                        }else if(mobNameForFileAndMap.getfileName().startsWith("raft/")){
-//                            mobNameForFileAndMap.setBoth("raft");
                         } else if (mobNameForFileAndMap.getfileName().startsWith("boat/")) {
                             if (mobNameForFileAndMap.getfileName().startsWith("boat/bamboo")) {
                                 mobNameForFileAndMap.setBoth("raft");
@@ -247,49 +290,33 @@ public class EMFManager {//singleton for data holding and resetting needs
                                 mobNameForFileAndMap.setBoth("boat");
                             }
                         }
-                    } else {
-                        String countedName;
-                        if (COUNT_OF_MOB_NAME_ALREADY_SEEN.containsKey(mobNameForFileAndMap.getfileName())) {
-                            int amount = COUNT_OF_MOB_NAME_ALREADY_SEEN.getInt(mobNameForFileAndMap.getfileName());
-                            amount++;
-                            COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobNameForFileAndMap.getfileName(), amount);
-                            //System.out.println("higherCount: "+ mobNameForFileAndMap+amount);
-                            //String modelVariantAlias = mobNameForFileAndMap + '_' + (amount > 0 && amount < 27 ? String.valueOf((char) (amount + 'a' - 1)) : amount);
-                            countedName = mobNameForFileAndMap.getfileName() + '#' + amount;
-                        } else {
-                            EMFManager.getInstance().COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobNameForFileAndMap.getfileName(), 1);
-                            countedName = mobNameForFileAndMap.getfileName();//+'#'+1;
-                        }
-                        switch (countedName) {
-                            case "shulker#2" -> mobNameForFileAndMap.setBoth("shulker");
-                            case "shulker" -> mobNameForFileAndMap.setBoth("shulker_box");
-                            case "chest#3" -> mobNameForFileAndMap.setBoth("trapped_chest", "chest");
-                            case "double_chest_left#3" ->
-                                    mobNameForFileAndMap.setBoth("trapped_chest_large", "double_chest_left");
-                            case "double_chest_right#3" ->
-                                    mobNameForFileAndMap.setBoth("trapped_chest_large", "double_chest_right");
-                            case "chest#2" -> mobNameForFileAndMap.setBoth("chest", "chest");
-                            case "double_chest_left#2" ->
-                                    mobNameForFileAndMap.setBoth("chest_large", "double_chest_left");
-                            case "double_chest_right#2" ->
-                                    mobNameForFileAndMap.setBoth("chest_large", "double_chest_right");
-                            case "chest" -> mobNameForFileAndMap.setBoth("ender_chest", "chest");
-                            case "double_chest_left" ->
-                                    mobNameForFileAndMap.setBoth("ender_chest_large", "double_chest_left");//???
-                            case "double_chest_right" ->
-                                    mobNameForFileAndMap.setBoth("ender_chest_large", "double_chest_right");//???
-                            case "book" -> mobNameForFileAndMap.setBoth("enchanting_book", "book");//todo check
-                            case "book#2" -> mobNameForFileAndMap.setBoth("lectern_book", "book");//todo check
-                            default -> {
-                                //do nothing currently
-                            }
-
-                        }
-                    }
+                    } //else {
+//                        String countedName;
+//                        if (COUNT_OF_MOB_NAME_ALREADY_SEEN.containsKey(mobNameForFileAndMap.getfileName())) {
+//                            int amount = COUNT_OF_MOB_NAME_ALREADY_SEEN.getInt(mobNameForFileAndMap.getfileName());
+//                            amount++;
+//                            COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobNameForFileAndMap.getfileName(), amount);
+//                            //System.out.println("higherCount: "+ mobNameForFileAndMap+amount);
+//                            //String modelVariantAlias = mobNameForFileAndMap + '_' + (amount > 0 && amount < 27 ? String.valueOf((char) (amount + 'a' - 1)) : amount);
+//                            countedName = mobNameForFileAndMap.getfileName() + '#' + amount;
+//                        } else {
+//                            EMFManager.getInstance().COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobNameForFileAndMap.getfileName(), 1);
+//                            countedName = mobNameForFileAndMap.getfileName();//+'#'+1;
+//                        }
+//
+//                        switch (countedName) {
+//                            //todo ordering doesnt seem right
+//                            case "shulker#2" -> mobNameForFileAndMap.setBoth("shulker");
+//                            case "shulker" -> mobNameForFileAndMap.setBoth("shulker_box");
+//                            default ->{}
+//
+//                        }
+                    //}
                     //System.out.println("DEBUG modelName result: "+countedName + " -> "+mobNameForFileAndMap);
                 }
             }
         }
+
         if (printing) System.out.println(" > EMF try to find a model for: " + mobNameForFileAndMap);
 
 
@@ -308,7 +335,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         if (jemData != null || variantDirectoryApplier != null) {
             //we do indeed need custom models
-            EMFConfig.getConfig().printModelCreationInfoToLog = (mobNameForFileAndMap.getfileName().contains("raft"));
+
             //specification for the optifine map
             // only used for tadpole head parts currently as optifine actually uses the root as the body
             Set<String> optifinePartNames = new HashSet<>();
@@ -341,7 +368,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
         allPartsBySingleAndFullHeirachicalId.put("EMF_root", emfRootPart);
-        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum));
+        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum,EMFOptiFinePartNameMappings.getMapOf(emfRootPart.modelName.getMapId(),null)));
 
         Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
 
@@ -390,6 +417,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         //EMFAnimationExecutor executor = new EMFAnimationExecutor(variableSuppliers, orderedAnimations);
 
+        if(emfRootPart.modelName.getMapId().contains("pig")) orderedAnimations.forEach((v)-> System.out.println("pig>>> "+v.animKey+"="+v.expressionString+" ### "+(v.partToApplyTo == null ? "null" :v.partToApplyTo.toString())));
         emfRootPart.receiveAnimations(variantNum, orderedAnimations);
 
         //cache_EntityNameToAnimationExecutable.put(jemData.mobName, executor);

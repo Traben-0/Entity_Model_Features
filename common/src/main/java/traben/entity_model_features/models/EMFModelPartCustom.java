@@ -70,7 +70,7 @@ public class EMFModelPartCustom extends EMFModelPart {
     private static Map<String, ModelPart> getChildrenFromData(EMFPartData emfPartData, int variant) {
         Map<String, ModelPart> emfChildren = new HashMap<>();
         for (EMFPartData sub : emfPartData.submodels) {
-            String idUnique = getIdUnique(emfChildren.keySet(), sub.id);
+            String idUnique = EMFUtils.getIdUnique(emfChildren.keySet(), sub.id);
             emfChildren.put(idUnique, new EMFModelPartCustom(sub, variant, null, idUnique));
         }
         return emfChildren;

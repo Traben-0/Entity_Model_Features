@@ -15,7 +15,10 @@ import traben.entity_model_features.models.jem_objects.EMFPartData;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class EMFOptiFinePartNameMappings {
 
@@ -500,7 +503,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("left_wing_tip"),
                     getOptifineMapEntry("right_wing_tip")
             );
-            case "parrot", "parrot_b", "parrot_c" -> Map.ofEntries(
+            case "parrot" -> Map.ofEntries(
                     getOptifineMapEntry("head"),
                     getOptifineMapEntry("body"),
                     getOptifineMapEntry("tail"),
@@ -566,7 +569,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("leg2", "left_hind_leg"),
                     getOptifineMapEntry("leg3", "right_front_leg"),
                     getOptifineMapEntry("leg4", "left_front_leg"),
-                    getOptifineMapEntry("jaw"),
+                    getOptifineMapEntry("jaw","mouth"),
                     getOptifineMapEntry("neck")
             );
             case "salmon" -> Map.ofEntries(
@@ -810,12 +813,19 @@ public class EMFOptiFinePartNameMappings {
 //# enchanting_book          cover_right, cover_left, pages_right, pages_left, flipping_page_right, flipping_page_left, book_spine
 //# lectern_book             cover_right, cover_left, pages_right, pages_left, flipping_page_right, flipping_page_left, book_spine
             case "book" -> Map.ofEntries(
-                    getOptifineMapEntry("cover_right", "right_lid"),
-                    getOptifineMapEntry("cover_left", "left_lid"),
-                    getOptifineMapEntry("pages_right", "right_pages"),
-                    getOptifineMapEntry("pages_left", "left_pages"),
-                    getOptifineMapEntry("flipping_page_right", "flip_page2"),//todo check
-                    getOptifineMapEntry("flipping_page_left", "flip_page1"),//todo check
+//                    getOptifineMapEntry("cover_right", "right_lid"),
+//                    getOptifineMapEntry("cover_left", "left_lid"),
+//                    getOptifineMapEntry("pages_right", "right_pages"),
+//                    getOptifineMapEntry("pages_left", "left_pages"),
+//                    getOptifineMapEntry("flipping_page_left", "flip_page2"),
+//                    getOptifineMapEntry("flipping_page_right", "flip_page1"),
+//                    getOptifineMapEntry("book_spine", "seam")
+                    getOptifineMapEntry("cover_left", "right_lid"),
+                    getOptifineMapEntry("cover_right", "left_lid"),
+                    getOptifineMapEntry("pages_left", "right_pages"),
+                    getOptifineMapEntry("pages_right", "left_pages"),
+                    getOptifineMapEntry("flipping_page_right", "flip_page2"),
+                    getOptifineMapEntry("flipping_page_left", "flip_page1"),
                     getOptifineMapEntry("book_spine", "seam")
             );
 //# end_crystal              cube, glass, base

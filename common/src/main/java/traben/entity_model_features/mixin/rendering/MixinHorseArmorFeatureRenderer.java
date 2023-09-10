@@ -33,7 +33,7 @@ public class MixinHorseArmorFeatureRenderer {
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
     private void emf$saveEMFModel(FeatureRendererContext<?, ?> context, EntityModelLoader loader, CallbackInfo ci) {
-        if (((IEMFModel) model).emf$isEMFModel()) {
+        if (this.model != null && ((IEMFModel) model).emf$isEMFModel()) {
             emf$heldModelToForce = model;
         }
     }

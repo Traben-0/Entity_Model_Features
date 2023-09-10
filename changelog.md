@@ -1,4 +1,18 @@
 
+
+RC-2
+- added a random entity display to the config screen
+- fixed null pointer exception with model overrides
+- fixed ravager jaw having the wrong OptiFine part name
+- fixed is_on_shoulder animation variable
+- fixed wolf_collar.jem loading
+- fixed an accidental limitation where a vanilla part unknown to the OptiFine part name map would be targeted by animations intended for custom parts *(in FA this was parrot heads and witch hats)*
+- fixed a crash with unknown models building illegal paths
+- fixed an issue with parts with empty ids using "this" animation key
+- fixed book models
+- fixed chest & shulker model mixups
+- fixed animations not being read from models with parts with duplicate ids *(fixed several of Creepermax123's packs)*
+
 RC-1
 - OptiFine CEM appears to be officially solved in EMF and seems to be fully working for almost every single use case :)
 - large rework, reimplementation, and internalisation of animation code and model variant checking. 

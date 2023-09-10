@@ -106,4 +106,9 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
             }
         });
     }
+
+    @Override
+    public String toString() {
+        return "[vanilla part "+name+"]";
+    }
 }

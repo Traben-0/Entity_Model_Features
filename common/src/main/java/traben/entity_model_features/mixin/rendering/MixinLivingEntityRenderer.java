@@ -41,16 +41,12 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     protected MixinLivingEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
     }
-    //protected String emf$ModelId = null;
-
-    @Shadow
-    public abstract M getModel();
 
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
     private void emf$saveEMFModel(EntityRendererFactory.Context ctx, EntityModel<T> model, float shadowRadius, CallbackInfo ci) {
-        if (((IEMFModel) getModel()).emf$isEMFModel()) {
-            emf$heldModelToForce = getModel();
+        if (this.model != null && ((IEMFModel) this.model).emf$isEMFModel()) {
+            emf$heldModelToForce = this.model;
         }
     }
 
@@ -74,8 +70,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
 
         //EMFManager.getInstance().preRenderEMFActions(emf$ModelId,livingEntity, vertexConsumerProvider, o, n, l, k, m);
-        if (((IEMFModel) getModel()).emf$isEMFModel()) {
-            EMFModelPartRoot root = ((IEMFModel) getModel()).emf$getEMFRootModel();
+        if (((IEMFModel) model).emf$isEMFModel()) {
+            EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
                 if (EMFConfig.getConfig().vanillaModelRenderMode != EMFConfig.VanillaModelRenderMode.Off) {
                     root.tryRenderVanillaRootNormally(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))), i, OverlayTexture.DEFAULT_UV);
@@ -95,8 +91,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getTexture(Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/Identifier;"))
     private Identifier emf$getTextureRedirect(LivingEntityRenderer<?, ?> instance, Entity entity) {
 
-        if (((IEMFModel) getModel()).emf$isEMFModel()) {
-            EMFModelPartRoot root = ((IEMFModel) getModel()).emf$getEMFRootModel();
+        if (((IEMFModel) model).emf$isEMFModel()) {
+            EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
                 //noinspection unchecked
                 return root.textureOverride == null ? getTexture((T) entity) : ETFApi.getCurrentETFVariantTextureOfEntity(entity, root.textureOverride);

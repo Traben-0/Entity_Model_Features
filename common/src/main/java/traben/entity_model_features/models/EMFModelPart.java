@@ -15,7 +15,6 @@ import traben.entity_texture_features.ETFApi;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public abstract class EMFModelPart extends ModelPart {
     public Identifier textureOverride;
@@ -23,14 +22,6 @@ public abstract class EMFModelPart extends ModelPart {
 
     public EMFModelPart(List<Cuboid> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
-    }
-
-    static String getIdUnique(Set<String> known, String desired) {
-        if (desired.isBlank()) desired = "EMF_#";
-        while (known.contains(desired)) {
-            desired = desired + "#";
-        }
-        return desired;
     }
 
     void primaryRender(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
@@ -118,7 +109,7 @@ public abstract class EMFModelPart extends ModelPart {
 
     abstract ModelPart getVanillaModelPartsOfCurrentState();
 
-    public Object2ReferenceOpenHashMap<String, EMFModelPart> getAllChildPartsAsAnimationMap(String prefixableParents, int variantNum) {
+    public Object2ReferenceOpenHashMap<String, EMFModelPart> getAllChildPartsAsAnimationMap(String prefixableParents, int variantNum,Map<String, String> optifinePartNameMap) {
         if (this instanceof EMFModelPartRoot root)
             root.setVariantStateTo(variantNum);
 
@@ -129,20 +120,36 @@ public abstract class EMFModelPart extends ModelPart {
                 children.values()) {
             if (part instanceof EMFModelPart part3) {
                 String thisKey;
+                boolean addThis;
                 if (part instanceof EMFModelPartCustom partc) {
                     thisKey = partc.id;
+                    addThis= true;
                 } else if (part instanceof EMFModelPartVanilla partv) {
                     thisKey = partv.name;
+                    addThis = partv.isOptiFinePartSpecified;
                 } else {
                     thisKey = "NULL_KEY_NAME";
+                    addThis= false;
                 }
-                mapOfAll.put(thisKey, part3);
-                if (prefixableParents.isBlank()) {
-                    mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(thisKey, variantNum));
-                } else {
-                    mapOfAll.put(prefixableParents + ':' + thisKey, part3);
-                    mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(prefixableParents + ':' + thisKey, variantNum));
+                for (Map.Entry<String,String> entry:
+                     optifinePartNameMap.entrySet()) {
+                    if(entry.getValue().equals(thisKey)){
+                        thisKey = entry.getKey();
+                        break;
+                    }
                 }
+                if(addThis) {
+                    mapOfAll.put(thisKey, part3);
+                    if (prefixableParents.isBlank()) {
+                        mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(thisKey, variantNum,optifinePartNameMap));
+                    } else {
+                        mapOfAll.put(prefixableParents + ':' + thisKey, part3);
+                        mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(prefixableParents + ':' + thisKey, variantNum,optifinePartNameMap));
+                    }
+                }else{
+                    mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(prefixableParents, variantNum,optifinePartNameMap));
+                }
+
             }
 
         }
