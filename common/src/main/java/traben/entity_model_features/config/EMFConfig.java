@@ -15,20 +15,18 @@ import java.io.IOException;
 public class EMFConfig {
 
     private static EMFConfig EMFConfigData;
-    public final MathFunctionChoice mathFunctionChoice = MathFunctionChoice.JavaMath;
-    public boolean printModelCreationInfoToLog = false;
-    public boolean printAllMaths = false;
+    public MathFunctionChoice mathFunctionChoice = MathFunctionChoice.JavaMath;//todo
+    public boolean logModelCreationData = false;
+    public boolean logMathInRuntime = false;
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
-    public VanillaModelRenderMode vanillaModelRenderMode = VanillaModelRenderMode.Off;
-    public boolean tryForceEmfModels = true;
+    public VanillaModelRenderMode vanillaModelHologramRenderMode = VanillaModelRenderMode.Off;
+    public boolean attemptRevertingEntityModelsAlteredByAnotherMod = true;
 
 
-    public UnknownModelPrintMode printUnknownModelsMode = UnknownModelPrintMode.NONE;
+    public UnknownModelPrintMode logUnkownOrModdedEntityModels = UnknownModelPrintMode.NONE;
 
     public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
-    public boolean attemptToCopyVanillaModelIntoMissingModelPart = false;
-
-    public TextureOverrideMode textureOverrideMode2 = TextureOverrideMode.EMF_CODE;
+    public TextureOverrideMode textureOverrideMode3 = TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
 
     public static EMFConfig getConfig() {
         if (EMFConfigData == null) {
@@ -84,6 +82,7 @@ public class EMFConfig {
         } catch (Exception e) {
             EMFConfigData = new EMFConfig();
         }
+
     }
 
     public static EMFConfig copyFrom(EMFConfig source) {
@@ -111,8 +110,8 @@ public class EMFConfig {
 
         public TextureOverrideMode next() {
             return switch (this) {
-                case OFF -> EMF_CODE;
-                case EMF_CODE -> USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
+                case OFF -> USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
+                case USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE -> EMF_CODE;
                 default -> OFF;
             };
         }
@@ -223,8 +222,13 @@ public class EMFConfig {
 
     public enum MathFunctionChoice {//todo still relevant?
         JavaMath,
-        MinecraftMath//bugged for some reason
-        //FastMath
+        MinecraftMath;//bugged for some reason
+        //FastMath;
+
+        public MathFunctionChoice next(){
+            if(this == JavaMath) return MinecraftMath;
+            else return JavaMath;
+        }
     }
 
 }

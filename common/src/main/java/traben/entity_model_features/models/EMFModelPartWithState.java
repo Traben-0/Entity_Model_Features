@@ -13,32 +13,34 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public abstract class EMFModelPartWithState extends EMFModelPart {
     public final Int2ObjectOpenHashMap<EMFModelState> allKnownStateVariants = new Int2ObjectOpenHashMap<>();
     public int currentModelVariantState = 0;
     Map<String, ModelPart> vanillaChildren = new HashMap<>();
-    Runnable variantCheck = null;
+    Consumer<EMFModelPartWithState>  startOfRenderRunnable = null;
     Animator tryAnimate = new Animator();
 
     public EMFModelPartWithState(List<Cuboid> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
     }
 
-    void receiveRootVariationRunnable(Runnable run) {
-        variantCheck = run;
+    void receiveStartOfRenderRunnable(Consumer<EMFModelPartWithState> run) {
+        startOfRenderRunnable = run;
         getChildrenEMF().values().forEach((child) -> {
             if (child instanceof EMFModelPartWithState emf) {
-                emf.receiveRootVariationRunnable(run);
+                emf.receiveStartOfRenderRunnable(run);
             }
         });
     }
+//    public boolean needsToNullifyCustomTexture = false;
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 
-        if (variantCheck != null) {
-            variantCheck.run();
+        if (startOfRenderRunnable != null) {
+            startOfRenderRunnable.accept(this);
         }
 
         //assertChildrenAndCuboids();
@@ -49,6 +51,10 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
             }
             primaryRender(matrices, vertices, light, overlay, red, green, blue, alpha);
         //}
+//        if(needsToNullifyCustomTexture){
+//            textureOverride = null;
+//            needsToNullifyCustomTexture = false;
+//        }
     }
 
     EMFModelState getCurrentState() {

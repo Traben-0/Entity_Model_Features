@@ -82,11 +82,12 @@ public class EMFPartData {
             this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
     }
 
-    public void prepare(int[] textureSize, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+    public void prepare(int[] textureSize, OptifineMobNameForFileAndEMFMapId mobModelIDInfo, EMFJemData jem, Identifier jemTexture) {
         if (this.id.isBlank())
             this.id = "EMF_" + hashCode();
         else
             this.id = "EMF_" + this.id;
+
 
 
         //check if we need to load a .jpm into this object
@@ -100,8 +101,9 @@ public class EMFPartData {
 
 
         if (this.textureSize == null) this.textureSize = textureSize;
-        this.customTexture = EMFJemData.validateJemTexture(texture, mobModelIDInfo);
+        this.customTexture = jem.validateJemTexture(texture, mobModelIDInfo);
 
+        if(customTexture == null) customTexture = jemTexture;
 
         boolean invX = invertAxis.contains("x");
         boolean invY = invertAxis.contains("y");
@@ -150,11 +152,15 @@ public class EMFPartData {
             sprite.prepare();
         }
         if (submodel != null) {
-            submodel.prepare(this.textureSize, mobModelIDInfo);
+            submodel.prepare(this.textureSize, mobModelIDInfo, jem, null);
+            if(!submodels.contains(submodel)){
+                submodels.add(submodel);
+                submodel = null;
+            }
         }
         for (EMFPartData model :
                 submodels) {
-            model.prepare(this.textureSize, mobModelIDInfo);
+            model.prepare(this.textureSize, mobModelIDInfo, jem, null);
         }
     }
 

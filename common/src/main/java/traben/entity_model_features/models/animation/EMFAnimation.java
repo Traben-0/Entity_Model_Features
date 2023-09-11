@@ -137,7 +137,7 @@ public class EMFAnimation {
 
     //use float up at this level as minecraft uses it
     public float calculatorRun() {
-        if (EMFConfig.getConfig().printAllMaths && rand.nextInt(100) == 1) {
+        if (EMFConfig.getConfig().logMathInRuntime && rand.nextInt(100) == 1) {
             setVerbose(true);
             //  System.out.println("vanilla body.rx ="+ parentModel.getAnimationResultOfKeyAsSupplier(null, "body.rx").get(entity0));
             double val = EMFCalculator.get();

@@ -24,13 +24,17 @@ public abstract class EMFModelPart extends ModelPart {
         super(cuboids, children);
     }
 
+    public boolean isRoot(){return false;}
+
     void primaryRender(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 
         if (//!isTopLevelModelRoot &&
                 textureOverride != null
-                        && EMFConfig.getConfig().textureOverrideMode2 != EMFConfig.TextureOverrideMode.OFF
+                        && EMFConfig.getConfig().textureOverrideMode3 != EMFConfig.TextureOverrideMode.OFF
                         && light != LightmapTextureManager.MAX_LIGHT_COORDINATE + 1 // this is only the case for EyesFeatureRenderer
-                        && EMFAnimationHelper.getEMFEntity() != null) {
+                        && EMFAnimationHelper.getEMFEntity() != null
+//                        && (!isRoot() || !((ModelPartAccessor)this).getCuboids().isEmpty())
+        ) {
 
             Identifier texture;
             if (light == LightmapTextureManager.MAX_LIGHT_COORDINATE + 2) {
@@ -52,10 +56,10 @@ public abstract class EMFModelPart extends ModelPart {
             //todo alternate layers other than translucent
             if (texture != null) {
                 if (EMFManager.getInstance().IS_IRIS_INSTALLED
-                        && EMFConfig.getConfig().textureOverrideMode2 == EMFConfig.TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE) {
+                        && EMFConfig.getConfig().textureOverrideMode3 == EMFConfig.TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE) {
                     //this simple code seems to work with iris
                     VertexConsumerProvider vertexConsumers = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-                    VertexConsumer newVertex = EMFAnimationHelper.getEMFEntity() == null ? null : vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(
+                    VertexConsumer newVertex = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(
                             EMFAnimationHelper.getEMFEntity().entity() == null ?
                                     ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().getBlockEntity(), textureOverride, EMFAnimationHelper.getEMFEntity().getUuid()) :
                                     ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().entity(), textureOverride)

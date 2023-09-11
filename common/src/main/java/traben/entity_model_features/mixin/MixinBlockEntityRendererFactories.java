@@ -25,6 +25,10 @@ public class MixinBlockEntityRendererFactories {
             EMFManager.getInstance().currentSpecifiedModelLoading = "trapped_chest";
         else if(BlockEntityType.SHULKER_BOX.equals(type))
             EMFManager.getInstance().currentSpecifiedModelLoading = "shulker_box";
+        else if(BlockEntityType.ENCHANTING_TABLE.equals(type))
+            EMFManager.getInstance().currentSpecifiedModelLoading = "enchanting_book";
+        else if(BlockEntityType.LECTERN.equals(type))
+            EMFManager.getInstance().currentSpecifiedModelLoading = "lectern_book";
 
     }
 

@@ -1,5 +1,17 @@
 
 
+rc-4
+- axolotl tail fix
+
+RC-3
+- re-enabled an option for testing in RC-3 that allows using minecraft's internal MathHelper class for some math methods as opposed to regular Java's Math methods *(doesn't really seem to be a performance benefit in ym testing, just trialling this before I decide whether to delete this old code)*
+- fixed top level jem texture overrides
+- fixed book.jem's flipping page pivots
+- changed some default config settings for performance boosts
+- fixed a forge crash
+- fixed armor stand armor models not remapping the headwear part
+- fixed guardian and elder_guardian OptiFine part name mappings ("eye" did not work)
+
 RC-2
 - added a random entity display to the config screen
 - fixed null pointer exception with model overrides

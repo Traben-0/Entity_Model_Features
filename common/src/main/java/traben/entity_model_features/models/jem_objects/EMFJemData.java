@@ -8,7 +8,6 @@ import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 
-import java.io.File;
 import java.util.*;
 
 public class EMFJemData {
@@ -27,15 +26,18 @@ public class EMFJemData {
     public Identifier customTexture = null;
 
     @Nullable
-    public static Identifier validateJemTexture(String texture, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+    public Identifier validateJemTexture(String texture, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
         texture = texture.trim();
         if (!texture.isBlank()) {
             if (!texture.endsWith(".png")) texture = texture + ".png";
             //if no folder parenting assume it is relative to model
             if (!texture.contains("/")) {
-                String folderOfModel = new File(mobModelIDInfo.getfileName()).getParent();
-                if (folderOfModel != null)
-                    texture = folderOfModel + '/' + texture;
+                String[] directorySplit = fileName.split("/");
+                if(directorySplit.length >1) {
+                    String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
+                    String folderOfModel = fileName.replace(lastDirectoryComponentOfFileName,"");
+                    texture = folderOfModel + texture;
+                }
             }
             Identifier possibleTexture = new Identifier(texture);
             if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
@@ -45,16 +47,13 @@ public class EMFJemData {
         return null;
     }
 
-    public void sendFileName(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+    public void prepare(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
         this.mobModelIDInfo = mobModelIDInfo;
         this.fileName = fileName;
-    }
 
-    public void prepare() {
         originalModelsForReadingOnly = new LinkedList<>(models);
 
         customTexture = validateJemTexture(texture, mobModelIDInfo);
-
 
         String mapId = mobModelIDInfo.getMapId();
         Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(mapId, null);
@@ -72,12 +71,12 @@ public class EMFJemData {
 
         for (EMFPartData model :
                 models) {
-            model.prepare(textureSize, mobModelIDInfo);
+            model.prepare(textureSize, mobModelIDInfo, this, customTexture);
         }
 
         ///prep animations
         SortedMap<String, EMFPartData> alphabeticalOrderedParts = new TreeMap<>(Comparator.naturalOrder());
-        if (EMFConfig.getConfig().printModelCreationInfoToLog)
+        if (EMFConfig.getConfig().logModelCreationData)
             EMFUtils.EMFModMessage("originalModelsForReadingOnly #= " + originalModelsForReadingOnly.size());
         for (EMFPartData partData :
                 originalModelsForReadingOnly) {
@@ -88,7 +87,7 @@ public class EMFJemData {
         }
 
         LinkedList<LinkedHashMap<String, String>> allTopLevelPropertiesOrdered = new LinkedList<>();
-        if (EMFConfig.getConfig().printModelCreationInfoToLog)
+        if (EMFConfig.getConfig().logModelCreationData)
             EMFUtils.EMFModMessage("alphabeticalOrderedParts = " + alphabeticalOrderedParts);
         for (EMFPartData part :
                 alphabeticalOrderedParts.values()) {
@@ -108,7 +107,7 @@ public class EMFJemData {
             }
         }
         LinkedHashMap<String, String> combinedPropertiesOrdered = new LinkedHashMap<>();
-        if (EMFConfig.getConfig().printModelCreationInfoToLog)
+        if (EMFConfig.getConfig().logModelCreationData)
             EMFUtils.EMFModMessage("allTopLevelPropertiesOrdered = " + allTopLevelPropertiesOrdered);
         for (LinkedHashMap<String, String> properties :
                 allTopLevelPropertiesOrdered) {
@@ -117,7 +116,7 @@ public class EMFJemData {
             }
         }
         //LinkedHashMap<String,String>  finalNameFilteredPropertiesOrdered = new LinkedHashMap<>();
-        if (EMFConfig.getConfig().printModelCreationInfoToLog)
+        if (EMFConfig.getConfig().logModelCreationData)
             EMFUtils.EMFModMessage("combinedPropertiesOrdered = " + combinedPropertiesOrdered.toString());
         for (Map.Entry<String, String> entry :
                 combinedPropertiesOrdered.entrySet()) {
@@ -149,7 +148,7 @@ public class EMFJemData {
             } else {
                 System.out.println("null key 1346341");
             }
-            if (EMFConfig.getConfig().printModelCreationInfoToLog)
+            if (EMFConfig.getConfig().logModelCreationData)
                 EMFUtils.EMFModMessage("finalAnimationsForModel =" + finalAnimationsForModel);
         }
         ///finished animations preprocess

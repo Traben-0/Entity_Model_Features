@@ -55,7 +55,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
         this.setDefaultTransform(this.getTransform());
 
-        if (EMFConfig.getConfig().printModelCreationInfoToLog)
+        if (EMFConfig.getConfig().logModelCreationData)
             System.out.println(" > > EMF custom part made: " + emfPartData.id);
         //if (variantNumber == 0)
 
@@ -259,7 +259,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? p : q,
                         textureWidth, textureHeight, false, mirrorV ? Direction.UP : Direction.DOWN));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-dwn failed for " + selfModelData.id);
             }
             try {
@@ -272,7 +272,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? q : p,
                         textureWidth, textureHeight, false, mirrorV ? Direction.DOWN : Direction.UP));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-up failed for " + selfModelData.id);
             }
             try {
@@ -285,7 +285,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? q : r,
                         textureWidth, textureHeight, false, mirrorU ? Direction.EAST : Direction.WEST));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-west failed for " + selfModelData.id);
             }
             try {
@@ -298,7 +298,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? q : r,
                         textureWidth, textureHeight, false, Direction.NORTH));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-nrth failed for " + selfModelData.id);
             }
             try {
@@ -311,7 +311,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? q : r,
                         textureWidth, textureHeight, false, mirrorU ? Direction.WEST : Direction.EAST));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-east failed for " + selfModelData.id);
             }
             try {
@@ -324,7 +324,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? q : r,
                         textureWidth, textureHeight, false, Direction.SOUTH));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-sth failed for " + selfModelData.id);
             }
 
@@ -401,7 +401,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? uvUp[1] : uvUp[3],
                         textureWidth, textureHeight, false, mirrorV ? Direction.UP : Direction.DOWN));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-up failed for " + selfModelData.id);
             }
             try {
@@ -413,7 +413,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? uvDown[1] : uvDown[3],
                         textureWidth, textureHeight, false, mirrorV ? Direction.DOWN : Direction.UP));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-down failed for " + selfModelData.id);
             }
             try {
@@ -425,7 +425,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? uvWest[1] : uvWest[3],
                         textureWidth, textureHeight, false, mirrorU ? Direction.WEST : Direction.EAST));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-west failed for " + selfModelData.id);
             }
             try {
@@ -437,7 +437,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? uvNorth[1] : uvNorth[3],
                         textureWidth, textureHeight, false, Direction.NORTH));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-north failed for " + selfModelData.id);
             }
             try {
@@ -449,7 +449,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? uvEast[1] : uvEast[3],
                         textureWidth, textureHeight, false, mirrorU ? Direction.EAST : Direction.WEST));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-east failed for " + selfModelData.id);
             }
             try {
@@ -461,7 +461,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         mirrorV ? uvSouth[1] : uvSouth[3],
                         textureWidth, textureHeight, false, Direction.SOUTH));
             } catch (Exception e) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage("uv-south failed for " + selfModelData.id);
             }
 
