@@ -42,7 +42,7 @@ public class MixinSlimeOverlayFeatureRenderer<T extends LivingEntity> {
     private void emf$setAngles(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci, MinecraftClient minecraftClient, boolean bl, VertexConsumer vertexConsumer) {
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(model)) {
-                boolean replace = EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace());
+                boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace());
                 EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
                 if (replace) {
                     model = emf$heldModelToForce;

@@ -41,6 +41,7 @@ public class EMFOptiFinePartNameMappings {
             getOptifineMapEntry("left_leg"),
             getOptifineMapEntry("right_leg")
     );
+
     private static final Map<String, String> genericIllager = Map.ofEntries(
             getOptifineMapEntry("head", "head"),
             getOptifineMapEntry("headwear", "hat"),
@@ -138,8 +139,9 @@ public class EMFOptiFinePartNameMappings {
     }
 
     public static Map<String, String> getMapOf(String mobName, @Nullable ModelPart root) {
-        if (mobName.contains("_inner_armor")) mobName = mobName.replace("_inner_armor", "");
-        if (mobName.contains("_outer_armor")) mobName = mobName.replace("_outer_armor", "");
+        if(mobName.endsWith("_inner_armor") || mobName.endsWith("_outer_armor"))
+            return genericNonPlayerBiped;
+
 
         //todo extract all maps once done to make them all static final for faster reloads
         return switch (mobName) {
@@ -411,9 +413,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("tail2", "tail1"),
                     getOptifineMapEntry("tail3", "tail2"),
                     getOptifineMapEntry("body", "head"),
-                    getOptifineMapEntry("right_fin", "right_fin"),
-                    getOptifineMapEntry("left_fin", "left_fin"),
-                    getOptifineMapEntry("back_fin", "back_fin"),
+                    getOptifineMapEntry("eye"),
 
                     getOptifineMapEntry("spine1", "spike0"),
                     getOptifineMapEntry("spine2", "spike1"),
@@ -824,8 +824,8 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("cover_right", "left_lid"),
                     getOptifineMapEntry("pages_left", "right_pages"),
                     getOptifineMapEntry("pages_right", "left_pages"),
-                    getOptifineMapEntry("flipping_page_right", "flip_page2"),
-                    getOptifineMapEntry("flipping_page_left", "flip_page1"),
+                    getOptifineMapEntry("flipping_page_right", "flip_page1"),
+                    getOptifineMapEntry("flipping_page_left", "flip_page2"),
                     getOptifineMapEntry("book_spine", "seam")
             );
 //# end_crystal              cube, glass, base
@@ -875,7 +875,7 @@ public class EMFOptiFinePartNameMappings {
         mapThisAndChildren("root", originalModel, newMap, detailsMap);
         //cache result;
         UNKNOWN_MODEL_MAP_CACHE.put(mobName, newMap);
-        if (EMFConfig.getConfig().printUnknownModelsMode != EMFConfig.UnknownModelPrintMode.NONE) {
+        if (EMFConfig.getConfig().logUnkownOrModdedEntityModels != EMFConfig.UnknownModelPrintMode.NONE) {
             StringBuilder mapString = new StringBuilder();
             mapString.append(" |-[optifine/cem/").append(mobName).append(".jem]\n");
             newMap.forEach((key, entry) -> {
@@ -886,7 +886,7 @@ public class EMFOptiFinePartNameMappings {
 
             EMFUtils.EMFModMessage("Unknown possibly modded model detected, Mapping now...\n" + mapString);
 
-            if (EMFConfig.getConfig().printUnknownModelsMode == EMFConfig.UnknownModelPrintMode.LOG_AND_JEM) {
+            if (EMFConfig.getConfig().logUnkownOrModdedEntityModels == EMFConfig.UnknownModelPrintMode.LOG_AND_JEM) {
                 EMFUtils.EMFModMessage("creating example .jem file for " + mobName);
                 EMFJemData.EMFJemPrinter jemPrinter = new EMFJemData.EMFJemPrinter();
                 for (Map.Entry<String, String> entry :
@@ -967,7 +967,7 @@ public class EMFOptiFinePartNameMappings {
         }
         //add this part and its children names
         newMap.put(partName, partName);
-        if (EMFConfig.getConfig().printUnknownModelsMode != EMFConfig.UnknownModelPrintMode.NONE) {
+        if (EMFConfig.getConfig().logUnkownOrModdedEntityModels != EMFConfig.UnknownModelPrintMode.NONE) {
             detailsMap.put(partName,
                     " | | |-pivots=" + originalModel.pivotX + ", " + originalModel.pivotY + ", " + originalModel.pivotZ +
                             "\n | | |-rotations=" + Math.toDegrees(originalModel.pitch) + ", " + Math.toDegrees(originalModel.yaw) + ", " + Math.toDegrees(originalModel.roll) +

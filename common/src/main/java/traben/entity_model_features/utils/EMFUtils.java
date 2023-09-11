@@ -94,7 +94,7 @@ public class EMFUtils {
         try {
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJpm));
             if (res.isEmpty()) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFModMessage("jpm failed " + pathOfJpm + " does not exist", false);
                 return null;
             }
@@ -112,7 +112,7 @@ public class EMFUtils {
             return jpm;
             //}
         } catch (Exception e) {
-            if (EMFConfig.getConfig().printModelCreationInfoToLog) EMFModMessage("jpm failed " + e, false);
+            if (EMFConfig.getConfig().logModelCreationData) EMFModMessage("jpm failed " + e, false);
         }
         return null;
     }

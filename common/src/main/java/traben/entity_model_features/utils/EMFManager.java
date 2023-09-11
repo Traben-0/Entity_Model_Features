@@ -115,11 +115,11 @@ public class EMFManager {//singleton for data holding and resetting needs
         try {
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
             if (res.isEmpty()) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.EMFModMessage(".jem read failed " + pathOfJem + " does not exist", false);
                 return null;
             }
-            if (EMFConfig.getConfig().printModelCreationInfoToLog)
+            if (EMFConfig.getConfig().logModelCreationData)
                 EMFUtils.EMFModMessage(".jem read success " + pathOfJem + " exists", false);
             Resource jemResource = res.get();
             //File jemFile = new File(pathOfJem);
@@ -131,14 +131,13 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             EMFJemData jem = gson.fromJson(reader, EMFJemData.class);
             reader.close();
-            jem.sendFileName(pathOfJem, mobModelIDInfo);
-            jem.prepare();
+            jem.prepare(pathOfJem, mobModelIDInfo);
             if (mobModelIDInfo.areBothSame())
                 EMFManager.getInstance().cache_JemDataByFileName.put(pathOfJem, jem);
             return jem;
             //}
         } catch (InvalidIdentifierException | FileNotFoundException e) {
-            if (EMFConfig.getConfig().printModelCreationInfoToLog)
+            if (EMFConfig.getConfig().logModelCreationData)
                 EMFUtils.EMFModMessage(".jem failed to load " + e, false);
         } catch (Exception e) {
             EMFUtils.EMFModMessage(".jem failed to load " + e, false);
@@ -181,7 +180,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         EMFManager.lastCreatedRootModelPart = null;
 
-        boolean printing = (EMFConfig.getConfig().printModelCreationInfoToLog);
+        boolean printing = (EMFConfig.getConfig().logModelCreationData);
 
         OptifineMobNameForFileAndEMFMapId mobNameForFileAndMap = new OptifineMobNameForFileAndEMFMapId(layer.getId().getPath());
 
@@ -330,9 +329,9 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobNameForFileAndMap + ".jem");
         String jemName = /*"optifine/cem/" +*/ mobNameForFileAndMap + ".jem";
-        EMFJemData jemData = getJemData(jemName, mobNameForFileAndMap);
         CemDirectoryApplier variantDirectoryApplier = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + ".properties", mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
 
+        EMFJemData jemData = getJemData(jemName, mobNameForFileAndMap);
         if (jemData != null || variantDirectoryApplier != null) {
             //we do indeed need custom models
 
@@ -364,7 +363,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     private void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {
         ///////SETUP ANIMATION EXECUTABLES////////////////
 
-        boolean printing = EMFConfig.getConfig().printModelCreationInfoToLog;
+        boolean printing = EMFConfig.getConfig().logModelCreationData;
 
         Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
         allPartsBySingleAndFullHeirachicalId.put("EMF_root", emfRootPart);
@@ -379,7 +378,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
         jemData.finalAnimationsForModel.forEach((animKey, animationExpression) -> {
 
-            if (EMFConfig.getConfig().printModelCreationInfoToLog)
+            if (EMFConfig.getConfig().logModelCreationData)
                 EMFUtils.EMFModMessage("parsing animation value: [" + animKey + "]");
             String modelId = animKey.split("\\.")[0];
             String modelVariable = animKey.split("\\.")[1];
@@ -465,7 +464,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         //System.out.println(" > apply model variant: "+suffix +", to "+mobName);
                         if (!cannonRoot.allKnownStateVariants.containsKey(suffix)) {
                             String jemName = cannonRoot.variantDirectoryApplier.getThisDirectoryOfFilename(mobName + suffix + ".jem");
-                            if(EMFConfig.getConfig().printModelCreationInfoToLog)
+                            if(EMFConfig.getConfig().logModelCreationData)
                                 System.out.println(" >> first time load of : " + jemName);
                             EMFJemData jemData = getJemDataWithDirectory(jemName, cannonRoot.modelName);
                             if (jemData != null) {

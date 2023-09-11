@@ -32,7 +32,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         super(new ArrayList<>(), new HashMap<>());
         this.name = name;
 
-        if (EMFConfig.getConfig().printModelCreationInfoToLog)
+        if (EMFConfig.getConfig().logModelCreationData)
             System.out.println(" > EMF vanilla part made: " + name);
 
         isOptiFinePartSpecified = optifinePartNames.contains(name);
@@ -54,7 +54,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         allKnownStateVariants.put(0, getCurrentState());
 
     }
-
 
 
 

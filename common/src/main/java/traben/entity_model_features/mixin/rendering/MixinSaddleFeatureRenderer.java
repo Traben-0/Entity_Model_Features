@@ -40,7 +40,7 @@ public class MixinSaddleFeatureRenderer<T extends Entity & Saddleable, M extends
     private void emf$setAngles(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch, CallbackInfo ci) {
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(model)) {
-                boolean replace = EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(entity.getType()).getNamespace());
+                boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(entity.getType()).getNamespace());
                 EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
                 if (replace) {
                     model = emf$heldModelToForce;

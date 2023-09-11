@@ -40,7 +40,7 @@ public class MixinSheepWoolFeatureRenderer {
     private void emf$resetModel(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, SheepEntity sheepEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(model)) {
-                boolean replace = EMFConfig.getConfig().tryForceEmfModels && "minecraft".equals(EntityType.getId(sheepEntity.getType()).getNamespace());
+                boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(sheepEntity.getType()).getNamespace());
                 EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
                 if (replace) {
                     model = emf$heldModelToForce;
