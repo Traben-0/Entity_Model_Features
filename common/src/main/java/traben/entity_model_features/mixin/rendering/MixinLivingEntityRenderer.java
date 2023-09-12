@@ -111,7 +111,17 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             index = 4
     )
     private float emf$getHeadYaw(float headYaw) {
-        EMFAnimationHelper.setHeadYaw(headYaw);
+        if (headYaw > 180 || headYaw < -180) {
+            float normalizedAngle = headYaw % 360;
+            if (normalizedAngle > 180) {
+                normalizedAngle -= 360;
+            } else if (normalizedAngle < -180) {
+                normalizedAngle += 360;
+            }
+            EMFAnimationHelper.setHeadYaw(normalizedAngle);
+        } else {
+            EMFAnimationHelper.setHeadYaw(headYaw);
+        }
         return headYaw;
     }
 
