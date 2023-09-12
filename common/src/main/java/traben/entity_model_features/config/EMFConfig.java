@@ -11,33 +11,43 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Objects;
 
 public class EMFConfig {
 
-    private static EMFConfig EMFConfigData;
-    public MathFunctionChoice mathFunctionChoice = MathFunctionChoice.JavaMath;//todo
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EMFConfig emfConfig = (EMFConfig) o;
+        return logModelCreationData == emfConfig.logModelCreationData && logMathInRuntime == emfConfig.logMathInRuntime && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod && renderModeChoice == emfConfig.renderModeChoice && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(logModelCreationData, logMathInRuntime, renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod, logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
+    }
+
+    private static EMFConfig EMF_CONFIG_SINGLETON;
     public boolean logModelCreationData = false;
     public boolean logMathInRuntime = false;
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
     public VanillaModelRenderMode vanillaModelHologramRenderMode = VanillaModelRenderMode.Off;
     public boolean attemptRevertingEntityModelsAlteredByAnotherMod = true;
-
-
-    public UnknownModelPrintMode logUnkownOrModdedEntityModels = UnknownModelPrintMode.NONE;
-
+    public UnknownModelPrintMode logUnknownOrModdedEntityModels = UnknownModelPrintMode.NONE;
     public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
-    public TextureOverrideMode textureOverrideMode3 = TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
+
 
     public static EMFConfig getConfig() {
-        if (EMFConfigData == null) {
+        if (EMF_CONFIG_SINGLETON == null) {
             loadConfig();
         }
-        return EMFConfigData;
+        return EMF_CONFIG_SINGLETON;
     }
 
     public static void setConfig(EMFConfig newConfig) {
         if (newConfig != null)
-            EMFConfigData = newConfig;
+            EMF_CONFIG_SINGLETON = newConfig;
     }
 
 
@@ -50,7 +60,7 @@ public class EMFConfig {
         }
         try {
             FileWriter fileWriter = new FileWriter(config);
-            fileWriter.write(gson.toJson(EMFConfigData));
+            fileWriter.write(gson.toJson(EMF_CONFIG_SINGLETON));
             fileWriter.close();
         } catch (IOException e) {
             EMFUtils.EMFModMessage("Config could not be saved", false);
@@ -65,22 +75,22 @@ public class EMFConfig {
             if (config.exists()) {
                 try {
                     FileReader fileReader = new FileReader(config);
-                    EMFConfigData = gson.fromJson(fileReader, EMFConfig.class);
+                    EMF_CONFIG_SINGLETON = gson.fromJson(fileReader, EMFConfig.class);
                     fileReader.close();
                     EMF_saveConfig();
                 } catch (IOException e) {
                     EMFUtils.EMFModMessage("Config could not be loaded, using defaults", false);
                 }
             } else {
-                EMFConfigData = new EMFConfig();
+                EMF_CONFIG_SINGLETON = new EMFConfig();
                 EMF_saveConfig();
             }
-            if (EMFConfigData == null) {
-                EMFConfigData = new EMFConfig();
+            if (EMF_CONFIG_SINGLETON == null) {
+                EMF_CONFIG_SINGLETON = new EMFConfig();
                 EMF_saveConfig();
             }
         } catch (Exception e) {
-            EMFConfigData = new EMFConfig();
+            EMF_CONFIG_SINGLETON = new EMFConfig();
         }
 
     }
@@ -92,30 +102,6 @@ public class EMFConfig {
         return gson.fromJson(gson.toJson(source), EMFConfig.class);
     }
 
-
-    public enum TextureOverrideMode {
-        OFF(Text.translatable("entity_model_features.config.texture_override_mode.dont")),
-        EMF_CODE(Text.translatable("entity_model_features.config.texture_override_mode.emf")),
-        USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE(Text.translatable("entity_model_features.config.texture_override_mode.iris"));
-
-        private final Text text;
-
-        TextureOverrideMode(Text text) {
-            this.text = text;
-        }
-
-        public Text asText() {
-            return text;
-        }
-
-        public TextureOverrideMode next() {
-            return switch (this) {
-                case OFF -> USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
-                case USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE -> EMF_CODE;
-                default -> OFF;
-            };
-        }
-    }
 
     public enum UnknownModelPrintMode {
         NONE(ScreenTexts.OFF),
@@ -218,17 +204,6 @@ public class EMFConfig {
             };
         }
 
-    }
-
-    public enum MathFunctionChoice {//todo still relevant?
-        JavaMath,
-        MinecraftMath;//bugged for some reason
-        //FastMath;
-
-        public MathFunctionChoice next(){
-            if(this == JavaMath) return MinecraftMath;
-            else return JavaMath;
-        }
     }
 
 }

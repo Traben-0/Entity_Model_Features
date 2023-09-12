@@ -29,6 +29,7 @@ public class EMFModelPartCustom extends EMFModelPart {
     public final String partToBeAttached;
     public final String id;
     public final boolean attach;
+
     public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id) {//,//float[] parentalTransforms) {
 
         super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variant));

@@ -25,9 +25,9 @@ public class MixinWolfCollarFeatureRenderer {
 
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void setEmf$Model(FeatureRendererContext<?,?> featureRendererContext, CallbackInfo ci) {
+    private void setEmf$Model(FeatureRendererContext<?, ?> featureRendererContext, CallbackInfo ci) {
         ModelPart w = EMFManager.getInstance().injectIntoModelRootGetter(emf$collar_layer, WolfEntityModel.getTexturedModelData().createModel());
-        if(w instanceof EMFModelPartRoot){
+        if (w instanceof EMFModelPartRoot) {
             EMFManager.wolfCollarModel = new WolfEntityModel<>(w);
         }
     }
@@ -38,7 +38,7 @@ public class MixinWolfCollarFeatureRenderer {
             index = 0
     )
     private EntityModel<?> emf$injectModel(EntityModel<?> par1) {
-        if(EMFManager.wolfCollarModel != null) {
+        if (EMFManager.wolfCollarModel != null) {
             EMFManager.wolfCollarModel.handSwingProgress = par1.handSwingProgress;
             EMFManager.wolfCollarModel.riding = par1.riding;
             EMFManager.wolfCollarModel.child = par1.child;

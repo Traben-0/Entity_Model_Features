@@ -13,8 +13,8 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -81,13 +81,10 @@ public class EMFUtils {
 
 
     @Nullable
-    public static EMFPartData EMFReadModelPart(String pathOfJpm, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
-        String folderOfModel = new File(mobModelIDInfo.getfileName()).getParent();
-        if (folderOfModel != null) {
-            pathOfJpm = folderOfModel + '/' + pathOfJpm;
-        } else {//assume
-            pathOfJpm = "optifine/cem/" + pathOfJpm;
-        }
+    public static EMFPartData EMFReadModelPart(String pathOfJpm, String filePath) {
+        //String folderOfModel = new File(mobModelIDInfo.getfileName()).getParent();
+        //assume
+        pathOfJpm = Objects.requireNonNullElse(filePath, "optifine/cem/") + pathOfJpm;
         if (!pathOfJpm.endsWith(".jpm")) {
             pathOfJpm = pathOfJpm + ".jpm";
         }

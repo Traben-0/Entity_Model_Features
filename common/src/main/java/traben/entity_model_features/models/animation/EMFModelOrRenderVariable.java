@@ -26,7 +26,6 @@ public enum EMFModelOrRenderVariable {
     ;
 
 
-
     @Nullable
     public static EMFModelOrRenderVariable getRenderVariable(String id) {
         if (id == null) return null;

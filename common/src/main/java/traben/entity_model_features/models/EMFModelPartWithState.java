@@ -19,7 +19,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     public final Int2ObjectOpenHashMap<EMFModelState> allKnownStateVariants = new Int2ObjectOpenHashMap<>();
     public int currentModelVariantState = 0;
     Map<String, ModelPart> vanillaChildren = new HashMap<>();
-    Consumer<EMFModelPartWithState>  startOfRenderRunnable = null;
+    Consumer<EMFModelPartWithState> startOfRenderRunnable = null;
     Animator tryAnimate = new Animator();
 
     public EMFModelPartWithState(List<Cuboid> cuboids, Map<String, ModelPart> children) {
@@ -46,10 +46,10 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         //assertChildrenAndCuboids();
         //if(new Random().nextInt(100)==1) System.out.println("rendered");
         //if (isValidToRenderInThisState) {
-            if (tryAnimate != null) {
-                tryAnimate.run();
-            }
-            primaryRender(matrices, vertices, light, overlay, red, green, blue, alpha);
+        if (tryAnimate != null) {
+            tryAnimate.run();
+        }
+        primaryRender(matrices, vertices, light, overlay, red, green, blue, alpha);
         //}
 //        if(needsToNullifyCustomTexture){
 //            textureOverride = null;

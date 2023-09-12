@@ -2,12 +2,12 @@ package traben.entity_model_features.models;
 
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimation;
@@ -25,21 +25,13 @@ import java.util.*;
 @Environment(value = EnvType.CLIENT)
 public class EMFModelPartRoot extends EMFModelPartVanilla {
 
-    @Override
-    public boolean isRoot() {
-        return true;
-    }
-
+    public final OptifineMobNameForFileAndEMFMapId modelName;
+    public final ModelPart vanillaRoot;
     private final Map<String, EMFModelPartVanilla> allVanillaParts;
     private final Int2ObjectOpenHashMap<ModelPart> vanillaFormatModelPartOfEachState = new Int2ObjectOpenHashMap<>();
-    public final OptifineMobNameForFileAndEMFMapId modelName;
     public EMFManager.CemDirectoryApplier variantDirectoryApplier;
     public ETFApi.ETFRandomTexturePropertyInstance variantTester = null;
-    public final ModelPart vanillaRoot;
     private long lastFrameVariatedOn = -1;
-    private long lastFrameAnimatedOn = -1;
-
-    public Identifier getTextureOverride(){return textureOverride;}
 
     //construct vanilla root
     public EMFModelPartRoot(OptifineMobNameForFileAndEMFMapId mobNameForFileAndMap,
@@ -75,12 +67,13 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         });
 
 
-
         this.vanillaRoot = vanillaRoot;
 
         //vanillaChildren = getChildrenEMF();
         // allKnownStateVariants.put(0,getCurrentState());
     }
+
+
 
 
     //root only
@@ -102,7 +95,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             EMFModelPartVanilla thisPart = vanillaEntry.getValue();
             EMFModelState vanillaState = EMFModelState.copy(thisPart.allKnownStateVariants.get(0));
             thisPart.setFromState(vanillaState);
-            if(thisPart instanceof EMFModelPartRoot root && !((ModelPartAccessor)root).getCuboids().isEmpty()){
+            if (thisPart instanceof EMFModelPartRoot root && !((ModelPartAccessor) root).getCuboids().isEmpty()) {
                 root.textureOverride = jemData.customTexture;
             }
             Map<String, ModelPart> children = new HashMap<>();
@@ -114,8 +107,9 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                         System.out.println(" > > > EMF custom part attached: " + newPartEntry.getKey());
                     if (!newPart.attach) {
                         ((ModelPartAccessor) thisPart).setCuboids(List.of());
-                        thisPart.getChildrenEMF().values().forEach((part)->{
-                            if(part instanceof EMFModelPartVanilla vanilla && !vanilla.isOptiFinePartSpecified) vanilla.setHideInTheseStates(variant);
+                        thisPart.getChildrenEMF().values().forEach((part) -> {
+                            if (part instanceof EMFModelPartVanilla vanilla && !vanilla.isOptiFinePartSpecified)
+                                vanilla.setHideInTheseStates(variant);
                         });
                     }
                     children.put(EMFUtils.getIdUnique(thisPart.getChildrenEMF().keySet(), newPartEntry.getKey()), newPart);
@@ -171,29 +165,24 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         }
     }
 
-    public void receiveAnimations(int variant, LinkedList<EMFAnimation> orderedAnimations) {
-        if (orderedAnimations.size() > 0) {
-            //this.orderedAnimations = orderedAnimations;
-
-            Runnable run = () -> {
-                if (this.lastFrameAnimatedOn != EMFManager.getInstance().entityRenderCount) {
-                    this.lastFrameAnimatedOn = EMFManager.getInstance().entityRenderCount;
-                    orderedAnimations.forEach((EMFAnimation::calculateAndSet));
-                }
-            };
-
-            allKnownStateVariants.get(variant).animation().setAnimation(run);
-            getChildrenEMF().values().forEach((child) -> {
-                if (child instanceof EMFModelPartVanilla emf) {
-                    emf.receiveRootAnimationRunnable(variant, run);
+    public void receiveAnimations(int variant, Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> orderedAnimationsByPartName) {
+        if (orderedAnimationsByPartName.size() > 0) {
+            allVanillaParts.values().forEach((emf) -> {
+                if (orderedAnimationsByPartName.containsKey(emf.name)) {
+                    Object2ObjectLinkedOpenHashMap<String, EMFAnimation> anims = orderedAnimationsByPartName.get(emf.name);
+                    if (anims != null && !anims.isEmpty()) {
+                        LinkedList<EMFAnimation> list = new LinkedList<>();
+                        anims.forEach((key, anim) -> list.add(anim));
+                        Runnable run = () -> list.forEach((EMFAnimation::calculateAndSet));
+                        emf.receiveRootAnimationRunnable(variant, run);
+                    }
                 }
             });
-
         }
     }
 
     @Override
     public String toString() {
-        return "[EMF_root of "+modelName.getfileName()+"]";
+        return "[EMF_root of " + modelName.getfileName() + "]";
     }
 }

@@ -2,7 +2,6 @@ package traben.entity_model_features.models.jem_objects;
 
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.utils.EMFUtils;
-import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -29,7 +28,7 @@ public class EMFPartData {
     public boolean attach = false; //- True: attach to the entity part, False: replace it
     public float scale = 1.0f;
 
-    public LinkedList< LinkedHashMap<String, String>> animations = null;
+    public LinkedList<LinkedHashMap<String, String>> animations = null;
     public Identifier customTexture = null;
 
     @Override
@@ -82,17 +81,16 @@ public class EMFPartData {
             this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
     }
 
-    public void prepare(int[] textureSize, OptifineMobNameForFileAndEMFMapId mobModelIDInfo, EMFJemData jem, Identifier jemTexture) {
+    public void prepare(int[] textureSize, EMFJemData jem, Identifier jemTexture) {
         if (this.id.isBlank())
             this.id = "EMF_" + hashCode();
         else
             this.id = "EMF_" + this.id;
 
 
-
         //check if we need to load a .jpm into this object
         if (!this.model.isEmpty()) {
-            EMFPartData jpmModel = EMFUtils.EMFReadModelPart(this.model, mobModelIDInfo);
+            EMFPartData jpmModel = EMFUtils.EMFReadModelPart(this.model, jem.filePath);
             if (jpmModel != null) {
                 copyFrom(jpmModel);
 
@@ -101,9 +99,9 @@ public class EMFPartData {
 
 
         if (this.textureSize == null) this.textureSize = textureSize;
-        this.customTexture = jem.validateJemTexture(texture, mobModelIDInfo);
+        this.customTexture = jem.validateJemTexture(texture);
 
-        if(customTexture == null) customTexture = jemTexture;
+        if (customTexture == null) customTexture = jemTexture;
 
         boolean invX = invertAxis.contains("x");
         boolean invY = invertAxis.contains("y");
@@ -152,25 +150,22 @@ public class EMFPartData {
             sprite.prepare();
         }
         if (submodel != null) {
-            submodel.prepare(this.textureSize, mobModelIDInfo, jem, null);
-            if(!submodels.contains(submodel)){
+            submodel.prepare(this.textureSize, jem, null);
+            if (!submodels.contains(submodel)) {
                 submodels.add(submodel);
                 submodel = null;
             }
         }
         for (EMFPartData model :
                 submodels) {
-            model.prepare(this.textureSize, mobModelIDInfo, jem, null);
+            model.prepare(this.textureSize, jem, null);
         }
     }
 
     @Override
     public String toString() {
-        return "modelData{ id='" + id + "', part='" + part + "', submodels=" + submodels.size() +"', anims=" + (animations == null ? "0" : animations.size()) +'}';
+        return "modelData{ id='" + id + "', part='" + part + "', submodels=" + submodels.size() + "', anims=" + (animations == null ? "0" : animations.size()) + '}';
     }
-
-
-
 
 
     public static class EMFPartPrinter {

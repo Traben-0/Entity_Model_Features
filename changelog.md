@@ -1,7 +1,12 @@
 
 
-rc-4
-- axolotl tail fix
+RC-4
+- axolotl tail part OptiFine part name mapping fixed
+- removed now unnecessary config settings
+- fixed emissive textures on CEM models acting weird in RC-3
+- some minor optimizations and code cleanups
+- moved animation execution code into the relevant parent bone to match OptiFine execution order (solved flickering models in inventory, and improved efficiency slightly)
+- leaving the config screen now only triggers a resource reload if a setting has been changed
 
 RC-3
 - re-enabled an option for testing in RC-3 that allows using minecraft's internal MathHelper class for some math methods as opposed to regular Java's Math methods *(doesn't really seem to be a performance benefit in ym testing, just trialling this before I decide whether to delete this old code)*

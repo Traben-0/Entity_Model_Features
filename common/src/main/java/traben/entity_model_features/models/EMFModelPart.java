@@ -2,16 +2,17 @@ package traben.entity_model_features.models;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import traben.entity_model_features.config.EMFConfig;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
-import traben.entity_model_features.utils.EMFManager;
 import traben.entity_texture_features.ETFApi;
+import traben.entity_texture_features.ETFClientCommon;
 
 import java.util.List;
 import java.util.Map;
@@ -24,63 +25,51 @@ public abstract class EMFModelPart extends ModelPart {
         super(cuboids, children);
     }
 
-    public boolean isRoot(){return false;}
+
+
+    @Nullable
+    private Identifier getTextureOverrideViaETF(int renderLight) {
+        if (renderLight == ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE) {
+            //require emissive texture variant
+            if (EMFAnimationHelper.getEMFEntity().entity() != null) {
+                return ETFApi.getCurrentETFEmissiveTextureOfEntityOrNull(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
+            } else if (EMFAnimationHelper.getEMFEntity().getBlockEntity() != null) {
+                return null;//todo ETFApi.get(EMFAnimationHelper.getEMFEntity().getBlockEntity(),EMFAnimationHelper.getEMFEntity().getUuid(), textureOverride);
+            }
+            //assert null if no emissive exists as we are in an emissive only render
+            return null;
+        } else {
+            //otherwise normal texture
+            if (EMFAnimationHelper.getEMFEntity().entity() != null) {
+                return ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
+            } else if (EMFAnimationHelper.getEMFEntity().getBlockEntity() != null) {
+                return ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().getBlockEntity(), textureOverride, EMFAnimationHelper.getEMFEntity().getUuid());
+            }
+            return textureOverride;
+        }
+    }
 
     void primaryRender(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 
-        if (//!isTopLevelModelRoot &&
-                textureOverride != null
-                        && EMFConfig.getConfig().textureOverrideMode3 != EMFConfig.TextureOverrideMode.OFF
-                        && light != LightmapTextureManager.MAX_LIGHT_COORDINATE + 1 // this is only the case for EyesFeatureRenderer
-                        && EMFAnimationHelper.getEMFEntity() != null
-//                        && (!isRoot() || !((ModelPartAccessor)this).getCuboids().isEmpty())
+        if (textureOverride != null
+                && light != ETFClientCommon.EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
+                && EMFAnimationHelper.getEMFEntity() != null
         ) {
+            Identifier texture = getTextureOverrideViaETF(light);
 
-            Identifier texture;
-            if (light == LightmapTextureManager.MAX_LIGHT_COORDINATE + 2) {
-                //require emissive texture variant
-                if (EMFAnimationHelper.getEMFEntity().entity() == null) {
-                    texture = null;//todo ETFApi.get(EMFAnimationHelper.getEMFEntity().getBlockEntity(),EMFAnimationHelper.getEMFEntity().getUuid(), textureOverride);
-                } else {
-                    texture = ETFApi.getCurrentETFEmissiveTextureOfEntityOrNull(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
-                }
-
-            } else {
-                //otherwise normal texture
-                if (EMFAnimationHelper.getEMFEntity().entity() == null) {
-                    texture = ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().getBlockEntity(), textureOverride, EMFAnimationHelper.getEMFEntity().getUuid());
-                } else {
-                    texture = ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
-                }
-            }
             //todo alternate layers other than translucent
             if (texture != null) {
-                if (EMFManager.getInstance().IS_IRIS_INSTALLED
-                        && EMFConfig.getConfig().textureOverrideMode3 == EMFConfig.TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE) {
-                    //this simple code seems to work with iris
-                    VertexConsumerProvider vertexConsumers = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-                    VertexConsumer newVertex = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(
-                            EMFAnimationHelper.getEMFEntity().entity() == null ?
-                                    ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().getBlockEntity(), textureOverride, EMFAnimationHelper.getEMFEntity().getUuid()) :
-                                    ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().entity(), textureOverride)
-
-                    ));
-                    if (newVertex != null) {
-                        renderToSuper(matrices, newVertex, light, overlay, red, green, blue, alpha);
-                    }
-                } else {
-                    //this code works otherwise, and is entirely brute forced from what I could teach myself about buffers through experimentation
-                    //todo I would appreciate feedback on this from someone who understands the buffer system better
-                    try {
-                        RenderLayer layer = RenderLayer.getEntityTranslucent(texture);
-                        if (MODIFIED_RENDER_BUFFER == null)
-                            MODIFIED_RENDER_BUFFER = new BufferBuilder(layer.getExpectedBufferSize());
-                        MODIFIED_RENDER_BUFFER.begin(layer.getDrawMode(), layer.getVertexFormat());
-                        renderToSuper(matrices, MODIFIED_RENDER_BUFFER, light, overlay, red, green, blue, alpha);
-                        layer.draw(MODIFIED_RENDER_BUFFER, RenderSystem.getVertexSorting());
-                        MODIFIED_RENDER_BUFFER.clear();
-                    } catch (Exception ignored) {
-                    }
+                //todo I would appreciate feedback on this from someone who understands the buffer system better
+                //this is just my best guess from brute forcing it
+                try {
+                    RenderLayer layer = RenderLayer.getEntityTranslucent(texture);
+                    if (MODIFIED_RENDER_BUFFER == null)
+                        MODIFIED_RENDER_BUFFER = new BufferBuilder(layer.getExpectedBufferSize());
+                    MODIFIED_RENDER_BUFFER.begin(layer.getDrawMode(), layer.getVertexFormat());
+                    renderToSuper(matrices, MODIFIED_RENDER_BUFFER, light, overlay, red, green, blue, alpha);
+                    layer.draw(MODIFIED_RENDER_BUFFER, RenderSystem.getVertexSorting());
+                    MODIFIED_RENDER_BUFFER.clear();
+                } catch (Exception ignored) {
                 }
             }
         } else {
@@ -113,7 +102,7 @@ public abstract class EMFModelPart extends ModelPart {
 
     abstract ModelPart getVanillaModelPartsOfCurrentState();
 
-    public Object2ReferenceOpenHashMap<String, EMFModelPart> getAllChildPartsAsAnimationMap(String prefixableParents, int variantNum,Map<String, String> optifinePartNameMap) {
+    public Object2ReferenceOpenHashMap<String, EMFModelPart> getAllChildPartsAsAnimationMap(String prefixableParents, int variantNum, Map<String, String> optifinePartNameMap) {
         if (this instanceof EMFModelPartRoot root)
             root.setVariantStateTo(variantNum);
 
@@ -127,31 +116,31 @@ public abstract class EMFModelPart extends ModelPart {
                 boolean addThis;
                 if (part instanceof EMFModelPartCustom partc) {
                     thisKey = partc.id;
-                    addThis= true;
+                    addThis = true;
                 } else if (part instanceof EMFModelPartVanilla partv) {
                     thisKey = partv.name;
                     addThis = partv.isOptiFinePartSpecified;
                 } else {
                     thisKey = "NULL_KEY_NAME";
-                    addThis= false;
+                    addThis = false;
                 }
-                for (Map.Entry<String,String> entry:
-                     optifinePartNameMap.entrySet()) {
-                    if(entry.getValue().equals(thisKey)){
+                for (Map.Entry<String, String> entry :
+                        optifinePartNameMap.entrySet()) {
+                    if (entry.getValue().equals(thisKey)) {
                         thisKey = entry.getKey();
                         break;
                     }
                 }
-                if(addThis) {
+                if (addThis) {
                     mapOfAll.put(thisKey, part3);
                     if (prefixableParents.isBlank()) {
-                        mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(thisKey, variantNum,optifinePartNameMap));
+                        mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(thisKey, variantNum, optifinePartNameMap));
                     } else {
                         mapOfAll.put(prefixableParents + ':' + thisKey, part3);
-                        mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(prefixableParents + ':' + thisKey, variantNum,optifinePartNameMap));
+                        mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(prefixableParents + ':' + thisKey, variantNum, optifinePartNameMap));
                     }
-                }else{
-                    mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(prefixableParents, variantNum,optifinePartNameMap));
+                } else {
+                    mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(prefixableParents, variantNum, optifinePartNameMap));
                 }
 
             }
