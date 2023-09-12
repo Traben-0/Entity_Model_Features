@@ -52,9 +52,8 @@ public class EMFManager {//singleton for data holding and resetting needs
     //private final Object2IntOpenHashMap<String> COUNT_OF_MOB_NAME_ALREADY_SEEN = new Object2IntOpenHashMap<>();
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
-    private boolean traderLlamaHappened = false;
-
     public String currentSpecifiedModelLoading = "";
+    private boolean traderLlamaHappened = false;
 
 
     private EMFManager() {
@@ -190,7 +189,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
         //add simple modded check
         if (!"minecraft".equals(layer.getId().getNamespace())) {
-            mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + mobNameForFileAndMap).toLowerCase().replaceAll("[^a-z0-9/._-]","_"));
+            mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + mobNameForFileAndMap).toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
         } else {
             //vanilla model
             if (mobNameForFileAndMap.getfileName().contains("pufferfish"))
@@ -228,7 +227,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 //case "parrot" -> mobNameForFileAndMap = "parrot";//todo check on shoulder parrot models they can technically be different
 
                 case "book" -> {
-                    if(currentSpecifiedModelLoading.equals("enchanting_book")) {
+                    if (currentSpecifiedModelLoading.equals("enchanting_book")) {
                         mobNameForFileAndMap.setBoth("enchanting_book", "book");
                     } else/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/ {
                         mobNameForFileAndMap.setBoth("lectern_book", "book");
@@ -236,34 +235,34 @@ public class EMFManager {//singleton for data holding and resetting needs
                 }
 
                 case "chest" -> {
-                    if(currentSpecifiedModelLoading.equals("ender_chest")) {
+                    if (currentSpecifiedModelLoading.equals("ender_chest")) {
                         mobNameForFileAndMap.setBoth("ender_chest", "chest");
-                    } else if(currentSpecifiedModelLoading.equals("trapped_chest")) {
+                    } else if (currentSpecifiedModelLoading.equals("trapped_chest")) {
                         mobNameForFileAndMap.setBoth("trapped_chest", "chest");
-                    } else{
+                    } else {
                         mobNameForFileAndMap.setBoth("chest", "chest");
                     }
                 }
                 case "double_chest_left" -> {
-                    if(currentSpecifiedModelLoading.equals("trapped_chest")) {
+                    if (currentSpecifiedModelLoading.equals("trapped_chest")) {
                         mobNameForFileAndMap.setBoth("trapped_chest_large", "double_chest_left");
-                    } else{
+                    } else {
                         mobNameForFileAndMap.setBoth("chest_large", "double_chest_left");
                     }
                 }
 
                 case "double_chest_right" -> {
-                    if(currentSpecifiedModelLoading.equals("trapped_chest")) {
+                    if (currentSpecifiedModelLoading.equals("trapped_chest")) {
                         mobNameForFileAndMap.setBoth("trapped_chest_large", "double_chest_right");
-                    } else{
+                    } else {
                         mobNameForFileAndMap.setBoth("chest_large", "double_chest_right");
                     }
                 }
                 case "shulker" -> {
-                    if(currentSpecifiedModelLoading.equals("shulker_box")) {
+                    if (currentSpecifiedModelLoading.equals("shulker_box")) {
                         mobNameForFileAndMap.setBoth("shulker_box");
                         currentSpecifiedModelLoading = "";
-                    } else{
+                    } else {
                         mobNameForFileAndMap.setBoth("shulker");
                     }
 
@@ -367,57 +366,77 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
         allPartsBySingleAndFullHeirachicalId.put("EMF_root", emfRootPart);
-        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum,EMFOptiFinePartNameMappings.getMapOf(emfRootPart.modelName.getMapId(),null)));
+        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFOptiFinePartNameMappings.getMapOf(emfRootPart.modelName.getMapId(), null)));
 
-        Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
+        Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> emfAnimationsByPartName = new Object2ObjectLinkedOpenHashMap<>();
 
 
         if (printing) {
             System.out.println(" > finalAnimationsForModel =");
-            jemData.finalAnimationsForModel.forEach((key, expression) -> System.out.println(" >> " + key + " = " + expression));
+            jemData.allTopLevelAnimationsByVanillaPartName.forEach((part, anims) -> anims.forEach((key, expression) -> System.out.println(" >> " + key + " = " + expression)));
         }
-        jemData.finalAnimationsForModel.forEach((animKey, animationExpression) -> {
+        jemData.allTopLevelAnimationsByVanillaPartName.forEach((part, anims) -> {
+            Object2ObjectLinkedOpenHashMap<String, EMFAnimation> thisPartAnims = new Object2ObjectLinkedOpenHashMap<>();
+            anims.forEach((animKey, animationExpression) -> {
+                if (EMFConfig.getConfig().logModelCreationData)
+                    EMFUtils.EMFModMessage("parsing animation value: [" + animKey + "]");
+                String modelId = animKey.split("\\.")[0];
+                String modelVariable = animKey.split("\\.")[1];
 
-            if (EMFConfig.getConfig().logModelCreationData)
-                EMFUtils.EMFModMessage("parsing animation value: [" + animKey + "]");
-            String modelId = animKey.split("\\.")[0];
-            String modelVariable = animKey.split("\\.")[1];
+                EMFModelOrRenderVariable thisVariable = EMFModelOrRenderVariable.get(modelVariable);
+                if (thisVariable == null) thisVariable = EMFModelOrRenderVariable.getRenderVariable(animKey);
 
-            EMFModelOrRenderVariable thisVariable = EMFModelOrRenderVariable.get(modelVariable);
-            if (thisVariable == null) thisVariable = EMFModelOrRenderVariable.getRenderVariable(animKey);
-
-            EMFModelPart thisPart = "render".equals(modelId) ? null : getModelFromHierarchichalId(modelId, allPartsBySingleAndFullHeirachicalId);
-            emfAnimations.put(animKey,
-                    new EMFAnimation(
-                            thisPart,
-                            thisVariable,
-                            animKey,
-                            animationExpression,
-                            jemData.fileName//, variableSuppliers
-                    )
-            );
+                EMFModelPart thisPart = "render".equals(modelId) ? null : getModelFromHierarchichalId(modelId, allPartsBySingleAndFullHeirachicalId);
+                thisPartAnims.put(animKey,
+                        new EMFAnimation(
+                                thisPart,
+                                thisVariable,
+                                animKey,
+                                animationExpression,
+                                jemData.fileName//, variableSuppliers
+                        )
+                );
+            });
+            emfAnimationsByPartName.put(part, thisPartAnims);
         });
-        LinkedList<EMFAnimation> orderedAnimations = new LinkedList<>();
-        //System.out.println("> anims: " + emfAnimations);
+        //LinkedList<EMFAnimation> orderedAnimations = new LinkedList<>();
+        //System.out.println("> anims: " + emfAnimationsByPartName);
         isAnimationValidationPhase = true;
-        emfAnimations.forEach((key, anim) -> {
-            //System.out.println(">> anim key: " + key);
-            if (anim != null) {
-                //System.out.println(">> anim: " + anim.expressionString);
-                anim.initExpression(emfAnimations, allPartsBySingleAndFullHeirachicalId);
-                //System.out.println(">>> valid: " + anim.isValid());
-                if (anim.isValid())
-                    orderedAnimations.add(anim);
-                else
-                    EMFUtils.EMFModWarn("animations was invalid: " + anim.animKey + " = " + anim.expressionString);
+        emfAnimationsByPartName.forEach((part, animMap) -> {
+
+            Iterator<Map.Entry<String, EMFAnimation>> animMapIterate = animMap.entrySet().iterator();
+            while (animMapIterate.hasNext()) {
+                Map.Entry<String, EMFAnimation> anim = animMapIterate.next();
+                if (anim.getValue() != null) {
+                    anim.getValue().initExpression(animMap, allPartsBySingleAndFullHeirachicalId);
+                    if (!anim.getValue().isValid()) {
+                        EMFUtils.EMFModWarn("animations was invalid: " + anim.getValue().animKey + " = " + anim.getValue().expressionString);
+                        animMapIterate.remove();
+                    }
+                } else {
+                    animMapIterate.remove();
+                }
             }
+
+//            animMap.forEach((key, anim) -> {
+//                //System.out.println(">> anim key: " + key);
+//                if (anim != null) {
+//                    //System.out.println(">> anim: " + anim.expressionString);
+//                    anim.initExpression(animMap, allPartsBySingleAndFullHeirachicalId);
+//                    //System.out.println(">>> valid: " + anim.isValid());
+//                    if (anim.isValid())
+//                        orderedAnimations.add(anim);
+//                    else
+//                        EMFUtils.EMFModWarn("animations was invalid: " + anim.animKey + " = " + anim.expressionString);
+//                }
+//            });
         });
         isAnimationValidationPhase = false;
 
         //EMFAnimationExecutor executor = new EMFAnimationExecutor(variableSuppliers, orderedAnimations);
 
-        if(emfRootPart.modelName.getMapId().contains("pig")) orderedAnimations.forEach((v)-> System.out.println("pig>>> "+v.animKey+"="+v.expressionString+" ### "+(v.partToApplyTo == null ? "null" :v.partToApplyTo.toString())));
-        emfRootPart.receiveAnimations(variantNum, orderedAnimations);
+        //if(emfRootPart.modelName.getMapId().contains("pig")) orderedAnimations.forEach((v)-> System.out.println("pig>>> "+v.animKey+"="+v.expressionString+" ### "+(v.partToApplyTo == null ? "null" :v.partToApplyTo.toString())));
+        emfRootPart.receiveAnimations(variantNum, emfAnimationsByPartName);
 
         //cache_EntityNameToAnimationExecutable.put(jemData.mobName, executor);
         ///////////////////////////
@@ -464,7 +483,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         //System.out.println(" > apply model variant: "+suffix +", to "+mobName);
                         if (!cannonRoot.allKnownStateVariants.containsKey(suffix)) {
                             String jemName = cannonRoot.variantDirectoryApplier.getThisDirectoryOfFilename(mobName + suffix + ".jem");
-                            if(EMFConfig.getConfig().logModelCreationData)
+                            if (EMFConfig.getConfig().logModelCreationData)
                                 System.out.println(" >> first time load of : " + jemName);
                             EMFJemData jemData = getJemDataWithDirectory(jemName, cannonRoot.modelName);
                             if (jemData != null) {

@@ -13,21 +13,20 @@ import traben.entity_model_features.utils.EMFManager;
 public class MixinWolfEntityModel<T extends WolfEntity> {
 
 
-
-
     @Inject(method = "setAngles(Lnet/minecraft/entity/passive/WolfEntity;FFFFF)V",
             at = @At(value = "HEAD")
     )
     private void smf$setAngles(T wolfEntity, float f, float g, float h, float i, float j, CallbackInfo ci) {
-       if(EMFManager.wolfCollarModel != null && !equals(EMFManager.wolfCollarModel)){
+        if (EMFManager.wolfCollarModel != null && !equals(EMFManager.wolfCollarModel)) {
             EMFManager.wolfCollarModel.setAngles(wolfEntity, f, g, h, i, j);
         }
     }
+
     @Inject(method = "animateModel(Lnet/minecraft/entity/passive/WolfEntity;FFF)V",
             at = @At(value = "HEAD")
     )
     private void smf$animateModel(T wolfEntity, float f, float g, float h, CallbackInfo ci) {
-        if(EMFManager.wolfCollarModel != null && !equals(EMFManager.wolfCollarModel)){
+        if (EMFManager.wolfCollarModel != null && !equals(EMFManager.wolfCollarModel)) {
             EMFManager.wolfCollarModel.animateModel(wolfEntity, f, g, h);
         }
     }

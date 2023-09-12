@@ -13,6 +13,7 @@ public interface EMFEntity {
 
     Entity entity();
 
+
     BlockEntity getBlockEntity();
 
     World getWorld();

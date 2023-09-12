@@ -139,7 +139,7 @@ public class EMFOptiFinePartNameMappings {
     }
 
     public static Map<String, String> getMapOf(String mobName, @Nullable ModelPart root) {
-        if(mobName.endsWith("_inner_armor") || mobName.endsWith("_outer_armor"))
+        if (mobName.endsWith("_inner_armor") || mobName.endsWith("_outer_armor"))
             return genericNonPlayerBiped;
 
 
@@ -570,7 +570,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("leg2", "left_hind_leg"),
                     getOptifineMapEntry("leg3", "right_front_leg"),
                     getOptifineMapEntry("leg4", "left_front_leg"),
-                    getOptifineMapEntry("jaw","mouth"),
+                    getOptifineMapEntry("jaw", "mouth"),
                     getOptifineMapEntry("neck")
             );
             case "salmon" -> Map.ofEntries(
@@ -876,7 +876,7 @@ public class EMFOptiFinePartNameMappings {
         mapThisAndChildren("root", originalModel, newMap, detailsMap);
         //cache result;
         UNKNOWN_MODEL_MAP_CACHE.put(mobName, newMap);
-        if (EMFConfig.getConfig().logUnkownOrModdedEntityModels != EMFConfig.UnknownModelPrintMode.NONE) {
+        if (EMFConfig.getConfig().logUnknownOrModdedEntityModels != EMFConfig.UnknownModelPrintMode.NONE) {
             StringBuilder mapString = new StringBuilder();
             mapString.append(" |-[optifine/cem/").append(mobName).append(".jem]\n");
             newMap.forEach((key, entry) -> {
@@ -887,7 +887,7 @@ public class EMFOptiFinePartNameMappings {
 
             EMFUtils.EMFModMessage("Unknown possibly modded model detected, Mapping now...\n" + mapString);
 
-            if (EMFConfig.getConfig().logUnkownOrModdedEntityModels == EMFConfig.UnknownModelPrintMode.LOG_AND_JEM) {
+            if (EMFConfig.getConfig().logUnknownOrModdedEntityModels == EMFConfig.UnknownModelPrintMode.LOG_AND_JEM) {
                 EMFUtils.EMFModMessage("creating example .jem file for " + mobName);
                 EMFJemData.EMFJemPrinter jemPrinter = new EMFJemData.EMFJemPrinter();
                 for (Map.Entry<String, String> entry :
@@ -968,7 +968,7 @@ public class EMFOptiFinePartNameMappings {
         }
         //add this part and its children names
         newMap.put(partName, partName);
-        if (EMFConfig.getConfig().logUnkownOrModdedEntityModels != EMFConfig.UnknownModelPrintMode.NONE) {
+        if (EMFConfig.getConfig().logUnknownOrModdedEntityModels != EMFConfig.UnknownModelPrintMode.NONE) {
             detailsMap.put(partName,
                     " | | |-pivots=" + originalModel.pivotX + ", " + originalModel.pivotY + ", " + originalModel.pivotZ +
                             "\n | | |-rotations=" + Math.toDegrees(originalModel.pitch) + ", " + Math.toDegrees(originalModel.yaw) + ", " + Math.toDegrees(originalModel.roll) +

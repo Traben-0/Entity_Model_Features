@@ -24,9 +24,10 @@ import java.util.Random;
 public class EMFConfigScreenMain extends ETFConfigScreen {
 
 
+    private final Random rand = new Random();
     public EMFConfig tempConfig;
-
-
+    private long timer = 0;
+    private LivingEntity livingEntity = null;
     public EMFConfigScreenMain(Screen parent) {
         super(Text.translatable("entity_model_features.title"), parent);
         // this.parent = parent;
@@ -41,9 +42,11 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
         this.addDrawableChild(ButtonWidget.builder(
                 Text.translatable("gui.done"),
                 (button) -> {
-                    EMFConfig.setConfig(tempConfig);
-                    EMFConfig.EMF_saveConfig();
-                    MinecraftClient.getInstance().reloadResources();
+                    if(!tempConfig.equals(EMFConfig.getConfig())) {
+                        EMFConfig.setConfig(tempConfig);
+                        EMFConfig.EMF_saveConfig();
+                        MinecraftClient.getInstance().reloadResources();
+                    }
                     Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.7), (int) (this.height * 0.9), (int) (this.width * 0.2), 20).build());
         this.addDrawableChild(ButtonWidget.builder(
@@ -79,57 +82,54 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
 
     }
 
-    private final Random rand = new Random();
-    private long timer = 0;
-    private LivingEntity livingEntity = null;
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        if(timer + 5000 < System.currentTimeMillis() && MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.getWorld() != null) {
-            List<Entity> entityList = MinecraftClient.getInstance().player.getWorld().getOtherEntities(null,MinecraftClient.getInstance().player.getBoundingBox().expand(128));
+        if (timer + 5000 < System.currentTimeMillis() && MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player.getWorld() != null) {
+            List<Entity> entityList = MinecraftClient.getInstance().player.getWorld().getOtherEntities(null, MinecraftClient.getInstance().player.getBoundingBox().expand(128));
             Entity entity = null;
-            for (int i = 0; i < Math.min(entityList.size(),24); i++) {
+            for (int i = 0; i < Math.min(entityList.size(), 24); i++) {
                 entity = entityList.get(rand.nextInt(entityList.size()));
-                if(entity instanceof LivingEntity) break;
+                if (entity instanceof LivingEntity) break;
             }
             if (entity instanceof LivingEntity) {
                 livingEntity = (LivingEntity) entity;
                 timer = System.currentTimeMillis();
-             }
+            }
         }
-        if(livingEntity != null && !livingEntity.isRemoved()) {
+        if (livingEntity != null && !livingEntity.isRemoved()) {
             int y = (int) (this.height * 0.75);
-            if(livingEntity.getHeight() < 0.7) y -= (int) (this.height * 0.15);
+            if (livingEntity.getHeight() < 0.7) y -= (int) (this.height * 0.15);
             int x = (int) (this.width * 0.33);
             //float f = (float)Math.atan((double)(-mouseX / 40.0F));
-            float g = (float)Math.atan(((-mouseY+ this.height/2f) / 40.0F));
-            Quaternionf quaternionf = (new Quaternionf()).rotateZ(3.1415927F).rotateY((float) (System.currentTimeMillis()/1000d % (2*Math.PI)));
+            float g = (float) Math.atan(((-mouseY + this.height / 2f) / 40.0F));
+            Quaternionf quaternionf = (new Quaternionf()).rotateZ(3.1415927F).rotateY((float) (System.currentTimeMillis() / 1000d % (2 * Math.PI)));
             Quaternionf quaternionf2 = (new Quaternionf()).rotateX(-(g * 20.0F * 0.017453292F));
             quaternionf.mul(quaternionf2);
             double scale = (this.height * 0.4);
-            scale = scale / ((Math.max(livingEntity.getHeight(),livingEntity.getWidth()) ));
-            if(livingEntity instanceof SquidEntity){
+            scale = scale / ((Math.max(livingEntity.getHeight(), livingEntity.getWidth())));
+            if (livingEntity instanceof SquidEntity) {
                 y -= (int) (this.height * 0.15);
                 scale *= 0.5;
-            } else if(livingEntity instanceof GuardianEntity || livingEntity instanceof SnifferEntity){
+            } else if (livingEntity instanceof GuardianEntity || livingEntity instanceof SnifferEntity) {
                 y -= (int) (this.height * 0.1);
                 scale *= 0.7;
-            }else if(livingEntity instanceof EnderDragonEntity){
+            } else if (livingEntity instanceof EnderDragonEntity) {
                 y -= (int) (this.height * 0.15);
                 scale *= 1.5;
             }
 
-            double scaleModify = Math.sin((System.currentTimeMillis() - timer) /5000d * Math.PI) *6;
-            scaleModify = Math.max(Math.min(scaleModify,1),0);//clamp
-            scale = Math.min(scale * scaleModify,(this.height * 0.4));
+            double scaleModify = Math.sin((System.currentTimeMillis() - timer) / 5000d * Math.PI) * 6;
+            scaleModify = Math.max(Math.min(scaleModify, 1), 0);//clamp
+            scale = Math.min(scale * scaleModify, (this.height * 0.4));
 
             context.getMatrices().push();
-            context.getMatrices().translate(0,0,100);
-            InventoryScreen.drawEntity(context, x, y, (int) scale, quaternionf,quaternionf2, livingEntity);
+            context.getMatrices().translate(0, 0, 100);
+            InventoryScreen.drawEntity(context, x, y, (int) scale, quaternionf, quaternionf2, livingEntity);
             context.getMatrices().pop();
-        }else{
-            context.drawCenteredTextWithShadow(this.textRenderer, Text.of("Load a world and nearby entities will appear here."), this.width / 3, this.height/2, Color.GRAY.getRGB());
+        } else {
+            context.drawCenteredTextWithShadow(this.textRenderer, Text.of("Load a world and nearby entities will appear here."), this.width / 3, this.height / 2, Color.GRAY.getRGB());
         }
     }
 }

@@ -71,16 +71,6 @@ public class EMFConfigScreenDebugLogOptions extends ETFConfigScreen {
                 },
                 Text.translatable("entity_model_features.config.log_math.tooltip")
         ));
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.5), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("math mode rc3 test").getString() +
-                        ": " + emfParent.tempConfig.mathFunctionChoice),
-                (button) -> {
-                    emfParent.tempConfig.mathFunctionChoice = emfParent.tempConfig.mathFunctionChoice.next();
-                    button.setMessage(Text.of(Text.translatable("math mode rc3 test").getString() +
-                            ": " + emfParent.tempConfig.mathFunctionChoice));
-                },
-                Text.translatable("tooltip")
-        ));
 
     }
 

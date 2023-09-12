@@ -26,7 +26,7 @@ public class EMFConfigScreenTools extends ETFConfigScreen {
                 Text.translatable("dataPack.validation.reset"),
                 (button) -> {
                     emfParent.tempConfig.vanillaModelHologramRenderMode = EMFConfig.VanillaModelRenderMode.Off;
-                    emfParent.tempConfig.logUnkownOrModdedEntityModels = EMFConfig.UnknownModelPrintMode.NONE;
+                    emfParent.tempConfig.logUnknownOrModdedEntityModels = EMFConfig.UnknownModelPrintMode.NONE;
                     this.clearAndInit();
                     //Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.4), (int) (this.height * 0.9), (int) (this.width * 0.22), 20).build());
@@ -52,11 +52,11 @@ public class EMFConfigScreenTools extends ETFConfigScreen {
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.unknown_model_print_mode").getString() +
-                        ": " + (emfParent.tempConfig.logUnkownOrModdedEntityModels.asText()).getString()),
+                        ": " + (emfParent.tempConfig.logUnknownOrModdedEntityModels.asText()).getString()),
                 (button) -> {
-                    emfParent.tempConfig.logUnkownOrModdedEntityModels = emfParent.tempConfig.logUnkownOrModdedEntityModels.next();
+                    emfParent.tempConfig.logUnknownOrModdedEntityModels = emfParent.tempConfig.logUnknownOrModdedEntityModels.next();
                     button.setMessage(Text.of(Text.translatable("entity_model_features.config.unknown_model_print_mode").getString() +
-                            ": " + (emfParent.tempConfig.logUnkownOrModdedEntityModels.asText()).getString()));
+                            ": " + (emfParent.tempConfig.logUnknownOrModdedEntityModels.asText()).getString()));
                 },
                 Text.translatable("entity_model_features.config.unknown_model_print_mode.tooltip")
         ));

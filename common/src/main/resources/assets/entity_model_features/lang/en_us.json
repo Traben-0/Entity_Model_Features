@@ -37,9 +37,8 @@
   "entity_model_features.config.physics.2": "Use EMF (CEM) model",
   "entity_model_features.config.render.normal": "Normal",
   "entity_model_features.config.render.green": "Flash green",
-  "entity_model_features.config.render.transparent": "Transparent",
   "entity_model_features.config.render.lines": "Outlines",
   "entity_model_features.config.render.none": "Disabled",
   "entity_model_features.config.render": "How to render custom model parts",
-  "entity_model_features.config.render.tooltip": "Changes how custom model parts are rendered, this does not affect vanilla model parts.\nNormal = normal rendering\nTransparent = 50% opacity\nFlash green = the custom parts will flash green\nOutlines = the outlines of the model parts will render\nDisabled = custom model parts will not render"
+  "entity_model_features.config.render.tooltip": "Changes how custom model parts are rendered, this does not affect vanilla model parts.\nNormal = normal rendering\nFlash green = the custom parts will flash green\nOutlines = the outlines of the model parts will render\nDisabled = custom model parts will not render"
 }

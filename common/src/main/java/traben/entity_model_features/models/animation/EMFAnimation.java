@@ -73,7 +73,6 @@ public class EMFAnimation {
     }
 
 
-
 //        }
 //        if(entity0 == null) {
 //            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
@@ -108,7 +107,6 @@ public class EMFAnimation {
             // if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getLastResultOnly, (okay for model init)");
             return 0;
         }
-
         float value = prevResult.getFloat(EMFAnimationHelper.getEMFEntity().getUuid());
 
         return value == Float.MIN_VALUE ? 0f : value;
@@ -132,7 +130,6 @@ public class EMFAnimation {
         return result;
         //return oldResult;
     }
-
 
 
     //use float up at this level as minecraft uses it

@@ -28,8 +28,6 @@ import java.util.UUID;
 public class EMFAnimationHelper {
 
 
-
-
     //public static long lastFrameTime = System.currentTimeMillis();
     // private final Object2LongOpenHashMap<UUID> lastFrameTimeMap = new Object2LongOpenHashMap<>();
 
@@ -53,6 +51,7 @@ public class EMFAnimationHelper {
     private static int ruleIndex = 0;
     private static float dimension = Float.NaN;
     private static boolean onShoulder = false;
+
     private EMFAnimationHelper() {
 
     }
@@ -282,6 +281,27 @@ public class EMFAnimationHelper {
         return emfEntity != null && emfEntity.isOnGround();
     }
 
+    public static boolean isClimbing() {
+        if (emfEntity == null) return false;
+        LivingEntity alive = emfEntity.getLiving();
+        return alive != null && alive.isClimbing();
+    }
+
+    public static boolean isAlive() {
+        if (emfEntity == null) return false;
+        return emfEntity.isAlive();
+    }
+
+    public static boolean isAggressive() {
+        if (emfEntity == null) return false;
+        Entity entity = emfEntity.entity();
+        return entity instanceof MobEntity && ((MobEntity) entity).isAttacking();
+    }
+
+    public static boolean isGlowing() {
+        return emfEntity != null && emfEntity.isGlowing();
+    }
+
 //    public float getClosestCollisionX() {
 //        if (entity != null && entity.world != null) {
 //            Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity, entity.getBoundingBox()).iterator();
@@ -333,27 +353,6 @@ public class EMFAnimationHelper {
 //        return 0;
 //    }
 
-    public static boolean isClimbing() {
-        if (emfEntity == null) return false;
-        LivingEntity alive = emfEntity.getLiving();
-        return alive != null && alive.isClimbing();
-    }
-
-    public static boolean isAlive() {
-        if (emfEntity == null) return false;
-        return emfEntity.isAlive();
-    }
-
-    public static boolean isAggressive() {
-        if (emfEntity == null) return false;
-        Entity entity = emfEntity.entity();
-        return entity instanceof MobEntity && ((MobEntity) entity).isAttacking();
-    }
-
-    public static boolean isGlowing() {
-        return emfEntity != null && emfEntity.isGlowing();
-    }
-
     public static boolean isHurt() {
         if (emfEntity == null) return false;
         LivingEntity alive = emfEntity.getLiving();
@@ -397,6 +396,7 @@ public class EMFAnimationHelper {
     public static boolean isOnShoulder() {
         return onShoulder;
     }
+
     public static void setCurrentEntityOnShoulder() {
         onShoulder = true;
     }
@@ -443,7 +443,7 @@ public class EMFAnimationHelper {
     }
 
     public static float getAge() {
-       if (emfEntity == null) {
+        if (emfEntity == null) {
             return 0 + tickDelta;
         }
         return constrainedFloat(emfEntity.age(), 24000) + tickDelta;
@@ -486,12 +486,20 @@ public class EMFAnimationHelper {
         return limbAngle;
     }
 
+    public static void setLimbAngle(float limbAngle) {
+        EMFAnimationHelper.limbAngle = limbAngle;
+    }
+
     public static float getLimbDistance() {//limb_speed
         if (emfEntity == null) return 0;
         if (Float.isNaN(limbDistance)) {
             doLimbValues();
         }
         return limbDistance == Float.MIN_VALUE ? 0 : limbDistance;
+    }
+
+    public static void setLimbDistance(float limbDistance) {
+        EMFAnimationHelper.limbDistance = limbDistance;
     }
 
     private static void doLimbValues() {
@@ -528,12 +536,20 @@ public class EMFAnimationHelper {
         return headYaw;
     }
 
+    public static void setHeadYaw(float headYaw) {
+        EMFAnimationHelper.headYaw = headYaw;
+    }
+
     public static float getHeadPitch() {
         if (emfEntity == null) return 0;
         if (Float.isNaN(headPitch)) {
             doHeadValues();
         }
         return headPitch;
+    }
+
+    public static void setHeadPitch(float headPitch) {
+        EMFAnimationHelper.headPitch = headPitch;
     }
 
     private static void doHeadValues() {

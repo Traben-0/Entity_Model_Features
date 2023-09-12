@@ -12,9 +12,9 @@ public class EMFBoxData {
 
     public float[] uvFront = {};
     public float[] uvBack = {};
-    public float[]  uvLeft = {};
+    public float[] uvLeft = {};
     public float[] uvRight = {};
-    public float[] uvNorth= {};
+    public float[] uvNorth = {};
     public float[] uvSouth = {};
     public float[] uvWest = {};
     public float[] uvEast = {};

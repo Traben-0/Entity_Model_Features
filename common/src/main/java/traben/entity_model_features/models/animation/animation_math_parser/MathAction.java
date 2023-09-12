@@ -81,7 +81,6 @@ public enum MathAction implements MathComponent {
     }
 
 
-
     @Override
     public boolean isConstant() {
         return true;

@@ -56,7 +56,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     }
 
 
-
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //ignore non optifine specified parts when not vanilla variant
@@ -89,25 +88,21 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     }
 
 
-    public void setHideInTheseStates(int variant){
+    public void setHideInTheseStates(int variant) {
         hideInTheseStates.add(variant);
-        getChildrenEMF().values().forEach((part)->{
-            if(part instanceof EMFModelPartVanilla vanilla && !vanilla.isOptiFinePartSpecified) vanilla.setHideInTheseStates(variant);
+        getChildrenEMF().values().forEach((part) -> {
+            if (part instanceof EMFModelPartVanilla vanilla && !vanilla.isOptiFinePartSpecified)
+                vanilla.setHideInTheseStates(variant);
         });
     }
 
 
     public void receiveRootAnimationRunnable(int variant, Runnable run) {
         allKnownStateVariants.get(variant).animation().setAnimation(run);
-        getChildrenEMF().values().forEach((child) -> {
-            if (child instanceof EMFModelPartVanilla emf) {
-                emf.receiveRootAnimationRunnable(variant, run);
-            }
-        });
     }
 
     @Override
     public String toString() {
-        return "[vanilla part "+name+"]";
+        return "[vanilla part " + name + "]";
     }
 }
