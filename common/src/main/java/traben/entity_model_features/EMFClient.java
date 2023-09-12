@@ -11,24 +11,6 @@ import java.util.Random;
 public class EMFClient {
 
     public static final String MOD_ID = "entity_model_features";
-
-
-    public static void init() {
-        LogManager.getLogger().info("Loading Entity Model Features, "+ randomQuip());
-        //init data manager
-        EMFManager.getInstance();
-
-//        if(FabricLoader.getInstance().isModLoaded("physicsmod")){
-//            EMFRagdollHook.addRagdollHook();
-//        }
-    }
-
-
-    private static String randomQuip(){
-        int rand = new Random().nextInt(quips.length);
-        return quips[rand];
-    }
-
     private static final String[] quips = {
             "special thanks to Cody!",
             "your third cousin's, dog's, previous owner's, uncle's, old boss's, fifth favourite mod!",
@@ -52,8 +34,20 @@ public class EMFClient {
             "now compatible with every mod, except all the ones that aren't compatible...",
             "100% of the time it works 90% of the time!",
             "now moving all models 0.00001 blocks to the left every 4 seconds.",
-            "PI = "+((float)Math.PI)+" and you can't convince me otherwise.",
-            "90 ="+((float)Math.toRadians(90))+"!"
+            "PI = " + ((float) Math.PI) + " and you can't convince me otherwise.",
+            "90 =" + ((float) Math.toRadians(90)) + "!"
     };
+
+    public static void init() {
+        LogManager.getLogger().info("Loading Entity Model Features, " + randomQuip());
+        //init data manager
+        EMFManager.getInstance();
+
+    }
+
+    private static String randomQuip() {
+        int rand = new Random().nextInt(quips.length);
+        return quips[rand];
+    }
 
 }

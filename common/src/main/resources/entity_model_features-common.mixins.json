@@ -3,28 +3,33 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "MixinBlockEntityRendererFactories",
+    "MixinEntityModel",
     "MixinEntityModelLoader",
+    "MixinParrotEntityModel",
     "MixinResourceReload",
     "accessor.CuboidAccessor",
     "accessor.MinecraftClientAccessor",
     "accessor.ModelPartAccessor",
-    "accessor.PlayerEntityModelAccessor",
+    "rendering.MixinBlockEntityRenderDispatcher",
     "rendering.MixinCatCollarFeatureRenderer",
-    "rendering.MixinCreeperChargeFeatureRenderer",
     "rendering.MixinDrownedOverlayFeatureRenderer",
-    "rendering.MixinEnergySwirlFeatureRenderer",
+    "rendering.MixinEntityRenderDispatcher",
     "rendering.MixinEyesFeatureRenderer",
-    "rendering.MixinFeatureRenderer",
     "rendering.MixinHorseArmorFeatureRenderer",
+    "rendering.MixinLivingEntityRenderer",
     "rendering.MixinLlamaDecorFeatureRenderer",
     "rendering.MixinSaddleFeatureRenderer",
-    "rendering.MixinSheepWoolEntityModel",
     "rendering.MixinSheepWoolFeatureRenderer",
     "rendering.MixinSlimeOverlayFeatureRenderer",
     "rendering.MixinStrayOverlayFeatureRenderer",
-    "rendering.MixinTropicalFishPatternFeatureRenderer"
+    "rendering.MixinTropicalFishPatternFeatureRenderer",
+    "rendering.MixinWolfCollarFeatureRenderer",
+    "rendering.MixinWolfEntityModel"
   ],
   "mixins": [
+    "MixinEntity",
+    "accessor.EntityRenderDispatcherAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

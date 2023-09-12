@@ -311,12 +311,13 @@ public class MathExpressionParser extends MathValue implements MathComponent {
         }
         MathComponent optimized = expression.optimizedAlternativeToThis;
         //just an anonymous boolean inverter
-        if(expression.wasInvertedBooleanExpression){
+        if (expression.wasInvertedBooleanExpression) {
             return new MathValue() {
                 @Override
                 public float get() {
                     return optimized.get() == 1 ? 0 : 1;
                 }
+
                 @Override
                 public ValueSupplier getSupplier() {
                     return null;

@@ -1,7 +1,6 @@
 package traben.entity_model_features.models.animation.animation_math_parser;
 
 import net.minecraft.util.math.MathHelper;
-import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.animation.EMFAnimation;
 
 import java.util.ArrayList;
@@ -12,8 +11,8 @@ import java.util.Random;
 public class MathMethod extends MathValue implements MathComponent {
 
 
-    public MathComponent optimizedAlternativeToThis = null;
     final String methodName;
+    public MathComponent optimizedAlternativeToThis = null;
     ValueSupplier supplier;
     private int printCount = 0;
 
@@ -257,10 +256,7 @@ public class MathMethod extends MathValue implements MathComponent {
         if (args.size() == 2) {
             MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()-> Math.floorMod((int) Math.floor(x.get()), (int) Math.floor(y.get()));
-            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                    () -> MathHelper.floorMod(x.get(), y.get()) :
-                    () -> Math.floorMod((int) x.get(), (int) y.get());
+            ValueSupplier valueSupplier = () -> Math.floorMod((int) x.get(), (int) y.get());
 
             List<MathComponent> comps = List.of(x, y);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -274,17 +270,8 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier SQRT(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-//            ValueSupplier valueSupplier = ()-> {
-//                float result = Math.sqrt(arg.get());
-//                if(Float.isNaN(result)){
-//                    print("ERROR: sqrt() returned NaN.");
-//                }
-//                return  result;
-//            };
-            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                    //case FastMath -> () -> FastMath.sqrt(arg.get());
-                    () -> MathHelper.sqrt(arg.get()) :
-                    () -> (float) Math.sqrt(arg.get());
+
+            ValueSupplier valueSupplier = () -> (float) Math.sqrt(arg.get());
 
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -298,10 +285,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier SIGNUM(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            // ValueSupplier valueSupplier = ()-> Math.signum(arg.get());
-            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
-                    // () -> FastMath.signum(arg.get()) :
-                    () -> Math.signum(arg.get());
+            ValueSupplier valueSupplier = () -> Math.signum(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
@@ -314,10 +298,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier ROUND(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()-> Math.round(arg.get());
-            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
-                    //() -> FastMath.round(arg.get()) :
-                    () -> Math.round(arg.get());
+            ValueSupplier valueSupplier = () -> Math.round(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
@@ -331,7 +312,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier RANDOM(List<String> args) throws EMFMathException {
         if (args.size() == 0) {
             //cannot optimize further
-            return ()-> (float) Math.random();
+            return () -> (float) Math.random();
         } else if (args.size() == 1) {
             MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             ValueSupplier valueSupplier = () -> new Random((long) x.get()).nextFloat(1);
@@ -348,10 +329,7 @@ public class MathMethod extends MathValue implements MathComponent {
         if (args.size() == 2) {
             MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()->  Math.pow(x.get(),y.get());
-            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
-                    //() -> FastMath.pow(x.get(),y.get()) :
-                    () -> (float) Math.pow(x.get(), y.get());
+            ValueSupplier valueSupplier = () -> (float) Math.pow(x.get(), y.get());
             List<MathComponent> comps = List.of(x, y);
             setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
@@ -364,10 +342,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier LOG(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()->  Math.log(arg.get());
-            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
-                    //() -> FastMath.log(arg.get()) :
-                    () -> (float) Math.log(arg.get());
+            ValueSupplier valueSupplier = () -> (float) Math.log(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
@@ -380,20 +355,11 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier FRAC(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-//            ValueSupplier valueSupplier = ()->{
-//                float d =arg.get();
-//                return d > 0 ? d -  Math.floor(d) : d +  Math.ceil(d);
-//            };
-            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-//                case FastMath -> () -> {
-//                    float x = arg.get();
-//                    return x - FastMath.floor(x);
-//                };
-                    () -> MathHelper.fractionalPart(arg.get()) :
-                    () -> {
-                        float x = arg.get();
-                        return (float) (x - Math.floor(x));
-                    };
+
+            ValueSupplier valueSupplier = () -> {
+                float x = arg.get();
+                return (float) (x - Math.floor(x));
+            };
 
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -407,10 +373,8 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier EXP(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()->  Math.exp(arg.get());
-            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
-                    // () -> FastMath.exp(arg.get()) :
-                    () -> (float) Math.exp(arg.get());
+
+            ValueSupplier valueSupplier = () -> (float) Math.exp(arg.get());
 
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -424,11 +388,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier CEIL(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()->  Math.ceil(arg.get());
-            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                    //case FastMath -> () -> FastMath.ceil(arg.get());
-                    () -> MathHelper.ceil(arg.get()) :
-                    () -> (float) Math.ceil(arg.get());
+            ValueSupplier valueSupplier = () -> (float) Math.ceil(arg.get());
 
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -442,11 +402,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier FLOOR(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()->  Math.floor(arg.get());
-            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                    //case FastMath -> () -> FastMath.floor(arg.get());
-                    () -> MathHelper.floor(arg.get()) :
-                    () -> (float) Math.floor(arg.get());
+            ValueSupplier valueSupplier = () -> (float) Math.floor(arg.get());
 
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -460,11 +416,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier ABS(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()-> Math.abs(arg.get());
-            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                    //case FastMath -> () -> FastMath.abs(arg.get());
-                    () -> MathHelper.abs(arg.get()) :
-                    () -> Math.abs(arg.get());
+            ValueSupplier valueSupplier = () -> Math.abs(arg.get());
 
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -481,29 +433,13 @@ public class MathMethod extends MathValue implements MathComponent {
             MathComponent arg1 = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
             MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
 
-//            ValueSupplier valueSupplier = ()->{
-//                float x = arg.get();
-//                float min = arg1.get();
-//                float max = arg2.get();
-//                if(calculationInstance.verboseMode) print("clamp="+x+", "+min+", "+max);
-//                return x > max ? max : (FastMath.max(x, min));
-//            };
-            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-//                case FastMath -> ()->{
-//                    float x = arg.get();
-//                    float min = arg1.get();
-//                    float max = arg2.get();
-//                    //if(calculationInstance.verboseMode) print("clamp="+x+", "+min+", "+max);
-//                    return x > max ? max : (FastMath.max(x, min));
-//                };
-                    () -> MathHelper.clamp(arg.get(), arg1.get(), arg2.get()) :
-                    () -> {
-                        float x = arg.get();
-                        float min = arg1.get();
-                        float max = arg2.get();
-                        //if(calculationInstance.verboseMode) print("clamp="+x+", "+min+", "+max);
-                        return x > max ? max : (Math.max(x, min));
-                    };
+            ValueSupplier valueSupplier = () -> {
+                float x = arg.get();
+                float min = arg1.get();
+                float max = arg2.get();
+                //if(calculationInstance.verboseMode) print("clamp="+x+", "+min+", "+max);
+                return x > max ? max : (Math.max(x, min));
+            };
 
             List<MathComponent> comps = List.of(arg1, arg2, arg);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -570,14 +506,8 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier TORAD(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-//            ValueSupplier valueSupplier = ()->{
-//                float x =arg.get();
-//                if(calculationInstance.verboseMode) print("torad ="+x);
-//                return  Math.toRadians(x);
-//            };
-            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
-                    //() -> FastMath.toRadians(arg.get()) :
-                    () -> (float) Math.toRadians(arg.get());
+
+            ValueSupplier valueSupplier = () -> (float) Math.toRadians(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
@@ -590,10 +520,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier TODEG(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            //ValueSupplier valueSupplier  = ()->  FastMath.toDegrees(arg.get());
-            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
-                    //() -> FastMath.toDegrees(arg.get()) :
-                    () -> (float) Math.toDegrees(arg.get());
+            ValueSupplier valueSupplier = () -> (float) Math.toDegrees(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
@@ -606,19 +533,10 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier SIN(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-//                case FastMath -> () -> {
-//                    //if(calculationInstance.verboseMode) print("sin = "+ arg);
-//                    return  FastMath.sin(arg.get());
-//                };
-                    () -> {
-                        //if(calculationInstance.verboseMode) print("sin = "+ arg);
-                        return MathHelper.sin(arg.get());
-                    } :
-                    () -> {
-                        //if(calculationInstance.verboseMode) print("sin = "+ arg);
-                        return (float) Math.sin(arg.get());
-                    };
+            ValueSupplier valueSupplier = () -> {
+                //if(calculationInstance.verboseMode) print("sin = "+ arg);
+                return (float) Math.sin(arg.get());
+            };
 
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -650,11 +568,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier COS(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()->  Math.cos(arg.get());
-            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                    //case FastMath -> () -> FastMath.cos(arg.get());
-                    () -> MathHelper.cos(arg.get()) :
-                    () -> (float) Math.cos(arg.get());
+            ValueSupplier valueSupplier = () -> (float) Math.cos(arg.get());
 
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -668,10 +582,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier ACOS(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()->  Math.acos(arg.get());
-            ValueSupplier valueSupplier = //switch ( EMFConfig.getConfig().mathFunctionChoice) {
-                    //case FastMath -> () -> FastMath.acos(arg.get());
-                    () -> (float) Math.acos(arg.get());
+            ValueSupplier valueSupplier = () -> (float) Math.acos(arg.get());
 
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -685,10 +596,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier TAN(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()->  Math.tan(arg.get());
-            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
-                    //() -> FastMath.tan(arg.get()) :
-                    () -> (float) Math.tan(arg.get());
+            ValueSupplier valueSupplier = () -> (float) Math.tan(arg.get());
 
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
@@ -702,10 +610,7 @@ public class MathMethod extends MathValue implements MathComponent {
     private ValueSupplier ATAN(List<String> args) throws EMFMathException {
         if (args.size() == 1) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()->  Math.atan(arg.get());
-            ValueSupplier valueSupplier = // EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.FastMath ?
-                    //() -> FastMath.atan(arg.get()) :
-                    () -> (float) Math.atan(arg.get());
+            ValueSupplier valueSupplier = () -> (float) Math.atan(arg.get());
             List<MathComponent> comps = List.of(arg);
             setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
@@ -719,11 +624,7 @@ public class MathMethod extends MathValue implements MathComponent {
         if (args.size() == 2) {
             MathComponent arg = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
-            //ValueSupplier valueSupplier = ()->  Math.atan2(arg.get(), arg2.get());
-            ValueSupplier valueSupplier =  EMFConfig.getConfig().mathFunctionChoice == EMFConfig.MathFunctionChoice.MinecraftMath ?
-                    //case FastMath -> () -> FastMath.atan2(arg.get(), arg2.get());
-                    () -> (float) MathHelper.atan2(arg.get(), arg2.get()) :
-                    () -> (float) Math.atan2(arg.get(), arg2.get());
+            ValueSupplier valueSupplier = () -> (float) Math.atan2(arg.get(), arg2.get());
 
             List<MathComponent> comps = List.of(arg, arg2);
             setOptimizedIfPossible(comps, valueSupplier);

@@ -1,5 +1,56 @@
 
 
+RC-4
+- axolotl tail part OptiFine part name mapping fixed
+- removed now unnecessary config settings
+- fixed emissive textures on CEM models acting weird in RC-3
+- some minor optimizations and code cleanups
+- moved animation execution code into the relevant parent bone to match OptiFine execution order (solved flickering models in inventory, and improved efficiency slightly)
+- leaving the config screen now only triggers a resource reload if a setting has been changed
+
+RC-3
+- re-enabled an option for testing in RC-3 that allows using minecraft's internal MathHelper class for some math methods as opposed to regular Java's Math methods *(doesn't really seem to be a performance benefit in ym testing, just trialling this before I decide whether to delete this old code)*
+- fixed top level jem texture overrides
+- fixed book.jem's flipping page pivots
+- changed some default config settings for performance boosts
+- fixed a forge crash
+- fixed armor stand armor models not remapping the headwear part
+- fixed guardian and elder_guardian OptiFine part name mappings ("eye" did not work)
+
+RC-2
+- added a random entity display to the config screen
+- fixed null pointer exception with model overrides
+- fixed ravager jaw having the wrong OptiFine part name
+- fixed is_on_shoulder animation variable
+- fixed wolf_collar.jem loading
+- fixed an accidental limitation where a vanilla part unknown to the OptiFine part name map would be targeted by animations intended for custom parts *(in FA this was parrot heads and witch hats)*
+- fixed a crash with unknown models building illegal paths
+- fixed an issue with parts with empty ids using "this" animation key
+- fixed book models
+- fixed chest & shulker model mixups
+- fixed animations not being read from models with parts with duplicate ids *(fixed several of Creepermax123's packs)*
+
+RC-1
+- OptiFine CEM appears to be officially solved in EMF and seems to be fully working for almost every single use case :)
+- large rework, reimplementation, and internalisation of animation code and model variant checking. 
+preventing all occurrences of animation de-sync and fixing animations for all modded/replaced entities/models and
+block entities.
+- various stability fixes to model variants including texture support.
+- block entities fully supported *(expect a few missalignments due to possible OptiFine part name differences, report these if you can , `e.g. lectern and enchating table books might be swapped`)*
+- physics mod compat can now choose to try render the vanilla model parts or the custom EMF model parts
+- should no longer cause `part not found` crashes or model failures
+- reduced the log message length of model loading errors
+- fixed emf/ & mobName/mobName directory issues
+- animations now support model part name hierarchy as in OptiFine. i.e   `left_arm:hand:finger1` works to separate part `finger1` in the `left_arm` model group from the `right_arm` one
+- warning structure added to detected model overrides prompting to disable setting if it crashes or to warn users of models modified by other mods
+- added OptiFine name format support for all previously missing entities including sniffer and camel and block entities
+- added support for render variables in animations `e.g. render.shadow_size`
+- expanded animation model variable support to block entities, seemingly matching OptiFines output for these.
+- block entity animations support variables "var.???"
+- added various render modes for custom parts, `NORMAL, GREEN FLASHING, WIREFRAME, OFF`, will not affect vanilla parts.
+- so much more i've probably forgotten some.
+
+
 0.2.13
 
 - fixed `IndexOutOfBoundsException` & `already building` crashes related to texture overrides in sub-models

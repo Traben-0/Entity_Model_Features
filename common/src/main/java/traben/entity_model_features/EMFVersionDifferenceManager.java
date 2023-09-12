@@ -18,9 +18,6 @@ public class EMFVersionDifferenceManager {
     }
 
 
-
-
-
     @ExpectPlatform
     public static boolean isForge() {
         // Just throw an error, the content should get replaced at runtime.

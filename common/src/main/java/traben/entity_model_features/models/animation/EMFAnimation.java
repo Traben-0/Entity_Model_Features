@@ -3,9 +3,8 @@ package traben.entity_model_features.models.animation;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.entity.Entity;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.models.EMFModelPartMutable;
+import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.animation_math_parser.MathComponent;
 import traben.entity_model_features.models.animation.animation_math_parser.MathExpressionParser;
 import traben.entity_model_features.utils.EMFUtils;
@@ -15,44 +14,49 @@ import java.util.UUID;
 
 public class EMFAnimation {
 
-    public final EMFModelPartMutable partToApplyTo;
-    public final EMFDefaultModelVariable variableToChange;
+    public final EMFModelPart partToApplyTo;
+    public final EMFModelOrRenderVariable variableToChange;
     public final String animKey;
     public final String expressionString;
     public final String modelName;
-    public final EMFAnimationVariableSuppliers variableSuppliers;
+    //public final EMFAnimationHelper variableSuppliers;
     public final boolean isVariable;
+    // Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
+    public final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
     final float defaultValue;
     private final Random rand = new Random();
     public int indentCount = 0;
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
-    public Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartByName = null;
+    public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
     //private boolean resultIsAngle = false;
     public boolean verboseMode = false;
-    // Object2FloatOpenHashMap<UUID> prevPrevResults = new Object2FloatOpenHashMap<>();
-    public final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
     MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
 
-    public EMFAnimation(EMFModelPartMutable partToApplyTo,
-                        EMFDefaultModelVariable variableToChange,
+    public EMFAnimation(EMFModelPart partToApplyTo,
+                        EMFModelOrRenderVariable variableToChange,
                         String animKey,
                         String initialExpression,
-                        String modelName,
-                        EMFAnimationVariableSuppliers variableSuppliers) {
-        this.variableSuppliers = variableSuppliers;
+                        String modelName//,
+                        //EMFAnimationHelper variableSuppliers
+    ) {
+        //this.variableSuppliers = variableSuppliers;
         this.modelName = modelName;
         this.animKey = animKey;
         isVariable = animKey.startsWith("var");
-        this.variableToChange = variableToChange;
+        this.variableToChange = isVariable ? null : variableToChange;
         this.partToApplyTo = partToApplyTo;
 
-        if (variableToChange != null) {
+        if (this.variableToChange != null) {
             //resultIsAngle = (varToChange == AnimationModelDefaultVariable.rx || varToChange == AnimationModelDefaultVariable.ry ||varToChange == AnimationModelDefaultVariable.rz);
             if (partToApplyTo == null) {
-                System.out.println("null part for " + animKey);
-                defaultValue = 0;
+                if (this.variableToChange.isRenderVariable()) {
+                    defaultValue = this.variableToChange.getDefaultFromRenderVariable();
+                } else {
+                    System.out.println("null part for " + animKey);
+                    defaultValue = 0;
+                }
             } else {
-                defaultValue = variableToChange.getDefaultFromModel(partToApplyTo);
+                defaultValue = this.variableToChange.getDefaultFromModel(partToApplyTo);
             }
         } else {
             defaultValue = 0;
@@ -69,9 +73,6 @@ public class EMFAnimation {
     }
 
 
-//    public float getResultInterpolateOnly(LivingEntity entity0){
-//        if(vanillaModelPart != null){
-//            return varToChange.getFromVanillaModel(vanillaModelPart);
 //        }
 //        if(entity0 == null) {
 //            if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
@@ -87,62 +88,53 @@ public class EMFAnimation {
 //    }
 
     public void initExpression(Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables,
-                               Object2ObjectOpenHashMap<String, EMFModelPartMutable> allPartByName) {
+                               Object2ObjectOpenHashMap<String, EMFModelPart> allPartByName) {
         this.emfAnimationVariables = emfAnimationVariables;
-        this.allPartByName = allPartByName;
+        this.allPartsBySingleAndFullHeirachicalId = allPartByName;
         EMFCalculator = MathExpressionParser.getOptimizedExpression(expressionString, false, this);
         this.emfAnimationVariables = null;
-        this.allPartByName = null;
+        this.allPartsBySingleAndFullHeirachicalId = null;
     }
 
     public void setVerbose(boolean val) {
         verboseMode = val;
     }
 
-    public float getLastResultOnly(Entity entity0) {
+    public float getLastResultOnly() {
 
 
-        if (entity0 == null) {
+        if (EMFAnimationHelper.getEMFEntity() == null) {
             // if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getLastResultOnly, (okay for model init)");
             return 0;
         }
-
-        float value =prevResult.getFloat(entity0.getUuid());
+        float value = prevResult.getFloat(EMFAnimationHelper.getEMFEntity().getUuid());
 
         return value == Float.MIN_VALUE ? 0f : value;
 
     }
 
-    public float getResultViaCalculate(Entity entity0, boolean storeResult) {
-
-        if (entity0 == null) {
+    public float getResultViaCalculate() {// boolean storeResult) {
+        UUID id = EMFAnimationHelper.getEMFEntity() == null ? null : EMFAnimationHelper.getEMFEntity().getUuid();
+        if (id == null) {
             // if(EMFData.getInstance().getConfig().printModelCreationInfoToLog) System.out.println("entity was null for getResultOnly, (okay for model init)");
             return 0;
         }
 
-
         float result = calculatorRun();
 
         //float oldResult = prevResults.getFloat(id);
-        if (storeResult) {
-            //prevPrevResults.put(id, oldResult);
-            prevResult.put(entity0.getUuid(), result);
-        }
+        //if (storeResult) {
+        //prevPrevResults.put(id, oldResult);
+        prevResult.put(id, result);
+        //}
         return result;
         //return oldResult;
     }
 
-    public float getResultViaCalculate(Entity entity0) {
-        return getResultViaCalculate(entity0, true);
-    }
 
     //use float up at this level as minecraft uses it
     public float calculatorRun() {
-//        try {
-        if (
-                EMFConfig.getConfig().printAllMaths &&
-                          animKey.equals("left_leg.ry") &&
-                        rand.nextInt(100) == 1) {
+        if (EMFConfig.getConfig().logMathInRuntime && rand.nextInt(100) == 1) {
             setVerbose(true);
             //  System.out.println("vanilla body.rx ="+ parentModel.getAnimationResultOfKeyAsSupplier(null, "body.rx").get(entity0));
             double val = EMFCalculator.get();
@@ -152,28 +144,26 @@ public class EMFAnimation {
         } else {
             return EMFCalculator.get();
         }
-//        }catch(MathComponent.EMFMathException e){
-//            return Float.NaN;
-//        }
 
     }
 
-    public void calculateAndSet(Entity entity0) {
+    public void calculateAndSet() {
         //if(animKey.equals("var.potion")) System.out.println("potion "+getResultViaCalculate(entity0));
         if (isVariable) {
-            getResultViaCalculate(entity0);
+            getResultViaCalculate();
         } else {
-            handleResult(getResultViaCalculate(entity0));
+            handleResult(getResultViaCalculate());
         }
     }
 
     private void handleResult(float result) {
         //if(animKey.equals("left_rein2.visible")) System.out.println("result rein "+result+varToChange);
-        if (Double.isNaN(result)) {
-            if (variableToChange != null)
-                variableToChange.setValueInMutableModel(partToApplyTo, Float.MAX_VALUE);
-        } else if (partToApplyTo != null) {
-            variableToChange.setValueInMutableModel(partToApplyTo, result);
+        if (variableToChange != null) {
+            if (Double.isNaN(result)) {
+                variableToChange.trySetValue(partToApplyTo, Float.MAX_VALUE);
+            } else {
+                variableToChange.trySetValue(partToApplyTo, result);
+            }
         }
     }
 

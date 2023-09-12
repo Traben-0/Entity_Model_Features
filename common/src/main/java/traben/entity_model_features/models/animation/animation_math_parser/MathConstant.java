@@ -43,10 +43,6 @@ public class MathConstant extends MathValue implements MathComponent {
 
     @Override // make fastest return
     public float get() {
-        //if(calculationInstance != null)
-        //calculationInstance.indentCount++;
-        //if(calculationInstance != null)
-        //calculationInstance.indentCount--;
         return hardCodedValue;
     }
 }
