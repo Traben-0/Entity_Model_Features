@@ -37,9 +37,8 @@
   "entity_model_features.config.physics.2": "Usar modelo EMF (CEM)",
   "entity_model_features.config.render.normal": "Normal",
   "entity_model_features.config.render.green": "Verde",
-  "entity_model_features.config.render.transparent": "Transparente",
   "entity_model_features.config.render.lines": "Contornos",
   "entity_model_features.config.render.none": "Desativado",
   "entity_model_features.config.render": "Como renderizar partes personalizadas do modelo",
-  "entity_model_features.config.render.tooltip": "Altera como as partes personalizadas do modelo serão renderizadas, não afetando as partes padrão do modelo.\nNormal = renderização normal\nTransparente = 50% de opacidade\nVerde = as partes personalizadas ficarão em verde\nContornos = os contornos das partes do modelo serão renderizadas\nDesativado = as partes personalizadas não serão renderizadas"
+  "entity_model_features.config.render.tooltip": "Altera como as partes personalizadas do modelo serão renderizadas, não afetando as partes padrão do modelo.\nNormal = renderização normal\nVerde = as partes personalizadas ficarão em verde\nContornos = os contornos das partes do modelo serão renderizadas\nDesativado = as partes personalizadas não serão renderizadas"
 }
