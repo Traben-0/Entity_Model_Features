@@ -25,19 +25,11 @@ public abstract class MathValue implements MathComponent {
 
     abstract public ValueSupplier getSupplier();
 
-    public void print(String str) {
-        if (calculationInstance != null)
-            calculationInstance.animPrint(str);
-    }
+
 
     @Override
     public float get() {
-        if (calculationInstance != null)
-            calculationInstance.indentCount++;
-        float ret = isNegative ? -getSupplier().get() : getSupplier().get();
-        if (calculationInstance != null)
-            calculationInstance.indentCount--;
-        return ret;
+        return isNegative ? -getSupplier().get() : getSupplier().get();
     }
 
     public void makeNegative(boolean become) {

@@ -356,8 +356,8 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                return components.getLast().get();
 //            }
 
-            if (calculationInstance.verboseMode)
-                print("start calculating [" + originalExpression + "] as [" + components + "].");
+//            if (EMFConfig.getConfig().logMathInRuntime)
+//                print("start calculating [" + originalExpression + "] as [" + components + "].");
 
             //reset every calculate
             componentsDuringCalculate = new CalculationList(components);
@@ -495,15 +495,15 @@ public class MathExpressionParser extends MathValue implements MathComponent {
             }
 
 
-            if (calculationInstance.verboseMode)
-                print("finish calculating [" + originalExpression + "] as [" + components + "].");
+//            if (EMFConfig.getConfig().logMathInRuntime)
+//                print("finish calculating [" + originalExpression + "] as [" + components + "].");
             if (componentsDuringCalculate.size() == 1) {
                 //if(verboseMode) System.out.print("group result");
                 float result = componentsDuringCalculate.getLast().get();
                 //lastResultThisTick = result;
-                if (calculationInstance.verboseMode) print(" = " + result);
+//                if (EMFConfig.getConfig().logMathInRuntime) print(" = " + result);
                 if (Double.isNaN(result)) {
-                    print(" result was NaN in [" + calculationInstance.modelName + "] for expression: " + originalExpression + " as " + components);
+                    System.out.println(" result was NaN in [" + calculationInstance.modelName + "] for expression: " + originalExpression + " as " + components);
                 } else {
                     //save optimized version of valid expression
                     optimizedAlternativeToThis = componentsDuringCalculate.getLast();
