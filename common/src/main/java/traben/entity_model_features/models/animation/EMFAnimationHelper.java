@@ -58,16 +58,17 @@ public class EMFAnimationHelper {
 
     public static void setCurrentEntity(Entity entityIn) {
         resetForNewEntity();
+        EMFManager.getInstance().entityRenderCount++;
         emfEntity = entityIn == null ? null : new EMFEntityWrapper(entityIn);
     }
 
     public static void setCurrentBlockEntity(BlockEntity entityIn, UUID id) {
         resetForNewEntity();
+        EMFManager.getInstance().entityRenderCount++;
         emfEntity = entityIn == null ? null : new EMFBlockEntityWrapper(entityIn, id);
     }
 
-    private static void resetForNewEntity() {//todo extend for possible performance benefits
-        EMFManager.getInstance().entityRenderCount++;
+    public static void resetForNewEntity() {//todo extend for possible performance benefits
         dimension = Float.NaN;
         limbAngle = Float.NaN;
         limbDistance = Float.NaN;

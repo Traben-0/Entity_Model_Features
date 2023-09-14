@@ -3,81 +3,120 @@ package traben.entity_model_features.models.animation.animation_math_parser;
 import traben.entity_model_features.utils.EMFManager;
 
 public enum MathAction implements MathComponent {
-    add,
-    subtract,
-    multiply,
-    divide,
-    divisionRemainder,
+    ADD {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            return first.get() + second.get();
+        }
+    },
+    SUBTRACT {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            return first.get() - second.get();
+        }
+    },
+    MULTIPLY {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            return first.get() * second.get();
+        }
+    },
+    DIVIDE {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            float sec = second.get();
+            //if value is a variable it likely defaults to 0 during animation validation so here we intercept that and prevent invalidating the animation
+            if (sec == 0 && !second.isConstant() && EMFManager.getInstance().isAnimationValidationPhase) {
+                return first.get();
+            }
+            return first.get() / sec;
+        }
+    },
+    DIVISION_REMAINDER {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            float sec = second.get();
+            //if value is a variable it likely defaults to 0 during animation validation so here we intercept that and prevent invalidating the animation
+            if (sec == 0 && !second.isConstant() && EMFManager.getInstance().isAnimationValidationPhase) {
+                return first.get();
+            }
+            return first.get() % sec;
+        }
+    },
     // power,
-    comma,
-    openBracket,
-    closedBracket,
-    none,
-    and,
-    or,
-    largerThan,
-    smallerThan,
+    COMMA,
+    OPEN_BRACKET,
+    CLOSED_BRACKET,
+    NONE,
+    AND {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            return ((first.get() == 1) && (second.get() == 1)) ? 1 : 0;
+        }
+    },
+    OR {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            return ((first.get() == 1) || (second.get() == 1)) ? 1 : 0;
+        }
+    },
+    LARGER_THAN {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            return (first.get() > second.get()) ? 1 : 0;
+        }
+    },
+    SMALLER_THAN {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            return (first.get() < second.get()) ? 1 : 0;
+        }
+    },
 
-    largerThanOrEquals,
-    smallerThanOrEquals,
-    equals,
-    notEquals,
+    LARGER_THAN_OR_EQUALS {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            return (first.get() >= second.get()) ? 1 : 0;
+        }
+    },
+    SMALLER_THAN_OR_EQUALS {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            return (first.get() <= second.get()) ? 1 : 0;
+        }
+    },
+    EQUALS {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            return (first.get() == second.get()) ? 1 : 0;
+        }
+    },
+    NOT_EQUALS {
+        @Override
+        public float execute(MathComponent first, MathComponent second) {
+            return (first.get() != second.get()) ? 1 : 0;
+        }
+    },
     BOOLEAN_CHAR;
 
     public static MathAction getAction(char ch) {
         return switch (ch) {
-            case '+' -> add;
-            case '-' -> subtract;
-            case '*' -> multiply;
-            case '/' -> divide;
+            case '+' -> ADD;
+            case '-' -> SUBTRACT;
+            case '*' -> MULTIPLY;
+            case '/' -> DIVIDE;
             // case '^' -> power;
-            case ',' -> comma;
-            case '(' -> openBracket;
-            case ')' -> closedBracket;
-            case '%' -> divisionRemainder;
+            case ',' -> COMMA;
+            case '(' -> OPEN_BRACKET;
+            case ')' -> CLOSED_BRACKET;
+            case '%' -> DIVISION_REMAINDER;
             case '&', '|', '>', '<', '=', '!' -> BOOLEAN_CHAR;
-            default -> none;
+            default -> NONE;
         };
     }
 
-    public float run(MathComponent first, MathComponent second) {
-
-        //if(EMFData.getInstance().getConfig().printAllMaths) System.out.println("run: "+first+this+second+"="+result);
-        return switch (this) {
-            //doubles
-            case add -> first.get() + second.get();
-            case subtract -> first.get() - second.get();
-            case multiply -> first.get() * second.get();
-            case divide ->// first.get() / second.get();
-            {
-                float sec = second.get();
-                //if value is a variable it likely defaults to 0 during animation validation so here we intercept that and prevent invalidating the animation
-                if (sec == 0 && !second.isConstant() && EMFManager.getInstance().isAnimationValidationPhase) {
-                    yield first.get();
-                }
-                yield first.get() / sec;
-            }
-            case divisionRemainder -> {
-                float sec = second.get();
-                //if value is a variable it likely defaults to 0 during animation validation so here we intercept that and prevent invalidating the animation
-                if (sec == 0 && !second.isConstant() && EMFManager.getInstance().isAnimationValidationPhase) {
-                    yield first.get();
-                }
-                yield first.get() % sec;
-            }
-            //boolean results
-            case largerThan -> (first.get() > second.get()) ? 1 : 0;
-            case largerThanOrEquals -> (first.get() >= second.get()) ? 1 : 0;
-            case smallerThan -> (first.get() < second.get()) ? 1 : 0;
-            case smallerThanOrEquals -> (first.get() <= second.get()) ? 1 : 0;
-            case equals -> (first.get() == second.get()) ? 1 : 0;
-            case notEquals -> (first.get() != second.get()) ? 1 : 0;
-            //boolean result and inputs
-            case and -> ((first.get() == 1) && (second.get() == 1)) ? 1 : 0;
-            case or -> ((first.get() == 1) || (second.get() == 1)) ? 1 : 0;
-            //NaN
-            default -> Float.NaN;
-        };
+    public float execute(MathComponent first, MathComponent second) {
+        return Float.NaN;
     }
 
 

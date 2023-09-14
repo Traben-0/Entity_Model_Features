@@ -50,13 +50,13 @@ public class EMFAnimation {
             //resultIsAngle = (varToChange == AnimationModelDefaultVariable.rx || varToChange == AnimationModelDefaultVariable.ry ||varToChange == AnimationModelDefaultVariable.rz);
             if (partToApplyTo == null) {
                 if (this.variableToChange.isRenderVariable()) {
-                    defaultValue = this.variableToChange.getDefaultFromRenderVariable();
+                    defaultValue = this.variableToChange.getValue();
                 } else {
                     System.out.println("null part for " + animKey);
                     defaultValue = 0;
                 }
             } else {
-                defaultValue = this.variableToChange.getDefaultFromModel(partToApplyTo);
+                defaultValue = this.variableToChange.getValue(partToApplyTo);
             }
         } else {
             defaultValue = 0;
@@ -156,13 +156,20 @@ public class EMFAnimation {
         }
     }
 
+    public void getLastAndSet() {
+        //if(animKey.equals("var.potion")) System.out.println("potion "+getResultViaCalculate(entity0));
+        if (!isVariable) {
+            handleResult(getLastResultOnly());
+        }
+    }
+
     private void handleResult(float result) {
         //if(animKey.equals("left_rein2.visible")) System.out.println("result rein "+result+varToChange);
         if (variableToChange != null) {
             if (Double.isNaN(result)) {
-                variableToChange.trySetValue(partToApplyTo, Float.MAX_VALUE);
+                variableToChange.setValue(partToApplyTo, Float.MAX_VALUE);
             } else {
-                variableToChange.trySetValue(partToApplyTo, result);
+                variableToChange.setValue(partToApplyTo, result);
             }
         }
     }

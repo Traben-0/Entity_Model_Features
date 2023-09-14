@@ -165,21 +165,43 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         }
     }
 
+
+    private long lastMobCountAnimatedOn = 0;
+
     public void receiveAnimations(int variant, Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> orderedAnimationsByPartName) {
+        LinkedList<EMFAnimation> animationList = new LinkedList<>();
         if (orderedAnimationsByPartName.size() > 0) {
             allVanillaParts.values().forEach((emf) -> {
                 if (orderedAnimationsByPartName.containsKey(emf.name)) {
                     Object2ObjectLinkedOpenHashMap<String, EMFAnimation> anims = orderedAnimationsByPartName.get(emf.name);
                     if (anims != null && !anims.isEmpty()) {
-                        LinkedList<EMFAnimation> list = new LinkedList<>();
-                        anims.forEach((key, anim) -> list.add(anim));
-                        Runnable run = () -> list.forEach((EMFAnimation::calculateAndSet));
-                        emf.receiveRootAnimationRunnable(variant, run);
+                        anims.forEach((key, anim) -> animationList.add(anim));
                     }
                 }
             });
         }
+        if (animationList.size() > 0) {
+            Runnable run = () -> {
+                if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
+                    lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
+                    animationList.forEach((EMFAnimation::calculateAndSet));
+                }
+            };
+            allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, run));
+        }
     }
+    private boolean removedJemTexture = false;
+    public void removeJemOverrideTextureForModelSupplyingItAnotherWay(){
+        if(removedJemTexture) return;
+        removedJemTexture = true;
+
+        if(textureOverride != null){
+            allVanillaParts.values().forEach((emf) -> {
+                if(emf.textureOverride.equals(textureOverride)) emf.textureOverride = null;
+            });
+        }
+    }
+
 
     @Override
     public String toString() {

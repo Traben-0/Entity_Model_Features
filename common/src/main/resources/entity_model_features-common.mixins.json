@@ -13,6 +13,7 @@
     "accessor.ModelPartAccessor",
     "rendering.MixinBlockEntityRenderDispatcher",
     "rendering.MixinCatCollarFeatureRenderer",
+    "rendering.MixinCreeperChargeFeatureRenderer",
     "rendering.MixinDrownedOverlayFeatureRenderer",
     "rendering.MixinEntityRenderDispatcher",
     "rendering.MixinEyesFeatureRenderer",

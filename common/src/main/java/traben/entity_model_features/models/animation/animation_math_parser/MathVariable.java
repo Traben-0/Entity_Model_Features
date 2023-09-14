@@ -147,7 +147,7 @@ public class MathVariable extends MathValue implements MathComponent {
                     EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
                     EMFModelPart part = EMFManager.getModelFromHierarchichalId(partName, calculationInstance.allPartsBySingleAndFullHeirachicalId);
                     if (partVariable != null && part != null) {
-                        return () -> partVariable.getFromMutableModel(part/*, calculationInstance.partToApplyTo*/);
+                        return () -> partVariable.getValue(part);
                     } else {
                         EMFUtils.EMFModError("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.allPartsBySingleAndFullHeirachicalId.keySet());
                         return () -> 0;
@@ -181,7 +181,7 @@ public class MathVariable extends MathValue implements MathComponent {
                         //try get default
                         EMFModelOrRenderVariable variable = EMFModelOrRenderVariable.getRenderVariable(variableKey);
                         if (variable != null && variable.isRenderVariable())
-                            return variable::getRenderVariable;
+                            return variable::getValue;
                         EMFUtils.EMFModError("no render variable found for: [" + variableKey + "]");
                         return () -> 0;
                         //throw new EMFMathException("no variable animation found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.emfAnimationVariables.keySet());
