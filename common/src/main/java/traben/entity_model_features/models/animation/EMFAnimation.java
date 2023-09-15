@@ -3,6 +3,7 @@ package traben.entity_model_features.models.animation;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.animation_math_parser.MathComponent;
 import traben.entity_model_features.models.animation.animation_math_parser.MathExpressionParser;
@@ -40,7 +41,8 @@ public class EMFAnimation {
                 if (this.variableToChange.isRenderVariable()) {
                     defaultValue = this.variableToChange.getValue();
                 } else {
-                    System.out.println("null part for " + animKey);
+                    if(EMFConfig.getConfig().logModelCreationData)
+                        System.out.println("null part for " + animKey);
                     defaultValue = 0;
                 }
             } else {

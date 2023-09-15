@@ -589,6 +589,10 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("base"),
                     getOptifineMapEntry("head")
             );
+            case "shulker_box" -> Map.ofEntries(
+                    getOptifineMapEntry("lid"),
+                    getOptifineMapEntry("base")
+            );
             case "silverfish" -> Map.ofEntries(
                     getOptifineMapEntry("body1", "segment0"),
                     getOptifineMapEntry("body2", "segment1"),

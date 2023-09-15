@@ -25,10 +25,10 @@ Please also install the below mods if you can, the obvious ones such as Sodium a
 It should also go without saying EMF is NOT compatible with dorianpb's CEM and OptiFabric.
 #### Required
 - [Entity Texture Features (ETF)](https://modrinth.com/mod/entitytexturefeatures): 
-  EMF uses several features from my other mod ETF, so it is recommended *(and will one day soon be mandatory for some things I have planned)*
+  EMF uses several features from my other mod ETF, so it is required.
 
 #### Highly recommended
-- [Entity Culling](https://modrinth.com/mod/entityculling): This mod does wonders for reducing entity rendering lag, doing even more than Sodium's included entity culling.
+- [Entity Culling](https://modrinth.com/mod/entityculling): This mod does wonders for reducing entity rendering lag, doing even more than Sodium's included entity culling. This is very beneficial when using animation heavy packs like Fresh Animations.
 
 
 ## Fresh Animations?
@@ -43,35 +43,10 @@ it works :)
 [Download Fresh Animations](https://www.planetminecraft.com/texture-pack/fresh-animations-v1-0/)
 
 
-## Roadmap
+## Features & OptiFine differences
 
-*(these are roughly in order but are all subject to change at any time during development)*
+Up-to-date feature details page : [Features & Optifine differences](FEATURES.md)
 
-- [X] `.jem` loading 
-- [X] Model animations
-- [X] Random models
-- [X] Re-add texture overrides
-- [X] Prep for block entity support
-- [X] Animations and Random models working in all circumstances
-- [X] Support for block entity, minecart and boat models
-- [X] Support modded mob `.jem` models
-- [X] Add an optional EMF/CEM overriding directory for models to account for EMF differences
-- [X] Fix `attach = true` cases
-- [X] Position `.jpm`s correctly
-- [X] Fix remaining model issues
-- [ ] Sprite support
-- [X] Full parity with OptiFine CEM
-- [ ] Backport to still commonly used older MC versions e.g. 1.18
-
-
-### EMF _exclusive_ features
-
-- Custom armor models for bipeds 
-`File names: "MOBNAME_inner_armor.jem" & "MOBNAME_outer_armor.jem"`
-- Player skin CEM support including animations, including slim skin! 
-[[Example player model pack without animations]](Vanilla_player_models_No_animations.zip)
-`File names: "player.jem" & "player_slim.jem"`
-- The `is_climbing` animation variable 😈
 
 ## FAQ
 
@@ -81,12 +56,14 @@ it works :)
 
 > **Q:** What's different between EMF and dorianpb's [CEM](https://modrinth.com/mod/cem)?
 
-**A:** EMF is complete, released and boasts a practically 1 to 1 parity with OptiFine CEM, EMF also does a few extra things like player animations and armor model support, with more ideas on the way :)
+**A:** EMF is in a complete state and has a nearly 1 to 1 parity with OptiFine CEM, EMF also does a few extra things like player animations and armor model support, with more ideas on the way :)
+
+EMF also does things differently under the hood with little to no hardcoding of support for vanilla models. Allowing full CEM support for various modded entities.
 
 > **Q:** Backports?
 
 **A:** Backports to 1.18 & 1.19 are planned.
-Backports to version 1.17 and below are not planned at this stage.
+Backports to version 1.17 and below are not planned at this time.
 
 ## License
 
