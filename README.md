@@ -25,7 +25,7 @@ Please also install the below mods if you can, the obvious ones such as Sodium a
 It should also go without saying EMF is NOT compatible with dorianpb's CEM and OptiFabric.
 #### Required
 - [Entity Texture Features (ETF)](https://modrinth.com/mod/entitytexturefeatures): 
-  EMF uses several features from my other mod ETF, so it is required.
+  EMF uses several features from my other mod ETF, so it is required. (primarily used to support the random model feature, the config screen, and allow textures set in models to vary like in OptiFine)
 
 #### Highly recommended
 - [Entity Culling](https://modrinth.com/mod/entityculling): This mod does wonders for reducing entity rendering lag, doing even more than Sodium's included entity culling. This is very beneficial when using animation heavy packs like Fresh Animations.
