@@ -10,26 +10,23 @@ import java.util.Objects;
 public class EMFConfigScreenTools extends ETFConfigScreen {
 
 
-
-    public EMFConfigScreenTools(EMFConfigScreenMain parent) {
-        super(Text.translatable("entity_model_features.config.tools"),parent);
-        emfParent = parent;
-    }
-
     private final EMFConfigScreenMain emfParent;
 
+    public EMFConfigScreenTools(EMFConfigScreenMain parent) {
+        super(Text.translatable("entity_model_features.config.tools"), parent);
+        emfParent = parent;
+    }
 
     @Override
     protected void init() {
         super.init();
 
 
-
         this.addDrawableChild(ButtonWidget.builder(
                 Text.translatable("dataPack.validation.reset"),
                 (button) -> {
-                    emfParent.tempConfig.vanillaModelRenderMode = EMFConfig.VanillaModelRenderMode.Off;
-                    emfParent.tempConfig.printUnknownModelsMode = EMFConfig.UnknownModelPrintMode.NONE;
+                    emfParent.tempConfig.vanillaModelHologramRenderMode = EMFConfig.VanillaModelRenderMode.Off;
+                    emfParent.tempConfig.logUnknownOrModdedEntityModels = EMFConfig.UnknownModelPrintMode.NONE;
                     this.clearAndInit();
                     //Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.4), (int) (this.height * 0.9), (int) (this.width * 0.22), 20).build());
@@ -41,18 +38,13 @@ public class EMFConfigScreenTools extends ETFConfigScreen {
                 }).dimensions((int) (this.width * 0.1), (int) (this.height * 0.9), (int) (this.width * 0.2), 20).build());
 
 
-
-
-
-
-
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.vanilla_render").getString() +
-                        ": " + (emfParent.tempConfig.vanillaModelRenderMode.asText()).getString()),
+                        ": " + (emfParent.tempConfig.vanillaModelHologramRenderMode.asText()).getString()),
                 (button) -> {
-                    emfParent.tempConfig.vanillaModelRenderMode = emfParent.tempConfig.vanillaModelRenderMode.next();
+                    emfParent.tempConfig.vanillaModelHologramRenderMode = emfParent.tempConfig.vanillaModelHologramRenderMode.next();
                     button.setMessage(Text.of(Text.translatable("entity_model_features.config.vanilla_render").getString() +
-                            ": " + (emfParent.tempConfig.vanillaModelRenderMode.asText()).getString()));
+                            ": " + (emfParent.tempConfig.vanillaModelHologramRenderMode.asText()).getString()));
                 },
                 Text.translatable("entity_model_features.config.vanilla_render.tooltip")
         ));
@@ -60,11 +52,11 @@ public class EMFConfigScreenTools extends ETFConfigScreen {
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.unknown_model_print_mode").getString() +
-                        ": " + (emfParent.tempConfig.printUnknownModelsMode.asText()).getString()),
+                        ": " + (emfParent.tempConfig.logUnknownOrModdedEntityModels.asText()).getString()),
                 (button) -> {
-                    emfParent.tempConfig.printUnknownModelsMode = emfParent.tempConfig.printUnknownModelsMode.next();
+                    emfParent.tempConfig.logUnknownOrModdedEntityModels = emfParent.tempConfig.logUnknownOrModdedEntityModels.next();
                     button.setMessage(Text.of(Text.translatable("entity_model_features.config.unknown_model_print_mode").getString() +
-                            ": " + (emfParent.tempConfig.printUnknownModelsMode.asText()).getString()));
+                            ": " + (emfParent.tempConfig.logUnknownOrModdedEntityModels.asText()).getString()));
                 },
                 Text.translatable("entity_model_features.config.unknown_model_print_mode.tooltip")
         ));

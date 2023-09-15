@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Traben-0/Entity_Model_Features/master/fabric/src/main/resources/icon.png" alt="EMF icon" width=200>
+<img src="icon.png" alt="EMF icon" width=300>
 
 # Entity Model Features
  
@@ -12,41 +12,39 @@
 
 [![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/traben)
 
-Entity Model Features (EMF) is a Fabric, Quilt & Forge mod that adds support for OptiFine's Custom Entity Models (CEM).<br />It's designed for anyone who wants to use the CEM resource pack features but to use mods such as Sodium, Continuity or ETF.
+Entity Model Features (EMF) is a Fabric, Quilt & Forge mod that adds support for OptiFine's Custom Entity Models (CEM).<br />It's designed for anyone who wants to use the CEM resource pack features but also use mods such as Sodium, Continuity or ETF.
 
 <img src="https://cdn.modrinth.com/data/4I1XuqiY/images/49f5b98dfef5b073a3971750673d343e1f92efe5.png" alt="EMF in use" width=550>
 
 </div>
 
-## ⚠️ 🚧 Work in Progress!
 
-EMF is in a beta stage, meaning some things will probably work, but is expected for many not to. Before reporting an issue, make sure to read [the roadmap](README.md#Roadmap) and check [the active issues](https://github.com/Traben-0/Entity_Model_Features/issues). If your issue is mentioned there, don't report it and wait for it to be implemented. If not, report it in the [Issues section](https://github.com/Traben-0/Entity_Model_Features/issues/new/choose).
-
-## Mod requirements
+## Required Mods
 Please also install the below mods if you can, the obvious ones such as Sodium are not mentioned.
 
-It should also go without saying EMF is incompatible with dorianpb's CEM and OptiFabric.
+It should also go without saying EMF is NOT compatible with dorianpb's CEM and OptiFabric.
 #### Required
 - [Entity Texture Features (ETF)](https://modrinth.com/mod/entitytexturefeatures): 
-  EMF uses several features from my other mod ETF so it is recommended *(and will one day soon be mandatory for some things I have planned)*
+  EMF uses several features from my other mod ETF, so it is required. (primarily used to support the random model feature, the config screen, and allow textures set in models to vary like in OptiFine)
 
 #### Highly recommended
-- [Entity Culling](https://modrinth.com/mod/entityculling): This mod does wonders for reducing entity rendering lag, doing even more than Sodium's included entity culling. I cannot recommend this enough.
+- [Entity Culling](https://modrinth.com/mod/entityculling): This mod does wonders for reducing entity rendering lag, doing even more than Sodium's included entity culling. This is very beneficial when using animation heavy packs like Fresh Animations.
 
 
 ## Fresh Animations?
+Yes.
 
-<img align="right" width="450" src="https://cdn.modrinth.com/data/4I1XuqiY/images/2f32dbeadc25e46ef6c56f0e47e5eb5d305c8ea2.png">
+it works :)
 
-Since EMF is in beta, not everything works. However, the brilliant [Fresh Animations](https://www.planetminecraft.com/texture-pack/fresh-animations-v1-0/) resource pack works out of the box, as it was the primary focus for this mod, no fork/pack editing required.<br />
+<img width="450" src="https://cdn.modrinth.com/data/4I1XuqiY/images/2f32dbeadc25e46ef6c56f0e47e5eb5d305c8ea2.png">
 
 The addon packs for FA 1.8 is still quite broken with EMF in its current state:<br />
 
 Everything else in FA works!
 
-## Roadmap
+<br>
 
-*(these are roughly in order but are all subject to change at any time during development)*
+[Download Fresh Animations](https://www.planetminecraft.com/texture-pack/fresh-animations-v1-0/)
 
 - [X] `.jem` loading 
 - [X] Model animations
@@ -63,39 +61,27 @@ Everything else in FA works!
 - [ ] Full parity with OptiFine CEM
 - [ ] Backport to still commonly used older MC versions e.g. 1.16
 
+## Features & OptiFine differences
 
-### EMF _exclusive_ features
+Up-to-date feature details page : [Features & Optifine differences](FEATURES.md)
 
-- Custom armor models for bipeds 
-`File names: "MOBNAME_inner_armor.jem" & "MOBNAME_outer_armor.jem"`
-- Player skin CEM support including animations, including slim skin! 
-[[Example player model pack without animations]](Vanilla_player_models_No_animations.zip)
-`File names: "player.jem" & "player_slim.jem"`
-- The `is_climbing` animation variable 😈
 
 ## FAQ
 
+> **Q:** Do all OptiFine CEM resource packs work?
+
+**A:** Most packs work fine, but I'm sure there are some exceptions, report any found issues [here](https://github.com/Traben-0/Entity_Model_Features/issues), or on my [discord](https://discord.com/invite/rURmwrzUcz).
+
 > **Q:** What's different between EMF and dorianpb's [CEM](https://modrinth.com/mod/cem)?
 
-**A:** OptiFine CEM is a tricky and time-consuming thing to reproduce, with all of its weird quirks, both EMF and dorianpb's CEM can be entirely broken depending on the resource pack models loaded.
+**A:** EMF is in a complete state and has a nearly 1 to 1 parity with OptiFine CEM, EMF also does a few extra things like player animations and armor model support, with more ideas on the way :)
 
-Keeping this in mind, EMF was built with a primary focus on Fresh Animations as the working goal. It's the reason why FA works better than most other resource packs in EMF, without need for a fork or an alternative resource pack. EMF also utilises ETF's random property reading to enable support for random entity models, mimicing the latest OptiFine behaviour.
-
-For all other packs you might find one mod or the other works best for the time being. I **do intend** to close the gap between EMF and OptiFine but it has proven to be quite difficult (There is a reason these mods have taken a while to be functional on Fabric 💀)
-
-(P.S: I also really wanted custom player model & animation support, which EMF adds :P)
-
-> **Q:** Do all CEM resource packs work?
-
-**A:** Not yet, but that's the plan.
-
-> **Q:** Why is OptiFine CEM so hard to reproduce?
-
-**A:** Customizing and changing entity models in Minecraft with a mod is actually quite easy to do when you know what to do (I pretty much had custom models loading within the first few hours of work on this mod). However, OptiFine does things quite differently, in a confusing way at times. So, reverse engineering is essential, and _quite_ hard. EMF attempts to add all CEM features while being compatible as much as possible.
+EMF also does things differently under the hood with little to no hardcoding of support for vanilla models. Allowing full CEM support for various modded entities.
 
 > **Q:** Backports?
 
-**A:** Once EMF reaches a stable state, backports will then be made regularly, to still popular Minecraft versions such as 1.16 & 1.18.
+**A:** Backports to 1.18 & 1.19 are planned.
+Backports to version 1.17 and below are not planned at this time.
 
 ## License
 

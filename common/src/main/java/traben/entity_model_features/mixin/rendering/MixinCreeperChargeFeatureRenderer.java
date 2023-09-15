@@ -1,34 +1,40 @@
 package traben.entity_model_features.mixin.rendering;
 
+
 import net.minecraft.client.render.entity.feature.CreeperChargeFeatureRenderer;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.render.entity.model.CreeperEntityModel;
+import net.minecraft.entity.mob.CreeperEntity;
+import net.minecraft.util.Identifier;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import traben.entity_model_features.models.EMFModelPartRoot;
+import traben.entity_model_features.models.IEMFModel;
+
 
 @Mixin(CreeperChargeFeatureRenderer.class)
-public class MixinCreeperChargeFeatureRenderer<T extends Entity> {
+public abstract class MixinCreeperChargeFeatureRenderer {
 
-//todo doesnt work
-//
-//    @Mutable
-//    @Shadow @Final private CreeperEntityModel<CreeperEntity> model;
-//    private CreeperEntityModel<CreeperEntity> heldModelToForce = null;
-//
-//    @Inject(method = "<init>",
-//            at = @At(value = "TAIL"))
-//    private void emf$saveEMFModel(FeatureRendererContext context, EntityModelLoader loader, CallbackInfo ci) {
-//        if(EMFConfig.getConfig().tryForceEmfModels){
-//            heldModelToForce = model;
-//        }
-//    }
-//
-//    @Inject(method = "getEnergySwirlModel",
-//            at = @At(value = "RETURN"), cancellable = true)
-//    private void emf$setAngles(CallbackInfoReturnable<EntityModel<CreeperEntity>> cir) {
-//        if(heldModelToForce != null && EMFConfig.getConfig().tryForceEmfModels){
-//            //((LivingEntityRendererAccessor)this).setModel(heldModelToForce);
-////            model = heldModelToForce;
-////            heldModelToForce = null;
-//            cir.setReturnValue(heldModelToForce);
-//        }
-//   }
+
+    @Shadow @Final private CreeperEntityModel<CreeperEntity> model;
+
+    @Inject(
+            method = "getEnergySwirlTexture",
+            at = @At(value = "RETURN"), cancellable = true)
+    private void emf$getTextureRedirect(CallbackInfoReturnable<Identifier> cir) {
+        if (model != null && ((IEMFModel) model).emf$isEMFModel()) {
+            EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
+            if (root != null) {
+                if(root.textureOverride != null) {
+                    root.removeJemOverrideTextureForModelSupplyingItAnotherWay();
+                    cir.setReturnValue(root.textureOverride);
+                }
+            }
+        }
+    }
+
+
 }

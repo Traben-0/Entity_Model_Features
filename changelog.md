@@ -19,6 +19,13 @@ A bug fix update before I backport down to 1.19
 - improved texture overrides when used internally within models *(no longer relies on a broken behaviour of iris)* *(will have lighting glitches when used on mobs that have glowing eyes or ETF emissive textures until ETFs next update)**(isn't identical between 1.19 and 1.20)*
 
 
+It's time, EMF has come a long way, in 9.5 months, and now seems to be very closely on parity with OptiFine CEM, seeing as it is not
+actually OptiFine there will always be some minor issues or discrepancies, please continue to report these as you find them.
+However on the whole EMF seems to be ready. 
+Some things to note: EMF 1.0 is practically a different mod to the last beta 0.2.13 and the old private alpha, 
+Almost the entire model creation code is different and almost all issues reported using old beta versions will be irrelevant going forwards. *(especially if it is about broken models)*
+With that being said, many GitHub issues have been left mostly ignored by me if the issue is something that I expected would
+be resolved passively during development, I'll be going through these in the coming months to weed out any now irrelevant issues.
 
 0.2.11
 Did someone say mod compatibility?

@@ -17,6 +17,7 @@ public abstract class MathValue implements MathComponent {
         this.isNegative = isNegative;
         this.calculationInstance = null;
     }
+
     MathValue() {
         this.isNegative = false;
         this.calculationInstance = null;
@@ -24,19 +25,11 @@ public abstract class MathValue implements MathComponent {
 
     abstract public ValueSupplier getSupplier();
 
-    public void print(String str) {
-        if (calculationInstance != null)
-            calculationInstance.animPrint(str);
-    }
+
 
     @Override
     public float get() {
-        if (calculationInstance != null)
-            calculationInstance.indentCount++;
-        float ret = isNegative ? -getSupplier().get() : getSupplier().get();
-        if (calculationInstance != null)
-            calculationInstance.indentCount--;
-        return ret;
+        return isNegative ? -getSupplier().get() : getSupplier().get();
     }
 
     public void makeNegative(boolean become) {
@@ -47,13 +40,5 @@ public abstract class MathValue implements MathComponent {
         float get();
     }
 
-//    public interface AnimationValueSupplier {
-//
-//        //        default float get(){
-////            return get(null);
-////        }
-//        float get(Entity entity);
-//
-//    }
 
 }
