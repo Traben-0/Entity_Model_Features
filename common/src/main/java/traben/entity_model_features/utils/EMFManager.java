@@ -57,6 +57,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
     private EMFManager() {
+        EMFAnimationHelper.resetForNewEntity();
         IS_PHYSICS_MOD_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
         IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
     }
@@ -201,6 +202,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                 case "tropical_fish_small" -> mobNameForFileAndMap.setBoth("tropical_fish_a");
                 case "tropical_fish_large_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_b");
                 case "tropical_fish_small_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_a");
+
+                case "leash_knot" -> mobNameForFileAndMap.setBoth("lead_knot");
 
                 case "trader_llama" -> traderLlamaHappened = true;
                 case "llama" -> traderLlamaHappened = false;
@@ -435,7 +438,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         //EMFAnimationExecutor executor = new EMFAnimationExecutor(variableSuppliers, orderedAnimations);
 
-        //if(emfRootPart.modelName.getMapId().contains("pig")) orderedAnimations.forEach((v)-> System.out.println("pig>>> "+v.animKey+"="+v.expressionString+" ### "+(v.partToApplyTo == null ? "null" :v.partToApplyTo.toString())));
+//        if(emfRootPart.modelName.getMapId().contains("axolotl")) emfAnimationsByPartName.forEach((k,va)-> va.forEach((k2,v)-> System.out.println("axolotl>>> "+v.animKey+"="+v.expressionString+" ### "+(v.partToApplyTo == null ? "null" :v.partToApplyTo.toString()))));
         emfRootPart.receiveAnimations(variantNum, emfAnimationsByPartName);
 
         //cache_EntityNameToAnimationExecutable.put(jemData.mobName, executor);

@@ -10,14 +10,18 @@ import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.passive.PufferfishEntity;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPartRoot;
@@ -25,6 +29,7 @@ import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_texture_features.ETFApi;
 
 
 @Mixin(LivingEntityRenderer.class)
@@ -56,7 +61,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     private void emf$Animate(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
 
         if (emf$heldModelToForce != null) {
-            if (!emf$heldModelToForce.equals(model)) {
+            if (!emf$heldModelToForce.equals(model) && !(livingEntity instanceof PufferfishEntity)) {
                 boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace());
                 EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
                 if (replace) {
@@ -111,7 +116,17 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             index = 4
     )
     private float emf$getHeadYaw(float headYaw) {
-        EMFAnimationHelper.setHeadYaw(headYaw);
+        if (headYaw > 180 || headYaw < -180) {
+            float normalizedAngle = headYaw % 360;
+            if (normalizedAngle > 180) {
+                normalizedAngle -= 360;
+            } else if (normalizedAngle < -180) {
+                normalizedAngle += 360;
+            }
+            EMFAnimationHelper.setHeadYaw(normalizedAngle);
+        } else {
+            EMFAnimationHelper.setHeadYaw(headYaw);
+        }
         return headYaw;
     }
 
@@ -126,23 +141,24 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     }
 
 
-//    @Redirect(
-//            method = "getRenderLayer",
-//            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getTexture(Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/Identifier;"))
-//    private Identifier emf$getTextureRedirect(LivingEntityRenderer<?, ?> instance, Entity entity) {
-//
-//        if (((IEMFModel) model).emf$isEMFModel()) {
-//            EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
-//            if (root != null) {
-//                //noinspection unchecked
-//                return root.textureOverride == null ? getTexture((T) entity) : ETFApi.getCurrentETFVariantTextureOfEntity(entity, root.textureOverride);
-//            }
-//        }
-//
-//        //noinspection unchecked
-//        return getTexture((T) entity);
-//
-//    }
+    @Redirect(
+            method = "getRenderLayer",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getTexture(Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/Identifier;"))
+    private Identifier emf$getTextureRedirect(LivingEntityRenderer<?, ?> instance, Entity entity) {
+
+        if (((IEMFModel) model).emf$isEMFModel()) {
+            EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
+            if (root != null) {
+                root.removeJemOverrideTextureForModelSupplyingItAnotherWay();
+                //noinspection unchecked
+                return root.textureOverride == null ? getTexture((T) entity) : ETFApi.getCurrentETFVariantTextureOfEntity(entity, root.textureOverride);
+            }
+        }
+
+        //noinspection unchecked
+        return getTexture((T) entity);
+
+    }
 
 
 }

@@ -20,17 +20,17 @@ public class EMFConfig {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EMFConfig emfConfig = (EMFConfig) o;
-        return logModelCreationData == emfConfig.logModelCreationData && logMathInRuntime == emfConfig.logMathInRuntime && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod && renderModeChoice == emfConfig.renderModeChoice && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2;
+        return logModelCreationData == emfConfig.logModelCreationData && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod && renderModeChoice == emfConfig.renderModeChoice && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(logModelCreationData, logMathInRuntime, renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod, logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
+        return Objects.hash(logModelCreationData, renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod, logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
     }
 
     private static EMFConfig EMF_CONFIG_SINGLETON;
     public boolean logModelCreationData = false;
-    public boolean logMathInRuntime = false;
+
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
     public VanillaModelRenderMode vanillaModelHologramRenderMode = VanillaModelRenderMode.Off;
     public boolean attemptRevertingEntityModelsAlteredByAnotherMod = true;

@@ -201,7 +201,7 @@ public class MathMethod extends MathValue implements MathComponent {
             ValueSupplier valueSupplier = () -> {
                 float xVal = x.get();
                 if (getPrintCount() % n.get() == 0) {
-                    print("EMF printb: [" + id + "] = " + (xVal == 1));
+                    System.out.println("EMF printb: [" + id + "] = " + (xVal == 1));
                 }
                 return xVal;
             };
@@ -223,7 +223,7 @@ public class MathMethod extends MathValue implements MathComponent {
             ValueSupplier valueSupplier = () -> {
                 float xVal = x.get();
                 if (getPrintCount() % n.get() == 0) {
-                    print("EMF print: [" + id + "] = " + xVal);
+                    System.out.println("EMF print: [" + id + "] = " + xVal);
                 }
                 return xVal;
             };
@@ -698,7 +698,7 @@ public class MathMethod extends MathValue implements MathComponent {
 
     @Override
     public String toString() {
-        return methodName;
+        return methodName+"()";
     }
 
     @Override

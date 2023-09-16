@@ -326,6 +326,7 @@ public class EMFOptiFinePartNameMappings {
             //# axolotl                  head, body, leg1 ... leg4, tail, top_gills, left_gills, right_gills
             case "axolotl" -> Map.ofEntries(
                     getOptifineMapEntry("head"),
+                    getOptifineMapEntry("body"),
                     getOptifineMapEntry("leg1", "right_hind_leg"),
                     getOptifineMapEntry("leg2", "left_hind_leg"),
                     getOptifineMapEntry("leg3", "right_front_leg"),
@@ -587,6 +588,10 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("lid"),
                     getOptifineMapEntry("base"),
                     getOptifineMapEntry("head")
+            );
+            case "shulker_box" -> Map.ofEntries(
+                    getOptifineMapEntry("lid"),
+                    getOptifineMapEntry("base")
             );
             case "silverfish" -> Map.ofEntries(
                     getOptifineMapEntry("body1", "segment0"),

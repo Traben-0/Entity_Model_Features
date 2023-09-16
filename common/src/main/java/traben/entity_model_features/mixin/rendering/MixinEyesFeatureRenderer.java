@@ -17,5 +17,4 @@ public class MixinEyesFeatureRenderer {
         return ETFClientCommon.EYES_FEATURE_LIGHT_VALUE;
     }
 
-
 }

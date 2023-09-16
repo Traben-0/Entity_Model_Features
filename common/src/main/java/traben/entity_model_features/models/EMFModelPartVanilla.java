@@ -98,6 +98,14 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
 
     public void receiveRootAnimationRunnable(int variant, Runnable run) {
+//        Runnable run = () -> {
+//            if (this.lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
+//                this.lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
+//                animList.forEach((EMFAnimation::calculateAndSet));
+//            }else{
+//                animList.forEach((EMFAnimation::getLastAndSet));
+//            }
+//        };
         allKnownStateVariants.get(variant).animation().setAnimation(run);
     }
 
