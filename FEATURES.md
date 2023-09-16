@@ -119,11 +119,12 @@ These issues are known and do not need to be reported
 
 # Known mod compatibility issues
 
-### intentional
-EMF will never work with these mods because they do the same thing
-- OptiFine
-- OptiFabric
-- dorianpb's CEM mod
+### cannot be fixed
+All or some of EMF's features will not work with these mods and cannot be fixed.
+- OptiFine - incompatible
+- OptiFabric - incompatible
+- dorianpb's CEM mod - incompatible
+- EBE (Enhanced Block Entities): while this mod is installed custom block entity models will not load, that is because this mod makes them no longer render as entity models.
 
 
 
