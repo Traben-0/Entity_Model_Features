@@ -14,10 +14,20 @@ import traben.entity_model_features.models.jem_objects.EMFPartData;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 
 public class EMFUtils {
+
+    public static void EMFOverrideMessage(String originalClass, String overriddenClassFromMod, boolean wasReverted) {
+        LogManager.getLogger().warn("[Entity Model Features]: Entity model [" + originalClass + "] has been overridden by [" + overriddenClassFromMod + "] likely from a mod.");
+        if (wasReverted)
+            LogManager.getLogger().warn("[Entity Model Features]: Prevent model overrides option is enabled! EMF will attempt to revert the new model [" + overriddenClassFromMod + "] back into the original model [" + originalClass + "]. THIS MAY HAVE UNINTENDED EFFECTS ON THE OTHER MOD, DISABLE THIS EMF SETTING IF IT CAUSES CRASHES!");
+
+    }
+
     public static void EMFModMessage(String message) {
         EMFModMessage(message, false);
     }
@@ -71,13 +81,17 @@ public class EMFUtils {
 
 
     @Nullable
-    public static EMFPartData EMFReadModelPart(String pathOfJpm) {
-        //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
-        pathOfJpm = "optifine/cem/" + pathOfJpm;
+    public static EMFPartData EMFReadModelPart(String pathOfJpm, String filePath) {
+        //String folderOfModel = new File(mobModelIDInfo.getfileName()).getParent();
+        //assume
+        pathOfJpm = Objects.requireNonNullElse(filePath, "optifine/cem/") + pathOfJpm;
+        if (!pathOfJpm.endsWith(".jpm")) {
+            pathOfJpm = pathOfJpm + ".jpm";
+        }
         try {
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJpm));
             if (res.isEmpty()) {
-                if (EMFConfig.getConfig().printModelCreationInfoToLog)
+                if (EMFConfig.getConfig().logModelCreationData)
                     EMFModMessage("jpm failed " + pathOfJpm + " does not exist", false);
                 return null;
             }
@@ -95,10 +109,17 @@ public class EMFUtils {
             return jpm;
             //}
         } catch (Exception e) {
-            if (EMFConfig.getConfig().printModelCreationInfoToLog) EMFModMessage("jpm failed " + e, false);
+            if (EMFConfig.getConfig().logModelCreationData) EMFModMessage("jpm failed " + e, false);
         }
         return null;
     }
 
 
+    public static String getIdUnique(Set<String> known, String desired) {
+        //if (desired.isBlank()) desired = "EMF_#";
+        while (known.contains(desired) || desired.isBlank()) {
+            desired = desired + "#";
+        }
+        return desired;
+    }
 }

@@ -7,8 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(ModelPart.Cuboid.class)
 public interface CuboidAccessor {
-//    @Accessor
-//    ModelPart.Quad[] getSides();
+
 
     @Mutable
     @Accessor
