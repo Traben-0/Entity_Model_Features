@@ -507,7 +507,7 @@ public class EMFAnimationHelper {
         float o = 0;
         float n = 0;
         LivingEntity alive = emfEntity.getLiving();
-        if (!alive.hasVehicle() && alive.isAlive()) {
+        if (alive != null && !alive.hasVehicle()) {
             n = MathHelper.lerp(tickDelta, alive.lastLimbDistance, alive.limbDistance);
             o = alive.limbAngle - alive.limbDistance * (1.0F - tickDelta);
             if (alive.isBaby()) {
