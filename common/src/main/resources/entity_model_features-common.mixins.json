@@ -3,7 +3,6 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "MixinBlockEntityRendererFactories",
     "MixinEntityModel",
     "MixinEntityModelLoader",
     "MixinParrotEntityModel",
@@ -26,11 +25,11 @@
     "rendering.MixinStrayOverlayFeatureRenderer",
     "rendering.MixinTropicalFishPatternFeatureRenderer",
     "rendering.MixinWolfCollarFeatureRenderer",
-    "rendering.MixinWolfEntityModel"
-  ],
-  "mixins": [
+    "rendering.MixinWolfEntityModel",
     "MixinEntity",
     "accessor.EntityRenderDispatcherAccessor"
+  ],
+  "mixins": [
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin;
+package traben.entity_model_features.fabric.mixin;
 
 
 import com.google.common.collect.ImmutableMap;
