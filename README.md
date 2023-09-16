@@ -43,7 +43,7 @@ it works :)
 [Download Fresh Animations](https://www.planetminecraft.com/texture-pack/fresh-animations-v1-0/)
 
 
-## Features & OptiFine differences
+## Features & OptiFine differences & Known Bugs
 
 Up-to-date feature details page : [Features & Optifine differences](FEATURES.md)
 

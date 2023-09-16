@@ -107,3 +107,12 @@ All the listed features below are present in EMF and work just like in OptiFine,
 - Sprites are not currently supported
 - Non-CEM features. EMF only supports OptiFine CEM. For other features you will need other mods, like ETF which supports OptiFine random and emissive entity textures.
 - possibly more that I've forgotten to mention at this time, let me know if you find something that doesn't work and isn't listed here :)
+
+
+# Known Bugs
+
+These issues are known and do not need to be reported
+
+- 1.19 block entities on FORGE are not synced between variants. chest variants, enchanting_book, shulker_boxes, and lectern_book will not be the correct model all the time.
+
+
