@@ -116,3 +116,14 @@ These issues are known and do not need to be reported
 - 1.19 block entities on FORGE are not synced between variants. chest variants, enchanting_book, shulker_boxes, and lectern_book will not be the correct model all the time.
 
 
+
+# Known mod compatibility issues
+
+### intentional
+EMF will never work with these mods because they do the same thing
+- OptiFine
+- OptiFabric
+- dorianpb's CEM mod
+
+
+
