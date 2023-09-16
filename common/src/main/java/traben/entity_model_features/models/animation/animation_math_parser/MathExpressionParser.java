@@ -65,12 +65,12 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                 if (firstBooleanChar != null) {
                     if (action == MathAction.BOOLEAN_CHAR) {
                         action = switch (firstBooleanChar + "" + ch) {
-                            case "==" -> MathAction.equals;
-                            case "!=" -> MathAction.notEquals;
-                            case "&&" -> MathAction.and;
-                            case "||" -> MathAction.or;
-                            case ">=" -> MathAction.largerThanOrEquals;
-                            case "<=" -> MathAction.smallerThanOrEquals;
+                            case "==" -> MathAction.EQUALS;
+                            case "!=" -> MathAction.NOT_EQUALS;
+                            case "&&" -> MathAction.AND;
+                            case "||" -> MathAction.OR;
+                            case ">=" -> MathAction.LARGER_THAN_OR_EQUALS;
+                            case "<=" -> MathAction.SMALLER_THAN_OR_EQUALS;
                             default ->
                                     throw new EMFMathException("ERROR: with boolean processing for operator [" + firstBooleanChar + "" + ch + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
                         };
@@ -86,11 +86,11 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                         } else {
                             //add complete single char boolean action
                             components.add(switch (firstBooleanChar) {
-                                case '=' -> MathAction.equals;
-                                case '&' -> MathAction.and;
-                                case '|' -> MathAction.or;
-                                case '<' -> MathAction.smallerThan;
-                                case '>' -> MathAction.largerThan;
+                                case '=' -> MathAction.EQUALS;
+                                case '&' -> MathAction.AND;
+                                case '|' -> MathAction.OR;
+                                case '<' -> MathAction.SMALLER_THAN;
+                                case '>' -> MathAction.LARGER_THAN;
                                 default ->
                                         throw new EMFMathException("ERROR: with boolean processing for operator [" + firstBooleanChar + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
                             });
@@ -102,14 +102,14 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                     firstBooleanChar = ch;
                 }
                 //critical that elif stops here
-                if (action == MathAction.subtract &&
+                if (action == MathAction.SUBTRACT &&
                         ((components.isEmpty() && rollingRead.isEmpty())
                                 || (!components.isEmpty() && components.getLast() instanceof MathAction && rollingRead.isEmpty()))) {
                     isNegativeValueNext = true;
-                } else if (action == MathAction.none) {
+                } else if (action == MathAction.NONE) {
                     rollingRead.append(ch);
                 } else {
-                    if (action == MathAction.openBracket) {
+                    if (action == MathAction.OPEN_BRACKET) {
                         String functionName = rollingRead.toString();
                         rollingRead = new StringBuilder();
 
@@ -206,7 +206,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
             for (MathComponent component :
                     components) {
                 if (lastComponent instanceof MathAction && component instanceof MathAction action) {
-                    if (action != MathAction.add) {
+                    if (action != MathAction.ADD) {
                         newComponents.add(component);
                     }
                     //do not include unneeded addition action as there is no reason to and will mess with parser logic
@@ -232,27 +232,27 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                 optimizedAlternativeToThis = comp;
             } else {
 
-                if (components.get(0) == MathAction.add) {
+                if (components.get(0) == MathAction.ADD) {
                     components.remove(0);
                 }
 
-                this.containsBooleansHigherOrder = (components.contains(MathAction.equals)
-                        || components.contains(MathAction.largerThan)
-                        || components.contains(MathAction.largerThanOrEquals)
-                        || components.contains(MathAction.smallerThan)
-                        || components.contains(MathAction.smallerThanOrEquals)
-                        || components.contains(MathAction.notEquals));
+                this.containsBooleansHigherOrder = (components.contains(MathAction.EQUALS)
+                        || components.contains(MathAction.LARGER_THAN)
+                        || components.contains(MathAction.LARGER_THAN_OR_EQUALS)
+                        || components.contains(MathAction.SMALLER_THAN)
+                        || components.contains(MathAction.SMALLER_THAN_OR_EQUALS)
+                        || components.contains(MathAction.NOT_EQUALS));
 
                 this.containsBooleansLowerOrder =
-                        components.contains(MathAction.and)
-                                || components.contains(MathAction.or);
+                        components.contains(MathAction.AND)
+                                || components.contains(MathAction.OR);
 
-                this.containsMultiplicationLevel = (components.contains(MathAction.multiply)
-                        || components.contains(MathAction.divide)
-                        || components.contains(MathAction.divisionRemainder));
+                this.containsMultiplicationLevel = (components.contains(MathAction.MULTIPLY)
+                        || components.contains(MathAction.DIVIDE)
+                        || components.contains(MathAction.DIVISION_REMAINDER));
 
-                this.containsAdditionLevel = (components.contains(MathAction.add)
-                        || components.contains(MathAction.subtract));
+                this.containsAdditionLevel = (components.contains(MathAction.ADD)
+                        || components.contains(MathAction.SUBTRACT));
 
 
                 //check if expression only contains constants, if so precalculate and save constant result
@@ -311,12 +311,13 @@ public class MathExpressionParser extends MathValue implements MathComponent {
         }
         MathComponent optimized = expression.optimizedAlternativeToThis;
         //just an anonymous boolean inverter
-        if(expression.wasInvertedBooleanExpression){
+        if (expression.wasInvertedBooleanExpression) {
             return new MathValue() {
                 @Override
                 public float get() {
                     return optimized.get() == 1 ? 0 : 1;
                 }
+
                 @Override
                 public ValueSupplier getSupplier() {
                     return null;
@@ -355,8 +356,8 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                return components.getLast().get();
 //            }
 
-            if (calculationInstance.verboseMode)
-                print("start calculating [" + originalExpression + "] as [" + components + "].");
+//            if (EMFConfig.getConfig().logMathInRuntime)
+//                print("start calculating [" + originalExpression + "] as [" + components + "].");
 
             //reset every calculate
             componentsDuringCalculate = new CalculationList(components);
@@ -368,7 +369,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                 while (compIterator.hasNext()) {
                     MathComponent component = compIterator.next();
                     if (component instanceof MathAction action) {
-                        if (action == MathAction.multiply) {
+                        if (action == MathAction.MULTIPLY) {
                             MathComponent last = newComponents.getLast();
                             MathComponent next = compIterator.next();
                             newComponents.removeLast();
@@ -378,7 +379,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                            newComponents.add(new MathVariableConstant(lastD * nextD));
                             newComponents.add(MathBinaryExpressionComponent.getOptimizedExpression(last, action, next));
 
-                        } else if (action == MathAction.divide) {
+                        } else if (action == MathAction.DIVIDE) {
                             MathComponent last = newComponents.getLast();
                             MathComponent next = compIterator.next();
                             newComponents.removeLast();
@@ -387,7 +388,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                            if (calculationInstance.verboseMode) print("divide=" + lastD + " / " + nextD);
 //                            newComponents.add(new MathVariableConstant(lastD / nextD));
                             newComponents.add(MathBinaryExpressionComponent.getOptimizedExpression(last, action, next));
-                        } else if (action == MathAction.divisionRemainder) {
+                        } else if (action == MathAction.DIVISION_REMAINDER) {
                             MathComponent last = newComponents.getLast();
                             MathComponent next = compIterator.next();
                             newComponents.removeLast();
@@ -412,7 +413,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                 while (compIterator2.hasNext()) {
                     MathComponent component = compIterator2.next();
                     if (component instanceof MathAction action) {
-                        if (action == MathAction.add) {
+                        if (action == MathAction.ADD) {
                             MathComponent last = newComponents2.getLast();
                             MathComponent next = compIterator2.next();
                             newComponents2.removeLast();
@@ -421,7 +422,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 //                            if (calculationInstance.verboseMode) print("add=" + lastD + " + " + nextD);
 //                            newComponents2.add(new MathVariableConstant(lastD + nextD));
                             newComponents2.add(MathBinaryExpressionComponent.getOptimizedExpression(last, action, next));
-                        } else if (action == MathAction.subtract) {
+                        } else if (action == MathAction.SUBTRACT) {
                             MathComponent last = newComponents2.getLast();
                             MathComponent next = compIterator2.next();
                             newComponents2.removeLast();
@@ -448,7 +449,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                     MathComponent component = compIteratorB.next();
                     if (component instanceof MathAction action) {
                         switch (action) {
-                            case equals, smallerThanOrEquals, smallerThan, largerThanOrEquals, largerThan, notEquals -> {
+                            case EQUALS, SMALLER_THAN_OR_EQUALS, SMALLER_THAN, LARGER_THAN_OR_EQUALS, LARGER_THAN, NOT_EQUALS -> {
                                 MathComponent last = newComponentsB.getLast();
                                 MathComponent next = compIteratorB.next();
                                 newComponentsB.removeLast();
@@ -473,7 +474,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                     MathComponent component = compIteratorB.next();
                     if (component instanceof MathAction action) {
                         switch (action) {
-                            case and, or -> {
+                            case AND, OR -> {
                                 MathComponent last = newComponentsB.getLast();
                                 MathComponent next = compIteratorB.next();
                                 newComponentsB.removeLast();
@@ -494,15 +495,15 @@ public class MathExpressionParser extends MathValue implements MathComponent {
             }
 
 
-            if (calculationInstance.verboseMode)
-                print("finish calculating [" + originalExpression + "] as [" + components + "].");
+//            if (EMFConfig.getConfig().logMathInRuntime)
+//                print("finish calculating [" + originalExpression + "] as [" + components + "].");
             if (componentsDuringCalculate.size() == 1) {
                 //if(verboseMode) System.out.print("group result");
                 float result = componentsDuringCalculate.getLast().get();
                 //lastResultThisTick = result;
-                if (calculationInstance.verboseMode) print(" = " + result);
+//                if (EMFConfig.getConfig().logMathInRuntime) print(" = " + result);
                 if (Double.isNaN(result)) {
-                    print(" result was NaN in [" + calculationInstance.modelName + "] for expression: " + originalExpression + " as " + components);
+                    System.out.println(" result was NaN in [" + calculationInstance.modelName + "] for expression: " + originalExpression + " as " + components);
                 } else {
                     //save optimized version of valid expression
                     optimizedAlternativeToThis = componentsDuringCalculate.getLast();

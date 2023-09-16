@@ -17,7 +17,7 @@ public class MixinEntityModelLoader {
     @Inject(method = "getModelPart",
             at = @At(value = "RETURN"), cancellable = true)
     private void emf$injectModelLoad(EntityModelLayer layer, CallbackInfoReturnable<ModelPart> cir) {
-        if(EMFVersionDifferenceManager.isForge()) {
+        if (EMFVersionDifferenceManager.isForge()) {
             try {
                 cir.setReturnValue(EMFManager.getInstance().injectIntoModelRootGetter(layer, cir.getReturnValue()));
             } catch (IncompatibleClassChangeError error) {
@@ -30,7 +30,7 @@ public class MixinEntityModelLoader {
                 // and fails due to the accesswidening of ModelPart being broken due to forge preparing to shut down
                 // this ofcourse crashes forge again but now it blames emf.....
             }
-        }else{
+        } else {
             cir.setReturnValue(EMFManager.getInstance().injectIntoModelRootGetter(layer, cir.getReturnValue()));
         }
     }

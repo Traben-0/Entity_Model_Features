@@ -9,9 +9,6 @@ public class EMFModMenuEntry implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         try {
-//            if (FabricLoader.getInstance().isModLoaded("yet-another-config-lib")) {
-//                return EMFYACL::createGui;
-//            }
             return EMFConfigScreenMain::new;
         }catch (Exception e){
             return screen -> null;

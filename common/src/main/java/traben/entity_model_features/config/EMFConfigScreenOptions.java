@@ -9,15 +9,12 @@ import java.util.Objects;
 public class EMFConfigScreenOptions extends ETFConfigScreen {
 
 
-
-    public EMFConfigScreenOptions(EMFConfigScreenMain parent) {
-        super(Text.translatable("entity_model_features.config.options"),parent);
-        emfParent = parent;
-    }
-
     private final EMFConfigScreenMain emfParent;
 
-
+    public EMFConfigScreenOptions(EMFConfigScreenMain parent) {
+        super(Text.translatable("entity_model_features.config.options"), parent);
+        emfParent = parent;
+    }
 
     @Override
     protected void init() {
@@ -29,10 +26,8 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
         this.addDrawableChild(getETFButton((int) (this.width * 0.4), (int) (this.height * 0.9), (int) (this.width * 0.22), 20,
                 Text.translatable("dataPack.validation.reset"),
                 (button) -> {
-                    emfParent.tempConfig.renderCustomModelsGreen = false;
-                    emfParent.tempConfig.printModelCreationInfoToLog = false;
-                    emfParent.tempConfig.printAllMaths = false;
-                    emfParent.tempConfig.textureOverrideMode = EMFConfig.TextureOverrideMode.USE_IRIS_QUIRK_AND_DEFER_TO_EMF_CODE_OTHERWISE;
+                    emfParent.tempConfig.attemptRevertingEntityModelsAlteredByAnotherMod = true;
+                    emfParent.tempConfig.attemptPhysicsModPatch_2 = EMFConfig.PhysicsModCompatChoice.CUSTOM;
                     this.clearAndInit();
                     //Objects.requireNonNull(client).setScreen(parent);
                 }
@@ -47,49 +42,27 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
 
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.substitute_vanilla").getString() +
-                        ": " + (emfParent.tempConfig.attemptToCopyVanillaModelIntoMissingModelPart ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
-                (button) -> {
-                    emfParent.tempConfig.attemptToCopyVanillaModelIntoMissingModelPart = !emfParent.tempConfig.attemptToCopyVanillaModelIntoMissingModelPart;
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.substitute_vanilla").getString() +
-                            ": " + (emfParent.tempConfig.attemptToCopyVanillaModelIntoMissingModelPart ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
-                },
-                Text.translatable("entity_model_features.config.substitute_vanilla.tooltip")
-        ));
-
-
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.force_models").getString() +
-                        ": " + (emfParent.tempConfig.tryForceEmfModels ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                        ": " + (emfParent.tempConfig.attemptRevertingEntityModelsAlteredByAnotherMod ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
                 (button) -> {
-                    emfParent.tempConfig.tryForceEmfModels = !emfParent.tempConfig.tryForceEmfModels;
+                    emfParent.tempConfig.attemptRevertingEntityModelsAlteredByAnotherMod = !emfParent.tempConfig.attemptRevertingEntityModelsAlteredByAnotherMod;
                     button.setMessage(Text.of(Text.translatable("entity_model_features.config.force_models").getString() +
-                            ": " + (emfParent.tempConfig.tryForceEmfModels ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                            ": " + (emfParent.tempConfig.attemptRevertingEntityModelsAlteredByAnotherMod ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
                 },
                 Text.translatable("entity_model_features.config.force_models.tooltip")
         ));
 
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.physics").getString() +
-                        ": " + (emfParent.tempConfig.attemptPhysicsModPatch_1 ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                        ": " + (emfParent.tempConfig.attemptPhysicsModPatch_2.asText()).getString()),
                 (button) -> {
-                    emfParent.tempConfig.attemptPhysicsModPatch_1 = !emfParent.tempConfig.attemptPhysicsModPatch_1;
+                    emfParent.tempConfig.attemptPhysicsModPatch_2 = emfParent.tempConfig.attemptPhysicsModPatch_2.next();
                     button.setMessage(Text.of(Text.translatable("entity_model_features.config.physics").getString() +
-                            ": " + (emfParent.tempConfig.attemptPhysicsModPatch_1 ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                            ": " + (emfParent.tempConfig.attemptPhysicsModPatch_2.asText()).getString()));
                 },
                 Text.translatable("entity_model_features.config.physics.tooltip")
         ));
 
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.5), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.texture_override_mode").getString() +
-                        ": " + (emfParent.tempConfig.textureOverrideMode.asText()).getString()),
-                (button) -> {
-                    emfParent.tempConfig.textureOverrideMode = emfParent.tempConfig.textureOverrideMode.next();
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.texture_override_mode").getString() +
-                            ": " + (emfParent.tempConfig.textureOverrideMode.asText()).getString()));
-                },
-                Text.translatable("entity_model_features.config.texture_override_mode.tooltip")
-        ));
     }
 
 
