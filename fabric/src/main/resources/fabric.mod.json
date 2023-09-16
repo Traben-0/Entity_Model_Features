@@ -14,9 +14,9 @@
     }
   ],
   "contact": {
-    "homepage": "https://www.curseforge.com/minecraft/mc-mods/entity-texture-features-fabric",
-    "sources": "https://github.com/Traben-0/Entity_Texture_Features",
-    "issues": "https://github.com/Traben-0/Entity_Texture_Features/issues",
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/entity-model-features",
+    "sources": "https://github.com/Traben-0/Entity_Model_Features",
+    "issues": "https://github.com/Traben-0/Entity_Model_Features/issues",
     "discord": "https://discord.gg/rURmwrzUcz"
   },
 
