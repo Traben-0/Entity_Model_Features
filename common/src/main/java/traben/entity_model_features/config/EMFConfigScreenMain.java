@@ -14,6 +14,7 @@ import net.minecraft.entity.passive.SquidEntity;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
 import java.awt.*;
@@ -125,8 +126,8 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
             scale = Math.min(scale * scaleModify, (this.height * 0.4));
 
             context.getMatrices().push();
-            context.getMatrices().translate(0, 0, 100);
-            InventoryScreen.drawEntity(context, x, y, (int) scale, quaternionf, quaternionf2, livingEntity);
+            //context.getMatrices().translate(0, 0, 100);
+            InventoryScreen.drawEntity(context, x, y, (int) scale,new Vector3f(0,0,100), quaternionf, quaternionf2, livingEntity);
             context.getMatrices().pop();
         } else {
             context.drawCenteredTextWithShadow(this.textRenderer, Text.of("Load a world and nearby entities will appear here."), this.width / 3, this.height / 2, Color.GRAY.getRGB());
