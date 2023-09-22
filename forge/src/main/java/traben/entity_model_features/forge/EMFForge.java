@@ -7,7 +7,6 @@ import net.minecraftforge.fml.IExtensionPoint;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.network.NetworkConstants;
 import traben.entity_model_features.EMFClient;
 import traben.entity_model_features.config.EMFConfigScreenMain;
 
@@ -20,7 +19,7 @@ public class EMFForge {
         if (FMLEnvironment.dist == Dist.CLIENT) {
 
             //not 100% sure what this actually does but it will trigger the catch if loading on the server side
-            ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> NetworkConstants.IGNORESERVERONLY, (a, b) -> true));
+            ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> IExtensionPoint.DisplayTest.IGNORESERVERONLY, (a, b) -> true));
 
 
             try {

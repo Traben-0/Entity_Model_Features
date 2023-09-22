@@ -1,4 +1,8 @@
 
+
+1.0.2
+- fixed a mistake in the block entity code causing unnecessary lag
+
 1.0
 
 It's time, EMF has come a long way, in 9.5 months, and now seems to be very closely on parity with OptiFine CEM, seeing as it is not
