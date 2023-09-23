@@ -175,16 +175,16 @@ public class EMFModelPartCustom extends EMFModelPart {
         }
 
         ModelPart part = new ModelPart(((ModelPartAccessor) this).getCuboids(), children);
-        part.setDefaultTransform(getDefaultTransform());
+        part.setTransform(getDefaultTransform());
         part.pitch = pitch;
         part.roll = roll;
         part.yaw = yaw;
         part.pivotZ = pivotZ;
         part.pivotY = pivotY;
         part.pivotX = pivotX;
-        part.xScale = xScale;
-        part.yScale = yScale;
-        part.zScale = zScale;
+//        part.xScale = xScale;
+//        part.yScale = yScale;
+//        part.zScale = zScale;
 
         return part;
     }

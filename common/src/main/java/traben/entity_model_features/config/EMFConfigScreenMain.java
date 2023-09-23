@@ -2,9 +2,10 @@ package traben.entity_model_features.config;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
 import java.awt.*;
@@ -17,7 +18,7 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
     public EMFConfig tempConfig;
 
     public EMFConfigScreenMain(Screen parent) {
-        super(Text.translatable("entity_model_features.title"), parent);
+        super(new TranslatableText("entity_model_features.title"), parent);
         // this.parent = parent;
         tempConfig = EMFConfig.copyFrom(EMFConfig.getConfig());
     }
@@ -29,7 +30,7 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
 
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.7), (int) (this.height * 0.9), (int) (this.width * 0.2), 20,
-                Text.translatable("gui.done"),
+                new TranslatableText("gui.done"),
                 (button) -> {
                     if(!tempConfig.equals(EMFConfig.getConfig())) {
                         EMFConfig.setConfig(tempConfig);
@@ -40,11 +41,11 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
                 }
         ));
         this.addDrawableChild(getETFButton((int) (this.width * 0.4), (int) (this.height * 0.9), (int) (this.width * 0.22), 20,
-                Text.translatable("dataPack.validation.reset"),
+                new TranslatableText("dataPack.validation.reset"),
                 (button) -> {
                     tempConfig = new EMFConfig();
-                    this.clearAndInit();
-                    //Objects.requireNonNull(client).setScreen(parent);
+                    //this.clearAndInit();
+                    Objects.requireNonNull(client).setScreen(new EMFConfigScreenMain(parent));
                 }
         ));
         this.addDrawableChild(getETFButton((int) (this.width * 0.1), (int) (this.height * 0.9), (int) (this.width * 0.2), 20,
@@ -58,19 +59,19 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
 
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.6), (int) (this.height * 0.2), (int) (this.width * 0.3), 20,
-                Text.translatable("entity_model_features.config.options"),
+                new TranslatableText("entity_model_features.config.options"),
                 (button) -> Objects.requireNonNull(client).setScreen(new EMFConfigScreenOptions(this)),
-                Text.translatable("entity_model_features.config.options.tooltip")
+                new TranslatableText("entity_model_features.config.options.tooltip")
         ));
         this.addDrawableChild(getETFButton((int) (this.width * 0.6), (int) (this.height * 0.3), (int) (this.width * 0.3), 20,
-                Text.translatable("entity_model_features.config.tools"),
+                new TranslatableText("entity_model_features.config.tools"),
                 (button) -> Objects.requireNonNull(client).setScreen(new EMFConfigScreenTools(this)),
-                Text.translatable("entity_model_features.config.tools.tooltip")
+                new TranslatableText("entity_model_features.config.tools.tooltip")
         ));
         this.addDrawableChild(getETFButton((int) (this.width * 0.6), (int) (this.height * 0.4), (int) (this.width * 0.3), 20,
-                Text.translatable("entity_model_features.config.debug"),
+                new TranslatableText("entity_model_features.config.debug"),
                 (button) -> Objects.requireNonNull(client).setScreen(new EMFConfigScreenDebugLogOptions(this)),
-                Text.translatable("entity_model_features.config.debug.tooltip")
+                new TranslatableText("entity_model_features.config.debug.tooltip")
         ));
 
     }

@@ -15,7 +15,6 @@ import traben.entity_model_features.models.jem_objects.EMFPartData;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 
@@ -89,13 +88,13 @@ public class EMFUtils {
             pathOfJpm = pathOfJpm + ".jpm";
         }
         try {
-            Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJpm));
-            if (res.isEmpty()) {
+
+            if (!EMFManager.isExistingFile(new Identifier(pathOfJpm))) {
                 if (EMFConfig.getConfig().logModelCreationData)
                     EMFModMessage("jpm failed " + pathOfJpm + " does not exist", false);
                 return null;
             }
-            Resource jpmResource = res.get();
+            Resource jpmResource = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJpm));
             //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             //System.out.println("jem exists "+ jemFile.exists());

@@ -11,7 +11,6 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.render.entity.model.WolfEntityModel;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.passive.PufferfishEntity;
 import net.minecraft.entity.passive.TropicalFishEntity;
@@ -35,9 +34,11 @@ import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.config.ETFConfig;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
+
+import static traben.entity_model_features.models.EMFModelPart.modelPartHasChild;
 
 
 public class EMFManager {//singleton for data holding and resetting needs
@@ -80,7 +81,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public static ModelPart traverseRootForChildOrNull(ModelPart root, String nameOfModelToFind) {
-        if (root.hasChild(nameOfModelToFind))
+        if (modelPartHasChild(root,nameOfModelToFind))
             return root.getChild(nameOfModelToFind);
         for (ModelPart part :
                 ((ModelPartAccessor) root).getChildren().values()) {
@@ -146,15 +147,24 @@ public class EMFManager {//singleton for data holding and resetting needs
     public static CemDirectoryApplier getResourceCemDirectoryApplierOrNull(String inCemPathResource, String rawMobName) {
         ResourceManager resources = MinecraftClient.getInstance().getResourceManager();
         //try emf folder
-        if (resources.getResource(new Identifier("emf/cem/" + inCemPathResource)).isPresent())
+        if (isExistingFile(new Identifier("emf/cem/" + inCemPathResource)))
             return CemDirectoryApplier.getEMF();
-        if (resources.getResource(new Identifier("emf/cem/" + rawMobName + "/" + inCemPathResource)).isPresent())
+        if (isExistingFile(new Identifier("emf/cem/" + rawMobName + "/" + inCemPathResource)))
             return CemDirectoryApplier.getEMF_Mob(rawMobName);
-        if (resources.getResource(new Identifier("optifine/cem/" + inCemPathResource)).isPresent())
+        if (isExistingFile(new Identifier("optifine/cem/" + inCemPathResource)))
             return CemDirectoryApplier.getCEM();
-        if (resources.getResource(new Identifier("optifine/cem/" + rawMobName + "/" + inCemPathResource)).isPresent())
+        if (isExistingFile(new Identifier("optifine/cem/" + rawMobName + "/" + inCemPathResource)))
             return CemDirectoryApplier.getCem_Mob(rawMobName);
         return null;
+    }
+
+    public static boolean isExistingFile(Identifier path){
+        try{
+            Resource res = MinecraftClient.getInstance().getResourceManager().getResource(path);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
     }
 
     @Nullable
@@ -164,15 +174,11 @@ public class EMFManager {//singleton for data holding and resetting needs
             return EMFManager.getInstance().cache_JemDataByFileName.get(pathOfJem);
         }
         try {
-            Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
-            if (res.isEmpty()) {
-                if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage(".jem read failed " + pathOfJem + " does not exist", false);
-                return null;
-            }
+            Resource jemResource = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
+
             if (EMFConfig.getConfig().logModelCreationData)
                 EMFUtils.EMFModMessage(".jem read success " + pathOfJem + " exists", false);
-            Resource jemResource = res.get();
+//            Resource jemResource = res.get();
             //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             //System.out.println("jem exists "+ jemFile.exists());
@@ -187,7 +193,10 @@ public class EMFManager {//singleton for data holding and resetting needs
                 EMFManager.getInstance().cache_JemDataByFileName.put(pathOfJem, jem);
             return jem;
             //}
-        } catch (InvalidIdentifierException | FileNotFoundException e) {
+        } catch (IOException e) {
+            if (EMFConfig.getConfig().logModelCreationData)
+                EMFUtils.EMFModMessage(".jem read failed " + pathOfJem + " does not exist", false);
+        } catch (InvalidIdentifierException e) {
             if (EMFConfig.getConfig().logModelCreationData)
                 EMFUtils.EMFModMessage(".jem failed to load " + e, false);
         } catch (Exception e) {
@@ -514,7 +523,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                 if (cannonRoot.variantTester == null) {
                     Identifier propertyID = new Identifier(cannonRoot.variantDirectoryApplier.getThisDirectoryOfFilename(mobName + ".properties"));
-                    if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
+                    if (isExistingFile(propertyID)) {
                         cannonRoot.variantTester = ETFApi.readRandomPropertiesFileAndReturnTestingObject2(propertyID, "models");
                     } else {
                         EMFUtils.EMFModWarn("no property" + propertyID);

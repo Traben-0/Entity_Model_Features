@@ -1,9 +1,9 @@
 package traben.entity_model_features.models.jem_objects;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
@@ -41,7 +41,7 @@ public class EMFJemData {
                 }
             }
             Identifier possibleTexture = new Identifier(texture);
-            if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
+            if (EMFManager.isExistingFile(possibleTexture)) {
                 return possibleTexture;
             }
         }

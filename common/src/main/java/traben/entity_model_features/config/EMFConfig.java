@@ -2,8 +2,9 @@ package traben.entity_model_features.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.screen.ScreenTexts;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -105,8 +106,8 @@ public class EMFConfig {
 
     public enum UnknownModelPrintMode {
         NONE(ScreenTexts.OFF),
-        LOG_ONLY(Text.translatable("entity_model_features.config.unknown_model_print_mode.log")),
-        LOG_AND_JEM(Text.translatable("entity_model_features.config.unknown_model_print_mode.log_jem"));
+        LOG_ONLY(new TranslatableText("entity_model_features.config.unknown_model_print_mode.log")),
+        LOG_AND_JEM(new TranslatableText("entity_model_features.config.unknown_model_print_mode.log_jem"));
 
         private final Text text;
 
@@ -129,8 +130,8 @@ public class EMFConfig {
 
     public enum VanillaModelRenderMode {
         Off(ScreenTexts.OFF),
-        Position_normal(Text.translatable("entity_model_features.config.vanilla_render.normal")),
-        Positon_offset(Text.translatable("entity_model_features.config.vanilla_render.offset"));
+        Position_normal(new TranslatableText("entity_model_features.config.vanilla_render.normal")),
+        Positon_offset(new TranslatableText("entity_model_features.config.vanilla_render.offset"));
 
         private final Text text;
 
@@ -154,8 +155,8 @@ public class EMFConfig {
 
     public enum PhysicsModCompatChoice {
         OFF(ScreenTexts.OFF),
-        VANILLA(Text.translatable("entity_model_features.config.physics.1")),
-        CUSTOM(Text.translatable("entity_model_features.config.physics.2"));
+        VANILLA(new TranslatableText("entity_model_features.config.physics.1")),
+        CUSTOM(new TranslatableText("entity_model_features.config.physics.2"));
 
         private final Text text;
 
@@ -178,11 +179,11 @@ public class EMFConfig {
     }
 
     public enum RenderModeChoice {
-        NORMAL(Text.translatable("entity_model_features.config.render.normal")),
-        GREEN(Text.translatable("entity_model_features.config.render.green")),
-        LINES(Text.translatable("entity_model_features.config.render.lines")),
-        NONE(Text.translatable("entity_model_features.config.render.none"));
-        //TRANSPARENT(Text.translatable("entity_model_features.config.render.transparent"));
+        NORMAL(new TranslatableText("entity_model_features.config.render.normal")),
+        GREEN(new TranslatableText("entity_model_features.config.render.green")),
+        LINES(new TranslatableText("entity_model_features.config.render.lines")),
+        NONE(new TranslatableText("entity_model_features.config.render.none"));
+        //TRANSPARENT(new TranslatableText("entity_model_features.config.render.transparent"));
 
         private final Text text;
 

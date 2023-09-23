@@ -71,20 +71,20 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     EMFModelState getStateOf(ModelPart modelPart) {
         if (modelPart instanceof EMFModelPartWithState emf) {
             return new EMFModelState(
-                    modelPart.getDefaultTransform(),
+                    emf.getDefaultTransform(),
                     ((ModelPartAccessor) modelPart).getCuboids(),
                     emf.getChildrenEMF(),
-                    modelPart.xScale, modelPart.yScale, modelPart.zScale,
-                    modelPart.visible, modelPart.hidden,
+                    emf.xScale, emf.yScale, emf.zScale,
+                    modelPart.visible, emf.hidden,
                     emf.textureOverride, emf.tryAnimate
             );
         }
         return new EMFModelState(
-                modelPart.getDefaultTransform(),
+                modelPart.getTransform(),
                 ((ModelPartAccessor) modelPart).getCuboids(),
                 new HashMap<>(),
-                modelPart.xScale, modelPart.yScale, modelPart.zScale,
-                modelPart.visible, modelPart.hidden,
+                1, 1, 1,
+                modelPart.visible, false,
                 null, new Animator()
         );
     }

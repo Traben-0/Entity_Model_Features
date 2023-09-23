@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
+import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
@@ -922,15 +923,15 @@ public class EMFOptiFinePartNameMappings {
                                     (float) Math.toDegrees(vanillaModelPart.pitch),
                                     (float) Math.toDegrees(vanillaModelPart.yaw),
                                     (float) Math.toDegrees(vanillaModelPart.roll)};
-                            partPrinter.scale = vanillaModelPart.xScale;
+                            partPrinter.scale = 1;
                             List<ModelPart.Cuboid> cuboids = ((ModelPartAccessor) vanillaModelPart).getCuboids();
                             for (ModelPart.Cuboid cube :
                                     cuboids) {
                                 EMFBoxData.EMFBoxPrinter boxPrinter = new EMFBoxData.EMFBoxPrinter();
                                 boxPrinter.coordinates = new float[]{
-                                        cube.minX - vanillaModelPart.getDefaultTransform().pivotX,
-                                        cube.minY - vanillaModelPart.getDefaultTransform().pivotY,
-                                        cube.minZ - vanillaModelPart.getDefaultTransform().pivotZ,
+                                        cube.minX - vanillaModelPart.getTransform().pivotX,
+                                        cube.minY - vanillaModelPart.getTransform().pivotY,
+                                        cube.minZ - vanillaModelPart.getTransform().pivotZ,
                                         cube.maxX - cube.minX,
                                         cube.maxY - cube.minY,
                                         cube.maxZ - cube.minZ};
@@ -967,7 +968,7 @@ public class EMFOptiFinePartNameMappings {
 
 
     private static ModelPart getChildByName(String name, ModelPart part) {
-        if (part.hasChild(name)) return part.getChild(name);
+        if (EMFModelPart.modelPartHasChild(part,name)) return part.getChild(name);
         for (ModelPart childPart :
                 ((ModelPartAccessor) part).getChildren().values()) {
             ModelPart possibleReturn = getChildByName(name, childPart);
@@ -988,8 +989,8 @@ public class EMFOptiFinePartNameMappings {
             detailsMap.put(partName,
                     " | | |-pivots=" + originalModel.pivotX + ", " + originalModel.pivotY + ", " + originalModel.pivotZ +
                             "\n | | |-rotations=" + Math.toDegrees(originalModel.pitch) + ", " + Math.toDegrees(originalModel.yaw) + ", " + Math.toDegrees(originalModel.roll) +
-                            "\n | | |-scales=" + originalModel.xScale + ", " + originalModel.yScale + ", " + originalModel.zScale +
-                            "\n | |  \\visibles=" + originalModel.visible + ", " + originalModel.hidden + "\n"
+                            //"\n | | |-scales=" + originalModel.xScale + ", " + originalModel.yScale + ", " + originalModel.zScale +
+                            "\n | |  \\visibles=" + originalModel.visible + ", \n"
             );
         }
     }

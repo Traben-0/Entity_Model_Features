@@ -93,7 +93,8 @@ public enum EMFModelOrRenderVariable {
         @Override
         public float getValue(ModelPart modelPart) {
             if(modelPart == null) return 0;
-            return modelPart.xScale;
+            if(modelPart instanceof EMFModelPart emf) return emf.xScale;
+            return 1;
         }
     },
     SY(){
@@ -106,7 +107,8 @@ public enum EMFModelOrRenderVariable {
         @Override
         public float getValue(ModelPart modelPart) {
             if(modelPart == null) return 0;
-            return modelPart.yScale;
+            if(modelPart instanceof EMFModelPart emf) return emf.yScale;
+            return 1;
         }
     },
     SZ(){
@@ -119,7 +121,8 @@ public enum EMFModelOrRenderVariable {
         @Override
         public float getValue(ModelPart modelPart) {
             if(modelPart == null) return 0;
-            return modelPart.zScale;
+            if(modelPart instanceof EMFModelPart emf) return emf.zScale;
+            return 1;
         }
     },
     VISIBLE(){
@@ -145,7 +148,8 @@ public enum EMFModelOrRenderVariable {
         @Override
         public float getValue(ModelPart modelPart) {
             if(modelPart == null) return 0;
-            return modelPart.hidden ? 1 : 0;
+            if(modelPart instanceof EMFModelPart emf) return emf.hidden ? 1 : 0;
+            return 0;
         }
     },
     RENDER_shadow_size(){

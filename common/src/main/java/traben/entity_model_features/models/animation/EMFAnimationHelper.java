@@ -13,10 +13,9 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.dimension.DimensionTypes;
+import net.minecraft.world.dimension.DimensionType;
 import traben.entity_model_features.mixin.accessor.EntityRenderDispatcherAccessor;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.utils.EMFBlockEntityWrapper;
@@ -24,8 +23,6 @@ import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFEntityWrapper;
 import traben.entity_model_features.utils.EMFManager;
 
-import java.io.Serializable;
-import java.util.Objects;
 import java.util.UUID;
 
 public class EMFAnimationHelper {
@@ -110,14 +107,10 @@ public class EMFAnimationHelper {
             if (emfEntity == null || emfEntity.getWorld() == null) {
                 dimension = 0;
             } else {
-                Identifier id = emfEntity.getWorld().getDimensionKey().getValue();
-                if (id.equals(DimensionTypes.THE_NETHER_ID)) {
-                    dimension = -1;
-                } else if (id.equals(DimensionTypes.THE_END_ID)) {
-                    dimension = 1;
-                } else {
-                    dimension = 0;
-                }
+                Identifier id = emfEntity.getWorld().getDimension().getEffects();
+                if (id.equals(DimensionType.THE_NETHER_ID)) dimension =  -1;
+                if (id.equals(DimensionType.THE_END_ID)) dimension =  1;
+                else dimension = 0;
             }
         }
         return dimension;
@@ -169,7 +162,7 @@ public class EMFAnimationHelper {
         if (emfEntity == null) return 0;
         LivingEntity alive = emfEntity.getLiving();
         return (alive != null) ?
-                (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, alive.prevBodyYaw, alive.getBodyYaw())) :
+                (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, alive.prevBodyYaw, alive.bodyYaw)) :
                 emfEntity.entity() != null ?
                         (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, emfEntity.entity().prevYaw, emfEntity.entity().getYaw()))
                         : 0;

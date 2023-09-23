@@ -2,11 +2,13 @@ package traben.entity_model_features.models;
 
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
@@ -20,10 +22,29 @@ public abstract class EMFModelPart extends ModelPart {
     public Identifier textureOverride;
     protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
 
+    public float xScale = 1;
+    public float yScale = 1;
+    public float zScale = 1;
+    public boolean hidden = false;
+
     public EMFModelPart(List<Cuboid> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
     }
 
+
+    public static boolean modelPartHasChild(@NotNull ModelPart part, @NotNull String childName){
+        return ((ModelPartAccessor)part).getChildren().containsKey(childName);
+    }
+
+    public ModelTransform getDefaultTransform() {
+        return defaultTransform;
+    }
+
+    public void setDefaultTransform(ModelTransform defaultTransform) {
+        this.defaultTransform = defaultTransform;
+    }
+
+    private ModelTransform defaultTransform = null;
 
 
     @Nullable
@@ -75,6 +96,12 @@ public abstract class EMFModelPart extends ModelPart {
             //normal vertex consumer
             renderToSuper(matrices, vertices, light, overlay, red, green, blue, alpha);
         }
+    }
+
+    @Override
+    public void rotate(MatrixStack matrices) {
+        super.rotate(matrices);
+        matrices.scale(xScale,yScale,zScale);
     }
 
     void renderToSuper(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
