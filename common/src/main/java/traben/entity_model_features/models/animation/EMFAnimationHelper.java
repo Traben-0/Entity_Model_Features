@@ -13,6 +13,7 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionTypes;
@@ -23,6 +24,8 @@ import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFEntityWrapper;
 import traben.entity_model_features.utils.EMFManager;
 
+import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 public class EMFAnimationHelper {
@@ -62,11 +65,13 @@ public class EMFAnimationHelper {
         emfEntity = entityIn == null ? null : new EMFEntityWrapper(entityIn);
     }
 
-    public static void setCurrentBlockEntity(BlockEntity entityIn, UUID id) {
+    public static void setCurrentBlockEntity(BlockEntity entityIn) {
         resetForNewEntity();
         EMFManager.getInstance().entityRenderCount++;
-        emfEntity = entityIn == null ? null : new EMFBlockEntityWrapper(entityIn, id);
+        emfEntity = entityIn == null ? null : new EMFBlockEntityWrapper(entityIn);
     }
+
+
 
     public static void resetForNewEntity() {//todo extend for possible performance benefits
         dimension = Float.NaN;
