@@ -2,7 +2,6 @@ package traben.entity_model_features.utils;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -68,6 +67,6 @@ public interface EMFEntity {
 
     Vec3d getVelocity();
 
-    EntityType<?> getType();
+    String getTypeString();
 
 }

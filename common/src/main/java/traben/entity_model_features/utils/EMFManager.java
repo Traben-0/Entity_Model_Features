@@ -506,7 +506,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 && ETFApi.getETFConfigObject().textureUpdateFrequency_V2 != ETFConfig.UpdateFrequency.Never
         ) {
             String mobName = cannonRoot.modelName.getfileName();
-            UUIDAndMobTypeKey key = new UUIDAndMobTypeKey(entity.getUuid(), entity.getType());
+            UUIDAndMobTypeKey key = new UUIDAndMobTypeKey(entity.getUuid(), entity.getTypeString());
 
             long randomizer = ETFApi.getETFConfigObject().textureUpdateFrequency_V2.getDelay() * 20L;
             if (System.currentTimeMillis() % randomizer == Math.abs(entity.getUuid().hashCode()) % randomizer) {
@@ -595,7 +595,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         String getThisDirectoryOfFilename(String fileName);
     }
 
-    private record UUIDAndMobTypeKey(UUID uuid, EntityType<?> entityType) {
+    private record UUIDAndMobTypeKey(UUID uuid, String entityType) {
     }
 
 
