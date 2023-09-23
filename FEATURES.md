@@ -113,7 +113,7 @@ All the listed features below are present in EMF and work just like in OptiFine,
 
 These issues are known and do not need to be reported
 
-- 1.19 block entities on FORGE are not synced between variants. chest variants, enchanting_book, shulker_boxes, and lectern_book will not be the correct model all the time.
+-
 
 
 
