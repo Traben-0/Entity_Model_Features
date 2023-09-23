@@ -3,11 +3,14 @@
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "MixinBlockEntityRendererFactories",
+    "MixinEntity",
     "MixinEntityModel",
     "MixinEntityModelLoader",
     "MixinParrotEntityModel",
     "MixinResourceReload",
     "accessor.CuboidAccessor",
+    "accessor.EntityRenderDispatcherAccessor",
     "accessor.MinecraftClientAccessor",
     "accessor.ModelPartAccessor",
     "rendering.MixinBlockEntityRenderDispatcher",
@@ -25,9 +28,7 @@
     "rendering.MixinStrayOverlayFeatureRenderer",
     "rendering.MixinTropicalFishPatternFeatureRenderer",
     "rendering.MixinWolfCollarFeatureRenderer",
-    "rendering.MixinWolfEntityModel",
-    "MixinEntity",
-    "accessor.EntityRenderDispatcherAccessor"
+    "rendering.MixinWolfEntityModel"
   ],
   "mixins": [
   ],

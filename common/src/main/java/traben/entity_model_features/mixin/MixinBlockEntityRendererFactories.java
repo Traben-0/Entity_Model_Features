@@ -1,4 +1,4 @@
-package traben.entity_model_features.forge.mixin;
+package traben.entity_model_features.mixin;
 
 
 import net.minecraft.block.entity.BlockEntityType;
