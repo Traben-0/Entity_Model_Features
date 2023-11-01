@@ -71,6 +71,8 @@ public class MathVariable extends MathValue implements MathComponent {
             case "move_forward" -> EMFAnimationHelper::getMoveForward;
             case "move_strafing" -> EMFAnimationHelper::getMoveStrafe;
 
+            case "nan" -> ()-> EMFManager.getInstance().isAnimationValidationPhase ? 0 : Float.NaN;
+
 
 //            case "collisionX" -> getter::getClosestCollisionX;
 //            case "collisionY" -> getter::getClosestCollisionY;
@@ -157,7 +159,11 @@ public class MathVariable extends MathValue implements MathComponent {
                 if (variableKey.matches("(var|varb)\\.\\w+")) {
                     EMFAnimation variableCalculator = calculationInstance.emfAnimationVariables.get(variableKey);
                     if (variableCalculator != null) {
-                        return variableCalculator::getLastResultOnly;
+                        if(invertBooleans && variableKey.startsWith("varb.")){
+                            return ()-> variableCalculator.getLastResultOnly() == 1 ? 0 : 1;
+                        }else{
+                            return variableCalculator::getLastResultOnly;
+                        }
                     } else {
                         ArrayList<String> vars = new ArrayList<>();
                         for (String var :
@@ -197,11 +203,7 @@ public class MathVariable extends MathValue implements MathComponent {
 
 
     private ValueSupplier getBooleanAsFloat(BoolSupplierPrimitive boolGetter) {
-        return () -> {
-            boolean value = invertBooleans != boolGetter.get();
-
-            return value ? 1f : 0f;
-        };
+        return () -> (invertBooleans != boolGetter.get()) ? 1f : 0f;
     }
 
     @Override
