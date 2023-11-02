@@ -113,17 +113,18 @@ All the listed features below are present in EMF and work just like in OptiFine,
 
 These issues are known and do not need to be reported
 
-- 1.19 block entities on FORGE are not synced between variants. chest variants, enchanting_book, shulker_boxes, and lectern_book will not be the correct model all the time.
+-
 
 
 
 # Known mod compatibility issues
 
-### intentional
-EMF will never work with these mods because they do the same thing
-- OptiFine
-- OptiFabric
-- dorianpb's CEM mod
+### cannot be fixed
+All or some of EMF's features will not work with these mods and cannot be fixed.
+- OptiFine - incompatible
+- OptiFabric - incompatible
+- dorianpb's CEM mod - incompatible
+- EBE (Enhanced Block Entities): while this mod is installed custom block entity models will not load, that is because this mod makes them no longer render as entity models.
 
 
 

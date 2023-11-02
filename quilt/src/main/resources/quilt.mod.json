@@ -1,26 +1,40 @@
 {
   "schema_version": 1,
   "mixin": [
-    "examplemod.mixins.json",
-    "examplemod-common.mixins.json"
+    "entity_model_features.mixins.json",
+    "entity_model_features-common.mixins.json"
   ],
   "quilt_loader": {
     "group": "${group}",
-    "id": "entity-model-features",
+    "id": "entity_model_features",
     "version": "${version}",
-    "name": "Example Mod",
-    "description": "This is an example description! Tell everyone what your mod is about!",
-    "authors": ["Me!"],
+    "name": "Entity Model Features",
+    "description": "This is an expansion of the ETF mod, it adds support for OptiFine format Custom Entity Model (CEM) resource packs.\nWhile still allowing you to disable this to use a different model mod :)",
+    "authors": [
+      {
+        "name": "Traben",
+        "contact": {
+          "homepage": "https://www.curseforge.com/members/traben_0/projects",
+          "discord": "https://discord.gg/rURmwrzUcz"
+        }
+      }
+    ],
     "contact": {
-      "sources": "https://github.com/architectury/architectury-templates"
+      "homepage": "https://www.curseforge.com/minecraft/mc-mods/entity-model-features",
+      "sources": "https://github.com/Traben-0/Entity_Model_Features",
+      "issues": "https://github.com/Traben-0/Entity_Model_Features/issues",
+      "discord": "https://discord.gg/rURmwrzUcz"
     },
-    "license": "Insert License Here",
-    "icon": "assets/examplemod/icon.png",
+    "license": "LGPL-3.0",
+    "icon": "icon.png",
     "intermediate_mappings": "net.fabricmc:intermediary",
-    "environment": "*",
+    "environment": "client",
     "entrypoints": {
-      "init": [
-        "net.examplemod.quilt.ExampleModQuilt"
+      "client": [
+        "traben.entity_model_features.fabric.EMFFabric"
+      ],
+      "modmenu": [
+        "traben.entity_model_features.fabric.EMFModMenuEntry"
       ]
     },
     "depends": [
@@ -34,11 +48,25 @@
       },
       {
         "id": "minecraft",
-        "version": ">=1.19.2"
+        "version": ">=1.20"
       },
       {
         "id": "architectury",
         "version": ">=6.2.43"
+      },
+      {
+        "id": "entity_texture_features",
+        "version": ">=4.5.1"
+      }
+    ],
+    "breaks": [
+      {
+        "id": "optifabric",
+        "version": "*"
+      },
+      {
+        "id": "cem",
+        "version": "*"
       }
     ]
   }
