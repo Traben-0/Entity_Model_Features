@@ -11,7 +11,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimation;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFManager;
@@ -132,7 +131,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 //EMFAnimationHelper.setRuleIndex(0); already is
                 super.setVariantStateTo(0);
             } else {
-                EMFAnimationHelper.setRuleIndex(newVariantState);
+               // EMFAnimationHelper.setRuleIndex(newVariantState);
                 super.setVariantStateTo(newVariantState);
             }
         }

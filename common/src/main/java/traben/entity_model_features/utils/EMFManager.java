@@ -176,121 +176,120 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
+        try {
+            EMFManager.lastCreatedRootModelPart = null;
 
-        EMFManager.lastCreatedRootModelPart = null;
+            boolean printing = (EMFConfig.getConfig().logModelCreationData);
 
-        boolean printing = (EMFConfig.getConfig().logModelCreationData);
-
-        OptifineMobNameForFileAndEMFMapId mobNameForFileAndMap = new OptifineMobNameForFileAndEMFMapId(layer.getId().getPath());
-
-
-        if (!"main".equals(layer.getName())) {
-            mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName() + "_" + layer.getName());
-        }
-        //add simple modded check
-        if (!"minecraft".equals(layer.getId().getNamespace())) {
-            mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + mobNameForFileAndMap).toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
-        } else {
-            //vanilla model
-            if (mobNameForFileAndMap.getfileName().contains("pufferfish"))
-                mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName().replace("pufferfish", "puffer_fish"));
+            OptifineMobNameForFileAndEMFMapId mobNameForFileAndMap = new OptifineMobNameForFileAndEMFMapId(layer.getId().getPath());
 
 
-            switch (mobNameForFileAndMap.getfileName()) {
-                case "tropical_fish_large" -> mobNameForFileAndMap.setBoth("tropical_fish_b");
-                case "tropical_fish_small" -> mobNameForFileAndMap.setBoth("tropical_fish_a");
-                case "tropical_fish_large_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_b");
-                case "tropical_fish_small_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_a");
+            if (!"main".equals(layer.getName())) {
+                mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName() + "_" + layer.getName());
+            }
+            //add simple modded check
+            if (!"minecraft".equals(layer.getId().getNamespace())) {
+                mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + mobNameForFileAndMap).toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
+            } else {
+                //vanilla model
+                if (mobNameForFileAndMap.getfileName().contains("pufferfish"))
+                    mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName().replace("pufferfish", "puffer_fish"));
 
-                case "leash_knot" -> mobNameForFileAndMap.setBoth("lead_knot");
 
-                case "trader_llama" -> traderLlamaHappened = true;
-                case "llama" -> traderLlamaHappened = false;
-                case "llama_decor" ->
-                        mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
-                case "ender_dragon" -> mobNameForFileAndMap.setBoth("dragon");
-                case "dragon_skull" -> mobNameForFileAndMap.setBoth("head_dragon");
-                case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
-                case "skeleton_skull" -> mobNameForFileAndMap.setBoth("head_skeleton");
-                case "wither_skeleton_skull" -> mobNameForFileAndMap.setBoth("head_wither_skeleton");
-                case "zombie_head" -> mobNameForFileAndMap.setBoth("head_zombie");
-                case "creeper_head" -> mobNameForFileAndMap.setBoth("head_creeper");
-                case "piglin_head" -> mobNameForFileAndMap.setBoth("head_piglin");
-                case "creeper_armor" -> mobNameForFileAndMap.setBoth("creeper_charge");
-                case "sheep_fur" -> mobNameForFileAndMap.setBoth("sheep_wool");
-                case "bed_head" -> mobNameForFileAndMap.setBoth("bed", "bed_head");
-                case "bed_foot" -> mobNameForFileAndMap.setBoth("bed", "bed_foot");
-                case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit", "conduit_cage");
-                case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit", "conduit_eye");
-                case "conduit_shell" -> mobNameForFileAndMap.setBoth("conduit", "conduit_shell");
-                case "conduit_wind" -> mobNameForFileAndMap.setBoth("conduit", "conduit_wind");
-                case "decorated_pot_base" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_base");
-                case "decorated_pot_sides" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_sides");
-                //case "parrot" -> mobNameForFileAndMap = "parrot";//todo check on shoulder parrot models they can technically be different
+                switch (mobNameForFileAndMap.getfileName()) {
+                    case "tropical_fish_large" -> mobNameForFileAndMap.setBoth("tropical_fish_b");
+                    case "tropical_fish_small" -> mobNameForFileAndMap.setBoth("tropical_fish_a");
+                    case "tropical_fish_large_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_b");
+                    case "tropical_fish_small_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_a");
 
-                case "book" -> {
-                    if (currentSpecifiedModelLoading.equals("enchanting_book")) {
-                        mobNameForFileAndMap.setBoth("enchanting_book", "book");
-                    } else/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/ {
-                        mobNameForFileAndMap.setBoth("lectern_book", "book");
-                    }
-                }
+                    case "leash_knot" -> mobNameForFileAndMap.setBoth("lead_knot");
 
-                case "chest" -> {
-                    if (currentSpecifiedModelLoading.equals("ender_chest")) {
-                        mobNameForFileAndMap.setBoth("ender_chest", "chest");
-                    } else if (currentSpecifiedModelLoading.equals("trapped_chest")) {
-                        mobNameForFileAndMap.setBoth("trapped_chest", "chest");
-                    } else {
-                        mobNameForFileAndMap.setBoth("chest", "chest");
-                    }
-                }
-                case "double_chest_left" -> {
-                    if (currentSpecifiedModelLoading.equals("trapped_chest")) {
-                        mobNameForFileAndMap.setBoth("trapped_chest_large", "double_chest_left");
-                    } else {
-                        mobNameForFileAndMap.setBoth("chest_large", "double_chest_left");
-                    }
-                }
+                    case "trader_llama" -> traderLlamaHappened = true;
+                    case "llama" -> traderLlamaHappened = false;
+                    case "llama_decor" -> mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
+                    case "ender_dragon" -> mobNameForFileAndMap.setBoth("dragon");
+                    case "dragon_skull" -> mobNameForFileAndMap.setBoth("head_dragon");
+                    case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
+                    case "skeleton_skull" -> mobNameForFileAndMap.setBoth("head_skeleton");
+                    case "wither_skeleton_skull" -> mobNameForFileAndMap.setBoth("head_wither_skeleton");
+                    case "zombie_head" -> mobNameForFileAndMap.setBoth("head_zombie");
+                    case "creeper_head" -> mobNameForFileAndMap.setBoth("head_creeper");
+                    case "piglin_head" -> mobNameForFileAndMap.setBoth("head_piglin");
+                    case "creeper_armor" -> mobNameForFileAndMap.setBoth("creeper_charge");
+                    case "sheep_fur" -> mobNameForFileAndMap.setBoth("sheep_wool");
+                    case "bed_head" -> mobNameForFileAndMap.setBoth("bed", "bed_head");
+                    case "bed_foot" -> mobNameForFileAndMap.setBoth("bed", "bed_foot");
+                    case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit", "conduit_cage");
+                    case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit", "conduit_eye");
+                    case "conduit_shell" -> mobNameForFileAndMap.setBoth("conduit", "conduit_shell");
+                    case "conduit_wind" -> mobNameForFileAndMap.setBoth("conduit", "conduit_wind");
+                    case "decorated_pot_base" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_base");
+                    case "decorated_pot_sides" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_sides");
+                    //case "parrot" -> mobNameForFileAndMap = "parrot";//todo check on shoulder parrot models they can technically be different
 
-                case "double_chest_right" -> {
-                    if (currentSpecifiedModelLoading.equals("trapped_chest")) {
-                        mobNameForFileAndMap.setBoth("trapped_chest_large", "double_chest_right");
-                    } else {
-                        mobNameForFileAndMap.setBoth("chest_large", "double_chest_right");
-                    }
-                }
-                case "shulker" -> {
-                    if (currentSpecifiedModelLoading.equals("shulker_box")) {
-                        mobNameForFileAndMap.setBoth("shulker_box");
-                        currentSpecifiedModelLoading = "";
-                    } else {
-                        mobNameForFileAndMap.setBoth("shulker");
-                    }
-
-                }
-
-                default -> {
-                    //todo this if statement mess can likely be looked at for possible expanded features as each model can be different
-                    if (mobNameForFileAndMap.getfileName().contains("/") && layer.getName().equals("main")) {
-                        if (mobNameForFileAndMap.getfileName().startsWith("hanging_sign/")) {
-                            mobNameForFileAndMap.setBoth("hanging_sign");
-                        } else if (mobNameForFileAndMap.getfileName().startsWith("sign/")) {
-                            mobNameForFileAndMap.setBoth("sign");
-                        } else if (mobNameForFileAndMap.getfileName().startsWith("chest_boat/")) {
-                            if (mobNameForFileAndMap.getfileName().startsWith("chest_boat/bamboo")) {
-                                mobNameForFileAndMap.setBoth("chest_raft");
-                            } else {
-                                mobNameForFileAndMap.setBoth("chest_boat");
-                            }
-                        } else if (mobNameForFileAndMap.getfileName().startsWith("boat/")) {
-                            if (mobNameForFileAndMap.getfileName().startsWith("boat/bamboo")) {
-                                mobNameForFileAndMap.setBoth("raft");
-                            } else {
-                                mobNameForFileAndMap.setBoth("boat");
-                            }
+                    case "book" -> {
+                        if (currentSpecifiedModelLoading.equals("enchanting_book")) {
+                            mobNameForFileAndMap.setBoth("enchanting_book", "book");
+                        } else/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/ {
+                            mobNameForFileAndMap.setBoth("lectern_book", "book");
                         }
-                    } //else {
+                    }
+
+                    case "chest" -> {
+                        if (currentSpecifiedModelLoading.equals("ender_chest")) {
+                            mobNameForFileAndMap.setBoth("ender_chest", "chest");
+                        } else if (currentSpecifiedModelLoading.equals("trapped_chest")) {
+                            mobNameForFileAndMap.setBoth("trapped_chest", "chest");
+                        } else {
+                            mobNameForFileAndMap.setBoth("chest", "chest");
+                        }
+                    }
+                    case "double_chest_left" -> {
+                        if (currentSpecifiedModelLoading.equals("trapped_chest")) {
+                            mobNameForFileAndMap.setBoth("trapped_chest_large", "double_chest_left");
+                        } else {
+                            mobNameForFileAndMap.setBoth("chest_large", "double_chest_left");
+                        }
+                    }
+
+                    case "double_chest_right" -> {
+                        if (currentSpecifiedModelLoading.equals("trapped_chest")) {
+                            mobNameForFileAndMap.setBoth("trapped_chest_large", "double_chest_right");
+                        } else {
+                            mobNameForFileAndMap.setBoth("chest_large", "double_chest_right");
+                        }
+                    }
+                    case "shulker" -> {
+                        if (currentSpecifiedModelLoading.equals("shulker_box")) {
+                            mobNameForFileAndMap.setBoth("shulker_box");
+                            currentSpecifiedModelLoading = "";
+                        } else {
+                            mobNameForFileAndMap.setBoth("shulker");
+                        }
+
+                    }
+
+                    default -> {
+                        //todo this if statement mess can likely be looked at for possible expanded features as each model can be different
+                        if (mobNameForFileAndMap.getfileName().contains("/") && layer.getName().equals("main")) {
+                            if (mobNameForFileAndMap.getfileName().startsWith("hanging_sign/")) {
+                                mobNameForFileAndMap.setBoth("hanging_sign");
+                            } else if (mobNameForFileAndMap.getfileName().startsWith("sign/")) {
+                                mobNameForFileAndMap.setBoth("sign");
+                            } else if (mobNameForFileAndMap.getfileName().startsWith("chest_boat/")) {
+                                if (mobNameForFileAndMap.getfileName().startsWith("chest_boat/bamboo")) {
+                                    mobNameForFileAndMap.setBoth("chest_raft");
+                                } else {
+                                    mobNameForFileAndMap.setBoth("chest_boat");
+                                }
+                            } else if (mobNameForFileAndMap.getfileName().startsWith("boat/")) {
+                                if (mobNameForFileAndMap.getfileName().startsWith("boat/bamboo")) {
+                                    mobNameForFileAndMap.setBoth("raft");
+                                } else {
+                                    mobNameForFileAndMap.setBoth("boat");
+                                }
+                            }
+                        } //else {
 //                        String countedName;
 //                        if (COUNT_OF_MOB_NAME_ALREADY_SEEN.containsKey(mobNameForFileAndMap.getfileName())) {
 //                            int amount = COUNT_OF_MOB_NAME_ALREADY_SEEN.getInt(mobNameForFileAndMap.getfileName());
@@ -311,54 +310,74 @@ public class EMFManager {//singleton for data holding and resetting needs
 //                            default ->{}
 //
 //                        }
-                    //}
-                    //System.out.println("DEBUG modelName result: "+countedName + " -> "+mobNameForFileAndMap);
+                        //}
+                        //System.out.println("DEBUG modelName result: "+countedName + " -> "+mobNameForFileAndMap);
+                    }
                 }
+            }
+            //if file name isn't valid for identifiers
+            //uses the static Identifier method to be influenced by other mods affecting resource name validity
+            if (!isIdentifierPathValid(mobNameForFileAndMap.getfileName() + ".jem")) {
+                String newValidPath = mobNameForFileAndMap.getfileName().replaceAll("[^a-z0-9/_.-]", "_");
+                mobNameForFileAndMap.setBoth(newValidPath, mobNameForFileAndMap.getMapId());
+            }
+
+            if (printing) System.out.println(" > EMF try to find a model for: " + mobNameForFileAndMap);
+
+
+            ///jem name is final and correct from here
+
+            //if (EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap).isEmpty()) {
+            //construct simple map for modded or unknown entities
+            Map<String, String> optifinePartNameMap = EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap.getMapId(), root);
+            //}
+
+
+            if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobNameForFileAndMap + ".jem");
+            String jemName = /*"optifine/cem/" +*/ mobNameForFileAndMap + ".jem";
+            CemDirectoryApplier variantDirectoryApplier = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + ".properties", mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
+
+            EMFJemData jemData = getJemData(jemName, mobNameForFileAndMap);
+            if (jemData != null || variantDirectoryApplier != null) {
+                //we do indeed need custom models
+
+                //specification for the optifine map
+                // only used for tadpole head parts currently as optifine actually uses the root as the body
+                Set<String> optifinePartNames = new HashSet<>();
+                optifinePartNameMap.forEach((optifine, vanilla) -> {
+                    if (!optifine.equals("EMPTY")) {
+                        optifinePartNames.add(vanilla);
+                    }
+                });
+
+                EMFModelPartRoot emfRoot = new EMFModelPartRoot(mobNameForFileAndMap, variantDirectoryApplier, root, optifinePartNames, new HashMap<>());
+                if (jemData != null) {
+                    emfRoot.addVariantOfJem(jemData, 1);
+                    emfRoot.setVariantStateTo(1);
+                    setupAnimationsFromJemToModel(jemData, emfRoot, 1);
+                }
+
+                lastCreatedRootModelPart = emfRoot;
+                return emfRoot;
+            }
+
+
+            if (printing) System.out.println(" > Vanilla model used for: " + mobNameForFileAndMap);
+            return root;
+        }catch (Exception e) {
+            EMFUtils.EMFModWarn("default model returned for "+ layer.toString() + " due to exception: " + e.getMessage());
+            return root;
+        }
+    }
+
+    private static boolean isIdentifierPathValid(String path) {
+        for(int i = 0; i < path.length(); ++i) {
+            if (!Identifier.isPathCharacterValid(path.charAt(i))) {
+                return false;
             }
         }
 
-        if (printing) System.out.println(" > EMF try to find a model for: " + mobNameForFileAndMap);
-
-
-        ///jem name is final and correct from here
-
-        //if (EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap).isEmpty()) {
-        //construct simple map for modded or unknown entities
-        Map<String, String> optifinePartNameMap = EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap.getMapId(), root);
-        //}
-
-
-        if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobNameForFileAndMap + ".jem");
-        String jemName = /*"optifine/cem/" +*/ mobNameForFileAndMap + ".jem";
-        CemDirectoryApplier variantDirectoryApplier = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + ".properties", mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
-
-        EMFJemData jemData = getJemData(jemName, mobNameForFileAndMap);
-        if (jemData != null || variantDirectoryApplier != null) {
-            //we do indeed need custom models
-
-            //specification for the optifine map
-            // only used for tadpole head parts currently as optifine actually uses the root as the body
-            Set<String> optifinePartNames = new HashSet<>();
-            optifinePartNameMap.forEach((optifine, vanilla) -> {
-                if (!optifine.equals("EMPTY")) {
-                    optifinePartNames.add(vanilla);
-                }
-            });
-
-            EMFModelPartRoot emfRoot = new EMFModelPartRoot(mobNameForFileAndMap, variantDirectoryApplier, root, optifinePartNames, new HashMap<>());
-            if (jemData != null) {
-                emfRoot.addVariantOfJem(jemData, 1);
-                emfRoot.setVariantStateTo(1);
-                setupAnimationsFromJemToModel(jemData, emfRoot, 1);
-            }
-
-            lastCreatedRootModelPart = emfRoot;
-            return emfRoot;
-        }
-
-
-        if (printing) System.out.println(" > Vanilla model used for: " + mobNameForFileAndMap);
-        return root;
+        return true;
     }
 
     private void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {
@@ -463,7 +482,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 if (cannonRoot.variantTester == null) {
                     Identifier propertyID = new Identifier(cannonRoot.variantDirectoryApplier.getThisDirectoryOfFilename(mobName + ".properties"));
                     if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
-                        cannonRoot.variantTester = ETFApi.readRandomPropertiesFileAndReturnTestingObject2(propertyID, "models");
+                        cannonRoot.variantTester = ETFApi.readRandomPropertiesFileAndReturnTestingObject3(propertyID, "models");
                     } else {
                         EMFUtils.EMFModWarn("no property" + propertyID);
                         //cache_JemNameDoesHaveVariants.put(mobName, false);
