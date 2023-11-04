@@ -1,4 +1,22 @@
 
+1.1.0
+
+- fixed `rule_index` variable using the wrong value
+- fixed `random()` method breaking when used with no args
+- fixed `Non [a-z0-9/._-] character in path` crash with modded entities having model id's that do not create valid Identifiers/ResourceLocations
+- fixed wolf collar models only being separate from the base model if a wolf_collar.jem was present *(wolves share their base model with the collar renderer in vanilla)*
+- fixed `!` boolean inverting not applying to `varb` variable booleans
+- added `keyframe()` & `keyframeloop()` animation methods to simplify keyframe format animations, the format is 
+`keyframe(k, a, b, c,...)` with `k` being the linear progress of the keyframes (typically a timer), and all further values being the individual keyframes value.
+In practise, k=0 will output the value of keyframe `a`,
+k=1 will output the value of keyframe `b`, and k=1.5 will give a linear output halfway between `b` & `c`. In effect `k` is the timer
+playing through the keyframes, with each keyframe value at a whole number with `a` being 0. `keyframeloop()` will wrap around
+from the final frame back to frame `a` and so on as `k` increases past the last frame. whereas `keyframe()` will only display the last frame for higher `k` values. 
+`k` will be treated as a positive number even if negative.
+- fixed `print()` & `printb()` methods only printing once if the x value had logically resolved to a constant
+- now requires `ETF 4.6.1` or higher
+- added `nan` variable that resolves to Float.NaN in runtime mostly for debugging purposes, it being used should make any math function/equation give its failure outcome.
+
 
 0.2.13
 
