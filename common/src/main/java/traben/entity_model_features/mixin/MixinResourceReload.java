@@ -11,7 +11,7 @@ import traben.entity_model_features.utils.EMFManager;
 @Mixin(MinecraftClient.class)
 public abstract class MixinResourceReload {
 
-    @Inject(method = "reloadResources(Z)Ljava/util/concurrent/CompletableFuture;", at = @At("HEAD"))
+    @Inject(method = "reloadResources()Ljava/util/concurrent/CompletableFuture;", at = @At("HEAD"))
     private void emf$reload(CallbackInfoReturnable<Float> cir) {
         EMFManager.resetInstance();
     }

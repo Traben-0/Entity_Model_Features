@@ -88,7 +88,7 @@ public enum MathAction implements MathComponent {
     EQUALS {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.get() == second.get()) ? 1 : 0;
+            return (first.get() == second.get()) ? 1f : 0f;
         }
     },
     NOT_EQUALS {

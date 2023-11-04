@@ -3,17 +3,29 @@ package traben.entity_model_features.utils;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import traben.entity_texture_features.entity_handlers.ETFBlockEntityWrapper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 import java.util.UUID;
 
-public class EMFBlockEntityWrapper extends ETFBlockEntityWrapper implements EMFEntity {
+public class EMFBlockEntityWrapper implements EMFEntity {
 
     private final BlockEntity blockEntity;
 
-    public EMFBlockEntityWrapper(BlockEntity entity, UUID id) {
-        super(entity, id);
+    public EMFBlockEntityWrapper(BlockEntity entity) {
         this.blockEntity = entity;
+    }
+    private UUID id = null;
+
+    private UUID getUuidFromPos() {
+//        int seed = blockEntity.getPos().hashCode();
+//        if (blockEntity instanceof Nameable nameable && nameable.hasCustomName()) {
+//            seed += Objects.requireNonNull(nameable.getCustomName()).hashCode();
+//        }else{
+//            seed += blockEntity.getCachedState().getBlock().getTranslationKey().hashCode();
+//        }
+        // BlockPos is actually enough for EMF's needs
+        return UUID.nameUUIDFromBytes(new byte[]{(byte) blockEntity.getPos().hashCode()});
     }
 
     @Override
@@ -24,6 +36,19 @@ public class EMFBlockEntityWrapper extends ETFBlockEntityWrapper implements EMFE
     @Override
     public BlockEntity getBlockEntity() {
         return blockEntity;
+    }
+
+    @Override
+    public World getWorld() {
+        return blockEntity.getWorld();
+    }
+
+    @Override
+    public UUID getUuid() {
+        if (id == null) {
+            id = getUuidFromPos();
+        }
+        return id;
     }
 
     @Override
@@ -139,5 +164,15 @@ public class EMFBlockEntityWrapper extends ETFBlockEntityWrapper implements EMFE
     @Override
     public float getYaw() {
         return 0;
+    }
+
+    @Override
+    public Vec3d getVelocity() {
+        return new Vec3d(0,0,0);
+    }
+
+    @Override
+    public String getTypeString() {
+        return blockEntity.getType().toString();
     }
 }

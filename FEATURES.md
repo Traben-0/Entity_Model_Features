@@ -48,7 +48,7 @@ Player jem models have the following model parts
 
 cloak does indeed refer to the player cape
 
-### EMF only animations variables
+### EMF only animation variables
 
 - The `is_climbing` animation variable, true when the entity is climbing.
 - The `move_forward` & `move_strafing` animation variables actually have a function, they function as a measurement of the directionality of a mobs movement relevant to it's facing direction.
@@ -63,7 +63,17 @@ cloak does indeed refer to the player cape
     - *(A player holding only `a` will have a `move_strafing` of -1)*
   - A player moving diagonally from their moving direction will have both `move_forward` & `move_strafing` cap out around 0.707.
   - **TL;DR** if you add both a "moving forwards" & a "strafing to the right" animation you can effectively multiply them by `move_forward` & `move_strafing` respectively to get a smooth blend between the two when the models moves around.
+  - The `nan` variable will resolve to Float.NaN at runtime and is useful for debugging maths expressions
 
+### EMF only animation functions
+
+- The `keyframe()` & `keyframeloop()` animation functions simplify keyframe format animations, the format is
+  `keyframe(k, a, b, c,...)` with `k` being the linear progress of the keyframes (typically a timer), and all further values being the individual keyframes value.
+  In practise, k=0 will output the value of keyframe `a`,
+  k=1 will output the value of keyframe `b`, and k=1.5 will give a linear output halfway between `b` & `c`. In effect `k` is the timer
+  playing through the keyframes, with each keyframe value at a whole number with `a` being 0. `keyframeloop()` will wrap around
+  from the final frame back to frame `a` and so on as `k` increases past the last frame. whereas `keyframe()` will only display the last frame for higher `k` values.
+  `k` will be treated as a positive number even if negative.
 
   
 ### EMF modded entity CEM support

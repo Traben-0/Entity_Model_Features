@@ -22,6 +22,7 @@ import traben.entity_model_features.utils.EMFBlockEntityWrapper;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFEntityWrapper;
 import traben.entity_model_features.utils.EMFManager;
+import traben.entity_texture_features.texture_features.ETFManager;
 
 import java.util.UUID;
 
@@ -62,11 +63,13 @@ public class EMFAnimationHelper {
         emfEntity = entityIn == null ? null : new EMFEntityWrapper(entityIn);
     }
 
-    public static void setCurrentBlockEntity(BlockEntity entityIn, UUID id) {
+    public static void setCurrentBlockEntity(BlockEntity entityIn) {
         resetForNewEntity();
         EMFManager.getInstance().entityRenderCount++;
-        emfEntity = entityIn == null ? null : new EMFBlockEntityWrapper(entityIn, id);
+        emfEntity = entityIn == null ? null : new EMFBlockEntityWrapper(entityIn);
     }
+
+
 
     public static void resetForNewEntity() {//todo extend for possible performance benefits
         dimension = Float.NaN;
@@ -89,12 +92,12 @@ public class EMFAnimationHelper {
     }
 
     public static float getRuleIndex() {
-        return ruleIndex;
+        if(emfEntity == null) return 0;
+        //TODO update this when ETF API >= 8
+        Integer index = ETFManager.getInstance().LAST_MET_RULE_INDEX.get(emfEntity.getUuid());
+        return index == null ? 0 : index;
     }
 
-    public static void setRuleIndex(int newIndex) {
-        ruleIndex = newIndex;
-    }
 
     public static EMFEntity getEMFEntity() {
         return emfEntity;

@@ -48,7 +48,10 @@ public class MathMethod extends MathValue implements MathComponent {
                 default -> builder.append(ch);
             }
         }
-        argsList.add(builder.toString());
+        if(!builder.isEmpty()) {
+            argsList.add(builder.toString());
+        }
+
         //args list is now a list of top level arguments ready to be categorized into MathComponents depending on the method
 
         supplier = switch (methodName) {
@@ -83,6 +86,9 @@ public class MathMethod extends MathValue implements MathComponent {
             case "between" -> BETWEEN(argsList);
             case "equals" -> EQUALS(argsList);
             case "in" -> IN(argsList);
+            //EMF ONLY
+            case "keyframe" -> KEYFRAME(argsList);
+            case "keyframeloop" -> KEYFRAMELOOP(argsList);
             default ->
                     throw new EMFMathException("ERROR: Unknown method [" + methodName + "], rejecting animation expression for [" + calculationInstance.animKey + "].");
             //()-> 0d;
@@ -198,17 +204,14 @@ public class MathMethod extends MathValue implements MathComponent {
             String id = args.get(0);
             MathComponent n = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
             MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
-            ValueSupplier valueSupplier = () -> {
+
+            return () -> {
                 float xVal = x.get();
                 if (getPrintCount() % n.get() == 0) {
                     System.out.println("EMF printb: [" + id + "] = " + (xVal == 1));
                 }
                 return xVal;
             };
-            List<MathComponent> comps = List.of(n, x);
-            setOptimizedIfPossible(comps, valueSupplier);
-
-            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments " + args + " in PRINTB method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
@@ -220,17 +223,14 @@ public class MathMethod extends MathValue implements MathComponent {
             String id = args.get(0);
             MathComponent n = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
             MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
-            ValueSupplier valueSupplier = () -> {
+
+            return () -> {
                 float xVal = x.get();
                 if (getPrintCount() % n.get() == 0) {
                     System.out.println("EMF print: [" + id + "] = " + xVal);
                 }
                 return xVal;
             };
-            List<MathComponent> comps = List.of(n, x);
-            setOptimizedIfPossible(comps, valueSupplier);
-
-            return valueSupplier;
         }
         String s = "ERROR: wrong number of arguments " + args + " in PRINT method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
@@ -314,11 +314,16 @@ public class MathMethod extends MathValue implements MathComponent {
             //cannot optimize further
             return () -> (float) Math.random();
         } else if (args.size() == 1) {
-            MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
-            ValueSupplier valueSupplier = () -> new Random((long) x.get()).nextFloat(1);
-            List<MathComponent> comps = List.of(x);
-            setOptimizedIfPossible(comps, valueSupplier);
-            return valueSupplier;
+            if(args.get(0).isBlank()){
+                //cannot optimize further
+                return () -> (float) Math.random();
+            }else {
+                MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+                ValueSupplier valueSupplier = () -> new Random((long) x.get()).nextFloat(1);
+                List<MathComponent> comps = List.of(x);
+                setOptimizedIfPossible(comps, valueSupplier);
+                return valueSupplier;
+            }
         }
         String s = "ERROR: wrong number of arguments " + args + " in RANDOM method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
@@ -695,6 +700,97 @@ public class MathMethod extends MathValue implements MathComponent {
         throw new EMFMathException(s);
 
     }
+
+    private ValueSupplier KEYFRAME(List<String> args) throws EMFMathException {
+        if (args.size() >= 3) {
+            MathComponent deltaGetter = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+
+            List<MathComponent> frames = new ArrayList<>();
+            for (int i = 1; i < args.size(); i++) {
+                MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(i), false, calculationInstance);
+                if(arg2 != MathExpressionParser.NULL_EXPRESSION){
+                    frames.add(arg2);
+                }
+            }
+            int frameMax = frames.size()-1;
+
+            ValueSupplier valueSupplier = () -> {
+                try {
+                    float delta = Math.abs(deltaGetter.get());
+                    int last = MathHelper.clamp((int) Math.floor(delta),0,frameMax);
+                    int next = MathHelper.clamp((int) Math.ceil(delta),0,frameMax);
+                    float thisFrame;
+                    if(last == next) {
+                        thisFrame = frames.get(last).get();
+                    }else{
+                        float lerpDelta = delta - last;
+                        MathComponent lastFrame = frames.get(last);
+                        MathComponent nextFrame = frames.get(next);
+                        thisFrame = MathHelper.lerp(lerpDelta,lastFrame.get(),nextFrame.get());
+                    }
+                    return Float.isNaN(thisFrame) ? 0 : thisFrame;
+                }catch (Exception e) {
+                    return 0;
+                }
+            };
+
+            List<MathComponent> comps = new ArrayList<>(List.of(deltaGetter));
+            comps.addAll(frames);
+            setOptimizedIfPossible(comps, valueSupplier);
+            return valueSupplier;
+        }
+        String s = "ERROR: wrong number of arguments " + args + " in KEYFRAME method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
+        System.out.println(s);
+        throw new EMFMathException(s);
+    }
+
+    private ValueSupplier KEYFRAMELOOP(List<String> args) throws EMFMathException {
+        if (args.size() >= 3) {
+            MathComponent deltaGetter = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
+
+            List<MathComponent> frames = new ArrayList<>();
+            for (int i = 1; i < args.size(); i++) {
+                MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(i), false, calculationInstance);
+                if(arg2 != MathExpressionParser.NULL_EXPRESSION){
+                    frames.add(arg2);
+                }
+            }
+            //for looping purposes frame max is the 0 wrap around
+            int frameMax = frames.size();
+
+            ValueSupplier valueSupplier = () -> {
+                try {
+                    float delta = Math.abs(deltaGetter.get() % frameMax);
+                    int last = MathHelper.clamp((int) Math.floor(delta),0,frameMax);
+                    int nextRaw = MathHelper.clamp((int) Math.ceil(delta),0,frameMax);
+                    int next = nextRaw == frameMax ? 0 : nextRaw;
+
+                    float thisFrame;
+                    if(last == nextRaw) {
+                        thisFrame = frames.get(next).get();
+                    } else {
+                        float lerpDelta = delta - last;
+                        MathComponent lastFrame = frames.get(last);
+                        MathComponent nextFrame= frames.get(next);
+                        thisFrame = MathHelper.lerp(lerpDelta, lastFrame.get(), nextFrame.get());
+                    }
+                    return Float.isNaN(thisFrame) ? 0 : thisFrame;
+                }catch (Exception e) {
+                    return 0;
+                }
+            };
+
+            List<MathComponent> comps = new ArrayList<>(List.of(deltaGetter));
+            comps.addAll(frames);
+            setOptimizedIfPossible(comps, valueSupplier);
+            return valueSupplier;
+        }
+        String s = "ERROR: wrong number of arguments " + args + " in KEYFRAMELOOP method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
+        System.out.println(s);
+        throw new EMFMathException(s);
+    }
+
+
 
     @Override
     public String toString() {

@@ -13,6 +13,9 @@ import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.ETFClientCommon;
+import traben.entity_texture_features.texture_features.ETFManager;
+import traben.entity_texture_features.texture_features.texture_handlers.ETFTexture;
+import traben.entity_texture_features.utils.entity_wrappers.ETFBlockEntityWrapper;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +37,14 @@ public abstract class EMFModelPart extends ModelPart {
             if (EMFAnimationHelper.getEMFEntity().entity() != null) {
                 return ETFApi.getCurrentETFEmissiveTextureOfEntityOrNull(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
             } else if (EMFAnimationHelper.getEMFEntity().getBlockEntity() != null) {
-                return null;//todo ETFApi.get(EMFAnimationHelper.getEMFEntity().getBlockEntity(),EMFAnimationHelper.getEMFEntity().getUuid(), textureOverride);
+                //todo api version needed with emf format uuid support
+                ETFBlockEntityWrapper block = new ETFBlockEntityWrapper(EMFAnimationHelper.getEMFEntity().getBlockEntity(), EMFAnimationHelper.getEMFEntity().getUuid());
+                ETFTexture etfTexture = ETFManager.getInstance().getETFTexture(textureOverride, block, ETFManager.TextureSource.BLOCK_ENTITY, ETFClientCommon.ETFConfigData.removePixelsUnderEmissiveBlockEntity);
+                if(etfTexture != null) {
+                    Identifier emissive = etfTexture.getEmissiveIdentifierOfCurrentState();
+                    if(emissive != null)
+                        return emissive;
+                }
             }
             //assert null if no emissive exists as we are in an emissive only render
             return null;
@@ -43,7 +53,7 @@ public abstract class EMFModelPart extends ModelPart {
             if (EMFAnimationHelper.getEMFEntity().entity() != null) {
                 return ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
             } else if (EMFAnimationHelper.getEMFEntity().getBlockEntity() != null) {
-                return ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().getBlockEntity(), textureOverride, EMFAnimationHelper.getEMFEntity().getUuid());
+                return ETFApi.getCurrentETFVariantTextureOfBlockEntity(EMFAnimationHelper.getEMFEntity().getBlockEntity(), textureOverride,EMFAnimationHelper.getEMFEntity().getUuid());
             }
             return textureOverride;
         }
