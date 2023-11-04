@@ -472,7 +472,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 if (cannonRoot.variantTester == null) {
                     Identifier propertyID = new Identifier(cannonRoot.variantDirectoryApplier.getThisDirectoryOfFilename(mobName + ".properties"));
                     if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
-                        cannonRoot.variantTester = ETFApi.readRandomPropertiesFileAndReturnTestingObject2(propertyID, "models");
+                        cannonRoot.variantTester = ETFApi.readRandomPropertiesFileAndReturnTestingObject3(propertyID, "models");
                     } else {
                         EMFUtils.EMFModWarn("no property" + propertyID);
                         //cache_JemNameDoesHaveVariants.put(mobName, false);
