@@ -1,4 +1,18 @@
 
+
+
+- added an EMF only random property to make model variation easier in cases that do not typically need properties in ETF. 
+e.g. you don't need a property to check a cat variant in ETF because you are already working with the black cat texture directly. 
+the property name is `variant` or `variants`. 
+The property allows regex, pattern, or a simple list of variant names. 
+If the property starts with `"print:"` it will print the variant found to the game log, and use the rest of the property text as normal.
+This property will work with any modded entity that implements the VariantHolder<T> class and will use the string representation of the type, e.g. "black" for a cat, "oak" for a boat.
+This property also works uniquely with these block entities: 
+signs (wood), bed (color), shulkerbox (color), Decorated pot (all 4 sherd face types).
+For all other regular & block entities it returns the EntityType or BlockEntityType registry id. This allows for the 
+separation of different entity types that might use the same model name, such as various modded entities do.
+
+
 1.1.0
 
 - fixed `rule_index` variable using the wrong value

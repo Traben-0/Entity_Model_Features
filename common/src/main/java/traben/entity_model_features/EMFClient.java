@@ -4,6 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.utils.EMFManager;
+import traben.entity_texture_features.texture_features.property_reading.properties.RandomProperties;
 
 import java.util.Random;
 
@@ -43,6 +44,8 @@ public class EMFClient {
         //init data manager
         EMFManager.getInstance();
 
+        //register new etf random property for emf to track variants
+        RandomProperties.register(EntityVariantProperty::getPropertyOrNull);
     }
 
     private static String randomQuip() {
