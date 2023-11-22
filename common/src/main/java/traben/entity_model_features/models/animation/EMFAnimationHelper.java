@@ -22,7 +22,7 @@ import traben.entity_model_features.utils.EMFBlockEntityWrapper;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFEntityWrapper;
 import traben.entity_model_features.utils.EMFManager;
-import traben.entity_texture_features.texture_features.ETFManager;
+import traben.entity_texture_features.features.ETFManager;
 
 import java.util.UUID;
 
@@ -93,8 +93,7 @@ public class EMFAnimationHelper {
 
     public static float getRuleIndex() {
         if(emfEntity == null) return 0;
-        //TODO update this when ETF API >= 8
-        Integer index = ETFManager.getInstance().LAST_MET_RULE_INDEX.get(emfEntity.getUuid());
+        Integer index =  ETFManager.getInstance().LAST_MET_RULE_INDEX.get(emfEntity.getUuid());
         return index == null ? 0 : index;
     }
 

@@ -1,28 +1,26 @@
 package traben.entity_model_features.models;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
-import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.ETFClientCommon;
-import traben.entity_texture_features.texture_features.ETFManager;
-import traben.entity_texture_features.texture_features.texture_handlers.ETFTexture;
-import traben.entity_texture_features.utils.entity_wrappers.ETFBlockEntityWrapper;
+import traben.entity_texture_features.features.ETFManager;
+import traben.entity_texture_features.features.ETFRenderContext;
 
 import java.util.List;
 import java.util.Map;
 
+import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
+
 public abstract class EMFModelPart extends ModelPart {
     public Identifier textureOverride;
-    protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
+//    protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
 
     public EMFModelPart(List<Cuboid> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
@@ -30,58 +28,66 @@ public abstract class EMFModelPart extends ModelPart {
 
 
 
-    @Nullable
-    private Identifier getTextureOverrideViaETF(int renderLight) {
-        if (renderLight == ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE) {
-            //require emissive texture variant
-            if (EMFAnimationHelper.getEMFEntity().entity() != null) {
-                return ETFApi.getCurrentETFEmissiveTextureOfEntityOrNull(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
-            } else if (EMFAnimationHelper.getEMFEntity().getBlockEntity() != null) {
-                //todo api version needed with emf format uuid support
-                ETFBlockEntityWrapper block = new ETFBlockEntityWrapper(EMFAnimationHelper.getEMFEntity().getBlockEntity(), EMFAnimationHelper.getEMFEntity().getUuid());
-                ETFTexture etfTexture = ETFManager.getInstance().getETFTexture(textureOverride, block, ETFManager.TextureSource.BLOCK_ENTITY, ETFClientCommon.ETFConfigData.removePixelsUnderEmissiveBlockEntity);
-                if(etfTexture != null) {
-                    Identifier emissive = etfTexture.getEmissiveIdentifierOfCurrentState();
-                    if(emissive != null)
-                        return emissive;
-                }
-            }
-            //assert null if no emissive exists as we are in an emissive only render
-            return null;
-        } else {
-            //otherwise normal texture
-            if (EMFAnimationHelper.getEMFEntity().entity() != null) {
-                return ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
-            } else if (EMFAnimationHelper.getEMFEntity().getBlockEntity() != null) {
-                return ETFApi.getCurrentETFVariantTextureOfBlockEntity(EMFAnimationHelper.getEMFEntity().getBlockEntity(), textureOverride,EMFAnimationHelper.getEMFEntity().getUuid());
-            }
-            return textureOverride;
-        }
-    }
+//    @Nullable
+//    private Identifier getTextureOverrideViaETF(int renderLight) {
+//        if (renderLight == ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE) {
+//            //require emissive texture variant
+//            if (EMFAnimationHelper.getEMFEntity().entity() != null) {
+//                return ETFApi.getCurrentETFEmissiveTextureOfEntityOrNull(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
+//            } else if (EMFAnimationHelper.getEMFEntity().getBlockEntity() != null) {
+//                //todo api version needed with emf format uuid support
+//                ETFBlockEntityWrapper block = new ETFBlockEntityWrapper(EMFAnimationHelper.getEMFEntity().getBlockEntity(), EMFAnimationHelper.getEMFEntity().getUuid());
+//                ETFTexture etfTexture = ETFManager.getInstance().getETFTexture(textureOverride, block, ETFManager.TextureSource.BLOCK_ENTITY, ETFClientCommon.ETFConfigData.removePixelsUnderEmissiveBlockEntity);
+//                if(etfTexture != null) {
+//                    Identifier emissive = etfTexture.getEmissiveIdentifierOfCurrentState();
+//                    if(emissive != null)
+//                        return emissive;
+//                }
+//            }
+//            //assert null if no emissive exists as we are in an emissive only render
+//            return null;
+//        } else {
+//            //otherwise normal texture
+//            if (EMFAnimationHelper.getEMFEntity().entity() != null) {
+//                return ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
+//            } else if (EMFAnimationHelper.getEMFEntity().getBlockEntity() != null) {
+//                return ETFApi.getCurrentETFVariantTextureOfBlockEntity(EMFAnimationHelper.getEMFEntity().getBlockEntity(), textureOverride,EMFAnimationHelper.getEMFEntity().getUuid());
+//            }
+//            return textureOverride;
+//        }
+//    }
 
     void primaryRender(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 
         if (textureOverride != null
-                && light != ETFClientCommon.EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
+                && light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
+                && light != ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE //do not allow new etf emissive rendering here
                 && EMFAnimationHelper.getEMFEntity() != null
         ) {
-            Identifier texture = getTextureOverrideViaETF(light);
+            RenderLayer originalLayer = ETFRenderContext.getCurrentRenderLayer();
+            RenderLayer layerModified = RenderLayer.getEntityTranslucent(textureOverride);
+            VertexConsumer newConsumer = ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(),layerModified);
 
-            //todo alternate layers other than translucent
-            if (texture != null) {
-                //todo I would appreciate feedback on this from someone who understands the buffer system better
-                //this is just my best guess from brute forcing it
-                try {
-                    RenderLayer layer = RenderLayer.getEntityTranslucent(texture);
-                    if (MODIFIED_RENDER_BUFFER == null)
-                        MODIFIED_RENDER_BUFFER = new BufferBuilder(layer.getExpectedBufferSize());
-                    MODIFIED_RENDER_BUFFER.begin(layer.getDrawMode(), layer.getVertexFormat());
-                    renderToSuper(matrices, MODIFIED_RENDER_BUFFER, light, overlay, red, green, blue, alpha);
-                    layer.draw(MODIFIED_RENDER_BUFFER, RenderSystem.getVertexSorting());
-                    MODIFIED_RENDER_BUFFER.clear();
-                } catch (Exception ignored) {
-                }
-            }
+            renderToSuper(matrices, newConsumer, light, overlay, red, green, blue, alpha);
+            etf$renderEmissive(matrices, overlay, red, green, blue, alpha) ;
+            etf$renderEnchanted(matrices, light, overlay, red, green, blue, alpha);
+
+            ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(),originalLayer);
+
+
+//                //todo I would appreciate feedback on this from someone who understands the buffer system better
+//                //this is just my best guess from brute forcing it
+//                try {
+//                    RenderLayer layer = RenderLayer.getEntityTranslucent(textureOverride);
+////                    if (MODIFIED_RENDER_BUFFER == null)
+////                        MODIFIED_RENDER_BUFFER = new BufferBuilder(layer.getExpectedBufferSize());
+////                    MODIFIED_RENDER_BUFFER.begin(layer.getDrawMode(), layer.getVertexFormat());
+////                    renderToSuper(matrices, MODIFIED_RENDER_BUFFER, light, overlay, red, green, blue, alpha);
+////                    layer.draw(MODIFIED_RENDER_BUFFER, RenderSystem.getVertexSorting());
+////                    MODIFIED_RENDER_BUFFER.clear();
+//                } catch (Exception ignored) {
+//                }
+
         } else {
             //normal vertex consumer
             renderToSuper(matrices, vertices, light, overlay, red, green, blue, alpha);
@@ -176,6 +182,43 @@ public abstract class EMFModelPart extends ModelPart {
 
         public void run() {
             if (animation != null) animation.run();
+        }
+    }
+
+    //todo copy of etf rewrite emissive rendering code
+    private void etf$renderEmissive(MatrixStack matrices, int overlay, float red, float green, float blue, float alpha) {
+        Identifier emissive = ETFRenderContext.getCurrentETFTexture().getEmissiveIdentifierOfCurrentState();
+        if (emissive != null) {
+
+            ETFRenderContext.preventRenderLayerTextureModify();
+
+            boolean textureIsAllowedBrightRender = ETFManager.getEmissiveMode() == ETFManager.EmissiveRenderModes.BRIGHT
+                    && ETFRenderContext.getCurrentEntity().etf$canBeBright();// && !ETFRenderContext.getCurrentETFTexture().isPatched_CurrentlyOnlyArmor();
+
+            VertexConsumer emissiveConsumer = ETFRenderContext.getCurrentProvider().getBuffer(
+                    textureIsAllowedBrightRender ?
+                            RenderLayer.getBeaconBeam(emissive, true) :
+                            ETFRenderContext.getCurrentEntity().etf$isBlockEntity() ?
+                                    RenderLayer.getEntityTranslucentCull(emissive) :
+                                    RenderLayer.getEntityTranslucent(emissive));
+
+
+            ETFRenderContext.allowRenderLayerTextureModify();
+
+            renderToSuper(matrices, emissiveConsumer, ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE, overlay, red, green, blue, alpha);
+
+        }
+    }
+    //todo copy of etf enchanted render code
+    private void etf$renderEnchanted(MatrixStack matrices, int light, int overlay, float red, float green, float blue, float alpha) {
+        //attempt enchanted render
+        Identifier enchanted = ETFRenderContext.getCurrentETFTexture().getEnchantIdentifierOfCurrentState();
+        if (enchanted != null) {
+            ETFRenderContext.preventRenderLayerTextureModify();
+            VertexConsumer enchantedVertex = ItemRenderer.getArmorGlintConsumer(ETFRenderContext.getCurrentProvider(), RenderLayer.getArmorCutoutNoCull(enchanted), false, true);
+            ETFRenderContext.allowRenderLayerTextureModify();
+
+            renderToSuper(matrices, enchantedVertex, light, overlay, red, green, blue, alpha);
         }
     }
 }

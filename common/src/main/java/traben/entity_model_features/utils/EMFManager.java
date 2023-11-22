@@ -484,9 +484,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                 if (emfProperty != null) {
                     int suffix;
                     if (entity.entity() == null) {
-                        suffix = emfProperty.getSuffixForBlockEntity(entity.getBlockEntity(), entity.getUuid(), cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
+                        suffix = emfProperty.getSuffixForBlockEntity(entity.getBlockEntity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
                     } else {
-                        suffix = emfProperty.getSuffixForEntity(entity.entity(), cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
+                        suffix = emfProperty.getSuffixForEntity(entity.entity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
                     }
 
                     //EMFModelPartMutable cannonicalRoot = cache_JemNameToCannonModelRoot.get(mobName);

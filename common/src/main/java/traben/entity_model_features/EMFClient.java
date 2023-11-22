@@ -2,15 +2,17 @@ package traben.entity_model_features;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.render.LightmapTextureManager;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.utils.EMFManager;
-import traben.entity_texture_features.texture_features.property_reading.properties.RandomProperties;
+import traben.entity_texture_features.ETFApi;
 
 import java.util.Random;
 
 @Environment(EnvType.CLIENT)
 public class EMFClient {
 
+    public static final int EYES_FEATURE_LIGHT_VALUE = LightmapTextureManager.MAX_LIGHT_COORDINATE + 1;
     public static final String MOD_ID = "entity_model_features";
     private static final String[] quips = {
             "special thanks to Cody!",
@@ -45,7 +47,8 @@ public class EMFClient {
         EMFManager.getInstance();
 
         //register new etf random property for emf to track variants
-        RandomProperties.register(EntityVariantProperty::getPropertyOrNull);
+        ETFApi.registerCustomRandomPropertyFactory(MOD_ID,EntityVariantProperty::getPropertyOrNull);
+
     }
 
     private static String randomQuip() {

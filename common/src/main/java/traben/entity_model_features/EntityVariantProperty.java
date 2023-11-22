@@ -3,10 +3,8 @@ package traben.entity_model_features;
 import net.minecraft.block.AbstractSignBlock;
 import net.minecraft.block.BedBlock;
 import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.block.entity.BedBlockEntity;
-import net.minecraft.block.entity.DecoratedPotBlockEntity;
-import net.minecraft.block.entity.ShulkerBoxBlockEntity;
-import net.minecraft.block.entity.SignBlockEntity;
+import net.minecraft.block.entity.*;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.VariantHolder;
 import net.minecraft.entity.passive.CatVariant;
 import net.minecraft.entity.passive.FrogVariant;
@@ -17,9 +15,9 @@ import net.minecraft.village.VillagerType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.utils.EMFUtils;
-import traben.entity_texture_features.texture_features.property_reading.properties.RandomProperty;
-import traben.entity_texture_features.texture_features.property_reading.properties.generic_properties.StringArrayOrRegexProperty;
-import traben.entity_texture_features.utils.entity_wrappers.ETFEntity;
+import traben.entity_texture_features.features.property_reading.properties.RandomProperty;
+import traben.entity_texture_features.features.property_reading.properties.generic_properties.StringArrayOrRegexProperty;
+import traben.entity_texture_features.utils.ETFEntity;
 
 import java.util.Optional;
 import java.util.Properties;
@@ -55,8 +53,8 @@ public class EntityVariantProperty extends StringArrayOrRegexProperty {
         return value;
     }
     private @Nullable String getValueFromEntityInternal(ETFEntity etfEntity) {
-        if(etfEntity.getEntity() != null) {
-            if (etfEntity.getEntity() instanceof VariantHolder<?> variableEntity) {
+        if(etfEntity instanceof Entity) {
+            if (etfEntity instanceof VariantHolder<?> variableEntity) {
                 if (variableEntity.getVariant() instanceof StringIdentifiable stringIdentifiable) {
                     return stringIdentifiable.asString();
                 }
@@ -88,24 +86,24 @@ public class EntityVariantProperty extends StringArrayOrRegexProperty {
                 }
                 return variableEntity.getVariant().toString();
             }
-            return Registries.ENTITY_TYPE.getKey(etfEntity.getEntity().getType()).map(key -> key.getValue().getPath()).orElse(null);
+            return Registries.ENTITY_TYPE.getKey(((Entity) etfEntity).getType()).map(key -> key.getValue().getPath()).orElse(null);
 
-        }else if (etfEntity.getBlockEntity() != null){
-            if(etfEntity.getBlockEntity() instanceof SignBlockEntity signBlockEntity
+        }else if (etfEntity instanceof BlockEntity){
+            if(etfEntity instanceof SignBlockEntity signBlockEntity
                     && signBlockEntity.getCachedState().getBlock() instanceof AbstractSignBlock abstractSignBlock){
                 return abstractSignBlock.getWoodType().name();
             }
             //todo move colors to color property in etf maybe?
             //it is actually useless in etf though, as they can already derive colour
-            if(etfEntity.getBlockEntity() instanceof ShulkerBoxBlockEntity shulkerBoxBlockEntity
+            if(etfEntity instanceof ShulkerBoxBlockEntity shulkerBoxBlockEntity
                     && shulkerBoxBlockEntity.getCachedState().getBlock() instanceof ShulkerBoxBlock shulkerBoxBlock){
                 return String.valueOf(shulkerBoxBlock.getColor());
             }
-            if(etfEntity.getBlockEntity() instanceof BedBlockEntity bedBlockEntity
+            if(etfEntity instanceof BedBlockEntity bedBlockEntity
                     && bedBlockEntity.getCachedState().getBlock() instanceof BedBlock bedBlock){
                 return String.valueOf(bedBlock.getColor());
             }
-            if(etfEntity.getBlockEntity() instanceof DecoratedPotBlockEntity pot){
+            if(etfEntity instanceof DecoratedPotBlockEntity pot){
                 DecoratedPotBlockEntity.Sherds sherds = pot.getSherds();
                 return sherds.back().getTranslationKey() + "," +
                         sherds.left().getTranslationKey() + "," +
@@ -113,7 +111,7 @@ public class EntityVariantProperty extends StringArrayOrRegexProperty {
                         sherds.front().getTranslationKey();
             }
 
-            return Registries.BLOCK_ENTITY_TYPE.getKey(etfEntity.getBlockEntity().getType()).map(key -> key.getValue().getPath()).orElse(null);
+            return Registries.BLOCK_ENTITY_TYPE.getKey(((BlockEntity) etfEntity).getType()).map(key -> key.getValue().getPath()).orElse(null);
         }
         return null;
     }
