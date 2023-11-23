@@ -2,6 +2,7 @@ package traben.entity_model_features.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
@@ -106,7 +107,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     @Nullable
-    private static EMFJemData getJemDataWithDirectory(String pathOfJem, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+    public static EMFJemData getJemDataWithDirectory(String pathOfJem, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
         //File config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "entity_texture_features.json");
         if (EMFManager.getInstance().cache_JemDataByFileName.containsKey(pathOfJem)) {
             return EMFManager.getInstance().cache_JemDataByFileName.get(pathOfJem);
@@ -335,10 +336,12 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobNameForFileAndMap + ".jem");
             String jemName = /*"optifine/cem/" +*/ mobNameForFileAndMap + ".jem";
-            CemDirectoryApplier variantDirectoryApplier = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + ".properties", mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
-
+            CemDirectoryApplier hasVariantsAndCanApplyThisDirectory = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + ".properties", mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
+            if(hasVariantsAndCanApplyThisDirectory == null){
+                hasVariantsAndCanApplyThisDirectory = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + "2.jem", mobNameForFileAndMap.getfileName());
+            }
             EMFJemData jemData = getJemData(jemName, mobNameForFileAndMap);
-            if (jemData != null || variantDirectoryApplier != null) {
+            if (jemData != null || hasVariantsAndCanApplyThisDirectory != null) {
                 //we do indeed need custom models
 
                 //specification for the optifine map
@@ -350,15 +353,26 @@ public class EMFManager {//singleton for data holding and resetting needs
                     }
                 });
 
-                EMFModelPartRoot emfRoot = new EMFModelPartRoot(mobNameForFileAndMap, variantDirectoryApplier, root, optifinePartNames, new HashMap<>());
+                EMFModelPartRoot emfRoot = new EMFModelPartRoot(mobNameForFileAndMap, hasVariantsAndCanApplyThisDirectory, root, optifinePartNames, new HashMap<>());
                 if (jemData != null) {
                     emfRoot.addVariantOfJem(jemData, 1);
                     emfRoot.setVariantStateTo(1);
                     setupAnimationsFromJemToModel(jemData, emfRoot, 1);
+                    emfRoot.containsCustomModel = true;
+                    if (hasVariantsAndCanApplyThisDirectory != null){
+                        emfRoot.discoverAndInitVariants();
+                    }
+                }else{
+                    emfRoot.setVariant1ToVanilla0();
+                    emfRoot.discoverAndInitVariants();
                 }
 
-                lastCreatedRootModelPart = emfRoot;
-                return emfRoot;
+
+
+                if(emfRoot.containsCustomModel) {
+                    lastCreatedRootModelPart = emfRoot;
+                    return emfRoot;
+                }
             }
 
 
@@ -370,7 +384,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
     }
 
-    private void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {
+    public void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {
         ///////SETUP ANIMATION EXECUTABLES////////////////
 
         boolean printing = EMFConfig.getConfig().logModelCreationData;
@@ -468,62 +482,17 @@ public class EMFManager {//singleton for data holding and resetting needs
             long randomizer = ETFApi.getETFConfigObject().textureUpdateFrequency_V2.getDelay() * 20L;
             if (System.currentTimeMillis() % randomizer == Math.abs(entity.getUuid().hashCode()) % randomizer) {
                 //if (cache_UUIDAndTypeToLastVariantCheckTime.getLong(key) + 1500 < System.currentTimeMillis()) {
+                assert cannonRoot.variantTester != null;
 
-                if (cannonRoot.variantTester == null) {
-                    Identifier propertyID = new Identifier(cannonRoot.variantDirectoryApplier.getThisDirectoryOfFilename(mobName + ".properties"));
-                    if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
-                        cannonRoot.variantTester = ETFApi.readRandomPropertiesFileAndReturnTestingObject3(propertyID, "models");
-                    } else {
-                        EMFUtils.EMFModWarn("no property" + propertyID);
-                        //cache_JemNameDoesHaveVariants.put(mobName, false);
-                        cannonRoot.variantDirectoryApplier = null;
-                        return;
-                    }
-                }
-                ETFApi.ETFRandomTexturePropertyInstance emfProperty = cannonRoot.variantTester;
-                if (emfProperty != null) {
-                    int suffix;
-                    if (entity.entity() == null) {
-                        suffix = emfProperty.getSuffixForBlockEntity(entity.getBlockEntity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
-                    } else {
-                        suffix = emfProperty.getSuffixForEntity(entity.entity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
-                    }
-
-                    //EMFModelPartMutable cannonicalRoot = cache_JemNameToCannonModelRoot.get(mobName);
-                    if (suffix > 1) { // ignore 0 & 1
-                        //System.out.println(" > apply model variant: "+suffix +", to "+mobName);
-                        if (!cannonRoot.allKnownStateVariants.containsKey(suffix)) {
-                            String jemName = cannonRoot.variantDirectoryApplier.getThisDirectoryOfFilename(mobName + suffix + ".jem");
-                            if (EMFConfig.getConfig().logModelCreationData)
-                                System.out.println(" >> first time load of : " + jemName);
-                            EMFJemData jemData = getJemDataWithDirectory(jemName, cannonRoot.modelName);
-                            if (jemData != null) {
-                                cannonRoot.addVariantOfJem(jemData, suffix);
-                                cannonRoot.setVariantStateTo(suffix);
-                                setupAnimationsFromJemToModel(jemData, cannonRoot, suffix);
-//                                ModelPart vanillaRoot = cannonRoot.vanillaRoot; //cache_JemNameToVanillaModelRoot.get(mobName);
-//                                if (vanillaRoot != null) {
-//                                    EMFModelPartMutable variantRoot = getEMFRootModelFromJem(jemData, vanillaRoot, suffix);
-//                                    cannonRoot.mergePartVariant(suffix, variantRoot);
-//                                    setupAnimationsFromJemToModel(jemData, cannonRoot,suffix);
-//                                }
-                            } else {
-                                System.out.println("invalid jem: " + jemName);
-                            }
-                        }
-                        cannonRoot.setVariantStateTo(suffix);
-                        cache_UUIDAndTypeToCurrentVariantInt.put(key, suffix);
-                    } else {
-                        cannonRoot.setVariantStateTo(1);
-                        cache_UUIDAndTypeToCurrentVariantInt.put(key, 1);
-                    }
+                int suffix;
+                if (entity.entity() == null) {
+                    suffix = cannonRoot.variantTester.getSuffixForBlockEntity(entity.getBlockEntity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
                 } else {
-                    cannonRoot.variantDirectoryApplier = null;
-                    cannonRoot.setVariantStateTo(1);
+                    suffix = cannonRoot.variantTester.getSuffixForEntity(entity.entity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
                 }
-                // cache_UUIDAndTypeToLastVariantCheckTime.put(key, System.currentTimeMillis());
+                cannonRoot.setVariantStateTo(suffix);
+                cache_UUIDAndTypeToCurrentVariantInt.put(key, suffix);
             } else {
-                //EMFModelPartMutable cannonicalRoot = cache_JemNameToCannonModelRoot.get(mobName);
                 cannonRoot.setVariantStateTo(cache_UUIDAndTypeToCurrentVariantInt.getInt(key));
             }
         } else {

@@ -27,79 +27,37 @@ public abstract class EMFModelPart extends ModelPart {
     }
 
 
+    void renderWithTextureOverride(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 
-//    @Nullable
-//    private Identifier getTextureOverrideViaETF(int renderLight) {
-//        if (renderLight == ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE) {
-//            //require emissive texture variant
-//            if (EMFAnimationHelper.getEMFEntity().entity() != null) {
-//                return ETFApi.getCurrentETFEmissiveTextureOfEntityOrNull(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
-//            } else if (EMFAnimationHelper.getEMFEntity().getBlockEntity() != null) {
-//                //todo api version needed with emf format uuid support
-//                ETFBlockEntityWrapper block = new ETFBlockEntityWrapper(EMFAnimationHelper.getEMFEntity().getBlockEntity(), EMFAnimationHelper.getEMFEntity().getUuid());
-//                ETFTexture etfTexture = ETFManager.getInstance().getETFTexture(textureOverride, block, ETFManager.TextureSource.BLOCK_ENTITY, ETFClientCommon.ETFConfigData.removePixelsUnderEmissiveBlockEntity);
-//                if(etfTexture != null) {
-//                    Identifier emissive = etfTexture.getEmissiveIdentifierOfCurrentState();
-//                    if(emissive != null)
-//                        return emissive;
-//                }
-//            }
-//            //assert null if no emissive exists as we are in an emissive only render
-//            return null;
-//        } else {
-//            //otherwise normal texture
-//            if (EMFAnimationHelper.getEMFEntity().entity() != null) {
-//                return ETFApi.getCurrentETFVariantTextureOfEntity(EMFAnimationHelper.getEMFEntity().entity(), textureOverride);
-//            } else if (EMFAnimationHelper.getEMFEntity().getBlockEntity() != null) {
-//                return ETFApi.getCurrentETFVariantTextureOfBlockEntity(EMFAnimationHelper.getEMFEntity().getBlockEntity(), textureOverride,EMFAnimationHelper.getEMFEntity().getUuid());
-//            }
-//            return textureOverride;
-//        }
-//    }
+        if(textureOverride == null || EMFAnimationHelper.getEMFEntity() == null){
+            //normal vertex consumer
+            renderToVanillaSuper(matrices, vertices, light, overlay, red, green, blue, alpha);
+        }else if (light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
+                && !ETFRenderContext.isIsInSpecialRenderOverlayPhase()) { //do not allow new etf emissive rendering here
 
-    void primaryRender(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-
-        if (textureOverride != null
-                && light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
-                && light != ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE //do not allow new etf emissive rendering here
-                && EMFAnimationHelper.getEMFEntity() != null
-        ) {
             RenderLayer originalLayer = ETFRenderContext.getCurrentRenderLayer();
             RenderLayer layerModified = RenderLayer.getEntityTranslucent(textureOverride);
             VertexConsumer newConsumer = ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(),layerModified);
 
-            renderToSuper(matrices, newConsumer, light, overlay, red, green, blue, alpha);
-            etf$renderEmissive(matrices, overlay, red, green, blue, alpha) ;
-            etf$renderEnchanted(matrices, light, overlay, red, green, blue, alpha);
+            renderToVanillaSuper(matrices, newConsumer, light, overlay, red, green, blue, alpha);
 
+            ETFRenderContext.startSpecialRenderOverlayPhase();
+                etf$renderEmissive(matrices, overlay, red, green, blue, alpha) ;
+                etf$renderEnchanted(matrices, light, overlay, red, green, blue, alpha);
+            ETFRenderContext.endSpecialRenderOverlayPhase();
+
+            //reset render settings
             ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(),originalLayer);
-
-
-//                //todo I would appreciate feedback on this from someone who understands the buffer system better
-//                //this is just my best guess from brute forcing it
-//                try {
-//                    RenderLayer layer = RenderLayer.getEntityTranslucent(textureOverride);
-////                    if (MODIFIED_RENDER_BUFFER == null)
-////                        MODIFIED_RENDER_BUFFER = new BufferBuilder(layer.getExpectedBufferSize());
-////                    MODIFIED_RENDER_BUFFER.begin(layer.getDrawMode(), layer.getVertexFormat());
-////                    renderToSuper(matrices, MODIFIED_RENDER_BUFFER, light, overlay, red, green, blue, alpha);
-////                    layer.draw(MODIFIED_RENDER_BUFFER, RenderSystem.getVertexSorting());
-////                    MODIFIED_RENDER_BUFFER.clear();
-//                } catch (Exception ignored) {
-//                }
-
-        } else {
-            //normal vertex consumer
-            renderToSuper(matrices, vertices, light, overlay, red, green, blue, alpha);
         }
+        //else cancel out render
     }
 
-    void renderToSuper(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    void renderToVanillaSuper(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 
     //stop trying to optimize my code so it doesn't work sodium :P
-    @Override // overrides to circumvent sodium optimizations that mess with custom uv quad creation
+    @Override // overrides to circumvent sodium optimizations that mess with custom uv quad creation and swapping out //todo better way??
     protected void renderCuboids(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
         //this is a copy of the vanilla renderCuboids() method
         for (Cuboid cuboid : ((ModelPartAccessor) this).getCuboids()) {
@@ -205,7 +163,7 @@ public abstract class EMFModelPart extends ModelPart {
 
             ETFRenderContext.allowRenderLayerTextureModify();
 
-            renderToSuper(matrices, emissiveConsumer, ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE, overlay, red, green, blue, alpha);
+            renderToVanillaSuper(matrices, emissiveConsumer, ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE, overlay, red, green, blue, alpha);
 
         }
     }
@@ -218,7 +176,7 @@ public abstract class EMFModelPart extends ModelPart {
             VertexConsumer enchantedVertex = ItemRenderer.getArmorGlintConsumer(ETFRenderContext.getCurrentProvider(), RenderLayer.getArmorCutoutNoCull(enchanted), false, true);
             ETFRenderContext.allowRenderLayerTextureModify();
 
-            renderToSuper(matrices, enchantedVertex, light, overlay, red, green, blue, alpha);
+            renderToVanillaSuper(matrices, enchantedVertex, light, overlay, red, green, blue, alpha);
         }
     }
 }

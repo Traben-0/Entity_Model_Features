@@ -127,12 +127,12 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
     @Override
-    void primaryRender(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    void renderWithTextureOverride(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         switch (EMFConfig.getConfig().renderModeChoice) {
-            case NORMAL -> super.primaryRender(matrices, vertices, light, overlay, red, green, blue, alpha);
+            case NORMAL -> super.renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
             case GREEN -> {
                 float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
-                super.primaryRender(matrices, vertices, light, overlay, flash, green, flash, alpha);
+                super.renderWithTextureOverride(matrices, vertices, light, overlay, flash, green, flash, alpha);
             }
             //case TRANSPARENT -> super.primaryRender(matrices, vertices, light, overlay, red, green, blue, 0.5f);
             case LINES -> {
@@ -161,7 +161,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-        primaryRender(matrices, vertices, light, overlay, red, green, blue, alpha);
+        renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 
     ModelPart getVanillaModelPartsOfCurrentState() {

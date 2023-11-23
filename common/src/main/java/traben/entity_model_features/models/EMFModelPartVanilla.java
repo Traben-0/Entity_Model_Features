@@ -59,7 +59,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //ignore non optifine specified parts when not vanilla variant
-        if (!hideInTheseStates.contains(currentModelVariantState))
+        if (!hideInTheseStates.contains(currentModelVariant))
             super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 

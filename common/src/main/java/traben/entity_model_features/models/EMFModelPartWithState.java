@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 
 public abstract class EMFModelPartWithState extends EMFModelPart {
     public final Int2ObjectOpenHashMap<EMFModelState> allKnownStateVariants = new Int2ObjectOpenHashMap<>();
-    public int currentModelVariantState = 0;
+    public int currentModelVariant = 0;
     Map<String, ModelPart> vanillaChildren = new HashMap<>();
     Consumer<EMFModelPartWithState> startOfRenderRunnable = null;
     Animator tryAnimate = new Animator();
@@ -49,7 +49,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         if (tryAnimate != null) {
             tryAnimate.run();
         }
-        primaryRender(matrices, vertices, light, overlay, red, green, blue, alpha);
+        renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
         //}
 //        if(needsToNullifyCustomTexture){
 //            textureOverride = null;
@@ -134,17 +134,16 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         if (this.roll == oldDefault.roll) this.roll = newDefault.roll;
     }
 
-    public void setVariantStateTo(int newVariantState) {
-        if (currentModelVariantState != newVariantState) {
-            currentModelVariantState = newVariantState;
-            if (allKnownStateVariants.containsKey(newVariantState)) {
-                setFromStateVariant(allKnownStateVariants.get(newVariantState), allKnownStateVariants.get(currentModelVariantState));
-
-            }
+    public void setVariantStateTo(int newVariant) {
+        if (currentModelVariant != newVariant) {
+//            if (allKnownStateVariants.containsKey(newVariant)) { true always now
+                setFromStateVariant(allKnownStateVariants.get(newVariant), allKnownStateVariants.get(currentModelVariant));
+                currentModelVariant = newVariant;
+//            }
             for (ModelPart part :
                     getChildrenEMF().values()) {
                 if (part instanceof EMFModelPartWithState p3)
-                    p3.setVariantStateTo(newVariantState);
+                    p3.setVariantStateTo(newVariant);
             }
         }
 

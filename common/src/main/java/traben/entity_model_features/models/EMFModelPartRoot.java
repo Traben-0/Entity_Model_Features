@@ -2,12 +2,15 @@ package traben.entity_model_features.models;
 
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimation;
@@ -19,6 +22,8 @@ import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 import traben.entity_texture_features.ETFApi;
 
 import java.util.*;
+
+import static traben.entity_model_features.utils.EMFManager.getJemDataWithDirectory;
 
 
 @Environment(value = EnvType.CLIENT)
@@ -124,18 +129,77 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     }
 
-    @Override
-    public void setVariantStateTo(int newVariantState) {
-        if (currentModelVariantState != newVariantState) {
-            if (newVariantState == 1 && !allKnownStateVariants.containsKey(1)) {
-                //EMFAnimationHelper.setRuleIndex(0); already is
-                super.setVariantStateTo(0);
-            } else {
-               // EMFAnimationHelper.setRuleIndex(newVariantState);
-                super.setVariantStateTo(newVariantState);
+    public void discoverAndInitVariants(){
+        //get random properties and init variants
+        String thisDirectoryFileName =variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getfileName());
+        Identifier propertyID = new Identifier(thisDirectoryFileName + ".properties");
+        if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
+            //todo same or higher pack check
+            variantTester = ETFApi.readRandomPropertiesFileAndReturnTestingObject3(propertyID, "models");
+            if(variantTester != null) {
+                IntOpenHashSet allModelVariants = variantTester.getAllSuffixes();
+                allModelVariants.remove(1);
+                allModelVariants.remove(0);
+                if(!allModelVariants.isEmpty()){
+                    //init all variants
+                    for (int variant: allModelVariants) {
+                        setVariantStateTo(1);
+
+                        String jemNameVariant = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getfileName() + variant + ".jem");
+                        if (EMFConfig.getConfig().logModelCreationData)
+                            System.out.println(" > incorporating variant jem file: " + jemNameVariant);
+                        EMFJemData jemDataVariant = getJemDataWithDirectory(jemNameVariant, modelName);
+                        if (jemDataVariant != null) {
+                            addVariantOfJem(jemDataVariant, variant);
+                            setVariantStateTo(variant);
+                            EMFManager.getInstance().setupAnimationsFromJemToModel(jemDataVariant, this, variant);
+                            containsCustomModel = true;
+                        } else {
+                            //make this variant map to 1
+                            allKnownStateVariants.put(variant,allKnownStateVariants.get(1));
+                            System.out.println(" > invalid jem variant file: " + jemNameVariant);
+                        }
+
+                    }
+                }else{
+                    EMFUtils.EMFModWarn("non variating properties found for: " + propertyID);
+                    variantTester = null;
+                    variantDirectoryApplier = null;
+                }
+            }else{
+                EMFUtils.EMFModWarn("null properties found for: " + propertyID);
+                variantDirectoryApplier = null;
             }
+        } else  {
+            EMFUtils.EMFModWarn("no properties or variants found for found for: " + thisDirectoryFileName+".jem");
+            variantDirectoryApplier = null;
         }
     }
+
+    @Override
+    public void setVariantStateTo(int newVariant) {
+        if (currentModelVariant != newVariant) {
+//            if (allKnownStateVariants.containsKey(newVariant)) {
+                super.setVariantStateTo(newVariant);//always does contain it now
+//            } else {
+//                if(newVariant == 1) {
+//                    super.setVariantStateTo(0);//set to vanilla if #1 not found somehow
+//                } else {
+//                    super.setVariantStateTo(1);// set to #1 if variant not found
+//                }
+//            }
+        }
+    }
+
+
+    public boolean containsCustomModel = false;
+    public void setVariant1ToVanilla0(){
+        allKnownStateVariants.put(1,allKnownStateVariants.get(0));
+    }
+
+
+
+
 
     public void tryRenderVanillaRootNormally(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
         if (vanillaRoot != null) {
@@ -154,10 +218,10 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 vanillaRoot.render(matrixStack, vertexConsumer, light, overlay, 1, 1, 1, 1);
             }
         } else {
-            if (!vanillaFormatModelPartOfEachState.containsKey(currentModelVariantState)) {
-                vanillaFormatModelPartOfEachState.put(currentModelVariantState, getVanillaModelPartsOfCurrentState());
+            if (!vanillaFormatModelPartOfEachState.containsKey(currentModelVariant)) {
+                vanillaFormatModelPartOfEachState.put(currentModelVariant, getVanillaModelPartsOfCurrentState());
             }
-            ModelPart vanillaFormat = vanillaFormatModelPartOfEachState.get(currentModelVariantState);
+            ModelPart vanillaFormat = vanillaFormatModelPartOfEachState.get(currentModelVariant);
             if (vanillaFormat != null) {
                 vanillaFormat.render(matrixStack, vertexConsumer, light, overlay, 1, 1, 1, 1);
             }
