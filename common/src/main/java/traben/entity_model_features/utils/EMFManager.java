@@ -2,7 +2,6 @@ package traben.entity_model_features.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
@@ -25,8 +24,6 @@ import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.models.animation.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
-import traben.entity_texture_features.ETFApi;
-import traben.entity_texture_features.config.ETFConfig;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -367,8 +364,6 @@ public class EMFManager {//singleton for data holding and resetting needs
                     emfRoot.discoverAndInitVariants();
                 }
 
-
-
                 if(emfRoot.containsCustomModel) {
                     lastCreatedRootModelPart = emfRoot;
                     return emfRoot;
@@ -443,62 +438,46 @@ public class EMFManager {//singleton for data holding and resetting needs
                 }
             }
 
-//            animMap.forEach((key, anim) -> {
-//                //System.out.println(">> anim key: " + key);
-//                if (anim != null) {
-//                    //System.out.println(">> anim: " + anim.expressionString);
-//                    anim.initExpression(animMap, allPartsBySingleAndFullHeirachicalId);
-//                    //System.out.println(">>> valid: " + anim.isValid());
-//                    if (anim.isValid())
-//                        orderedAnimations.add(anim);
-//                    else
-//                        EMFUtils.EMFModWarn("animations was invalid: " + anim.animKey + " = " + anim.expressionString);
-//                }
-//            });
         });
         isAnimationValidationPhase = false;
 
-        //EMFAnimationExecutor executor = new EMFAnimationExecutor(variableSuppliers, orderedAnimations);
+         emfRootPart.receiveAnimations(variantNum, emfAnimationsByPartName);
 
-//        if(emfRootPart.modelName.getMapId().contains("axolotl")) emfAnimationsByPartName.forEach((k,va)-> va.forEach((k2,v)-> System.out.println("axolotl>>> "+v.animKey+"="+v.expressionString+" ### "+(v.partToApplyTo == null ? "null" :v.partToApplyTo.toString()))));
-        emfRootPart.receiveAnimations(variantNum, emfAnimationsByPartName);
-
-        //cache_EntityNameToAnimationExecutable.put(jemData.mobName, executor);
         ///////////////////////////
     }
 
-    public void doVariantCheckFor(EMFModelPartRoot cannonRoot) {
-        EMFEntity entity = EMFAnimationHelper.getEMFEntity();
-        //String mobName = getTypeName(entity);
-        //cache_JemNameDoesHaveVariants.getBoolean(mobName)
-        if (entity != null
-                && cannonRoot.variantDirectoryApplier != null
-                && cache_UUIDDoUpdating.getBoolean(entity.getUuid())
-                && ETFApi.getETFConfigObject().textureUpdateFrequency_V2 != ETFConfig.UpdateFrequency.Never
-        ) {
-            String mobName = cannonRoot.modelName.getfileName();
-            UUIDAndMobTypeKey key = new UUIDAndMobTypeKey(entity.getUuid(), entity.getTypeString());
-
-            long randomizer = ETFApi.getETFConfigObject().textureUpdateFrequency_V2.getDelay() * 20L;
-            if (System.currentTimeMillis() % randomizer == Math.abs(entity.getUuid().hashCode()) % randomizer) {
-                //if (cache_UUIDAndTypeToLastVariantCheckTime.getLong(key) + 1500 < System.currentTimeMillis()) {
-                assert cannonRoot.variantTester != null;
-
-                int suffix;
-                if (entity.entity() == null) {
-                    suffix = cannonRoot.variantTester.getSuffixForBlockEntity(entity.getBlockEntity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
-                } else {
-                    suffix = cannonRoot.variantTester.getSuffixForEntity(entity.entity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
-                }
-                cannonRoot.setVariantStateTo(suffix);
-                cache_UUIDAndTypeToCurrentVariantInt.put(key, suffix);
-            } else {
-                cannonRoot.setVariantStateTo(cache_UUIDAndTypeToCurrentVariantInt.getInt(key));
-            }
-        } else {
-            cannonRoot.setVariantStateTo(1);
-        }
-    }
+//    public void doVariantCheckFor(EMFModelPartRoot cannonRoot) {
+//        EMFEntity entity = EMFAnimationHelper.getEMFEntity();
+//        //String mobName = getTypeName(entity);
+//        //cache_JemNameDoesHaveVariants.getBoolean(mobName)
+//        if (entity != null
+//                && cannonRoot.variantDirectoryApplier != null
+//                && cache_UUIDDoUpdating.getBoolean(entity.getUuid())
+//                && ETFApi.getETFConfigObject().textureUpdateFrequency_V2 != ETFConfig.UpdateFrequency.Never
+//        ) {
+//            String mobName = cannonRoot.modelName.getfileName();
+//            UUIDAndMobTypeKey key = new UUIDAndMobTypeKey(entity.getUuid(), entity.getTypeString());
+//
+//            long randomizer = ETFApi.getETFConfigObject().textureUpdateFrequency_V2.getDelay() * 20L;
+//            if (System.currentTimeMillis() % randomizer == Math.abs(entity.getUuid().hashCode()) % randomizer) {
+//                //if (cache_UUIDAndTypeToLastVariantCheckTime.getLong(key) + 1500 < System.currentTimeMillis()) {
+//                assert cannonRoot.variantTester != null;
+//
+//                int suffix;
+//                if (entity.entity() == null) {
+//                    suffix = cannonRoot.variantTester.getSuffixForBlockEntity(entity.getBlockEntity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
+//                } else {
+//                    suffix = cannonRoot.variantTester.getSuffixForEntity(entity.entity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
+//                }
+//                cannonRoot.setVariantStateTo(suffix);
+//                cache_UUIDAndTypeToCurrentVariantInt.put(key, suffix);
+//            } else {
+//                cannonRoot.setVariantStateTo(cache_UUIDAndTypeToCurrentVariantInt.getInt(key));
+//            }
+//        } else {
+//            cannonRoot.setVariantStateTo(1);
+//        }
+//    }
 
 
     public interface CemDirectoryApplier {

@@ -77,12 +77,12 @@ public class EMFAnimation {
         if (EMFAnimationHelper.getEMFEntity() == null) {
            return 0;
         }
-        return prevResult.getFloat(EMFAnimationHelper.getEMFEntity().getUuid());
+        return prevResult.getFloat(EMFAnimationHelper.getEMFEntity().etf$getUuid());
 
     }
 
     public float getResultViaCalculate() {
-        UUID id = EMFAnimationHelper.getEMFEntity() == null ? null : EMFAnimationHelper.getEMFEntity().getUuid();
+        UUID id = EMFAnimationHelper.getEMFEntity() == null ? null : EMFAnimationHelper.getEMFEntity().etf$getUuid();
         if (id == null) {
             return 0;
         }

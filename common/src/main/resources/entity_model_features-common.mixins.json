@@ -26,11 +26,12 @@
     "rendering.MixinStrayOverlayFeatureRenderer",
     "rendering.MixinTropicalFishPatternFeatureRenderer",
     "rendering.MixinWolfCollarFeatureRenderer",
-    "rendering.MixinWolfEntityModel"
-  ],
-  "mixins": [
+    "rendering.MixinWolfEntityModel",
+    "MixinBlockEntity",
     "MixinEntity",
     "accessor.EntityRenderDispatcherAccessor"
+  ],
+  "mixins": [
   ],
   "injectors": {
     "defaultRequire": 1

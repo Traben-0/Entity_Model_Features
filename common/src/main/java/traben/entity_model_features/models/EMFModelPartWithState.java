@@ -13,20 +13,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public abstract class EMFModelPartWithState extends EMFModelPart {
     public final Int2ObjectOpenHashMap<EMFModelState> allKnownStateVariants = new Int2ObjectOpenHashMap<>();
     public int currentModelVariant = 0;
     Map<String, ModelPart> vanillaChildren = new HashMap<>();
-    Consumer<EMFModelPartWithState> startOfRenderRunnable = null;
+    Runnable startOfRenderRunnable = null;
     Animator tryAnimate = new Animator();
 
     public EMFModelPartWithState(List<Cuboid> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
     }
 
-    void receiveStartOfRenderRunnable(Consumer<EMFModelPartWithState> run) {
+    void receiveStartOfRenderRunnable(Runnable run) {
         startOfRenderRunnable = run;
         getChildrenEMF().values().forEach((child) -> {
             if (child instanceof EMFModelPartWithState emf) {
@@ -40,7 +39,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 
         if (startOfRenderRunnable != null) {
-            startOfRenderRunnable.accept(this);
+            startOfRenderRunnable.run();
         }
 
         //assertChildrenAndCuboids();
