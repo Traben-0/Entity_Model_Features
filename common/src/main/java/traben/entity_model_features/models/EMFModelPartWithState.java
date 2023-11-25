@@ -135,10 +135,9 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
 
     public void setVariantStateTo(int newVariant) {
         if (currentModelVariant != newVariant) {
-//            if (allKnownStateVariants.containsKey(newVariant)) { true always now
-                setFromStateVariant(allKnownStateVariants.get(newVariant), allKnownStateVariants.get(currentModelVariant));
-                currentModelVariant = newVariant;
-//            }
+            setFromStateVariant(allKnownStateVariants.get(newVariant), getCurrentState());
+            currentModelVariant = newVariant;
+
             for (ModelPart part :
                     getChildrenEMF().values()) {
                 if (part instanceof EMFModelPartWithState p3)

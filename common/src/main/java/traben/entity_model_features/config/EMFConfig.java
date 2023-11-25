@@ -6,6 +6,7 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_texture_features.config.ETFConfig;
 
 import java.io.File;
 import java.io.FileReader;
@@ -20,12 +21,12 @@ public class EMFConfig {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EMFConfig emfConfig = (EMFConfig) o;
-        return logModelCreationData == emfConfig.logModelCreationData && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod && renderModeChoice == emfConfig.renderModeChoice && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2;
+        return modelUpdateFrequency == emfConfig.modelUpdateFrequency && logModelCreationData == emfConfig.logModelCreationData && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod && renderModeChoice == emfConfig.renderModeChoice && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(logModelCreationData, renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod, logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
+        return Objects.hash(modelUpdateFrequency, logModelCreationData, renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod, logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
     }
 
     private static EMFConfig EMF_CONFIG_SINGLETON;
@@ -36,6 +37,8 @@ public class EMFConfig {
     public boolean attemptRevertingEntityModelsAlteredByAnotherMod = true;
     public UnknownModelPrintMode logUnknownOrModdedEntityModels = UnknownModelPrintMode.NONE;
     public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
+
+    public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
 
 
     public static EMFConfig getConfig() {

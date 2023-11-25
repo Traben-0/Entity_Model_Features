@@ -28,6 +28,8 @@
   "entity_model_features.config.unknown_model_print_mode": "Print out unknown model info",
   "entity_model_features.config.physics": "Physics mod patch #2",
   "entity_model_features.config.physics.tooltip": "Will only render the original vanilla model parts on death if physics mod is enabled\n this partially works but is not a perfect solution",
+  "entity_model_features.config.update": "Model update rate",
+  "entity_model_features.config.update.tooltip": "Sets how often a mobs model will\nupdate for changes like health & age\nNever = never update\nSlow = 3-5 seconds\nAverage = about 1 second\nFast = less than a second\nInstant = instant (possible lag with hundred of mobs)",
   "entity_model_features.config.texture_override_mode.emf": "Try with EMF code",
   "entity_model_features.config.texture_override_mode.dont": "Ignore texture overrides",
   "entity_model_features.config.texture_override_mode.iris": "Try with Iris first",

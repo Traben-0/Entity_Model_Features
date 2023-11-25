@@ -83,10 +83,16 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public void checkIfShouldExpireEntity(UUID id) {
         if (this.variantTester.entityCanUpdate(id)) {
-            int delay = 20;//todo // ETFClientCommon.ETFConfigData.textureUpdateFrequency_V2.getDelay();
-            long randomizer = (long)delay * 20L;
-            if (System.currentTimeMillis() % randomizer == (long)Math.abs(id.hashCode()) % randomizer) {
-                this.entitySuffixMap.removeInt(id);
+            switch (EMFConfig.getConfig().modelUpdateFrequency){
+                case Never -> {}
+                case Instant -> this.entitySuffixMap.removeInt(id);
+                default -> {
+                    int delay = EMFConfig.getConfig().modelUpdateFrequency.getDelay();
+                    int time = (int) (EMFAnimationHelper.getTime() % delay);
+                    if (time ==  Math.abs(id.hashCode()) % delay) {
+                        this.entitySuffixMap.removeInt(id);
+                    }
+                }
             }
         }
     }
@@ -196,15 +202,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     @Override
     public void setVariantStateTo(int newVariant) {
         if (currentModelVariant != newVariant) {
-//            if (allKnownStateVariants.containsKey(newVariant)) {
-                super.setVariantStateTo(newVariant);//always does contain it now
-//            } else {
-//                if(newVariant == 1) {
-//                    super.setVariantStateTo(0);//set to vanilla if #1 not found somehow
-//                } else {
-//                    super.setVariantStateTo(1);// set to #1 if variant not found
-//                }
-//            }
+            super.setVariantStateTo(newVariant);//always does contain it now
         }
     }
 
