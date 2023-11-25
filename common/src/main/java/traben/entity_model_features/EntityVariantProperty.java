@@ -27,13 +27,13 @@ public class EntityVariantProperty extends StringArrayOrRegexProperty {
     private final boolean doPrint;
 
     protected EntityVariantProperty(String string) throws RandomPropertyException {
-        super(string.replace("print:",""));
+        super(string.replace("print:", ""));
         doPrint = string.startsWith("print:");
     }
 
     public static EntityVariantProperty getPropertyOrNull(Properties properties, int propertyNum) {
         try {
-            return new EntityVariantProperty(readPropertiesOrThrow(properties,propertyNum,"variant","variants"));
+            return new EntityVariantProperty(readPropertiesOrThrow(properties, propertyNum, "variant", "variants"));
         } catch (RandomProperty.RandomPropertyException var3) {
             return null;
         }
@@ -47,13 +47,14 @@ public class EntityVariantProperty extends StringArrayOrRegexProperty {
     @Override
     protected @Nullable String getValueFromEntity(ETFEntity etfEntity) {
         String value = getValueFromEntityInternal(etfEntity);
-        if(doPrint){
+        if (doPrint) {
             EMFUtils.EMFModMessage("[variant property print] = " + (value == null ? "//VARIANT CHECK FAILED AND WILL RETURN FALSE//" : value));
         }
         return value;
     }
+
     private @Nullable String getValueFromEntityInternal(ETFEntity etfEntity) {
-        if(etfEntity instanceof Entity) {
+        if (etfEntity instanceof Entity) {
             if (etfEntity instanceof VariantHolder<?> variableEntity) {
                 if (variableEntity.getVariant() instanceof StringIdentifiable stringIdentifiable) {
                     return stringIdentifiable.asString();
@@ -88,22 +89,22 @@ public class EntityVariantProperty extends StringArrayOrRegexProperty {
             }
             return Registries.ENTITY_TYPE.getKey(((Entity) etfEntity).getType()).map(key -> key.getValue().getPath()).orElse(null);
 
-        }else if (etfEntity instanceof BlockEntity){
-            if(etfEntity instanceof SignBlockEntity signBlockEntity
-                    && signBlockEntity.getCachedState().getBlock() instanceof AbstractSignBlock abstractSignBlock){
+        } else if (etfEntity instanceof BlockEntity) {
+            if (etfEntity instanceof SignBlockEntity signBlockEntity
+                    && signBlockEntity.getCachedState().getBlock() instanceof AbstractSignBlock abstractSignBlock) {
                 return abstractSignBlock.getWoodType().name();
             }
             //todo move colors to color property in etf maybe?
             //it is actually useless in etf though, as they can already derive colour
-            if(etfEntity instanceof ShulkerBoxBlockEntity shulkerBoxBlockEntity
-                    && shulkerBoxBlockEntity.getCachedState().getBlock() instanceof ShulkerBoxBlock shulkerBoxBlock){
+            if (etfEntity instanceof ShulkerBoxBlockEntity shulkerBoxBlockEntity
+                    && shulkerBoxBlockEntity.getCachedState().getBlock() instanceof ShulkerBoxBlock shulkerBoxBlock) {
                 return String.valueOf(shulkerBoxBlock.getColor());
             }
-            if(etfEntity instanceof BedBlockEntity bedBlockEntity
-                    && bedBlockEntity.getCachedState().getBlock() instanceof BedBlock bedBlock){
+            if (etfEntity instanceof BedBlockEntity bedBlockEntity
+                    && bedBlockEntity.getCachedState().getBlock() instanceof BedBlock bedBlock) {
                 return String.valueOf(bedBlock.getColor());
             }
-            if(etfEntity instanceof DecoratedPotBlockEntity pot){
+            if (etfEntity instanceof DecoratedPotBlockEntity pot) {
                 DecoratedPotBlockEntity.Sherds sherds = pot.getSherds();
                 return sherds.back().getTranslationKey() + "," +
                         sherds.left().getTranslationKey() + "," +
@@ -123,6 +124,6 @@ public class EntityVariantProperty extends StringArrayOrRegexProperty {
 
     @Override
     public @NotNull String[] getPropertyIds() {
-        return new String[]{"variant","variants"};
+        return new String[]{"variant", "variants"};
     }
 }

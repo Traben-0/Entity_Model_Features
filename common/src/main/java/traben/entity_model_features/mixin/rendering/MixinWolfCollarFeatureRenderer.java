@@ -44,7 +44,7 @@ public class MixinWolfCollarFeatureRenderer {
             w = EMFManager.getInstance().injectIntoModelRootGetter(emf$collar_layer, WolfEntityModel.getTexturedModelData().createModel());
         }
         //separate the collar model, if it has a custom jem model or the base wolf has a custom jem model
-        if (w instanceof EMFModelPartRoot || ((IEMFModel)featureRendererContext.getModel()).emf$isEMFModel()) {
+        if (w instanceof EMFModelPartRoot || ((IEMFModel) featureRendererContext.getModel()).emf$isEMFModel()) {
             EMFManager.wolfCollarModel = new WolfEntityModel<>(w);
         }
     }

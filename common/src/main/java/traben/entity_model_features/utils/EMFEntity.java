@@ -52,5 +52,7 @@ public interface EMFEntity extends ETFEntity {
 
     Vec3d emf$getVelocity();
 
+    String emf$getTypeString();
+
 
 }

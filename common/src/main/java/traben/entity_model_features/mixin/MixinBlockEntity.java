@@ -2,6 +2,7 @@ package traben.entity_model_features.mixin;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -14,11 +15,18 @@ import traben.entity_model_features.utils.EMFEntity;
 public abstract class MixinBlockEntity implements EMFEntity {
 
 
-    @Shadow public abstract BlockPos getPos();
+    @Shadow
+    public abstract BlockPos getPos();
 
-    @Shadow public abstract BlockState getCachedState();
+    @Shadow
+    public abstract BlockState getCachedState();
 
-    @Shadow @Nullable public abstract World getWorld();
+    @Shadow
+    @Nullable
+    public abstract World getWorld();
+
+    @Shadow
+    public abstract BlockEntityType<?> getType();
 
     @Override
     public double emf$prevX() {
@@ -86,7 +94,6 @@ public abstract class MixinBlockEntity implements EMFEntity {
     }
 
 
-
     @Override
     public boolean emf$isGlowing() {
         return false;
@@ -134,8 +141,11 @@ public abstract class MixinBlockEntity implements EMFEntity {
 
     @Override
     public Vec3d emf$getVelocity() {
-        return new Vec3d(0,0,0);
+        return new Vec3d(0, 0, 0);
     }
 
-
+    @Override
+    public String emf$getTypeString() {
+        return getType().toString();
+    }
 }

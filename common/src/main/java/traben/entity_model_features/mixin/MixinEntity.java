@@ -2,6 +2,7 @@ package traben.entity_model_features.mixin;
 
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -14,53 +15,73 @@ import traben.entity_model_features.utils.EMFEntity;
 @Mixin(Entity.class)
 public abstract class MixinEntity implements EMFEntity {
 
-    @Shadow public double prevX;
+    @Shadow
+    public double prevX;
+    @Shadow
+    public double prevY;
+    @Shadow
+    public double prevZ;
+    @Shadow
+    public float prevPitch;
+    @Shadow
+    public int age;
 
-    @Shadow public abstract double getX();
+    @Shadow
+    public abstract double getX();
 
-    @Shadow public double prevY;
+    @Shadow
+    public abstract double getY();
 
-    @Shadow public abstract double getY();
+    @Shadow
+    public abstract double getZ();
 
-    @Shadow public double prevZ;
+    @Shadow
+    public abstract boolean isTouchingWater();
 
-    @Shadow public abstract double getZ();
+    @Shadow
+    public abstract boolean isOnFire();
 
-    @Shadow public float prevPitch;
+    @Shadow
+    public abstract boolean hasVehicle();
 
+    @Shadow
+    public abstract boolean isOnGround();
 
-    @Shadow public abstract boolean isTouchingWater();
+    @Shadow
+    public abstract boolean isAlive();
 
-    @Shadow public abstract boolean isOnFire();
+    @Shadow
+    public abstract boolean isGlowing();
 
-    @Shadow public abstract boolean hasVehicle();
+    @Shadow
+    public abstract boolean isInLava();
 
-    @Shadow public abstract boolean isOnGround();
+    @Shadow
+    public abstract boolean isInvisible();
 
-    @Shadow public abstract boolean isAlive();
+    @Shadow
+    public abstract boolean hasPassengers();
 
-    @Shadow public abstract boolean isGlowing();
+    @Shadow
+    public abstract boolean isSneaking();
 
-    @Shadow public abstract boolean isInLava();
+    @Shadow
+    public abstract boolean isSprinting();
 
-    @Shadow public abstract boolean isInvisible();
+    @Shadow
+    public abstract boolean isWet();
 
-    @Shadow public abstract boolean hasPassengers();
+    @Shadow
+    public abstract Vec3d getVelocity();
 
-    @Shadow public abstract boolean isSneaking();
+    @Shadow
+    public abstract float getYaw();
 
-    @Shadow public abstract boolean isSprinting();
+    @Shadow
+    public abstract float getPitch();
 
-    @Shadow public abstract boolean isWet();
-
-    @Shadow public int age;
-
-
-    @Shadow public abstract Vec3d getVelocity();
-
-    @Shadow public abstract float getYaw();
-
-    @Shadow public abstract float getPitch();
+    @Shadow
+    public abstract EntityType<?> getType();
 
     @Inject(method = "Lnet/minecraft/entity/Entity;getLeashOffset()Lnet/minecraft/util/math/Vec3d;", at = @At("RETURN"))
     private void injected(CallbackInfoReturnable<Vec3d> cir) {
@@ -137,7 +158,6 @@ public abstract class MixinEntity implements EMFEntity {
     }
 
 
-
     @Override
     public boolean emf$isGlowing() {
         return isGlowing();
@@ -186,5 +206,10 @@ public abstract class MixinEntity implements EMFEntity {
     @Override
     public Vec3d emf$getVelocity() {
         return getVelocity();
+    }
+
+    @Override
+    public String emf$getTypeString() {
+        return getType().toString();
     }
 }

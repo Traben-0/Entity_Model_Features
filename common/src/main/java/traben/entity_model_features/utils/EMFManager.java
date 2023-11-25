@@ -50,6 +50,9 @@ public class EMFManager {//singleton for data holding and resetting needs
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
     public String currentSpecifiedModelLoading = "";
+    public Object2ObjectLinkedOpenHashMap<String, Set<Runnable>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
+        defaultReturnValue(null);
+    }};
     private boolean traderLlamaHappened = false;
 
 
@@ -204,7 +207,8 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                     case "trader_llama" -> traderLlamaHappened = true;
                     case "llama" -> traderLlamaHappened = false;
-                    case "llama_decor" -> mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
+                    case "llama_decor" ->
+                            mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
                     case "ender_dragon" -> mobNameForFileAndMap.setBoth("dragon");
                     case "dragon_skull" -> mobNameForFileAndMap.setBoth("head_dragon");
                     case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
@@ -334,7 +338,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             if (printing) System.out.println(" >> EMF trying to find: optifine/cem/" + mobNameForFileAndMap + ".jem");
             String jemName = /*"optifine/cem/" +*/ mobNameForFileAndMap + ".jem";
             CemDirectoryApplier hasVariantsAndCanApplyThisDirectory = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + ".properties", mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
-            if(hasVariantsAndCanApplyThisDirectory == null){
+            if (hasVariantsAndCanApplyThisDirectory == null) {
                 hasVariantsAndCanApplyThisDirectory = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + "2.jem", mobNameForFileAndMap.getfileName());
             }
             EMFJemData jemData = getJemData(jemName, mobNameForFileAndMap);
@@ -356,15 +360,15 @@ public class EMFManager {//singleton for data holding and resetting needs
                     emfRoot.setVariantStateTo(1);
                     setupAnimationsFromJemToModel(jemData, emfRoot, 1);
                     emfRoot.containsCustomModel = true;
-                    if (hasVariantsAndCanApplyThisDirectory != null){
+                    if (hasVariantsAndCanApplyThisDirectory != null) {
                         emfRoot.discoverAndInitVariants();
                     }
-                }else{
+                } else {
                     emfRoot.setVariant1ToVanilla0();
                     emfRoot.discoverAndInitVariants();
                 }
 
-                if(emfRoot.containsCustomModel) {
+                if (emfRoot.containsCustomModel) {
                     lastCreatedRootModelPart = emfRoot;
                     return emfRoot;
                 }
@@ -373,8 +377,8 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             if (printing) System.out.println(" > Vanilla model used for: " + mobNameForFileAndMap);
             return root;
-        }catch (Exception e) {
-            EMFUtils.EMFModWarn("default model returned for "+ layer.toString() + " due to exception: " + e.getMessage());
+        } catch (Exception e) {
+            EMFUtils.EMFModWarn("default model returned for " + layer.toString() + " due to exception: " + e.getMessage());
             return root;
         }
     }
@@ -441,7 +445,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         });
         isAnimationValidationPhase = false;
 
-         emfRootPart.receiveAnimations(variantNum, emfAnimationsByPartName);
+        emfRootPart.receiveAnimations(variantNum, emfAnimationsByPartName);
 
         ///////////////////////////
     }

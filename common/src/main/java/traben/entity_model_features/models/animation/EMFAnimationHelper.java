@@ -18,10 +18,12 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionTypes;
 import traben.entity_model_features.mixin.accessor.EntityRenderDispatcherAccessor;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
+import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_texture_features.ETFApi;
 
+import java.util.Set;
 import java.util.UUID;
 
 public class EMFAnimationHelper {
@@ -33,6 +35,7 @@ public class EMFAnimationHelper {
     private static final Object2IntOpenHashMap<UUID> knownHighestAngerTimeByUUID = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
+    public static boolean thisModelVariates = false;
     private static EMFEntity emfEntity = null;
     private static float shadowSize = Float.NaN;
     private static float shadowOpacity = Float.NaN;
@@ -47,7 +50,6 @@ public class EMFAnimationHelper {
     private static float headYaw = Float.NaN;
     private static float headPitch = Float.NaN;
     private static float tickDelta = 0;
-    private static int ruleIndex = 0;
     private static float dimension = Float.NaN;
     private static boolean onShoulder = false;
 
@@ -59,19 +61,23 @@ public class EMFAnimationHelper {
         resetForNewEntity();
         EMFManager.getInstance().entityRenderCount++;
         emfEntity = entityIn;
+
+
+        Set<Runnable> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(entityIn.emf$getTypeString());
+        if (roots != null) {
+            roots.forEach(Runnable::run);
+        }
+
     }
 
-
-
-
     public static void resetForNewEntity() {//todo extend for possible performance benefits
+        thisModelVariates = false;
         dimension = Float.NaN;
         limbAngle = Float.NaN;
         limbDistance = Float.NaN;
         headYaw = Float.NaN;
         headPitch = Float.NaN;
         tickDelta = MinecraftClient.getInstance().isPaused() ? ((MinecraftClientAccessor) MinecraftClient.getInstance()).getPausedTickDelta() : MinecraftClient.getInstance().getTickDelta();
-        ruleIndex = 0;
 
         shadowSize = Float.NaN;
         shadowOpacity = Float.NaN;
@@ -82,15 +88,17 @@ public class EMFAnimationHelper {
         shadowZ = 0;
 
         onShoulder = false;
+
+
     }
 
     public static float getRuleIndex() {
-        if(emfEntity == null) return 0;
+        if (emfEntity == null) return 0;
         int index;
-        if(emfEntity instanceof Entity entity){
-            index =  ETFApi.getLastMatchingRuleOfEntity(entity);
-        }else{
-            index =  ETFApi.getLastMatchingRuleOfBlockEntity((BlockEntity) emfEntity);
+        if (emfEntity instanceof Entity entity) {
+            index = ETFApi.getLastMatchingRuleOfEntity(entity);
+        } else {
+            index = ETFApi.getLastMatchingRuleOfBlockEntity((BlockEntity) emfEntity);
         }
         return index == -1 ? 0 : index;
     }
@@ -164,7 +172,7 @@ public class EMFAnimationHelper {
         if (emfEntity == null) return 0;
         return (emfEntity instanceof LivingEntity alive) ?
                 (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, alive.prevBodyYaw, alive.getBodyYaw())) :
-                emfEntity instanceof Entity  entity ?
+                emfEntity instanceof Entity entity ?
                         (float) Math.toRadians(MathHelper.lerpAngleDegrees(tickDelta, entity.prevYaw, entity.getYaw()))
                         : 0;
     }

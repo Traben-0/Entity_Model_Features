@@ -14,7 +14,6 @@ import java.util.Objects;
 public class MathVariable extends MathValue implements MathComponent {
 
 
-
     final String variableName;
     public MathComponent optimizedAlternativeToThis = null;
 
@@ -71,7 +70,7 @@ public class MathVariable extends MathValue implements MathComponent {
             case "move_forward" -> EMFAnimationHelper::getMoveForward;
             case "move_strafing" -> EMFAnimationHelper::getMoveStrafe;
 
-            case "nan" -> ()-> EMFManager.getInstance().isAnimationValidationPhase ? 0 : Float.NaN;
+            case "nan" -> () -> EMFManager.getInstance().isAnimationValidationPhase ? 0 : Float.NaN;
 
 
 //            case "collisionX" -> getter::getClosestCollisionX;
@@ -159,9 +158,9 @@ public class MathVariable extends MathValue implements MathComponent {
                 if (variableKey.matches("(var|varb)\\.\\w+")) {
                     EMFAnimation variableCalculator = calculationInstance.emfAnimationVariables.get(variableKey);
                     if (variableCalculator != null) {
-                        if(invertBooleans && variableKey.startsWith("varb.")){
-                            return ()-> variableCalculator.getLastResultOnly() == 1 ? 0 : 1;
-                        }else{
+                        if (invertBooleans && variableKey.startsWith("varb.")) {
+                            return () -> variableCalculator.getLastResultOnly() == 1 ? 0 : 1;
+                        } else {
                             return variableCalculator::getLastResultOnly;
                         }
                     } else {

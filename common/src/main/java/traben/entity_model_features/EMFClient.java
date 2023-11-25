@@ -47,7 +47,7 @@ public class EMFClient {
         EMFManager.getInstance();
 
         //register new etf random property for emf to track variants
-        ETFApi.registerCustomRandomPropertyFactory(MOD_ID,EntityVariantProperty::getPropertyOrNull);
+        ETFApi.registerCustomRandomPropertyFactory(MOD_ID, EntityVariantProperty::getPropertyOrNull);
 
     }
 

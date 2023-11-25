@@ -6,7 +6,6 @@ import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 
 import java.util.ArrayList;
@@ -25,15 +24,15 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         super(cuboids, children);
     }
 
-    void receiveStartOfRenderRunnable(Runnable run) {
+    void receiveOneTimeOnlyRunnable(Runnable run) {
         startOfRenderRunnable = run;
         getChildrenEMF().values().forEach((child) -> {
             if (child instanceof EMFModelPartWithState emf) {
-                emf.receiveStartOfRenderRunnable(run);
+                emf.receiveOneTimeOnlyRunnable(run);
             }
         });
     }
-//    public boolean needsToNullifyCustomTexture = false;
+
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
@@ -42,18 +41,11 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
             startOfRenderRunnable.run();
         }
 
-        //assertChildrenAndCuboids();
-        //if(new Random().nextInt(100)==1) System.out.println("rendered");
-        //if (isValidToRenderInThisState) {
         if (tryAnimate != null) {
             tryAnimate.run();
         }
         renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
-        //}
-//        if(needsToNullifyCustomTexture){
-//            textureOverride = null;
-//            needsToNullifyCustomTexture = false;
-//        }
+
     }
 
     EMFModelState getCurrentState() {
@@ -104,47 +96,38 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         tryAnimate = newState.animation();
     }
 
-    void setFromStateVariant(EMFModelState newState, @Nullable EMFModelState oldState) {
-        ModelTransform oldDefault = getDefaultTransform();
+
+    void setFromStateVariant(EMFModelState newState) {
+
+        setTransform(newState.defaultTransform());
+
+        this.xScale = newState.xScale;
+        this.yScale = newState.yScale;
+        this.zScale = newState.zScale;
+
+        this.visible = newState.visible;
+        this.hidden = newState.hidden;
+
         setDefaultTransform(newState.defaultTransform());
-        setTransformOnlyChangingDefaults(getDefaultTransform(), oldDefault);
+
         ((ModelPartAccessor) this).setCuboids(newState.cuboids());
         ((ModelPartAccessor) this).setChildren(newState.variantChildren());
-        if (oldState == null || xScale == oldState.xScale()) xScale = newState.xScale();
-        if (oldState == null || yScale == oldState.yScale()) yScale = newState.yScale();
-        if (oldState == null || zScale == oldState.zScale()) zScale = newState.zScale();
-        if (oldState == null || visible == oldState.visible()) visible = newState.visible();
-        if (oldState == null || hidden == oldState.hidden()) hidden = newState.hidden();
-//        xScale = newState.xScale();
-//        yScale = newState.yScale();
-//        zScale = newState.zScale();
-//        visible = newState.visible();
-//        hidden = newState.hidden();
+
         textureOverride = newState.texture();
         tryAnimate = newState.animation();
     }
 
-    public void setTransformOnlyChangingDefaults(ModelTransform newDefault, ModelTransform oldDefault) {
-        if (this.pivotX == oldDefault.pivotX) this.pivotX = newDefault.pivotX;
-        if (this.pivotY == oldDefault.pivotY) this.pivotY = newDefault.pivotY;
-        if (this.pivotZ == oldDefault.pivotX) this.pivotZ = newDefault.pivotZ;
-        if (this.pitch == oldDefault.pitch) this.pitch = newDefault.pitch;
-        if (this.yaw == oldDefault.yaw) this.yaw = newDefault.yaw;
-        if (this.roll == oldDefault.roll) this.roll = newDefault.roll;
-    }
 
     public void setVariantStateTo(int newVariant) {
         if (currentModelVariant != newVariant) {
-            setFromStateVariant(allKnownStateVariants.get(newVariant), getCurrentState());
+            setFromStateVariant(allKnownStateVariants.get(newVariant));
             currentModelVariant = newVariant;
-
             for (ModelPart part :
                     getChildrenEMF().values()) {
                 if (part instanceof EMFModelPartWithState p3)
                     p3.setVariantStateTo(newVariant);
             }
         }
-
     }
 
     record EMFModelState(

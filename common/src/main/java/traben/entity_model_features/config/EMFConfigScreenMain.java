@@ -29,6 +29,7 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
     public EMFConfig tempConfig;
     private long timer = 0;
     private LivingEntity livingEntity = null;
+
     public EMFConfigScreenMain(Screen parent) {
         super(Text.translatable("entity_model_features.title"), parent);
         // this.parent = parent;
@@ -43,7 +44,7 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
         this.addDrawableChild(ButtonWidget.builder(
                 Text.translatable("gui.done"),
                 (button) -> {
-                    if(!tempConfig.equals(EMFConfig.getConfig())) {
+                    if (!tempConfig.equals(EMFConfig.getConfig())) {
                         EMFConfig.setConfig(tempConfig);
                         EMFConfig.EMF_saveConfig();
                         MinecraftClient.getInstance().reloadResources();
@@ -127,7 +128,7 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
 
             context.getMatrices().push();
             //context.getMatrices().translate(0, 0, 100);
-            InventoryScreen.drawEntity(context, x, y, (int) scale,new Vector3f(0,0,100), quaternionf, quaternionf2, livingEntity);
+            InventoryScreen.drawEntity(context, x, y, (int) scale, new Vector3f(0, 0, 100), quaternionf, quaternionf2, livingEntity);
             context.getMatrices().pop();
         } else {
             context.drawCenteredTextWithShadow(this.textRenderer, Text.of("Load a world and nearby entities will appear here."), this.width / 3, this.height / 2, Color.GRAY.getRGB());

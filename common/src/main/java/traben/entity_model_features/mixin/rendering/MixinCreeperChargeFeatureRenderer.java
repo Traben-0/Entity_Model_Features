@@ -19,7 +19,9 @@ import traben.entity_model_features.models.IEMFModel;
 public abstract class MixinCreeperChargeFeatureRenderer {
 
 
-    @Shadow @Final private CreeperEntityModel<CreeperEntity> model;
+    @Shadow
+    @Final
+    private CreeperEntityModel<CreeperEntity> model;
 
     @Inject(
             method = "getEnergySwirlTexture",
@@ -28,7 +30,7 @@ public abstract class MixinCreeperChargeFeatureRenderer {
         if (model != null && ((IEMFModel) model).emf$isEMFModel()) {
             EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
-                if(root.textureOverride != null) {
+                if (root.textureOverride != null) {
                     root.removeJemOverrideTextureForModelSupplyingItAnotherWay();
                     cir.setReturnValue(root.textureOverride);
                 }

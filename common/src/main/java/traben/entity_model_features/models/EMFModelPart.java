@@ -22,6 +22,7 @@ public abstract class EMFModelPart extends ModelPart {
     public Identifier textureOverride;
 //    protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
 
+
     public EMFModelPart(List<Cuboid> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
     }
@@ -29,25 +30,25 @@ public abstract class EMFModelPart extends ModelPart {
 
     void renderWithTextureOverride(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 
-        if(textureOverride == null || EMFAnimationHelper.getEMFEntity() == null){
+        if (textureOverride == null || EMFAnimationHelper.getEMFEntity() == null) {
             //normal vertex consumer
             renderToVanillaSuper(matrices, vertices, light, overlay, red, green, blue, alpha);
-        }else if (light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
+        } else if (light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
                 && !ETFRenderContext.isIsInSpecialRenderOverlayPhase()) { //do not allow new etf emissive rendering here
 
             RenderLayer originalLayer = ETFRenderContext.getCurrentRenderLayer();
             RenderLayer layerModified = RenderLayer.getEntityTranslucent(textureOverride);
-            VertexConsumer newConsumer = ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(),layerModified);
+            VertexConsumer newConsumer = ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(), layerModified);
 
             renderToVanillaSuper(matrices, newConsumer, light, overlay, red, green, blue, alpha);
 
             ETFRenderContext.startSpecialRenderOverlayPhase();
-                etf$renderEmissive(matrices, overlay, red, green, blue, alpha) ;
-                etf$renderEnchanted(matrices, light, overlay, red, green, blue, alpha);
+            etf$renderEmissive(matrices, overlay, red, green, blue, alpha);
+            etf$renderEnchanted(matrices, light, overlay, red, green, blue, alpha);
             ETFRenderContext.endSpecialRenderOverlayPhase();
 
             //reset render settings
-            ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(),originalLayer);
+            ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(), originalLayer);
         }
         //else cancel out render
     }
@@ -57,7 +58,8 @@ public abstract class EMFModelPart extends ModelPart {
     }
 
     //stop trying to optimize my code so it doesn't work sodium :P
-    @Override // overrides to circumvent sodium optimizations that mess with custom uv quad creation and swapping out //todo better way??
+    @Override
+    // overrides to circumvent sodium optimizations that mess with custom uv quad creation and swapping out //todo better way??
     protected void renderCuboids(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
         //this is a copy of the vanilla renderCuboids() method
         for (Cuboid cuboid : ((ModelPartAccessor) this).getCuboids()) {
@@ -123,26 +125,6 @@ public abstract class EMFModelPart extends ModelPart {
         return mapOfAll;
     }
 
-    public static class Animator implements Runnable {
-        private Runnable animation = null;
-
-        Animator() {
-
-        }
-
-        public Runnable getAnimation() {
-            return animation;
-        }
-
-        public void setAnimation(Runnable animation) {
-            this.animation = animation;
-        }
-
-        public void run() {
-            if (animation != null) animation.run();
-        }
-    }
-
     //todo copy of etf rewrite emissive rendering code
     private void etf$renderEmissive(MatrixStack matrices, int overlay, float red, float green, float blue, float alpha) {
         Identifier emissive = ETFRenderContext.getCurrentETFTexture().getEmissiveIdentifierOfCurrentState();
@@ -167,6 +149,7 @@ public abstract class EMFModelPart extends ModelPart {
 
         }
     }
+
     //todo copy of etf enchanted render code
     private void etf$renderEnchanted(MatrixStack matrices, int light, int overlay, float red, float green, float blue, float alpha) {
         //attempt enchanted render
@@ -177,6 +160,26 @@ public abstract class EMFModelPart extends ModelPart {
             ETFRenderContext.allowRenderLayerTextureModify();
 
             renderToVanillaSuper(matrices, enchantedVertex, light, overlay, red, green, blue, alpha);
+        }
+    }
+
+    public static class Animator implements Runnable {
+        private Runnable animation = null;
+
+        Animator() {
+
+        }
+
+        public Runnable getAnimation() {
+            return animation;
+        }
+
+        public void setAnimation(Runnable animation) {
+            this.animation = animation;
+        }
+
+        public void run() {
+            if (animation != null) animation.run();
         }
     }
 }

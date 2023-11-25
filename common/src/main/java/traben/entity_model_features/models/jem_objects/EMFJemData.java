@@ -55,7 +55,7 @@ public class EMFJemData {
         String[] directorySplit = fileName.split("/");
         if (directorySplit.length > 1) {
             String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
-            filePath= fileName.replace(lastDirectoryComponentOfFileName, "");
+            filePath = fileName.replace(lastDirectoryComponentOfFileName, "");
 
         }
 
