@@ -27,6 +27,7 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETFApi;
@@ -40,6 +41,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     protected M model;
     @Unique
     private M emf$heldModelToForce = null;
+    @Unique
+    private EMFEntity emf$heldEntity = null;
 
     protected MixinLivingEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
@@ -52,7 +55,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             emf$heldModelToForce = this.model;
         }
     }
-
 
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At(value = "INVOKE",
@@ -88,7 +90,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             }
         }
     }
-
 
     @ModifyArg(
             method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
@@ -140,7 +141,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         return headPitch;
     }
 
-
     @Redirect(
             method = "getRenderLayer",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getTexture(Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/Identifier;"))
@@ -160,5 +160,17 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
     }
 
+    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+            at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
+    private void emf$grabEntity(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+        emf$heldEntity = EMFAnimationHelper.getEMFEntity();
+    }
+
+    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+            at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
+    private void emf$eachFeatureLoop(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+        if (EMFAnimationHelper.getEMFEntity() != emf$heldEntity)
+            EMFAnimationHelper.setCurrentEntityNoIteration(emf$heldEntity);
+    }
 
 }

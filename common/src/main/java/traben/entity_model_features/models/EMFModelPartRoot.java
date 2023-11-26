@@ -38,7 +38,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     private final Map<String, EMFModelPartVanilla> allVanillaParts;
     private final Int2ObjectOpenHashMap<ModelPart> vanillaFormatModelPartOfEachState = new Int2ObjectOpenHashMap<>();
     public EMFManager.CemDirectoryApplier variantDirectoryApplier;
-    //    private long lastFrameVariatedOn = -1;
     public ETFApi.ETFVariantSuffixProvider variantTester = null;
     public boolean containsCustomModel = false;
     private long lastMobCountAnimatedOn = 0;
@@ -63,8 +62,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     public void doVariantCheck() {
-        //variant tester not null and is valid
-        EMFAnimationHelper.thisModelVariates = true;
         int finalSuffix;
         UUID id = EMFAnimationHelper.getEMFEntity().etf$getUuid();
         int knownSuffix = entitySuffixMap.getInt(id);
@@ -84,15 +81,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         }
         setVariantStateTo(finalSuffix);
     }
-
-//    private boolean hasRegisteredVariator = false;
-
-//    @Override
-//    public void setVariantStateTo(int newVariant) {
-//        if (currentModelVariant != newVariant) {
-//            super.setVariantStateTo(newVariant);//always does contain it now
-//        }
-//    }
 
     public void checkIfShouldExpireEntity(UUID id) {
         if (this.variantTester.entityCanUpdate(id)) {
@@ -165,7 +153,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         String thisDirectoryFileName = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getfileName());
         Identifier propertyID = new Identifier(thisDirectoryFileName + ".properties");
         if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
-            //todo same or higher pack check
             variantTester = ETFApi.getVariantSupplierOrNull(propertyID, new Identifier(thisDirectoryFileName + ".jem"), "models");
             if (variantTester != null) {
                 IntOpenHashSet allModelVariants = variantTester.getAllSuffixes();
@@ -192,7 +179,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                         }
 
                     }
-                    receiveOneTimeOnlyRunnable(() -> {
+                    receiveVariationRegisteringRunnable(() -> {
                         String type = EMFAnimationHelper.getEMFEntity().emf$getTypeString();
                         if (EMFConfig.getConfig().logModelCreationData)
                             EMFUtils.EMFModMessage("Registered new variating model for: " + type);
@@ -207,7 +194,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                         }
 
                         //now set the runnable to null so it only runs once
-                        this.receiveOneTimeOnlyRunnable(null);
+                        this.receiveVariationRegisteringRunnable(null);
                     });
                 } else {
                     EMFUtils.EMFModWarn("non variating properties found for: " + propertyID);

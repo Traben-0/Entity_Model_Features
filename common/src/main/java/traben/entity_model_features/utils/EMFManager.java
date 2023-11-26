@@ -57,7 +57,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
     private EMFManager() {
-        EMFAnimationHelper.resetForNewEntity();
+        EMFAnimationHelper.reset();
         IS_PHYSICS_MOD_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
         IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
     }
@@ -227,7 +227,6 @@ public class EMFManager {//singleton for data holding and resetting needs
                     case "conduit_wind" -> mobNameForFileAndMap.setBoth("conduit", "conduit_wind");
                     case "decorated_pot_base" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_base");
                     case "decorated_pot_sides" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_sides");
-                    //case "parrot" -> mobNameForFileAndMap = "parrot";//todo check on shoulder parrot models they can technically be different
 
                     case "book" -> {
                         if (currentSpecifiedModelLoading.equals("enchanting_book")) {
@@ -291,29 +290,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                                     mobNameForFileAndMap.setBoth("boat");
                                 }
                             }
-                        } //else {
-//                        String countedName;
-//                        if (COUNT_OF_MOB_NAME_ALREADY_SEEN.containsKey(mobNameForFileAndMap.getfileName())) {
-//                            int amount = COUNT_OF_MOB_NAME_ALREADY_SEEN.getInt(mobNameForFileAndMap.getfileName());
-//                            amount++;
-//                            COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobNameForFileAndMap.getfileName(), amount);
-//                            //System.out.println("higherCount: "+ mobNameForFileAndMap+amount);
-//                            //String modelVariantAlias = mobNameForFileAndMap + '_' + (amount > 0 && amount < 27 ? String.valueOf((char) (amount + 'a' - 1)) : amount);
-//                            countedName = mobNameForFileAndMap.getfileName() + '#' + amount;
-//                        } else {
-//                            EMFManager.getInstance().COUNT_OF_MOB_NAME_ALREADY_SEEN.put(mobNameForFileAndMap.getfileName(), 1);
-//                            countedName = mobNameForFileAndMap.getfileName();//+'#'+1;
-//                        }
-//
-//                        switch (countedName) {
-//                            //todo ordering doesnt seem right
-//                            case "shulker#2" -> mobNameForFileAndMap.setBoth("shulker");
-//                            case "shulker" -> mobNameForFileAndMap.setBoth("shulker_box");
-//                            default ->{}
-//
-//                        }
-                        //}
-                        //System.out.println("DEBUG modelName result: "+countedName + " -> "+mobNameForFileAndMap);
+                        }
                     }
                 }
             }
@@ -384,7 +361,6 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {
-        ///////SETUP ANIMATION EXECUTABLES////////////////
 
         boolean printing = EMFConfig.getConfig().logModelCreationData;
 
@@ -423,8 +399,6 @@ public class EMFManager {//singleton for data holding and resetting needs
             });
             emfAnimationsByPartName.put(part, thisPartAnims);
         });
-        //LinkedList<EMFAnimation> orderedAnimations = new LinkedList<>();
-        //System.out.println("> anims: " + emfAnimationsByPartName);
         isAnimationValidationPhase = true;
         emfAnimationsByPartName.forEach((part, animMap) -> {
 
@@ -446,42 +420,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         isAnimationValidationPhase = false;
 
         emfRootPart.receiveAnimations(variantNum, emfAnimationsByPartName);
-
-        ///////////////////////////
     }
-
-//    public void doVariantCheckFor(EMFModelPartRoot cannonRoot) {
-//        EMFEntity entity = EMFAnimationHelper.getEMFEntity();
-//        //String mobName = getTypeName(entity);
-//        //cache_JemNameDoesHaveVariants.getBoolean(mobName)
-//        if (entity != null
-//                && cannonRoot.variantDirectoryApplier != null
-//                && cache_UUIDDoUpdating.getBoolean(entity.getUuid())
-//                && ETFApi.getETFConfigObject().textureUpdateFrequency_V2 != ETFConfig.UpdateFrequency.Never
-//        ) {
-//            String mobName = cannonRoot.modelName.getfileName();
-//            UUIDAndMobTypeKey key = new UUIDAndMobTypeKey(entity.getUuid(), entity.getTypeString());
-//
-//            long randomizer = ETFApi.getETFConfigObject().textureUpdateFrequency_V2.getDelay() * 20L;
-//            if (System.currentTimeMillis() % randomizer == Math.abs(entity.getUuid().hashCode()) % randomizer) {
-//                //if (cache_UUIDAndTypeToLastVariantCheckTime.getLong(key) + 1500 < System.currentTimeMillis()) {
-//                assert cannonRoot.variantTester != null;
-//
-//                int suffix;
-//                if (entity.entity() == null) {
-//                    suffix = cannonRoot.variantTester.getSuffixForBlockEntity(entity.getBlockEntity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
-//                } else {
-//                    suffix = cannonRoot.variantTester.getSuffixForEntity(entity.entity(), !cache_UUIDDoUpdating.containsKey(entity.getUuid()), cache_UUIDDoUpdating);
-//                }
-//                cannonRoot.setVariantStateTo(suffix);
-//                cache_UUIDAndTypeToCurrentVariantInt.put(key, suffix);
-//            } else {
-//                cannonRoot.setVariantStateTo(cache_UUIDAndTypeToCurrentVariantInt.getInt(key));
-//            }
-//        } else {
-//            cannonRoot.setVariantStateTo(1);
-//        }
-//    }
 
 
     public interface CemDirectoryApplier {

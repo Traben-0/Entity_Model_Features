@@ -130,6 +130,7 @@ public abstract class EMFModelPart extends ModelPart {
         Identifier emissive = ETFRenderContext.getCurrentETFTexture().getEmissiveIdentifierOfCurrentState();
         if (emissive != null) {
 
+            boolean wasAllowed = ETFRenderContext.isAllowedToRenderLayerTextureModify();
             ETFRenderContext.preventRenderLayerTextureModify();
 
             boolean textureIsAllowedBrightRender = ETFManager.getEmissiveMode() == ETFManager.EmissiveRenderModes.BRIGHT
@@ -143,7 +144,7 @@ public abstract class EMFModelPart extends ModelPart {
                                     RenderLayer.getEntityTranslucent(emissive));
 
 
-            ETFRenderContext.allowRenderLayerTextureModify();
+            if (wasAllowed) ETFRenderContext.allowRenderLayerTextureModify();
 
             renderToVanillaSuper(matrices, emissiveConsumer, ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE, overlay, red, green, blue, alpha);
 
@@ -155,9 +156,10 @@ public abstract class EMFModelPart extends ModelPart {
         //attempt enchanted render
         Identifier enchanted = ETFRenderContext.getCurrentETFTexture().getEnchantIdentifierOfCurrentState();
         if (enchanted != null) {
+            boolean wasAllowed = ETFRenderContext.isAllowedToRenderLayerTextureModify();
             ETFRenderContext.preventRenderLayerTextureModify();
             VertexConsumer enchantedVertex = ItemRenderer.getArmorGlintConsumer(ETFRenderContext.getCurrentProvider(), RenderLayer.getArmorCutoutNoCull(enchanted), false, true);
-            ETFRenderContext.allowRenderLayerTextureModify();
+            if (wasAllowed) ETFRenderContext.allowRenderLayerTextureModify();
 
             renderToVanillaSuper(matrices, enchantedVertex, light, overlay, red, green, blue, alpha);
         }

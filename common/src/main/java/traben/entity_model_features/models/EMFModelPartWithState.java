@@ -24,11 +24,11 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         super(cuboids, children);
     }
 
-    void receiveOneTimeOnlyRunnable(Runnable run) {
+    void receiveVariationRegisteringRunnable(Runnable run) {
         startOfRenderRunnable = run;
         getChildrenEMF().values().forEach((child) -> {
             if (child instanceof EMFModelPartWithState emf) {
-                emf.receiveOneTimeOnlyRunnable(run);
+                emf.receiveVariationRegisteringRunnable(run);
             }
         });
     }
@@ -97,30 +97,9 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     }
 
 
-    void setFromStateVariant(EMFModelState newState) {
-
-        setTransform(newState.defaultTransform());
-
-        this.xScale = newState.xScale;
-        this.yScale = newState.yScale;
-        this.zScale = newState.zScale;
-
-        this.visible = newState.visible;
-        this.hidden = newState.hidden;
-
-        setDefaultTransform(newState.defaultTransform());
-
-        ((ModelPartAccessor) this).setCuboids(newState.cuboids());
-        ((ModelPartAccessor) this).setChildren(newState.variantChildren());
-
-        textureOverride = newState.texture();
-        tryAnimate = newState.animation();
-    }
-
-
     public void setVariantStateTo(int newVariant) {
         if (currentModelVariant != newVariant) {
-            setFromStateVariant(allKnownStateVariants.get(newVariant));
+            setFromState(allKnownStateVariants.get(newVariant));
             currentModelVariant = newVariant;
             for (ModelPart part :
                     getChildrenEMF().values()) {

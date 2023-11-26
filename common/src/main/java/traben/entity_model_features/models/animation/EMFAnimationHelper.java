@@ -18,7 +18,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionTypes;
 import traben.entity_model_features.mixin.accessor.EntityRenderDispatcherAccessor;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
-import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_texture_features.ETFApi;
@@ -35,7 +34,6 @@ public class EMFAnimationHelper {
     private static final Object2IntOpenHashMap<UUID> knownHighestAngerTimeByUUID = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
-    public static boolean thisModelVariates = false;
     private static EMFEntity emfEntity = null;
     private static float shadowSize = Float.NaN;
     private static float shadowOpacity = Float.NaN;
@@ -50,7 +48,6 @@ public class EMFAnimationHelper {
     private static float headYaw = Float.NaN;
     private static float headPitch = Float.NaN;
     private static float tickDelta = 0;
-    private static float dimension = Float.NaN;
     private static boolean onShoulder = false;
 
     private EMFAnimationHelper() {
@@ -58,27 +55,9 @@ public class EMFAnimationHelper {
     }
 
     public static void setCurrentEntity(EMFEntity entityIn) {
-        resetForNewEntity();
+        newEntity(entityIn);
         EMFManager.getInstance().entityRenderCount++;
-        emfEntity = entityIn;
-
-
-        Set<Runnable> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(entityIn.emf$getTypeString());
-        if (roots != null) {
-            roots.forEach(Runnable::run);
-        }
-
-    }
-
-    public static void resetForNewEntity() {//todo extend for possible performance benefits
-        thisModelVariates = false;
-        dimension = Float.NaN;
-        limbAngle = Float.NaN;
-        limbDistance = Float.NaN;
-        headYaw = Float.NaN;
-        headPitch = Float.NaN;
         tickDelta = MinecraftClient.getInstance().isPaused() ? ((MinecraftClientAccessor) MinecraftClient.getInstance()).getPausedTickDelta() : MinecraftClient.getInstance().getTickDelta();
-
         shadowSize = Float.NaN;
         shadowOpacity = Float.NaN;
         leashX = 0;
@@ -86,10 +65,43 @@ public class EMFAnimationHelper {
         leashZ = 0;
         shadowX = 0;
         shadowZ = 0;
+        Set<Runnable> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(entityIn.emf$getTypeString());
+        if (roots != null) {
+            roots.forEach(Runnable::run);
+        }
+    }
+
+
+    public static void setCurrentEntityNoIteration(EMFEntity entityIn) {
+        newEntity(entityIn);
+    }
+
+    private static void newEntity(EMFEntity entityIn) {
+        emfEntity = entityIn;
+
+        limbAngle = Float.NaN;
+        limbDistance = Float.NaN;
+        headYaw = Float.NaN;
+        headPitch = Float.NaN;
 
         onShoulder = false;
+    }
 
-
+    public static void reset() {
+        emfEntity = null;
+        limbAngle = Float.NaN;
+        limbDistance = Float.NaN;
+        headYaw = Float.NaN;
+        headPitch = Float.NaN;
+        onShoulder = false;
+        tickDelta = 0;
+        shadowSize = Float.NaN;
+        shadowOpacity = Float.NaN;
+        leashX = 0;
+        leashY = 0;
+        leashZ = 0;
+        shadowX = 0;
+        shadowZ = 0;
     }
 
     public static float getRuleIndex() {
@@ -109,21 +121,18 @@ public class EMFAnimationHelper {
     }
 
     public static float getDimension() {
-        if (Float.isNaN(dimension)) {
-            if (emfEntity == null || emfEntity.etf$getWorld() == null) {
-                dimension = 0;
+        if (emfEntity == null || emfEntity.etf$getWorld() == null) {
+            return 0;
+        } else {
+            Identifier id = emfEntity.etf$getWorld().getDimensionKey().getValue();
+            if (id.equals(DimensionTypes.THE_NETHER_ID)) {
+                return -1;
+            } else if (id.equals(DimensionTypes.THE_END_ID)) {
+                return 1;
             } else {
-                Identifier id = emfEntity.etf$getWorld().getDimensionKey().getValue();
-                if (id.equals(DimensionTypes.THE_NETHER_ID)) {
-                    dimension = -1;
-                } else if (id.equals(DimensionTypes.THE_END_ID)) {
-                    dimension = 1;
-                } else {
-                    dimension = 0;
-                }
+                return 0;
             }
         }
-        return dimension;
     }
 
     public static float getPlayerX() {
