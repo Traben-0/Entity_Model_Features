@@ -30,9 +30,9 @@ public abstract class MixinCreeperChargeFeatureRenderer {
         if (model != null && ((IEMFModel) model).emf$isEMFModel()) {
             EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
-                if (root.textureOverride != null) {
-                    root.removeJemOverrideTextureForModelSupplyingItAnotherWay();
-                    cir.setReturnValue(root.textureOverride);
+                Identifier texture = root.getTopLevelJemTexture();
+                if (texture != null) {
+                    cir.setReturnValue(texture);
                 }
             }
         }

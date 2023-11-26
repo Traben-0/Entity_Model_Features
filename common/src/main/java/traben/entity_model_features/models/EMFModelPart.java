@@ -13,8 +13,7 @@ import traben.entity_texture_features.ETFClientCommon;
 import traben.entity_texture_features.features.ETFManager;
 import traben.entity_texture_features.features.ETFRenderContext;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
 
@@ -76,7 +75,42 @@ public abstract class EMFModelPart extends ModelPart {
         return ((ModelPartAccessor) this).getChildren();
     }
 
-    abstract ModelPart getVanillaModelPartsOfCurrentState();
+//    private static int indent = 0;
+    public ModelPart getVanillaModelPartsOfCurrentState(){
+//        indent++;
+        Map<String, ModelPart> children = new HashMap<>();
+        for (Map.Entry<String, ModelPart> child :
+                getChildrenEMF().entrySet()) {
+            if (child.getValue() instanceof EMFModelPart emf) {
+                children.put(child.getKey(), emf.getVanillaModelPartsOfCurrentState());
+            }
+        }
+//        indent--;
+//        for (int i = 0; i < indent; i++) {
+//            System.out.print("\\ ");
+//        }
+//        System.out.print("made: "+ this + "\n");
+        List<Cuboid> cubes;
+        if(((ModelPartAccessor) this).getCuboids().isEmpty()){
+            cubes = List.of(new Cuboid(0,0,0,0,0,0,0,0,0,0,0,false,0,0, Set.of()));
+        }else{
+            cubes = ((ModelPartAccessor) this).getCuboids();
+        }
+
+        ModelPart part = new ModelPart(cubes, children);
+        part.setDefaultTransform(getDefaultTransform());
+        part.pitch = pitch;
+        part.roll = roll;
+        part.yaw = yaw;
+        part.pivotZ = pivotZ;
+        part.pivotY = pivotY;
+        part.pivotX = pivotX;
+        part.xScale = xScale;
+        part.yScale = yScale;
+        part.zScale = zScale;
+
+        return part;
+    }
 
     public Object2ReferenceOpenHashMap<String, EMFModelPart> getAllChildPartsAsAnimationMap(String prefixableParents, int variantNum, Map<String, String> optifinePartNameMap) {
         if (this instanceof EMFModelPartRoot root)

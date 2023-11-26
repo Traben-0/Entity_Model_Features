@@ -30,7 +30,6 @@ import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
-import traben.entity_texture_features.ETFApi;
 
 
 @Mixin(LivingEntityRenderer.class)
@@ -149,9 +148,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         if (((IEMFModel) model).emf$isEMFModel()) {
             EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
-                root.removeJemOverrideTextureForModelSupplyingItAnotherWay();
-                //noinspection unchecked
-                return root.textureOverride == null ? getTexture((T) entity) : ETFApi.getCurrentETFVariantTextureOfEntity(entity, root.textureOverride);
+                Identifier texture = root.getTopLevelJemTexture();
+                if(texture != null)
+                    return texture;
             }
         }
 

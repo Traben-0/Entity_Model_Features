@@ -63,29 +63,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
             super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 
-    ModelPart getVanillaModelPartsOfCurrentState() {
-        Map<String, ModelPart> children = new HashMap<>();
-        for (Map.Entry<String, ModelPart> child :
-                getChildrenEMF().entrySet()) {
-            if (child.getValue() instanceof EMFModelPart emf) {
-                children.put(child.getKey(), emf.getVanillaModelPartsOfCurrentState());
-            }
-        }
 
-        ModelPart part = new ModelPart(((ModelPartAccessor) this).getCuboids(), children);
-        part.setDefaultTransform(getDefaultTransform());
-        part.pitch = pitch;
-        part.roll = roll;
-        part.yaw = yaw;
-        part.pivotZ = pivotZ;
-        part.pivotY = pivotY;
-        part.pivotX = pivotX;
-        part.xScale = xScale;
-        part.yScale = yScale;
-        part.zScale = zScale;
-
-        return part;
-    }
 
 
     public void setHideInTheseStates(int variant) {
@@ -111,6 +89,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     @Override
     public String toString() {
-        return "[vanilla part " + name + "]";
+        return "[vanilla part " + name + "], cubes ="+ ((ModelPartAccessor)this).getCuboids().size()+", childs = "+ ((ModelPartAccessor)this).getChildren().size();
     }
 }

@@ -49,6 +49,9 @@ public class EMFClient {
         //register new etf random property for emf to track variants
         ETFApi.registerCustomRandomPropertyFactory(MOD_ID, EntityVariantProperty::getPropertyOrNull);
 
+        //register EMF physics mod hook
+//        RagdollMapper.addHook(new EMFCustomRagDollHookTest());
+
     }
 
     private static String randomQuip() {

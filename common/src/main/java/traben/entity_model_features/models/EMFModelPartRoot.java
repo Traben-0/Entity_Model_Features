@@ -41,7 +41,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public ETFApi.ETFVariantSuffixProvider variantTester = null;
     public boolean containsCustomModel = false;
     private long lastMobCountAnimatedOn = 0;
-    private boolean removedJemTexture = false;
+    private boolean hasRemovedTopLevelJemTextureFromChildren = false;
 
     //construct vanilla root
     public EMFModelPartRoot(OptifineMobNameForFileAndEMFMapId mobNameForFileAndMap,
@@ -232,14 +232,18 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 vanillaRoot.render(matrixStack, vertexConsumer, light, overlay, 1, 1, 1, 1);
             }
         } else {
-            if (!vanillaFormatModelPartOfEachState.containsKey(currentModelVariant)) {
-                vanillaFormatModelPartOfEachState.put(currentModelVariant, getVanillaModelPartsOfCurrentState());
-            }
-            ModelPart vanillaFormat = vanillaFormatModelPartOfEachState.get(currentModelVariant);
+            ModelPart vanillaFormat = getVanillaFormatRoot();
             if (vanillaFormat != null) {
                 vanillaFormat.render(matrixStack, vertexConsumer, light, overlay, 1, 1, 1, 1);
             }
         }
+    }
+
+    public ModelPart getVanillaFormatRoot() {
+        if (!vanillaFormatModelPartOfEachState.containsKey(currentModelVariant)) {
+            vanillaFormatModelPartOfEachState.put(currentModelVariant, getVanillaModelPartsOfCurrentState());
+        }
+        return vanillaFormatModelPartOfEachState.get(currentModelVariant);
     }
 
     public void receiveAnimations(int variant, Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> orderedAnimationsByPartName) {
@@ -265,15 +269,25 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         }
     }
 
-    public void removeJemOverrideTextureForModelSupplyingItAnotherWay() {
-        if (removedJemTexture) return;
-        removedJemTexture = true;
 
+    /**
+     * Gets top level jem texture.
+     * also removes this texture from the child part overrides if this is the first time it's called.
+     * This allows optimizing the amount of times the texture is overridden for living entities
+     *
+     * @return the top level jem texture
+     */
+    public Identifier getTopLevelJemTexture() {
+        if (hasRemovedTopLevelJemTextureFromChildren)
+            return textureOverride;
+
+        hasRemovedTopLevelJemTextureFromChildren = true;
         if (textureOverride != null) {
             allVanillaParts.values().forEach((emf) -> {
                 if (emf.textureOverride.equals(textureOverride)) emf.textureOverride = null;
             });
         }
+        return textureOverride;
     }
 
 

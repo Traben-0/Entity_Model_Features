@@ -83,11 +83,11 @@ public class EMFModelPartCustom extends EMFModelPart {
             try {
                 for (EMFBoxData box :
                         emfPartData.boxes) {
-                    EMFCuboid cube;
+                    Cuboid cube;
 
                     if (box.textureOffset.length == 2) {
                         //System.out.println("non custom uv box ignoring for now");
-                        cube = new EMFCuboid(emfPartData,
+                        cube = emfCuboidOf(emfPartData,
                                 box.textureOffset[0], box.textureOffset[1],
                                 box.coordinates[0], box.coordinates[1], box.coordinates[2],
                                 box.coordinates[3], box.coordinates[4], box.coordinates[5],
@@ -96,7 +96,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                                 emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));//selfModelData.invertAxis);
                     } else {
                         //create a custom uv cuboid
-                        cube = new EMFCuboid(emfPartData,
+                        cube = emfCuboidOf(emfPartData,
                                 box.uvDown, box.uvUp, box.uvNorth,
                                 box.uvSouth, box.uvWest, box.uvEast,
                                 box.coordinates[0], box.coordinates[1], box.coordinates[2],
@@ -119,11 +119,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     @Override
     public String toString() {
-        return "EMFModelPartCustom{" +
-                "partToBeAttached='" + partToBeAttached + '\'' +
-                ", id='" + id + '\'' +
-                ", attach=" + attach +
-                '}';
+        return "[custom part " + id + "], cubes ="+ ((ModelPartAccessor)this).getCuboids().size()+", childs = "+ ((ModelPartAccessor)this).getChildren().size();
     }
 
     @Override
@@ -164,37 +160,13 @@ public class EMFModelPartCustom extends EMFModelPart {
         renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 
-    ModelPart getVanillaModelPartsOfCurrentState() {
-        Map<String, ModelPart> children = new HashMap<>();
-        for (Map.Entry<String, ModelPart> child :
-                getChildrenEMF().entrySet()) {
-            if (child.getValue() instanceof EMFModelPartCustom emf) {
-                children.put(child.getKey(), emf.getVanillaModelPartsOfCurrentState());
-            }
-        }
-
-        ModelPart part = new ModelPart(((ModelPartAccessor) this).getCuboids(), children);
-        part.setDefaultTransform(getDefaultTransform());
-        part.pitch = pitch;
-        part.roll = roll;
-        part.yaw = yaw;
-        part.pivotZ = pivotZ;
-        part.pivotY = pivotY;
-        part.pivotX = pivotX;
-        part.xScale = xScale;
-        part.yScale = yScale;
-        part.zScale = zScale;
-
-        return part;
-    }
 
 
-    @Environment(value = EnvType.CLIENT)
-    public static class EMFCuboid extends Cuboid {
-        private final Quad[] sidesEMF;
+
+
 
         //cuboid without custom UVs
-        public EMFCuboid(EMFPartData selfModelData
+        public static Cuboid emfCuboidOf(EMFPartData selfModelData
                 , float textureU, float textureV,
                          float cubeX, float cubeY, float cubeZ,
                          float sizeX, float sizeY, float sizeZ,
@@ -202,7 +174,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                          float textureWidth, float textureHeight,
                          boolean mirrorU, boolean mirrorV) {
 
-            super((int) textureU, (int) textureV,
+            Cuboid cube = new Cuboid((int) textureU, (int) textureV,
                     cubeX, cubeY, cubeZ,
                     sizeX, sizeY, sizeZ,
                     extraX, extraY, extraZ, false,
@@ -210,7 +182,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         addAll(List.of(Direction.values()));
                     }});
 
-            CuboidAccessor accessor = (CuboidAccessor) this;
+            CuboidAccessor accessor = (CuboidAccessor) cube;
             accessor.setMinX(cubeX);
             accessor.setMinY(cubeY);
             accessor.setMinZ(cubeZ);
@@ -330,14 +302,15 @@ public class EMFModelPartCustom extends EMFModelPart {
             }
 
 
-            this.sidesEMF = sides.toArray(new Quad[0]);
-            ((CuboidAccessor) this).setSides(sidesEMF);
+
+            ((CuboidAccessor) cube).setSides(sides.toArray(new Quad[0]));
+            return cube;
         }
 
         // private static final Quad blankQuad = new Quad(new Vertex[]{0, 0, 0, 0}, 0, 0, 0, 0, 0, 0,false, Direction.NORTH);
 
         //Cuboid with custom UVs
-        public EMFCuboid(EMFPartData selfModelData,
+        public static Cuboid emfCuboidOf(EMFPartData selfModelData,
                          float[] uvDown, float[] uvUp, float[] uvNorth, float[] uvSouth, float[] uvWest, float[] uvEast,
                          float cubeX, float cubeY, float cubeZ,
                          float sizeX, float sizeY, float sizeZ,
@@ -345,7 +318,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                          float textureWidth, float textureHeight,
                          boolean mirrorU, boolean mirrorV) {
 
-            super(0, 0,
+             Cuboid cube = new Cuboid(0, 0,
                     cubeX, cubeY, cubeZ,
                     sizeX, sizeY, sizeZ,
                     extraX, extraY, extraZ, false,
@@ -353,7 +326,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         addAll(List.of(Direction.values()));
                     }});
 
-            CuboidAccessor accessor = (CuboidAccessor) this;
+            CuboidAccessor accessor = (CuboidAccessor) cube;
             accessor.setMinX(cubeX);
             accessor.setMinY(cubeY);
             accessor.setMinZ(cubeZ);
@@ -467,13 +440,12 @@ public class EMFModelPartCustom extends EMFModelPart {
             }
 
 
-            this.sidesEMF = sides.toArray(new Quad[0]);
-            ((CuboidAccessor) this).setSides(sidesEMF);
-
+            ((CuboidAccessor) cube).setSides(sides.toArray(new Quad[0]));
+            return cube;
         }
 
 
-    }
+
 
 
 }
