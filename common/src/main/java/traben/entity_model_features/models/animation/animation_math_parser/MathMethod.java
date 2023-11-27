@@ -17,10 +17,16 @@ public class MathMethod extends MathValue implements MathComponent {
     private int printCount = 0;
 
 
-    private MathMethod(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
+    private MathMethod(String methodNameIn, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
         super(isNegative, calculationInstance);
 
-        this.methodName = methodName;
+        boolean booleanInvert = methodNameIn.startsWith("!");
+        if(booleanInvert){
+            this.methodName = methodNameIn.replaceFirst("!","");
+        }else{
+            this.methodName = methodNameIn;
+        }
+
         //first lets split the args into a list
         List<String> argsList = new ArrayList<>();
 
@@ -54,7 +60,7 @@ public class MathMethod extends MathValue implements MathComponent {
 
         //args list is now a list of top level arguments ready to be categorized into MathComponents depending on the method
 
-        supplier = switch (methodName) {
+        supplier = switch (this.methodName) {
             case "if" -> EMF_IF(argsList);
             case "sin" -> SIN(argsList);
             case "asin" -> ASIN(argsList);
@@ -93,7 +99,13 @@ public class MathMethod extends MathValue implements MathComponent {
                     throw new EMFMathException("ERROR: Unknown method [" + methodName + "], rejecting animation expression for [" + calculationInstance.animKey + "].");
             //()-> 0d;
         };
-
+        if(booleanInvert){
+            if(optimizedAlternativeToThis == null){
+                supplier = ()-> supplier.get() == 1 ? 0 : 1;
+            }else{
+                optimizedAlternativeToThis = new MathConstant(optimizedAlternativeToThis.get() == 1 ? 0 : 1, isNegative);
+            }
+        }
     }
 
     public static MathComponent getOptimizedExpression(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {

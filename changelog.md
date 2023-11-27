@@ -12,6 +12,14 @@ signs (wood), bed (color), shulkerbox (color), Decorated pot (all 4 sherd face t
 For all other regular & block entities it returns the EntityType or BlockEntityType registry id. This allows for the 
 separation of different entity types that might use the same model name, such as various modded entities do.
 
+- fixed boolean inverted methods
+- fixed most, if not, all model variation issues
+- much better texture override code
+- emissive textures in overrides now work correctly
+- reworked for etf rewrite
+- added model variation rate setting to emf settings
+- fixed the config gui screen getting all black and not displaying the mobs
+
 
 1.1.0
 
