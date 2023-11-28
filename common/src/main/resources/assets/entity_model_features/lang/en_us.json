@@ -37,6 +37,8 @@
   "entity_model_features.config.texture_override_mode": "Sub-model texture handling",
   "entity_model_features.config.physics.1": "Use vanilla model",
   "entity_model_features.config.physics.2": "Use EMF (CEM) model",
+  "entity_model_features.config.debug_right_click": "Show EMF debug data on entity right click",
+  "entity_model_features.config.debug_right_click.tooltip": "If enabled, this will print out EMf debug info into\nthe log and chat when an entity is right clicked.",
   "entity_model_features.config.render.normal": "Normal",
   "entity_model_features.config.render.green": "Flash green",
   "entity_model_features.config.render.lines": "Outlines",

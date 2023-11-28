@@ -89,6 +89,11 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     @Override
     public String toString() {
-        return "[vanilla part " + name + "], cubes ="+ ((ModelPartAccessor)this).getCuboids().size()+", childs = "+ ((ModelPartAccessor)this).getChildren().size();
+        return "[vanilla part " + name + "], cubes ="+ ((ModelPartAccessor)this).getCuboids().size()+", children = "+ ((ModelPartAccessor)this).getChildren().size();
+    }
+
+    @Override
+    public String toStringShort() {
+        return "[vanilla part " + name + "]";
     }
 }

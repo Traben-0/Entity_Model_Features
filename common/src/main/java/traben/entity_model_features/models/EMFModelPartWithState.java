@@ -24,11 +24,11 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         super(cuboids, children);
     }
 
-    void receiveVariationRegisteringRunnable(Runnable run) {
+    void receiveOneTimeRunnable(Runnable run) {
         startOfRenderRunnable = run;
         getChildrenEMF().values().forEach((child) -> {
             if (child instanceof EMFModelPartWithState emf) {
-                emf.receiveVariationRegisteringRunnable(run);
+                emf.receiveOneTimeRunnable(run);
             }
         });
     }

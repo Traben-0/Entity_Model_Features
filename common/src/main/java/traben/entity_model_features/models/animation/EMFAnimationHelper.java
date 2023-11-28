@@ -1,5 +1,7 @@
 package traben.entity_model_features.models.animation;
 
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -16,10 +18,13 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionTypes;
+import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.EntityRenderDispatcherAccessor;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
+import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETFApi;
 
 import java.util.Set;
@@ -65,11 +70,68 @@ public class EMFAnimationHelper {
         leashZ = 0;
         shadowX = 0;
         shadowZ = 0;
+
+        //perform variant checking for this entity types models
+        //this is the only way to keep it generic and also before the entity is rendered and affect al its models
         Set<Runnable> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(entityIn.emf$getTypeString());
         if (roots != null) {
             roots.forEach(Runnable::run);
         }
+
+        //if this entity requires a debug print do it now after models have variated
+        if(EMFConfig.getConfig().debugOnRightClick
+                && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)){
+
+            String type = entityIn.emf$getTypeString();
+            Set<EMFModelPartRoot> debugRoots = EMFManager.getInstance().rootPartsPerEntityTypeForDebug.get(type);
+            if(debugRoots == null){
+                EMFUtils.EMFChat(
+                        "\n§c§oThe EMF debug printout did not find any custom models registered to the following entity:\n §3§l§u"+ type
+                );
+            } else {
+                String message = "\n§2§oThe EMF debug printout found the following models for the entity:\n §3§l§u" +
+                        type +
+                        "§r\n§2§oThis first model is likely the primary model for the entity.";
+
+                EMFUtils.EMFChat(message);
+
+                int count = 1;
+                for (EMFModelPartRoot debugRoot:
+                     debugRoots) {
+                    StringBuilder model = new StringBuilder();
+                    model.append("§eModel #").append(count).append("§r")
+                    .append(entryAndValue("name",debugRoot.modelName.getfileName()+".jem"));
+                    if(debugRoot.variantDirectoryApplier != null) {
+                        model.append(entryAndValue("directory",
+                                debugRoot.variantDirectoryApplier
+                                        .getThisDirectoryOfFilename(debugRoot.modelName.getfileName())));
+                    }
+
+                    if(debugRoot.textureOverride != null) {
+                        model.append(entryAndValue("texture_override", debugRoot.textureOverride.toString()));
+                    }
+                    if(debugRoot.variantTester != null) {
+                        IntSet set = new IntArraySet(debugRoot.allKnownStateVariants.keySet()) ;
+                        set.remove(0);
+                        model.append(entryAndValue("model_variants", set.toString()))
+                                .append(entryAndValue("current_variant", String.valueOf(debugRoot.currentModelVariant)));
+                    }
+                    EMFUtils.EMFChat(model + "\n§6 - parts:§r printed in game log only.");
+
+                    model.append("\n - parts: ").append(debugRoot.simplePrintChildren(0));
+                    EMFUtils.EMFModMessage(model.toString().replaceAll("§.",""));
+
+                    count++;
+                }
+            }
+            EMFManager.getInstance().entityForDebugPrint = null;
+        }
     }
+
+    private static String entryAndValue(String entry, String value){
+        return "\n§6 - "+entry+":§r " + value ;
+    }
+
 
 
     public static void setCurrentEntityNoIteration(EMFEntity entityIn) {

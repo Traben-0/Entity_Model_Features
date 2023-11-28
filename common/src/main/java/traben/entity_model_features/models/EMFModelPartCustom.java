@@ -119,7 +119,11 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     @Override
     public String toString() {
-        return "[custom part " + id + "], cubes ="+ ((ModelPartAccessor)this).getCuboids().size()+", childs = "+ ((ModelPartAccessor)this).getChildren().size();
+        return "[custom part " + id + "], cubes ="+ ((ModelPartAccessor)this).getCuboids().size()+", children = "+ ((ModelPartAccessor)this).getChildren().size();
+    }
+    @Override
+    public String toStringShort() {
+        return "[custom part " + id.replaceFirst("EMF_","") + "]";
     }
 
     @Override

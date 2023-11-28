@@ -18,6 +18,7 @@ public class EMFConfig {
 
     private static EMFConfig EMF_CONFIG_SINGLETON;
     public boolean logModelCreationData = false;
+    public boolean debugOnRightClick = false;
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
     public VanillaModelRenderMode vanillaModelHologramRenderMode = VanillaModelRenderMode.Off;
     public boolean attemptRevertingEntityModelsAlteredByAnotherMod = true;
@@ -92,12 +93,12 @@ public class EMFConfig {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EMFConfig emfConfig = (EMFConfig) o;
-        return modelUpdateFrequency == emfConfig.modelUpdateFrequency && logModelCreationData == emfConfig.logModelCreationData && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod && renderModeChoice == emfConfig.renderModeChoice && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2;
+        return debugOnRightClick == emfConfig.debugOnRightClick && modelUpdateFrequency == emfConfig.modelUpdateFrequency && logModelCreationData == emfConfig.logModelCreationData && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod && renderModeChoice == emfConfig.renderModeChoice && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(modelUpdateFrequency, logModelCreationData, renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod, logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
+        return Objects.hash(debugOnRightClick, modelUpdateFrequency, logModelCreationData, renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod, logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
     }
 
 

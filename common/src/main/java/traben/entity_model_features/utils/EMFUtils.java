@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.resource.Resource;
+import net.minecraft.text.LiteralTextContent;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
@@ -29,19 +31,30 @@ public class EMFUtils {
     }
 
     public static void EMFModMessage(String message) {
-        EMFModMessage(message, false);
+        EMFModMessage(message, false, false);
     }
 
     public static void EMFModMessage(String message, boolean inChat) {
+        EMFModMessage(message, inChat, false);
+    }
+
+    public static void EMFModMessage(String message, boolean inChat, boolean noPrefix) {
         if (inChat) {
             ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of("\u00A76[Entity Model Features]\u00A77: " + message), false);
+                plyr.sendMessage(Text.of((noPrefix ? "": "§6[Entity Model Features]:§r ") + message), false);
             } else {
-                LogManager.getLogger().info("[Entity Model Features]: " + message);
+                LogManager.getLogger().info((noPrefix ? "": "[Entity Model Features]: ") + message);
             }
         } else {
-            LogManager.getLogger().info("[Entity Model Features]: " + message);
+            LogManager.getLogger().info((noPrefix ? "": "[Entity Model Features]: ") + message);
+        }
+    }
+
+    public static void EMFChat(String message) {
+        ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
+        if (plyr != null) {
+            plyr.sendMessage(MutableText.of(new LiteralTextContent(message)), false);
         }
     }
 
@@ -49,11 +62,12 @@ public class EMFUtils {
         EMFModWarn(message, false);
     }
 
+
     public static void EMFModWarn(String message, boolean inChat) {
         if (inChat) {
             ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of("\u00A76[Entity Model Features]\u00A77: " + message), false);
+                plyr.sendMessage(Text.of("\u00A76[Entity Model Features]\u00A7r: " + message), false);
             } else {
                 LogManager.getLogger().warn("[Entity Model Features]: " + message);
             }
@@ -70,7 +84,7 @@ public class EMFUtils {
         if (inChat) {
             ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of("\u00A76[Entity Model Features]\u00A77: " + message), false);
+                plyr.sendMessage(Text.of("\u00A76[Entity Model Features]\u00A7r: " + message), false);
             } else {
                 LogManager.getLogger().error("[Entity Model Features]: " + message);
             }

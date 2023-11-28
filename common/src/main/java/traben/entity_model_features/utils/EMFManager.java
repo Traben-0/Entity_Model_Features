@@ -2,8 +2,6 @@ package traben.entity_model_features.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
@@ -36,17 +34,16 @@ public class EMFManager {//singleton for data holding and resetting needs
     public static WolfEntityModel<WolfEntity> wolfCollarModel = null;
     public static EMFModelPartRoot lastCreatedRootModelPart = null;
     private static EMFManager self = null;
+
+    public UUID entityForDebugPrint = null;
     public final boolean IS_PHYSICS_MOD_INSTALLED;
     public final boolean IS_IRIS_INSTALLED;
     private final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
 
-    private final Object2BooleanOpenHashMap<UUID> cache_UUIDDoUpdating = new Object2BooleanOpenHashMap<>() {{
-        defaultReturnValue(true);
+    public Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot> > rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
+        defaultReturnValue(null);
     }};
-    private final Object2IntOpenHashMap<UUIDAndMobTypeKey> cache_UUIDAndTypeToCurrentVariantInt = new Object2IntOpenHashMap<>() {{
-        defaultReturnValue(1);
-    }};
-    //private final Object2IntOpenHashMap<String> COUNT_OF_MOB_NAME_ALREADY_SEEN = new Object2IntOpenHashMap<>();
+
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
     public String currentSpecifiedModelLoading = "";

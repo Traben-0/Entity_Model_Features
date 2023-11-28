@@ -66,6 +66,24 @@ public abstract class EMFModelPart extends ModelPart {
         }
     }
 
+    public String simplePrintChildren(int depth){
+        StringBuilder mapper = new StringBuilder();
+        mapper.append("\n  | ");
+        mapper.append("- ".repeat(Math.max(0, depth)));
+        mapper.append(this.toStringShort());
+        for (ModelPart child:
+             getChildrenEMF().values()) {
+            if(child instanceof EMFModelPart emf){
+                mapper.append(emf.simplePrintChildren(depth+1));
+            }
+        }
+        return mapper.toString();
+    }
+
+    public String toStringShort() {
+        return toString();
+    }
+
     @Override
     public String toString() {
         return "generic emf part";

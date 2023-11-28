@@ -30,7 +30,8 @@
     "rendering.MixinStrayOverlayFeatureRenderer",
     "rendering.MixinTropicalFishPatternFeatureRenderer",
     "rendering.MixinWolfCollarFeatureRenderer",
-    "rendering.MixinWolfEntityModel"
+    "rendering.MixinWolfEntityModel",
+    "MixinPlayerEntity"
   ],
   "mixins": [
   ],

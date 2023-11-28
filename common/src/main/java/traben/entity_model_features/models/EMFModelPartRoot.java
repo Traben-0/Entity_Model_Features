@@ -4,6 +4,7 @@ package traben.entity_model_features.models;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -59,6 +60,44 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
         this.vanillaRoot = vanillaRoot;
 
+        //init the first time runnable into all vanilla children
+        receiveOneTimeRunnable(this::registerModelRunnableWithEntityTypeContext);
+    }
+
+    private void registerModelRunnableWithEntityTypeContext(){
+        if(EMFAnimationHelper.getEMFEntity() != null) {
+
+            //register models to entity type for debug print
+            if (EMFConfig.getConfig().debugOnRightClick) {
+                String type = EMFAnimationHelper.getEMFEntity().emf$getTypeString();
+                Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForDebug.get(type);
+                if (roots == null) {
+                    Set<EMFModelPartRoot> newRootSet = new ObjectLinkedOpenHashSet<>();
+                    EMFManager.getInstance().rootPartsPerEntityTypeForDebug.put(type, newRootSet);
+                    newRootSet.add(this);
+                } else {
+                    roots.add(this);
+                }
+            }
+
+            //register variant runnable
+            if (this.variantTester != null) {
+                String type = EMFAnimationHelper.getEMFEntity().emf$getTypeString();
+                if (EMFConfig.getConfig().logModelCreationData)
+                    EMFUtils.EMFModMessage("Registered new variating model for: " + type);
+
+                Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(type);
+                if (variators == null) {
+                    Set<Runnable> newVariators = new HashSet<>();
+                    EMFManager.getInstance().rootPartsPerEntityTypeForVariation.put(type, newVariators);
+                    newVariators.add(this::doVariantCheck);
+                } else {
+                    variators.add(this::doVariantCheck);
+                }
+            }
+        }
+        //now set the runnable to null so it only runs once
+        this.receiveOneTimeRunnable(null);
     }
 
     public void doVariantCheck() {
@@ -179,23 +218,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                         }
 
                     }
-                    receiveVariationRegisteringRunnable(() -> {
-                        String type = EMFAnimationHelper.getEMFEntity().emf$getTypeString();
-                        if (EMFConfig.getConfig().logModelCreationData)
-                            EMFUtils.EMFModMessage("Registered new variating model for: " + type);
-
-                        Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(type);
-                        if (variators == null) {
-                            Set<Runnable> newVariators = new HashSet<>();
-                            EMFManager.getInstance().rootPartsPerEntityTypeForVariation.put(type, newVariators);
-                            newVariators.add(this::doVariantCheck);
-                        } else {
-                            variators.add(this::doVariantCheck);
-                        }
-
-                        //now set the runnable to null so it only runs once
-                        this.receiveVariationRegisteringRunnable(null);
-                    });
+                    //receiveOneTimeRunnable(this::registerModelRunnable);
                 } else {
                     EMFUtils.EMFModWarn("non variating properties found for: " + propertyID);
                     variantTester = null;
@@ -210,6 +233,8 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             variantDirectoryApplier = null;
         }
     }
+
+
 
     public void setVariant1ToVanilla0() {
         allKnownStateVariants.put(1, allKnownStateVariants.get(0));
@@ -293,6 +318,11 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     @Override
     public String toString() {
-        return "[EMF_root of " + modelName.getfileName() + "]";
+        return "[EMF root part of " + modelName.getfileName() + "]";
+    }
+
+    @Override
+    public String toStringShort() {
+        return "[EMF root part of " + modelName.getfileName() + "]";
     }
 }
