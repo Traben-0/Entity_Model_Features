@@ -4,13 +4,21 @@ plugins {
 
 architectury {
     platformSetupLoomIde()
-    fabric()
+    neoForge()
 }
 
-archivesBaseName = rootProject.archives_base_name + "_fabric_1.20.2"
+archivesBaseName = rootProject.archives_base_name + "_neoforge_1.20.2"
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
+
+//    forge {
+//        convertAccessWideners = true
+//        extraAccessWideners.add loom.accessWidenerPath.get().asFile.name
+//
+//        mixinConfig "entity_model_features-common.mixins.json"
+//        mixinConfig "entity_model_features.mixins.json"
+//    }
 }
 
 configurations {
@@ -18,46 +26,32 @@ configurations {
     shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
-    developmentFabric.extendsFrom common
+    developmentNeoForge.extendsFrom common
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
+//    forge "net.minecraftforge:forge:${rootProject.forge_version}"
+    neoForge "net.neoforged:neoforge:${rootProject.neoforge_version}"
     // Remove the next line if you don't want to depend on the API
-    //modApi "dev.architectury:architectury-fabric:${rootProject.architectury_version}"
+    //modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
-    common(project(path: ":fabric-like", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":fabric-like", configuration: "transformProductionFabric")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
-
-    //modImplementation ("maven.modrinth:physicsmod:4xSgtf9P")
-    modImplementation("maven.modrinth:modmenu:${project.modmenu_version}") {
-        exclude(group: "net.fabricmc.fabric-api")
-    }
-
-   // modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
-
-
-//    implementation("org.apache.commons:commons-math3:3.0")
-//    include("org.apache.commons:commons-math3:3.0")
-
-    modImplementation files("run/mods/entity_texture_features_fabric_1.20.2-5.0.beta.1.jar")
-    //modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version}")
-
+    modImplementation files("run/mods/entity_texture_features_neoforge_1.20.2-5.0.beta.1.jar")
+    //modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version_forge}")
 }
 
 processResources {
     inputs.property "version", project.version
 
-    filesMatching("fabric.mod.json") {
+    filesMatching("META-INF/mods.toml") {
         expand "version": project.version
     }
 }
 
 shadowJar {
+    exclude "fabric.mod.json"
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
@@ -65,14 +59,18 @@ shadowJar {
 }
 
 remapJar {
-    injectAccessWidener = true
+    atAccessWideners.add('entity_model_features.accesswidener')
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    archiveClassifier.set( null)
+    archiveClassifier.set(  null)
+}
+
+repositories{
+    maven { url "https://maven.neoforged.net/releases/" }
 }
 
 jar {
-    archiveClassifier.set( "dev")
+    archiveClassifier.set(  "dev")
 }
 
 sourcesJar {
@@ -89,7 +87,7 @@ components.java {
 
 publishing {
     publications {
-        mavenFabric(MavenPublication) {
+        mavenForge(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
             from components.java
         }

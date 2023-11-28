@@ -12,5 +12,6 @@ include("fabric-like")
 include("fabric")
 //include("quilt")
 include("forge")
+include("neoforge")
 
 rootProject.name = "entity_model_features"
