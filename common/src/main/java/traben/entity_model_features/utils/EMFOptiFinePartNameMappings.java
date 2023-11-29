@@ -876,6 +876,11 @@ public class EMFOptiFinePartNameMappings {
         if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName))
             return UNKNOWN_MODEL_MAP_CACHE.get(mobName);
 
+        if(originalModel == null) {
+            EMFUtils.logError("model part was null and not already mapped in exploreProvidedEntityModel() EMF");
+            return Map.of();
+        }
+
         Map<String, String> newMap = new HashMap<>();
         Map<String, String> detailsMap = new HashMap<>();
         mapThisAndChildren("root", originalModel, newMap, detailsMap);
@@ -890,10 +895,10 @@ public class EMFOptiFinePartNameMappings {
             });
             mapString.append("  \\-\\{{end of unknown model}}");
 
-            EMFUtils.EMFModMessage("Unknown possibly modded model detected, Mapping now...\n" + mapString);
+            EMFUtils.log("Unknown possibly modded model detected, Mapping now...\n" + mapString);
 
             if (EMFConfig.getConfig().logUnknownOrModdedEntityModels == EMFConfig.UnknownModelPrintMode.LOG_AND_JEM) {
-                EMFUtils.EMFModMessage("creating example .jem file for " + mobName);
+                EMFUtils.log("creating example .jem file for " + mobName);
                 EMFJemData.EMFJemPrinter jemPrinter = new EMFJemData.EMFJemPrinter();
                 for (Map.Entry<String, String> entry :
                         newMap.entrySet()) {
@@ -945,9 +950,9 @@ public class EMFOptiFinePartNameMappings {
                     fileWriter.write(gson.toJson(jemPrinter));
                     fileWriter.close();
 
-                    EMFUtils.EMFModMessage(".jem file creation succeeded for [" + path + "]");
+                    EMFUtils.log(".jem file creation succeeded for [" + path + "]");
                 } catch (IOException e) {
-                    EMFUtils.EMFModMessage(".jem file creation failed for [" + path + "]");
+                    EMFUtils.log(".jem file creation failed for [" + path + "]");
                 }
             }
         }

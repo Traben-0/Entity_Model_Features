@@ -64,7 +64,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(model) && !(livingEntity instanceof PufferfishEntity)) {
                 boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace());
-                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
+                EMFUtils.overrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
                 if (replace) {
                     model = emf$heldModelToForce;
                 }

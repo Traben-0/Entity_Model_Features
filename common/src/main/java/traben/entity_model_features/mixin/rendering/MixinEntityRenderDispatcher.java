@@ -27,6 +27,14 @@ public abstract class MixinEntityRenderDispatcher {
     }
 
     @Inject(method = "render",
+            at = @At(value = "RETURN"))
+    private <E extends Entity> void emf$endOfRender(E entity, double x, double y, double z, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
+        if (EMFAnimationHelper.doAnounceModels()){
+            EMFAnimationHelper.anounceModels((EMFEntity) entity);
+        }
+    }
+
+    @Inject(method = "render",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/render/entity/EntityRenderDispatcher;renderShadow(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/entity/Entity;FFLnet/minecraft/world/WorldView;F)V"
                     , shift = At.Shift.BEFORE))

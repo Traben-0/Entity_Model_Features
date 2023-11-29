@@ -34,10 +34,10 @@ public class MixinWolfCollarFeatureRenderer {
             try {
                 w = EMFManager.getInstance().injectIntoModelRootGetter(emf$collar_layer, WolfEntityModel.getTexturedModelData().createModel());
             } catch (IncompatibleClassChangeError error) {
-                EMFUtils.EMFModError("///////////////////");
-                EMFUtils.EMFModError("EMF crashed due to a forge dependency error (probably), suppressing the EMF crash so the true culprit will be sent to the crash report tool\nIF THIS HAPPENS MORE THAN ONCE THIS MIGHT ACTUALLY BE AN EMF ISSUE\n");
+                EMFUtils.logError("///////////////////");
+                EMFUtils.logError("EMF crashed due to a forge dependency error (probably), suppressing the EMF crash so the true culprit will be sent to the crash report tool\nIF THIS HAPPENS MORE THAN ONCE THIS MIGHT ACTUALLY BE AN EMF ISSUE\n");
                 error.printStackTrace();
-                EMFUtils.EMFModError("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
+                EMFUtils.logError("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
                 return;
             }
         } else {

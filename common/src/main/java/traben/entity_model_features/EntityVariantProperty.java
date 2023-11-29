@@ -48,7 +48,7 @@ public class EntityVariantProperty extends StringArrayOrRegexProperty {
     protected @Nullable String getValueFromEntity(ETFEntity etfEntity) {
         String value = getValueFromEntityInternal(etfEntity);
         if (doPrint) {
-            EMFUtils.EMFModMessage("[variant property print] = " + (value == null ? "//VARIANT CHECK FAILED AND WILL RETURN FALSE//" : value));
+            EMFUtils.log("[variant property print] = " + (value == null ? "//VARIANT CHECK FAILED AND WILL RETURN FALSE//" : value));
         }
         return value;
     }

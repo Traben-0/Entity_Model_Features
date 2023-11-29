@@ -22,11 +22,10 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.EntityRenderDispatcherAccessor;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.models.EMFModelPartRoot;
-import traben.entity_model_features.utils.EMFEntity;
-import traben.entity_model_features.utils.EMFManager;
-import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.utils.*;
 import traben.entity_texture_features.ETFApi;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -70,7 +69,6 @@ public class EMFAnimationHelper {
         leashZ = 0;
         shadowX = 0;
         shadowZ = 0;
-
         //perform variant checking for this entity types models
         //this is the only way to keep it generic and also before the entity is rendered and affect al its models
         Set<Runnable> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(entityIn.emf$getTypeString());
@@ -81,52 +79,95 @@ public class EMFAnimationHelper {
         //if this entity requires a debug print do it now after models have variated
         if(EMFConfig.getConfig().debugOnRightClick
                 && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)){
-
-            String type = entityIn.emf$getTypeString();
-            Set<EMFModelPartRoot> debugRoots = EMFManager.getInstance().rootPartsPerEntityTypeForDebug.get(type);
-            if(debugRoots == null){
-                EMFUtils.EMFChat(
-                        "\n§c§oThe EMF debug printout did not find any custom models registered to the following entity:\n §3§l§u"+ type
-                );
-            } else {
-                String message = "\n§2§oThe EMF debug printout found the following models for the entity:\n §3§l§u" +
-                        type +
-                        "§r\n§2§oThis first model is likely the primary model for the entity.";
-
-                EMFUtils.EMFChat(message);
-
-                int count = 1;
-                for (EMFModelPartRoot debugRoot:
-                     debugRoots) {
-                    StringBuilder model = new StringBuilder();
-                    model.append("§eModel #").append(count).append("§r")
-                    .append(entryAndValue("name",debugRoot.modelName.getfileName()+".jem"));
-                    if(debugRoot.variantDirectoryApplier != null) {
-                        model.append(entryAndValue("directory",
-                                debugRoot.variantDirectoryApplier
-                                        .getThisDirectoryOfFilename(debugRoot.modelName.getfileName())));
-                    }
-
-                    if(debugRoot.textureOverride != null) {
-                        model.append(entryAndValue("texture_override", debugRoot.textureOverride.toString()));
-                    }
-                    if(debugRoot.variantTester != null) {
-                        IntSet set = new IntArraySet(debugRoot.allKnownStateVariants.keySet()) ;
-                        set.remove(0);
-                        model.append(entryAndValue("model_variants", set.toString()))
-                                .append(entryAndValue("current_variant", String.valueOf(debugRoot.currentModelVariant)));
-                    }
-                    EMFUtils.EMFChat(model + "\n§6 - parts:§r printed in game log only.");
-
-                    model.append("\n - parts: ").append(debugRoot.simplePrintChildren(0));
-                    EMFUtils.EMFModMessage(model.toString().replaceAll("§.",""));
-
-                    count++;
-                }
-            }
+            anounceModels = true;
             EMFManager.getInstance().entityForDebugPrint = null;
         }
     }
+
+    public static void anounceModels(EMFEntity assertEntity){
+        String type = assertEntity.emf$getTypeString();
+        Set<EMFModelPartRoot> debugRoots = EMFManager.getInstance().rootPartsPerEntityTypeForDebug.get(type);
+        EMFUtils.chat("§e-----------EMF Debug Printout-------------§r");
+        if(debugRoots == null){
+            EMFUtils.chat(
+                    "\n§c§oThe EMF debug printout did not find any custom models registered to the following entity:\n §3§l§u"+ type
+            );
+        } else {
+            String message = "\n§2§oThe EMF debug printout found the following custom models for the entity:\n §3§l§u" +
+                    type +
+                    "§r\n§2§oThis first model is usually the primary model for the entity.";
+
+            EMFUtils.chat(message);
+
+            int count = 1;
+            for (EMFModelPartRoot debugRoot :
+                    debugRoots) {
+                StringBuilder model = new StringBuilder();
+                model.append("§eModel #").append(count).append("§r")
+                        .append(entryAndValue("name", debugRoot.modelName.getfileName() + ".jem"));
+                if (debugRoot.variantDirectoryApplier != null) {
+                    model.append(entryAndValue("directory",
+                            debugRoot.variantDirectoryApplier
+                                    .getThisDirectoryOfFilename(debugRoot.modelName.getfileName())));
+                }
+
+                if (debugRoot.textureOverride != null) {
+                    model.append(entryAndValue("texture_override", debugRoot.textureOverride.toString()));
+                }
+                if (debugRoot.variantTester != null) {
+                    IntSet set = new IntArraySet(debugRoot.allKnownStateVariants.keySet());
+                    set.remove(0);
+                    model.append(entryAndValue("model_variants", set.toString()))
+                            .append(entryAndValue("current_variant", String.valueOf(debugRoot.currentModelVariant)));
+                }
+                EMFUtils.chat(model + "\n§6 - parts:§r printed in game log only.");
+
+                EMFUtils.log("\n - parts: "+debugRoot.simplePrintChildren(0));
+
+                count++;
+            }
+        }
+
+        EMFUtils.chat("\n§e----------------------------------------§r");
+        if (!EMFManager.getInstance().modelsAnnounced.isEmpty()) {
+            String vanillaMessage = "\n§2§oThe EMF debug printout found the following non-custom models for the entity:\n §3§l§u" +
+                    type +
+                    "§r\n§2§oThis first model is usually the primary model for the entity.";
+
+            EMFUtils.chat(vanillaMessage);
+            int count = 1;
+            for (OptifineMobNameForFileAndEMFMapId data : EMFManager.getInstance().modelsAnnounced) {
+                StringBuilder model = new StringBuilder();
+                model.append("§Non-Custom Model #").append(count).append("§r")
+                        .append(entryAndValue("possible .jem name", data.getfileName() + ".jem"));
+
+                Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(data.getMapId(), null);
+                if (!map.isEmpty()) {
+                    EMFUtils.chat(model + "\n§6 - part names:§r printed in game log only.");
+                    StringBuilder parts = new StringBuilder();
+                    parts.append("\n - part names: ");
+                    map.forEach((k, v) -> {
+                        parts.append("\n   | - [").append(k).append(']');
+                    });
+
+                    EMFUtils.log(parts.toString());
+                } else {
+                    EMFUtils.chat(model.toString());
+                    EMFUtils.log(" - part names: could not be found. use the 'printout unknown models' setting instead.");
+                }
+            }
+            EMFUtils.chat("\n§e----------------------------------------§r");
+            EMFManager.getInstance().modelsAnnounced.clear();
+        }
+
+        anounceModels = false;
+    }
+
+    public static boolean doAnounceModels() {
+        return anounceModels;
+    }
+
+    private static boolean anounceModels = false;
 
     private static String entryAndValue(String entry, String value){
         return "\n§6 - "+entry+":§r " + value ;

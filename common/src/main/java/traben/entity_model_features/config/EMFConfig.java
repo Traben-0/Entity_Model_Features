@@ -50,7 +50,7 @@ public class EMFConfig {
             fileWriter.write(gson.toJson(EMF_CONFIG_SINGLETON));
             fileWriter.close();
         } catch (IOException e) {
-            EMFUtils.EMFModMessage("Config could not be saved", false);
+            EMFUtils.log("Config could not be saved", false);
         }
     }
 
@@ -65,7 +65,7 @@ public class EMFConfig {
                     fileReader.close();
                     EMF_saveConfig();
                 } catch (IOException e) {
-                    EMFUtils.EMFModMessage("Config could not be loaded, using defaults", false);
+                    EMFUtils.log("Config could not be loaded, using defaults", false);
                 }
             } else {
                 EMF_CONFIG_SINGLETON = new EMFConfig();

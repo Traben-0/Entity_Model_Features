@@ -84,7 +84,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             if (this.variantTester != null) {
                 String type = EMFAnimationHelper.getEMFEntity().emf$getTypeString();
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("Registered new variating model for: " + type);
+                    EMFUtils.log("Registered new variating model for: " + type);
 
                 Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(type);
                 if (variators == null) {
@@ -220,16 +220,16 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     }
                     //receiveOneTimeRunnable(this::registerModelRunnable);
                 } else {
-                    EMFUtils.EMFModWarn("non variating properties found for: " + propertyID);
+                    EMFUtils.logWarn("non variating properties found for: " + propertyID);
                     variantTester = null;
                     variantDirectoryApplier = null;
                 }
             } else {
-                EMFUtils.EMFModWarn("null properties found for: " + propertyID);
+                EMFUtils.logWarn("null properties found for: " + propertyID);
                 variantDirectoryApplier = null;
             }
         } else {
-            EMFUtils.EMFModWarn("no properties or variants found for found for: " + thisDirectoryFileName + ".jem");
+            EMFUtils.logWarn("no properties or variants found for found for: " + thisDirectoryFileName + ".jem");
             variantDirectoryApplier = null;
         }
     }

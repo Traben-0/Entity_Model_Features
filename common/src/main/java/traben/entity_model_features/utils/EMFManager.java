@@ -2,8 +2,7 @@ package traben.entity_model_features.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
@@ -18,6 +17,7 @@ import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.EMFModelPartRoot;
+import traben.entity_model_features.models.IEMFModelNameContainer;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.models.animation.EMFModelOrRenderVariable;
@@ -40,9 +40,11 @@ public class EMFManager {//singleton for data holding and resetting needs
     public final boolean IS_IRIS_INSTALLED;
     private final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
 
-    public Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot> > rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
+    public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot> > rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
+
+    public final ObjectSet<OptifineMobNameForFileAndEMFMapId> modelsAnnounced = new ObjectOpenHashSet<>();
 
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
@@ -65,7 +67,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public static void resetInstance() {
-        EMFUtils.EMFModMessage("Clearing EMF data.");
+        EMFUtils.log("Clearing EMF data.");
         EMFOptiFinePartNameMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
         self = new EMFManager();
     }
@@ -113,11 +115,11 @@ public class EMFManager {//singleton for data holding and resetting needs
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
             if (res.isEmpty()) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage(".jem read failed " + pathOfJem + " does not exist", false);
+                    EMFUtils.log(".jem read failed " + pathOfJem + " does not exist", false);
                 return null;
             }
             if (EMFConfig.getConfig().logModelCreationData)
-                EMFUtils.EMFModMessage(".jem read success " + pathOfJem + " exists", false);
+                EMFUtils.log(".jem read success " + pathOfJem + " exists", false);
             Resource jemResource = res.get();
             //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -135,9 +137,9 @@ public class EMFManager {//singleton for data holding and resetting needs
             //}
         } catch (InvalidIdentifierException | FileNotFoundException e) {
             if (EMFConfig.getConfig().logModelCreationData)
-                EMFUtils.EMFModMessage(".jem failed to load " + e, false);
+                EMFUtils.log(".jem failed to load " + e, false);
         } catch (Exception e) {
-            EMFUtils.EMFModMessage(".jem failed to load " + e, false);
+            EMFUtils.log(".jem failed to load " + e, false);
             e.printStackTrace();
         }
         return null;
@@ -173,13 +175,23 @@ public class EMFManager {//singleton for data holding and resetting needs
         return null;
     }
 
+    private final Object2IntOpenHashMap<EntityModelLayer> amountOfLayerAttempts = new Object2IntOpenHashMap<>()
+    {{defaultReturnValue(0);}};
+
     public ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
+        int creationsOfLayer = amountOfLayerAttempts.put(layer,amountOfLayerAttempts.getInt(layer)+1);
+        if(creationsOfLayer > 500 ){
+            if(creationsOfLayer == 501) {
+                EMFUtils.logWarn("model attempted creation more than 500 times {" + layer.toString() + "]. EMF is now ignoring this model.");
+            }
+            return root;
+        }
+
+        OptifineMobNameForFileAndEMFMapId mobNameForFileAndMap = new OptifineMobNameForFileAndEMFMapId(layer.getId().getPath());
         try {
             EMFManager.lastCreatedRootModelPart = null;
 
             boolean printing = (EMFConfig.getConfig().logModelCreationData);
-
-            OptifineMobNameForFileAndEMFMapId mobNameForFileAndMap = new OptifineMobNameForFileAndEMFMapId(layer.getId().getPath());
 
 
             if (!"main".equals(layer.getName())) {
@@ -350,9 +362,11 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
             if (printing) System.out.println(" > Vanilla model used for: " + mobNameForFileAndMap);
+            ((IEMFModelNameContainer)root).emf$insertKnownMappings(mobNameForFileAndMap);
             return root;
         } catch (Exception e) {
-            EMFUtils.EMFModWarn("default model returned for " + layer.toString() + " due to exception: " + e.getMessage());
+            EMFUtils.logWarn("default model returned for " + layer.toString() + " due to exception: " + e.getMessage());
+            ((IEMFModelNameContainer)root).emf$insertKnownMappings(mobNameForFileAndMap);
             return root;
         }
     }
@@ -376,7 +390,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             Object2ObjectLinkedOpenHashMap<String, EMFAnimation> thisPartAnims = new Object2ObjectLinkedOpenHashMap<>();
             anims.forEach((animKey, animationExpression) -> {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("parsing animation value: [" + animKey + "]");
+                    EMFUtils.log("parsing animation value: [" + animKey + "]");
                 String modelId = animKey.split("\\.")[0];
                 String modelVariable = animKey.split("\\.")[1];
 
@@ -405,7 +419,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 if (anim.getValue() != null) {
                     anim.getValue().initExpression(animMap, allPartsBySingleAndFullHeirachicalId);
                     if (!anim.getValue().isValid()) {
-                        EMFUtils.EMFModWarn("animations was invalid: " + anim.getValue().animKey + " = " + anim.getValue().expressionString);
+                        EMFUtils.logWarn("animations was invalid: " + anim.getValue().animKey + " = " + anim.getValue().expressionString);
                         animMapIterate.remove();
                     }
                 } else {

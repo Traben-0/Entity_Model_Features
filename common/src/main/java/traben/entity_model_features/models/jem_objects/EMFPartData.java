@@ -90,7 +90,7 @@ public class EMFPartData {
 
         //check if we need to load a .jpm into this object
         if (!this.model.isEmpty()) {
-            EMFPartData jpmModel = EMFUtils.EMFReadModelPart(this.model, jem.filePath);
+            EMFPartData jpmModel = EMFUtils.readModelPart(this.model, jem.filePath);
             if (jpmModel != null) {
                 copyFrom(jpmModel);
 

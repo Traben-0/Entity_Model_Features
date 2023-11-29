@@ -10,6 +10,7 @@
     "MixinEntityModel",
     "MixinEntityModelLoader",
     "MixinParrotEntityModel",
+    "MixinPlayerEntity",
     "MixinResourceReload",
     "accessor.CuboidAccessor",
     "accessor.EntityRenderDispatcherAccessor",
@@ -31,7 +32,7 @@
     "rendering.MixinTropicalFishPatternFeatureRenderer",
     "rendering.MixinWolfCollarFeatureRenderer",
     "rendering.MixinWolfEntityModel",
-    "MixinPlayerEntity"
+    "MixinModelPart"
   ],
   "mixins": [
   ],
