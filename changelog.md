@@ -5,13 +5,14 @@
 e.g. you don't need a property to check a cat variant in ETF because you are already working with the black cat texture directly. 
 the property name is `variant` or `variants`. 
 The property allows regex, pattern, or a simple list of variant names. 
-If the property starts with `"print:"` it will print the variant found to the game log, and use the rest of the property text as normal.
+If the property starts with `"print:"` it will print the variant found for the entity to the game log, and use the rest of the property text as normal.
 This property will work with any modded entity that implements the VariantHolder<T> class and will use the string representation of the type, e.g. "black" for a cat, "oak" for a boat.
 This property also works uniquely with these block entities: 
 signs (wood), bed (color), shulkerbox (color), Decorated pot (all 4 sherd face types).
 For all other regular & block entities it returns the EntityType or BlockEntityType registry id. This allows for the 
 separation of different entity types that might use the same model name, such as various modded entities do.
 
+- added NeoForge 1.20.2 support, all prior versions will not have seperate jars for forge and neoforge.
 - fixed boolean inverted methods
 - fixed most, if not, all model variation issues
 - much better texture override code
@@ -19,6 +20,11 @@ separation of different entity types that might use the same model name, such as
 - reworked for etf rewrite
 - added model variation rate setting to emf settings
 - fixed the config gui screen getting all black and not displaying the mobs
+- added a debug printout setting which will print debug info to chat and the log when an entity is right clicked
+- emf now accepts model variants without .properties files, you do not even need to declare a 'default' model,
+you can just create villager2.jem and variant #1 will automatically be the vanilla model.
+- fixed an issue with held entities such as players holding a chest, messing with further models to be rendered for that entity, such as elytras
+- fixed several other minor issues
 
 
 1.1.0
