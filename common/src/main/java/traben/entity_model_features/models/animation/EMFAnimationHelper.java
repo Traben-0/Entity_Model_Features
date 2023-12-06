@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -28,6 +29,7 @@ import traben.entity_texture_features.ETFApi;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 
 public class EMFAnimationHelper {
 
@@ -54,11 +56,21 @@ public class EMFAnimationHelper {
     private static float tickDelta = 0;
     private static boolean onShoulder = false;
 
+
+
+    public static void setLayerFactory(Function<Identifier, RenderLayer> layerFactory) {
+        EMFAnimationHelper.layerFactory = layerFactory;
+    }
+
+    private static Function<Identifier, RenderLayer> layerFactory = null;
+
     private EMFAnimationHelper() {
 
     }
 
-    public static void setCurrentEntity(EMFEntity entityIn) {
+
+    public static void setCurrentEntityIteration(EMFEntity entityIn) {
+        layerFactory = null;
         newEntity(entityIn);
         EMFManager.getInstance().entityRenderCount++;
         tickDelta = MinecraftClient.getInstance().isPaused() ? ((MinecraftClientAccessor) MinecraftClient.getInstance()).getPausedTickDelta() : MinecraftClient.getInstance().getTickDelta();
@@ -79,7 +91,7 @@ public class EMFAnimationHelper {
         //if this entity requires a debug print do it now after models have variated
         if(EMFConfig.getConfig().debugOnRightClick
                 && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)){
-            anounceModels = true;
+            announceModels = true;
             EMFManager.getInstance().entityForDebugPrint = null;
         }
     }
@@ -138,7 +150,7 @@ public class EMFAnimationHelper {
             int count = 1;
             for (OptifineMobNameForFileAndEMFMapId data : EMFManager.getInstance().modelsAnnounced) {
                 StringBuilder model = new StringBuilder();
-                model.append("§Non-Custom Model #").append(count).append("§r")
+                model.append("\n§Non-Custom Model #").append(count).append("§r")
                         .append(entryAndValue("possible .jem name", data.getfileName() + ".jem"));
 
                 Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(data.getMapId(), null);
@@ -160,14 +172,14 @@ public class EMFAnimationHelper {
             EMFManager.getInstance().modelsAnnounced.clear();
         }
 
-        anounceModels = false;
+        announceModels = false;
     }
 
-    public static boolean doAnounceModels() {
-        return anounceModels;
+    public static boolean doAnnounceModels() {
+        return announceModels;
     }
 
-    private static boolean anounceModels = false;
+    private static boolean announceModels = false;
 
     private static String entryAndValue(String entry, String value){
         return "\n§6 - "+entry+":§r " + value ;
@@ -191,6 +203,7 @@ public class EMFAnimationHelper {
     }
 
     public static void reset() {
+        layerFactory = null;
         emfEntity = null;
         limbAngle = Float.NaN;
         limbDistance = Float.NaN;
@@ -205,6 +218,13 @@ public class EMFAnimationHelper {
         leashZ = 0;
         shadowX = 0;
         shadowZ = 0;
+    }
+
+    public static RenderLayer getLayerFromRecentFactoryOrTranslucent(Identifier identifier){
+        if(layerFactory == null){
+            return RenderLayer.getEntityTranslucent(identifier);
+        }
+        return layerFactory.apply(identifier);
     }
 
     public static float getRuleIndex() {
@@ -794,4 +814,5 @@ public class EMFAnimationHelper {
     public static void setShadowZ(float shadowZ) {
         EMFAnimationHelper.shadowZ = shadowZ;
     }
+
 }

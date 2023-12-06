@@ -6,3 +6,5 @@ extendable class net/minecraft/client/model/ModelPart
 
 accessible class net/minecraft/client/model/ModelPart$Quad
 accessible class net/minecraft/client/model/ModelPart$Vertex
+
+accessible field net/minecraft/client/model/Model layerFactory Ljava/util/function/Function;

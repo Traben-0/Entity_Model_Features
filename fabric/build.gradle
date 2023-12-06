@@ -44,7 +44,7 @@ dependencies {
 //    implementation("org.apache.commons:commons-math3:3.0")
 //    include("org.apache.commons:commons-math3:3.0")
 
-    modImplementation files("run/mods/entity_texture_features_fabric_1.20.2-5.0.beta.1.jar")
+    modImplementation files("run/mods/entity_texture_features_fabric_1.20.2-5.0.beta.2.jar")
     //modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version}")
 
 }

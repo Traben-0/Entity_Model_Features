@@ -19,7 +19,7 @@ public class MixinModelPart implements IEMFModelNameContainer {
     @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V",
             at = @At(value = "HEAD"))
     private void emf$injectAnnouncer(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
-        if (EMFAnimationHelper.doAnounceModels() && emf$modelInfo != null) {
+        if (EMFAnimationHelper.doAnnounceModels() && emf$modelInfo != null) {
             EMFManager.getInstance().modelsAnnounced.add(emf$modelInfo);
         }
     }

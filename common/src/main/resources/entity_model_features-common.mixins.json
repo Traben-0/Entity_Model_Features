@@ -7,8 +7,9 @@
     "MixinBlockEntity",
     "MixinBlockEntityRendererFactories",
     "MixinEntity",
-    "MixinEntityModel",
+    "MixinModel",
     "MixinEntityModelLoader",
+    "MixinModelPart",
     "MixinParrotEntityModel",
     "MixinPlayerEntity",
     "MixinResourceReload",
@@ -31,8 +32,7 @@
     "rendering.MixinStrayOverlayFeatureRenderer",
     "rendering.MixinTropicalFishPatternFeatureRenderer",
     "rendering.MixinWolfCollarFeatureRenderer",
-    "rendering.MixinWolfEntityModel",
-    "MixinModelPart"
+    "rendering.MixinWolfEntityModel"
   ],
   "mixins": [
   ],

@@ -16,7 +16,7 @@ public class MixinBlockEntityRenderDispatcher {
     @Inject(method = "runReported",
             at = @At(value = "HEAD"))
     private static <T extends BlockEntity> void emf$grabEntity2(BlockEntity blockEntity, Runnable runnable, CallbackInfo ci) {
-        EMFAnimationHelper.setCurrentEntity((EMFEntity) blockEntity);
+        EMFAnimationHelper.setCurrentEntityIteration((EMFEntity) blockEntity);
     }
 
 }

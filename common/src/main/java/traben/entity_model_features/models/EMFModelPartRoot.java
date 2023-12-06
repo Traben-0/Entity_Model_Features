@@ -204,7 +204,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
                         String jemNameVariant = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getfileName() + variant + ".jem");
                         if (EMFConfig.getConfig().logModelCreationData)
-                            System.out.println(" > incorporating variant jem file: " + jemNameVariant);
+                            EMFUtils.log(" > incorporating variant jem file: " + jemNameVariant);
                         EMFJemData jemDataVariant = getJemDataWithDirectory(jemNameVariant, modelName);
                         if (jemDataVariant != null) {
                             addVariantOfJem(jemDataVariant, variant);
@@ -214,15 +214,16 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                         } else {
                             //make this variant map to 1
                             allKnownStateVariants.put(variant, allKnownStateVariants.get(1));
-                            System.out.println(" > invalid jem variant file: " + jemNameVariant);
+                            if (EMFConfig.getConfig().logModelCreationData)
+                                EMFUtils.log(" > invalid jem variant file: " + jemNameVariant);
                         }
 
                     }
                     //receiveOneTimeRunnable(this::registerModelRunnable);
                 } else {
-                    EMFUtils.logWarn("non variating properties found for: " + propertyID);
-                    variantTester = null;
-                    variantDirectoryApplier = null;
+                    EMFUtils.logWarn("properties with only 1 variant found: " + propertyID + "\n please check this is correct.");
+                    //variantTester = null;
+                    //variantDirectoryApplier = null;
                 }
             } else {
                 EMFUtils.logWarn("null properties found for: " + propertyID);

@@ -9,17 +9,22 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.utils.EMFManager;
 import traben.entity_texture_features.ETFClientCommon;
 import traben.entity_texture_features.features.ETFManager;
 import traben.entity_texture_features.features.ETFRenderContext;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
 
 public abstract class EMFModelPart extends ModelPart {
     public Identifier textureOverride;
 //    protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
+    private long lastTextureOverride = -1L;
 
 
     public EMFModelPart(List<Cuboid> cuboids, Map<String, ModelPart> children) {
@@ -27,16 +32,20 @@ public abstract class EMFModelPart extends ModelPart {
     }
 
 
+
     void renderWithTextureOverride(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 
-        if (textureOverride == null || EMFAnimationHelper.getEMFEntity() == null) {
+        if (textureOverride == null
+                || lastTextureOverride == EMFManager.getInstance().entityRenderCount) {//prevents texture overrides carrying over into feature renderers that reuse the base model
             //normal vertex consumer
             renderToVanillaSuper(matrices, vertices, light, overlay, red, green, blue, alpha);
         } else if (light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
-                && !ETFRenderContext.isIsInSpecialRenderOverlayPhase()) { //do not allow new etf emissive rendering here
+                && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() && ETFRenderContext.getCurrentProvider() != null) { //do not allow new etf emissive rendering here
+
+            lastTextureOverride = EMFManager.getInstance().entityRenderCount;
 
             RenderLayer originalLayer = ETFRenderContext.getCurrentRenderLayer();
-            RenderLayer layerModified = RenderLayer.getEntityTranslucent(textureOverride);
+            RenderLayer layerModified = EMFAnimationHelper.getLayerFromRecentFactoryOrTranslucent(textureOverride);
             VertexConsumer newConsumer = ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(), layerModified);
 
             renderToVanillaSuper(matrices, newConsumer, light, overlay, red, green, blue, alpha);

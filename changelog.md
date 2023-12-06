@@ -1,6 +1,11 @@
 
 
+2
+- fixed texture overrides affecting villager clothing layers also
+- texture overrides now use the render layer factory of the underlying model *(fixes villager clothing layers and some others when the base model had textures overrides)*
+- ensured texture overrides will not reapply again on models reused multiple times by entities *(e.g. villagers clothes reusing the base villager model)*
 
+1
 - added an EMF only random property to make model variation easier in cases that do not typically need properties in ETF. 
 e.g. you don't need a property to check a cat variant in ETF because you are already working with the black cat texture directly. 
 the property name is `variant` or `variants`. 
@@ -12,7 +17,7 @@ signs (wood), bed (color), shulkerbox (color), Decorated pot (all 4 sherd face t
 For all other regular & block entities it returns the EntityType or BlockEntityType registry id. This allows for the 
 separation of different entity types that might use the same model name, such as various modded entities do.
 
-- added NeoForge 1.20.2 support, all prior versions will not have seperate jars for forge and neoforge.
+- added NeoForge 1.20.2 support, all prior versions will not have separate jars for forge and neoforge.
 - fixed boolean inverted methods
 - fixed most, if not, all model variation issues
 - much better texture override code
