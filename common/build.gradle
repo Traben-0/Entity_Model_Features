@@ -14,7 +14,7 @@ dependencies {
     //modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 
     //modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version}")
-    modImplementation files("run/entity_texture_features_fabric_1.20.2-5.0.beta.2.jar")
+    modImplementation files("run/entity_texture_features_fabric_1.20.3-5.0.beta.jar")
 
     modImplementation ("maven.modrinth:physicsmod:dBxi3s11")
 }

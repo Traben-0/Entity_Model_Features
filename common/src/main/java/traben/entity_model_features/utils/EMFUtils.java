@@ -5,8 +5,8 @@ import com.google.gson.GsonBuilder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.resource.Resource;
-import net.minecraft.text.LiteralTextContent;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.PlainTextContent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
@@ -54,7 +54,7 @@ public class EMFUtils {
     public static void chat(String message) {
         ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
         if (plyr != null) {
-            plyr.sendMessage(MutableText.of(new LiteralTextContent(message)), false);
+            plyr.sendMessage(MutableText.of(new PlainTextContent.Literal(message)), false);
         }
     }
 
