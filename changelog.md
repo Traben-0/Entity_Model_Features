@@ -1,11 +1,6 @@
 
+1.2.0
 
-2
-- fixed texture overrides affecting villager clothing layers also
-- texture overrides now use the render layer factory of the underlying model *(fixes villager clothing layers and some others when the base model had textures overrides)*
-- ensured texture overrides will not reapply again on models reused multiple times by entities *(e.g. villagers clothes reusing the base villager model)*
-
-1
 - added an EMF only random property to make model variation easier in cases that do not typically need properties in ETF. 
 e.g. you don't need a property to check a cat variant in ETF because you are already working with the black cat texture directly. 
 the property name is `variant` or `variants`. 
@@ -30,6 +25,10 @@ separation of different entity types that might use the same model name, such as
 you can just create villager2.jem and variant #1 will automatically be the vanilla model.
 - fixed an issue with held entities such as players holding a chest, messing with further models to be rendered for that entity, such as elytras
 - fixed several other minor issues
+- fixed texture overrides affecting villager clothing layers also
+- texture overrides now use the render layer factory of the underlying model *(fixes villager clothing layers and some others when the base model had textures overrides)*
+- ensured texture overrides will not reapply again on models reused multiple times by entities *(e.g. villagers clothes reusing the base villager model)*
+- fixed sodium 0.5.4 compat
 
 
 1.1.0
