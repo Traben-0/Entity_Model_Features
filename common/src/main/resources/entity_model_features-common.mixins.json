@@ -16,7 +16,6 @@
     "accessor.CuboidAccessor",
     "accessor.EntityRenderDispatcherAccessor",
     "accessor.MinecraftClientAccessor",
-    "accessor.ModelPartAccessor",
     "rendering.MixinBlockEntityRenderDispatcher",
     "rendering.MixinCatCollarFeatureRenderer",
     "rendering.MixinCreeperChargeFeatureRenderer",

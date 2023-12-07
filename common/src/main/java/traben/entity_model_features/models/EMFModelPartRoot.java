@@ -14,7 +14,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
@@ -157,7 +156,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             EMFModelPartVanilla thisPart = vanillaEntry.getValue();
             EMFModelState vanillaState = EMFModelState.copy(thisPart.allKnownStateVariants.get(0));
             thisPart.setFromState(vanillaState);
-            if (thisPart instanceof EMFModelPartRoot root && !((ModelPartAccessor) root).getCuboids().isEmpty()) {
+            if (thisPart instanceof EMFModelPartRoot root && !root.cuboids.isEmpty()) {
                 root.textureOverride = jemData.customTexture;
             }
             Map<String, ModelPart> children = new HashMap<>();
@@ -168,17 +167,17 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     if (EMFConfig.getConfig().logModelCreationData)
                         System.out.println(" > > > EMF custom part attached: " + newPartEntry.getKey());
                     if (!newPart.attach) {
-                        ((ModelPartAccessor) thisPart).setCuboids(List.of());
-                        thisPart.getChildrenEMF().values().forEach((part) -> {
+                        thisPart.cuboids = List.of();
+                        thisPart.children.values().forEach((part) -> {
                             if (part instanceof EMFModelPartVanilla vanilla && !vanilla.isOptiFinePartSpecified)
                                 vanilla.setHideInTheseStates(variant);
                         });
                     }
-                    children.put(EMFUtils.getIdUnique(thisPart.getChildrenEMF().keySet(), newPartEntry.getKey()), newPart);
+                    children.put(EMFUtils.getIdUnique(thisPart.children.keySet(), newPartEntry.getKey()), newPart);
                 }
             }
             children.putAll(thisPart.vanillaChildren);
-            ((ModelPartAccessor) thisPart).setChildren(children);
+            thisPart.children = children;
             thisPart.allKnownStateVariants.put(variant, thisPart.getCurrentState());
 
         }

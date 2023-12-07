@@ -7,7 +7,6 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
@@ -17,7 +16,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class EMFOptiFinePartNameMappings {
@@ -917,9 +915,9 @@ public class EMFOptiFinePartNameMappings {
                                     (float) Math.toDegrees(vanillaModelPart.yaw),
                                     (float) Math.toDegrees(vanillaModelPart.roll)};
                             partPrinter.scale = vanillaModelPart.xScale;
-                            List<ModelPart.Cuboid> cuboids = ((ModelPartAccessor) vanillaModelPart).getCuboids();
+                            //List<ModelPart.Cuboid> cuboids = vanillaModelPart.cuboids;
                             for (ModelPart.Cuboid cube :
-                                    cuboids) {
+                                    vanillaModelPart.cuboids) {
                                 EMFBoxData.EMFBoxPrinter boxPrinter = new EMFBoxData.EMFBoxPrinter();
                                 boxPrinter.coordinates = new float[]{
                                         cube.minX - vanillaModelPart.getDefaultTransform().pivotX,
@@ -963,7 +961,7 @@ public class EMFOptiFinePartNameMappings {
     private static ModelPart getChildByName(String name, ModelPart part) {
         if (part.hasChild(name)) return part.getChild(name);
         for (ModelPart childPart :
-                ((ModelPartAccessor) part).getChildren().values()) {
+                part.children.values()) {
             ModelPart possibleReturn = getChildByName(name, childPart);
             if (possibleReturn != null) return possibleReturn;
         }
@@ -973,7 +971,7 @@ public class EMFOptiFinePartNameMappings {
     private static void mapThisAndChildren(String partName, ModelPart originalModel, Map<String, String> newMap, Map<String, String> detailsMap) {
         //iterate over children while collecting their names in a list
         for (Map.Entry<String, ModelPart> entry :
-                ((ModelPartAccessor) originalModel).getChildren().entrySet()) {
+                originalModel.children.entrySet()) {
             mapThisAndChildren(entry.getKey(), entry.getValue(), newMap, detailsMap);
         }
         //add this part and its children names

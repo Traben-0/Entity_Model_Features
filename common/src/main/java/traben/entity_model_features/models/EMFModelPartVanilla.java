@@ -7,7 +7,6 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 
 import java.util.*;
 
@@ -41,16 +40,16 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
         EMFModelState state = getStateOf(vanillaPart);
         setFromState(state);
-        Map<String, ModelPart> children = getChildrenEMF();
+        //Map<String, ModelPart> children = this.children;
         for (Map.Entry<String, ModelPart> child :
-                ((ModelPartAccessor) vanillaPart).getChildren().entrySet()) {
+                vanillaPart.children.entrySet()) {
 
 
             EMFModelPartVanilla vanilla = new EMFModelPartVanilla(child.getKey(), child.getValue(), optifinePartNames, allVanillaParts);
             children.put(child.getKey(), vanilla);
             allVanillaParts.put(child.getKey(), vanilla);
         }
-        vanillaChildren = getChildrenEMF();
+        vanillaChildren = this.children;
         allKnownStateVariants.put(0, getCurrentState());
 
     }
@@ -68,7 +67,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     public void setHideInTheseStates(int variant) {
         hideInTheseStates.add(variant);
-        getChildrenEMF().values().forEach((part) -> {
+        children.values().forEach((part) -> {
             if (part instanceof EMFModelPartVanilla vanilla && !vanilla.isOptiFinePartSpecified)
                 vanilla.setHideInTheseStates(variant);
         });
@@ -89,7 +88,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     @Override
     public String toString() {
-        return "[vanilla part " + name + "], cubes ="+ ((ModelPartAccessor)this).getCuboids().size()+", children = "+ ((ModelPartAccessor)this).getChildren().size();
+        return "[vanilla part " + name + "], cubes ="+ cuboids.size()+", children = "+ children.size();
     }
 
     @Override

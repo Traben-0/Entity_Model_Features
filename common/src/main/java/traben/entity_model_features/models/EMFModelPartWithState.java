@@ -6,7 +6,6 @@ import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +25,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
 
     void receiveOneTimeRunnable(Runnable run) {
         startOfRenderRunnable = run;
-        getChildrenEMF().values().forEach((child) -> {
+        children.values().forEach((child) -> {
             if (child instanceof EMFModelPartWithState emf) {
                 emf.receiveOneTimeRunnable(run);
             }
@@ -51,8 +50,8 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     EMFModelState getCurrentState() {
         return new EMFModelState(
                 getDefaultTransform(),
-                ((ModelPartAccessor) this).getCuboids(),
-                getChildrenEMF(),
+                cuboids,
+                children,
                 xScale, yScale, zScale,
                 visible, hidden,
                 textureOverride, tryAnimate
@@ -63,8 +62,8 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         if (modelPart instanceof EMFModelPartWithState emf) {
             return new EMFModelState(
                     modelPart.getDefaultTransform(),
-                    ((ModelPartAccessor) modelPart).getCuboids(),
-                    emf.getChildrenEMF(),
+                    modelPart.cuboids,
+                    modelPart.children,
                     modelPart.xScale, modelPart.yScale, modelPart.zScale,
                     modelPart.visible, modelPart.hidden,
                     emf.textureOverride, emf.tryAnimate
@@ -72,7 +71,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         }
         return new EMFModelState(
                 modelPart.getDefaultTransform(),
-                ((ModelPartAccessor) modelPart).getCuboids(),
+                modelPart.cuboids,
                 new HashMap<>(),
                 modelPart.xScale, modelPart.yScale, modelPart.zScale,
                 modelPart.visible, modelPart.hidden,
@@ -83,9 +82,9 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     void setFromState(EMFModelState newState) {
         setDefaultTransform(newState.defaultTransform());
         setTransform(getDefaultTransform());
-        ((ModelPartAccessor) this).setCuboids(newState.cuboids());
+        cuboids = newState.cuboids();
 
-        ((ModelPartAccessor) this).setChildren(newState.variantChildren());
+        children = newState.variantChildren();
 
         xScale = newState.xScale();
         yScale = newState.yScale();
@@ -102,7 +101,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
             setFromState(allKnownStateVariants.get(newVariant));
             currentModelVariant = newVariant;
             for (ModelPart part :
-                    getChildrenEMF().values()) {
+                    children.values()) {
                 if (part instanceof EMFModelPartWithState p3)
                     p3.setVariantStateTo(newVariant);
             }

@@ -12,7 +12,6 @@ import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.CuboidAccessor;
-import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFUtils;
@@ -117,7 +116,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     @Override
     public String toString() {
-        return "[custom part " + id + "], cubes ="+ ((ModelPartAccessor)this).getCuboids().size()+", children = "+ ((ModelPartAccessor)this).getChildren().size();
+        return "[custom part " + id + "], cubes ="+ cuboids.size()+", children = "+ children.size();
     }
     @Override
     public String toStringShort() {

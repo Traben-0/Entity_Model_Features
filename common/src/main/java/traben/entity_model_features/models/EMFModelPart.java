@@ -1,6 +1,8 @@
 package traben.entity_model_features.models;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -9,7 +11,6 @@ import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
-import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_texture_features.ETFClientCommon;
@@ -32,8 +33,8 @@ public abstract class EMFModelPart extends ModelPart {
         // re assert children and cuboids as modifiable
         // required for sodium post 0.5.4
         // this should not cause issues as emf does not allow these model parts to pass through sodium's unique renderer
-        ((ModelPartAccessor) this).setCuboids(new ArrayList<>(cuboids));
-        ((ModelPartAccessor) this).setChildren(new HashMap<>(children));
+        this.cuboids = new ObjectArrayList<>(cuboids);
+        this.children = new Object2ObjectOpenHashMap<>(children);
     }
 
 
@@ -69,14 +70,14 @@ public abstract class EMFModelPart extends ModelPart {
     //required for sodium 0.5.4+
     void renderLikeVanilla(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         if (this.visible) {
-            if (!((ModelPartAccessor) this).getCuboids().isEmpty() || !this.getChildrenEMF().isEmpty()) {
+            if (!cuboids.isEmpty() || !children.isEmpty()) {
                 matrices.push();
                 this.rotate(matrices);
                 if (!this.hidden) {
                     this.renderCuboids(matrices.peek(), vertices, light, overlay, red, green, blue, alpha);
                 }
 
-                for (ModelPart modelPart : this.getChildrenEMF().values()) {
+                for (ModelPart modelPart : children.values()) {
                     modelPart.render(matrices, vertices, light, overlay, red, green, blue, alpha);
                 }
 
@@ -87,16 +88,16 @@ public abstract class EMFModelPart extends ModelPart {
 
     public void renderBoxes(MatrixStack matrices, VertexConsumer vertices){
         if (this.visible) {
-            if (!((ModelPartAccessor) this).getCuboids().isEmpty() || !this.getChildrenEMF().isEmpty()) {
+            if (!cuboids.isEmpty() || !children.isEmpty()) {
                 matrices.push();
                 this.rotate(matrices);
                 if (!this.hidden) {
-                    for (Cuboid cuboid : ((ModelPartAccessor) this).getCuboids()) {
+                    for (Cuboid cuboid : cuboids) {
                         Box box = new Box(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
                         WorldRenderer.drawBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
                     }
                 }
-                for (ModelPart modelPart : this.getChildrenEMF().values()) {
+                for (ModelPart modelPart : children.values()) {
                     if(modelPart instanceof EMFModelPart emf)
                         emf.renderBoxes(matrices, vertices);
                 }
@@ -110,7 +111,7 @@ public abstract class EMFModelPart extends ModelPart {
     // overrides to circumvent sodium optimizations that mess with custom uv quad creation and swapping out cuboids
     protected void renderCuboids(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
         //this is a copy of the vanilla renderCuboids() method
-        for (Cuboid cuboid : ((ModelPartAccessor) this).getCuboids()) {
+        for (Cuboid cuboid : cuboids) {
             cuboid.renderCuboid(entry, vertexConsumer, light, overlay, red, green, blue, alpha);
         }
     }
@@ -121,7 +122,7 @@ public abstract class EMFModelPart extends ModelPart {
         mapper.append("- ".repeat(Math.max(0, depth)));
         mapper.append(this.toStringShort());
         for (ModelPart child:
-             getChildrenEMF().values()) {
+             children.values()) {
             if(child instanceof EMFModelPart emf){
                 mapper.append(emf.simplePrintChildren(depth+1));
             }
@@ -138,16 +139,14 @@ public abstract class EMFModelPart extends ModelPart {
         return "generic emf part";
     }
 
-    public Map<String, ModelPart> getChildrenEMF() {
-        return ((ModelPartAccessor) this).getChildren();
-    }
+
 
 //    private static int indent = 0;
     public ModelPart getVanillaModelPartsOfCurrentState(){
 //        indent++;
         Map<String, ModelPart> children = new HashMap<>();
         for (Map.Entry<String, ModelPart> child :
-                getChildrenEMF().entrySet()) {
+                children.entrySet()) {
             if (child.getValue() instanceof EMFModelPart emf) {
                 children.put(child.getKey(), emf.getVanillaModelPartsOfCurrentState());
             }
@@ -158,10 +157,10 @@ public abstract class EMFModelPart extends ModelPart {
 //        }
 //        System.out.print("made: "+ this + "\n");
         List<Cuboid> cubes;
-        if(((ModelPartAccessor) this).getCuboids().isEmpty()){
+        if(cuboids.isEmpty()){
             cubes = List.of(new Cuboid(0,0,0,0,0,0,0,0,0,0,0,false,0,0, Set.of()));
         }else{
-            cubes = ((ModelPartAccessor) this).getCuboids();
+            cubes = cuboids;
         }
 
         ModelPart part = new ModelPart(cubes, children);
@@ -184,7 +183,7 @@ public abstract class EMFModelPart extends ModelPart {
             root.setVariantStateTo(variantNum);
 
         Object2ReferenceOpenHashMap<String, EMFModelPart> mapOfAll = new Object2ReferenceOpenHashMap<>();
-        Map<String, ModelPart> children = getChildrenEMF();
+        //Map<String, ModelPart> children = this.children;
 
         for (ModelPart part :
                 children.values()) {
