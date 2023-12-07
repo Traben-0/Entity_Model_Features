@@ -32,7 +32,7 @@ side = "CLIENT"
 [[dependencies.entity_model_features]]
 modId = "entity_texture_features"
 mandatory = true
-versionRange = "[5.0.beta.1,)"
+versionRange = "[5.0,)"
 ordering = "NONE"
 side = "CLIENT"
 
