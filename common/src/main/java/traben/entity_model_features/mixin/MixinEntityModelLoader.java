@@ -21,10 +21,10 @@ public class MixinEntityModelLoader {
             try {
                 cir.setReturnValue(EMFManager.getInstance().injectIntoModelRootGetter(layer, cir.getReturnValue()));
             } catch (IncompatibleClassChangeError error) {
-                EMFUtils.EMFModError("///////////////////");
-                EMFUtils.EMFModError("EMF crashed due to a forge dependency error (probably), suppressing the EMF crash so the true culprit will be sent to the crash report tool\nIF THIS HAPPENS MORE THAN ONCE THIS MIGHT ACTUALLY BE AN EMF ISSUE\n");
+                EMFUtils.logError("///////////////////");
+                EMFUtils.logError("EMF crashed due to a forge dependency error (probably), suppressing the EMF crash so the true culprit will be sent to the crash report tool\nIF THIS HAPPENS MORE THAN ONCE THIS MIGHT ACTUALLY BE AN EMF ISSUE\n");
                 error.printStackTrace();
-                EMFUtils.EMFModError("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
+                EMFUtils.logError("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\");
                 //this is required for forge
                 // if forge detects a missing dependency in any mod it will crash but first it trys to finish loading this mixin
                 // and fails due to the accesswidening of ModelPart being broken due to forge preparing to shut down

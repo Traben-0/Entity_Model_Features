@@ -7,7 +7,6 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 
 import java.util.*;
 
@@ -41,16 +40,16 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
         EMFModelState state = getStateOf(vanillaPart);
         setFromState(state);
-        Map<String, ModelPart> children = getChildrenEMF();
+        //Map<String, ModelPart> children = this.children;
         for (Map.Entry<String, ModelPart> child :
-                ((ModelPartAccessor) vanillaPart).getChildren().entrySet()) {
+                vanillaPart.children.entrySet()) {
 
 
             EMFModelPartVanilla vanilla = new EMFModelPartVanilla(child.getKey(), child.getValue(), optifinePartNames, allVanillaParts);
             children.put(child.getKey(), vanilla);
             allVanillaParts.put(child.getKey(), vanilla);
         }
-        vanillaChildren = getChildrenEMF();
+        vanillaChildren = this.children;
         allKnownStateVariants.put(0, getCurrentState());
 
     }
@@ -59,38 +58,16 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //ignore non optifine specified parts when not vanilla variant
-        if (!hideInTheseStates.contains(currentModelVariantState))
+        if (!hideInTheseStates.contains(currentModelVariant))
             super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
     }
 
-    ModelPart getVanillaModelPartsOfCurrentState() {
-        Map<String, ModelPart> children = new HashMap<>();
-        for (Map.Entry<String, ModelPart> child :
-                getChildrenEMF().entrySet()) {
-            if (child.getValue() instanceof EMFModelPart emf) {
-                children.put(child.getKey(), emf.getVanillaModelPartsOfCurrentState());
-            }
-        }
 
-        ModelPart part = new ModelPart(((ModelPartAccessor) this).getCuboids(), children);
-        part.setDefaultTransform(getDefaultTransform());
-        part.pitch = pitch;
-        part.roll = roll;
-        part.yaw = yaw;
-        part.pivotZ = pivotZ;
-        part.pivotY = pivotY;
-        part.pivotX = pivotX;
-        part.xScale = xScale;
-        part.yScale = yScale;
-        part.zScale = zScale;
-
-        return part;
-    }
 
 
     public void setHideInTheseStates(int variant) {
         hideInTheseStates.add(variant);
-        getChildrenEMF().values().forEach((part) -> {
+        children.values().forEach((part) -> {
             if (part instanceof EMFModelPartVanilla vanilla && !vanilla.isOptiFinePartSpecified)
                 vanilla.setHideInTheseStates(variant);
         });
@@ -111,6 +88,11 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     @Override
     public String toString() {
+        return "[vanilla part " + name + "], cubes ="+ cuboids.size()+", children = "+ children.size();
+    }
+
+    @Override
+    public String toStringShort() {
         return "[vanilla part " + name + "]";
     }
 }

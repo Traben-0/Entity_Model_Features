@@ -55,7 +55,7 @@ public class EMFJemData {
         String[] directorySplit = fileName.split("/");
         if (directorySplit.length > 1) {
             String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
-            filePath= fileName.replace(lastDirectoryComponentOfFileName, "");
+            filePath = fileName.replace(lastDirectoryComponentOfFileName, "");
 
         }
 
@@ -85,7 +85,7 @@ public class EMFJemData {
         ///prep animations
         SortedMap<String, EMFPartData> alphabeticalOrderedParts = new TreeMap<>(Comparator.naturalOrder());
         if (EMFConfig.getConfig().logModelCreationData)
-            EMFUtils.EMFModMessage("originalModelsForReadingOnly #= " + originalModelsForReadingOnly.size());
+            EMFUtils.log("originalModelsForReadingOnly #= " + originalModelsForReadingOnly.size());
         for (EMFPartData partData :
                 originalModelsForReadingOnly) {
             //if two parts both with id of EMF_body the later will get renamed to copy first come first server approach that optifine seems to have
@@ -95,7 +95,7 @@ public class EMFJemData {
         }
 
         if (EMFConfig.getConfig().logModelCreationData)
-            EMFUtils.EMFModMessage("alphabeticalOrderedParts = " + alphabeticalOrderedParts);
+            EMFUtils.log("alphabeticalOrderedParts = " + alphabeticalOrderedParts);
         for (EMFPartData part :
                 alphabeticalOrderedParts.values()) {
             if (part.animations != null) {

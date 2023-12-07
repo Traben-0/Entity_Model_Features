@@ -2,14 +2,17 @@ package traben.entity_model_features;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.render.LightmapTextureManager;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.utils.EMFManager;
+import traben.entity_texture_features.ETFApi;
 
 import java.util.Random;
 
 @Environment(EnvType.CLIENT)
 public class EMFClient {
 
+    public static final int EYES_FEATURE_LIGHT_VALUE = LightmapTextureManager.MAX_LIGHT_COORDINATE + 1;
     public static final String MOD_ID = "entity_model_features";
     private static final String[] quips = {
             "special thanks to Cody!",
@@ -42,6 +45,12 @@ public class EMFClient {
         LogManager.getLogger().info("Loading Entity Model Features, " + randomQuip());
         //init data manager
         EMFManager.getInstance();
+
+        //register new etf random property for emf to track variants
+        ETFApi.registerCustomRandomPropertyFactory(MOD_ID, EntityVariantProperty::getPropertyOrNull);
+
+        //register EMF physics mod hook
+//        RagdollMapper.addHook(new EMFCustomRagDollHookTest());
 
     }
 

@@ -27,9 +27,9 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
-import traben.entity_texture_features.ETFApi;
 
 
 @Mixin(LivingEntityRenderer.class)
@@ -40,6 +40,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     protected M model;
     @Unique
     private M emf$heldModelToForce = null;
+    @Unique
+    private EMFEntity emf$heldEntity = null;
 
     protected MixinLivingEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
@@ -53,7 +55,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         }
     }
 
-
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V"
@@ -63,7 +64,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(model) && !(livingEntity instanceof PufferfishEntity)) {
                 boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace());
-                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
+                EMFUtils.overrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
                 if (replace) {
                     model = emf$heldModelToForce;
                 }
@@ -88,7 +89,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             }
         }
     }
-
 
     @ModifyArg(
             method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
@@ -140,7 +140,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         return headPitch;
     }
 
-
     @Redirect(
             method = "getRenderLayer",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/LivingEntityRenderer;getTexture(Lnet/minecraft/entity/Entity;)Lnet/minecraft/util/Identifier;"))
@@ -149,9 +148,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         if (((IEMFModel) model).emf$isEMFModel()) {
             EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
-                root.removeJemOverrideTextureForModelSupplyingItAnotherWay();
-                //noinspection unchecked
-                return root.textureOverride == null ? getTexture((T) entity) : ETFApi.getCurrentETFVariantTextureOfEntity(entity, root.textureOverride);
+                Identifier texture = root.getTopLevelJemTexture();
+                if(texture != null)
+                    return texture;
             }
         }
 
@@ -160,5 +159,17 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
     }
 
+    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+            at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
+    private void emf$grabEntity(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+        emf$heldEntity = EMFAnimationHelper.getEMFEntity();
+    }
+
+    @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+            at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
+    private void emf$eachFeatureLoop(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+        if (EMFAnimationHelper.getEMFEntity() != emf$heldEntity)
+            EMFAnimationHelper.setCurrentEntityNoIteration(emf$heldEntity);
+    }
 
 }

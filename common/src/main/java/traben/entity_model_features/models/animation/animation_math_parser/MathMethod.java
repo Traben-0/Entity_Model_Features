@@ -17,10 +17,16 @@ public class MathMethod extends MathValue implements MathComponent {
     private int printCount = 0;
 
 
-    private MathMethod(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
+    private MathMethod(String methodNameIn, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
         super(isNegative, calculationInstance);
 
-        this.methodName = methodName;
+        boolean booleanInvert = methodNameIn.startsWith("!");
+        if(booleanInvert){
+            this.methodName = methodNameIn.replaceFirst("!","");
+        }else{
+            this.methodName = methodNameIn;
+        }
+
         //first lets split the args into a list
         List<String> argsList = new ArrayList<>();
 
@@ -48,13 +54,13 @@ public class MathMethod extends MathValue implements MathComponent {
                 default -> builder.append(ch);
             }
         }
-        if(!builder.isEmpty()) {
+        if (!builder.isEmpty()) {
             argsList.add(builder.toString());
         }
 
         //args list is now a list of top level arguments ready to be categorized into MathComponents depending on the method
 
-        supplier = switch (methodName) {
+        supplier = switch (this.methodName) {
             case "if" -> EMF_IF(argsList);
             case "sin" -> SIN(argsList);
             case "asin" -> ASIN(argsList);
@@ -93,7 +99,13 @@ public class MathMethod extends MathValue implements MathComponent {
                     throw new EMFMathException("ERROR: Unknown method [" + methodName + "], rejecting animation expression for [" + calculationInstance.animKey + "].");
             //()-> 0d;
         };
-
+        if(booleanInvert){
+            if(optimizedAlternativeToThis == null){
+                supplier = ()-> supplier.get() == 1 ? 0 : 1;
+            }else{
+                optimizedAlternativeToThis = new MathConstant(optimizedAlternativeToThis.get() == 1 ? 0 : 1, isNegative);
+            }
+        }
     }
 
     public static MathComponent getOptimizedExpression(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
@@ -314,10 +326,10 @@ public class MathMethod extends MathValue implements MathComponent {
             //cannot optimize further
             return () -> (float) Math.random();
         } else if (args.size() == 1) {
-            if(args.get(0).isBlank()){
+            if (args.get(0).isBlank()) {
                 //cannot optimize further
                 return () -> (float) Math.random();
-            }else {
+            } else {
                 MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
                 ValueSupplier valueSupplier = () -> new Random((long) x.get()).nextFloat(1);
                 List<MathComponent> comps = List.of(x);
@@ -708,28 +720,28 @@ public class MathMethod extends MathValue implements MathComponent {
             List<MathComponent> frames = new ArrayList<>();
             for (int i = 1; i < args.size(); i++) {
                 MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(i), false, calculationInstance);
-                if(arg2 != MathExpressionParser.NULL_EXPRESSION){
+                if (arg2 != MathExpressionParser.NULL_EXPRESSION) {
                     frames.add(arg2);
                 }
             }
-            int frameMax = frames.size()-1;
+            int frameMax = frames.size() - 1;
 
             ValueSupplier valueSupplier = () -> {
                 try {
                     float delta = Math.abs(deltaGetter.get());
-                    int last = MathHelper.clamp((int) Math.floor(delta),0,frameMax);
-                    int next = MathHelper.clamp((int) Math.ceil(delta),0,frameMax);
+                    int last = MathHelper.clamp((int) Math.floor(delta), 0, frameMax);
+                    int next = MathHelper.clamp((int) Math.ceil(delta), 0, frameMax);
                     float thisFrame;
-                    if(last == next) {
+                    if (last == next) {
                         thisFrame = frames.get(last).get();
-                    }else{
+                    } else {
                         float lerpDelta = delta - last;
                         MathComponent lastFrame = frames.get(last);
                         MathComponent nextFrame = frames.get(next);
-                        thisFrame = MathHelper.lerp(lerpDelta,lastFrame.get(),nextFrame.get());
+                        thisFrame = MathHelper.lerp(lerpDelta, lastFrame.get(), nextFrame.get());
                     }
                     return Float.isNaN(thisFrame) ? 0 : thisFrame;
-                }catch (Exception e) {
+                } catch (Exception e) {
                     return 0;
                 }
             };
@@ -751,7 +763,7 @@ public class MathMethod extends MathValue implements MathComponent {
             List<MathComponent> frames = new ArrayList<>();
             for (int i = 1; i < args.size(); i++) {
                 MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(i), false, calculationInstance);
-                if(arg2 != MathExpressionParser.NULL_EXPRESSION){
+                if (arg2 != MathExpressionParser.NULL_EXPRESSION) {
                     frames.add(arg2);
                 }
             }
@@ -761,21 +773,21 @@ public class MathMethod extends MathValue implements MathComponent {
             ValueSupplier valueSupplier = () -> {
                 try {
                     float delta = Math.abs(deltaGetter.get() % frameMax);
-                    int last = MathHelper.clamp((int) Math.floor(delta),0,frameMax);
-                    int nextRaw = MathHelper.clamp((int) Math.ceil(delta),0,frameMax);
+                    int last = MathHelper.clamp((int) Math.floor(delta), 0, frameMax);
+                    int nextRaw = MathHelper.clamp((int) Math.ceil(delta), 0, frameMax);
                     int next = nextRaw == frameMax ? 0 : nextRaw;
 
                     float thisFrame;
-                    if(last == nextRaw) {
+                    if (last == nextRaw) {
                         thisFrame = frames.get(next).get();
                     } else {
                         float lerpDelta = delta - last;
                         MathComponent lastFrame = frames.get(last);
-                        MathComponent nextFrame= frames.get(next);
+                        MathComponent nextFrame = frames.get(next);
                         thisFrame = MathHelper.lerp(lerpDelta, lastFrame.get(), nextFrame.get());
                     }
                     return Float.isNaN(thisFrame) ? 0 : thisFrame;
-                }catch (Exception e) {
+                } catch (Exception e) {
                     return 0;
                 }
             };
@@ -791,10 +803,9 @@ public class MathMethod extends MathValue implements MathComponent {
     }
 
 
-
     @Override
     public String toString() {
-        return methodName+"()";
+        return methodName + "()";
     }
 
     @Override

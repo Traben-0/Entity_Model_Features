@@ -3,22 +3,22 @@ package traben.entity_model_features.models.animation.animation_math_parser;
 public class MathConstant extends MathValue implements MathComponent {
 
 
-    public static MathConstant ZERO = new MathConstant(0){
+    public static MathConstant ZERO = new MathConstant(0) {
         @Override
         public void makeNegative(boolean become) {
         }
     };
-    public static MathConstant ONE = new MathConstant(1){
+    public static MathConstant ONE = new MathConstant(1) {
         @Override
         public void makeNegative(boolean become) {
         }
     };
-    public static MathConstant PI_CONSTANT = new MathConstant((float) Math.PI){
+    public static MathConstant PI_CONSTANT = new MathConstant((float) Math.PI) {
         @Override
         public void makeNegative(boolean become) {
         }
     };
-    public static MathConstant PI_CONSTANT_NEGATIVE = new MathConstant((float) Math.PI, true){
+    public static MathConstant PI_CONSTANT_NEGATIVE = new MathConstant((float) Math.PI, true) {
         @Override
         public void makeNegative(boolean become) {
         }
@@ -30,7 +30,6 @@ public class MathConstant extends MathValue implements MathComponent {
     public MathConstant(float number, boolean isNegative) {
         hardCodedValue = isNegative ? -number : number;
     }
-
 
 
     public MathConstant(float number) {

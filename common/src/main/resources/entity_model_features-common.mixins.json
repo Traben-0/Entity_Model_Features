@@ -2,15 +2,20 @@
   "required": true,
   "package": "traben.entity_model_features.mixin",
   "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
   "client": [
+    "MixinBlockEntity",
     "MixinBlockEntityRendererFactories",
-    "MixinEntityModel",
+    "MixinEntity",
+    "MixinModel",
     "MixinEntityModelLoader",
+    "MixinModelPart",
     "MixinParrotEntityModel",
+    "MixinPlayerEntity",
     "MixinResourceReload",
     "accessor.CuboidAccessor",
+    "accessor.EntityRenderDispatcherAccessor",
     "accessor.MinecraftClientAccessor",
-    "accessor.ModelPartAccessor",
     "rendering.MixinBlockEntityRenderDispatcher",
     "rendering.MixinCatCollarFeatureRenderer",
     "rendering.MixinCreeperChargeFeatureRenderer",
@@ -29,8 +34,6 @@
     "rendering.MixinWolfEntityModel"
   ],
   "mixins": [
-    "MixinEntity",
-    "accessor.EntityRenderDispatcherAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

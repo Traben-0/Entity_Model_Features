@@ -60,6 +60,16 @@ public class EMFConfigScreenDebugLogOptions extends ETFConfigScreen {
                 Text.translatable("entity_model_features.config.log_models.tooltip")
         ));
 
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("entity_model_features.config.debug_right_click").getString() +
+                        ": " + (emfParent.tempConfig.debugOnRightClick ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                (button) -> {
+                    emfParent.tempConfig.debugOnRightClick = !emfParent.tempConfig.debugOnRightClick;
+                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.debug_right_click").getString() +
+                            ": " + (emfParent.tempConfig.debugOnRightClick ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                },
+                Text.translatable("entity_model_features.config.debug_right_click.tooltip")
+        ));
 
     }
 

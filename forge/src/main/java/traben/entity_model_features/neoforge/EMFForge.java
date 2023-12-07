@@ -1,4 +1,4 @@
-package traben.entity_model_features.forge;
+package traben.entity_model_features.neoforge;
 
 
 import net.minecraftforge.api.distmarker.Dist;

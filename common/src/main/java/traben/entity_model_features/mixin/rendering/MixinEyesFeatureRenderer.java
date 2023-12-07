@@ -4,7 +4,8 @@ import net.minecraft.client.render.entity.feature.EyesFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import traben.entity_texture_features.ETFClientCommon;
+
+import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
 
 @Mixin(EyesFeatureRenderer.class)
 public class MixinEyesFeatureRenderer {
@@ -14,7 +15,7 @@ public class MixinEyesFeatureRenderer {
             index = 2
     )
     private int emf$markEyeLight(int i) {
-        return ETFClientCommon.EYES_FEATURE_LIGHT_VALUE;
+        return EYES_FEATURE_LIGHT_VALUE;
     }
 
 }
