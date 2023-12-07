@@ -4,9 +4,11 @@ import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
 import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
 import traben.entity_model_features.utils.EMFManager;
@@ -14,10 +16,7 @@ import traben.entity_texture_features.ETFClientCommon;
 import traben.entity_texture_features.features.ETFManager;
 import traben.entity_texture_features.features.ETFRenderContext;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
 
@@ -29,6 +28,12 @@ public abstract class EMFModelPart extends ModelPart {
 
     public EMFModelPart(List<Cuboid> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
+
+        // re assert children and cuboids as modifiable
+        // required for sodium post 0.5.4
+        // this should not cause issues as emf does not allow these model parts to pass through sodium's unique renderer
+        ((ModelPartAccessor) this).setCuboids(new ArrayList<>(cuboids));
+        ((ModelPartAccessor) this).setChildren(new HashMap<>(children));
     }
 
 
@@ -38,7 +43,7 @@ public abstract class EMFModelPart extends ModelPart {
         if (textureOverride == null
                 || lastTextureOverride == EMFManager.getInstance().entityRenderCount) {//prevents texture overrides carrying over into feature renderers that reuse the base model
             //normal vertex consumer
-            renderToVanillaSuper(matrices, vertices, light, overlay, red, green, blue, alpha);
+            renderLikeVanilla(matrices, vertices, light, overlay, red, green, blue, alpha);
         } else if (light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
                 && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() && ETFRenderContext.getCurrentProvider() != null) { //do not allow new etf emissive rendering here
 
@@ -48,7 +53,7 @@ public abstract class EMFModelPart extends ModelPart {
             RenderLayer layerModified = EMFAnimationHelper.getLayerFromRecentFactoryOrTranslucent(textureOverride);
             VertexConsumer newConsumer = ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(), layerModified);
 
-            renderToVanillaSuper(matrices, newConsumer, light, overlay, red, green, blue, alpha);
+            renderLikeVanilla(matrices, newConsumer, light, overlay, red, green, blue, alpha);
 
             ETFRenderContext.startSpecialRenderOverlayPhase();
             etf$renderEmissive(matrices, overlay, red, green, blue, alpha);
@@ -61,13 +66,48 @@ public abstract class EMFModelPart extends ModelPart {
         //else cancel out render
     }
 
-    void renderToVanillaSuper(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-        super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+    //required for sodium 0.5.4+
+    void renderLikeVanilla(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+        if (this.visible) {
+            if (!((ModelPartAccessor) this).getCuboids().isEmpty() || !this.getChildrenEMF().isEmpty()) {
+                matrices.push();
+                this.rotate(matrices);
+                if (!this.hidden) {
+                    this.renderCuboids(matrices.peek(), vertices, light, overlay, red, green, blue, alpha);
+                }
+
+                for (ModelPart modelPart : this.getChildrenEMF().values()) {
+                    modelPart.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+                }
+
+                matrices.pop();
+            }
+        }
     }
 
-    //stop trying to optimize my code so it doesn't work sodium :P
+    public void renderBoxes(MatrixStack matrices, VertexConsumer vertices){
+        if (this.visible) {
+            if (!((ModelPartAccessor) this).getCuboids().isEmpty() || !this.getChildrenEMF().isEmpty()) {
+                matrices.push();
+                this.rotate(matrices);
+                if (!this.hidden) {
+                    for (Cuboid cuboid : ((ModelPartAccessor) this).getCuboids()) {
+                        Box box = new Box(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
+                        WorldRenderer.drawBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
+                    }
+                }
+                for (ModelPart modelPart : this.getChildrenEMF().values()) {
+                    if(modelPart instanceof EMFModelPart emf)
+                        emf.renderBoxes(matrices, vertices);
+                }
+                matrices.pop();
+            }
+        }
+    }
+
+    //required for sodium pre 0.5.4
     @Override
-    // overrides to circumvent sodium optimizations that mess with custom uv quad creation and swapping out //todo better way??
+    // overrides to circumvent sodium optimizations that mess with custom uv quad creation and swapping out cuboids
     protected void renderCuboids(MatrixStack.Entry entry, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha) {
         //this is a copy of the vanilla renderCuboids() method
         for (Cuboid cuboid : ((ModelPartAccessor) this).getCuboids()) {
@@ -207,7 +247,7 @@ public abstract class EMFModelPart extends ModelPart {
 
             if (wasAllowed) ETFRenderContext.allowRenderLayerTextureModify();
 
-            renderToVanillaSuper(matrices, emissiveConsumer, ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE, overlay, red, green, blue, alpha);
+            renderLikeVanilla(matrices, emissiveConsumer, ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE, overlay, red, green, blue, alpha);
 
         }
     }
@@ -222,7 +262,7 @@ public abstract class EMFModelPart extends ModelPart {
             VertexConsumer enchantedVertex = ItemRenderer.getArmorGlintConsumer(ETFRenderContext.getCurrentProvider(), RenderLayer.getArmorCutoutNoCull(enchanted), false, true);
             if (wasAllowed) ETFRenderContext.allowRenderLayerTextureModify();
 
-            renderToVanillaSuper(matrices, enchantedVertex, light, overlay, red, green, blue, alpha);
+            renderLikeVanilla(matrices, enchantedVertex, light, overlay, red, green, blue, alpha);
         }
     }
 

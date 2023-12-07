@@ -7,9 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.config.EMFConfig;
@@ -127,7 +125,7 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
     @Override
-    void renderWithTextureOverride(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         switch (EMFConfig.getConfig().renderModeChoice) {
             case NORMAL -> super.renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
             case GREEN -> {
@@ -136,34 +134,13 @@ public class EMFModelPartCustom extends EMFModelPart {
             }
             //case TRANSPARENT -> super.primaryRender(matrices, vertices, light, overlay, red, green, blue, 0.5f);
             case LINES -> {
-                if (this.visible) {
-                    if (!((ModelPartAccessor) this).getCuboids().isEmpty() || !this.getChildrenEMF().isEmpty()) {
-                        matrices.push();
-                        this.rotate(matrices);
-                        if (!this.hidden) {
-                            for (Cuboid cuboid : ((ModelPartAccessor) this).getCuboids()) {
-                                Box box = new Box(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
-                                WorldRenderer.drawBox(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()), box, 1.0F, 1.0F, 1.0F, 1.0F);
-                            }
-                        }
-                        for (ModelPart modelPart : this.getChildrenEMF().values()) {
-                            modelPart.render(matrices, vertices, light, overlay, red, green, blue, alpha);
-                        }
-                        matrices.pop();
-                    }
-                }
+                renderBoxes(matrices,MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()));
             }
             case NONE -> {
 
             }
         }
     }
-
-    @Override
-    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-        renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
-    }
-
 
 
 
