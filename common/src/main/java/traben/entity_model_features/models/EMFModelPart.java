@@ -45,7 +45,8 @@ public abstract class EMFModelPart extends ModelPart {
                 || lastTextureOverride == EMFManager.getInstance().entityRenderCount) {//prevents texture overrides carrying over into feature renderers that reuse the base model
             //normal vertex consumer
             renderLikeETF(matrices, vertices, light, overlay, red, green, blue, alpha);
-        } else if (light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
+        } else if (ETFRenderContext.getCurrentRenderLayer() != null //can restore to previous render layer
+                && light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
                 && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() && ETFRenderContext.getCurrentProvider() != null) { //do not allow new etf emissive rendering here
 
             lastTextureOverride = EMFManager.getInstance().entityRenderCount;

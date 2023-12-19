@@ -1,4 +1,8 @@
 
+- fixed a crash "layer is null"
+
+
+
 1.2.0
 
 - added an EMF only random property to make model variation easier in cases that do not typically need properties in ETF. 
