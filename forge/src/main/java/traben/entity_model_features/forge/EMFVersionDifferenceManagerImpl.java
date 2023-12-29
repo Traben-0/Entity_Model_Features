@@ -1,4 +1,4 @@
-package traben.entity_model_features.neoforge;
+package traben.entity_model_features.forge;
 
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLPaths;
