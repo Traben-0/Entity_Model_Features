@@ -132,7 +132,7 @@ public class MathMethod extends MathValue implements MathComponent {
     }
 
     private ValueSupplier IN(List<String> args) throws EMFMathException {
-        if (args.size() >= 3) {
+        if (args.size() >= 2) {
             MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             List<MathComponent> vals = new ArrayList<>();
             for (int i = 1; i < args.size(); i++) {
