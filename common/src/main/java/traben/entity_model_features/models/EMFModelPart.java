@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -16,8 +17,13 @@ import traben.entity_model_features.utils.EMFManager;
 import traben.entity_texture_features.ETFClientCommon;
 import traben.entity_texture_features.features.ETFManager;
 import traben.entity_texture_features.features.ETFRenderContext;
+import traben.entity_texture_features.features.texture_handlers.ETFTexture;
+import traben.entity_texture_features.utils.ETFVertexConsumer;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
 
@@ -46,23 +52,37 @@ public abstract class EMFModelPart extends ModelPart {
             //normal vertex consumer
             renderLikeETF(matrices, vertices, light, overlay, red, green, blue, alpha);
         } else if (light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
-                && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() && ETFRenderContext.getCurrentProvider() != null) { //do not allow new etf emissive rendering here
+                && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() //do not allow new etf emissive rendering here
+                && vertices instanceof ETFVertexConsumer etfVertexConsumer) { //can restore to previous render layer
+
+            VertexConsumerProvider provider =etfVertexConsumer.etf$getProvider();
+            if(provider == null) return;
+
+            RenderLayer originalLayer = etfVertexConsumer.etf$getRenderLayer();
+            if(originalLayer == null) return;
+
+
 
             lastTextureOverride = EMFManager.getInstance().entityRenderCount;
 
-            RenderLayer originalLayer = ETFRenderContext.getCurrentRenderLayer();
+
             RenderLayer layerModified = EMFAnimationHelper.getLayerFromRecentFactoryOrTranslucent(textureOverride);
-            VertexConsumer newConsumer = ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(), layerModified);
+            VertexConsumer newConsumer = provider.getBuffer(layerModified);
 
             renderLikeVanilla(matrices, newConsumer, light, overlay, red, green, blue, alpha);
 
-            ETFRenderContext.startSpecialRenderOverlayPhase();
-            emf$renderEmissive(matrices, overlay, red, green, blue, alpha);
-            emf$renderEnchanted(matrices, light, overlay, red, green, blue, alpha);
-            ETFRenderContext.endSpecialRenderOverlayPhase();
+            if(newConsumer instanceof ETFVertexConsumer newETFConsumer){
+                ETFTexture etfTexture = newETFConsumer.etf$getETFTexture();
+                if(etfTexture == null) return;
+
+                etf$renderEmissive(etfTexture, provider, matrices, overlay, red, green, blue, alpha);
+                etf$renderEnchanted(etfTexture, provider, matrices, light, overlay, red, green, blue, alpha);
+            }
+
+
 
             //reset render settings
-            ETFRenderContext.processVertexConsumer(ETFRenderContext.getCurrentProvider(), originalLayer);
+            provider.getBuffer(originalLayer);
         }
         //else cancel out render
     }
@@ -86,7 +106,7 @@ public abstract class EMFModelPart extends ModelPart {
         }
     }
 
-    //mimics etf model part mixins which can no longer be relied on due to sodium 0.5.4
+    //mimics etf model part mixins which can no longer be relied on due to sodium 0.5.5
     void renderLikeETF(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         //etf ModelPartMixin copy
         ETFRenderContext.incrementCurrentModelPartDepth();
@@ -97,12 +117,27 @@ public abstract class EMFModelPart extends ModelPart {
         if (ETFRenderContext.getCurrentModelPartDepth() != 1) {
             ETFRenderContext.decrementCurrentModelPartDepth();
         } else {
-            if (ETFRenderContext.isRenderReady()) {
-                //attempt special renders as eager OR checks
-                if (etf$renderEmissive(matrices, overlay, red, green, blue, alpha) |
-                        etf$renderEnchanted(matrices, light, overlay, red, green, blue, alpha)) {
-                    //reset render layer stuff behind the scenes if special renders occurred
-                    ETFRenderContext.getCurrentProvider().getBuffer(ETFRenderContext.getCurrentRenderLayer());
+            //top level model so try special rendering
+            if (ETFRenderContext.isCurrentlyRenderingEntity()
+                    && vertices instanceof ETFVertexConsumer etfVertexConsumer) {
+                ETFTexture texture = etfVertexConsumer.etf$getETFTexture();
+                //is etf texture not null and does it special render?
+                if (texture != null && (texture.isEmissive() || texture.isEnchanted())) {
+                    VertexConsumerProvider provider = etfVertexConsumer.etf$getProvider();
+                    //very important this is captured before doing the special renders as they can potentially modify
+                    //the same ETFVertexConsumer down stream
+                    RenderLayer layer = etfVertexConsumer.etf$getRenderLayer();
+                    //are these render required objects valid?
+                    if (provider != null && layer != null) {
+                        //attempt special renders as eager OR checks
+                        if (etf$renderEmissive(texture, provider, matrices, overlay, red, green, blue, alpha) |
+                                etf$renderEnchanted(texture, provider, matrices, light, overlay, red, green, blue, alpha)) {
+                            //reset render layer stuff behind the scenes if special renders occurred
+                            //this will also return ETFVertexConsumer held data to normal if the same ETFVertexConsumer
+                            //was previously affected by a special render
+                            provider.getBuffer(layer);
+                        }
+                    }
                 }
             }
             //ensure model count is reset
@@ -250,32 +285,9 @@ public abstract class EMFModelPart extends ModelPart {
     }
 
     //copy of etf rewrite emissive rendering code
-    private void emf$renderEmissive(MatrixStack matrices, int overlay, float red, float green, float blue, float alpha) {
-        Identifier emissive = ETFRenderContext.getCurrentETFTexture().getEmissiveIdentifierOfCurrentState();
-        if (emissive != null) {
 
-            boolean wasAllowed = ETFRenderContext.isAllowedToRenderLayerTextureModify();
-            ETFRenderContext.preventRenderLayerTextureModify();
-
-            boolean textureIsAllowedBrightRender = ETFManager.getEmissiveMode() == ETFManager.EmissiveRenderModes.BRIGHT
-                    && ETFRenderContext.getCurrentEntity().etf$canBeBright();// && !ETFRenderContext.getCurrentETFTexture().isPatched_CurrentlyOnlyArmor();
-
-            VertexConsumer emissiveConsumer = ETFRenderContext.getCurrentProvider().getBuffer(
-                    textureIsAllowedBrightRender ?
-                            RenderLayer.getBeaconBeam(emissive, true) :
-                            ETFRenderContext.getCurrentEntity().etf$isBlockEntity() ?
-                                    RenderLayer.getEntityTranslucentCull(emissive) :
-                                    RenderLayer.getEntityTranslucent(emissive));
-
-
-            if (wasAllowed) ETFRenderContext.allowRenderLayerTextureModify();
-
-            renderLikeVanilla(matrices, emissiveConsumer, ETFClientCommon.EMISSIVE_FEATURE_LIGHT_VALUE, overlay, red, green, blue, alpha);
-
-        }
-    }
-    private boolean etf$renderEmissive(MatrixStack matrices, int overlay, float red, float green, float blue, float alpha) {
-        Identifier emissive = ETFRenderContext.getCurrentETFTexture().getEmissiveIdentifierOfCurrentState();
+    private boolean etf$renderEmissive(ETFTexture texture, VertexConsumerProvider provider, MatrixStack matrices, int overlay, float red, float green, float blue, float alpha) {
+        Identifier emissive = texture.getEmissiveIdentifierOfCurrentState();
         if (emissive != null) {
             boolean wasAllowed = ETFRenderContext.isAllowedToRenderLayerTextureModify();
             ETFRenderContext.preventRenderLayerTextureModify();
@@ -283,7 +295,7 @@ public abstract class EMFModelPart extends ModelPart {
             boolean textureIsAllowedBrightRender = ETFManager.getEmissiveMode() == ETFManager.EmissiveRenderModes.BRIGHT
                     && ETFRenderContext.getCurrentEntity().etf$canBeBright();// && !ETFRenderContext.getCurrentETFTexture().isPatched_CurrentlyOnlyArmor();
 
-            VertexConsumer emissiveConsumer = ETFRenderContext.getCurrentProvider().getBuffer(
+            VertexConsumer emissiveConsumer = provider.getBuffer(
                     textureIsAllowedBrightRender ?
                             RenderLayer.getBeaconBeam(emissive, true) :
                             ETFRenderContext.getCurrentEntity().etf$isBlockEntity() ?
@@ -300,26 +312,14 @@ public abstract class EMFModelPart extends ModelPart {
         return false;
     }
 
-    //copy of etf enchanted render code
-    private void emf$renderEnchanted(MatrixStack matrices, int light, int overlay, float red, float green, float blue, float alpha) {
-        //attempt enchanted render
-        Identifier enchanted = ETFRenderContext.getCurrentETFTexture().getEnchantIdentifierOfCurrentState();
-        if (enchanted != null) {
-            boolean wasAllowed = ETFRenderContext.isAllowedToRenderLayerTextureModify();
-            ETFRenderContext.preventRenderLayerTextureModify();
-            VertexConsumer enchantedVertex = ItemRenderer.getArmorGlintConsumer(ETFRenderContext.getCurrentProvider(), RenderLayer.getArmorCutoutNoCull(enchanted), false, true);
-            if (wasAllowed) ETFRenderContext.allowRenderLayerTextureModify();
 
-            renderLikeVanilla(matrices, enchantedVertex, light, overlay, red, green, blue, alpha);
-        }
-    }
-    private boolean etf$renderEnchanted(MatrixStack matrices, int light, int overlay, float red, float green, float blue, float alpha) {
+    private boolean etf$renderEnchanted(ETFTexture texture, VertexConsumerProvider provider, MatrixStack matrices, int light, int overlay, float red, float green, float blue, float alpha) {
         //attempt enchanted render
-        Identifier enchanted = ETFRenderContext.getCurrentETFTexture().getEnchantIdentifierOfCurrentState();
+        Identifier enchanted = texture.getEnchantIdentifierOfCurrentState();
         if (enchanted != null) {
             boolean wasAllowed = ETFRenderContext.isAllowedToRenderLayerTextureModify();
             ETFRenderContext.preventRenderLayerTextureModify();
-            VertexConsumer enchantedVertex = ItemRenderer.getArmorGlintConsumer(ETFRenderContext.getCurrentProvider(), RenderLayer.getArmorCutoutNoCull(enchanted), false, true);
+            VertexConsumer enchantedVertex = ItemRenderer.getArmorGlintConsumer(provider, RenderLayer.getArmorCutoutNoCull(enchanted), false, true);
             if(wasAllowed) ETFRenderContext.allowRenderLayerTextureModify();
 
             ETFRenderContext.startSpecialRenderOverlayPhase();

@@ -1,4 +1,12 @@
 
+- fixed a crash "layer is null"
+
+1.2.1
+
+- now works with and requires ETF 5.1+ including the same stability fixes
+- the `in()` animation method now allows 2 or more parameters, instead of the previous 3 or more *(OptiFine parity)*
+
+
 1.2.0
 
 - added an EMF only random property to make model variation easier in cases that do not typically need properties in ETF. 
