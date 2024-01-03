@@ -365,7 +365,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             ((IEMFModelNameContainer)root).emf$insertKnownMappings(mobNameForFileAndMap);
             return root;
         } catch (Exception e) {
-            EMFUtils.logWarn("default model returned for " + layer.toString() + " due to exception: " + e.getMessage());
+            EMFUtils.logWarn("default model returned for " + layer.toString() + " due to exception: ");
+            e.printStackTrace();
             ((IEMFModelNameContainer)root).emf$insertKnownMappings(mobNameForFileAndMap);
             return root;
         }
@@ -379,7 +380,8 @@ public class EMFManager {//singleton for data holding and resetting needs
         allPartsBySingleAndFullHeirachicalId.put("EMF_root", emfRootPart);
         allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFOptiFinePartNameMappings.getMapOf(emfRootPart.modelName.getMapId(), null)));
 
-        Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> emfAnimationsByPartName = new Object2ObjectLinkedOpenHashMap<>();
+        //Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> emfAnimationsByPartName = new Object2ObjectLinkedOpenHashMap<>();
+         Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
 
 
         if (printing) {
@@ -387,7 +389,6 @@ public class EMFManager {//singleton for data holding and resetting needs
             jemData.allTopLevelAnimationsByVanillaPartName.forEach((part, anims) -> anims.forEach((key, expression) -> System.out.println(" >> " + key + " = " + expression)));
         }
         jemData.allTopLevelAnimationsByVanillaPartName.forEach((part, anims) -> {
-            Object2ObjectLinkedOpenHashMap<String, EMFAnimation> thisPartAnims = new Object2ObjectLinkedOpenHashMap<>();
             anims.forEach((animKey, animationExpression) -> {
                 if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.log("parsing animation value: [" + animKey + "]");
@@ -398,28 +399,41 @@ public class EMFManager {//singleton for data holding and resetting needs
                 if (thisVariable == null) thisVariable = EMFModelOrRenderVariable.getRenderVariable(animKey);
 
                 EMFModelPart thisPart = "render".equals(modelId) ? null : getModelFromHierarchichalId(modelId, allPartsBySingleAndFullHeirachicalId);
-                thisPartAnims.put(animKey,
-                        new EMFAnimation(
-                                thisPart,
-                                thisVariable,
-                                animKey,
-                                animationExpression,
-                                jemData.fileName//, variableSuppliers
-                        )
+
+                EMFAnimation newAnimation = new EMFAnimation(
+                        thisPart,
+                        thisVariable,
+                        animKey,
+                        animationExpression,
+                        jemData.fileName//, variableSuppliers
                 );
+
+                if(emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVariable){
+                    //this is a secondary variable modification
+                    // add it in the animation list but hash out the key name
+                    emfAnimations.put(animKey+'#'+System.currentTimeMillis(), newAnimation);
+                    //set this variable to instead set the value of the true variable source
+                    newAnimation.setTrueVariableSource(emfAnimations.get(animKey));
+                }else{
+                    emfAnimations.put(animKey, newAnimation);
+                }
+
+
             });
-            emfAnimationsByPartName.put(part, thisPartAnims);
+
+            //emfAnimationsByPartName.put(part, thisPartAnims);
         });
         isAnimationValidationPhase = true;
-        emfAnimationsByPartName.forEach((part, animMap) -> {
+//        emfAnimationsByPartName.forEach((part, animMap) -> {
 
-            Iterator<Map.Entry<String, EMFAnimation>> animMapIterate = animMap.entrySet().iterator();
+
+            Iterator<EMFAnimation> animMapIterate = emfAnimations.values().iterator();
             while (animMapIterate.hasNext()) {
-                Map.Entry<String, EMFAnimation> anim = animMapIterate.next();
-                if (anim.getValue() != null) {
-                    anim.getValue().initExpression(animMap, allPartsBySingleAndFullHeirachicalId);
-                    if (!anim.getValue().isValid()) {
-                        EMFUtils.logWarn("animations was invalid: " + anim.getValue().animKey + " = " + anim.getValue().expressionString);
+                EMFAnimation anim = animMapIterate.next();
+                if (anim != null) {
+                    anim.initExpression(emfAnimations, allPartsBySingleAndFullHeirachicalId);
+                    if (!anim.isValid()) {
+                        EMFUtils.logWarn("animation was invalid: " + anim.animKey + " = " + anim.expressionString);
                         animMapIterate.remove();
                     }
                 } else {
@@ -427,10 +441,10 @@ public class EMFManager {//singleton for data holding and resetting needs
                 }
             }
 
-        });
+        //});
         isAnimationValidationPhase = false;
 
-        emfRootPart.receiveAnimations(variantNum, emfAnimationsByPartName);
+        emfRootPart.receiveAnimations(variantNum,emfAnimations.values()); //emfAnimationsByPartName);
     }
 
 

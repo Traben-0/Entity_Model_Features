@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.render.LightmapTextureManager;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETFApi;
 
 import java.util.Random;
@@ -14,6 +15,9 @@ public class EMFClient {
 
     public static final int EYES_FEATURE_LIGHT_VALUE = LightmapTextureManager.MAX_LIGHT_COORDINATE + 1;
     public static final String MOD_ID = "entity_model_features";
+
+    public static boolean forgeHadLoadingError = false;
+    public static boolean testedForge = !EMFVersionDifferenceManager.isForge();
     private static final String[] quips = {
             "special thanks to Cody!",
             "your third cousin's, dog's, previous owner's, uncle's, old boss's, fifth favourite mod!",
@@ -52,6 +56,37 @@ public class EMFClient {
         //register EMF physics mod hook
 //        RagdollMapper.addHook(new EMFCustomRagDollHookTest());
 
+    }
+
+    public static boolean testForForgeLoadingError(){
+        if (!testedForge) {
+            testedForge = true;
+            // this is required for forge
+            // if forge detects a missing dependency it decides that access wideners are dumb and won't load them...
+            // this would be all fine and dandy usually as forge shows a warning about the missing mods right after it finishes loading the game
+            // however EMF mixins to the game loading before this...
+            // EMF relies on access widening...
+            // EMF crashes...
+            // users think its EMF's fault when really it's an entirely unrelated mod missing a dependency...
+            // thanks Forge.
+            // this method gets called to cancel out of every game loading stage mixin in the case of this forge issue
+            // so that forge can at the very least survive long enough to tell users the real reason the game wont work
+            try {
+                EMFManager.getInstance();
+            } catch (IncompatibleClassChangeError error) {
+                if(error.getMessage().contains("cannot inherit from final class")) {
+                    EMFClient.forgeHadLoadingError = true;
+                    EMFUtils.logError(
+                        "EMF has crashed due to a (possibly) unrelated forge dependency error,\n EMF has been disabled so the true culprit will be sent to users after game load:\n"
+                                + error.getMessage());
+                }else{
+                    //throw the error if it's something we were not expecting
+                    throw error;
+                }
+            }
+        }
+
+        return forgeHadLoadingError;
     }
 
     private static String randomQuip() {

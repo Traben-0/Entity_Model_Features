@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import traben.entity_model_features.EMFClient;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
@@ -25,6 +26,7 @@ public class MixinModel implements IEMFModel {
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
     private void emf$discoverEMFModel(Function<?, ?> layerFactory, CallbackInfo ci) {
+        if (EMFClient.testForForgeLoadingError()) return;
         emf$thisEMFModelRoot = EMFManager.lastCreatedRootModelPart;
         EMFManager.lastCreatedRootModelPart = null;
 

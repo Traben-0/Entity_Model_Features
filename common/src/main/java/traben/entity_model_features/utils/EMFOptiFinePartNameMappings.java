@@ -334,13 +334,17 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("left_gills"),
                     getOptifineMapEntry("tail")
             );
-            case "bat" -> Map.ofEntries(
+            case "bat" ->
+                    Map.ofEntries(
                     getOptifineMapEntry("body"),
                     getOptifineMapEntry("head"),
                     getOptifineMapEntry("right_wing"),
                     getOptifineMapEntry("left_wing"),
                     getOptifineMapEntry("outer_right_wing", "right_wing_tip"),
-                    getOptifineMapEntry("outer_left_wing", "left_wing_tip")
+                    getOptifineMapEntry("outer_left_wing", "left_wing_tip"),
+                    //feet added to new bat
+                    getOptifineMapEntry("feet")
+
             );
             case "bee" -> Map.ofEntries(
                     getOptifineMapEntry("body", "bone"),

@@ -3,7 +3,6 @@ package traben.entity_model_features.models;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -235,10 +234,11 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
 
-
     public void setVariant1ToVanilla0() {
         allKnownStateVariants.put(1, allKnownStateVariants.get(0));
+        allVanillaParts.forEach((k,child)->child.allKnownStateVariants.put(1, child.allKnownStateVariants.get(0)));
     }
+
 
     public void tryRenderVanillaRootNormally(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
         if (vanillaRoot != null) {
@@ -271,18 +271,18 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         return vanillaFormatModelPartOfEachState.get(currentModelVariant);
     }
 
-    public void receiveAnimations(int variant, Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> orderedAnimationsByPartName) {
-        LinkedList<EMFAnimation> animationList = new LinkedList<>();
-        if (orderedAnimationsByPartName.size() > 0) {
-            allVanillaParts.values().forEach((emf) -> {
-                if (orderedAnimationsByPartName.containsKey(emf.name)) {
-                    Object2ObjectLinkedOpenHashMap<String, EMFAnimation> anims = orderedAnimationsByPartName.get(emf.name);
-                    if (anims != null && !anims.isEmpty()) {
-                        anims.forEach((key, anim) -> animationList.add(anim));
-                    }
-                }
-            });
-        }
+    public void receiveAnimations(int variant, Collection<EMFAnimation> animationList){// Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> orderedAnimationsByPartName) {
+//        LinkedList<EMFAnimation> animationList = new LinkedList<>();
+//        if (orderedAnimationsByPartName.size() > 0) {
+//            allVanillaParts.values().forEach((emf) -> {
+//                if (orderedAnimationsByPartName.containsKey(emf.name)) {
+//                    Object2ObjectLinkedOpenHashMap<String, EMFAnimation> anims = orderedAnimationsByPartName.get(emf.name);
+//                    if (anims != null && !anims.isEmpty()) {
+//                        anims.forEach((key, anim) -> animationList.add(anim));
+//                    }
+//                }
+//            });
+//        }
         if (animationList.size() > 0) {
             Runnable run = () -> {
                 if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {

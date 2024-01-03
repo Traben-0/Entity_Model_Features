@@ -47,6 +47,8 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
 
     }
 
+
+
     EMFModelState getCurrentState() {
         return new EMFModelState(
                 getDefaultTransform(),

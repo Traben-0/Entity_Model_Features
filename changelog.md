@@ -1,5 +1,15 @@
 
-- fixed a crash "layer is null"
+
+
+1.2.2
+
+- fixed a crash `layer is null`
+- fixed `cannot inherit from final class` crash caused by completely unrelated forge mods missing their dependencies.
+- added the `feet` part of the new bat model to the optifine name mappings (might revert if optifine doesn't do this too)
+- fixed an issue preventing `mob2.jem` from loading correctly without a `mob.jem` (fixes reimagined's boats textures)
+- custom animation variables should now be correctly addressable between different parts (OptiFine parity)
+- allowed emf animations to declare the same variable multiple times to update it multiple times within the same frame (OptiFine parity)
+- emf updated to use etf 5.2 
 
 1.2.1
 
