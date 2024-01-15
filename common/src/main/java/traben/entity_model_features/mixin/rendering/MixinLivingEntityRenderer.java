@@ -20,7 +20,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.config.EMFConfig;
@@ -90,55 +89,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         }
     }
 
-    @ModifyArg(
-            method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;setAngles(Lnet/minecraft/entity/Entity;FFFFF)V"),
-            index = 1
-    )
-    private float emf$getLimbAngle(float limbAngle) {
-        EMFAnimationHelper.setLimbAngle(limbAngle == Float.MIN_VALUE ? 0 : limbAngle);
-        return limbAngle;
-    }
-
-    @ModifyArg(
-            method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;setAngles(Lnet/minecraft/entity/Entity;FFFFF)V"),
-            index = 2
-    )
-    private float emf$getLimbDistance(float limbDistance) {
-        EMFAnimationHelper.setLimbDistance(limbDistance == Float.MIN_VALUE ? 0 : limbDistance);
-        return limbDistance;
-    }
-
-    @ModifyArg(
-            method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;setAngles(Lnet/minecraft/entity/Entity;FFFFF)V"),
-            index = 4
-    )
-    private float emf$getHeadYaw(float headYaw) {
-        if (headYaw > 180 || headYaw < -180) {
-            float normalizedAngle = headYaw % 360;
-            if (normalizedAngle > 180) {
-                normalizedAngle -= 360;
-            } else if (normalizedAngle < -180) {
-                normalizedAngle += 360;
-            }
-            EMFAnimationHelper.setHeadYaw(normalizedAngle);
-        } else {
-            EMFAnimationHelper.setHeadYaw(headYaw);
-        }
-        return headYaw;
-    }
-
-    @ModifyArg(
-            method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;setAngles(Lnet/minecraft/entity/Entity;FFFFF)V"),
-            index = 5
-    )
-    private float emf$getHeadPitch(float headPitch) {
-        EMFAnimationHelper.setHeadPitch(headPitch);
-        return headPitch;
-    }
 
     @Redirect(
             method = "getRenderLayer",

@@ -6,8 +6,6 @@ import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.client.render.entity.model.WolfEntityModel;
-import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
@@ -31,7 +29,7 @@ import java.util.*;
 
 public class EMFManager {//singleton for data holding and resetting needs
 
-    public static WolfEntityModel<WolfEntity> wolfCollarModel = null;
+
     public static EMFModelPartRoot lastCreatedRootModelPart = null;
     private static EMFManager self = null;
 
@@ -365,7 +363,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             ((IEMFModelNameContainer)root).emf$insertKnownMappings(mobNameForFileAndMap);
             return root;
         } catch (Exception e) {
-            EMFUtils.logWarn("default model returned for " + layer.toString() + " due to exception: ");
+            EMFUtils.logWarn("default model returned for " + layer + " due to exception: ");
             e.printStackTrace();
             ((IEMFModelNameContainer)root).emf$insertKnownMappings(mobNameForFileAndMap);
             return root;
@@ -468,8 +466,6 @@ public class EMFManager {//singleton for data holding and resetting needs
         String getThisDirectoryOfFilename(String fileName);
     }
 
-    private record UUIDAndMobTypeKey(UUID uuid, String entityType) {
-    }
 
 
 }

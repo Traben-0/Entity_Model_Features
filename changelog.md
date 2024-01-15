@@ -3,6 +3,7 @@
 
 1.2.2
 
+- more robust wolf_collar implementation
 - fixed a crash `layer is null`
 - fixed `cannot inherit from final class` crash caused by completely unrelated forge mods missing their dependencies.
 - added the `feet` part of the new bat model to the optifine name mappings (might revert if optifine doesn't do this too)
