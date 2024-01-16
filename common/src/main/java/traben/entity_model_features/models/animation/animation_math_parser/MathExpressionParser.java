@@ -72,7 +72,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
                             case ">=" -> MathAction.LARGER_THAN_OR_EQUALS;
                             case "<=" -> MathAction.SMALLER_THAN_OR_EQUALS;
                             default ->
-                                    throw new EMFMathException("ERROR: with boolean processing for operator [" + firstBooleanChar + "" + ch + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
+                                    throw new EMFMathException("ERROR: with boolean processing for operator [" + firstBooleanChar + ch + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
                         };
                         //add complete double boolean action
                         components.add(action);
@@ -305,7 +305,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
             if (expression.isValid()) {
                 return expression;
             } else {
-                EMFUtils.EMFModWarn("null animation expression: [" + expressionString + "]");
+                EMFUtils.logWarn("null animation expression: [" + expressionString + "]");
                 return NULL_EXPRESSION;
             }
         }
@@ -329,12 +329,12 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
     public boolean isValid() {
         if (caughtExceptionString != null) {
-            EMFUtils.EMFModWarn(caughtExceptionString);
+            EMFUtils.logWarn(caughtExceptionString);
             return false;
         }
         //must do both I depend on this method call for optimization
         if (Double.isNaN(this.validateCalculationAndOptimize())) {
-            EMFUtils.EMFModWarn("result was NaN, expression not valid: " + originalExpression);
+            EMFUtils.logWarn("result was NaN, expression not valid: " + originalExpression);
             return false;
         }
         return true;
@@ -532,7 +532,7 @@ public class MathExpressionParser extends MathValue implements MathComponent {
 
     @Override
     public float get() {
-        EMFUtils.EMFModWarn("this should not happen this object should have been optimized");
+        EMFUtils.logWarn("this should not happen this object should have been optimized");
         float value;
         if (wasInvertedBooleanExpression) {
             value = super.get() == 1 ? 0 : 1;

@@ -32,7 +32,7 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
         this.addDrawableChild(getETFButton((int) (this.width * 0.7), (int) (this.height * 0.9), (int) (this.width * 0.2), 20,
                 new TranslatableText("gui.done"),
                 (button) -> {
-                    if(!tempConfig.equals(EMFConfig.getConfig())) {
+                    if (!tempConfig.equals(EMFConfig.getConfig())) {
                         EMFConfig.setConfig(tempConfig);
                         EMFConfig.EMF_saveConfig();
                         MinecraftClient.getInstance().reloadResources();

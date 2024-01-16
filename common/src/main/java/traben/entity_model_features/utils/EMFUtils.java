@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.resource.Resource;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
@@ -20,35 +21,47 @@ import java.util.Set;
 
 public class EMFUtils {
 
-    public static void EMFOverrideMessage(String originalClass, String overriddenClassFromMod, boolean wasReverted) {
+    public static void overrideMessage(String originalClass, String overriddenClassFromMod, boolean wasReverted) {
         LogManager.getLogger().warn("[Entity Model Features]: Entity model [" + originalClass + "] has been overridden by [" + overriddenClassFromMod + "] likely from a mod.");
         if (wasReverted)
             LogManager.getLogger().warn("[Entity Model Features]: Prevent model overrides option is enabled! EMF will attempt to revert the new model [" + overriddenClassFromMod + "] back into the original model [" + originalClass + "]. THIS MAY HAVE UNINTENDED EFFECTS ON THE OTHER MOD, DISABLE THIS EMF SETTING IF IT CAUSES CRASHES!");
 
     }
 
-    public static void EMFModMessage(String message) {
-        EMFModMessage(message, false);
+    public static void log(String message) {
+        log(message, false, false);
     }
 
-    public static void EMFModMessage(String message, boolean inChat) {
+    public static void log(String message, boolean inChat) {
+        log(message, inChat, false);
+    }
+
+    public static void log(String message, boolean inChat, boolean noPrefix) {
         if (inChat) {
             ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of("\u00A76[Entity Model Features]\u00A77: " + message), false);
+                plyr.sendMessage(Text.of("\u00A76[Entity Model Features]\u00A7r: " + message), false);
             } else {
-                LogManager.getLogger().info("[Entity Model Features]: " + message);
+                LogManager.getLogger().info((noPrefix ? "": "[Entity Model Features]: ") + message);
             }
         } else {
-            LogManager.getLogger().info("[Entity Model Features]: " + message);
+            LogManager.getLogger().info((noPrefix ? "": "[Entity Model Features]: ") + message);
         }
     }
 
-    public static void EMFModWarn(String message) {
-        EMFModWarn(message, false);
+    public static void chat(String message) {
+        ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
+        if (plyr != null) {
+            plyr.sendMessage(new LiteralText(message), false);
+        }
     }
 
-    public static void EMFModWarn(String message, boolean inChat) {
+    public static void logWarn(String message) {
+        logWarn(message, false);
+    }
+
+
+    public static void logWarn(String message, boolean inChat) {
         if (inChat) {
             ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
             if (plyr != null) {
@@ -61,15 +74,15 @@ public class EMFUtils {
         }
     }
 
-    public static void EMFModError(String message) {
-        EMFModError(message, false);
+    public static void logError(String message) {
+        logError(message, false);
     }
 
-    public static void EMFModError(String message, boolean inChat) {
+    public static void logError(String message, boolean inChat) {
         if (inChat) {
             ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of("\u00A76[Entity Model Features]\u00A77: " + message), false);
+                plyr.sendMessage(Text.of("\u00A76[Entity Model Features]\u00A7r: " + message), false);
             } else {
                 LogManager.getLogger().error("[Entity Model Features]: " + message);
             }
@@ -80,7 +93,7 @@ public class EMFUtils {
 
 
     @Nullable
-    public static EMFPartData EMFReadModelPart(String pathOfJpm, String filePath) {
+    public static EMFPartData readModelPart(String pathOfJpm, String filePath) {
         //String folderOfModel = new File(mobModelIDInfo.getfileName()).getParent();
         //assume
         pathOfJpm = Objects.requireNonNullElse(filePath, "optifine/cem/") + pathOfJpm;
@@ -91,7 +104,7 @@ public class EMFUtils {
 
             if (!EMFManager.isExistingFile(new Identifier(pathOfJpm))) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFModMessage("jpm failed " + pathOfJpm + " does not exist", false);
+                    log("jpm failed " + pathOfJpm + " does not exist", false);
                 return null;
             }
             Resource jpmResource = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJpm));
@@ -108,7 +121,7 @@ public class EMFUtils {
             return jpm;
             //}
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData) EMFModMessage("jpm failed " + e, false);
+            if (EMFConfig.getConfig().logModelCreationData) log("jpm failed " + e, false);
         }
         return null;
     }

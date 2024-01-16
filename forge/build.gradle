@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.github.johnrengelman.shadow" version "8.1.1"
 }
 
 architectury {
@@ -37,7 +37,8 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
-    modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version_forge}")
+    modImplementation files("run/mods/entity_texture_features_forge_1.18.2-5.2.1.jar")
+    //modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version_forge}")
 }
 
 processResources {
@@ -53,17 +54,17 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
+    archiveClassifier.set( "dev-shadow")
 }
 
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    classifier null
+    archiveClassifier.set( null)
 }
 
 jar {
-    classifier "dev"
+    archiveClassifier.set( "dev")
 }
 
 sourcesJar {

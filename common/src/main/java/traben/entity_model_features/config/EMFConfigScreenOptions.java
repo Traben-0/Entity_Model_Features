@@ -4,6 +4,7 @@ package traben.entity_model_features.config;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import traben.entity_texture_features.config.ETFConfig;
 import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
 import java.util.Objects;
@@ -30,6 +31,8 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                 (button) -> {
                     emfParent.tempConfig.attemptRevertingEntityModelsAlteredByAnotherMod = true;
                     emfParent.tempConfig.attemptPhysicsModPatch_2 = EMFConfig.PhysicsModCompatChoice.CUSTOM;
+                    emfParent.tempConfig.modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
+
                     //this.clearAndInit();
                     Objects.requireNonNull(client).setScreen(new EMFConfigScreenOptions(emfParent));
                 }
@@ -65,6 +68,16 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                 new TranslatableText("entity_model_features.config.physics.tooltip")
         ));
 
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
+                Text.of(new TranslatableText("entity_model_features.config.update").getString() +
+                        ": " + emfParent.tempConfig.modelUpdateFrequency.toString()),
+                (button) -> {
+                    emfParent.tempConfig.modelUpdateFrequency = emfParent.tempConfig.modelUpdateFrequency.next();
+                    button.setMessage(Text.of(new TranslatableText("entity_model_features.config.update").getString() +
+                            ": " + emfParent.tempConfig.modelUpdateFrequency.toString()));
+                },
+                new TranslatableText("entity_model_features.config.update.tooltip")
+        ));
     }
 
 

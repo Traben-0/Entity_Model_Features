@@ -44,7 +44,7 @@ public class MixinHorseArmorFeatureRenderer {
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(model)) {
                 boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(horseEntity.getType()).getNamespace());
-                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
+                EMFUtils.overrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
                 if (replace) {
                     model = emf$heldModelToForce;
                 }

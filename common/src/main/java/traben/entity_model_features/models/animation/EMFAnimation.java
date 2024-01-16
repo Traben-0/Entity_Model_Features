@@ -24,6 +24,12 @@ public class EMFAnimation {
     public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
     MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
 
+    public void setTrueVariableSource(EMFAnimation trueVariableSource) {
+        this.trueVariableToSet = trueVariableSource;
+    }
+
+    private EMFAnimation trueVariableToSet = null;
+
     public EMFAnimation(EMFModelPart partToApplyTo,
                         EMFModelOrRenderVariable variableToChange,
                         String animKey,
@@ -41,7 +47,7 @@ public class EMFAnimation {
                 if (this.variableToChange.isRenderVariable()) {
                     defaultValue = this.variableToChange.getValue();
                 } else {
-                    if(EMFConfig.getConfig().logModelCreationData)
+                    if (EMFConfig.getConfig().logModelCreationData)
                         System.out.println("null part for " + animKey);
                     defaultValue = 0;
                 }
@@ -61,7 +67,6 @@ public class EMFAnimation {
     }
 
 
-
     public void initExpression(Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables,
                                Object2ObjectOpenHashMap<String, EMFModelPart> allPartByName) {
         this.emfAnimationVariables = emfAnimationVariables;
@@ -72,17 +77,16 @@ public class EMFAnimation {
     }
 
 
-
     public float getLastResultOnly() {
         if (EMFAnimationHelper.getEMFEntity() == null) {
-           return 0;
+            return 0;
         }
-        return prevResult.getFloat(EMFAnimationHelper.getEMFEntity().getUuid());
+        return prevResult.getFloat(EMFAnimationHelper.getEMFEntity().etf$getUuid());
 
     }
 
     public float getResultViaCalculate() {
-        UUID id = EMFAnimationHelper.getEMFEntity() == null ? null : EMFAnimationHelper.getEMFEntity().getUuid();
+        UUID id = EMFAnimationHelper.getEMFEntity() == null ? null : EMFAnimationHelper.getEMFEntity().etf$getUuid();
         if (id == null) {
             return 0;
         }
@@ -94,14 +98,23 @@ public class EMFAnimation {
     }
 
 
-
     public float calculatorRun() {
         return EMFCalculator.get();
     }
 
+    void sendValueToTrueVariable(float value){
+        if (EMFAnimationHelper.getEMFEntity() == null) return;
+        UUID id = EMFAnimationHelper.getEMFEntity().etf$getUuid();
+        prevResult.put(id, value);
+    }
+
     public void calculateAndSet() {
         if (isVariable) {
-            getResultViaCalculate();
+            if(trueVariableToSet != null){
+                trueVariableToSet.sendValueToTrueVariable(getResultViaCalculate());
+            } else {
+                getResultViaCalculate();
+            }
         } else {
             handleResult(getResultViaCalculate());
         }
@@ -121,7 +134,6 @@ public class EMFAnimation {
     public boolean isValid() {
         return EMFCalculator != MathExpressionParser.NULL_EXPRESSION;
     }
-
 
 
 }

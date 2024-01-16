@@ -7,14 +7,11 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.CuboidAccessor;
-import traben.entity_model_features.mixin.accessor.ModelPartAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFUtils;
@@ -38,7 +35,7 @@ public class EMFModelPartCustom extends EMFModelPart {
         this.partToBeAttached = part;
         this.id = id;
         //selfModelData = emfPartData;
-        textureOverride = emfPartData.customTexture;
+        textureOverride = emfPartData.getCustomTexture();
 
         //seems to be just straight into model no bullshit?
         //todo check up on scale?
@@ -84,11 +81,11 @@ public class EMFModelPartCustom extends EMFModelPart {
             try {
                 for (EMFBoxData box :
                         emfPartData.boxes) {
-                    EMFCuboid cube;
+                    Cuboid cube;
 
                     if (box.textureOffset.length == 2) {
                         //System.out.println("non custom uv box ignoring for now");
-                        cube = new EMFCuboid(emfPartData,
+                        cube = emfCuboidOf(emfPartData,
                                 box.textureOffset[0], box.textureOffset[1],
                                 box.coordinates[0], box.coordinates[1], box.coordinates[2],
                                 box.coordinates[3], box.coordinates[4], box.coordinates[5],
@@ -97,7 +94,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                                 emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));//selfModelData.invertAxis);
                     } else {
                         //create a custom uv cuboid
-                        cube = new EMFCuboid(emfPartData,
+                        cube = emfCuboidOf(emfPartData,
                                 box.uvDown, box.uvUp, box.uvNorth,
                                 box.uvSouth, box.uvWest, box.uvEast,
                                 box.coordinates[0], box.coordinates[1], box.coordinates[2],
@@ -110,7 +107,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                 }
 
             } catch (Exception e) {
-                EMFUtils.EMFModMessage("cuboid construction broke: " + e, false);
+                EMFUtils.log("cuboid construction broke: " + e, false);
 
             }
         }
@@ -120,82 +117,32 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     @Override
     public String toString() {
-        return "EMFModelPartCustom{" +
-                "partToBeAttached='" + partToBeAttached + '\'' +
-                ", id='" + id + '\'' +
-                ", attach=" + attach +
-                '}';
+        return "[custom part " + id + "], cubes ="+ cuboids.size()+", children = "+ children.size();
+    }
+    @Override
+    public String toStringShort() {
+        return "[custom part " + id.replaceFirst("EMF_","") + "]";
     }
 
     @Override
-    void primaryRender(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         switch (EMFConfig.getConfig().renderModeChoice) {
-            case NORMAL -> super.primaryRender(matrices, vertices, light, overlay, red, green, blue, alpha);
+            case NORMAL -> super.renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
             case GREEN -> {
                 float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
-                super.primaryRender(matrices, vertices, light, overlay, flash, green, flash, alpha);
+                super.renderWithTextureOverride(matrices, vertices, light, overlay, flash, green, flash, alpha);
             }
             //case TRANSPARENT -> super.primaryRender(matrices, vertices, light, overlay, red, green, blue, 0.5f);
-            case LINES -> {
-                if (this.visible) {
-                    if (!((ModelPartAccessor) this).getCuboids().isEmpty() || !this.getChildrenEMF().isEmpty()) {
-                        matrices.push();
-                        this.rotate(matrices);
-                        if (!this.hidden) {
-                            for (Cuboid cuboid : ((ModelPartAccessor) this).getCuboids()) {
-                                Box box = new Box(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
-                                WorldRenderer.drawBox(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()), box, 1.0F, 1.0F, 1.0F, 1.0F);
-                            }
-                        }
-                        for (ModelPart modelPart : this.getChildrenEMF().values()) {
-                            modelPart.render(matrices, vertices, light, overlay, red, green, blue, alpha);
-                        }
-                        matrices.pop();
-                    }
-                }
-            }
+            case LINES -> renderBoxes(matrices,MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()));
             case NONE -> {
 
             }
         }
     }
 
-    @Override
-    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-        primaryRender(matrices, vertices, light, overlay, red, green, blue, alpha);
-    }
-
-    ModelPart getVanillaModelPartsOfCurrentState() {
-        Map<String, ModelPart> children = new HashMap<>();
-        for (Map.Entry<String, ModelPart> child :
-                getChildrenEMF().entrySet()) {
-            if (child.getValue() instanceof EMFModelPartCustom emf) {
-                children.put(child.getKey(), emf.getVanillaModelPartsOfCurrentState());
-            }
-        }
-
-        ModelPart part = new ModelPart(((ModelPartAccessor) this).getCuboids(), children);
-        part.setTransform(getDefaultTransform());
-        part.pitch = pitch;
-        part.roll = roll;
-        part.yaw = yaw;
-        part.pivotZ = pivotZ;
-        part.pivotY = pivotY;
-        part.pivotX = pivotX;
-//        part.xScale = xScale;
-//        part.yScale = yScale;
-//        part.zScale = zScale;
-
-        return part;
-    }
-
-
-    @Environment(value = EnvType.CLIENT)
-    public static class EMFCuboid extends Cuboid {
-        private final Quad[] sidesEMF;
 
         //cuboid without custom UVs
-        public EMFCuboid(EMFPartData selfModelData
+        public static Cuboid emfCuboidOf(EMFPartData selfModelData
                 , float textureU, float textureV,
                          float cubeX, float cubeY, float cubeZ,
                          float sizeX, float sizeY, float sizeZ,
@@ -203,13 +150,13 @@ public class EMFModelPartCustom extends EMFModelPart {
                          float textureWidth, float textureHeight,
                          boolean mirrorU, boolean mirrorV) {
 
-            super((int) textureU, (int) textureV,
+            Cuboid cube = new Cuboid((int) textureU, (int) textureV,
                     cubeX, cubeY, cubeZ,
                     sizeX, sizeY, sizeZ,
                     extraX, extraY, extraZ, false,
                     textureWidth, textureHeight);
 
-            CuboidAccessor accessor = (CuboidAccessor) this;
+            CuboidAccessor accessor = (CuboidAccessor) cube;
             accessor.setMinX(cubeX);
             accessor.setMinY(cubeY);
             accessor.setMinZ(cubeZ);
@@ -260,7 +207,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, mirrorV ? Direction.UP : Direction.DOWN));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-dwn failed for " + selfModelData.id);
+                    EMFUtils.log("uv-dwn failed for " + selfModelData.id);
             }
             try {
                 sides.add(new Quad(mirrorV ? new Vertex[]{vertex6, vertex5, vertex, vertex2} : new Vertex[]{vertex3, vertex4, vertex8, vertex7},
@@ -273,7 +220,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, mirrorV ? Direction.DOWN : Direction.UP));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-up failed for " + selfModelData.id);
+                    EMFUtils.log("uv-up failed for " + selfModelData.id);
             }
             try {
                 sides.add(new Quad(mirrorU ? new Vertex[]{vertex6, vertex2, vertex3, vertex7} : new Vertex[]{vertex, vertex5, vertex8, vertex4},
@@ -286,7 +233,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, mirrorU ? Direction.EAST : Direction.WEST));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-west failed for " + selfModelData.id);
+                    EMFUtils.log("uv-west failed for " + selfModelData.id);
             }
             try {
                 sides.add(new Quad(new Vertex[]{vertex2, vertex, vertex4, vertex3},
@@ -299,7 +246,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, Direction.NORTH));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-nrth failed for " + selfModelData.id);
+                    EMFUtils.log("uv-nrth failed for " + selfModelData.id);
             }
             try {
                 sides.add(new Quad(mirrorU ? new Vertex[]{vertex, vertex5, vertex8, vertex4} : new Vertex[]{vertex6, vertex2, vertex3, vertex7},
@@ -312,7 +259,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, mirrorU ? Direction.WEST : Direction.EAST));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-east failed for " + selfModelData.id);
+                    EMFUtils.log("uv-east failed for " + selfModelData.id);
             }
             try {
                 sides.add(new Quad(new Vertex[]{vertex5, vertex6, vertex7, vertex8},
@@ -325,18 +272,19 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, Direction.SOUTH));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-sth failed for " + selfModelData.id);
+                    EMFUtils.log("uv-sth failed for " + selfModelData.id);
             }
 
 
-            this.sidesEMF = sides.toArray(new Quad[0]);
-            ((CuboidAccessor) this).setSides(sidesEMF);
+
+            ((CuboidAccessor) cube).setSides(sides.toArray(new Quad[0]));
+            return cube;
         }
 
         // private static final Quad blankQuad = new Quad(new Vertex[]{0, 0, 0, 0}, 0, 0, 0, 0, 0, 0,false, Direction.NORTH);
 
         //Cuboid with custom UVs
-        public EMFCuboid(EMFPartData selfModelData,
+        public static Cuboid emfCuboidOf(EMFPartData selfModelData,
                          float[] uvDown, float[] uvUp, float[] uvNorth, float[] uvSouth, float[] uvWest, float[] uvEast,
                          float cubeX, float cubeY, float cubeZ,
                          float sizeX, float sizeY, float sizeZ,
@@ -344,13 +292,13 @@ public class EMFModelPartCustom extends EMFModelPart {
                          float textureWidth, float textureHeight,
                          boolean mirrorU, boolean mirrorV) {
 
-            super(0, 0,
+             Cuboid cube = new Cuboid(0, 0,
                     cubeX, cubeY, cubeZ,
                     sizeX, sizeY, sizeZ,
                     extraX, extraY, extraZ, false,
                     textureWidth, textureHeight);
 
-            CuboidAccessor accessor = (CuboidAccessor) this;
+            CuboidAccessor accessor = (CuboidAccessor) cube;
             accessor.setMinX(cubeX);
             accessor.setMinY(cubeY);
             accessor.setMinZ(cubeZ);
@@ -400,7 +348,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, mirrorV ? Direction.UP : Direction.DOWN));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-up failed for " + selfModelData.id);
+                    EMFUtils.log("uv-up failed for " + selfModelData.id);
             }
             try {
                 sides.add(new Quad(mirrorV ? new Vertex[]{vertex, vertex2, vertex6, vertex5} : new Vertex[]{vertex8, vertex7, vertex3, vertex4},//actually down
@@ -412,7 +360,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, mirrorV ? Direction.DOWN : Direction.UP));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-down failed for " + selfModelData.id);
+                    EMFUtils.log("uv-down failed for " + selfModelData.id);
             }
             try {
                 sides.add(new Quad(mirrorU ? new Vertex[]{vertex, vertex5, vertex8, vertex4} : new Vertex[]{vertex6, vertex2, vertex3, vertex7},
@@ -424,7 +372,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, mirrorU ? Direction.WEST : Direction.EAST));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-west failed for " + selfModelData.id);
+                    EMFUtils.log("uv-west failed for " + selfModelData.id);
             }
             try {
                 sides.add(new Quad(new Vertex[]{vertex2, vertex, vertex4, vertex3},
@@ -436,7 +384,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, Direction.NORTH));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-north failed for " + selfModelData.id);
+                    EMFUtils.log("uv-north failed for " + selfModelData.id);
             }
             try {
                 sides.add(new Quad(mirrorU ? new Vertex[]{vertex6, vertex2, vertex3, vertex7} : new Vertex[]{vertex, vertex5, vertex8, vertex4},
@@ -448,7 +396,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, mirrorU ? Direction.EAST : Direction.WEST));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-east failed for " + selfModelData.id);
+                    EMFUtils.log("uv-east failed for " + selfModelData.id);
             }
             try {
                 sides.add(new Quad(new Vertex[]{vertex5, vertex6, vertex7, vertex8},
@@ -460,17 +408,16 @@ public class EMFModelPartCustom extends EMFModelPart {
                         textureWidth, textureHeight, false, Direction.SOUTH));
             } catch (Exception e) {
                 if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.EMFModMessage("uv-south failed for " + selfModelData.id);
+                    EMFUtils.log("uv-south failed for " + selfModelData.id);
             }
 
 
-            this.sidesEMF = sides.toArray(new Quad[0]);
-            ((CuboidAccessor) this).setSides(sidesEMF);
-
+            ((CuboidAccessor) cube).setSides(sides.toArray(new Quad[0]));
+            return cube;
         }
 
 
-    }
+
 
 
 }
