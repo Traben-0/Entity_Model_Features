@@ -1,9 +1,24 @@
 package traben.entity_model_features.utils;
 
+import java.util.Objects;
+
 public class OptifineMobNameForFileAndEMFMapId {
+
     private String fileName;
     private String mapId;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OptifineMobNameForFileAndEMFMapId that = (OptifineMobNameForFileAndEMFMapId) o;
+        return fileName.equals(that.fileName) && Objects.equals(mapId, that.mapId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fileName, mapId);
+    }
 
     public OptifineMobNameForFileAndEMFMapId(String both) {
         this.fileName = both;

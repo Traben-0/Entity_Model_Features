@@ -12,19 +12,38 @@ import java.util.*;
 
 public class EMFJemData {
 
-    public final LinkedHashMap<String, LinkedHashMap<String, String>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();
+    public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
+        return allTopLevelAnimationsByVanillaPartName;
+    }
+
+    private final LinkedHashMap<String, LinkedHashMap<String, String>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();
     public String texture = "";
     public int[] textureSize = null;
     public double shadow_size = 1.0;
     public LinkedList<EMFPartData> models = new LinkedList<>();
-    public LinkedList<EMFPartData> originalModelsForReadingOnly;
 
-    public String fileName = "none";
-    public String filePath = "";
-    public OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public OptifineMobNameForFileAndEMFMapId getMobModelIDInfo() {
+        return mobModelIDInfo;
+    }
+
+    public Identifier getCustomTexture() {
+        return customTexture;
+    }
+
+    private String fileName = "none";
+    private String filePath = "";
+    private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
 
     //public String mobName = "none";
-    public Identifier customTexture = null;
+    private Identifier customTexture = null;
 
     @Nullable
     public Identifier validateJemTexture(String texture) {
@@ -55,11 +74,11 @@ public class EMFJemData {
         String[] directorySplit = fileName.split("/");
         if (directorySplit.length > 1) {
             String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
-            filePath= fileName.replace(lastDirectoryComponentOfFileName, "");
+            filePath = fileName.replace(lastDirectoryComponentOfFileName, "");
 
         }
 
-        originalModelsForReadingOnly = new LinkedList<>(models);
+        LinkedList<EMFPartData> originalModelsForReadingOnly = new LinkedList<>(models);
 
         customTexture = validateJemTexture(texture);
 
@@ -85,7 +104,7 @@ public class EMFJemData {
         ///prep animations
         SortedMap<String, EMFPartData> alphabeticalOrderedParts = new TreeMap<>(Comparator.naturalOrder());
         if (EMFConfig.getConfig().logModelCreationData)
-            EMFUtils.EMFModMessage("originalModelsForReadingOnly #= " + originalModelsForReadingOnly.size());
+            EMFUtils.log("originalModelsForReadingOnly #= " + originalModelsForReadingOnly.size());
         for (EMFPartData partData :
                 originalModelsForReadingOnly) {
             //if two parts both with id of EMF_body the later will get renamed to copy first come first server approach that optifine seems to have
@@ -95,7 +114,7 @@ public class EMFJemData {
         }
 
         if (EMFConfig.getConfig().logModelCreationData)
-            EMFUtils.EMFModMessage("alphabeticalOrderedParts = " + alphabeticalOrderedParts);
+            EMFUtils.log("alphabeticalOrderedParts = " + alphabeticalOrderedParts);
         for (EMFPartData part :
                 alphabeticalOrderedParts.values()) {
             if (part.animations != null) {
@@ -120,6 +139,21 @@ public class EMFJemData {
                 }
             }
         }
+
+        //place in a simple animation to set the shadow size
+        if(shadow_size != 1.0){
+            if (shadow_size < 0) shadow_size = 0;
+
+            String rootPart = "EMF_root";
+            LinkedHashMap<String, String> shadowAnimation = new LinkedHashMap<>();
+            shadowAnimation.put("render.shadow_size", String.valueOf(shadow_size));
+            if (allTopLevelAnimationsByVanillaPartName.containsKey(rootPart)) {
+                allTopLevelAnimationsByVanillaPartName.get(rootPart).putAll(shadowAnimation);
+            } else {
+                allTopLevelAnimationsByVanillaPartName.put(rootPart, shadowAnimation);
+            }
+        }
+
         ///finished animations preprocess
     }
 

@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.animation.animation_math_parser;
 
 import net.minecraft.util.math.MathHelper;
+import org.apache.commons.lang3.function.TriFunction;
 import traben.entity_model_features.models.animation.EMFAnimation;
 
 import java.util.ArrayList;
@@ -17,10 +18,16 @@ public class MathMethod extends MathValue implements MathComponent {
     private int printCount = 0;
 
 
-    private MathMethod(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
+    private MathMethod(String methodNameIn, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
         super(isNegative, calculationInstance);
 
-        this.methodName = methodName;
+        boolean booleanInvert = methodNameIn.startsWith("!");
+        if(booleanInvert){
+            this.methodName = methodNameIn.replaceFirst("!","");
+        }else{
+            this.methodName = methodNameIn;
+        }
+
         //first lets split the args into a list
         List<String> argsList = new ArrayList<>();
 
@@ -48,13 +55,13 @@ public class MathMethod extends MathValue implements MathComponent {
                 default -> builder.append(ch);
             }
         }
-        if(!builder.isEmpty()) {
+        if (!builder.isEmpty()) {
             argsList.add(builder.toString());
         }
 
         //args list is now a list of top level arguments ready to be categorized into MathComponents depending on the method
 
-        supplier = switch (methodName) {
+        supplier = switch (this.methodName) {
             case "if" -> EMF_IF(argsList);
             case "sin" -> SIN(argsList);
             case "asin" -> ASIN(argsList);
@@ -89,11 +96,23 @@ public class MathMethod extends MathValue implements MathComponent {
             //EMF ONLY
             case "keyframe" -> KEYFRAME(argsList);
             case "keyframeloop" -> KEYFRAMELOOP(argsList);
+            case "easeinout" -> EASE_IN_OUT(argsList);
+            case "cubiceaseinout" -> EASE_IN_OUT_CUBIC(argsList);
+            case "easein" -> EASE_IN(argsList);
+            case "cubiceasein" -> EASE_IN_CUBIC(argsList);
+            case "easeout" -> EASE_OUT(argsList);
+            case "cubiceaseout" -> EASE_OUT_CUBIC(argsList);
             default ->
                     throw new EMFMathException("ERROR: Unknown method [" + methodName + "], rejecting animation expression for [" + calculationInstance.animKey + "].");
             //()-> 0d;
         };
-
+        if(booleanInvert){
+            if(optimizedAlternativeToThis == null){
+                supplier = ()-> supplier.get() == 1 ? 0 : 1;
+            }else{
+                optimizedAlternativeToThis = new MathConstant(optimizedAlternativeToThis.get() == 1 ? 0 : 1, isNegative);
+            }
+        }
     }
 
     public static MathComponent getOptimizedExpression(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
@@ -120,7 +139,7 @@ public class MathMethod extends MathValue implements MathComponent {
     }
 
     private ValueSupplier IN(List<String> args) throws EMFMathException {
-        if (args.size() >= 3) {
+        if (args.size() >= 2) {
             MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             List<MathComponent> vals = new ArrayList<>();
             for (int i = 1; i < args.size(); i++) {
@@ -238,18 +257,74 @@ public class MathMethod extends MathValue implements MathComponent {
     }
 
     private ValueSupplier LERP(List<String> args) throws EMFMathException {
+        return interpolator(args,MathHelper::lerp);
+    }
+    private ValueSupplier EASE_IN_OUT(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::easeInOutInterpolation);
+    }
+    private ValueSupplier EASE_IN_OUT_CUBIC(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::cubicEaseInOutInterpolation);
+    }
+    private ValueSupplier EASE_IN(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::easeInInterpolation);
+    }
+    private ValueSupplier EASE_IN_CUBIC(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::cubicEaseInInterpolation);
+    }
+    private ValueSupplier EASE_OUT(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::easeOutInterpolation);
+    }
+    private ValueSupplier EASE_OUT_CUBIC(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::cubicEaseOutInterpolation);
+    }
+
+
+    private ValueSupplier interpolator(List<String> args, TriFunction<Float,Float,Float,Float> lerpFunction) throws EMFMathException {
         if (args.size() == 3) {
             MathComponent k = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
             MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
-            ValueSupplier valueSupplier = () -> MathHelper.lerp(k.get(), x.get(), y.get());
+            ValueSupplier valueSupplier = () -> lerpFunction.apply(k.get(), x.get(), y.get());
             List<MathComponent> comps = List.of(k, x, y);
             setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments " + args + " in LERP method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
+        String s = "ERROR: wrong number of arguments " + args + " in interpolation method method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
+    }
+
+    private static float easeInOutInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        t = (0.5 - 0.5 * Math.cos(t * Math.PI)); // Ease-in-out function (cosine interpolation)
+        return (float) (start + t * (end - start));
+    }
+
+    private static float cubicEaseInOutInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        t = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        return (float) (start + (end - start) * t);
+    }
+
+    private static float easeInInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        return (float) (start + (end - start) * t * t);
+    }
+
+    private static float cubicEaseInInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        return (float) (start + (end - start) * t * t * t);
+    }
+
+    private static float easeOutInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        return (float) (start + (end - start) * (1 - Math.pow(1 - t, 2)));
+    }
+
+    private static float cubicEaseOutInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        t = 1 - t;
+        return (float) (start + (end - start) * (1 - t * t * t));
     }
 
     private ValueSupplier FMOD(List<String> args) throws EMFMathException {
@@ -310,14 +385,14 @@ public class MathMethod extends MathValue implements MathComponent {
 
     //private final Random random = new Random();
     private ValueSupplier RANDOM(List<String> args) throws EMFMathException {
-        if (args.size() == 0) {
+        if (args.isEmpty()) {
             //cannot optimize further
             return () -> (float) Math.random();
         } else if (args.size() == 1) {
-            if(args.get(0).isBlank()){
+            if (args.get(0).isBlank()) {
                 //cannot optimize further
                 return () -> (float) Math.random();
-            }else {
+            } else {
                 MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
                 ValueSupplier valueSupplier = () -> new Random((long) x.get()).nextFloat(1);
                 List<MathComponent> comps = List.of(x);
@@ -708,28 +783,28 @@ public class MathMethod extends MathValue implements MathComponent {
             List<MathComponent> frames = new ArrayList<>();
             for (int i = 1; i < args.size(); i++) {
                 MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(i), false, calculationInstance);
-                if(arg2 != MathExpressionParser.NULL_EXPRESSION){
+                if (arg2 != MathExpressionParser.NULL_EXPRESSION) {
                     frames.add(arg2);
                 }
             }
-            int frameMax = frames.size()-1;
+            int frameMax = frames.size() - 1;
 
             ValueSupplier valueSupplier = () -> {
                 try {
                     float delta = Math.abs(deltaGetter.get());
-                    int last = MathHelper.clamp((int) Math.floor(delta),0,frameMax);
-                    int next = MathHelper.clamp((int) Math.ceil(delta),0,frameMax);
+                    int last = MathHelper.clamp((int) Math.floor(delta), 0, frameMax);
+                    int next = MathHelper.clamp((int) Math.ceil(delta), 0, frameMax);
                     float thisFrame;
-                    if(last == next) {
+                    if (last == next) {
                         thisFrame = frames.get(last).get();
-                    }else{
+                    } else {
                         float lerpDelta = delta - last;
                         MathComponent lastFrame = frames.get(last);
                         MathComponent nextFrame = frames.get(next);
-                        thisFrame = MathHelper.lerp(lerpDelta,lastFrame.get(),nextFrame.get());
+                        thisFrame = MathHelper.lerp(lerpDelta, lastFrame.get(), nextFrame.get());
                     }
                     return Float.isNaN(thisFrame) ? 0 : thisFrame;
-                }catch (Exception e) {
+                } catch (Exception e) {
                     return 0;
                 }
             };
@@ -751,7 +826,7 @@ public class MathMethod extends MathValue implements MathComponent {
             List<MathComponent> frames = new ArrayList<>();
             for (int i = 1; i < args.size(); i++) {
                 MathComponent arg2 = MathExpressionParser.getOptimizedExpression(args.get(i), false, calculationInstance);
-                if(arg2 != MathExpressionParser.NULL_EXPRESSION){
+                if (arg2 != MathExpressionParser.NULL_EXPRESSION) {
                     frames.add(arg2);
                 }
             }
@@ -761,21 +836,21 @@ public class MathMethod extends MathValue implements MathComponent {
             ValueSupplier valueSupplier = () -> {
                 try {
                     float delta = Math.abs(deltaGetter.get() % frameMax);
-                    int last = MathHelper.clamp((int) Math.floor(delta),0,frameMax);
-                    int nextRaw = MathHelper.clamp((int) Math.ceil(delta),0,frameMax);
+                    int last = MathHelper.clamp((int) Math.floor(delta), 0, frameMax);
+                    int nextRaw = MathHelper.clamp((int) Math.ceil(delta), 0, frameMax);
                     int next = nextRaw == frameMax ? 0 : nextRaw;
 
                     float thisFrame;
-                    if(last == nextRaw) {
+                    if (last == nextRaw) {
                         thisFrame = frames.get(next).get();
                     } else {
                         float lerpDelta = delta - last;
                         MathComponent lastFrame = frames.get(last);
-                        MathComponent nextFrame= frames.get(next);
+                        MathComponent nextFrame = frames.get(next);
                         thisFrame = MathHelper.lerp(lerpDelta, lastFrame.get(), nextFrame.get());
                     }
                     return Float.isNaN(thisFrame) ? 0 : thisFrame;
-                }catch (Exception e) {
+                } catch (Exception e) {
                     return 0;
                 }
             };
@@ -791,10 +866,9 @@ public class MathMethod extends MathValue implements MathComponent {
     }
 
 
-
     @Override
     public String toString() {
-        return methodName+"()";
+        return methodName + "()";
     }
 
     @Override

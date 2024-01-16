@@ -1,72 +1,58 @@
 package traben.entity_model_features.utils;
 
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import traben.entity_texture_features.utils.ETFEntity;
 
-import java.util.UUID;
-
-public interface EMFEntity {
-
-    Entity entity();
+public interface EMFEntity extends ETFEntity {
 
 
-    BlockEntity getBlockEntity();
+    double emf$prevX();
 
-    World getWorld();
+    double emf$getX();
 
-    UUID getUuid();
+    double emf$prevY();
 
-    double prevX();
+    double emf$getY();
 
-    double getX();
+    double emf$prevZ();
 
-    double prevY();
+    double emf$getZ();
 
-    double getY();
+    float emf$prevPitch();
 
-    double prevZ();
+    float emf$getPitch();
 
-    double getZ();
+    boolean emf$isTouchingWater();
 
-    float prevPitch();
+    boolean emf$isOnFire();
 
-    float getPitch();
+    boolean emf$hasVehicle();
 
-    boolean isTouchingWater();
+    boolean emf$isOnGround();
 
-    boolean isOnFire();
+    boolean emf$isAlive();
 
-    boolean hasVehicle();
+    boolean emf$isGlowing();
 
-    boolean isOnGround();
+    boolean emf$isInLava();
 
-    boolean isAlive();
+    boolean emf$isInvisible();
 
-    LivingEntity getLiving();
+    boolean emf$hasPassengers();
 
-    boolean isGlowing();
+    boolean emf$isSneaking();
 
-    boolean isInLava();
+    boolean emf$isSprinting();
 
-    boolean isInvisible();
+    boolean emf$isWet();
 
-    boolean hasPassengers();
+    float emf$age();
 
-    boolean isSneaking();
+    float emf$getYaw();
 
-    boolean isSprinting();
+    Vec3d emf$getVelocity();
 
-    boolean isWet();
+    String emf$getTypeString();
 
-    float age();
-
-    float getYaw();
-
-    Vec3d getVelocity();
-
-    String getTypeString();
 
 }

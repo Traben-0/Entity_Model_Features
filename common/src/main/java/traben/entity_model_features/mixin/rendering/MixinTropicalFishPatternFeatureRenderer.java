@@ -50,7 +50,7 @@ public class MixinTropicalFishPatternFeatureRenderer {
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(smallModel)) {
                 boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(tropicalFishEntity.getType()).getNamespace());
-                EMFUtils.EMFOverrideMessage(emf$heldModelToForce.getClass().getName(), smallModel == null ? "null" : smallModel.getClass().getName(), replace);
+                EMFUtils.overrideMessage(emf$heldModelToForce.getClass().getName(), smallModel == null ? "null" : smallModel.getClass().getName(), replace);
                 if (replace) {
                     smallModel = emf$heldModelToForce;
                 }
@@ -60,7 +60,7 @@ public class MixinTropicalFishPatternFeatureRenderer {
         if (emf$heldModelToForce2 != null) {
             if (!emf$heldModelToForce2.equals(largeModel)) {
                 boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(tropicalFishEntity.getType()).getNamespace());
-                EMFUtils.EMFOverrideMessage(emf$heldModelToForce2.getClass().getName(), largeModel == null ? "null" : largeModel.getClass().getName(), replace);
+                EMFUtils.overrideMessage(emf$heldModelToForce2.getClass().getName(), largeModel == null ? "null" : largeModel.getClass().getName(), replace);
                 if (replace) {
                     largeModel = emf$heldModelToForce2;
                 }

@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.utils.EMFEntity;
 
 @Mixin(EntityRenderDispatcher.class)
 public abstract class MixinEntityRenderDispatcher {
@@ -22,7 +23,15 @@ public abstract class MixinEntityRenderDispatcher {
     @Inject(method = "render",
             at = @At(value = "HEAD"))
     private <E extends Entity> void emf$grabEntity(E entity, double x, double y, double z, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
-        EMFAnimationHelper.setCurrentEntity(entity);
+        EMFAnimationHelper.setCurrentEntityIteration((EMFEntity) entity);
+    }
+
+    @Inject(method = "render",
+            at = @At(value = "RETURN"))
+    private <E extends Entity> void emf$endOfRender(E entity, double x, double y, double z, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
+        if (EMFAnimationHelper.doAnnounceModels()){
+            EMFAnimationHelper.anounceModels((EMFEntity) entity);
+        }
     }
 
     @Inject(method = "render",

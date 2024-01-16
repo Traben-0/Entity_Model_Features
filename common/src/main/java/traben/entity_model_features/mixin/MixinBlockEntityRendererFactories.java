@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.EMFClient;
 
 import java.util.function.BiConsumer;
 
@@ -33,6 +34,8 @@ public class MixinBlockEntityRendererFactories {
     @Unique
     private static void setEmf$Model(BlockEntityType type) {
         //mark which variant is currently specified for use by otherwise identical block entity renderers
+        if (EMFClient.testForForgeLoadingError()) return;
+
         if (BlockEntityType.CHEST.equals(type))
             EMFManager.getInstance().currentSpecifiedModelLoading = "chest";
         else if (BlockEntityType.ENDER_CHEST.equals(type))

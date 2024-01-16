@@ -14,7 +14,6 @@ import java.util.Objects;
 public class MathVariable extends MathValue implements MathComponent {
 
 
-
     final String variableName;
     public MathComponent optimizedAlternativeToThis = null;
 
@@ -71,7 +70,7 @@ public class MathVariable extends MathValue implements MathComponent {
             case "move_forward" -> EMFAnimationHelper::getMoveForward;
             case "move_strafing" -> EMFAnimationHelper::getMoveStrafe;
 
-            case "nan" -> ()-> EMFManager.getInstance().isAnimationValidationPhase ? 0 : Float.NaN;
+            case "nan" -> () -> EMFManager.getInstance().isAnimationValidationPhase ? 0 : Float.NaN;
 
 
 //            case "collisionX" -> getter::getClosestCollisionX;
@@ -148,7 +147,7 @@ public class MathVariable extends MathValue implements MathComponent {
                     if (partVariable != null && part != null) {
                         return () -> partVariable.getValue(part);
                     } else {
-                        EMFUtils.EMFModError("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.allPartsBySingleAndFullHeirachicalId.keySet());
+                        EMFUtils.logError("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.allPartsBySingleAndFullHeirachicalId.keySet());
                         optimizedAlternativeToThis = MathConstant.ZERO;
                         return () -> 0;
                         //throw new EMFMathException("no part variable found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.allPartByName.keySet());
@@ -159,9 +158,9 @@ public class MathVariable extends MathValue implements MathComponent {
                 if (variableKey.matches("(var|varb)\\.\\w+")) {
                     EMFAnimation variableCalculator = calculationInstance.emfAnimationVariables.get(variableKey);
                     if (variableCalculator != null) {
-                        if(invertBooleans && variableKey.startsWith("varb.")){
-                            return ()-> variableCalculator.getLastResultOnly() == 1 ? 0 : 1;
-                        }else{
+                        if (invertBooleans && variableKey.startsWith("varb.")) {
+                            return () -> variableCalculator.getLastResultOnly() == 1 ? 0 : 1;
+                        } else {
                             return variableCalculator::getLastResultOnly;
                         }
                     } else {
@@ -170,7 +169,7 @@ public class MathVariable extends MathValue implements MathComponent {
                                 calculationInstance.emfAnimationVariables.keySet()) {
                             if (var.startsWith("var.") || var.startsWith("varb.")) vars.add(var);
                         }
-                        EMFUtils.EMFModError("no animation variable found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available variables were: " + vars);
+                        EMFUtils.logError("no animation variable found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available variables were: " + vars);
                         optimizedAlternativeToThis = MathConstant.ZERO;
                         return () -> 0;
                         //throw new EMFMathException("no variable animation found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.emfAnimationVariables.keySet());
@@ -187,7 +186,7 @@ public class MathVariable extends MathValue implements MathComponent {
                         EMFModelOrRenderVariable variable = EMFModelOrRenderVariable.getRenderVariable(variableKey);
                         if (variable != null && variable.isRenderVariable())
                             return variable::getValue;
-                        EMFUtils.EMFModError("no render variable found for: [" + variableKey + "]");
+                        EMFUtils.logError("no render variable found for: [" + variableKey + "]");
                         optimizedAlternativeToThis = MathConstant.ZERO;
                         return () -> 0;
                         //throw new EMFMathException("no variable animation found for: ["+variableKey+"] in ["+calculationInstance.modelName+"] + "+ calculationInstance.emfAnimationVariables.keySet());
