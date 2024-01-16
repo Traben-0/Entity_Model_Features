@@ -12,19 +12,38 @@ import java.util.*;
 
 public class EMFJemData {
 
-    public final LinkedHashMap<String, LinkedHashMap<String, String>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();
+    public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
+        return allTopLevelAnimationsByVanillaPartName;
+    }
+
+    private final LinkedHashMap<String, LinkedHashMap<String, String>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();
     public String texture = "";
     public int[] textureSize = null;
     public double shadow_size = 1.0;
     public LinkedList<EMFPartData> models = new LinkedList<>();
-    public LinkedList<EMFPartData> originalModelsForReadingOnly;
 
-    public String fileName = "none";
-    public String filePath = "";
-    public OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
+    public String getFileName() {
+        return fileName;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public OptifineMobNameForFileAndEMFMapId getMobModelIDInfo() {
+        return mobModelIDInfo;
+    }
+
+    public Identifier getCustomTexture() {
+        return customTexture;
+    }
+
+    private String fileName = "none";
+    private String filePath = "";
+    private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
 
     //public String mobName = "none";
-    public Identifier customTexture = null;
+    private Identifier customTexture = null;
 
     @Nullable
     public Identifier validateJemTexture(String texture) {
@@ -59,7 +78,7 @@ public class EMFJemData {
 
         }
 
-        originalModelsForReadingOnly = new LinkedList<>(models);
+        LinkedList<EMFPartData> originalModelsForReadingOnly = new LinkedList<>(models);
 
         customTexture = validateJemTexture(texture);
 
@@ -120,6 +139,21 @@ public class EMFJemData {
                 }
             }
         }
+
+        //place in a simple animation to set the shadow size
+        if(shadow_size != 1.0){
+            if (shadow_size < 0) shadow_size = 0;
+
+            String rootPart = "EMF_root";
+            LinkedHashMap<String, String> shadowAnimation = new LinkedHashMap<>();
+            shadowAnimation.put("render.shadow_size", String.valueOf(shadow_size));
+            if (allTopLevelAnimationsByVanillaPartName.containsKey(rootPart)) {
+                allTopLevelAnimationsByVanillaPartName.get(rootPart).putAll(shadowAnimation);
+            } else {
+                allTopLevelAnimationsByVanillaPartName.put(rootPart, shadowAnimation);
+            }
+        }
+
         ///finished animations preprocess
     }
 

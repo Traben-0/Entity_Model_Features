@@ -34,7 +34,7 @@ public class EMFModelPartCustom extends EMFModelPart {
         this.partToBeAttached = part;
         this.id = id;
         //selfModelData = emfPartData;
-        textureOverride = emfPartData.customTexture;
+        textureOverride = emfPartData.getCustomTexture();
 
         //seems to be just straight into model no bullshit?
         //todo check up on scale?
@@ -132,9 +132,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                 super.renderWithTextureOverride(matrices, vertices, light, overlay, flash, green, flash, alpha);
             }
             //case TRANSPARENT -> super.primaryRender(matrices, vertices, light, overlay, red, green, blue, 0.5f);
-            case LINES -> {
-                renderBoxes(matrices,MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()));
-            }
+            case LINES -> renderBoxes(matrices,MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()));
             case NONE -> {
 
             }

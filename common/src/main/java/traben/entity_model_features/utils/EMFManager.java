@@ -384,9 +384,9 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         if (printing) {
             System.out.println(" > finalAnimationsForModel =");
-            jemData.allTopLevelAnimationsByVanillaPartName.forEach((part, anims) -> anims.forEach((key, expression) -> System.out.println(" >> " + key + " = " + expression)));
+            jemData.getAllTopLevelAnimationsByVanillaPartName().forEach((part, anims) -> anims.forEach((key, expression) -> System.out.println(" >> " + key + " = " + expression)));
         }
-        jemData.allTopLevelAnimationsByVanillaPartName.forEach((part, anims) -> {
+        jemData.getAllTopLevelAnimationsByVanillaPartName().forEach((part, anims) -> {
             anims.forEach((animKey, animationExpression) -> {
                 if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.log("parsing animation value: [" + animKey + "]");
@@ -403,7 +403,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         thisVariable,
                         animKey,
                         animationExpression,
-                        jemData.fileName//, variableSuppliers
+                        jemData.getFileName()//, variableSuppliers
                 );
 
                 if(emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVariable){

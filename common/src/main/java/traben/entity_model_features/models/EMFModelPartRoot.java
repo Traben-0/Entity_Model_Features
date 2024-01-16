@@ -139,7 +139,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     //root only
     public void addVariantOfJem(EMFJemData jemData, int variant) {
         if (EMFConfig.getConfig().logModelCreationData)
-            System.out.println(" > " + jemData.mobModelIDInfo.getfileName() + ", constructing variant #" + variant);
+            System.out.println(" > " + jemData.getMobModelIDInfo().getfileName() + ", constructing variant #" + variant);
 
         Map<String, EMFModelPartCustom> newEmfParts = new HashMap<>();
         for (EMFPartData part :
@@ -156,7 +156,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             EMFModelState vanillaState = EMFModelState.copy(thisPart.allKnownStateVariants.get(0));
             thisPart.setFromState(vanillaState);
             if (thisPart instanceof EMFModelPartRoot root && !root.cuboids.isEmpty()) {
-                root.textureOverride = jemData.customTexture;
+                root.textureOverride = jemData.getCustomTexture();
             }
             Map<String, ModelPart> children = new HashMap<>();
             for (Map.Entry<String, EMFModelPartCustom> newPartEntry :
@@ -283,7 +283,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 //                }
 //            });
 //        }
-        if (animationList.size() > 0) {
+        if (!animationList.isEmpty()) {
             Runnable run = () -> {
                 if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
                     lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;

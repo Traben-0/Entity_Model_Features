@@ -3,7 +3,9 @@
 
 1.2.2
 
-- more robust wolf_collar implementation
+- added the following animation interpolation methods `easein`,`easeout`,`easeinout`,`cubiceasein`,`cubiceaseout`,`cubiceaseinout`. They function identically to `lerp` however offer different interpolation behaviours
+- `shadow_size` in model.jem files should now apply
+- more robust wolf_collar.jem implementation
 - fixed a crash `layer is null`
 - fixed `cannot inherit from final class` crash caused by completely unrelated forge mods missing their dependencies.
 - added the `feet` part of the new bat model to the optifine name mappings (might revert if optifine doesn't do this too)

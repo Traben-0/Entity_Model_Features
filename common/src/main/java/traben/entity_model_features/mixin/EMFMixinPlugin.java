@@ -21,6 +21,9 @@ public class EMFMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        // this mixin is optional but allows emf to skip extraneous calculations and also capture modifications to
+        // the model animation variables.
+        // pollen is known to conflict with this mixin
         if (mixinClassName.endsWith("MixinLivingEntityRenderer_ValueCapturing")) {
             return !EMFVersionDifferenceManager.isThisModLoaded("pollen");
         }

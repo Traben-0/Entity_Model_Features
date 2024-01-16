@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.animation.animation_math_parser;
 
 import net.minecraft.util.math.MathHelper;
+import org.apache.commons.lang3.function.TriFunction;
 import traben.entity_model_features.models.animation.EMFAnimation;
 
 import java.util.ArrayList;
@@ -95,6 +96,12 @@ public class MathMethod extends MathValue implements MathComponent {
             //EMF ONLY
             case "keyframe" -> KEYFRAME(argsList);
             case "keyframeloop" -> KEYFRAMELOOP(argsList);
+            case "easeinout" -> EASE_IN_OUT(argsList);
+            case "cubiceaseinout" -> EASE_IN_OUT_CUBIC(argsList);
+            case "easein" -> EASE_IN(argsList);
+            case "cubiceasein" -> EASE_IN_CUBIC(argsList);
+            case "easeout" -> EASE_OUT(argsList);
+            case "cubiceaseout" -> EASE_OUT_CUBIC(argsList);
             default ->
                     throw new EMFMathException("ERROR: Unknown method [" + methodName + "], rejecting animation expression for [" + calculationInstance.animKey + "].");
             //()-> 0d;
@@ -250,18 +257,74 @@ public class MathMethod extends MathValue implements MathComponent {
     }
 
     private ValueSupplier LERP(List<String> args) throws EMFMathException {
+        return interpolator(args,MathHelper::lerp);
+    }
+    private ValueSupplier EASE_IN_OUT(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::easeInOutInterpolation);
+    }
+    private ValueSupplier EASE_IN_OUT_CUBIC(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::cubicEaseInOutInterpolation);
+    }
+    private ValueSupplier EASE_IN(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::easeInInterpolation);
+    }
+    private ValueSupplier EASE_IN_CUBIC(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::cubicEaseInInterpolation);
+    }
+    private ValueSupplier EASE_OUT(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::easeOutInterpolation);
+    }
+    private ValueSupplier EASE_OUT_CUBIC(List<String> args) throws EMFMathException {
+        return interpolator(args,MathMethod::cubicEaseOutInterpolation);
+    }
+
+
+    private ValueSupplier interpolator(List<String> args, TriFunction<Float,Float,Float,Float> lerpFunction) throws EMFMathException {
         if (args.size() == 3) {
             MathComponent k = MathExpressionParser.getOptimizedExpression(args.get(0), false, calculationInstance);
             MathComponent x = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
             MathComponent y = MathExpressionParser.getOptimizedExpression(args.get(2), false, calculationInstance);
-            ValueSupplier valueSupplier = () -> MathHelper.lerp(k.get(), x.get(), y.get());
+            ValueSupplier valueSupplier = () -> lerpFunction.apply(k.get(), x.get(), y.get());
             List<MathComponent> comps = List.of(k, x, y);
             setOptimizedIfPossible(comps, valueSupplier);
             return valueSupplier;
         }
-        String s = "ERROR: wrong number of arguments " + args + " in LERP method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
+        String s = "ERROR: wrong number of arguments " + args + " in interpolation method method for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].";
         System.out.println(s);
         throw new EMFMathException(s);
+    }
+
+    private static float easeInOutInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        t = (0.5 - 0.5 * Math.cos(t * Math.PI)); // Ease-in-out function (cosine interpolation)
+        return (float) (start + t * (end - start));
+    }
+
+    private static float cubicEaseInOutInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        t = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        return (float) (start + (end - start) * t);
+    }
+
+    private static float easeInInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        return (float) (start + (end - start) * t * t);
+    }
+
+    private static float cubicEaseInInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        return (float) (start + (end - start) * t * t * t);
+    }
+
+    private static float easeOutInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        return (float) (start + (end - start) * (1 - Math.pow(1 - t, 2)));
+    }
+
+    private static float cubicEaseOutInterpolation(float start, float end, float tickDelta) {
+        double t = Math.min(1.0, Math.max(0.0, tickDelta));
+        t = 1 - t;
+        return (float) (start + (end - start) * (1 - t * t * t));
     }
 
     private ValueSupplier FMOD(List<String> args) throws EMFMathException {
@@ -322,7 +385,7 @@ public class MathMethod extends MathValue implements MathComponent {
 
     //private final Random random = new Random();
     private ValueSupplier RANDOM(List<String> args) throws EMFMathException {
-        if (args.size() == 0) {
+        if (args.isEmpty()) {
             //cannot optimize further
             return () -> (float) Math.random();
         } else if (args.size() == 1) {
