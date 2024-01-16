@@ -28,6 +28,7 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
     public EMFConfig tempConfig;
     private long timer = 0;
     private LivingEntity livingEntity = null;
+
     public EMFConfigScreenMain(Screen parent) {
         super(Text.translatable("entity_model_features.title"), parent);
         // this.parent = parent;
@@ -42,7 +43,7 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
         this.addDrawableChild(ButtonWidget.builder(
                 Text.translatable("gui.done"),
                 (button) -> {
-                    if(!tempConfig.equals(EMFConfig.getConfig())) {
+                    if (!tempConfig.equals(EMFConfig.getConfig())) {
                         EMFConfig.setConfig(tempConfig);
                         EMFConfig.EMF_saveConfig();
                         MinecraftClient.getInstance().reloadResources();
@@ -108,29 +109,33 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
             Quaternionf quaternionf = (new Quaternionf()).rotateZ(3.1415927F).rotateY((float) (System.currentTimeMillis() / 1000d % (2 * Math.PI)));
             Quaternionf quaternionf2 = (new Quaternionf()).rotateX(-(g * 20.0F * 0.017453292F));
             quaternionf.mul(quaternionf2);
-            double scale = (this.height * 0.4);
-            scale = scale / ((Math.max(livingEntity.getHeight(), livingEntity.getWidth())));
+            double scale;
+            double autoScale = (this.height * 0.4) / ((Math.max(1, Math.max(livingEntity.getHeight(), livingEntity.getWidth()))));
             if (livingEntity instanceof SquidEntity) {
                 y -= (int) (this.height * 0.15);
-                scale *= 0.5;
+                scale = autoScale * 0.5;
             } else if (livingEntity instanceof GuardianEntity || livingEntity instanceof SnifferEntity) {
                 y -= (int) (this.height * 0.1);
-                scale *= 0.7;
+                scale = autoScale * 0.7;
             } else if (livingEntity instanceof EnderDragonEntity) {
                 y -= (int) (this.height * 0.15);
-                scale *= 1.5;
+                scale = autoScale * 1.5;
+            } else {
+                scale = autoScale;
             }
 
             double scaleModify = Math.sin((System.currentTimeMillis() - timer) / 5000d * Math.PI) * 6;
-            scaleModify = Math.max(Math.min(scaleModify, 1), 0);//clamp
-            scale = Math.min(scale * scaleModify, (this.height * 0.4));
+            double scaleModify2 = Math.max(Math.min(Math.abs(scaleModify), 1d), 0);//clamp
+            int modelHeight = (int) Math.min(scale * scaleModify2, (this.height * 0.4));
 
             matrices.push();
-            matrices.translate(0, 0, 100);
-            InventoryScreen.drawEntity(matrices, x, y, (int) scale, quaternionf, quaternionf2, livingEntity);
+            matrices.translate(0, 0, 10);
+            InventoryScreen.drawEntity(matrices, x, y, modelHeight, quaternionf, quaternionf2, livingEntity);
             matrices.pop();
         } else {
             drawCenteredTextWithShadow(matrices,this.textRenderer, Text.of("Load a world and nearby entities will appear here."), this.width / 3, this.height / 2, Color.GRAY.getRGB());
         }
+//        super.render(context, mouseX, mouseY, delta);
     }
+
 }

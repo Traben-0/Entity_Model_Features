@@ -26,7 +26,6 @@ public abstract class MathValue implements MathComponent {
     abstract public ValueSupplier getSupplier();
 
 
-
     @Override
     public float get() {
         return isNegative ? -getSupplier().get() : getSupplier().get();

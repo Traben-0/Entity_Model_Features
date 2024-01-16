@@ -13,7 +13,10 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     //modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 
-    modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version}")
+//    modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version}")
+    modImplementation files("run/entity_texture_features_fabric_1.19.4-5.2.1.jar")
+
+    modImplementation ("maven.modrinth:physicsmod:dBxi3s11")
 }
 
 publishing {
