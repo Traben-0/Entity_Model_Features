@@ -29,7 +29,12 @@ public class EMFPartData {
     public float scale = 1.0f;
 
     public LinkedList<LinkedHashMap<String, String>> animations = null;
-    public Identifier customTexture = null;
+
+    public Identifier getCustomTexture() {
+        return customTexture;
+    }
+
+    private Identifier customTexture = null;
 
     @Override
     public boolean equals(Object o) {
@@ -75,7 +80,7 @@ public class EMFPartData {
             this.sprites = jpmModel.sprites;
         if (scale == 1f)
             this.scale = jpmModel.scale;
-        if (animations == null || animations.size() == 0)
+        if (animations == null || animations.isEmpty())
             this.animations = jpmModel.animations;
         if (baseId.isBlank())
             this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
@@ -90,7 +95,7 @@ public class EMFPartData {
 
         //check if we need to load a .jpm into this object
         if (!this.model.isEmpty()) {
-            EMFPartData jpmModel = EMFUtils.readModelPart(this.model, jem.filePath);
+            EMFPartData jpmModel = EMFUtils.readModelPart(this.model, jem.getFilePath());
             if (jpmModel != null) {
                 copyFrom(jpmModel);
 

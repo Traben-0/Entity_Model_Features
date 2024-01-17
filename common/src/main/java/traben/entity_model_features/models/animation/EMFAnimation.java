@@ -24,6 +24,12 @@ public class EMFAnimation {
     public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
     MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
 
+    public void setTrueVariableSource(EMFAnimation trueVariableSource) {
+        this.trueVariableToSet = trueVariableSource;
+    }
+
+    private EMFAnimation trueVariableToSet = null;
+
     public EMFAnimation(EMFModelPart partToApplyTo,
                         EMFModelOrRenderVariable variableToChange,
                         String animKey,
@@ -96,9 +102,19 @@ public class EMFAnimation {
         return EMFCalculator.get();
     }
 
+    void sendValueToTrueVariable(float value){
+        if (EMFAnimationHelper.getEMFEntity() == null) return;
+        UUID id = EMFAnimationHelper.getEMFEntity().etf$getUuid();
+        prevResult.put(id, value);
+    }
+
     public void calculateAndSet() {
         if (isVariable) {
-            getResultViaCalculate();
+            if(trueVariableToSet != null){
+                trueVariableToSet.sendValueToTrueVariable(getResultViaCalculate());
+            } else {
+                getResultViaCalculate();
+            }
         } else {
             handleResult(getResultViaCalculate());
         }
