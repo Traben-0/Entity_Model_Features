@@ -13,40 +13,32 @@ public class MathBinaryExpressionComponent extends MathValue implements MathComp
         this.first = first;
         this.action = action;
         this.second = second;
-        //ValueSupplier supplier = action.getBinaryRunnable(first, second);
     }
 
     public static MathComponent getOptimizedExpression(MathComponent first, MathAction action, MathComponent second) {
-        return getOptimizedExpression(first, action, second, false);
-    }
-
-    public static MathComponent getOptimizedExpression(MathComponent first, MathAction action, MathComponent second, boolean isnegative) {
-        MathBinaryExpressionComponent component = new MathBinaryExpressionComponent(first, action, second, isnegative);
+        MathBinaryExpressionComponent component = new MathBinaryExpressionComponent(first, action, second, false);
         if (component.first.isConstant() && component.second.isConstant()) {
-            //result is always constant so return the constant result instead
-            return new MathConstant(component.get(), isnegative);
+            //result is always constant so return a constant instead
+            return new MathConstant(component.getResult(), false);
         }
         return component;
     }
 
+
     @Override
-    public ValueSupplier getSupplier() {
+    ResultSupplier getResultSupplier() {
         return null;
     }
 
     @Override
-    public float get() {
+    public float getResult() {
         float value = action.execute(first, second);
-        //if(value == Float.MIN_VALUE) return 0;
         return isNegative ? -value : value;
-
-        // return isNegative ? -supplier.get() : supplier.get();
-
     }
 
     @Override
     public String toString() {
-        return "[oExp:{" + first + ", " + action + ", " + second + "}=" + get() + "]";
+        return "[oExp:{" + first + ", " + action + ", " + second + "}=" + getResult() + "]";
     }
 
 

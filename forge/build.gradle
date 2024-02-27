@@ -18,6 +18,7 @@ loom {
 
         mixinConfig "entity_model_features-common.mixins.json"
         mixinConfig "entity_model_features.mixins.json"
+        mixinConfig "entity_model_features-optional.mixins.json"
     }
 }
 

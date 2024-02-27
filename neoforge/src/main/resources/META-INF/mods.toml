@@ -40,3 +40,5 @@ side = "CLIENT"
 #config = "entity_model_features-forge.mixins.json"
 [[mixins]]
 config = "entity_model_features-common.mixins.json"
+[[mixins]]
+config = "entity_model_features-optional.mixins.json"

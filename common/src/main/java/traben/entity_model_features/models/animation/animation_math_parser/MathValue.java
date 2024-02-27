@@ -6,11 +6,12 @@ public abstract class MathValue implements MathComponent {
 
 
     final EMFAnimation calculationInstance;
-    public boolean isNegative;
+    boolean isNegative;
 
-    MathValue(boolean isNegative, EMFAnimation calculationInstance) {
+    MathValue(boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
         this.isNegative = isNegative;
         this.calculationInstance = calculationInstance;
+        if (calculationInstance == null) throw new EMFMathException("calculationInstance cannot be null if declared");//todo check if still needed
     }
 
     MathValue(boolean isNegative) {
@@ -23,19 +24,19 @@ public abstract class MathValue implements MathComponent {
         this.calculationInstance = null;
     }
 
-    abstract public ValueSupplier getSupplier();
+    abstract ResultSupplier getResultSupplier();
 
 
     @Override
-    public float get() {
-        return isNegative ? -getSupplier().get() : getSupplier().get();
+    public float getResult() {
+        return isNegative ? -getResultSupplier().get() : getResultSupplier().get();
     }
 
     public void makeNegative(boolean become) {
         if (become) isNegative = !isNegative;
     }
 
-    public interface ValueSupplier {
+    public interface ResultSupplier {
         float get();
     }
 

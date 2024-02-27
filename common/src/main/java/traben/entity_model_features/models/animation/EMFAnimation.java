@@ -12,17 +12,16 @@ import java.util.UUID;
 
 public class EMFAnimation {
 
-    public final EMFModelPart partToApplyTo;
-    public final EMFModelOrRenderVariable variableToChange;
+    private final EMFModelPart partToApplyTo;
+    private final EMFModelOrRenderVariable variableToChange;
     public final String animKey;
     public final String expressionString;
     public final String modelName;
     public final boolean isVariable;
-    public final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
-    final float defaultValue;
+    private final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
     public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
-    MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
+    private MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
 
     public void setTrueVariableSource(EMFAnimation trueVariableSource) {
         this.trueVariableToSet = trueVariableSource;
@@ -42,6 +41,7 @@ public class EMFAnimation {
         this.variableToChange = isVariable ? null : variableToChange;
         this.partToApplyTo = partToApplyTo;
 
+        float defaultValue;
         if (this.variableToChange != null) {
             if (partToApplyTo == null) {
                 if (this.variableToChange.isRenderVariable()) {
@@ -98,11 +98,11 @@ public class EMFAnimation {
     }
 
 
-    public float calculatorRun() {
-        return EMFCalculator.get();
+    private float calculatorRun() {
+        return EMFCalculator.getResult();
     }
 
-    void sendValueToTrueVariable(float value){
+    private void sendValueToTrueVariable(float value){
         if (EMFAnimationHelper.getEMFEntity() == null) return;
         UUID id = EMFAnimationHelper.getEMFEntity().etf$getUuid();
         prevResult.put(id, value);

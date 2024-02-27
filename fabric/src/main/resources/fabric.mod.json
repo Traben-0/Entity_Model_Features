@@ -34,7 +34,8 @@
   },
   "mixins": [
     "entity_model_features.mixins.json",
-    "entity_model_features-common.mixins.json"
+    "entity_model_features-common.mixins.json",
+    "entity_model_features-optional.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.14",

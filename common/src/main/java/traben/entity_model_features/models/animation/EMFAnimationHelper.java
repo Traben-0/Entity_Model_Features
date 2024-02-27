@@ -693,14 +693,8 @@ public class EMFAnimationHelper {
             headPitch = m;
             //headYaw = k;
             //constrain head yaw amount
-            if (k > 180 || k < -180) {
-                float normalizedAngle = k % 360;
-                if (normalizedAngle > 180) {
-                    normalizedAngle -= 360;
-                } else if (normalizedAngle < -180) {
-                    normalizedAngle += 360;
-                }
-                headYaw = normalizedAngle;
+            if (k >= 180 || k < -180) {
+                headYaw = MathHelper.wrapDegrees(k);
             } else {
                 headYaw = k;
             }

@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin.rendering;
+package traben.entity_model_features.mixin.optional;
 
 
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -7,13 +7,14 @@ import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import traben.entity_model_features.models.animation.EMFAnimationHelper;
 
 
-@Mixin(LivingEntityRenderer.class)
+@Mixin(value = LivingEntityRenderer.class, priority = 2000)
 public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements FeatureRendererContext<T, M> {
 
 
@@ -51,14 +52,8 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingE
             index = 4
     )
     private float emf$getHeadYaw(float headYaw) {
-        if (headYaw > 180 || headYaw < -180) {
-            float normalizedAngle = headYaw % 360;
-            if (normalizedAngle > 180) {
-                normalizedAngle -= 360;
-            } else if (normalizedAngle < -180) {
-                normalizedAngle += 360;
-            }
-            EMFAnimationHelper.setHeadYaw(normalizedAngle);
+        if (headYaw >= 180 || headYaw < -180) {
+            EMFAnimationHelper.setHeadYaw(MathHelper.wrapDegrees(headYaw));
         } else {
             EMFAnimationHelper.setHeadYaw(headYaw);
         }

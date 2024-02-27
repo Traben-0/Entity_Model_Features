@@ -1,5 +1,7 @@
 package traben.entity_model_features.models.animation.animation_math_parser;
 
+import traben.entity_model_features.utils.EMFUtils;
+
 public class MathConstant extends MathValue implements MathComponent {
 
 
@@ -7,38 +9,39 @@ public class MathConstant extends MathValue implements MathComponent {
         @Override
         public void makeNegative(boolean become) {
         }
+
+        //make this constant to avoid object instantiation
+        private static final ResultSupplier supplier = () -> 0;
+        @Override
+        ResultSupplier getResultSupplier() {
+            return supplier;
+        }
     };
     public static MathConstant ONE = new MathConstant(1) {
         @Override
         public void makeNegative(boolean become) {
         }
-    };
-    public static MathConstant PI_CONSTANT = new MathConstant((float) Math.PI) {
+        //make this constant to avoid object instantiation
+        private static final ResultSupplier supplier = () -> 1;
         @Override
-        public void makeNegative(boolean become) {
-        }
-    };
-    public static MathConstant PI_CONSTANT_NEGATIVE = new MathConstant((float) Math.PI, true) {
-        @Override
-        public void makeNegative(boolean become) {
+        ResultSupplier getResultSupplier() {
+            return supplier;
         }
     };
 
-
-    float hardCodedValue;
+    private float hardCodedValue;
 
     public MathConstant(float number, boolean isNegative) {
         hardCodedValue = isNegative ? -number : number;
     }
-
 
     public MathConstant(float number) {
         hardCodedValue = number;
     }
 
     @Override
-    public ValueSupplier getSupplier() {
-        System.out.println("EMF math constant: this shouldn't happen!");
+    ResultSupplier getResultSupplier() {
+        EMFUtils.logError("EMF math constant: this shouldn't happen!");
         return () -> hardCodedValue;
     }
 
@@ -54,11 +57,11 @@ public class MathConstant extends MathValue implements MathComponent {
 
     @Override
     public String toString() {
-        return String.valueOf(get());
+        return String.valueOf(getResult());
     }
 
-    @Override // make fastest return
-    public float get() {
+    @Override // make faster return
+    public float getResult() {
         return hardCodedValue;
     }
 }

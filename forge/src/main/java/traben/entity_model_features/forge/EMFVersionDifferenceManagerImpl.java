@@ -36,7 +36,7 @@ public class EMFVersionDifferenceManagerImpl {
             for (ModInfo mod : list.getMods()) {
                 if(mod.getModId().equals(modId)) return true;
             }
-        }catch (Exception e){
+        }catch (Exception ignored){
         }
         return false;
     }
