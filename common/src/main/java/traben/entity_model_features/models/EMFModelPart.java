@@ -28,7 +28,7 @@ import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
 public abstract class EMFModelPart extends ModelPart {
     public Identifier textureOverride;
     //    protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
-    private long lastTextureOverride = -1L;
+    protected long lastTextureOverride = -1L;
 
 
     public EMFModelPart(List<Cuboid> cuboids, Map<String, ModelPart> children) {
@@ -41,9 +41,7 @@ public abstract class EMFModelPart extends ModelPart {
         this.children = new Object2ObjectOpenHashMap<>(children);
     }
 
-
     void renderWithTextureOverride(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-
         if (textureOverride == null
                 || lastTextureOverride == EMFManager.getInstance().entityRenderCount) {//prevents texture overrides carrying over into feature renderers that reuse the base model
             //normal vertex consumer

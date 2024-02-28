@@ -83,13 +83,13 @@ public class EMFJemData {
         String mapId = mobModelIDInfo.getMapId();
         Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(mapId, null);
 
+
         //change all part values to their vanilla counterparts
         for (EMFPartData partData :
                 models) {
             if (partData.part != null) {
                 if (map.containsKey(partData.part)) {
                     partData.part = map.get(partData.part);
-
                 }
             }
         }

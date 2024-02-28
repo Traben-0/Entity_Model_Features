@@ -14,6 +14,7 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mixin.accessor.CuboidAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
+import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
@@ -405,10 +406,10 @@ public class EMFModelPartCustom extends EMFModelPart {
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
         switch (EMFConfig.getConfig().renderModeChoice) {
-            case NORMAL -> super.renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
+            case NORMAL -> renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
             case GREEN -> {
                 float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
-                super.renderWithTextureOverride(matrices, vertices, light, overlay, flash, green, flash, alpha);
+                renderWithTextureOverride(matrices, vertices, light, overlay, flash, green, flash, alpha);
             }
             //case TRANSPARENT -> super.primaryRender(matrices, vertices, light, overlay, red, green, blue, 0.5f);
             case LINES ->
@@ -419,5 +420,12 @@ public class EMFModelPartCustom extends EMFModelPart {
         }
     }
 
+    @Override
+    void renderWithTextureOverride(final MatrixStack matrices, final VertexConsumer vertices, final int light, final int overlay, final float red, final float green, final float blue, final float alpha) {
+        //do not render if this is a custom part and are rendering a feature overlay
+        if(textureOverride != null && lastTextureOverride == EMFManager.getInstance().entityRenderCount) return;
 
+        //otherwise render as normal
+        super.renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
+    }
 }

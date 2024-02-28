@@ -1,4 +1,5 @@
 
+- fixed texture overrides acting weird with feature renderers *(fixes Ewan's entity health bars cem models with villagers)*
 - added `left_ear` & `right_ear` to `head_piglin.jem` which seems to be correct but missing in OptiFine's documentation :/
 - reduced and reworded some of the loading log spam that would worry users *(for example Fresh Animations 1.9 now sends no log errors)*
 - added EMF only rotational logic functions for radians and degrees `wrapdeg() wraprad() degdiff() raddiff()`
