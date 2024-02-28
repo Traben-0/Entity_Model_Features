@@ -6,10 +6,10 @@ import traben.entity_model_features.models.animation.animation_math_parser.MathC
 import traben.entity_model_features.models.animation.animation_math_parser.MathConstant;
 import traben.entity_model_features.models.animation.animation_math_parser.MathValue;
 import traben.entity_model_features.models.animation.animation_math_parser.MathVariable;
-import traben.entity_model_features.models.animation.animation_math_parser.variables.factories.UniqueVariableFactory;
 import traben.entity_model_features.models.animation.animation_math_parser.variables.factories.ModelPartVariableFactory;
 import traben.entity_model_features.models.animation.animation_math_parser.variables.factories.ModelVariableFactory;
 import traben.entity_model_features.models.animation.animation_math_parser.variables.factories.RenderVariableFactory;
+import traben.entity_model_features.models.animation.animation_math_parser.variables.factories.UniqueVariableFactory;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -31,6 +31,7 @@ public final class VariableRegistry {
     private static final VariableRegistry INSTANCE = new VariableRegistry();
     private final Map<String, MathComponent> singletonVariables = new HashMap<>();
     private final List<UniqueVariableFactory> uniqueVariableFactories = new ArrayList<>();
+
     private VariableRegistry() {
 
         //these constants are better hardcoded
@@ -157,15 +158,9 @@ public final class VariableRegistry {
                 // uses EMFAnimation object for context to create a new variable instance
                 boolean invertBooleans = variableName.startsWith("!");
 
-                String variableTest;
-                if (isNegative || invertBooleans) {
-                    variableTest = variableName.substring(1);
-                } else {
-                    variableTest = variableName;
-                }
                 //check if any of the unique variable factories can create this variable
                 for (UniqueVariableFactory uniqueVariableFactory : uniqueVariableFactories) {
-                    if (uniqueVariableFactory.createsThisVariable(variableTest)) {
+                    if (uniqueVariableFactory.createsThisVariable(invertBooleans ? variableName.substring(1) : variableName)) {
                         var supplier = uniqueVariableFactory.getSupplierOrNull(variableName, calculationInstance);
                         if (supplier != null) {
                             return new MathVariable(variableName, isNegative,
@@ -176,11 +171,11 @@ public final class VariableRegistry {
                     }
                 }
             }
-        } catch (Exception ignored) {
+            //unknown variable, return zero constant
+            EMFUtils.logWarn("Variable [" + variableName + "] not found in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
+        } catch (Exception e) {
+            EMFUtils.logWarn("Error finding variable: [" + variableName + "] in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
         }
-
-        //unknown variable, return zero constant
-        EMFUtils.logError("Unknown variable: " + variableName + " in [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
         return MathConstant.ZERO;
     }
 }

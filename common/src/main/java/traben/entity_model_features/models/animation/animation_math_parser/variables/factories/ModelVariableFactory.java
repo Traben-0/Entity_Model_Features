@@ -2,9 +2,6 @@ package traben.entity_model_features.models.animation.animation_math_parser.vari
 
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.animation_math_parser.MathValue;
-import traben.entity_model_features.utils.EMFUtils;
-
-import java.util.ArrayList;
 
 public class ModelVariableFactory extends UniqueVariableFactory {
     @Override
@@ -13,11 +10,11 @@ public class ModelVariableFactory extends UniqueVariableFactory {
         if (variableCalculator != null) {
             return variableCalculator::getLastResultOnly;
         }
-        ArrayList<String> vars = new ArrayList<>();
-        for (String var : calculationInstance.emfAnimationVariables.keySet()) {
-            if (var.startsWith("var.") || var.startsWith("varb.")) vars.add(var);
-        }
-        EMFUtils.logWarn("no animation variable found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available variables were: " + vars);
+//        ArrayList<String> vars = new ArrayList<>();
+//        for (String var : calculationInstance.emfAnimationVariables.keySet()) {
+//            if (var.startsWith("var.") || var.startsWith("varb.")) vars.add(var);
+//        }
+//        EMFUtils.logWarn("no animation variable found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available variables were: " + vars);
         return null;
     }
 

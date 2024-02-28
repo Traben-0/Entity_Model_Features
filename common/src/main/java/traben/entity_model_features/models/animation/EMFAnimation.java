@@ -7,6 +7,7 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.animation_math_parser.MathComponent;
 import traben.entity_model_features.models.animation.animation_math_parser.MathExpressionParser;
+import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.UUID;
 
@@ -43,7 +44,7 @@ public class EMFAnimation {
                     defaultValue = this.variableToChange.getValue();
                 } else {
                     if (EMFConfig.getConfig().logModelCreationData)
-                        System.out.println("null part for " + animKey);
+                        EMFUtils.log("null part for " + animKey);
                     defaultValue = 0;
                 }
             } else {

@@ -14,7 +14,7 @@ public class MathConstant extends MathValue implements MathComponent {
         }
 
         @Override
-        ResultSupplier getResultSupplier() {
+        public ResultSupplier getResultSupplier() {
             return supplier;
         }
     };
@@ -27,7 +27,7 @@ public class MathConstant extends MathValue implements MathComponent {
         }
 
         @Override
-        ResultSupplier getResultSupplier() {
+        public ResultSupplier getResultSupplier() {
             return supplier;
         }
     };
@@ -43,7 +43,7 @@ public class MathConstant extends MathValue implements MathComponent {
     }
 
     @Override
-    ResultSupplier getResultSupplier() {
+    public ResultSupplier getResultSupplier() {
         EMFUtils.logError("EMF math constant: this shouldn't happen!");
         return () -> hardCodedValue;
     }

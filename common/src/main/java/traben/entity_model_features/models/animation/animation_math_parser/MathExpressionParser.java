@@ -12,7 +12,10 @@ import java.util.List;
 
 public class MathExpressionParser {
 
-    public static final MathComponent NULL_EXPRESSION = () -> Float.NaN;
+    public static final MathComponent NULL_EXPRESSION = () -> {
+        EMFUtils.logError("ERROR: NULL_EXPRESSION was called, this should not happen.");
+        return Float.NaN;
+    };
     private static final List<MathAction> BOOLEAN_COMPARATOR_ACTIONS = List.of(MathAction.EQUALS, MathAction.SMALLER_THAN_OR_EQUALS, MathAction.SMALLER_THAN, MathAction.LARGER_THAN_OR_EQUALS, MathAction.LARGER_THAN, MathAction.NOT_EQUALS);
     private static final List<MathAction> BOOLEAN_LOGICAL_ACTIONS = List.of(MathAction.AND, MathAction.OR);
     private static final List<MathAction> MULTIPLICATION_ACTIONS = List.of(MathAction.MULTIPLY, MathAction.DIVIDE, MathAction.DIVISION_REMAINDER);
@@ -26,7 +29,7 @@ public class MathExpressionParser {
     private boolean nextValueIsNegative = false;
     private String caughtExceptionString = null;
 
-    private MathExpressionParser(String expressionString, boolean isNegative, EMFAnimation calculationInstance, boolean invertBoolean){
+    private MathExpressionParser(String expressionString, boolean isNegative, EMFAnimation calculationInstance, boolean invertBoolean) {
         this.isNegative = isNegative;
         this.calculationInstance = calculationInstance;
 
@@ -156,8 +159,31 @@ public class MathExpressionParser {
 
             return optimized;
         } catch (Exception e) {
+            EMFUtils.logError("EMF animation ERROR: for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "] cause [" + e + "].");
             return NULL_EXPRESSION;
         }
+    }
+
+    private static String readBracketContents(final CharListIterator charIterator) {
+        final StringBuilder bracketContents = new StringBuilder();
+        int nesting = 0;
+        while (charIterator.hasNext()) {
+            char ch2 = charIterator.nextChar();
+            if (ch2 == '(') {
+                bracketContents.append(ch2);
+                nesting++;
+            } else if (ch2 == ')') {
+                if (nesting == 0) {
+                    break;
+                } else {
+                    bracketContents.append(ch2);
+                    nesting--;
+                }
+            } else {
+                bracketContents.append(ch2);
+            }
+        }
+        return bracketContents.toString();
     }
 
     private void readLastSingleBooleanAction(final EMFAnimation calculationInstance, final Character firstBooleanChar, final RollingReader rollingReader) throws MathComponent.EMFMathException {
@@ -209,28 +235,6 @@ public class MathExpressionParser {
             //method
             components.add(MathMethod.getOptimizedExpression(functionName, bracketContents, getNegativeNext(), this.calculationInstance));
         }
-    }
-
-    private static String readBracketContents(final CharListIterator charIterator) {
-        final StringBuilder bracketContents = new StringBuilder();
-        int nesting = 0;
-        while (charIterator.hasNext()) {
-            char ch2 = charIterator.nextChar();
-            if (ch2 == '(') {
-                bracketContents.append(ch2);
-                nesting++;
-            } else if (ch2 == ')') {
-                if (nesting == 0) {
-                    break;
-                } else {
-                    bracketContents.append(ch2);
-                    nesting--;
-                }
-            } else {
-                bracketContents.append(ch2);
-            }
-        }
-        return bracketContents.toString();
     }
 
     private void readVariableOrConstant(final RollingReader rollingReader) throws MathComponent.EMFMathException {
@@ -374,8 +378,9 @@ public class MathExpressionParser {
         }
 
         String read() {
+            var result = builder.toString();
             clear();
-            return toString();
+            return result;
         }
 
         @Override

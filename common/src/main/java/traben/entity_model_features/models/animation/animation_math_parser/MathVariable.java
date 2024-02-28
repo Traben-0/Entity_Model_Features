@@ -21,7 +21,7 @@ public class MathVariable extends MathValue implements MathComponent {
         name = variableName;
     }
 
-    static MathComponent getOptimizedVariable(String variableName, boolean isNegative, EMFAnimation calculationInstance){
+    static MathComponent getOptimizedVariable(String variableName, boolean isNegative, EMFAnimation calculationInstance) {
         if (variableName.startsWith("-")) {//catch mistake of double negative
             return VariableRegistry.getInstance().getVariable(variableName.substring(1), true, calculationInstance);
         }

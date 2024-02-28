@@ -16,7 +16,7 @@ public class EMFClient {
     public static final int EYES_FEATURE_LIGHT_VALUE = LightmapTextureManager.MAX_LIGHT_COORDINATE + 1;
     public static final String MOD_ID = "entity_model_features";
     private static final String[] quips = {
-            "special thanks to Cody!",
+            "special thanks to Cody, top donator!",
             "your third cousin's, dog's, previous owner's, uncle's, old boss's, fifth favourite mod!",
             "Thanks for 200K plus downloads!!",
             "why does no one download Solid Mobs :(",
@@ -39,7 +39,8 @@ public class EMFClient {
             "100% of the time it works 90% of the time!",
             "now moving all models 0.00001 blocks to the left every 4 seconds.",
             "PI = " + ((float) Math.PI) + " and you can't convince me otherwise.",
-            "90 =" + ((float) Math.toRadians(90)) + "!"
+            "90 =" + ((float) Math.toRadians(90)) + "!",
+            "making those animations fresh since 1862!"
     };
     public static boolean forgeHadLoadingError = false;
     public static boolean testedForge = !EMFVersionDifferenceManager.isForge();

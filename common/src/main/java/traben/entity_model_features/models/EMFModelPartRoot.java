@@ -139,7 +139,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     //root only
     public void addVariantOfJem(EMFJemData jemData, int variant) {
         if (EMFConfig.getConfig().logModelCreationData)
-            System.out.println(" > " + jemData.getMobModelIDInfo().getfileName() + ", constructing variant #" + variant);
+            EMFUtils.log(" > " + jemData.getMobModelIDInfo().getfileName() + ", constructing variant #" + variant);
 
         Map<String, EMFModelPartCustom> newEmfParts = new HashMap<>();
         for (EMFPartData part :
@@ -164,7 +164,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 EMFModelPartCustom newPart = newPartEntry.getValue();
                 if (thisPartName.equals(newPart.partToBeAttached)) {
                     if (EMFConfig.getConfig().logModelCreationData)
-                        System.out.println(" > > > EMF custom part attached: " + newPartEntry.getKey());
+                        EMFUtils.log(" > > > EMF custom part attached: " + newPartEntry.getKey());
                     if (!newPart.attach) {
                         thisPart.cuboids = List.of();
                         thisPart.children.values().forEach((part) -> {

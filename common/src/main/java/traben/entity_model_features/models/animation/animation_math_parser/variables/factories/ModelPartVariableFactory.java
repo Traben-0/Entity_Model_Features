@@ -3,9 +3,9 @@ package traben.entity_model_features.models.animation.animation_math_parser.vari
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFModelOrRenderVariable;
+import traben.entity_model_features.models.animation.animation_math_parser.MathConstant;
 import traben.entity_model_features.models.animation.animation_math_parser.MathValue;
 import traben.entity_model_features.utils.EMFManager;
-import traben.entity_model_features.utils.EMFUtils;
 
 public class ModelPartVariableFactory extends UniqueVariableFactory {
     @Override
@@ -17,7 +17,15 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
         if (partVariable != null && part != null) {
             return () -> partVariable.getValue(part);
         }
-        EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.allPartsBySingleAndFullHeirachicalId.keySet());
+
+        //cheeky little thing for how I get large chests working from 1 jem file
+        //todo possibly need the same in bed.jem???
+        if (calculationInstance.modelName.endsWith("chest_large.jem") && (partName.endsWith("_left") || partName.endsWith("_right"))) {
+            //just silences the log spam when the left chest cant find the parts of the right side animation lines :/
+            return MathConstant.ZERO.getResultSupplier();
+        }
+
+        //EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.allPartsBySingleAndFullHeirachicalId.keySet());
         return null;
     }
 

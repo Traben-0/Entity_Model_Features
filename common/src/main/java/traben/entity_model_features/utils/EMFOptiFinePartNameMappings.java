@@ -277,7 +277,7 @@ public class EMFOptiFinePartNameMappings {
             );
 
             case "chest_large" -> {
-                System.out.println("CHEST_LARGE SHOULDN'T HAVE RUN");
+                EMFUtils.logError("CHEST_LARGE SHOULDN'T HAVE RUN");
                 yield Map.of();
             }
 

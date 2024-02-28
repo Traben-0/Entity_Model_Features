@@ -7,6 +7,7 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
 
@@ -32,7 +33,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         this.name = name;
 
         if (EMFConfig.getConfig().logModelCreationData)
-            System.out.println(" > EMF vanilla part made: " + name);
+            EMFUtils.log(" > EMF vanilla part made: " + name);
 
         isOptiFinePartSpecified = optifinePartNames.contains(name);
         rootType = name.equals("root") || name.equals("EMF_root");

@@ -55,22 +55,22 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier.set( "dev-shadow")
+    archiveClassifier.set("dev-shadow")
 }
 
 remapJar {
     atAccessWideners.add('entity_model_features.accesswidener')
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    archiveClassifier.set(  null)
+    archiveClassifier.set(null)
 }
 
-repositories{
+repositories {
     maven { url "https://maven.neoforged.net/releases/" }
 }
 
 jar {
-    archiveClassifier.set(  "dev")
+    archiveClassifier.set("dev")
 }
 
 sourcesJar {

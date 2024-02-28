@@ -54,7 +54,7 @@ public class EMFModelPartCustom extends EMFModelPart {
         this.setDefaultTransform(this.getTransform());
 
         if (EMFConfig.getConfig().logModelCreationData)
-            System.out.println(" > > EMF custom part made: " + emfPartData.id);
+            EMFUtils.log(" > > EMF custom part made: " + emfPartData.id);
         //if (variantNumber == 0)
 
 
