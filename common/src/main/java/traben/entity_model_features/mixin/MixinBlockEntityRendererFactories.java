@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.EMFClient;
+import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -30,7 +31,8 @@ public class MixinBlockEntityRendererFactories {
     @Inject(method = "reload", at = @At(value = "RETURN"))
     private static void emf$clearMarker(final BlockEntityRendererFactory.Context args, final CallbackInfoReturnable<Map<BlockEntityType<?>, BlockEntityRenderer<?>>> cir) {
         EMFManager.getInstance().currentSpecifiedModelLoading = "";
-        EMFUtils.log("Identified block entity renderers: " + emf$renderers);
+        if (EMFConfig.getConfig().logModelCreationData || EMFConfig.getConfig().logUnknownOrModdedEntityModels != EMFConfig.UnknownModelPrintMode.NONE)
+            EMFUtils.log("Identified block entity renderers: " + emf$renderers);
         emf$renderers.clear();
     }
 
@@ -39,15 +41,6 @@ public class MixinBlockEntityRendererFactories {
         //mark which variant is currently specified for use by otherwise identical block entity renderers
         if (EMFClient.testForForgeLoadingError()) return;
 
-//        if (BlockEntityType.CHEST.equals(type))
-//            EMFManager.getInstance().currentSpecifiedModelLoading = "chest";
-//        else if (BlockEntityType.ENDER_CHEST.equals(type))
-//            EMFManager.getInstance().currentSpecifiedModelLoading = "ender_chest";
-//        else if (BlockEntityType.TRAPPED_CHEST.equals(type))
-//            EMFManager.getInstance().currentSpecifiedModelLoading = "trapped_chest";
-//        else if (BlockEntityType.SHULKER_BOX.equals(type))
-//            EMFManager.getInstance().currentSpecifiedModelLoading = "shulker_box";
-//        else
         if (BlockEntityType.ENCHANTING_TABLE.equals(type))
             EMFManager.getInstance().currentSpecifiedModelLoading = "enchanting_book";
         else if (BlockEntityType.LECTERN.equals(type))

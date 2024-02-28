@@ -228,7 +228,9 @@ public class EMFOptiFinePartNameMappings {
             case "wither_skull", "head_zombie", "head_wither_skeleton", "head_skeleton", "head_player", "head_creeper" ->
                     Map.ofEntries(getOptifineMapEntry("head"));
             case "head_piglin" -> Map.ofEntries(
-                    getOptifineMapEntry("head")
+                    getOptifineMapEntry("head"),
+                    getOptifineMapEntry("left_ear"),
+                    getOptifineMapEntry("right_ear")
             );
             case "head_dragon" -> Map.ofEntries(
                     getOptifineMapEntry("head"),

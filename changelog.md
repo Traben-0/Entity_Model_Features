@@ -1,9 +1,10 @@
 
-
+- added `left_ear` & `right_ear` to `head_piglin.jem` which seems to be correct but missing in OptiFine's documentation :/
+- reduced and reworded some of the loading log spam that would worry users *(for example Fresh Animations 1.9 now sends no log errors)*
 - added EMF only rotational logic functions for radians and degrees `wrapdeg() wraprad() degdiff() raddiff()`
   - the `wrap` functions will wrap a rotation value down to it's smallest identical value, e.g. `wrapdeg(370)` will return `10` & `wrapdeg(350)` will return `-10`
   - the `diff` functions will return the resulting difference between two rotation values factoring in the rotation, e.g. `degdiff(10, 350)` will return `-20` & `degdiff(10, 370)` will return `0` 
-- very many EMF only interpolation animation functions added
+- added very many EMF only interpolation animation functions
   - `catmullrom() quadbezier() cubicbezier() hermite() easeinoutexpo() easeinexpo() easeoutexpo() easeinoutcirc() easeincirc()  easeoutcirc()  easeinoutelastic()  easeinelastic()  easeoutelastic()  easeinoutback() easeinback()  easeoutback()  easeinoutbounce()  easeinbounce()  easeoutbounce()  easeinquad()  easeoutquad()  easeinoutquad()  easeincubic()  easeoutcubic()  easeinoutcubic()  easeinquart()  easeoutquart()  easeinoutquart()  easeinquint()  easeoutquint()  easeinoutquint()  easeinsine()  easeoutsine()  easeinoutsine()`
   - hermite & catmullrom have 5 args, the bezier's have 4, the rest have 3, and all are used in the same way as `lerp()` with the delta value being the first argument.
   - this is a good website to get an idea on what most of these look like https://easings.net/

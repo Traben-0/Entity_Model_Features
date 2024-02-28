@@ -219,7 +219,8 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     }
                     //receiveOneTimeRunnable(this::registerModelRunnable);
                 } else {
-                    EMFUtils.logWarn("properties with only 1 variant found: " + propertyID + "\n please check this is correct.");
+                    if (EMFConfig.getConfig().logModelCreationData)
+                        EMFUtils.logWarn("properties with only 1 variant found: " + propertyID + ".");
                     //variantTester = null;
                     //variantDirectoryApplier = null;
                 }
