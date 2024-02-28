@@ -32,18 +32,17 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public static EMFModelPartRoot lastCreatedRootModelPart = null;
     private static EMFManager self = null;
-
-    public UUID entityForDebugPrint = null;
     public final boolean IS_PHYSICS_MOD_INSTALLED;
     public final boolean IS_IRIS_INSTALLED;
-    private final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
-
-    public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot> > rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
+    public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
-
     public final ObjectSet<OptifineMobNameForFileAndEMFMapId> modelsAnnounced = new ObjectOpenHashSet<>();
-
+    private final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
+    private final Object2IntOpenHashMap<EntityModelLayer> amountOfLayerAttempts = new Object2IntOpenHashMap<>() {{
+        defaultReturnValue(0);
+    }};
+    public UUID entityForDebugPrint = null;
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
     public String currentSpecifiedModelLoading = "";
@@ -51,7 +50,6 @@ public class EMFManager {//singleton for data holding and resetting needs
         defaultReturnValue(null);
     }};
     private boolean traderLlamaHappened = false;
-
 
     private EMFManager() {
         EMFAnimationHelper.reset();
@@ -69,7 +67,6 @@ public class EMFManager {//singleton for data holding and resetting needs
         EMFOptiFinePartNameMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
         self = new EMFManager();
     }
-
 
     @Nullable
     public static EMFJemData getJemData(String jemFileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
@@ -173,13 +170,10 @@ public class EMFManager {//singleton for data holding and resetting needs
         return null;
     }
 
-    private final Object2IntOpenHashMap<EntityModelLayer> amountOfLayerAttempts = new Object2IntOpenHashMap<>()
-    {{defaultReturnValue(0);}};
-
     public ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
-        int creationsOfLayer = amountOfLayerAttempts.put(layer,amountOfLayerAttempts.getInt(layer)+1);
-        if(creationsOfLayer > 500 ){
-            if(creationsOfLayer == 501) {
+        int creationsOfLayer = amountOfLayerAttempts.put(layer, amountOfLayerAttempts.getInt(layer) + 1);
+        if (creationsOfLayer > 500) {
+            if (creationsOfLayer == 501) {
                 EMFUtils.logWarn("model attempted creation more than 500 times {" + layer.toString() + "]. EMF is now ignoring this model.");
             }
             return root;
@@ -360,12 +354,12 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
             if (printing) System.out.println(" > Vanilla model used for: " + mobNameForFileAndMap);
-            ((IEMFModelNameContainer)root).emf$insertKnownMappings(mobNameForFileAndMap);
+            ((IEMFModelNameContainer) root).emf$insertKnownMappings(mobNameForFileAndMap);
             return root;
         } catch (Exception e) {
             EMFUtils.logWarn("default model returned for " + layer + " due to exception: ");
             e.printStackTrace();
-            ((IEMFModelNameContainer)root).emf$insertKnownMappings(mobNameForFileAndMap);
+            ((IEMFModelNameContainer) root).emf$insertKnownMappings(mobNameForFileAndMap);
             return root;
         }
     }
@@ -379,7 +373,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFOptiFinePartNameMappings.getMapOf(emfRootPart.modelName.getMapId(), null)));
 
         //Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> emfAnimationsByPartName = new Object2ObjectLinkedOpenHashMap<>();
-         Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
+        Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
 
 
         if (printing) {
@@ -406,13 +400,13 @@ public class EMFManager {//singleton for data holding and resetting needs
                         jemData.getFileName()//, variableSuppliers
                 );
 
-                if(emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVariable){
+                if (emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVariable) {
                     //this is a secondary variable modification
                     // add it in the animation list but hash out the key name
-                    emfAnimations.put(animKey+'#'+System.currentTimeMillis(), newAnimation);
+                    emfAnimations.put(animKey + '#' + System.currentTimeMillis(), newAnimation);
                     //set this variable to instead set the value of the true variable source
                     newAnimation.setTrueVariableSource(emfAnimations.get(animKey));
-                }else{
+                } else {
                     emfAnimations.put(animKey, newAnimation);
                 }
 
@@ -425,24 +419,24 @@ public class EMFManager {//singleton for data holding and resetting needs
 //        emfAnimationsByPartName.forEach((part, animMap) -> {
 
 
-            Iterator<EMFAnimation> animMapIterate = emfAnimations.values().iterator();
-            while (animMapIterate.hasNext()) {
-                EMFAnimation anim = animMapIterate.next();
-                if (anim != null) {
-                    anim.initExpression(emfAnimations, allPartsBySingleAndFullHeirachicalId);
-                    if (!anim.isValid()) {
-                        EMFUtils.logWarn("animation was invalid: " + anim.animKey + " = " + anim.expressionString);
-                        animMapIterate.remove();
-                    }
-                } else {
+        Iterator<EMFAnimation> animMapIterate = emfAnimations.values().iterator();
+        while (animMapIterate.hasNext()) {
+            EMFAnimation anim = animMapIterate.next();
+            if (anim != null) {
+                anim.initExpression(emfAnimations, allPartsBySingleAndFullHeirachicalId);
+                if (!anim.isValid()) {
+                    EMFUtils.logWarn("animation was invalid: " + anim.animKey + " = " + anim.expressionString);
                     animMapIterate.remove();
                 }
+            } else {
+                animMapIterate.remove();
             }
+        }
 
         //});
         isAnimationValidationPhase = false;
 
-        emfRootPart.receiveAnimations(variantNum,emfAnimations.values()); //emfAnimationsByPartName);
+        emfRootPart.receiveAnimations(variantNum, emfAnimations.values()); //emfAnimationsByPartName);
     }
 
 
@@ -465,7 +459,6 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         String getThisDirectoryOfFilename(String fileName);
     }
-
 
 
 }

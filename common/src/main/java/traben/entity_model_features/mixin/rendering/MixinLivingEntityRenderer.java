@@ -99,7 +99,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
                 Identifier texture = root.getTopLevelJemTexture();
-                if(texture != null)
+                if (texture != null)
                     return texture;
             }
         }

@@ -7,21 +7,21 @@ import traben.entity_model_features.models.animation.animation_math_parser.varia
 public class MathVariable extends MathValue implements MathComponent {
 
 
-
     private final ResultSupplier resultSupplier;
     private final String name;
-    public MathVariable(String variableName, boolean isNegative, ResultSupplier supplier){
+
+    public MathVariable(String variableName, boolean isNegative, ResultSupplier supplier) {
         super(isNegative);
         resultSupplier = supplier;
         name = variableName;
     }
 
-    public MathVariable(String variableName, ResultSupplier supplier){
+    public MathVariable(String variableName, ResultSupplier supplier) {
         resultSupplier = supplier;
         name = variableName;
     }
 
-    static MathComponent getOptimizedVariable(String variableName, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
+    static MathComponent getOptimizedVariable(String variableName, boolean isNegative, EMFAnimation calculationInstance){
         if (variableName.startsWith("-")) {//catch mistake of double negative
             return VariableRegistry.getInstance().getVariable(variableName.substring(1), true, calculationInstance);
         }
@@ -34,6 +34,8 @@ public class MathVariable extends MathValue implements MathComponent {
     }
 
     @Override
-    public String toString(){return "variable["+name+"]="+ getResult();}
+    public String toString() {
+        return "variable[" + name + "]=" + getResult();
+    }
 
 }

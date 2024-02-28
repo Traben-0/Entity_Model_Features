@@ -55,19 +55,16 @@ public class EMFAnimationHelper {
     private static float headPitch = Float.NaN;
     private static float tickDelta = 0;
     private static boolean onShoulder = false;
-
-
-
-    public static void setLayerFactory(Function<Identifier, RenderLayer> layerFactory) {
-        EMFAnimationHelper.layerFactory = layerFactory;
-    }
-
     private static Function<Identifier, RenderLayer> layerFactory = null;
+    private static boolean announceModels = false;
 
     private EMFAnimationHelper() {
 
     }
 
+    public static void setLayerFactory(Function<Identifier, RenderLayer> layerFactory) {
+        EMFAnimationHelper.layerFactory = layerFactory;
+    }
 
     public static void setCurrentEntityIteration(EMFEntity entityIn) {
         layerFactory = null;
@@ -89,20 +86,20 @@ public class EMFAnimationHelper {
         }
 
         //if this entity requires a debug print do it now after models have variated
-        if(EMFConfig.getConfig().debugOnRightClick
-                && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)){
+        if (EMFConfig.getConfig().debugOnRightClick
+                && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)) {
             announceModels = true;
             EMFManager.getInstance().entityForDebugPrint = null;
         }
     }
 
-    public static void anounceModels(EMFEntity assertEntity){
+    public static void anounceModels(EMFEntity assertEntity) {
         String type = assertEntity.emf$getTypeString();
         Set<EMFModelPartRoot> debugRoots = EMFManager.getInstance().rootPartsPerEntityTypeForDebug.get(type);
         EMFUtils.chat("§e-----------EMF Debug Printout-------------§r");
-        if(debugRoots == null){
+        if (debugRoots == null) {
             EMFUtils.chat(
-                    "\n§c§oThe EMF debug printout did not find any custom models registered to the following entity:\n §3§l§u"+ type
+                    "\n§c§oThe EMF debug printout did not find any custom models registered to the following entity:\n §3§l§u" + type
             );
         } else {
             String message = "\n§2§oThe EMF debug printout found the following custom models for the entity:\n §3§l§u" +
@@ -134,7 +131,7 @@ public class EMFAnimationHelper {
                 }
                 EMFUtils.chat(model + "\n§6 - parts:§r printed in game log only.");
 
-                EMFUtils.log("\n - parts: "+debugRoot.simplePrintChildren(0));
+                EMFUtils.log("\n - parts: " + debugRoot.simplePrintChildren(0));
 
                 count++;
             }
@@ -179,12 +176,9 @@ public class EMFAnimationHelper {
         return announceModels;
     }
 
-    private static boolean announceModels = false;
-
-    private static String entryAndValue(String entry, String value){
-        return "\n§6 - "+entry+":§r " + value ;
+    private static String entryAndValue(String entry, String value) {
+        return "\n§6 - " + entry + ":§r " + value;
     }
-
 
 
     public static void setCurrentEntityNoIteration(EMFEntity entityIn) {
@@ -220,8 +214,8 @@ public class EMFAnimationHelper {
         shadowZ = 0;
     }
 
-    public static RenderLayer getLayerFromRecentFactoryOrTranslucent(Identifier identifier){
-        if(layerFactory == null){
+    public static RenderLayer getLayerFromRecentFactoryOrTranslucent(Identifier identifier) {
+        if (layerFactory == null) {
             return RenderLayer.getEntityTranslucent(identifier);
         }
         return layerFactory.apply(identifier);

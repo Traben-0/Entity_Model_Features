@@ -48,7 +48,6 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     }
 
 
-
     EMFModelState getCurrentState() {
         return new EMFModelState(
                 getDefaultTransform(),
@@ -110,7 +109,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         }
     }
 
-    record EMFModelState(
+    public record EMFModelState(
             ModelTransform defaultTransform,
             // ModelTransform currentTransform,
             List<Cuboid> cuboids,

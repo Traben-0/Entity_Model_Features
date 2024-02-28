@@ -12,21 +12,16 @@ import java.util.UUID;
 
 public class EMFAnimation {
 
-    private final EMFModelPart partToApplyTo;
-    private final EMFModelOrRenderVariable variableToChange;
     public final String animKey;
     public final String expressionString;
     public final String modelName;
     public final boolean isVariable;
+    private final EMFModelPart partToApplyTo;
+    private final EMFModelOrRenderVariable variableToChange;
     private final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
     public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
     private MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
-
-    public void setTrueVariableSource(EMFAnimation trueVariableSource) {
-        this.trueVariableToSet = trueVariableSource;
-    }
-
     private EMFAnimation trueVariableToSet = null;
 
     public EMFAnimation(EMFModelPart partToApplyTo,
@@ -59,6 +54,10 @@ public class EMFAnimation {
         }
         prevResult.defaultReturnValue(defaultValue);
         expressionString = initialExpression;
+    }
+
+    public void setTrueVariableSource(EMFAnimation trueVariableSource) {
+        this.trueVariableToSet = trueVariableSource;
     }
 
     @Override
@@ -102,7 +101,7 @@ public class EMFAnimation {
         return EMFCalculator.getResult();
     }
 
-    private void sendValueToTrueVariable(float value){
+    private void sendValueToTrueVariable(float value) {
         if (EMFAnimationHelper.getEMFEntity() == null) return;
         UUID id = EMFAnimationHelper.getEMFEntity().etf$getUuid();
         prevResult.put(id, value);
@@ -110,7 +109,7 @@ public class EMFAnimation {
 
     public void calculateAndSet() {
         if (isVariable) {
-            if(trueVariableToSet != null){
+            if (trueVariableToSet != null) {
                 trueVariableToSet.sendValueToTrueVariable(getResultViaCalculate());
             } else {
                 getResultViaCalculate();

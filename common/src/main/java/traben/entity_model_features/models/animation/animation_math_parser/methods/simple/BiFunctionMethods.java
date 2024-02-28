@@ -21,12 +21,12 @@ public class BiFunctionMethods extends MathMethod {
         setSupplierAndOptimize(() -> function.apply(arg.getResult(), arg2.getResult()), List.of(arg, arg2));
     }
 
-    public static MethodRegistry.MethodFactory makeFactory(final String methodName, final BiFunction<Float, Float, Float> function){
+    public static MethodRegistry.MethodFactory makeFactory(final String methodName, final BiFunction<Float, Float, Float> function) {
         return (args, isNegative, calculationInstance) -> {
             try {
                 return new BiFunctionMethods(args, isNegative, calculationInstance, function);
             } catch (Exception e) {
-                throw new EMFMathException("Failed to create "+methodName+"() method, because: " + e);
+                throw new EMFMathException("Failed to create " + methodName + "() method, because: " + e);
             }
         };
 

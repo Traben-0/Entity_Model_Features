@@ -12,15 +12,20 @@ import java.util.*;
 
 public class EMFJemData {
 
-    public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
-        return allTopLevelAnimationsByVanillaPartName;
-    }
-
     private final LinkedHashMap<String, LinkedHashMap<String, String>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();
     public String texture = "";
     public int[] textureSize = null;
     public double shadow_size = 1.0;
     public LinkedList<EMFPartData> models = new LinkedList<>();
+    private String fileName = "none";
+    private String filePath = "";
+    private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
+    //public String mobName = "none";
+    private Identifier customTexture = null;
+
+    public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
+        return allTopLevelAnimationsByVanillaPartName;
+    }
 
     public String getFileName() {
         return fileName;
@@ -37,13 +42,6 @@ public class EMFJemData {
     public Identifier getCustomTexture() {
         return customTexture;
     }
-
-    private String fileName = "none";
-    private String filePath = "";
-    private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
-
-    //public String mobName = "none";
-    private Identifier customTexture = null;
 
     @Nullable
     public Identifier validateJemTexture(String texture) {
@@ -141,7 +139,7 @@ public class EMFJemData {
         }
 
         //place in a simple animation to set the shadow size
-        if(shadow_size != 1.0){
+        if (shadow_size != 1.0) {
             if (shadow_size < 0) shadow_size = 0;
 
             String rootPart = "EMF_root";

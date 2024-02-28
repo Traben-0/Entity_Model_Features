@@ -334,8 +334,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("left_gills"),
                     getOptifineMapEntry("tail")
             );
-            case "bat" ->
-                    Map.ofEntries(
+            case "bat" -> Map.ofEntries(
                     getOptifineMapEntry("body"),
                     getOptifineMapEntry("head"),
                     getOptifineMapEntry("right_wing"),
@@ -878,7 +877,7 @@ public class EMFOptiFinePartNameMappings {
         if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName))
             return UNKNOWN_MODEL_MAP_CACHE.get(mobName);
 
-        if(originalModel == null) {
+        if (originalModel == null) {
             EMFUtils.logError("model part was null and not already mapped in exploreProvidedEntityModel() EMF");
             return Map.of();
         }

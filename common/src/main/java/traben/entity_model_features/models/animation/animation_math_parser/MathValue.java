@@ -11,7 +11,8 @@ public abstract class MathValue implements MathComponent {
     MathValue(boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
         this.isNegative = isNegative;
         this.calculationInstance = calculationInstance;
-        if (calculationInstance == null) throw new EMFMathException("calculationInstance cannot be null if declared");//todo check if still needed
+        if (calculationInstance == null)
+            throw new EMFMathException("calculationInstance cannot be null if declared");//todo check if still needed
     }
 
     MathValue(boolean isNegative) {

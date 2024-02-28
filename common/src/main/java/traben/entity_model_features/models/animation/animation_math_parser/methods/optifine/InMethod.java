@@ -32,7 +32,6 @@ public class InMethod extends MathMethod {
     }
 
 
-
     @Override
     protected boolean hasCorrectArgCount(final int argCount) {
         return argCount >= 2;

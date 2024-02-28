@@ -11,15 +11,16 @@ import java.util.function.Function;
 public class MultiFunctionMethods extends MathMethod {
 
     private final int argCount;
+
     public MultiFunctionMethods(final List<String> args,
                                 final boolean isNegative,
                                 final EMFAnimation calculationInstance,
-                                final Function<List<Float>,Float> function) throws EMFMathException {
+                                final Function<List<Float>, Float> function) throws EMFMathException {
         super(isNegative, calculationInstance, args.size());
 
         argCount = args.size();
         var parsedArgs = parseAllArgs(args, calculationInstance);
-        setSupplierAndOptimize(()->{
+        setSupplierAndOptimize(() -> {
             List<Float> results = new ArrayList<>();
             for (var parsedArg : parsedArgs) {
                 results.add(parsedArg.getResult());
@@ -28,20 +29,16 @@ public class MultiFunctionMethods extends MathMethod {
         }, parsedArgs);
     }
 
-    public static MethodRegistry.MethodFactory makeFactory(final String methodName, final Function<List<Float>,Float> function){
+    public static MethodRegistry.MethodFactory makeFactory(final String methodName, final Function<List<Float>, Float> function) {
         return (args, isNegative, calculationInstance) -> {
             try {
                 return new MultiFunctionMethods(args, isNegative, calculationInstance, function);
             } catch (Exception e) {
-                throw new EMFMathException("Failed to create "+methodName+"() method, because: " + e);
+                throw new EMFMathException("Failed to create " + methodName + "() method, because: " + e);
             }
         };
 
     }
-
-
-
-
 
 
     public static float quadraticBezier(float t, float p0, float p1, float p2) {
@@ -67,7 +64,6 @@ public class MultiFunctionMethods extends MathMethod {
 
         return h00 * p0 + h10 * m0 + h01 * p1 + h11 * m1;
     }
-
 
 
     @Override

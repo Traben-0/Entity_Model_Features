@@ -42,12 +42,12 @@ public class EMFUtils {
         if (inChat) {
             ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of((noPrefix ? "": "§6[Entity Model Features]:§r ") + message), false);
+                plyr.sendMessage(Text.of((noPrefix ? "" : "§6[Entity Model Features]:§r ") + message), false);
             } else {
-                LogManager.getLogger().info((noPrefix ? "": "[Entity Model Features]: ") + message);
+                LogManager.getLogger().info((noPrefix ? "" : "[Entity Model Features]: ") + message);
             }
         } else {
-            LogManager.getLogger().info((noPrefix ? "": "[Entity Model Features]: ") + message);
+            LogManager.getLogger().info((noPrefix ? "" : "[Entity Model Features]: ") + message);
         }
     }
 

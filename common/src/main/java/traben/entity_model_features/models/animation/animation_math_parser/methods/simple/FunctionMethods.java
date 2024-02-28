@@ -20,12 +20,12 @@ public class FunctionMethods extends MathMethod {
         setSupplierAndOptimize(() -> function.apply(arg.getResult()), arg);
     }
 
-    public static MethodRegistry.MethodFactory makeFactory(final String methodName, final Function<Float, Float> function){
+    public static MethodRegistry.MethodFactory makeFactory(final String methodName, final Function<Float, Float> function) {
         return (args, isNegative, calculationInstance) -> {
             try {
                 return new FunctionMethods(args, isNegative, calculationInstance, function);
             } catch (Exception e) {
-                throw new EMFMathException("Failed to create "+methodName+"() method, because: " + e);
+                throw new EMFMathException("Failed to create " + methodName + "() method, because: " + e);
             }
         };
 

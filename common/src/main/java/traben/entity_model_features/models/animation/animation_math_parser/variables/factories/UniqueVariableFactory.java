@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.animation_math_parser.MathValue;
 
-public abstract class ContextVariableFactory {
+public abstract class UniqueVariableFactory {
 
     @Override
     public boolean equals(final Object obj) {

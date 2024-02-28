@@ -62,8 +62,8 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         receiveOneTimeRunnable(this::registerModelRunnableWithEntityTypeContext);
     }
 
-    private void registerModelRunnableWithEntityTypeContext(){
-        if(EMFAnimationHelper.getEMFEntity() != null) {
+    private void registerModelRunnableWithEntityTypeContext() {
+        if (EMFAnimationHelper.getEMFEntity() != null) {
 
             //register models to entity type for debug print
             if (EMFConfig.getConfig().debugOnRightClick) {
@@ -236,7 +236,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public void setVariant1ToVanilla0() {
         allKnownStateVariants.put(1, allKnownStateVariants.get(0));
-        allVanillaParts.forEach((k,child)->child.allKnownStateVariants.put(1, child.allKnownStateVariants.get(0)));
+        allVanillaParts.forEach((k, child) -> child.allKnownStateVariants.put(1, child.allKnownStateVariants.get(0)));
     }
 
 
@@ -271,7 +271,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         return vanillaFormatModelPartOfEachState.get(currentModelVariant);
     }
 
-    public void receiveAnimations(int variant, Collection<EMFAnimation> animationList){// Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> orderedAnimationsByPartName) {
+    public void receiveAnimations(int variant, Collection<EMFAnimation> animationList) {// Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> orderedAnimationsByPartName) {
 //        LinkedList<EMFAnimation> animationList = new LinkedList<>();
 //        if (orderedAnimationsByPartName.size() > 0) {
 //            allVanillaParts.values().forEach((emf) -> {

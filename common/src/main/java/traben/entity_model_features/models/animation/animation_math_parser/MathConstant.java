@@ -6,23 +6,26 @@ public class MathConstant extends MathValue implements MathComponent {
 
 
     public static MathConstant ZERO = new MathConstant(0) {
+        //make this constant to avoid object instantiation
+        private static final ResultSupplier supplier = () -> 0;
+
         @Override
         public void makeNegative(boolean become) {
         }
 
-        //make this constant to avoid object instantiation
-        private static final ResultSupplier supplier = () -> 0;
         @Override
         ResultSupplier getResultSupplier() {
             return supplier;
         }
     };
     public static MathConstant ONE = new MathConstant(1) {
+        //make this constant to avoid object instantiation
+        private static final ResultSupplier supplier = () -> 1;
+
         @Override
         public void makeNegative(boolean become) {
         }
-        //make this constant to avoid object instantiation
-        private static final ResultSupplier supplier = () -> 1;
+
         @Override
         ResultSupplier getResultSupplier() {
             return supplier;

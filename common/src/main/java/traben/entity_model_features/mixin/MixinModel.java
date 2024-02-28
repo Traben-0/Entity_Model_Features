@@ -43,10 +43,9 @@ public class MixinModel implements IEMFModel {
     }
 
 
-
     @Inject(method = "getLayer",
             at = @At(value = "HEAD"))
     private void emf$discoverEMFModel(Identifier texture, CallbackInfoReturnable<RenderLayer> cir) {
-        EMFAnimationHelper.setLayerFactory(((Model)((Object)this)).layerFactory);
+        EMFAnimationHelper.setLayerFactory(((Model) ((Object) this)).layerFactory);
     }
 }

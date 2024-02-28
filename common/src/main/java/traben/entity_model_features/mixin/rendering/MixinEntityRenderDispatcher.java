@@ -29,7 +29,7 @@ public abstract class MixinEntityRenderDispatcher {
     @Inject(method = "render",
             at = @At(value = "RETURN"))
     private <E extends Entity> void emf$endOfRender(E entity, double x, double y, double z, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
-        if (EMFAnimationHelper.doAnnounceModels()){
+        if (EMFAnimationHelper.doAnnounceModels()) {
             EMFAnimationHelper.anounceModels((EMFEntity) entity);
         }
     }

@@ -6,7 +6,7 @@ import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
 
-public class ModelVariableFactory extends ContextVariableFactory{
+public class ModelVariableFactory extends UniqueVariableFactory {
     @Override
     public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
         EMFAnimation variableCalculator = calculationInstance.emfAnimationVariables.get(variableKey);

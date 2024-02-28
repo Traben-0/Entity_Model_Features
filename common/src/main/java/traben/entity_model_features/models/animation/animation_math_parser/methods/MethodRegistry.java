@@ -7,11 +7,11 @@ import traben.entity_model_features.models.animation.animation_math_parser.MathC
 import traben.entity_model_features.models.animation.animation_math_parser.MathMethod;
 import traben.entity_model_features.models.animation.animation_math_parser.methods.emf.KeyframeMethod;
 import traben.entity_model_features.models.animation.animation_math_parser.methods.emf.KeyframeloopMethod;
+import traben.entity_model_features.models.animation.animation_math_parser.methods.optifine.*;
 import traben.entity_model_features.models.animation.animation_math_parser.methods.simple.BiFunctionMethods;
 import traben.entity_model_features.models.animation.animation_math_parser.methods.simple.FunctionMethods;
 import traben.entity_model_features.models.animation.animation_math_parser.methods.simple.MultiFunctionMethods;
 import traben.entity_model_features.models.animation.animation_math_parser.methods.simple.TriFunctionMethods;
-import traben.entity_model_features.models.animation.animation_math_parser.methods.optifine.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,11 +22,6 @@ import java.util.function.Function;
 public final class MethodRegistry {
 
     private static final MethodRegistry INSTANCE = new MethodRegistry();
-
-    public static MethodRegistry getInstance() {
-        return INSTANCE;
-    }
-
     private final Map<String, MethodFactory> methodFactories = new HashMap<>();
 
     private MethodRegistry() {
@@ -70,9 +65,9 @@ public final class MethodRegistry {
         registerAndWrapMethodFactory("keyframe", KeyframeMethod::new);
         registerAndWrapMethodFactory("keyframeloop", KeyframeloopMethod::new);
         registerSimpleMethodFactory("wrapdeg", MathHelper::wrapDegrees);
-        registerSimpleMethodFactory("wraprad", (v)-> (float) Math.toRadians(MathHelper.wrapDegrees(Math.toDegrees(v))));
+        registerSimpleMethodFactory("wraprad", (v) -> (float) Math.toRadians(MathHelper.wrapDegrees(Math.toDegrees(v))));
         registerSimpleMethodFactory("degdiff", MathHelper::angleBetween);
-        registerSimpleMethodFactory("raddiff", (v,w)-> (float) Math.toRadians(MathHelper.angleBetween((float) Math.toDegrees(v), (float) Math.toDegrees(w))));
+        registerSimpleMethodFactory("raddiff", (v, w) -> (float) Math.toRadians(MathHelper.angleBetween((float) Math.toDegrees(v), (float) Math.toDegrees(w))));
 
         //deprecated
         registerSimpleMethodFactory("easeinout", TriFunctionMethods::easeInOutSine);
@@ -83,10 +78,10 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("cubiceaseout", TriFunctionMethods::easeOutCubic);
 
         //lerps
-        registerSimpleMultiMethodFactory("catmullrom", (args)-> MathHelper.catmullRom(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
-        registerSimpleMultiMethodFactory("quadbezier", (args)-> MultiFunctionMethods.quadraticBezier(args.get(0), args.get(1), args.get(2), args.get(3)));
-        registerSimpleMultiMethodFactory("cubicbezier", (args)-> MultiFunctionMethods.cubicBezier(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
-        registerSimpleMultiMethodFactory("hermite", (args)-> MultiFunctionMethods.hermiteInterpolation(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
+        registerSimpleMultiMethodFactory("catmullrom", (args) -> MathHelper.catmullRom(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
+        registerSimpleMultiMethodFactory("quadbezier", (args) -> MultiFunctionMethods.quadraticBezier(args.get(0), args.get(1), args.get(2), args.get(3)));
+        registerSimpleMultiMethodFactory("cubicbezier", (args) -> MultiFunctionMethods.cubicBezier(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
+        registerSimpleMultiMethodFactory("hermite", (args) -> MultiFunctionMethods.hermiteInterpolation(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
         registerSimpleMethodFactory("easeinoutexpo", TriFunctionMethods::easeInOutExpo);
         registerSimpleMethodFactory("easeinexpo", TriFunctionMethods::easeInExpo);
         registerSimpleMethodFactory("easeoutexpo", TriFunctionMethods::easeOutExpo);
@@ -119,27 +114,33 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("easeinoutsine", TriFunctionMethods::easeInOutSine);
     }
 
-    private void registerSimpleMethodFactory(String methodName, Function<Float,Float> function) {
-        methodFactories.put(methodName, FunctionMethods.makeFactory(methodName,function));
-    }
-    private void registerSimpleMethodFactory(String methodName, BiFunction<Float,Float,Float> function) {
-        methodFactories.put(methodName, BiFunctionMethods.makeFactory(methodName,function));
-    }
-    private void registerSimpleMethodFactory(String methodName, TriFunction<Float,Float,Float,Float> function) {
-        methodFactories.put(methodName, TriFunctionMethods.makeFactory(methodName,function));
+    public static MethodRegistry getInstance() {
+        return INSTANCE;
     }
 
-    private void registerSimpleMultiMethodFactory(String methodName, Function<List<Float>,Float> function) {
-        methodFactories.put(methodName, MultiFunctionMethods.makeFactory(methodName,function));
+    private void registerSimpleMethodFactory(String methodName, Function<Float, Float> function) {
+        methodFactories.put(methodName, FunctionMethods.makeFactory(methodName, function));
+    }
+
+    private void registerSimpleMethodFactory(String methodName, BiFunction<Float, Float, Float> function) {
+        methodFactories.put(methodName, BiFunctionMethods.makeFactory(methodName, function));
+    }
+
+    private void registerSimpleMethodFactory(String methodName, TriFunction<Float, Float, Float, Float> function) {
+        methodFactories.put(methodName, TriFunctionMethods.makeFactory(methodName, function));
+    }
+
+    private void registerSimpleMultiMethodFactory(String methodName, Function<List<Float>, Float> function) {
+        methodFactories.put(methodName, MultiFunctionMethods.makeFactory(methodName, function));
     }
 
     public void registerAndWrapMethodFactory(String methodName, MethodFactory factory) {
-        methodFactories.put(methodName, (a,b,c)->{
-                try {
-                    return factory.getMethod(a,b,c);
-                } catch (Exception e) {
-                    throw new MathComponent.EMFMathException("Failed to create "+methodName+"() method, because:" + e);
-                }
+        methodFactories.put(methodName, (a, b, c) -> {
+            try {
+                return factory.getMethod(a, b, c);
+            } catch (Exception e) {
+                throw new MathComponent.EMFMathException("Failed to create " + methodName + "() method, because:" + e);
+            }
         });
     }
 

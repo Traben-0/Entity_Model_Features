@@ -31,7 +31,6 @@ public class MaxMethod extends MathMethod {
     }
 
 
-
     @Override
     protected boolean hasCorrectArgCount(final int argCount) {
         return argCount >= 2;

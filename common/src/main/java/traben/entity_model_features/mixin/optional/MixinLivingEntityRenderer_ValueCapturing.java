@@ -18,12 +18,9 @@ import traben.entity_model_features.models.animation.EMFAnimationHelper;
 public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements FeatureRendererContext<T, M> {
 
 
-
-
     protected MixinLivingEntityRenderer_ValueCapturing(EntityRendererFactory.Context ctx) {
         super(ctx);
     }
-
 
 
     @ModifyArg(

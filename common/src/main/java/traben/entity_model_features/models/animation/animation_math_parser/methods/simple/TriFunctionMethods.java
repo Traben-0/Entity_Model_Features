@@ -22,12 +22,12 @@ public class TriFunctionMethods extends MathMethod {
         setSupplierAndOptimize(() -> function.apply(arg.getResult(), arg2.getResult(), arg3.getResult()), List.of(arg, arg2, arg3));
     }
 
-    public static MethodRegistry.MethodFactory makeFactory(final String methodName, final TriFunction<Float, Float, Float, Float> function){
+    public static MethodRegistry.MethodFactory makeFactory(final String methodName, final TriFunction<Float, Float, Float, Float> function) {
         return (args, isNegative, calculationInstance) -> {
             try {
                 return new TriFunctionMethods(args, isNegative, calculationInstance, function);
             } catch (Exception e) {
-                throw new EMFMathException("Failed to create "+methodName+"() method, because: " + e);
+                throw new EMFMathException("Failed to create " + methodName + "() method, because: " + e);
             }
         };
 
@@ -133,6 +133,7 @@ public class TriFunctionMethods extends MathMethod {
         float delta = end - start;
         return start + delta * (float) Math.pow(2, 10 * (t - 1));
     }
+
     public static float easeOutExpo(float t, float start, float end) {
         float delta = end - start;
         return start + delta * (float) (-Math.pow(2, -10 * t) + 1);

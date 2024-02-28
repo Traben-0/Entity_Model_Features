@@ -5,7 +5,7 @@ import traben.entity_model_features.models.animation.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.animation.animation_math_parser.MathValue;
 import traben.entity_model_features.utils.EMFUtils;
 
-public class RenderVariableFactory extends ContextVariableFactory{
+public class RenderVariableFactory extends UniqueVariableFactory {
     @Override
     public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
         //requires calculation instance check before global check so must be a factory

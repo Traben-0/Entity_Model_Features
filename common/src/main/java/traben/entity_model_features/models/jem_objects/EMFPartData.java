@@ -29,12 +29,11 @@ public class EMFPartData {
     public float scale = 1.0f;
 
     public LinkedList<LinkedHashMap<String, String>> animations = null;
+    private Identifier customTexture = null;
 
     public Identifier getCustomTexture() {
         return customTexture;
     }
-
-    private Identifier customTexture = null;
 
     @Override
     public boolean equals(Object o) {

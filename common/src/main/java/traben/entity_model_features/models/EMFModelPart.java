@@ -27,7 +27,7 @@ import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
 
 public abstract class EMFModelPart extends ModelPart {
     public Identifier textureOverride;
-//    protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
+    //    protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
     private long lastTextureOverride = -1L;
 
 
@@ -42,7 +42,6 @@ public abstract class EMFModelPart extends ModelPart {
     }
 
 
-
     void renderWithTextureOverride(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
 
         if (textureOverride == null
@@ -53,12 +52,11 @@ public abstract class EMFModelPart extends ModelPart {
                 && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() //do not allow new etf emissive rendering here
                 && vertices instanceof ETFVertexConsumer etfVertexConsumer) { //can restore to previous render layer
 
-            VertexConsumerProvider provider =etfVertexConsumer.etf$getProvider();
-            if(provider == null) return;
+            VertexConsumerProvider provider = etfVertexConsumer.etf$getProvider();
+            if (provider == null) return;
 
             RenderLayer originalLayer = etfVertexConsumer.etf$getRenderLayer();
-            if(originalLayer == null) return;
-
+            if (originalLayer == null) return;
 
 
             lastTextureOverride = EMFManager.getInstance().entityRenderCount;
@@ -69,14 +67,13 @@ public abstract class EMFModelPart extends ModelPart {
 
             renderLikeVanilla(matrices, newConsumer, light, overlay, red, green, blue, alpha);
 
-            if(newConsumer instanceof ETFVertexConsumer newETFConsumer){
+            if (newConsumer instanceof ETFVertexConsumer newETFConsumer) {
                 ETFTexture etfTexture = newETFConsumer.etf$getETFTexture();
-                if(etfTexture == null) return;
-                ETFUtils2.RenderMethodForOverlay renderMethodForOverlay = (prov,ligh)-> renderLikeVanilla(matrices,prov,ligh,overlay,red,green,blue,alpha);
+                if (etfTexture == null) return;
+                ETFUtils2.RenderMethodForOverlay renderMethodForOverlay = (prov, ligh) -> renderLikeVanilla(matrices, prov, ligh, overlay, red, green, blue, alpha);
                 ETFUtils2.renderEmissive(etfTexture, provider, renderMethodForOverlay);
                 ETFUtils2.renderEnchanted(etfTexture, provider, light, renderMethodForOverlay);
             }
-
 
 
             //reset render settings
@@ -128,7 +125,7 @@ public abstract class EMFModelPart extends ModelPart {
                     //are these render required objects valid?
                     if (provider != null && layer != null) {
                         //attempt special renders as eager OR checks
-                        ETFUtils2.RenderMethodForOverlay renderMethodForOverlay = (prov,ligh)-> renderLikeVanilla(matrices,prov,ligh,overlay,red,green,blue,alpha);
+                        ETFUtils2.RenderMethodForOverlay renderMethodForOverlay = (prov, ligh) -> renderLikeVanilla(matrices, prov, ligh, overlay, red, green, blue, alpha);
                         if (ETFUtils2.renderEmissive(texture, provider, renderMethodForOverlay) |
                                 ETFUtils2.renderEnchanted(texture, provider, light, renderMethodForOverlay)) {
                             //reset render layer stuff behind the scenes if special renders occurred
@@ -144,7 +141,7 @@ public abstract class EMFModelPart extends ModelPart {
         }
     }
 
-    public void renderBoxes(MatrixStack matrices, VertexConsumer vertices){
+    public void renderBoxes(MatrixStack matrices, VertexConsumer vertices) {
         if (this.visible) {
             if (!cuboids.isEmpty() || !children.isEmpty()) {
                 matrices.push();
@@ -156,7 +153,7 @@ public abstract class EMFModelPart extends ModelPart {
                     }
                 }
                 for (ModelPart modelPart : children.values()) {
-                    if(modelPart instanceof EMFModelPart emf)
+                    if (modelPart instanceof EMFModelPart emf)
                         emf.renderBoxes(matrices, vertices);
                 }
                 matrices.pop();
@@ -174,15 +171,15 @@ public abstract class EMFModelPart extends ModelPart {
         }
     }
 
-    public String simplePrintChildren(int depth){
+    public String simplePrintChildren(int depth) {
         StringBuilder mapper = new StringBuilder();
         mapper.append("\n  | ");
         mapper.append("- ".repeat(Math.max(0, depth)));
         mapper.append(this.toStringShort());
-        for (ModelPart child:
-             children.values()) {
-            if(child instanceof EMFModelPart emf){
-                mapper.append(emf.simplePrintChildren(depth+1));
+        for (ModelPart child :
+                children.values()) {
+            if (child instanceof EMFModelPart emf) {
+                mapper.append(emf.simplePrintChildren(depth + 1));
             }
         }
         return mapper.toString();
@@ -198,9 +195,8 @@ public abstract class EMFModelPart extends ModelPart {
     }
 
 
-
-//    private static int indent = 0;
-    public ModelPart getVanillaModelPartsOfCurrentState(){
+    //    private static int indent = 0;
+    public ModelPart getVanillaModelPartsOfCurrentState() {
 //        indent++;
         Map<String, ModelPart> children = new HashMap<>();
         for (Map.Entry<String, ModelPart> child :
@@ -215,9 +211,9 @@ public abstract class EMFModelPart extends ModelPart {
 //        }
 //        System.out.print("made: "+ this + "\n");
         List<Cuboid> cubes;
-        if(cuboids.isEmpty()){
-            cubes = List.of(new Cuboid(0,0,0,0,0,0,0,0,0,0,0,false,0,0, Set.of()));
-        }else{
+        if (cuboids.isEmpty()) {
+            cubes = List.of(new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, Set.of()));
+        } else {
             cubes = cuboids;
         }
 
@@ -282,7 +278,6 @@ public abstract class EMFModelPart extends ModelPart {
         }
         return mapOfAll;
     }
-
 
 
     public static class Animator implements Runnable {

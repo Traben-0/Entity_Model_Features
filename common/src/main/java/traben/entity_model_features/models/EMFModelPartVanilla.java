@@ -63,8 +63,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     }
 
 
-
-
     public void setHideInTheseStates(int variant) {
         hideInTheseStates.add(variant);
         children.values().forEach((part) -> {
@@ -88,7 +86,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     @Override
     public String toString() {
-        return "[vanilla part " + name + "], cubes ="+ cuboids.size()+", children = "+ children.size();
+        return "[vanilla part " + name + "], cubes =" + cuboids.size() + ", children = " + children.size();
     }
 
     @Override

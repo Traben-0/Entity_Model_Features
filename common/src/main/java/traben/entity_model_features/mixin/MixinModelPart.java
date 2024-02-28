@@ -18,7 +18,10 @@ import java.util.Map;
 
 @Mixin(ModelPart.class)
 public class MixinModelPart implements IEMFModelNameContainer {
-    @Shadow public Map<String, ModelPart> children;
+    @Shadow
+    public Map<String, ModelPart> children;
+    @Unique
+    OptifineMobNameForFileAndEMFMapId emf$modelInfo = null;
 
     @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V",
             at = @At(value = "HEAD"))
@@ -27,8 +30,6 @@ public class MixinModelPart implements IEMFModelNameContainer {
             EMFManager.getInstance().modelsAnnounced.add(emf$modelInfo);
         }
     }
-    @Unique
-    OptifineMobNameForFileAndEMFMapId emf$modelInfo = null;
 
     @Override
     public OptifineMobNameForFileAndEMFMapId emf$getKnownMappings() {
@@ -39,6 +40,6 @@ public class MixinModelPart implements IEMFModelNameContainer {
     public void emf$insertKnownMappings(OptifineMobNameForFileAndEMFMapId newName) {
         emf$modelInfo = newName;
         children.values().forEach(
-                (part)->((IEMFModelNameContainer)part).emf$insertKnownMappings(newName));
+                (part) -> ((IEMFModelNameContainer) part).emf$insertKnownMappings(newName));
     }
 }

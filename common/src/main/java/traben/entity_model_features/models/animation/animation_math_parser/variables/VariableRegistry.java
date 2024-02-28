@@ -6,7 +6,7 @@ import traben.entity_model_features.models.animation.animation_math_parser.MathC
 import traben.entity_model_features.models.animation.animation_math_parser.MathConstant;
 import traben.entity_model_features.models.animation.animation_math_parser.MathValue;
 import traben.entity_model_features.models.animation.animation_math_parser.MathVariable;
-import traben.entity_model_features.models.animation.animation_math_parser.variables.factories.ContextVariableFactory;
+import traben.entity_model_features.models.animation.animation_math_parser.variables.factories.UniqueVariableFactory;
 import traben.entity_model_features.models.animation.animation_math_parser.variables.factories.ModelPartVariableFactory;
 import traben.entity_model_features.models.animation.animation_math_parser.variables.factories.ModelVariableFactory;
 import traben.entity_model_features.models.animation.animation_math_parser.variables.factories.RenderVariableFactory;
@@ -29,25 +29,19 @@ import java.util.function.BooleanSupplier;
 public final class VariableRegistry {
 
     private static final VariableRegistry INSTANCE = new VariableRegistry();
-
-    public static VariableRegistry getInstance() {
-        return INSTANCE;
-    }
-
-    private final Map<String, MathComponent> simpleSingletonVariables = new HashMap<>();
-    private final List<ContextVariableFactory> contextVariableFactories = new ArrayList<>();
-
-    private VariableRegistry(){
+    private final Map<String, MathComponent> singletonVariables = new HashMap<>();
+    private final List<UniqueVariableFactory> uniqueVariableFactories = new ArrayList<>();
+    private VariableRegistry() {
 
         //these constants are better hardcoded
-        simpleSingletonVariables.put("pi", new MathConstant((float) Math.PI));
-        simpleSingletonVariables.put("-pi", new MathConstant((float) -Math.PI));
-        simpleSingletonVariables.put("e", new MathConstant((float) Math.E));
-        simpleSingletonVariables.put("-e", new MathConstant((float) -Math.E));
-        simpleSingletonVariables.put("true", MathConstant.ONE);
-        simpleSingletonVariables.put("!true", MathConstant.ZERO);
-        simpleSingletonVariables.put("false", MathConstant.ZERO);
-        simpleSingletonVariables.put("!false", MathConstant.ONE);
+        singletonVariables.put("pi", new MathConstant((float) Math.PI));
+        singletonVariables.put("-pi", new MathConstant((float) -Math.PI));
+        singletonVariables.put("e", new MathConstant((float) Math.E));
+        singletonVariables.put("-e", new MathConstant((float) -Math.E));
+        singletonVariables.put("true", MathConstant.ONE);
+        singletonVariables.put("!true", MathConstant.ZERO);
+        singletonVariables.put("false", MathConstant.ZERO);
+        singletonVariables.put("!false", MathConstant.ONE);
 
 
         //simple floats
@@ -118,68 +112,75 @@ public final class VariableRegistry {
 
     }
 
-    public void registerContextVariable(ContextVariableFactory factory){
+    public static VariableRegistry getInstance() {
+        return INSTANCE;
+    }
+
+    public void registerContextVariable(UniqueVariableFactory factory) {
         if (factory == null) {
             EMFUtils.logWarn("Tried to register a null context variable factory");
             return;
         }
-        if (contextVariableFactories.contains(factory)) {
+        if (uniqueVariableFactories.contains(factory)) {
             EMFUtils.logWarn("Tried to register a duplicate context variable factory: " + factory.getClass().getName());
             return;
         }
-        contextVariableFactories.add(factory);
+        uniqueVariableFactories.add(factory);
     }
 
     public void registerSimpleFloatVariable(String variableName, MathValue.ResultSupplier supplier) {
-        if(simpleSingletonVariables.containsKey(variableName)){
-            EMFUtils.log("Duplicate variable: " + variableName+". ignoring duplicate");
+        if (singletonVariables.containsKey(variableName)) {
+            EMFUtils.log("Duplicate variable: " + variableName + ". ignoring duplicate");
             return;
         }
-        simpleSingletonVariables.put(variableName, new MathVariable(variableName, false, supplier));
-        simpleSingletonVariables.put("-"+variableName, new MathVariable("-"+variableName, true, supplier));
+        singletonVariables.put(variableName, new MathVariable(variableName, false, supplier));
+        singletonVariables.put("-" + variableName, new MathVariable("-" + variableName, true, supplier));
     }
+
     public void registerSimpleBoolVariable(String variableName, BooleanSupplier boolGetter) {
-        if(simpleSingletonVariables.containsKey(variableName)){
-            EMFUtils.log("Duplicate variable: " + variableName+". ignoring duplicate");
+        if (singletonVariables.containsKey(variableName)) {
+            EMFUtils.log("Duplicate variable: " + variableName + ". ignoring duplicate");
             return;
         }
-        simpleSingletonVariables.put(variableName, new MathVariable(variableName, () -> (boolGetter.getAsBoolean()) ? 1f : 0f));
-        simpleSingletonVariables.put("!"+variableName, new MathVariable("!"+variableName, () -> (boolGetter.getAsBoolean()) ? 0f : 1f));
+        singletonVariables.put(variableName, new MathVariable(variableName, () -> (boolGetter.getAsBoolean()) ? 1f : 0f));
+        singletonVariables.put("!" + variableName, new MathVariable("!" + variableName, () -> (boolGetter.getAsBoolean()) ? 0f : 1f));
     }
 
 
     public MathComponent getVariable(String variableName, boolean isNegative, EMFAnimation calculationInstance) {
         try {
-            String variableKey = isNegative ? "-"+variableName : variableName;
-            if(simpleSingletonVariables.containsKey(variableKey)){
-                return simpleSingletonVariables.get(variableKey);
-            }else{
+            String variableKey = isNegative ? "-" + variableName : variableName;
+            if (singletonVariables.containsKey(variableKey)) {
+                return singletonVariables.get(variableKey);
+            } else {
                 // context dependant variable.
                 // uses EMFAnimation object for context to create a new variable instance
                 boolean invertBooleans = variableName.startsWith("!");
 
                 String variableTest;
-                if(isNegative || invertBooleans){
+                if (isNegative || invertBooleans) {
                     variableTest = variableName.substring(1);
                 } else {
                     variableTest = variableName;
                 }
-                //check if any of the context variable factories can create this variable
-                for (ContextVariableFactory contextVariableFactory : contextVariableFactories) {
-                    if(contextVariableFactory.createsThisVariable(variableTest)){
-                        var supplier = contextVariableFactory.getSupplierOrNull(variableName, calculationInstance);
+                //check if any of the unique variable factories can create this variable
+                for (UniqueVariableFactory uniqueVariableFactory : uniqueVariableFactories) {
+                    if (uniqueVariableFactory.createsThisVariable(variableTest)) {
+                        var supplier = uniqueVariableFactory.getSupplierOrNull(variableName, calculationInstance);
                         if (supplier != null) {
                             return new MathVariable(variableName, isNegative,
                                     invertBooleans ?
-                                            ()-> supplier.get() == 1 ? 0 : 1
+                                            () -> supplier.get() == 1 ? 0 : 1
                                             : supplier);
                         }
                     }
                 }
             }
-        } catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
 
         //unknown variable, return zero constant
+        EMFUtils.logError("Unknown variable: " + variableName + " in [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
         return MathConstant.ZERO;
     }
 }

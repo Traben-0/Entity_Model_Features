@@ -46,7 +46,7 @@ public abstract class MathMethod extends MathValue implements MathComponent {
         String methodName;
         boolean booleanInvert = methodNameIn.startsWith("!");
         if (booleanInvert) {
-            methodName = methodNameIn.replaceFirst("!", "");
+            methodName = methodNameIn.substring(1);
         } else {
             methodName = methodNameIn;
         }
@@ -95,6 +95,11 @@ public abstract class MathMethod extends MathValue implements MathComponent {
     }
 
     static MathComponent getOptimizedExpression(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
+        //double check just incase it was missed
+        if (methodName.startsWith("-")) {
+            isNegative = true;
+            methodName = methodName.substring(1);
+        }
         MathMethod method = of(methodName, args, isNegative, calculationInstance);
         return Objects.requireNonNullElse(method.optimizedAlternativeToThis, method);
     }
