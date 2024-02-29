@@ -1,5 +1,8 @@
 
 
+- temporarily disabled texture overrides with tridents as they are broken and difficult to troubleshoot
+- added debug render option `lines & texture` which renders both the wireframe and texture of a model together at the same time
+- emf now correctly reads all texture overrides with the various relative paths set by optifine e.g. `./`, `~/` etc
 - added a config setting *(enabled by default)* that allows EMF to modify the `enhanced block entity (EBE)` mod's config to disable it for block entities that have custom EMF models loaded
 - fixed texture overrides acting weird with feature renderers *(fixes Ewan's entity health bars cem models with villagers)*
 - added `left_ear` & `right_ear` to `head_piglin.jem` which seems to be correct but missing in OptiFine's documentation :/

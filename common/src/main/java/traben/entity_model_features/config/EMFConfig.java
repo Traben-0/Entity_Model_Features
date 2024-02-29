@@ -194,6 +194,7 @@ public class EMFConfig {
         NORMAL(Text.translatable("entity_model_features.config.render.normal")),
         GREEN(Text.translatable("entity_model_features.config.render.green")),
         LINES(Text.translatable("entity_model_features.config.render.lines")),
+        LINES_AND_TEXTURE(Text.translatable("entity_model_features.config.render.lines_texture")),
         NONE(Text.translatable("entity_model_features.config.render.none"));
         //TRANSPARENT(Text.translatable("entity_model_features.config.render.transparent"));
 
@@ -212,7 +213,8 @@ public class EMFConfig {
                 case NORMAL -> GREEN;
                 //case TRANSPARENT -> GREEN;
                 case GREEN -> LINES;
-                case LINES -> NONE;
+                case LINES -> LINES_AND_TEXTURE;
+                case LINES_AND_TEXTURE -> NONE;
                 default -> NORMAL;
             };
         }

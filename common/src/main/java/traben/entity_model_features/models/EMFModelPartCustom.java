@@ -414,6 +414,10 @@ public class EMFModelPartCustom extends EMFModelPart {
             //case TRANSPARENT -> super.primaryRender(matrices, vertices, light, overlay, red, green, blue, 0.5f);
             case LINES ->
                     renderBoxes(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()));
+            case LINES_AND_TEXTURE -> {
+                renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
+                renderBoxesNoChildren(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()));
+            }
             case NONE -> {
 
             }

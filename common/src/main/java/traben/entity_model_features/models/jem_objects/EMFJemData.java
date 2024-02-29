@@ -44,17 +44,26 @@ public class EMFJemData {
     }
 
     @Nullable
-    public Identifier validateJemTexture(String texture) {
+    public Identifier validateJemTexture(String texture) {// "textures/entity/trident.png"
+
+
+
         texture = texture.trim();
         if (!texture.isBlank()) {
-            if (!texture.endsWith(".png")) texture = texture + ".png";
-            //if no folder parenting assume it is relative to model
-            if (!texture.contains("/")) {
-                String[] directorySplit = fileName.split("/");
-                if (directorySplit.length > 1) {
-                    String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
-                    String folderOfModel = fileName.replace(lastDirectoryComponentOfFileName, "");
-                    texture = folderOfModel + texture;
+
+            //todo add support for trident no idea why it breaks currently
+            if(fileName.endsWith("/trident.jem")){
+                EMFUtils.logWarn("trident texture overrides are not supported currently, they will be ignored.");
+                return null;
+            }
+
+            if(!texture.contains(":")) {
+                if (!texture.endsWith(".png")) texture = texture + ".png";
+                //if no folder parenting assume it is relative to model
+                if (!texture.contains("/") || texture.startsWith("./")) {
+                    texture = filePath + texture;
+                } else if (texture.startsWith("~/")) {
+                    texture = "optifine/" + texture;
                 }
             }
             Identifier possibleTexture = new Identifier(texture);
@@ -65,16 +74,20 @@ public class EMFJemData {
         return null;
     }
 
+    private String workingDirectory(){
+        String[] directorySplit = fileName.split("/");
+        if (directorySplit.length > 1) {
+            String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
+            return fileName.replaceAll(lastDirectoryComponentOfFileName+"$", "");
+        }
+        return "optifine/cem/";
+    }
+
     public void prepare(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
         this.mobModelIDInfo = mobModelIDInfo;
         this.fileName = fileName;
 
-        String[] directorySplit = fileName.split("/");
-        if (directorySplit.length > 1) {
-            String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
-            filePath = fileName.replace(lastDirectoryComponentOfFileName, "");
-
-        }
+        filePath = workingDirectory();
 
         LinkedList<EMFPartData> originalModelsForReadingOnly = new LinkedList<>(models);
 

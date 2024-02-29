@@ -373,6 +373,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                             EBE_JEMS_FOUND.add(EBETypes.get(currentBlockEntityTypeLoading));
                         }
                     }
+
                     return emfRoot;
                 }
             }
