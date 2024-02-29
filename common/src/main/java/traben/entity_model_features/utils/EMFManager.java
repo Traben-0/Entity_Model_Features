@@ -3,6 +3,7 @@ package traben.entity_model_features.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
@@ -13,6 +14,7 @@ import net.minecraft.util.InvalidIdentifierException;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.mod_compat.EBEConfigModifier;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModelNameContainer;
@@ -34,6 +36,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     private static EMFManager self = null;
     public final boolean IS_PHYSICS_MOD_INSTALLED;
     public final boolean IS_IRIS_INSTALLED;
+    public final boolean IS_EBE_INSTALLED;
     public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
@@ -46,6 +49,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
     public String currentSpecifiedModelLoading = "";
+    public BlockEntityType<?> currentBlockEntityTypeLoading = null;
     public Object2ObjectLinkedOpenHashMap<String, Set<Runnable>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
@@ -55,6 +59,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         EMFAnimationHelper.reset();
         IS_PHYSICS_MOD_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
         IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
+        IS_EBE_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("enhancedblockentities");
     }
 
     public static EMFManager getInstance() {
@@ -66,6 +71,19 @@ public class EMFManager {//singleton for data holding and resetting needs
         EMFUtils.log("Clearing EMF data.");
         EMFOptiFinePartNameMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
         self = new EMFManager();
+    }
+
+    private final Set<String> EBE_JEMS_FOUND = new HashSet<>();
+
+    public void modifyEBEIfRequired() {
+        if(IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMFConfig.getConfig().allowEBEModConfigModify){
+            try {
+                EBEConfigModifier.modifyEBEConfig(EBE_JEMS_FOUND);
+            } catch (Exception | Error e) {
+                EMFUtils.logWarn("EBE config modification issue: " + e);
+            }
+        }
+        EBE_JEMS_FOUND.clear();
     }
 
     @Nullable
@@ -348,10 +366,16 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                 if (emfRoot.containsCustomModel) {
                     lastCreatedRootModelPart = emfRoot;
+
+                    // set EBE config if required
+                    if (IS_EBE_INSTALLED ){
+                        if (currentBlockEntityTypeLoading != null && EBETypes.containsKey(currentBlockEntityTypeLoading)) {
+                            EBE_JEMS_FOUND.add(EBETypes.get(currentBlockEntityTypeLoading));
+                        }
+                    }
                     return emfRoot;
                 }
             }
-
 
             if (printing) EMFUtils.logWarn(" > Vanilla model used for: " + mobNameForFileAndMap);
             ((IEMFModelNameContainer) root).emf$insertKnownMappings(mobNameForFileAndMap);
@@ -362,6 +386,17 @@ public class EMFManager {//singleton for data holding and resetting needs
             return root;
         }
     }
+
+
+    private static final Map<BlockEntityType<?>,String> EBETypes = Map.of(
+            BlockEntityType.BED,"bed",
+            BlockEntityType.CHEST,"chest",
+            BlockEntityType.TRAPPED_CHEST,"chest",
+            BlockEntityType.ENDER_CHEST,"chest",
+            BlockEntityType.SHULKER_BOX,"shulker_box",
+            BlockEntityType.BELL,"bell",
+            BlockEntityType.SIGN,"sign",
+            BlockEntityType.DECORATED_POT,"decorated_pot");
 
     public void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {
 

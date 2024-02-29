@@ -29,6 +29,7 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                     emfParent.tempConfig.attemptRevertingEntityModelsAlteredByAnotherMod = true;
                     emfParent.tempConfig.attemptPhysicsModPatch_2 = EMFConfig.PhysicsModCompatChoice.CUSTOM;
                     emfParent.tempConfig.modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
+                    emfParent.tempConfig.allowEBEModConfigModify = true;
                     this.clearAndInit();
                     //Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.4), (int) (this.height * 0.9), (int) (this.width * 0.22), 20).build());
@@ -71,6 +72,17 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                             ": " + emfParent.tempConfig.modelUpdateFrequency.toString()));
                 },
                 Text.translatable("entity_model_features.config.update.tooltip")
+        ));
+
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.5), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("entity_model_features.config.ebe_config_modify").getString() +
+                        ": " + (emfParent.tempConfig.allowEBEModConfigModify ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                (button) -> {
+                    emfParent.tempConfig.allowEBEModConfigModify = !emfParent.tempConfig.allowEBEModConfigModify;
+                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.ebe_config_modify").getString() +
+                            ": " + (emfParent.tempConfig.allowEBEModConfigModify ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                },
+                Text.translatable("entity_model_features.config.ebe_config_modify.tooltip")
         ));
     }
 

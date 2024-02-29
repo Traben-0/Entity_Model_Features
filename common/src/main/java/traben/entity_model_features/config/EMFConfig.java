@@ -14,9 +14,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Objects;
 
+import static traben.entity_model_features.EMFClient.MOD_ID;
+
 public class EMFConfig {
 
-    private static EMFConfig EMF_CONFIG_SINGLETON;
+    private static EMFConfig INSTANCE;
     public boolean logModelCreationData = false;
     public boolean debugOnRightClick = false;
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
@@ -26,20 +28,22 @@ public class EMFConfig {
     public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
 
+    public boolean allowEBEModConfigModify = true;
+
     public static EMFConfig getConfig() {
-        if (EMF_CONFIG_SINGLETON == null) {
+        if (INSTANCE == null) {
             loadConfig();
         }
-        return EMF_CONFIG_SINGLETON;
+        return INSTANCE;
     }
 
     public static void setConfig(EMFConfig newConfig) {
         if (newConfig != null)
-            EMF_CONFIG_SINGLETON = newConfig;
+            INSTANCE = newConfig;
     }
 
     public static void EMF_saveConfig() {
-        File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), "entity_model_features.json");
+        File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), MOD_ID+".json");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         if (!config.getParentFile().exists()) {
             //noinspection ResultOfMethodCallIgnored
@@ -47,7 +51,7 @@ public class EMFConfig {
         }
         try {
             FileWriter fileWriter = new FileWriter(config);
-            fileWriter.write(gson.toJson(EMF_CONFIG_SINGLETON));
+            fileWriter.write(gson.toJson(INSTANCE));
             fileWriter.close();
         } catch (IOException e) {
             EMFUtils.log("Config could not be saved", false);
@@ -56,27 +60,27 @@ public class EMFConfig {
 
     public static void loadConfig() {
         try {
-            File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), "entity_model_features.json");
+            File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), MOD_ID+".json");
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             if (config.exists()) {
                 try {
                     FileReader fileReader = new FileReader(config);
-                    EMF_CONFIG_SINGLETON = gson.fromJson(fileReader, EMFConfig.class);
+                    INSTANCE = gson.fromJson(fileReader, EMFConfig.class);
                     fileReader.close();
                     EMF_saveConfig();
                 } catch (IOException e) {
                     EMFUtils.log("Config could not be loaded, using defaults", false);
                 }
             } else {
-                EMF_CONFIG_SINGLETON = new EMFConfig();
+                INSTANCE = new EMFConfig();
                 EMF_saveConfig();
             }
-            if (EMF_CONFIG_SINGLETON == null) {
-                EMF_CONFIG_SINGLETON = new EMFConfig();
+            if (INSTANCE == null) {
+                INSTANCE = new EMFConfig();
                 EMF_saveConfig();
             }
         } catch (Exception e) {
-            EMF_CONFIG_SINGLETON = new EMFConfig();
+            INSTANCE = new EMFConfig();
         }
 
     }
@@ -93,12 +97,22 @@ public class EMFConfig {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EMFConfig emfConfig = (EMFConfig) o;
-        return debugOnRightClick == emfConfig.debugOnRightClick && modelUpdateFrequency == emfConfig.modelUpdateFrequency && logModelCreationData == emfConfig.logModelCreationData && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod && renderModeChoice == emfConfig.renderModeChoice && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2;
+        return allowEBEModConfigModify == emfConfig.allowEBEModConfigModify
+                && debugOnRightClick == emfConfig.debugOnRightClick
+                && modelUpdateFrequency == emfConfig.modelUpdateFrequency
+                && logModelCreationData == emfConfig.logModelCreationData
+                && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod
+                && renderModeChoice == emfConfig.renderModeChoice
+                && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode
+                && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels
+                && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(debugOnRightClick, modelUpdateFrequency, logModelCreationData, renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod, logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
+        return Objects.hash(allowEBEModConfigModify, debugOnRightClick, modelUpdateFrequency, logModelCreationData,
+                renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod,
+                logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
     }
 
 

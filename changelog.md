@@ -1,4 +1,6 @@
 
+
+- added a config setting *(enabled by default)* that allows EMF to modify the `enhanced block entity (EBE)` mod's config to disable it for block entities that have custom EMF models loaded
 - fixed texture overrides acting weird with feature renderers *(fixes Ewan's entity health bars cem models with villagers)*
 - added `left_ear` & `right_ear` to `head_piglin.jem` which seems to be correct but missing in OptiFine's documentation :/
 - reduced and reworded some of the loading log spam that would worry users *(for example Fresh Animations 1.9 now sends no log errors)*
@@ -14,6 +16,7 @@
 - EMF now supports modifying modded block entity models which use the vanilla block entity models separately from the vanilla ones
   - *(e.g. the `lootr` mod's chest now tries to read `modded/lootr/special_loot_chest.jem` instead of conflicting with `chest.jem`)*
   - enabling the "print unknown models" setting will print out these examples to the log
+
 
 
 1.2.2

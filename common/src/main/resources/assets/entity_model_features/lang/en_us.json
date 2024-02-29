@@ -46,5 +46,7 @@
   "entity_model_features.config.render": "How to render custom model parts",
   "entity_model_features.config.render.tooltip": "Changes how custom model parts are rendered, this does not affect vanilla model parts.\nNormal = normal rendering\nFlash green = the custom parts will flash green\nOutlines = the outlines of the model parts will render\nDisabled = custom model parts will not render",
   "entity_model_features.config.animate_once": "Animate models once per entity",
-  "entity_model_features.config.animate_once.tooltip": "On by default\nthis setting makes it so entity models will animate only once per each entity rendered\nthis will be entirely normal in game however mobs visible in\n inventory screens may flicker weirdly\n especially if it represents a real mob in the world you can already see"
+  "entity_model_features.config.animate_once.tooltip": "On by default\nthis setting makes it so entity models will animate only once per each entity rendered\nthis will be entirely normal in game however mobs visible in\n inventory screens may flicker weirdly\n especially if it represents a real mob in the world you can already see",
+  "entity_model_features.config.ebe_config_modify": "Enhanced Block Entities (EBE) Mod patch",
+  "entity_model_features.config.ebe_config_modify.tooltip": "If enabled, this will allow EMF to modify the EBE Mod's config\nto disable EBE for certain block entities if that\nBlock Entity actually has a custom EMF model loaded.\nEMF cannot automatically re enable these settings afterwards,\n you will have to do that manually if desired."
 }

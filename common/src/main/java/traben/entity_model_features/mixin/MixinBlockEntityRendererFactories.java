@@ -31,6 +31,7 @@ public class MixinBlockEntityRendererFactories {
     @Inject(method = "reload", at = @At(value = "RETURN"))
     private static void emf$clearMarker(final BlockEntityRendererFactory.Context args, final CallbackInfoReturnable<Map<BlockEntityType<?>, BlockEntityRenderer<?>>> cir) {
         EMFManager.getInstance().currentSpecifiedModelLoading = "";
+        EMFManager.getInstance().currentBlockEntityTypeLoading = null;
         if (EMFConfig.getConfig().logModelCreationData || EMFConfig.getConfig().logUnknownOrModdedEntityModels != EMFConfig.UnknownModelPrintMode.NONE)
             EMFUtils.log("Identified block entity renderers: " + emf$renderers);
         emf$renderers.clear();
@@ -40,6 +41,8 @@ public class MixinBlockEntityRendererFactories {
     private static void setEmf$Model(ImmutableMap.Builder<?, ?> builder, BlockEntityRendererFactory.Context context, BlockEntityType<?> type, BlockEntityRendererFactory<?> factory, CallbackInfo ci) {
         //mark which variant is currently specified for use by otherwise identical block entity renderers
         if (EMFClient.testForForgeLoadingError()) return;
+
+        EMFManager.getInstance().currentBlockEntityTypeLoading = type;
 
         if (BlockEntityType.ENCHANTING_TABLE.equals(type))
             EMFManager.getInstance().currentSpecifiedModelLoading = "enchanting_book";

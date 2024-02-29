@@ -17,6 +17,7 @@ dependencies {
     modImplementation files("run/entity_texture_features_fabric_1.20.4-5.2.1.jar")
 
     modImplementation("maven.modrinth:physicsmod:dBxi3s11")
+    modImplementation("maven.modrinth:ebe:${rootProject.ebe_version}")
 }
 
 publishing {
