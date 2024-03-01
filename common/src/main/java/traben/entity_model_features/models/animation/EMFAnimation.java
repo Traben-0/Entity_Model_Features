@@ -109,16 +109,34 @@ public class EMFAnimation {
     }
 
     public void calculateAndSet() {
+        if (EMFConfig.getConfig().lodScale == EMFConfig.LodScale.NONE) {
+            calculateAndSetPostLod();
+            return;
+        }
+
+        //check lod
+        if (lodTimer < 1) {
+            lodTimer = EMFAnimationHelper.getLODFactorOfEntity();
+        } else {
+            lodTimer--;
+        }
+        handleResult(lodTimer > 0 ? getLastResultOnly() : getResultViaCalculate());
+    }
+
+    private void calculateAndSetPostLod(){
         if (isVariable) {
             if (trueVariableToSet != null) {
                 trueVariableToSet.sendValueToTrueVariable(getResultViaCalculate());
             } else {
                 getResultViaCalculate();
             }
-        } else {
+        } else{
             handleResult(getResultViaCalculate());
+
         }
     }
+
+    private int lodTimer = 0;
 
     private void handleResult(float result) {
         //if(animKey.equals("left_rein2.visible")) System.out.println("result rein "+result+varToChange);

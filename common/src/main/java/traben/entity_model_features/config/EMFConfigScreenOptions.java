@@ -30,6 +30,7 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                     emfParent.tempConfig.attemptPhysicsModPatch_2 = EMFConfig.PhysicsModCompatChoice.CUSTOM;
                     emfParent.tempConfig.modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
                     emfParent.tempConfig.allowEBEModConfigModify = true;
+                    emfParent.tempConfig.lodScale = EMFConfig.LodScale.NONE;
                     this.clearAndInit();
                     //Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.4), (int) (this.height * 0.9), (int) (this.width * 0.22), 20).build());
@@ -83,6 +84,17 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                             ": " + (emfParent.tempConfig.allowEBEModConfigModify ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
                 },
                 Text.translatable("entity_model_features.config.ebe_config_modify.tooltip")
+        ));
+
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.6), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("entity_model_features.config.lod").getString() +
+                        ": " + emfParent.tempConfig.lodScale.toString()),
+                (button) -> {
+                    emfParent.tempConfig.lodScale = emfParent.tempConfig.lodScale.next();
+                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.lod").getString() +
+                            ": " + emfParent.tempConfig.lodScale.toString()));
+                },
+                Text.translatable("entity_model_features.config.lod.tooltip")
         ));
     }
 

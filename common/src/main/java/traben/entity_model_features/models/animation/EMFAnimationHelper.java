@@ -16,6 +16,7 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionTypes;
@@ -31,6 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
+@SuppressWarnings("resource")
 public class EMFAnimationHelper {
 
 
@@ -64,6 +66,33 @@ public class EMFAnimationHelper {
 
     public static void setLayerFactory(Function<Identifier, RenderLayer> layerFactory) {
         EMFAnimationHelper.layerFactory = layerFactory;
+    }
+
+    private static int distanceOfEntityFrom(BlockPos pos) {
+        if (emfEntity == null) return 0;
+        var blockPos = emfEntity.etf$getBlockPos();
+        float f = (float)(blockPos.getX() - pos.getX());
+        float g = (float)(blockPos.getY() - pos.getY());
+        float h = (float)(blockPos.getZ() - pos.getZ());
+        return (int) MathHelper.sqrt(f * f + g * g + h * h);
+    }
+
+    public static int getLODFactorOfEntity() {
+        int scale = EMFConfig.getConfig().lodScale.getNum();
+        if (scale == 0) return 0;
+
+        //no factor when using spyglass or player is null
+        if(MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().player.isUsingSpyglass()){
+            return 0;
+        }
+
+        int distance = distanceOfEntityFrom(MinecraftClient.getInstance().player.getBlockPos());
+        if (distance < 1) return 0;
+
+        int factor = distance / scale;
+        //reduce factor when using zoom mods or lower fov
+        Integer fov = MinecraftClient.getInstance().options.getFov().getValue();
+        return  factor * fov / 70;
     }
 
     public static void setCurrentEntityIteration(EMFEntity entityIn) {
@@ -155,9 +184,7 @@ public class EMFAnimationHelper {
                     EMFUtils.chat(model + "\n§6 - part names:§r printed in game log only.");
                     StringBuilder parts = new StringBuilder();
                     parts.append("\n - part names: ");
-                    map.forEach((k, v) -> {
-                        parts.append("\n   | - [").append(k).append(']');
-                    });
+                    map.forEach((k, v) -> parts.append("\n   | - [").append(k).append(']'));
 
                     EMFUtils.log(parts.toString());
                 } else {

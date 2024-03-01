@@ -30,6 +30,8 @@ public class EMFConfig {
 
     public boolean allowEBEModConfigModify = true;
 
+    public LodScale lodScale = LodScale.LOD16;
+
     public static EMFConfig getConfig() {
         if (INSTANCE == null) {
             loadConfig();
@@ -105,12 +107,13 @@ public class EMFConfig {
                 && renderModeChoice == emfConfig.renderModeChoice
                 && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode
                 && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels
-                && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2;
+                && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2
+                && lodScale == emfConfig.lodScale;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(allowEBEModConfigModify, debugOnRightClick, modelUpdateFrequency, logModelCreationData,
+        return Objects.hash(lodScale,allowEBEModConfigModify, debugOnRightClick, modelUpdateFrequency, logModelCreationData,
                 renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod,
                 logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
     }
@@ -162,7 +165,6 @@ public class EMFConfig {
                 default -> Off;
             };
         }
-
     }
 
     public enum PhysicsModCompatChoice {
@@ -219,7 +221,57 @@ public class EMFConfig {
                 default -> NORMAL;
             };
         }
+    }
 
+    public enum LodScale {
+        LOD64(64),
+        LOD48(48),
+        LOD32(32),
+        LOD28(28),
+        LOD24(24),
+        LOD20(20),
+        LOD16(16),
+        LOD12(12),
+        LOD10(10),
+        LOD8(8),
+        LOD4(4),
+        LOD3(3),
+        LOD2(2),
+        LOD1(1),
+
+        NONE(Text.translatable("entity_model_features.config.lod.none"),0);
+
+        private final String text;
+        private final int num;
+
+        LodScale(Text text, int num) {
+            this.text = text.getString();
+            this.num = num;
+        }
+
+        LodScale( int num) {
+            this.text = String.valueOf(num);
+            this.num = num;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+
+        public int getNum() {
+            return num;
+        }
+
+        public LodScale next() {
+            var all = values();
+            for (int i = 0; i < all.length; i++) {
+                if (all[i] == this) {
+                    return all[(i + 1) % all.length];
+                }
+            }
+            return NONE;
+        }
     }
 
 }

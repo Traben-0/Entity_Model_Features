@@ -421,9 +421,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                 float flash = (float) (Math.sin(System.currentTimeMillis() / 1000d)+1)/2f;
                 renderBoxesNoChildren(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()),flash);
             }
-            case NONE -> {
-
-            }
+            case NONE -> {}
         }
     }
 
