@@ -411,12 +411,15 @@ public class EMFModelPartCustom extends EMFModelPart {
                 float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
                 renderWithTextureOverride(matrices, vertices, light, overlay, flash, green, flash, alpha);
             }
-            //case TRANSPARENT -> super.primaryRender(matrices, vertices, light, overlay, red, green, blue, 0.5f);
-            case LINES ->
-                    renderBoxes(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()));
+            case LINES -> renderBoxes(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()));
             case LINES_AND_TEXTURE -> {
                 renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
-                renderBoxesNoChildren(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()));
+                renderBoxesNoChildren(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()),1f);
+            }
+            case LINES_AND_TEXTURE_FLASH -> {
+                renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
+                float flash = (float) (Math.sin(System.currentTimeMillis() / 1000d)+1)/2f;
+                renderBoxesNoChildren(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()),flash);
             }
             case NONE -> {
 

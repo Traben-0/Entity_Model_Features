@@ -195,6 +195,7 @@ public class EMFConfig {
         GREEN(Text.translatable("entity_model_features.config.render.green")),
         LINES(Text.translatable("entity_model_features.config.render.lines")),
         LINES_AND_TEXTURE(Text.translatable("entity_model_features.config.render.lines_texture")),
+        LINES_AND_TEXTURE_FLASH(Text.translatable("entity_model_features.config.render.lines_texture_flash")),
         NONE(Text.translatable("entity_model_features.config.render.none"));
         //TRANSPARENT(Text.translatable("entity_model_features.config.render.transparent"));
 
@@ -211,10 +212,10 @@ public class EMFConfig {
         public RenderModeChoice next() {
             return switch (this) {
                 case NORMAL -> GREEN;
-                //case TRANSPARENT -> GREEN;
-                case GREEN -> LINES;
-                case LINES -> LINES_AND_TEXTURE;
-                case LINES_AND_TEXTURE -> NONE;
+                case GREEN -> LINES_AND_TEXTURE_FLASH;
+                case LINES_AND_TEXTURE_FLASH -> LINES_AND_TEXTURE;
+                case LINES_AND_TEXTURE -> LINES;
+                case LINES -> NONE;
                 default -> NORMAL;
             };
         }

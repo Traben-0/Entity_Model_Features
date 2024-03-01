@@ -1,12 +1,13 @@
 
 
 - temporarily disabled texture overrides with tridents as they are broken and difficult to troubleshoot
-- added debug render option `lines & texture` which renders both the wireframe and texture of a model together at the same time
+- added debug render option `Wireframe over texture` which renders both the wireframe and texture of a model together at the same time
+- added debug render option `Wireframe flashing over texture` which renders both the wireframe and texture of a model together at the same time but the wireframe fades in and out
 - emf now correctly reads all texture overrides with the various relative paths set by optifine e.g. `./`, `~/` etc
 - added a config setting *(enabled by default)* that allows EMF to modify the `enhanced block entity (EBE)` mod's config to disable it for block entities that have custom EMF models loaded
 - fixed texture overrides acting weird with feature renderers *(fixes Ewan's entity health bars cem models with villagers)*
 - added `left_ear` & `right_ear` to `head_piglin.jem` which seems to be correct but missing in OptiFine's documentation :/
-- reduced and reworded some of the loading log spam that would worry users *(for example Fresh Animations 1.9 now sends no log errors)*
+- reduced and reworded some of the loading log spam that would worry users *(for example Fresh Animations 1.9 now sends no log errors on load)*
 - added EMF only rotational logic functions for radians and degrees `wrapdeg() wraprad() degdiff() raddiff()`
   - the `wrap` functions will wrap a rotation value down to it's smallest identical value, e.g. `wrapdeg(370)` will return `10` & `wrapdeg(350)` will return `-10`
   - the `diff` functions will return the resulting difference between two rotation values factoring in the rotation, e.g. `degdiff(10, 350)` will return `-20` & `degdiff(10, 370)` will return `0` 

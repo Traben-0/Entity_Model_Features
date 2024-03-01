@@ -50,8 +50,9 @@ public abstract class EMFModelPart extends ModelPart {
                 && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() //do not allow new etf emissive rendering here
                 && vertices instanceof ETFVertexConsumer etfVertexConsumer) { //can restore to previous render layer
 
-            if (etfVertexConsumer.etf$getETFTexture() != null
-                    && etfVertexConsumer.etf$getETFTexture().thisIdentifier.equals(textureOverride)) {
+            // if the texture override is the same as the current texture, render as normal
+            var etfTextureTest = etfVertexConsumer.etf$getETFTexture();
+            if (etfTextureTest != null && etfTextureTest.thisIdentifier.equals(textureOverride)) {
                 renderLikeETF(matrices, vertices, light, overlay, red, green, blue, alpha);
                 return;
             }
@@ -165,7 +166,7 @@ public abstract class EMFModelPart extends ModelPart {
         }
     }
 
-    public void renderBoxesNoChildren(MatrixStack matrices, VertexConsumer vertices) {
+    public void renderBoxesNoChildren(MatrixStack matrices, VertexConsumer vertices, float alpha) {
         if (this.visible) {
             if (!cuboids.isEmpty() || !children.isEmpty()) {
                 matrices.push();
@@ -173,7 +174,7 @@ public abstract class EMFModelPart extends ModelPart {
                 if (!this.hidden) {
                     for (Cuboid cuboid : cuboids) {
                         Box box = new Box(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
-                        WorldRenderer.drawBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
+                        WorldRenderer.drawBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, alpha);
                     }
                 }
                 matrices.pop();
