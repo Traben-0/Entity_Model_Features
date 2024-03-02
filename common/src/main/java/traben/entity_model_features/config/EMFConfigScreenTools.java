@@ -37,18 +37,12 @@ public class EMFConfigScreenTools extends ETFConfigScreen {
                     Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.1), (int) (this.height * 0.9), (int) (this.width * 0.2), 20).build());
 
-
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.vanilla_render").getString() +
-                        ": " + (emfParent.tempConfig.vanillaModelHologramRenderMode.asText()).getString()),
-                (button) -> {
-                    emfParent.tempConfig.vanillaModelHologramRenderMode = emfParent.tempConfig.vanillaModelHologramRenderMode.next();
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.vanilla_render").getString() +
-                            ": " + (emfParent.tempConfig.vanillaModelHologramRenderMode.asText()).getString()));
-                },
+        this.addDrawableChild(new EnumSliderWidget<>((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
+                Text.translatable("entity_model_features.config.vanilla_render"),
+                EMFConfig.VanillaModelRenderMode.Off,
+                (value) -> emfParent.tempConfig.vanillaModelHologramRenderMode = value,
                 Text.translatable("entity_model_features.config.vanilla_render.tooltip")
         ));
-
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
                 Text.of(Text.translatable("entity_model_features.config.unknown_model_print_mode").getString() +

@@ -1,5 +1,11 @@
 
 
+- implemented `is_on_head`, `is_in_hand` & `is_in_item_frame`
+- fixed a `"newstate" is null` crash
+- added the `Animation LOD distance` setting which allows you to set the distance at which EMF will start skipping animation frames to save performance
+- reworked the config screen to use sliders where appropriate
+- invalid texture overrides will no longer cause the model to fail to load but instead log an error and use the vanilla texture
+- EMF log messages are now prefixed with a shorter `[EMF]`
 - temporarily disabled texture overrides with tridents as they are broken and difficult to troubleshoot
 - added debug render option `Wireframe over texture` which renders both the wireframe and texture of a model together at the same time
 - added debug render option `Wireframe flashing over texture` which renders both the wireframe and texture of a model together at the same time but the wireframe fades in and out

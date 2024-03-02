@@ -32,12 +32,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
-@SuppressWarnings("resource")
+@SuppressWarnings({"resource", "SameParameterValue", "unused"})
 public class EMFAnimationHelper {
-
-
-    //public static long lastFrameTime = System.currentTimeMillis();
-    // private final Object2LongOpenHashMap<UUID> lastFrameTimeMap = new Object2LongOpenHashMap<>();
 
     private static final Object2IntOpenHashMap<UUID> knownHighestAngerTimeByUUID = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
@@ -52,7 +48,6 @@ public class EMFAnimationHelper {
     private static float shadowZ = Float.NaN;
     private static float limbAngle = Float.NaN;
     private static float limbDistance = Float.NaN;
-    //private static  float animationProgress = Float.NaN;
     private static float headYaw = Float.NaN;
     private static float headPitch = Float.NaN;
     private static float tickDelta = 0;
@@ -78,8 +73,7 @@ public class EMFAnimationHelper {
     }
 
     public static int getLODFactorOfEntity() {
-        int scale = EMFConfig.getConfig().lodScale.getNum();
-        if (scale == 0) return 0;
+        if (EMFConfig.getConfig().animationLODDistance == 0) return 0;
 
         //no factor when using spyglass or player is null
         if(MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().player.isUsingSpyglass()){
@@ -89,7 +83,7 @@ public class EMFAnimationHelper {
         int distance = distanceOfEntityFrom(MinecraftClient.getInstance().player.getBlockPos());
         if (distance < 1) return 0;
 
-        int factor = distance / scale;
+        int factor = distance / EMFConfig.getConfig().animationLODDistance;
         //reduce factor when using zoom mods or lower fov
         Integer fov = MinecraftClient.getInstance().options.getFov().getValue();
         return  factor * fov / 70;
@@ -330,7 +324,6 @@ public class EMFAnimationHelper {
                         : 0;
     }
 
-    //long changed to double... should be fine tbh
     public static float getTime() {
         if (emfEntity == null || emfEntity.etf$getWorld() == null) {
             return 0 + tickDelta;
@@ -443,67 +436,20 @@ public class EMFAnimationHelper {
         return emfEntity != null && emfEntity.emf$isGlowing();
     }
 
-//    public float getClosestCollisionX() {
-//        if (entity != null && entity.world != null) {
-//            Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity, entity.getBoundingBox()).iterator();
-//            Vec3d entitypos = entity.getPos();
-//            double closest = Double.MAX_VALUE;
-//            while (bob.hasNext()) {
-//                Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
-//                if (current.isPresent()) {
-//                    double newVec = (double) current.get().x;
-//                    closest = (double) Math.min(closest, Math.max(entitypos.x, newVec) - Math.min(entitypos.x, newVec));
-//                }
-//            }
-//            if (closest != Double.MAX_VALUE) return closest;
-//        }
-//        return 0;
-//    }
-//
-//    public float getClosestCollisionY() {
-//        if (entity != null && entity.world != null) {
-//            Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity, entity.getBoundingBox()).iterator();
-//            Vec3d entitypos = entity.getPos();
-//            double closest = Double.MAX_VALUE;
-//            while (bob.hasNext()) {
-//                Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
-//                if (current.isPresent()) {
-//                    double newVec = (double) current.get().y;
-//                    closest = (double) Math.min(closest, Math.max(entitypos.y, newVec) - Math.min(entitypos.y, newVec));
-//                }
-//            }
-//            if (closest != Double.MAX_VALUE) return closest;
-//        }
-//        return 0;
-//    }
-//
-//    public float getClosestCollisionZ() {
-//        if (entity != null && entity.world != null) {
-//            Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity, entity.getBoundingBox()).iterator();
-//            Vec3d entitypos = entity.getPos();
-//            double closest = Double.MAX_VALUE;
-//            while (bob.hasNext()) {
-//                Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
-//                if (current.isPresent()) {
-//                    double newVec = (double) current.get().z;
-//                    closest = (double) Math.min(closest, Math.max(entitypos.z, newVec) - Math.min(entitypos.z, newVec));
-//                }
-//            }
-//            if (closest != Double.MAX_VALUE) return closest;
-//        }
-//        return 0;
-//    }
+
 
     public static boolean isHurt() {
         return emfEntity instanceof LivingEntity alive && alive.hurtTime > 0;
     }
 
+    public static boolean setInHand = false;
     public static boolean isInHand() {
-        return false;//todo
+        return setInHand;
     }
 
+    public static boolean setInItemFrame = false;
     public static boolean isInItemFrame() {
-        return false;//todo
+        return setInItemFrame;
     }
 
     public static boolean isInGround() {
@@ -526,8 +472,9 @@ public class EMFAnimationHelper {
         return emfEntity != null && emfEntity.emf$isInvisible();
     }
 
+    public static boolean setIsOnHead = false;
     public static boolean isOnHead() {
-        return false;//todo
+        return setIsOnHead;
     }
 
     public static boolean isOnShoulder() {
@@ -550,6 +497,8 @@ public class EMFAnimationHelper {
                 (emfEntity instanceof CatEntity cat && cat.isInSittingPose()) ||
                 (emfEntity instanceof WolfEntity wolf && wolf.isInSittingPose());
     }
+
+
 
     public static boolean isSneaking() {
         return emfEntity != null && emfEntity.emf$isSneaking();

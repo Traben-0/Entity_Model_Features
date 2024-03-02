@@ -44,31 +44,36 @@ public class EMFJemData {
     }
 
     @Nullable
-    public Identifier validateJemTexture(String texture) {// "textures/entity/trident.png"
+    public Identifier validateJemTexture(String textureIn) {// "textures/entity/trident.png"
+        if (textureIn == null) return null;
 
-
-
-        texture = texture.trim();
-        if (!texture.isBlank()) {
+        String textureTest = textureIn.trim();
+        if (!textureTest.isBlank()) {
 
             //todo add support for trident no idea why it breaks currently
-            if(fileName.endsWith("/trident.jem")){
-                EMFUtils.logWarn("trident texture overrides are not supported currently, they will be ignored.");
+            if(textureTest.endsWith("/trident.jem")){
+                EMFUtils.logWarn("trident textureTest overrides are not supported currently, they will be ignored.");
                 return null;
             }
 
-            if(!texture.contains(":")) {
-                if (!texture.endsWith(".png")) texture = texture + ".png";
+            if(!textureTest.contains(":")) {
+                if (!textureTest.endsWith(".png")) textureTest = textureTest + ".png";
+
                 //if no folder parenting assume it is relative to model
-                if (!texture.contains("/") || texture.startsWith("./")) {
-                    texture = filePath + texture;
-                } else if (texture.startsWith("~/")) {
-                    texture = "optifine/" + texture;
+                if (!textureTest.contains("/") || textureTest.startsWith("./")) {
+                    textureTest = filePath + textureTest;
+                } else if (textureTest.startsWith("~/")) {
+                    textureTest = "optifine/" + textureTest;
                 }
             }
-            Identifier possibleTexture = new Identifier(texture);
-            if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
-                return possibleTexture;
+            if(Identifier.isValid(textureTest)) {
+                Identifier possibleTexture = new Identifier(textureTest);
+                if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
+                    return possibleTexture;
+                }
+            }else{
+                EMFUtils.logWarn("Invalid texture identifier: " + textureTest + " for " + fileName);
+
             }
         }
         return null;

@@ -30,7 +30,7 @@ public class EMFConfig {
 
     public boolean allowEBEModConfigModify = true;
 
-    public LodScale lodScale = LodScale.LOD16;
+    public int animationLODDistance = 20;
 
     public static EMFConfig getConfig() {
         if (INSTANCE == null) {
@@ -108,12 +108,12 @@ public class EMFConfig {
                 && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode
                 && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels
                 && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2
-                && lodScale == emfConfig.lodScale;
+                && animationLODDistance == emfConfig.animationLODDistance;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(lodScale,allowEBEModConfigModify, debugOnRightClick, modelUpdateFrequency, logModelCreationData,
+        return Objects.hash(animationLODDistance,allowEBEModConfigModify, debugOnRightClick, modelUpdateFrequency, logModelCreationData,
                 renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod,
                 logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
     }
@@ -145,6 +145,7 @@ public class EMFConfig {
 
     public enum VanillaModelRenderMode {
         Off(ScreenTexts.OFF),
+        @SuppressWarnings("unused")
         Position_normal(Text.translatable("entity_model_features.config.vanilla_render.normal")),
         Positon_offset(Text.translatable("entity_model_features.config.vanilla_render.offset"));
 
@@ -154,16 +155,9 @@ public class EMFConfig {
             this.text = text;
         }
 
-        public Text asText() {
-            return text;
-        }
-
-        public VanillaModelRenderMode next() {
-            return switch (this) {
-                case Off -> Position_normal;
-                case Position_normal -> Positon_offset;
-                default -> Off;
-            };
+        @Override
+        public String toString() {
+            return text.getString();
         }
     }
 
@@ -195,82 +189,21 @@ public class EMFConfig {
     public enum RenderModeChoice {
         NORMAL(Text.translatable("entity_model_features.config.render.normal")),
         GREEN(Text.translatable("entity_model_features.config.render.green")),
-        LINES(Text.translatable("entity_model_features.config.render.lines")),
         LINES_AND_TEXTURE(Text.translatable("entity_model_features.config.render.lines_texture")),
         LINES_AND_TEXTURE_FLASH(Text.translatable("entity_model_features.config.render.lines_texture_flash")),
+        LINES(Text.translatable("entity_model_features.config.render.lines")),
         NONE(Text.translatable("entity_model_features.config.render.none"));
-        //TRANSPARENT(Text.translatable("entity_model_features.config.render.transparent"));
-
-        private final Text text;
-
-        RenderModeChoice(Text text) {
-            this.text = text;
-        }
-
-        public Text asText() {
-            return text;
-        }
-
-        public RenderModeChoice next() {
-            return switch (this) {
-                case NORMAL -> GREEN;
-                case GREEN -> LINES_AND_TEXTURE_FLASH;
-                case LINES_AND_TEXTURE_FLASH -> LINES_AND_TEXTURE;
-                case LINES_AND_TEXTURE -> LINES;
-                case LINES -> NONE;
-                default -> NORMAL;
-            };
-        }
-    }
-
-    public enum LodScale {
-        LOD64(64),
-        LOD48(48),
-        LOD32(32),
-        LOD28(28),
-        LOD24(24),
-        LOD20(20),
-        LOD16(16),
-        LOD12(12),
-        LOD10(10),
-        LOD8(8),
-        LOD4(4),
-        LOD3(3),
-        LOD2(2),
-        LOD1(1),
-
-        NONE(Text.translatable("entity_model_features.config.lod.none"),0);
 
         private final String text;
-        private final int num;
 
-        LodScale(Text text, int num) {
+
+        RenderModeChoice(Text text) {
             this.text = text.getString();
-            this.num = num;
-        }
-
-        LodScale( int num) {
-            this.text = String.valueOf(num);
-            this.num = num;
         }
 
         @Override
         public String toString() {
             return text;
-        }
-
-        public int getNum() {
-            return num;
-        }
-
-        public LodScale next() {
-            var all = values();
-            for (int i = 0; i < all.length; i++) {
-                if (all[i] == this) {
-                    return all[(i + 1) % all.length];
-                }
-            }
-            return NONE;
         }
     }
 

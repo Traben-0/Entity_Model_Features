@@ -68,7 +68,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public static void resetInstance() {
-        EMFUtils.log("Clearing EMF data.");
+        EMFUtils.log("[EMF (Entity Model Features)]: Clearing data for reload.",false,true);
         EMFOptiFinePartNameMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
         self = new EMFManager();
     }

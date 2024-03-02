@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.animation;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import traben.entity_model_features.config.EMFConfig;
@@ -20,6 +21,7 @@ public class EMFAnimation {
     private final EMFModelPart partToApplyTo;
     private final EMFModelOrRenderVariable variableToChange;
     private final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
+    private final Object2IntOpenHashMap<UUID> lodTimer = new Object2IntOpenHashMap<>();
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
     public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
     private MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
@@ -109,18 +111,20 @@ public class EMFAnimation {
     }
 
     public void calculateAndSet() {
-        if (EMFConfig.getConfig().lodScale == EMFConfig.LodScale.NONE) {
+        if (EMFConfig.getConfig().animationLODDistance == 0) {
             calculateAndSetPostLod();
             return;
         }
-
+        int lodTimer = this.lodTimer.getInt(EMFAnimationHelper.getEMFEntity().etf$getUuid());
+        int lodResult;
         //check lod
         if (lodTimer < 1) {
-            lodTimer = EMFAnimationHelper.getLODFactorOfEntity();
+            lodResult = EMFAnimationHelper.getLODFactorOfEntity();
         } else {
-            lodTimer--;
+            lodResult = lodTimer - 1;
         }
-        handleResult(lodTimer > 0 ? getLastResultOnly() : getResultViaCalculate());
+        this.lodTimer.put(EMFAnimationHelper.getEMFEntity().etf$getUuid(), lodResult);
+        handleResult(lodResult > 0 ? getLastResultOnly() : getResultViaCalculate());
     }
 
     private void calculateAndSetPostLod(){
@@ -132,11 +136,8 @@ public class EMFAnimation {
             }
         } else{
             handleResult(getResultViaCalculate());
-
         }
     }
-
-    private int lodTimer = 0;
 
     private void handleResult(float result) {
         //if(animKey.equals("left_rein2.visible")) System.out.println("result rein "+result+varToChange);
