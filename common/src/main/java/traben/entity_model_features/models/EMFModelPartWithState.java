@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class EMFModelPartWithState extends EMFModelPart {
-    public final Int2ObjectOpenHashMap<EMFModelState> allKnownStateVariants = new Int2ObjectOpenHashMap<>(){
+    public final Int2ObjectOpenHashMap<EMFModelState> allKnownStateVariants = new Int2ObjectOpenHashMap<>() {
         @Override
         public EMFModelState get(final int k) {
-            if(!containsKey(k)) {
+            if (!containsKey(k)) {
                 EMFUtils.logWarn("EMFModelState variant with key " + k + " does not exist in part [" + toStringShort() + "], returning copy of 0");
                 put(k, EMFModelState.copy(get(0)));
             }

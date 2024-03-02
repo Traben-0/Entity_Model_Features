@@ -77,7 +77,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
             EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
-                if (EMFConfig.getConfig().vanillaModelHologramRenderMode != EMFConfig.VanillaModelRenderMode.Off) {
+                if (EMFConfig.getConfig().vanillaModelHologramRenderMode_2 != EMFConfig.VanillaModelRenderMode.OFF) {
                     root.tryRenderVanillaRootNormally(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))), i, OverlayTexture.DEFAULT_UV);
                 }
                 //simple attempt at a physics mod workaround

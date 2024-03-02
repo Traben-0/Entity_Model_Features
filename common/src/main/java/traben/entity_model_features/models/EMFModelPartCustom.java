@@ -411,24 +411,26 @@ public class EMFModelPartCustom extends EMFModelPart {
                 float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
                 renderWithTextureOverride(matrices, vertices, light, overlay, flash, green, flash, alpha);
             }
-            case LINES -> renderBoxes(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()));
+            case LINES ->
+                    renderBoxes(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()));
             case LINES_AND_TEXTURE -> {
                 renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
-                renderBoxesNoChildren(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()),1f);
+                renderBoxesNoChildren(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()), 1f);
             }
             case LINES_AND_TEXTURE_FLASH -> {
                 renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
-                float flash = (float) (Math.sin(System.currentTimeMillis() / 1000d)+1)/2f;
-                renderBoxesNoChildren(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()),flash);
+                float flash = (float) (Math.sin(System.currentTimeMillis() / 1000d) + 1) / 2f;
+                renderBoxesNoChildren(matrices, MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines()), flash);
             }
-            case NONE -> {}
+            case NONE -> {
+            }
         }
     }
 
     @Override
     void renderWithTextureOverride(final MatrixStack matrices, final VertexConsumer vertices, final int light, final int overlay, final float red, final float green, final float blue, final float alpha) {
         //do not render if this is a custom part and are rendering a feature overlay
-        if(textureOverride != null && lastTextureOverride == EMFManager.getInstance().entityRenderCount) return;
+        if (textureOverride != null && lastTextureOverride == EMFManager.getInstance().entityRenderCount) return;
 
         //otherwise render as normal
         super.renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);

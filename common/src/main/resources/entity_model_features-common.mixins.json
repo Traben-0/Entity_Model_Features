@@ -10,6 +10,8 @@
     "MixinEntityModelLoader",
     "MixinModel",
     "MixinModelPart",
+    "MixinModelPart$Cuboid",
+    "MixinModelPartData",
     "MixinParrotEntityModel",
     "MixinPlayerEntity",
     "MixinResourceReload",

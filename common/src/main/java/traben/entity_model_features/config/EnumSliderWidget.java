@@ -13,13 +13,14 @@ public class EnumSliderWidget<T extends Enum<?>> extends SliderWidget {
 
     private final T[] enumValues;
     private final String title;
+
     public EnumSliderWidget(final int x, final int y, final int width, final int height, final Text text, final T defaultValue,
                             Consumer<T> valueReceiver) {
         super(x, y, width, height, text, 0);
         this.valueReceiver = Objects.requireNonNull(valueReceiver);
         //noinspection unchecked
         this.enumValues = (T[]) defaultValue.getDeclaringClass().getEnumConstants();
-        this.title = text.getString()+": ";
+        this.title = text.getString() + ": ";
         value = defaultValue.ordinal() / (double) (enumValues.length - 1);
         updateMessage();
     }

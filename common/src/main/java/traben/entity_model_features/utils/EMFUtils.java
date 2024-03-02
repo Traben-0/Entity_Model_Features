@@ -27,12 +27,12 @@ public class EMFUtils {
     private static final String MOD_ID_SHORT = "EMF";
 
     private static final Logger LOGGER = LoggerFactory.getLogger("EMF");
-    
+
 
     public static void overrideMessage(String originalClass, String overriddenClassFromMod, boolean wasReverted) {
-        LOGGER.warn("["+ MOD_ID_SHORT +"]: Entity model [" + originalClass + "] has been overridden by [" + overriddenClassFromMod + "] likely from a mod.");
+        LOGGER.warn("[" + MOD_ID_SHORT + "]: Entity model [" + originalClass + "] has been overridden by [" + overriddenClassFromMod + "] likely from a mod.");
         if (wasReverted)
-            LOGGER.warn("["+ MOD_ID_SHORT +"]: Prevent model overrides option is enabled! EMF will attempt to revert the new model [" + overriddenClassFromMod + "] back into the original model [" + originalClass + "]. THIS MAY HAVE UNINTENDED EFFECTS ON THE OTHER MOD, DISABLE THIS EMF SETTING IF IT CAUSES CRASHES!");
+            LOGGER.warn("[" + MOD_ID_SHORT + "]: Prevent model overrides option is enabled! EMF will attempt to revert the new model [" + overriddenClassFromMod + "] back into the original model [" + originalClass + "]. THIS MAY HAVE UNINTENDED EFFECTS ON THE OTHER MOD, DISABLE THIS EMF SETTING IF IT CAUSES CRASHES!");
 
     }
 
@@ -48,12 +48,12 @@ public class EMFUtils {
         if (inChat) {
             ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of((noPrefix ? "" : "§6["+ MOD_ID_SHORT +"]:§r ") + message), false);
+                plyr.sendMessage(Text.of((noPrefix ? "" : "§6[" + MOD_ID_SHORT + "]:§r ") + message), false);
             } else {
-                LOGGER.info((noPrefix ? "" : "["+ MOD_ID_SHORT +"]: ") + message);
+                LOGGER.info((noPrefix ? "" : "[" + MOD_ID_SHORT + "]: ") + message);
             }
         } else {
-            LOGGER.info((noPrefix ? "" : "["+ MOD_ID_SHORT +"]: ") + message);
+            LOGGER.info((noPrefix ? "" : "[" + MOD_ID_SHORT + "]: ") + message);
         }
     }
 
@@ -73,12 +73,12 @@ public class EMFUtils {
         if (inChat) {
             ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of("§6["+ MOD_ID_SHORT +"]§r: " + message), false);
+                plyr.sendMessage(Text.of("§6[" + MOD_ID_SHORT + "]§r: " + message), false);
             } else {
-                LOGGER.warn("["+ MOD_ID_SHORT +"]: " + message);
+                LOGGER.warn("[" + MOD_ID_SHORT + "]: " + message);
             }
         } else {
-            LOGGER.warn("["+ MOD_ID_SHORT +"]: " + message);
+            LOGGER.warn("[" + MOD_ID_SHORT + "]: " + message);
         }
     }
 
@@ -90,12 +90,12 @@ public class EMFUtils {
         if (inChat) {
             ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of("§6["+ MOD_ID_SHORT +"]§r: " + message), false);
+                plyr.sendMessage(Text.of("§6[" + MOD_ID_SHORT + "]§r: " + message), false);
             } else {
-                LOGGER.error("["+ MOD_ID_SHORT +"]: " + message);
+                LOGGER.error("[" + MOD_ID_SHORT + "]: " + message);
             }
         } else {
-            LOGGER.error("["+ MOD_ID_SHORT +"]: " + message);
+            LOGGER.error("[" + MOD_ID_SHORT + "]: " + message);
         }
     }
 

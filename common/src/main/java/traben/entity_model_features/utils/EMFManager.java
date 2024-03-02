@@ -32,6 +32,15 @@ import java.util.*;
 public class EMFManager {//singleton for data holding and resetting needs
 
 
+    private static final Map<BlockEntityType<?>, String> EBETypes = Map.of(
+            BlockEntityType.BED, "bed",
+            BlockEntityType.CHEST, "chest",
+            BlockEntityType.TRAPPED_CHEST, "chest",
+            BlockEntityType.ENDER_CHEST, "chest",
+            BlockEntityType.SHULKER_BOX, "shulker_box",
+            BlockEntityType.BELL, "bell",
+            BlockEntityType.SIGN, "sign",
+            BlockEntityType.DECORATED_POT, "decorated_pot");
     public static EMFModelPartRoot lastCreatedRootModelPart = null;
     private static EMFManager self = null;
     public final boolean IS_PHYSICS_MOD_INSTALLED;
@@ -45,6 +54,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     private final Object2IntOpenHashMap<EntityModelLayer> amountOfLayerAttempts = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
+    private final Set<String> EBE_JEMS_FOUND = new HashSet<>();
     public UUID entityForDebugPrint = null;
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
@@ -68,22 +78,9 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public static void resetInstance() {
-        EMFUtils.log("[EMF (Entity Model Features)]: Clearing data for reload.",false,true);
+        EMFUtils.log("[EMF (Entity Model Features)]: Clearing data for reload.", false, true);
         EMFOptiFinePartNameMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
         self = new EMFManager();
-    }
-
-    private final Set<String> EBE_JEMS_FOUND = new HashSet<>();
-
-    public void modifyEBEIfRequired() {
-        if(IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMFConfig.getConfig().allowEBEModConfigModify){
-            try {
-                EBEConfigModifier.modifyEBEConfig(EBE_JEMS_FOUND);
-            } catch (Exception | Error e) {
-                EMFUtils.logWarn("EBE config modification issue: " + e);
-            }
-        }
-        EBE_JEMS_FOUND.clear();
     }
 
     @Nullable
@@ -187,6 +184,17 @@ public class EMFManager {//singleton for data holding and resetting needs
         return null;
     }
 
+    public void modifyEBEIfRequired() {
+        if (IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMFConfig.getConfig().allowEBEModConfigModify) {
+            try {
+                EBEConfigModifier.modifyEBEConfig(EBE_JEMS_FOUND);
+            } catch (Exception | Error e) {
+                EMFUtils.logWarn("EBE config modification issue: " + e);
+            }
+        }
+        EBE_JEMS_FOUND.clear();
+    }
+
     public ModelPart injectIntoModelRootGetter(EntityModelLayer layer, ModelPart root) {
         int creationsOfLayer = amountOfLayerAttempts.put(layer, amountOfLayerAttempts.getInt(layer) + 1);
         if (creationsOfLayer > 500) {
@@ -279,7 +287,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                                 case "sign", "hanging_sign" ->
                                         mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading);
                                 default -> {
-                                    if (EMFConfig.getConfig().logUnknownOrModdedEntityModels != EMFConfig.UnknownModelPrintMode.NONE)
+                                    if (EMFConfig.getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
                                         EMFUtils.log("EMF unknown modifiable block entity model identified during loading: " + currentSpecifiedModelLoading + ".jem");
                                     mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading);
                                 }
@@ -308,7 +316,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 }
             }
 
-            if (EMFConfig.getConfig().logUnknownOrModdedEntityModels != EMFConfig.UnknownModelPrintMode.NONE
+            if (EMFConfig.getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE
                     && !currentSpecifiedModelLoading.isBlank() && currentSpecifiedModelLoading.startsWith("modded/")) {
                 EMFUtils.log("EMF modifiable modded block entity model identified during loading: " + mobNameForFileAndMap.getfileName() + ".jem");
             }
@@ -368,7 +376,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                     lastCreatedRootModelPart = emfRoot;
 
                     // set EBE config if required
-                    if (IS_EBE_INSTALLED ){
+                    if (IS_EBE_INSTALLED) {
                         if (currentBlockEntityTypeLoading != null && EBETypes.containsKey(currentBlockEntityTypeLoading)) {
                             EBE_JEMS_FOUND.add(EBETypes.get(currentBlockEntityTypeLoading));
                         }
@@ -387,17 +395,6 @@ public class EMFManager {//singleton for data holding and resetting needs
             return root;
         }
     }
-
-
-    private static final Map<BlockEntityType<?>,String> EBETypes = Map.of(
-            BlockEntityType.BED,"bed",
-            BlockEntityType.CHEST,"chest",
-            BlockEntityType.TRAPPED_CHEST,"chest",
-            BlockEntityType.ENDER_CHEST,"chest",
-            BlockEntityType.SHULKER_BOX,"shulker_box",
-            BlockEntityType.BELL,"bell",
-            BlockEntityType.SIGN,"sign",
-            BlockEntityType.DECORATED_POT,"decorated_pot");
 
     public void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {
 

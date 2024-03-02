@@ -127,14 +127,14 @@ public class EMFAnimation {
         handleResult(lodResult > 0 ? getLastResultOnly() : getResultViaCalculate());
     }
 
-    private void calculateAndSetPostLod(){
+    private void calculateAndSetPostLod() {
         if (isVariable) {
             if (trueVariableToSet != null) {
                 trueVariableToSet.sendValueToTrueVariable(getResultViaCalculate());
             } else {
                 getResultViaCalculate();
             }
-        } else{
+        } else {
             handleResult(getResultViaCalculate());
         }
     }

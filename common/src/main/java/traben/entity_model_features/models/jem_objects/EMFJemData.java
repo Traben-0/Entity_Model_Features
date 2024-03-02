@@ -51,12 +51,12 @@ public class EMFJemData {
         if (!textureTest.isBlank()) {
 
             //todo add support for trident no idea why it breaks currently
-            if(textureTest.endsWith("/trident.jem")){
+            if (textureTest.endsWith("/trident.jem")) {
                 EMFUtils.logWarn("trident textureTest overrides are not supported currently, they will be ignored.");
                 return null;
             }
 
-            if(!textureTest.contains(":")) {
+            if (!textureTest.contains(":")) {
                 if (!textureTest.endsWith(".png")) textureTest = textureTest + ".png";
 
                 //if no folder parenting assume it is relative to model
@@ -66,12 +66,12 @@ public class EMFJemData {
                     textureTest = "optifine/" + textureTest;
                 }
             }
-            if(Identifier.isValid(textureTest)) {
+            if (Identifier.isValid(textureTest)) {
                 Identifier possibleTexture = new Identifier(textureTest);
                 if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
                     return possibleTexture;
                 }
-            }else{
+            } else {
                 EMFUtils.logWarn("Invalid texture identifier: " + textureTest + " for " + fileName);
 
             }
@@ -79,11 +79,11 @@ public class EMFJemData {
         return null;
     }
 
-    private String workingDirectory(){
+    private String workingDirectory() {
         String[] directorySplit = fileName.split("/");
         if (directorySplit.length > 1) {
             String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
-            return fileName.replaceAll(lastDirectoryComponentOfFileName+"$", "");
+            return fileName.replaceAll(lastDirectoryComponentOfFileName + "$", "");
         }
         return "optifine/cem/";
     }
@@ -184,6 +184,7 @@ public class EMFJemData {
                 '}';
     }
 
+    @SuppressWarnings("unused")
     public static class EMFJemPrinter {//todo use and assign values
         public String texture = "";
         public int[] textureSize = {16, 16};

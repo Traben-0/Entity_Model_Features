@@ -38,6 +38,9 @@ public class EMFAnimationHelper {
     private static final Object2IntOpenHashMap<UUID> knownHighestAngerTimeByUUID = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
+    public static boolean setInHand = false;
+    public static boolean setInItemFrame = false;
+    public static boolean setIsOnHead = false;
     private static EMFEntity emfEntity = null;
     private static float shadowSize = Float.NaN;
     private static float shadowOpacity = Float.NaN;
@@ -66,9 +69,9 @@ public class EMFAnimationHelper {
     private static int distanceOfEntityFrom(BlockPos pos) {
         if (emfEntity == null) return 0;
         var blockPos = emfEntity.etf$getBlockPos();
-        float f = (float)(blockPos.getX() - pos.getX());
-        float g = (float)(blockPos.getY() - pos.getY());
-        float h = (float)(blockPos.getZ() - pos.getZ());
+        float f = (float) (blockPos.getX() - pos.getX());
+        float g = (float) (blockPos.getY() - pos.getY());
+        float h = (float) (blockPos.getZ() - pos.getZ());
         return (int) MathHelper.sqrt(f * f + g * g + h * h);
     }
 
@@ -76,7 +79,7 @@ public class EMFAnimationHelper {
         if (EMFConfig.getConfig().animationLODDistance == 0) return 0;
 
         //no factor when using spyglass or player is null
-        if(MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().player.isUsingSpyglass()){
+        if (MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().player.isUsingSpyglass()) {
             return 0;
         }
 
@@ -86,7 +89,7 @@ public class EMFAnimationHelper {
         int factor = distance / EMFConfig.getConfig().animationLODDistance;
         //reduce factor when using zoom mods or lower fov
         Integer fov = MinecraftClient.getInstance().options.getFov().getValue();
-        return  factor * fov / 70;
+        return factor * fov / 70;
     }
 
     public static void setCurrentEntityIteration(EMFEntity entityIn) {
@@ -201,7 +204,6 @@ public class EMFAnimationHelper {
         return "\n§6 - " + entry + ":§r " + value;
     }
 
-
     public static void setCurrentEntityNoIteration(EMFEntity entityIn) {
         newEntity(entityIn);
     }
@@ -252,7 +254,6 @@ public class EMFAnimationHelper {
         }
         return index == -1 ? 0 : index;
     }
-
 
     public static EMFEntity getEMFEntity() {
         return emfEntity;
@@ -436,18 +437,14 @@ public class EMFAnimationHelper {
         return emfEntity != null && emfEntity.emf$isGlowing();
     }
 
-
-
     public static boolean isHurt() {
         return emfEntity instanceof LivingEntity alive && alive.hurtTime > 0;
     }
 
-    public static boolean setInHand = false;
     public static boolean isInHand() {
         return setInHand;
     }
 
-    public static boolean setInItemFrame = false;
     public static boolean isInItemFrame() {
         return setInItemFrame;
     }
@@ -472,7 +469,6 @@ public class EMFAnimationHelper {
         return emfEntity != null && emfEntity.emf$isInvisible();
     }
 
-    public static boolean setIsOnHead = false;
     public static boolean isOnHead() {
         return setIsOnHead;
     }
@@ -497,7 +493,6 @@ public class EMFAnimationHelper {
                 (emfEntity instanceof CatEntity cat && cat.isInSittingPose()) ||
                 (emfEntity instanceof WolfEntity wolf && wolf.isInSittingPose());
     }
-
 
 
     public static boolean isSneaking() {

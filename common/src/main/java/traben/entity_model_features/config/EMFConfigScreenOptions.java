@@ -95,16 +95,17 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                 Text.translatable("entity_model_features.config.ebe_config_modify.tooltip")
         ));
         this.addDrawableChild(new SliderWidget((int) (this.width * 0.2), (int) (this.height * 0.6), (int) (this.width * 0.6), 20,
-                Text.translatable("entity_model_features.config.lod"),emfParent.tempConfig.animationLODDistance /65d
-                ) {
+                Text.translatable("entity_model_features.config.lod"), emfParent.tempConfig.animationLODDistance / 65d
+        ) {
             private static final String title = Text.translatable("entity_model_features.config.lod").getString();
+
             @Override
             protected void updateMessage() {
                 int val = getIntWrappedValue();
                 setMessage(Text.of(title + ": " + (val == 0 ? ScreenTexts.OFF.getString() : val)));
             }
 
-            private int getIntWrappedValue(){
+            private int getIntWrappedValue() {
                 //allow the start and end of the slider to both mean none
                 int val = (int) (value * 65);
                 value = val / 65d;

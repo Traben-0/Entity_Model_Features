@@ -102,7 +102,7 @@ public class EMFPartData {
         }
 
 
-        if (this.textureSize == null) this.textureSize = textureSize;
+        if (this.textureSize == null || textureSize.length != 2) this.textureSize = textureSize;
         this.customTexture = jem.validateJemTexture(texture);
 
         if (customTexture == null) customTexture = jemTexture;
@@ -171,11 +171,11 @@ public class EMFPartData {
         return "modelData{ id='" + id + "', part='" + part + "', submodels=" + submodels.size() + "', anims=" + (animations == null ? "0" : animations.size()) + '}';
     }
 
-
+    @SuppressWarnings("unused")
     public static class EMFPartPrinter {
         public String texture = "";
         public int[] textureSize = null;
-        public String invertAxis = "";
+        public String invertAxis = "xy";
         public float[] translate = {0, 0, 0};
         public float[] rotate = {0, 0, 0};
         public String mirrorTexture = "";

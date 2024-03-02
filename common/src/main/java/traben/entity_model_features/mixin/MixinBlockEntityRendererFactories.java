@@ -32,7 +32,7 @@ public class MixinBlockEntityRendererFactories {
     private static void emf$clearMarker(final BlockEntityRendererFactory.Context args, final CallbackInfoReturnable<Map<BlockEntityType<?>, BlockEntityRenderer<?>>> cir) {
         EMFManager.getInstance().currentSpecifiedModelLoading = "";
         EMFManager.getInstance().currentBlockEntityTypeLoading = null;
-        if (EMFConfig.getConfig().logModelCreationData || EMFConfig.getConfig().logUnknownOrModdedEntityModels != EMFConfig.UnknownModelPrintMode.NONE)
+        if (EMFConfig.getConfig().logModelCreationData || EMFConfig.getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
             EMFUtils.log("Identified block entity renderers: " + emf$renderers);
         emf$renderers.clear();
     }

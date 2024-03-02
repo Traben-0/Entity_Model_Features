@@ -115,7 +115,7 @@ public class EntityVariantProperty extends StringArrayOrRegexProperty {
             }
             String suffix = "";
             if (etfEntity instanceof SkullBlockEntity skull) {
-                suffix = "_direction_"+skull.getCachedState().get(SkullBlock.ROTATION).toString();
+                suffix = "_direction_" + skull.getCachedState().get(SkullBlock.ROTATION).toString();
             }
 
             return Registries.BLOCK_ENTITY_TYPE.getKey(((BlockEntity) etfEntity).getType()).map(key -> key.getValue().getPath()).orElse(null) + suffix;

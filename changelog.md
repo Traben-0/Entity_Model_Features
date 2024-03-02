@@ -1,5 +1,6 @@
 
-
+- changed the `unknown model printing` option to `Model exporting` and added options to export all models info to a .jem file or the log, not just the unknown / modded ones
+- Model exporting now seems to be fully correct with pivots and boxes and uvs
 - implemented `is_on_head`, `is_in_hand` & `is_in_item_frame`
 - fixed a `"newstate" is null` crash
 - added the `Animation LOD distance` setting which allows you to set the distance at which EMF will start skipping animation frames to save performance

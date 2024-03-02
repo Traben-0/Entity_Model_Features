@@ -22,9 +22,9 @@ public class EMFConfig {
     public boolean logModelCreationData = false;
     public boolean debugOnRightClick = false;
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
-    public VanillaModelRenderMode vanillaModelHologramRenderMode = VanillaModelRenderMode.Off;
+    public VanillaModelRenderMode vanillaModelHologramRenderMode_2 = VanillaModelRenderMode.OFF;
     public boolean attemptRevertingEntityModelsAlteredByAnotherMod = true;
-    public UnknownModelPrintMode logUnknownOrModdedEntityModels = UnknownModelPrintMode.NONE;
+    public ModelPrintMode modelExportMode = ModelPrintMode.NONE;
     public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
 
@@ -45,7 +45,7 @@ public class EMFConfig {
     }
 
     public static void EMF_saveConfig() {
-        File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), MOD_ID+".json");
+        File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), MOD_ID + ".json");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         if (!config.getParentFile().exists()) {
             //noinspection ResultOfMethodCallIgnored
@@ -62,7 +62,7 @@ public class EMFConfig {
 
     public static void loadConfig() {
         try {
-            File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), MOD_ID+".json");
+            File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), MOD_ID + ".json");
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             if (config.exists()) {
                 try {
@@ -105,49 +105,58 @@ public class EMFConfig {
                 && logModelCreationData == emfConfig.logModelCreationData
                 && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod
                 && renderModeChoice == emfConfig.renderModeChoice
-                && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode
-                && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels
+                && vanillaModelHologramRenderMode_2 == emfConfig.vanillaModelHologramRenderMode_2
+                && modelExportMode == emfConfig.modelExportMode
                 && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2
                 && animationLODDistance == emfConfig.animationLODDistance;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(animationLODDistance,allowEBEModConfigModify, debugOnRightClick, modelUpdateFrequency, logModelCreationData,
-                renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod,
-                logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
+        return Objects.hash(animationLODDistance, allowEBEModConfigModify, debugOnRightClick, modelUpdateFrequency, logModelCreationData,
+                renderModeChoice, vanillaModelHologramRenderMode_2, attemptRevertingEntityModelsAlteredByAnotherMod,
+                modelExportMode, attemptPhysicsModPatch_2);
     }
 
 
-    public enum UnknownModelPrintMode {
+    public enum ModelPrintMode {
         NONE(ScreenTexts.OFF),
-        LOG_ONLY(Text.translatable("entity_model_features.config.unknown_model_print_mode.log")),
-        LOG_AND_JEM(Text.translatable("entity_model_features.config.unknown_model_print_mode.log_jem"));
+        @SuppressWarnings("unused")
+        LOG_ONLY(Text.translatable("entity_model_features.config.print_mode.log")),
+        LOG_AND_JEM(Text.translatable("entity_model_features.config.print_mode.log_jem")),
+        @SuppressWarnings("unused")
+        ALL_LOG_ONLY(Text.translatable("entity_model_features.config.print_mode.all_log")),
+        ALL_LOG_AND_JEM(Text.translatable("entity_model_features.config.print_mode.all_log_jem"));
 
         private final Text text;
 
-        UnknownModelPrintMode(Text text) {
+        ModelPrintMode(Text text) {
             this.text = text;
         }
 
-        public Text asText() {
-            return text;
+        public boolean doesJems() {
+            return this == LOG_AND_JEM || this == ALL_LOG_AND_JEM;
         }
 
-        public UnknownModelPrintMode next() {
-            return switch (this) {
-                case NONE -> LOG_ONLY;
-                case LOG_ONLY -> LOG_AND_JEM;
-                default -> NONE;
-            };
+        public boolean doesAll() {
+            return this == ALL_LOG_ONLY || this == ALL_LOG_AND_JEM;
+        }
+
+        public boolean doesLog() {
+            return this != NONE;
+        }
+
+        @Override
+        public String toString() {
+            return text.getString();
         }
     }
 
     public enum VanillaModelRenderMode {
-        Off(ScreenTexts.OFF),
+        OFF(ScreenTexts.OFF),
         @SuppressWarnings("unused")
-        Position_normal(Text.translatable("entity_model_features.config.vanilla_render.normal")),
-        Positon_offset(Text.translatable("entity_model_features.config.vanilla_render.offset"));
+        NORMAL(Text.translatable("entity_model_features.config.vanilla_render.normal")),
+        OFFSET(Text.translatable("entity_model_features.config.vanilla_render.offset"));
 
         private final Text text;
 
