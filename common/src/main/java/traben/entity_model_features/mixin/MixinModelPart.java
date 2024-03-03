@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.IEMFModelNameContainer;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFTextureSizeSupplier;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
@@ -23,11 +23,13 @@ public class MixinModelPart implements IEMFModelNameContainer, EMFTextureSizeSup
     public Map<String, ModelPart> children;
     @Unique
     OptifineMobNameForFileAndEMFMapId emf$modelInfo = null;
+    @Unique
+    private int[] emf$textureSize = null;
 
     @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V",
             at = @At(value = "HEAD"))
     private void emf$injectAnnouncer(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
-        if (EMFAnimationHelper.doAnnounceModels() && emf$modelInfo != null) {
+        if (EMFAnimationEntityContext.doAnnounceModels() && emf$modelInfo != null) {
             EMFManager.getInstance().modelsAnnounced.add(emf$modelInfo);
         }
     }
@@ -43,10 +45,6 @@ public class MixinModelPart implements IEMFModelNameContainer, EMFTextureSizeSup
         children.values().forEach(
                 (part) -> ((IEMFModelNameContainer) part).emf$insertKnownMappings(newName));
     }
-
-
-    @Unique
-    private int[] emf$textureSize = null;
 
     @Override
     public int[] emf$getTextureSize() {

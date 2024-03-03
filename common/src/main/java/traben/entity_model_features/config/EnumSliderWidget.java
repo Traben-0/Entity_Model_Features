@@ -16,12 +16,11 @@ public class EnumSliderWidget<T extends Enum<?>> extends SliderWidget {
 
     public EnumSliderWidget(final int x, final int y, final int width, final int height, final Text text, final T defaultValue,
                             Consumer<T> valueReceiver) {
-        super(x, y, width, height, text, 0);
+        super(x, y, width, height, text, defaultValue.ordinal() / (double) (defaultValue.getDeclaringClass().getEnumConstants().length - 1));
         this.valueReceiver = Objects.requireNonNull(valueReceiver);
         //noinspection unchecked
         this.enumValues = (T[]) defaultValue.getDeclaringClass().getEnumConstants();
         this.title = text.getString() + ": ";
-        value = defaultValue.ordinal() / (double) (enumValues.length - 1);
         updateMessage();
     }
 

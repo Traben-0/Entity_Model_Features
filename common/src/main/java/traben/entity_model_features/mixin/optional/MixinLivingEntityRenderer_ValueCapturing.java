@@ -11,7 +11,7 @@ import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 
 
 @Mixin(value = LivingEntityRenderer.class, priority = 2000)
@@ -29,7 +29,7 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingE
             index = 1
     )
     private float emf$getLimbAngle(float limbAngle) {
-        EMFAnimationHelper.setLimbAngle(limbAngle == Float.MIN_VALUE ? 0 : limbAngle);
+        EMFAnimationEntityContext.setLimbAngle(limbAngle == Float.MIN_VALUE ? 0 : limbAngle);
         return limbAngle;
     }
 
@@ -39,7 +39,7 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingE
             index = 2
     )
     private float emf$getLimbDistance(float limbDistance) {
-        EMFAnimationHelper.setLimbDistance(limbDistance == Float.MIN_VALUE ? 0 : limbDistance);
+        EMFAnimationEntityContext.setLimbDistance(limbDistance == Float.MIN_VALUE ? 0 : limbDistance);
         return limbDistance;
     }
 
@@ -50,9 +50,9 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingE
     )
     private float emf$getHeadYaw(float headYaw) {
         if (headYaw >= 180 || headYaw < -180) {
-            EMFAnimationHelper.setHeadYaw(MathHelper.wrapDegrees(headYaw));
+            EMFAnimationEntityContext.setHeadYaw(MathHelper.wrapDegrees(headYaw));
         } else {
-            EMFAnimationHelper.setHeadYaw(headYaw);
+            EMFAnimationEntityContext.setHeadYaw(headYaw);
         }
         return headYaw;
     }
@@ -63,7 +63,7 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingE
             index = 5
     )
     private float emf$getHeadPitch(float headPitch) {
-        EMFAnimationHelper.setHeadPitch(headPitch);
+        EMFAnimationEntityContext.setHeadPitch(headPitch);
         return headPitch;
     }
 

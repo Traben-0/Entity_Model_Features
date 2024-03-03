@@ -1,10 +1,24 @@
 
+
+- added the `EMFAnimationApi` which allows other mods to register their own custom animation variables and functions to EMF
+  - variables can be added to the `EMFAnimationApi` 
+    - via a `FloatSupplier` for simple number variables 
+    - via a `BooleanSupplier` for simple boolean variables
+    - via a custom variable factory if your variable requires more complex logic, such as reading complex variable names or giving different results for different contexts
+  - functions can be added to the `EMFAnimationApi`
+    - via a `Function<Float, Float>` for simple functions witn 1 argument
+    - via a `BiFunction<Float, Float, Float>` for simple functions with 2 arguments
+    - via a `TriFunction<Float, Float, Float, Float>` for simple functions with 3 arguments
+    - via a `Function<List<Float>, Float>` for functions with a variable amount of arguments provided via a List<Float>
+    - via a  custom function factory if your function requires more complex logic, such as reading the argument strings as a value other than float
 - changed the `unknown model printing` option to `Model exporting` and added options to export all models info to a .jem file or the log, not just the unknown / modded ones
-- Model exporting now seems to be fully correct with pivots and boxes and uvs
-- implemented `is_on_head`, `is_in_hand` & `is_in_item_frame`
+  - Models now export `Blockbench` ready with correct pivots, boxes, and uvs.
+  - models now export to `.minecraft/emf/export/`
+- implemented `is_on_head`, `is_in_hand` & `is_in_item_frame`, which did nothing before
 - fixed a `"newstate" is null` crash
 - added the `Animation LOD distance` setting which allows you to set the distance at which EMF will start skipping animation frames to save performance
 - reworked the config screen to use sliders where appropriate
+- added `wolf_armor` to the OptiFine name mappings
 - invalid texture overrides will no longer cause the model to fail to load but instead log an error and use the vanilla texture
 - EMF log messages are now prefixed with a shorter `[EMF]`
 - temporarily disabled texture overrides with tridents as they are broken and difficult to troubleshoot
@@ -27,8 +41,8 @@
 - EMF now supports modifying modded block entity models which use the vanilla block entity models separately from the vanilla ones
   - *(e.g. the `lootr` mod's chest now tries to read `modded/lootr/special_loot_chest.jem` instead of conflicting with `chest.jem`)*
   - enabling the "print unknown models" setting will print out these examples to the log
-
-
+- completely rewrote the creation of animation Variables and Functions this should reduce memory usage and also allows other mods to add their own variables and functions
+- reworded some of the translations
 
 1.2.2
 

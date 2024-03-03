@@ -14,7 +14,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.animation.EMFAnimation;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFManager;
@@ -63,11 +63,11 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     private void registerModelRunnableWithEntityTypeContext() {
-        if (EMFAnimationHelper.getEMFEntity() != null) {
+        if (EMFAnimationEntityContext.getEMFEntity() != null) {
 
             //register models to entity type for debug print
             if (EMFConfig.getConfig().debugOnRightClick) {
-                String type = EMFAnimationHelper.getEMFEntity().emf$getTypeString();
+                String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
                 Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForDebug.get(type);
                 if (roots == null) {
                     Set<EMFModelPartRoot> newRootSet = new ObjectLinkedOpenHashSet<>();
@@ -80,7 +80,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
             //register variant runnable
             if (this.variantTester != null) {
-                String type = EMFAnimationHelper.getEMFEntity().emf$getTypeString();
+                String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
                 if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.log("Registered new variating model for: " + type);
 
@@ -100,14 +100,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public void doVariantCheck() {
         int finalSuffix;
-        UUID id = EMFAnimationHelper.getEMFEntity().etf$getUuid();
+        UUID id = EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
         int knownSuffix = entitySuffixMap.getInt(id);
         if (knownSuffix != -1) {
             checkIfShouldExpireEntity(id);
             finalSuffix = knownSuffix;
         } else {
             int newSuffix;
-            newSuffix = this.variantTester.getSuffixForETFEntity(EMFAnimationHelper.getEMFEntity());
+            newSuffix = this.variantTester.getSuffixForETFEntity(EMFAnimationEntityContext.getEMFEntity());
             if (newSuffix == 0) {//DONT ALLOW 0 IN EMF
                 this.entitySuffixMap.put(id, 1);
                 finalSuffix = 1;
@@ -127,7 +127,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 case Instant -> this.entitySuffixMap.removeInt(id);
                 default -> {
                     int delay = EMFConfig.getConfig().modelUpdateFrequency.getDelay();
-                    int time = (int) (EMFAnimationHelper.getTime() % delay);
+                    int time = (int) (EMFAnimationEntityContext.getTime() % delay);
                     if (time == Math.abs(id.hashCode()) % delay) {
                         this.entitySuffixMap.removeInt(id);
                     }

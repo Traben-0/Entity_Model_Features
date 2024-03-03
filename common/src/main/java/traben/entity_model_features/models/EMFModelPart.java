@@ -11,7 +11,7 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_texture_features.features.ETFRenderContext;
 import traben.entity_texture_features.features.texture_handlers.ETFTexture;
@@ -67,7 +67,7 @@ public abstract class EMFModelPart extends ModelPart {
             lastTextureOverride = EMFManager.getInstance().entityRenderCount;
 
 
-            RenderLayer layerModified = EMFAnimationHelper.getLayerFromRecentFactoryOrTranslucent(textureOverride);
+            RenderLayer layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrTranslucent(textureOverride);
             VertexConsumer newConsumer = provider.getBuffer(layerModified);
 
             renderLikeVanilla(matrices, newConsumer, light, overlay, red, green, blue, alpha);

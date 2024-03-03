@@ -8,6 +8,7 @@
     "MixinBlockEntityRendererFactories",
     "MixinEntity",
     "MixinEntityModelLoader",
+    "MixinGameRenderer",
     "MixinModel",
     "MixinModelPart",
     "MixinModelPart$Cuboid",

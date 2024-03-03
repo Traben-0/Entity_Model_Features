@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 
 @Mixin(ItemFrameEntityRenderer.class)
 public class MixinItemFrameEntityRenderer {
@@ -17,13 +17,13 @@ public class MixinItemFrameEntityRenderer {
                     shift = At.Shift.AFTER))
     private void emf$setHand(final CallbackInfo ci) {
         //basically "HEAD"
-        EMFAnimationHelper.setInItemFrame = true;
+        EMFAnimationEntityContext.setInItemFrame = true;
     }
 
     @Inject(method = "render(Lnet/minecraft/entity/decoration/ItemFrameEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At(value = "TAIL"))
     private void emf$unsetHand(final CallbackInfo ci) {
-        EMFAnimationHelper.setInItemFrame = false;
+        EMFAnimationEntityContext.setInItemFrame = false;
     }
 
 }

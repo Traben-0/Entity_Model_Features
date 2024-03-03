@@ -1,9 +1,11 @@
 package traben.entity_model_features.config;
 
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
 import traben.entity_texture_features.config.ETFConfig;
 import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
@@ -94,7 +96,13 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                 },
                 Text.translatable("entity_model_features.config.ebe_config_modify.tooltip")
         ));
-        this.addDrawableChild(new SliderWidget((int) (this.width * 0.2), (int) (this.height * 0.6), (int) (this.width * 0.6), 20,
+
+        this.addDrawableChild(getLodSlider());
+    }
+
+    @NotNull
+    private SliderWidget getLodSlider() {
+        var lodSlider = new SliderWidget((int) (this.width * 0.2), (int) (this.height * 0.6), (int) (this.width * 0.6), 20,
                 Text.translatable("entity_model_features.config.lod"), emfParent.tempConfig.animationLODDistance / 65d
         ) {
             private static final String title = Text.translatable("entity_model_features.config.lod").getString();
@@ -117,7 +125,10 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
 
                 emfParent.tempConfig.animationLODDistance = getIntWrappedValue();
             }
-        }).updateMessage();
+        };
+        lodSlider.updateMessage();
+        lodSlider.setTooltip(Tooltip.of(Text.translatable("entity_model_features.config.lod.tooltip")));
+        return lodSlider;
     }
 
 

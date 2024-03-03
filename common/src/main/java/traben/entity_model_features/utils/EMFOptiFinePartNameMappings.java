@@ -145,10 +145,12 @@ public class EMFOptiFinePartNameMappings {
             return root == null ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null);
         }
         //trigger the export of the known model if we are exporting all
-        if(EMFConfig.getConfig().modelExportMode.doesAll()) exploreProvidedEntityModelAndExportIfNeeded(root,mobName, knownMap);
+        if (EMFConfig.getConfig().modelExportMode.doesAll())
+            exploreProvidedEntityModelAndExportIfNeeded(root, mobName, knownMap);
 
         return knownMap;
     }
+
     private static Map<String, String> getKnownMap(String mobName) {
 
         return switch (mobName) {
@@ -222,7 +224,7 @@ public class EMFOptiFinePartNameMappings {
                     getOptifineMapEntry("tentacle8", "tentacle7"),
                     getOptifineMapEntry("tentacle9", "tentacle8")
             );
-            case "wolf", "wolf_collar" -> Map.ofEntries(
+            case "wolf", "wolf_collar", "wolf_armor" -> Map.ofEntries(
                     getOptifineMapEntry("body"),
                     getOptifineMapEntry("head"),
                     getOptifineMapEntry("tail"),
@@ -883,7 +885,7 @@ public class EMFOptiFinePartNameMappings {
 
     //
     //this would make a usable mapping of the given model but with no part name changing as it would not be optifine customized
-    public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, String mobName, @Nullable Map<String, String> mobMap ) {
+    public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, String mobName, @Nullable Map<String, String> mobMap) {
 
         if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName))
             return UNKNOWN_MODEL_MAP_CACHE.get(mobName);
@@ -896,7 +898,7 @@ public class EMFOptiFinePartNameMappings {
 
         Map<String, String> detailsMap = new HashMap<>();
         boolean known = mobMap != null;
-        if(!known) {
+        if (!known) {
             mobMap = new HashMap<>();
             mapThisAndChildren("root", originalModel, mobMap, detailsMap);
         }
@@ -939,7 +941,7 @@ public class EMFOptiFinePartNameMappings {
 //                                    (float) Math.toDegrees(vanillaModelPart.yaw),
 //                                    -(float) Math.toDegrees(vanillaModelPart.roll)};
                             partPrinter.scale = vanillaModelPart.xScale;
-                            partPrinter.textureSize = ((EMFTextureSizeSupplier)vanillaModelPart).emf$getTextureSize();
+                            partPrinter.textureSize = ((EMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
                             textureSize = partPrinter.textureSize;
                             //List<ModelPart.Cuboid> cuboids = vanillaModelPart.cuboids;
                             for (ModelPart.Cuboid cube :
@@ -953,7 +955,7 @@ public class EMFOptiFinePartNameMappings {
                                         cube.maxY - cube.minY,
                                         cube.maxZ - cube.minZ};
 
-                                boxPrinter.textureOffset = ((EMFTextureUVSupplier)cube).emf$getTextureUV();
+                                boxPrinter.textureOffset = ((EMFTextureUVSupplier) cube).emf$getTextureUV();
 
                                 //invert x and y
                                 boxPrinter.coordinates[0] = -boxPrinter.coordinates[0] - boxPrinter.coordinates[3] - partPrinter.translate[0];

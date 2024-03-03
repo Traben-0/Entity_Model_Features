@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
@@ -112,14 +112,14 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
     private void emf$grabEntity(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        emf$heldEntity = EMFAnimationHelper.getEMFEntity();
+        emf$heldEntity = EMFAnimationEntityContext.getEMFEntity();
     }
 
     @Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
     private void emf$eachFeatureLoop(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-        if (EMFAnimationHelper.getEMFEntity() != emf$heldEntity)
-            EMFAnimationHelper.setCurrentEntityNoIteration(emf$heldEntity);
+        if (EMFAnimationEntityContext.getEMFEntity() != emf$heldEntity)
+            EMFAnimationEntityContext.setCurrentEntityNoIteration(emf$heldEntity);
     }
 
 }

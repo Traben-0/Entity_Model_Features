@@ -19,8 +19,8 @@ import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModelNameContainer;
 import traben.entity_model_features.models.animation.EMFAnimation;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
-import traben.entity_model_features.models.animation.EMFModelOrRenderVariable;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 
 import java.io.BufferedReader;
@@ -44,7 +44,6 @@ public class EMFManager {//singleton for data holding and resetting needs
     public static EMFModelPartRoot lastCreatedRootModelPart = null;
     private static EMFManager self = null;
     public final boolean IS_PHYSICS_MOD_INSTALLED;
-    public final boolean IS_IRIS_INSTALLED;
     public final boolean IS_EBE_INSTALLED;
     public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
@@ -66,9 +65,9 @@ public class EMFManager {//singleton for data holding and resetting needs
     private boolean traderLlamaHappened = false;
 
     private EMFManager() {
-        EMFAnimationHelper.reset();
+        EMFAnimationEntityContext.reset();
         IS_PHYSICS_MOD_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
-        IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
+//        IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
         IS_EBE_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("enhancedblockentities");
     }
 

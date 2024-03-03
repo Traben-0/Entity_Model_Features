@@ -6,8 +6,9 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPart;
-import traben.entity_model_features.models.animation.animation_math_parser.MathComponent;
-import traben.entity_model_features.models.animation.animation_math_parser.MathExpressionParser;
+import traben.entity_model_features.models.animation.math.MathComponent;
+import traben.entity_model_features.models.animation.math.MathExpressionParser;
+import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.UUID;
@@ -80,15 +81,15 @@ public class EMFAnimation {
 
 
     public float getLastResultOnly() {
-        if (EMFAnimationHelper.getEMFEntity() == null) {
+        if (EMFAnimationEntityContext.getEMFEntity() == null) {
             return 0;
         }
-        return prevResult.getFloat(EMFAnimationHelper.getEMFEntity().etf$getUuid());
+        return prevResult.getFloat(EMFAnimationEntityContext.getEMFEntity().etf$getUuid());
 
     }
 
     public float getResultViaCalculate() {
-        UUID id = EMFAnimationHelper.getEMFEntity() == null ? null : EMFAnimationHelper.getEMFEntity().etf$getUuid();
+        UUID id = EMFAnimationEntityContext.getEMFEntity() == null ? null : EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
         if (id == null) {
             return 0;
         }
@@ -105,8 +106,8 @@ public class EMFAnimation {
     }
 
     private void sendValueToTrueVariable(float value) {
-        if (EMFAnimationHelper.getEMFEntity() == null) return;
-        UUID id = EMFAnimationHelper.getEMFEntity().etf$getUuid();
+        if (EMFAnimationEntityContext.getEMFEntity() == null) return;
+        UUID id = EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
         prevResult.put(id, value);
     }
 
@@ -115,15 +116,15 @@ public class EMFAnimation {
             calculateAndSetPostLod();
             return;
         }
-        int lodTimer = this.lodTimer.getInt(EMFAnimationHelper.getEMFEntity().etf$getUuid());
+        int lodTimer = this.lodTimer.getInt(EMFAnimationEntityContext.getEMFEntity().etf$getUuid());
         int lodResult;
         //check lod
         if (lodTimer < 1) {
-            lodResult = EMFAnimationHelper.getLODFactorOfEntity();
+            lodResult = EMFAnimationEntityContext.getLODFactorOfEntity();
         } else {
             lodResult = lodTimer - 1;
         }
-        this.lodTimer.put(EMFAnimationHelper.getEMFEntity().etf$getUuid(), lodResult);
+        this.lodTimer.put(EMFAnimationEntityContext.getEMFEntity().etf$getUuid(), lodResult);
         handleResult(lodResult > 0 ? getLastResultOnly() : getResultViaCalculate());
     }
 
