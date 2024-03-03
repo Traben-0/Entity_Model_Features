@@ -59,7 +59,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     public boolean isAnimationValidationPhase = false;
     public String currentSpecifiedModelLoading = "";
     public BlockEntityType<?> currentBlockEntityTypeLoading = null;
-    public Object2ObjectLinkedOpenHashMap<String, Set<Runnable>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
+    public final Object2ObjectLinkedOpenHashMap<String, Set<Runnable>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
     private boolean traderLlamaHappened = false;

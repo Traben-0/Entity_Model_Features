@@ -67,16 +67,6 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                 Text.translatable("entity_model_features.config.physics.tooltip")
         ));
 
-//        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
-//                Text.of(Text.translatable("entity_model_features.config.update").getString() +
-//                        ": " + emfParent.tempConfig.modelUpdateFrequency.toString()),
-//                (button) -> {
-//                    emfParent.tempConfig.modelUpdateFrequency = emfParent.tempConfig.modelUpdateFrequency.next();
-//                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.update").getString() +
-//                            ": " + emfParent.tempConfig.modelUpdateFrequency.toString()));
-//                },
-//                Text.translatable("entity_model_features.config.update.tooltip")
-//        ));
 
         this.addDrawableChild(new EnumSliderWidget<>((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
                 Text.translatable("entity_model_features.config.update"),

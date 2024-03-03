@@ -226,11 +226,7 @@ public abstract class EMFModelPart extends ModelPart {
                 children.put(child.getKey(), emf.getVanillaModelPartsOfCurrentState());
             }
         }
-//        indent--;
-//        for (int i = 0; i < indent; i++) {
-//            System.out.print("\\ ");
-//        }
-//        System.out.print("made: "+ this + "\n");
+
         List<Cuboid> cubes;
         if (cuboids.isEmpty()) {
             cubes = List.of(new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, Set.of()));

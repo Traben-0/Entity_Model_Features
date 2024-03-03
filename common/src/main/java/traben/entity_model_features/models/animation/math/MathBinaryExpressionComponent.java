@@ -8,15 +8,14 @@ public class MathBinaryExpressionComponent extends MathValue implements MathComp
     private final MathComponent second;
 
 
-    private MathBinaryExpressionComponent(MathComponent first, MathAction action, MathComponent second, boolean isNegative) {
-        super(isNegative);
+    private MathBinaryExpressionComponent(MathComponent first, MathAction action, MathComponent second) {
         this.first = first;
         this.action = action;
         this.second = second;
     }
 
     public static MathComponent getOptimizedExpression(MathComponent first, MathAction action, MathComponent second) {
-        MathBinaryExpressionComponent component = new MathBinaryExpressionComponent(first, action, second, false);
+        MathBinaryExpressionComponent component = new MathBinaryExpressionComponent(first, action, second);
         if (component.first.isConstant() && component.second.isConstant()) {
             //result is always constant so return a constant instead
             return new MathConstant(component.getResult(), false);

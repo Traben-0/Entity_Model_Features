@@ -134,19 +134,14 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
         } else {
             context.drawCenteredTextWithShadow(this.textRenderer, Text.of("Load a world and nearby entities will appear here."), this.width / 3, this.height / 2, Color.GRAY.getRGB());
         }
-//        super.render(context, mouseX, mouseY, delta);
     }
 
     @Override
     public void renderInGameBackground(DrawContext context) {
-//        super.renderInGameBackground(context);
     }
 
     @Override
     public void renderBackgroundTexture(DrawContext context) {
-//        context.setShaderColor(0.25F, 0.25F, 0.25F, 1.0F);
-//        context.drawTexture(OPTIONS_BACKGROUND_TEXTURE, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, 32, 32);
-//        context.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         super.renderBackgroundTexture(context);
     }
 }

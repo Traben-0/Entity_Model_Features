@@ -5,7 +5,7 @@ import traben.entity_model_features.utils.EMFUtils;
 public class MathConstant extends MathValue implements MathComponent {
 
 
-    public static MathConstant ZERO = new MathConstant(0) {
+    public static final MathConstant ZERO = new MathConstant(0) {
         //make this constant to avoid object instantiation
         private static final ResultSupplier supplier = () -> 0;
 
@@ -18,7 +18,7 @@ public class MathConstant extends MathValue implements MathComponent {
             return supplier;
         }
     };
-    public static MathConstant ONE = new MathConstant(1) {
+    public static final MathConstant ONE = new MathConstant(1) {
         //make this constant to avoid object instantiation
         private static final ResultSupplier supplier = () -> 1;
 

@@ -1,5 +1,6 @@
 package traben.entity_model_features.models.animation.math;
 
+import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
 
@@ -71,6 +72,22 @@ public abstract class MathMethod extends MathValue implements MathComponent {
         }
 
         //first lets split the args into a list
+        List<String> argsList = getArgsList(args);
+
+        if (!MethodRegistry.getInstance().containsMethod(methodName)) {
+            throw new EMFMathException("ERROR: Unknown method [" + methodName + "], rejecting animation expression for [" + calculationInstance.animKey + "].");
+        }
+
+        MathMethod method = MethodRegistry.getInstance().getMethodFactory(methodName).getMethod(argsList, isNegative, calculationInstance);
+
+        if (booleanInvert) {
+            method.invertSupplierBoolean();
+        }
+        return method;
+    }
+
+    @NotNull
+    private static List<String> getArgsList(final String args) {
         List<String> argsList = new ArrayList<>();
 
         int openBracketCount = 0;
@@ -100,17 +117,7 @@ public abstract class MathMethod extends MathValue implements MathComponent {
         if (!builder.isEmpty()) {
             argsList.add(builder.toString());
         }
-
-        if (!MethodRegistry.getInstance().containsMethod(methodName)) {
-            throw new EMFMathException("ERROR: Unknown method [" + methodName + "], rejecting animation expression for [" + calculationInstance.animKey + "].");
-        }
-
-        MathMethod method = MethodRegistry.getInstance().getMethodFactory(methodName).getMethod(argsList, isNegative, calculationInstance);
-
-        if (booleanInvert) {
-            method.invertSupplierBoolean();
-        }
-        return method;
+        return argsList;
     }
 
     static MathComponent getOptimizedExpression(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {

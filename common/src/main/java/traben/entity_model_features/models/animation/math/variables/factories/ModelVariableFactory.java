@@ -10,11 +10,6 @@ public class ModelVariableFactory extends UniqueVariableFactory {
         if (variableCalculator != null) {
             return variableCalculator::getLastResultOnly;
         }
-//        ArrayList<String> vars = new ArrayList<>();
-//        for (String var : calculationInstance.emfAnimationVariables.keySet()) {
-//            if (var.startsWith("var.") || var.startsWith("varb.")) vars.add(var);
-//        }
-//        EMFUtils.logWarn("no animation variable found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available variables were: " + vars);
         return null;
     }
 
