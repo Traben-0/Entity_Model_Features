@@ -86,6 +86,10 @@ cloak does indeed refer to the player cape however does not animate currently
   - `quadbezier()` & `cubicbezier()` have 4 arguments, and are used to create quadratic and cubic bezier curves respectively, they are useful for creating smooth curves between keyframes.
   - `hermite()` has 5 arguments, and is a spline interpolation method that uses the previous and next keyframes to calculate the current value, it is useful for creating smooth curves between keyframes.
   - these methods are used similar to `lerp()` with the delta value being the first argument.
+- rotational logic functions for radians and degrees `wrapdeg() wraprad() degdiff() raddiff()`
+  - the `wrap` functions will wrap a rotation value down to it's smallest identical value, e.g. `wrapdeg(370)` will return `10` & `wrapdeg(350)` will return `-10`
+  - the `diff` functions will return the resulting difference between two rotation values factoring in the rotation, e.g. `degdiff(10, 350)` will return `-20` & `degdiff(10, 370)` will return `0`
+
 
 ### EMF modded entity CEM support
 
@@ -109,6 +113,8 @@ These are: `(modelname # parts)`
 
 
 ### EMF model exporting option
+
+This option will export in-game entity models if they are EMF compatible.
 
 open the EMF settings screen and open the `Tools` screen, you will then see a slider labelled `Export models`.
 If you enable this option for all or unknown models and then leave the settings screen, the loading screen will then appear as the game reloads all resources *(including models)*
