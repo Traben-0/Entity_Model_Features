@@ -143,6 +143,13 @@ This property also works uniquely with these block entities:
 For all other regular & block entities it returns the EntityType or BlockEntityType registry id.
 This allows for the separation of different entity types that might use the same model name, such as various modded entities do.
 
+### ETFAnimationApi
+
+EMF has a built-in animation API that allows for the registering of custom animation functions and variables by other mods.
+
+This API can be found [here](common/src/main/java/traben/entity_model_features/EMFAnimationApi.java), and it and some relevant classes have JavaDocs for documentation.
+
+
 
 # OptiFine working features
 
