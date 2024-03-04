@@ -2,7 +2,6 @@ package traben.entity_model_features.config;
 
 
 import net.minecraft.client.gui.screen.ScreenTexts;
-import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
@@ -27,8 +26,8 @@ public class EMFConfigScreenTools extends ETFConfigScreen {
         this.addDrawableChild(getETFButton((int) (this.width * 0.4), (int) (this.height * 0.9), (int) (this.width * 0.22), 20,
                 new TranslatableText("dataPack.validation.reset"),
                 (button) -> {
-                    emfParent.tempConfig.vanillaModelHologramRenderMode = EMFConfig.VanillaModelRenderMode.Off;
-                    emfParent.tempConfig.logUnknownOrModdedEntityModels = EMFConfig.UnknownModelPrintMode.NONE;
+                    emfParent.tempConfig.vanillaModelHologramRenderMode_2 = EMFConfig.VanillaModelRenderMode.OFF;
+                    emfParent.tempConfig.modelExportMode = EMFConfig.ModelPrintMode.NONE;
 
                     //this.clearAndInit();
                     Objects.requireNonNull(client).setScreen(new EMFConfigScreenTools(emfParent));
@@ -47,27 +46,18 @@ public class EMFConfigScreenTools extends ETFConfigScreen {
 
 
 
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
-                Text.of(new TranslatableText("entity_model_features.config.vanilla_render").getString() +
-                        ": " + (emfParent.tempConfig.vanillaModelHologramRenderMode.asText()).getString()),
-                (button) -> {
-                    emfParent.tempConfig.vanillaModelHologramRenderMode = emfParent.tempConfig.vanillaModelHologramRenderMode.next();
-                    button.setMessage(Text.of(new TranslatableText("entity_model_features.config.vanilla_render").getString() +
-                            ": " + (emfParent.tempConfig.vanillaModelHologramRenderMode.asText()).getString()));
-                },
-                new TranslatableText("entity_model_features.config.vanilla_render.tooltip")
+        this.addDrawableChild(new EnumSliderWidget<>((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
+                new TranslatableText("entity_model_features.config.vanilla_render"),
+                EMFConfig.VanillaModelRenderMode.OFF,
+                (value) -> emfParent.tempConfig.vanillaModelHologramRenderMode_2 = value,
+                new TranslatableText("entity_model_features.config.vanilla_render.tooltip"),this
         ));
 
-
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
-                Text.of(new TranslatableText("entity_model_features.config.unknown_model_print_mode").getString() +
-                        ": " + (emfParent.tempConfig.logUnknownOrModdedEntityModels.asText()).getString()),
-                (button) -> {
-                    emfParent.tempConfig.logUnknownOrModdedEntityModels = emfParent.tempConfig.logUnknownOrModdedEntityModels.next();
-                    button.setMessage(Text.of(new TranslatableText("entity_model_features.config.unknown_model_print_mode").getString() +
-                            ": " + (emfParent.tempConfig.logUnknownOrModdedEntityModels.asText()).getString()));
-                },
-                new TranslatableText("entity_model_features.config.unknown_model_print_mode.tooltip")
+        this.addDrawableChild(new EnumSliderWidget<>((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,
+                new TranslatableText("entity_model_features.config.print_mode"),
+                EMFConfig.ModelPrintMode.NONE,
+                (value) -> emfParent.tempConfig.modelExportMode = value,
+                new TranslatableText("entity_model_features.config.print_mode.tooltip"),this
         ));
 
     }

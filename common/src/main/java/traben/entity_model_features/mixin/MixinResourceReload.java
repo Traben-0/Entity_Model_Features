@@ -13,10 +13,12 @@ import traben.entity_model_features.utils.EMFManager;
 public abstract class MixinResourceReload {
 
     @Inject(method = "reloadResources(Z)Ljava/util/concurrent/CompletableFuture;", at = @At("HEAD"))
-    private void emf$reload(CallbackInfoReturnable<Float> cir) {
+    private void emf$reloadStart(CallbackInfoReturnable<Float> cir) {
         if (EMFClient.testForForgeLoadingError()) return;
         EMFManager.resetInstance();
     }
+
+
 }
 
 

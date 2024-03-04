@@ -15,32 +15,40 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Objects;
 
+import static traben.entity_model_features.EMFClient.MOD_ID;
+
 public class EMFConfig {
 
-    private static EMFConfig EMF_CONFIG_SINGLETON;
+    private static EMFConfig INSTANCE;
     public boolean logModelCreationData = false;
     public boolean debugOnRightClick = false;
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
-    public VanillaModelRenderMode vanillaModelHologramRenderMode = VanillaModelRenderMode.Off;
+    public VanillaModelRenderMode vanillaModelHologramRenderMode_2 = VanillaModelRenderMode.OFF;
     public boolean attemptRevertingEntityModelsAlteredByAnotherMod = true;
-    public UnknownModelPrintMode logUnknownOrModdedEntityModels = UnknownModelPrintMode.NONE;
+    public ModelPrintMode modelExportMode = ModelPrintMode.NONE;
     public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
 
+    public boolean allowEBEModConfigModify = true;
+
+    public int animationLODDistance = 20;
+
+    public boolean retainDetailOnLowFps = true;
+
     public static EMFConfig getConfig() {
-        if (EMF_CONFIG_SINGLETON == null) {
+        if (INSTANCE == null) {
             loadConfig();
         }
-        return EMF_CONFIG_SINGLETON;
+        return INSTANCE;
     }
 
     public static void setConfig(EMFConfig newConfig) {
         if (newConfig != null)
-            EMF_CONFIG_SINGLETON = newConfig;
+            INSTANCE = newConfig;
     }
 
     public static void EMF_saveConfig() {
-        File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), "entity_model_features.json");
+        File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), MOD_ID + ".json");
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         if (!config.getParentFile().exists()) {
             //noinspection ResultOfMethodCallIgnored
@@ -48,7 +56,7 @@ public class EMFConfig {
         }
         try {
             FileWriter fileWriter = new FileWriter(config);
-            fileWriter.write(gson.toJson(EMF_CONFIG_SINGLETON));
+            fileWriter.write(gson.toJson(INSTANCE));
             fileWriter.close();
         } catch (IOException e) {
             EMFUtils.log("Config could not be saved", false);
@@ -57,27 +65,27 @@ public class EMFConfig {
 
     public static void loadConfig() {
         try {
-            File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), "entity_model_features.json");
+            File config = new File(EMFVersionDifferenceManager.getConfigDirectory().toFile(), MOD_ID + ".json");
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             if (config.exists()) {
                 try {
                     FileReader fileReader = new FileReader(config);
-                    EMF_CONFIG_SINGLETON = gson.fromJson(fileReader, EMFConfig.class);
+                    INSTANCE = gson.fromJson(fileReader, EMFConfig.class);
                     fileReader.close();
                     EMF_saveConfig();
                 } catch (IOException e) {
                     EMFUtils.log("Config could not be loaded, using defaults", false);
                 }
             } else {
-                EMF_CONFIG_SINGLETON = new EMFConfig();
+                INSTANCE = new EMFConfig();
                 EMF_saveConfig();
             }
-            if (EMF_CONFIG_SINGLETON == null) {
-                EMF_CONFIG_SINGLETON = new EMFConfig();
+            if (INSTANCE == null) {
+                INSTANCE = new EMFConfig();
                 EMF_saveConfig();
             }
         } catch (Exception e) {
-            EMF_CONFIG_SINGLETON = new EMFConfig();
+            INSTANCE = new EMFConfig();
         }
 
     }
@@ -94,43 +102,65 @@ public class EMFConfig {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EMFConfig emfConfig = (EMFConfig) o;
-        return debugOnRightClick == emfConfig.debugOnRightClick && modelUpdateFrequency == emfConfig.modelUpdateFrequency && logModelCreationData == emfConfig.logModelCreationData && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod && renderModeChoice == emfConfig.renderModeChoice && vanillaModelHologramRenderMode == emfConfig.vanillaModelHologramRenderMode && logUnknownOrModdedEntityModels == emfConfig.logUnknownOrModdedEntityModels && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2;
+        return allowEBEModConfigModify == emfConfig.allowEBEModConfigModify
+                && debugOnRightClick == emfConfig.debugOnRightClick
+                && modelUpdateFrequency == emfConfig.modelUpdateFrequency
+                && logModelCreationData == emfConfig.logModelCreationData
+                && attemptRevertingEntityModelsAlteredByAnotherMod == emfConfig.attemptRevertingEntityModelsAlteredByAnotherMod
+                && renderModeChoice == emfConfig.renderModeChoice
+                && vanillaModelHologramRenderMode_2 == emfConfig.vanillaModelHologramRenderMode_2
+                && modelExportMode == emfConfig.modelExportMode
+                && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2
+                && animationLODDistance == emfConfig.animationLODDistance
+                && retainDetailOnLowFps == emfConfig.retainDetailOnLowFps;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(debugOnRightClick, modelUpdateFrequency, logModelCreationData, renderModeChoice, vanillaModelHologramRenderMode, attemptRevertingEntityModelsAlteredByAnotherMod, logUnknownOrModdedEntityModels, attemptPhysicsModPatch_2);
+        return Objects.hash(retainDetailOnLowFps, animationLODDistance, allowEBEModConfigModify, debugOnRightClick, modelUpdateFrequency, logModelCreationData,
+                renderModeChoice, vanillaModelHologramRenderMode_2, attemptRevertingEntityModelsAlteredByAnotherMod,
+                modelExportMode, attemptPhysicsModPatch_2);
     }
 
 
-    public enum UnknownModelPrintMode {
+    public enum ModelPrintMode {
         NONE(ScreenTexts.OFF),
-        LOG_ONLY(new TranslatableText("entity_model_features.config.unknown_model_print_mode.log")),
-        LOG_AND_JEM(new TranslatableText("entity_model_features.config.unknown_model_print_mode.log_jem"));
+        @SuppressWarnings("unused")
+        LOG_ONLY(new TranslatableText("entity_model_features.config.print_mode.log")),
+        LOG_AND_JEM(new TranslatableText("entity_model_features.config.print_mode.log_jem")),
+        @SuppressWarnings("unused")
+        ALL_LOG_ONLY(new TranslatableText("entity_model_features.config.print_mode.all_log")),
+        ALL_LOG_AND_JEM(new TranslatableText("entity_model_features.config.print_mode.all_log_jem"));
 
         private final Text text;
 
-        UnknownModelPrintMode(Text text) {
+        ModelPrintMode(Text text) {
             this.text = text;
         }
 
-        public Text asText() {
-            return text;
+        public boolean doesJems() {
+            return this == LOG_AND_JEM || this == ALL_LOG_AND_JEM;
         }
 
-        public UnknownModelPrintMode next() {
-            return switch (this) {
-                case NONE -> LOG_ONLY;
-                case LOG_ONLY -> LOG_AND_JEM;
-                default -> NONE;
-            };
+        public boolean doesAll() {
+            return this == ALL_LOG_ONLY || this == ALL_LOG_AND_JEM;
+        }
+
+        public boolean doesLog() {
+            return this != NONE;
+        }
+
+        @Override
+        public String toString() {
+            return text.getString();
         }
     }
 
     public enum VanillaModelRenderMode {
-        Off(ScreenTexts.OFF),
-        Position_normal(new TranslatableText("entity_model_features.config.vanilla_render.normal")),
-        Positon_offset(new TranslatableText("entity_model_features.config.vanilla_render.offset"));
+        OFF(ScreenTexts.OFF),
+        @SuppressWarnings("unused")
+        NORMAL(new TranslatableText("entity_model_features.config.vanilla_render.normal")),
+        OFFSET(new TranslatableText("entity_model_features.config.vanilla_render.offset"));
 
         private final Text text;
 
@@ -138,18 +168,10 @@ public class EMFConfig {
             this.text = text;
         }
 
-        public Text asText() {
-            return text;
+        @Override
+        public String toString() {
+            return text.getString();
         }
-
-        public VanillaModelRenderMode next() {
-            return switch (this) {
-                case Off -> Position_normal;
-                case Position_normal -> Positon_offset;
-                default -> Off;
-            };
-        }
-
     }
 
     public enum PhysicsModCompatChoice {
@@ -180,30 +202,23 @@ public class EMFConfig {
     public enum RenderModeChoice {
         NORMAL(new TranslatableText("entity_model_features.config.render.normal")),
         GREEN(new TranslatableText("entity_model_features.config.render.green")),
+        LINES_AND_TEXTURE(new TranslatableText("entity_model_features.config.render.lines_texture")),
+        LINES_AND_TEXTURE_FLASH(new TranslatableText("entity_model_features.config.render.lines_texture_flash")),
         LINES(new TranslatableText("entity_model_features.config.render.lines")),
         NONE(new TranslatableText("entity_model_features.config.render.none"));
         //TRANSPARENT(new TranslatableText("entity_model_features.config.render.transparent"));
 
-        private final Text text;
+        private final String text;
+
 
         RenderModeChoice(Text text) {
-            this.text = text;
+            this.text = text.getString();
         }
 
-        public Text asText() {
+        @Override
+        public String toString() {
             return text;
         }
-
-        public RenderModeChoice next() {
-            return switch (this) {
-                case NORMAL -> GREEN;
-                //case TRANSPARENT -> GREEN;
-                case GREEN -> LINES;
-                case LINES -> NONE;
-                default -> NORMAL;
-            };
-        }
-
     }
 
 }

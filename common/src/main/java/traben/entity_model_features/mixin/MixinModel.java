@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.EMFClient;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFManager;
 
 import java.util.function.Function;
@@ -43,10 +43,9 @@ public class MixinModel implements IEMFModel {
     }
 
 
-
     @Inject(method = "getLayer",
             at = @At(value = "HEAD"))
     private void emf$discoverEMFModel(Identifier texture, CallbackInfoReturnable<RenderLayer> cir) {
-        EMFAnimationHelper.setLayerFactory(((Model)((Object)this)).layerFactory);
+        EMFAnimationEntityContext.setLayerFactory(((Model) ((Object) this)).layerFactory);
     }
 }

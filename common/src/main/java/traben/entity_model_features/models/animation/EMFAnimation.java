@@ -1,33 +1,31 @@
 package traben.entity_model_features.models.animation;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPart;
-import traben.entity_model_features.models.animation.animation_math_parser.MathComponent;
-import traben.entity_model_features.models.animation.animation_math_parser.MathExpressionParser;
+import traben.entity_model_features.models.animation.math.MathComponent;
+import traben.entity_model_features.models.animation.math.MathExpressionParser;
+import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
+import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.UUID;
 
 public class EMFAnimation {
 
-    public final EMFModelPart partToApplyTo;
-    public final EMFModelOrRenderVariable variableToChange;
     public final String animKey;
     public final String expressionString;
     public final String modelName;
     public final boolean isVariable;
-    public final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
-    final float defaultValue;
+    private final EMFModelPart partToApplyTo;
+    private final EMFModelOrRenderVariable variableToChange;
+    private final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
+    private final Object2IntOpenHashMap<UUID> lodTimer = new Object2IntOpenHashMap<>();
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
     public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
-    MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
-
-    public void setTrueVariableSource(EMFAnimation trueVariableSource) {
-        this.trueVariableToSet = trueVariableSource;
-    }
-
+    private MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
     private EMFAnimation trueVariableToSet = null;
 
     public EMFAnimation(EMFModelPart partToApplyTo,
@@ -42,13 +40,14 @@ public class EMFAnimation {
         this.variableToChange = isVariable ? null : variableToChange;
         this.partToApplyTo = partToApplyTo;
 
+        float defaultValue;
         if (this.variableToChange != null) {
             if (partToApplyTo == null) {
                 if (this.variableToChange.isRenderVariable()) {
                     defaultValue = this.variableToChange.getValue();
                 } else {
                     if (EMFConfig.getConfig().logModelCreationData)
-                        System.out.println("null part for " + animKey);
+                        EMFUtils.log("null part for " + animKey);
                     defaultValue = 0;
                 }
             } else {
@@ -59,6 +58,10 @@ public class EMFAnimation {
         }
         prevResult.defaultReturnValue(defaultValue);
         expressionString = initialExpression;
+    }
+
+    public void setTrueVariableSource(EMFAnimation trueVariableSource) {
+        this.trueVariableToSet = trueVariableSource;
     }
 
     @Override
@@ -78,15 +81,15 @@ public class EMFAnimation {
 
 
     public float getLastResultOnly() {
-        if (EMFAnimationHelper.getEMFEntity() == null) {
+        if (EMFAnimationEntityContext.getEMFEntity() == null) {
             return 0;
         }
-        return prevResult.getFloat(EMFAnimationHelper.getEMFEntity().etf$getUuid());
+        return prevResult.getFloat(EMFAnimationEntityContext.getEMFEntity().etf$getUuid());
 
     }
 
     public float getResultViaCalculate() {
-        UUID id = EMFAnimationHelper.getEMFEntity() == null ? null : EMFAnimationHelper.getEMFEntity().etf$getUuid();
+        UUID id = EMFAnimationEntityContext.getEMFEntity() == null ? null : EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
         if (id == null) {
             return 0;
         }
@@ -98,19 +101,36 @@ public class EMFAnimation {
     }
 
 
-    public float calculatorRun() {
-        return EMFCalculator.get();
+    private float calculatorRun() {
+        return EMFCalculator.getResult();
     }
 
-    void sendValueToTrueVariable(float value){
-        if (EMFAnimationHelper.getEMFEntity() == null) return;
-        UUID id = EMFAnimationHelper.getEMFEntity().etf$getUuid();
+    private void sendValueToTrueVariable(float value) {
+        if (EMFAnimationEntityContext.getEMFEntity() == null) return;
+        UUID id = EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
         prevResult.put(id, value);
     }
 
     public void calculateAndSet() {
+        if (EMFConfig.getConfig().animationLODDistance == 0) {
+            calculateAndSetPostLod();
+            return;
+        }
+        int lodTimer = this.lodTimer.getInt(EMFAnimationEntityContext.getEMFEntity().etf$getUuid());
+        int lodResult;
+        //check lod
+        if (lodTimer < 1) {
+            lodResult = EMFAnimationEntityContext.getLODFactorOfEntity();
+        } else {
+            lodResult = lodTimer - 1;
+        }
+        this.lodTimer.put(EMFAnimationEntityContext.getEMFEntity().etf$getUuid(), lodResult);
+        handleResult(lodResult > 0 ? getLastResultOnly() : getResultViaCalculate());
+    }
+
+    private void calculateAndSetPostLod() {
         if (isVariable) {
-            if(trueVariableToSet != null){
+            if (trueVariableToSet != null) {
                 trueVariableToSet.sendValueToTrueVariable(getResultViaCalculate());
             } else {
                 getResultViaCalculate();

@@ -3,10 +3,8 @@ package traben.entity_model_features;
 import net.minecraft.block.AbstractSignBlock;
 import net.minecraft.block.BedBlock;
 import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.block.entity.BedBlockEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.ShulkerBoxBlockEntity;
-import net.minecraft.block.entity.SignBlockEntity;
+import net.minecraft.block.SkullBlock;
+import net.minecraft.block.entity.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.painting.PaintingEntity;
 import net.minecraft.entity.passive.CatEntity;
@@ -101,8 +99,11 @@ public class EntityVariantProperty extends StringArrayOrRegexProperty {
 //                        sherds.right().getTranslationKey() + "," +
 //                        sherds.front().getTranslationKey();
 //            }
-
-            return Registry.BLOCK_ENTITY_TYPE.getKey(((BlockEntity) etfEntity).getType()).map(key -> key.getValue().getPath()).orElse(null);
+            String suffix = "";
+            if (etfEntity instanceof SkullBlockEntity skull) {
+                suffix = "_direction_" + skull.getCachedState().get(SkullBlock.ROTATION).toString();
+            }
+            return Registry.BLOCK_ENTITY_TYPE.getKey(((BlockEntity) etfEntity).getType()).map(key -> key.getValue().getPath()).orElse(null) + suffix;
         }
         return null;
     }

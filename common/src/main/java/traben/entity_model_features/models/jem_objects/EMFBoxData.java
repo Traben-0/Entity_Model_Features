@@ -67,8 +67,9 @@ public class EMFBoxData {
                 '}';
     }
 
+    @SuppressWarnings("unused")
     public static class EMFBoxPrinter {
-        public float[] textureOffset = {};
+        public int[] textureOffset = {};
         public float[] uvDown = {0, 0, 0, 0};
         public float[] uvUp = {0, 0, 0, 0};
 
