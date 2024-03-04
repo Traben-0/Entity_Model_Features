@@ -32,6 +32,8 @@ public class EMFConfig {
 
     public int animationLODDistance = 20;
 
+    public boolean retainDetailOnLowFps = true;
+
     public static EMFConfig getConfig() {
         if (INSTANCE == null) {
             loadConfig();

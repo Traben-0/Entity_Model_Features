@@ -17,6 +17,7 @@
 - implemented `is_on_head`, `is_in_hand` & `is_in_item_frame`, which did nothing before
 - fixed a `"newstate" is null` crash
 - added the `Animation LOD distance` setting which allows you to set the distance at which EMF will start skipping animation frames to save performance
+- added the `Retain LOD at low fps` setting which will proportionally reduce the impact of the above LOD setting while the game is running at below 60 fps, as skipped frames can become more noticeable at lower fps
 - reworked the config screen to use sliders where appropriate
 - added `wolf_armor` to the OptiFine name mappings
 - invalid texture overrides will no longer cause the model to fail to load but instead log an error and use the vanilla texture

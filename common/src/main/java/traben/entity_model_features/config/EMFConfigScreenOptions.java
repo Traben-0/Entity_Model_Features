@@ -88,6 +88,17 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
         ));
 
         this.addDrawableChild(getLodSlider());
+
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.7), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("entity_model_features.config.low_fps_lod").getString() +
+                        ": " + (emfParent.tempConfig.retainDetailOnLowFps ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                (button) -> {
+                    emfParent.tempConfig.retainDetailOnLowFps = !emfParent.tempConfig.retainDetailOnLowFps;
+                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.low_fps_lod").getString() +
+                            ": " + (emfParent.tempConfig.retainDetailOnLowFps ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                },
+                Text.translatable("entity_model_features.config.low_fps_lod.tooltip")
+        ));
     }
 
     @NotNull

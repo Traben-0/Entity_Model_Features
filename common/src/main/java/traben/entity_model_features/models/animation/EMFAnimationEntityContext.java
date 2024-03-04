@@ -64,6 +64,8 @@ public class EMFAnimationEntityContext {
 
     }
 
+    public static double lastFOV = 70;
+
     public static void setLayerFactory(Function<Identifier, RenderLayer> layerFactory) {
         EMFAnimationEntityContext.layerFactory = layerFactory;
     }
@@ -87,13 +89,24 @@ public class EMFAnimationEntityContext {
             return 0;
         }
 
+
+
         int distance = distanceOfEntityFrom(MinecraftClient.getInstance().player.getBlockPos());
         if (distance < 1) return 0;
 
         int factor = distance / EMFConfig.getConfig().animationLODDistance;
         //reduce factor when using zoom mods or lower fov
-        double fov = ((EMFFovSupplier) MinecraftClient.getInstance().gameRenderer).emf$getFov(); // MinecraftClient.getInstance().options.getFov().getValue();
-        lodFactor = (int) (factor * fov / 70);
+        int factorByFOV = (int) (factor * lastFOV / 70);
+
+        //factor in low fps detail retention
+        if(EMFConfig.getConfig().retainDetailOnLowFps && MinecraftClient.getInstance().getCurrentFps() < 59){ // count often drops to 59 while capped at 60 :/
+            float fpsPercentageOf60 = MinecraftClient.getInstance().getCurrentFps() / 60f;
+            //reduce factor by the percentage of fps below 60 to recover some level of detail
+            lodFactor = (int) (factorByFOV * fpsPercentageOf60);
+        } else {
+            lodFactor = factorByFOV;
+        }
+
         return lodFactor;
     }
 
