@@ -110,12 +110,13 @@ public class EMFConfig {
                 && vanillaModelHologramRenderMode_2 == emfConfig.vanillaModelHologramRenderMode_2
                 && modelExportMode == emfConfig.modelExportMode
                 && attemptPhysicsModPatch_2 == emfConfig.attemptPhysicsModPatch_2
-                && animationLODDistance == emfConfig.animationLODDistance;
+                && animationLODDistance == emfConfig.animationLODDistance
+                && retainDetailOnLowFps == emfConfig.retainDetailOnLowFps;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(animationLODDistance, allowEBEModConfigModify, debugOnRightClick, modelUpdateFrequency, logModelCreationData,
+        return Objects.hash(retainDetailOnLowFps, animationLODDistance, allowEBEModConfigModify, debugOnRightClick, modelUpdateFrequency, logModelCreationData,
                 renderModeChoice, vanillaModelHologramRenderMode_2, attemptRevertingEntityModelsAlteredByAnotherMod,
                 modelExportMode, attemptPhysicsModPatch_2);
     }

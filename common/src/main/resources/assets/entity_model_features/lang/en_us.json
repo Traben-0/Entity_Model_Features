@@ -44,7 +44,7 @@
   "entity_model_features.config.lod": "Animation LOD distance",
   "entity_model_features.config.lod.tooltip": "Sets the distance at which animations will begin to skip frames,\nlower the Level of Detail (LOD), This can help with performance\nNone = no frame skipping\n16 = will skip 1 frame for every 16 blocks distance from player\nLower numbers mean more skipped frames and more performance gain\nbut of course animations will become more noticeably lower\nframerate the closer the LOD distance is set",
   "entity_model_features.config.low_fps_lod": "Retain LOD at low fps",
-  "entity_model_features.config.low_fps_lod.tooltip": "If enabled this will reduce the Level of Detail (LOD) impact of the above setting according to your fps.\nOnly applies when below 60 fps as skipped frames become increasingly noticeable at lower fps",
+  "entity_model_features.config.low_fps_lod.tooltip": "If enabled this will reduce the Level of Detail (LOD)\nimpact of the above setting according to your fps.\nOnly applies when below 60 fps as skipped frames\nbecome increasingly noticeable at lower fps",
   "entity_model_features.config.render.normal": "Normal",
   "entity_model_features.config.render.green": "Flash green",
   "entity_model_features.config.render.lines": "Wireframe only",
