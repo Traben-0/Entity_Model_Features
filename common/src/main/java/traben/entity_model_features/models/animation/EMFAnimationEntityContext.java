@@ -16,6 +16,7 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionTypes;
@@ -31,15 +32,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
-public class EMFAnimationHelper {
-
-
-    //public static long lastFrameTime = System.currentTimeMillis();
-    // private final Object2LongOpenHashMap<UUID> lastFrameTimeMap = new Object2LongOpenHashMap<>();
+@SuppressWarnings({"resource", "SameParameterValue", "unused"})
+public class EMFAnimationEntityContext {
 
     private static final Object2IntOpenHashMap<UUID> knownHighestAngerTimeByUUID = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
+    public static boolean setInHand = false;
+    public static boolean setInItemFrame = false;
+    public static boolean setIsOnHead = false;
     private static EMFEntity emfEntity = null;
     private static float shadowSize = Float.NaN;
     private static float shadowOpacity = Float.NaN;
@@ -50,24 +51,64 @@ public class EMFAnimationHelper {
     private static float shadowZ = Float.NaN;
     private static float limbAngle = Float.NaN;
     private static float limbDistance = Float.NaN;
-    //private static  float animationProgress = Float.NaN;
     private static float headYaw = Float.NaN;
     private static float headPitch = Float.NaN;
     private static float tickDelta = 0;
     private static boolean onShoulder = false;
-
-
-
-    public static void setLayerFactory(Function<Identifier, RenderLayer> layerFactory) {
-        EMFAnimationHelper.layerFactory = layerFactory;
-    }
-
     private static Function<Identifier, RenderLayer> layerFactory = null;
 
-    private EMFAnimationHelper() {
+    private static int lodFactor = -1;
+    private static boolean announceModels = false;
+
+    private EMFAnimationEntityContext() {
 
     }
 
+    public static double lastFOV = 70;
+
+    public static void setLayerFactory(Function<Identifier, RenderLayer> layerFactory) {
+        EMFAnimationEntityContext.layerFactory = layerFactory;
+    }
+
+    private static int distanceOfEntityFrom(BlockPos pos) {
+        if (emfEntity == null) return 0;
+        var blockPos = emfEntity.etf$getBlockPos();
+        float f = (float) (blockPos.getX() - pos.getX());
+        float g = (float) (blockPos.getY() - pos.getY());
+        float h = (float) (blockPos.getZ() - pos.getZ());
+        return (int) MathHelper.sqrt(f * f + g * g + h * h);
+    }
+
+    public static int getLODFactorOfEntity() {
+        if (lodFactor != -1) return lodFactor;
+
+        if (EMFConfig.getConfig().animationLODDistance == 0) return 0;
+
+        //no factor when using spyglass or player is null
+        if (MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().player.isUsingSpyglass()) {
+            return 0;
+        }
+
+
+
+        int distance = distanceOfEntityFrom(MinecraftClient.getInstance().player.getBlockPos());
+        if (distance < 1) return 0;
+
+        int factor = distance / EMFConfig.getConfig().animationLODDistance;
+        //reduce factor when using zoom mods or lower fov
+        int factorByFOV = (int) (factor * lastFOV / 70);
+
+        //factor in low fps detail retention
+        if(EMFConfig.getConfig().retainDetailOnLowFps && MinecraftClient.getInstance().getCurrentFps() < 59){ // count often drops to 59 while capped at 60 :/
+            float fpsPercentageOf60 = MinecraftClient.getInstance().getCurrentFps() / 60f;
+            //reduce factor by the percentage of fps below 60 to recover some level of detail
+            lodFactor = (int) (factorByFOV * fpsPercentageOf60);
+        } else {
+            lodFactor = factorByFOV;
+        }
+
+        return lodFactor;
+    }
 
     public static void setCurrentEntityIteration(EMFEntity entityIn) {
         layerFactory = null;
@@ -89,20 +130,22 @@ public class EMFAnimationHelper {
         }
 
         //if this entity requires a debug print do it now after models have variated
-        if(EMFConfig.getConfig().debugOnRightClick
-                && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)){
+        if (EMFConfig.getConfig().debugOnRightClick
+                && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)) {
             announceModels = true;
             EMFManager.getInstance().entityForDebugPrint = null;
         }
+
+        lodFactor = -1;
     }
 
-    public static void anounceModels(EMFEntity assertEntity){
+    public static void anounceModels(EMFEntity assertEntity) {
         String type = assertEntity.emf$getTypeString();
         Set<EMFModelPartRoot> debugRoots = EMFManager.getInstance().rootPartsPerEntityTypeForDebug.get(type);
         EMFUtils.chat("§e-----------EMF Debug Printout-------------§r");
-        if(debugRoots == null){
+        if (debugRoots == null) {
             EMFUtils.chat(
-                    "\n§c§oThe EMF debug printout did not find any custom models registered to the following entity:\n §3§l§u"+ type
+                    "\n§c§oThe EMF debug printout did not find any custom models registered to the following entity:\n §3§l§u" + type
             );
         } else {
             String message = "\n§2§oThe EMF debug printout found the following custom models for the entity:\n §3§l§u" +
@@ -134,7 +177,7 @@ public class EMFAnimationHelper {
                 }
                 EMFUtils.chat(model + "\n§6 - parts:§r printed in game log only.");
 
-                EMFUtils.log("\n - parts: "+debugRoot.simplePrintChildren(0));
+                EMFUtils.log("\n - parts: " + debugRoot.simplePrintChildren(0));
 
                 count++;
             }
@@ -158,9 +201,7 @@ public class EMFAnimationHelper {
                     EMFUtils.chat(model + "\n§6 - part names:§r printed in game log only.");
                     StringBuilder parts = new StringBuilder();
                     parts.append("\n - part names: ");
-                    map.forEach((k, v) -> {
-                        parts.append("\n   | - [").append(k).append(']');
-                    });
+                    map.forEach((k, v) -> parts.append("\n   | - [").append(k).append(']'));
 
                     EMFUtils.log(parts.toString());
                 } else {
@@ -179,13 +220,9 @@ public class EMFAnimationHelper {
         return announceModels;
     }
 
-    private static boolean announceModels = false;
-
-    private static String entryAndValue(String entry, String value){
-        return "\n§6 - "+entry+":§r " + value ;
+    private static String entryAndValue(String entry, String value) {
+        return "\n§6 - " + entry + ":§r " + value;
     }
-
-
 
     public static void setCurrentEntityNoIteration(EMFEntity entityIn) {
         newEntity(entityIn);
@@ -218,10 +255,11 @@ public class EMFAnimationHelper {
         leashZ = 0;
         shadowX = 0;
         shadowZ = 0;
+        lodFactor = -1;
     }
 
-    public static RenderLayer getLayerFromRecentFactoryOrTranslucent(Identifier identifier){
-        if(layerFactory == null){
+    public static RenderLayer getLayerFromRecentFactoryOrTranslucent(Identifier identifier) {
+        if (layerFactory == null) {
             return RenderLayer.getEntityTranslucent(identifier);
         }
         return layerFactory.apply(identifier);
@@ -237,7 +275,6 @@ public class EMFAnimationHelper {
         }
         return index == -1 ? 0 : index;
     }
-
 
     public static EMFEntity getEMFEntity() {
         return emfEntity;
@@ -309,7 +346,6 @@ public class EMFAnimationHelper {
                         : 0;
     }
 
-    //long changed to double... should be fine tbh
     public static float getTime() {
         if (emfEntity == null || emfEntity.etf$getWorld() == null) {
             return 0 + tickDelta;
@@ -422,67 +458,16 @@ public class EMFAnimationHelper {
         return emfEntity != null && emfEntity.emf$isGlowing();
     }
 
-//    public float getClosestCollisionX() {
-//        if (entity != null && entity.world != null) {
-//            Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity, entity.getBoundingBox()).iterator();
-//            Vec3d entitypos = entity.getPos();
-//            double closest = Double.MAX_VALUE;
-//            while (bob.hasNext()) {
-//                Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
-//                if (current.isPresent()) {
-//                    double newVec = (double) current.get().x;
-//                    closest = (double) Math.min(closest, Math.max(entitypos.x, newVec) - Math.min(entitypos.x, newVec));
-//                }
-//            }
-//            if (closest != Double.MAX_VALUE) return closest;
-//        }
-//        return 0;
-//    }
-//
-//    public float getClosestCollisionY() {
-//        if (entity != null && entity.world != null) {
-//            Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity, entity.getBoundingBox()).iterator();
-//            Vec3d entitypos = entity.getPos();
-//            double closest = Double.MAX_VALUE;
-//            while (bob.hasNext()) {
-//                Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
-//                if (current.isPresent()) {
-//                    double newVec = (double) current.get().y;
-//                    closest = (double) Math.min(closest, Math.max(entitypos.y, newVec) - Math.min(entitypos.y, newVec));
-//                }
-//            }
-//            if (closest != Double.MAX_VALUE) return closest;
-//        }
-//        return 0;
-//    }
-//
-//    public float getClosestCollisionZ() {
-//        if (entity != null && entity.world != null) {
-//            Iterator<VoxelShape> bob = entity.world.getEntityCollisions(entity, entity.getBoundingBox()).iterator();
-//            Vec3d entitypos = entity.getPos();
-//            double closest = Double.MAX_VALUE;
-//            while (bob.hasNext()) {
-//                Optional<Vec3d> current = bob.next().getClosestPointTo(entitypos);
-//                if (current.isPresent()) {
-//                    double newVec = (double) current.get().z;
-//                    closest = (double) Math.min(closest, Math.max(entitypos.z, newVec) - Math.min(entitypos.z, newVec));
-//                }
-//            }
-//            if (closest != Double.MAX_VALUE) return closest;
-//        }
-//        return 0;
-//    }
-
     public static boolean isHurt() {
         return emfEntity instanceof LivingEntity alive && alive.hurtTime > 0;
     }
 
     public static boolean isInHand() {
-        return false;//todo
+        return setInHand;
     }
 
     public static boolean isInItemFrame() {
-        return false;//todo
+        return setInItemFrame;
     }
 
     public static boolean isInGround() {
@@ -506,7 +491,7 @@ public class EMFAnimationHelper {
     }
 
     public static boolean isOnHead() {
-        return false;//todo
+        return setIsOnHead;
     }
 
     public static boolean isOnShoulder() {
@@ -529,6 +514,7 @@ public class EMFAnimationHelper {
                 (emfEntity instanceof CatEntity cat && cat.isInSittingPose()) ||
                 (emfEntity instanceof WolfEntity wolf && wolf.isInSittingPose());
     }
+
 
     public static boolean isSneaking() {
         return emfEntity != null && emfEntity.emf$isSneaking();
@@ -595,7 +581,7 @@ public class EMFAnimationHelper {
     }
 
     public static void setLimbAngle(float limbAngle) {
-        EMFAnimationHelper.limbAngle = limbAngle;
+        EMFAnimationEntityContext.limbAngle = limbAngle;
     }
 
     public static float getLimbDistance() {//limb_speed
@@ -607,7 +593,7 @@ public class EMFAnimationHelper {
     }
 
     public static void setLimbDistance(float limbDistance) {
-        EMFAnimationHelper.limbDistance = limbDistance;
+        EMFAnimationEntityContext.limbDistance = limbDistance;
     }
 
     private static void doLimbValues() {
@@ -644,7 +630,7 @@ public class EMFAnimationHelper {
     }
 
     public static void setHeadYaw(float headYaw) {
-        EMFAnimationHelper.headYaw = headYaw;
+        EMFAnimationEntityContext.headYaw = headYaw;
     }
 
     public static float getHeadPitch() {
@@ -656,7 +642,7 @@ public class EMFAnimationHelper {
     }
 
     public static void setHeadPitch(float headPitch) {
-        EMFAnimationHelper.headPitch = headPitch;
+        EMFAnimationEntityContext.headPitch = headPitch;
     }
 
     private static void doHeadValues() {
@@ -693,14 +679,8 @@ public class EMFAnimationHelper {
             headPitch = m;
             //headYaw = k;
             //constrain head yaw amount
-            if (k > 180 || k < -180) {
-                float normalizedAngle = k % 360;
-                if (normalizedAngle > 180) {
-                    normalizedAngle -= 360;
-                } else if (normalizedAngle < -180) {
-                    normalizedAngle += 360;
-                }
-                headYaw = normalizedAngle;
+            if (k >= 180 || k < -180) {
+                headYaw = MathHelper.wrapDegrees(k);
             } else {
                 headYaw = k;
             }
@@ -764,7 +744,7 @@ public class EMFAnimationHelper {
     }
 
     public static void setShadowSize(float shadowSize) {
-        EMFAnimationHelper.shadowSize = shadowSize;
+        EMFAnimationEntityContext.shadowSize = shadowSize;
     }
 
     public static float getShadowOpacity() {
@@ -772,7 +752,7 @@ public class EMFAnimationHelper {
     }
 
     public static void setShadowOpacity(float shadowOpacity) {
-        EMFAnimationHelper.shadowOpacity = shadowOpacity;
+        EMFAnimationEntityContext.shadowOpacity = shadowOpacity;
     }
 
     public static float getLeashX() {
@@ -780,7 +760,7 @@ public class EMFAnimationHelper {
     }
 
     public static void setLeashX(float leashX) {
-        EMFAnimationHelper.leashX = leashX;
+        EMFAnimationEntityContext.leashX = leashX;
     }
 
     public static float getLeashY() {
@@ -788,7 +768,7 @@ public class EMFAnimationHelper {
     }
 
     public static void setLeashY(float leashY) {
-        EMFAnimationHelper.leashY = leashY;
+        EMFAnimationEntityContext.leashY = leashY;
     }
 
     public static float getLeashZ() {
@@ -796,7 +776,7 @@ public class EMFAnimationHelper {
     }
 
     public static void setLeashZ(float leashZ) {
-        EMFAnimationHelper.leashZ = leashZ;
+        EMFAnimationEntityContext.leashZ = leashZ;
     }
 
     public static float getShadowX() {
@@ -804,7 +784,7 @@ public class EMFAnimationHelper {
     }
 
     public static void setShadowX(float shadowX) {
-        EMFAnimationHelper.shadowX = shadowX;
+        EMFAnimationEntityContext.shadowX = shadowX;
     }
 
     public static float getShadowZ() {
@@ -812,7 +792,7 @@ public class EMFAnimationHelper {
     }
 
     public static void setShadowZ(float shadowZ) {
-        EMFAnimationHelper.shadowZ = shadowZ;
+        EMFAnimationEntityContext.shadowZ = shadowZ;
     }
 
 }

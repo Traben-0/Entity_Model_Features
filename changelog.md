@@ -1,5 +1,49 @@
 
 
+- added the `EMFAnimationApi` which allows other mods to register their own custom animation variables and functions to EMF
+  - variables can be added to the `EMFAnimationApi` 
+    - via a `FloatSupplier` for simple number variables 
+    - via a `BooleanSupplier` for simple boolean variables
+    - via a custom variable factory if your variable requires more complex logic, such as reading complex variable names or giving different results for different contexts
+  - functions can be added to the `EMFAnimationApi`
+    - via a `Function<Float, Float>` for simple functions witn 1 argument
+    - via a `BiFunction<Float, Float, Float>` for simple functions with 2 arguments
+    - via a `TriFunction<Float, Float, Float, Float>` for simple functions with 3 arguments
+    - via a `Function<List<Float>, Float>` for functions with a variable amount of arguments provided via a List<Float>
+    - via a  custom function factory if your function requires more complex logic, such as reading the argument strings as a value other than float
+- changed the `unknown model printing` option to `Model exporting` and added options to export all models info to a .jem file or the log, not just the unknown / modded ones
+  - Models now export `Blockbench` ready with correct pivots, boxes, and uvs.
+  - models now export to `.minecraft/emf/export/`
+- implemented `is_on_head`, `is_in_hand` & `is_in_item_frame`, which did nothing before
+- fixed a `"newstate" is null` crash
+- added the `Animation LOD distance` setting which allows you to set the distance at which EMF will start skipping animation frames to save performance
+- added the `Retain LOD at low fps` setting which will proportionally reduce the impact of the above LOD setting while the game is running at below 60 fps, as skipped frames can become more noticeable at lower fps
+- reworked the config screen to use sliders where appropriate
+- added `wolf_armor` to the OptiFine name mappings
+- invalid texture overrides will no longer cause the model to fail to load but instead log an error and use the vanilla texture
+- EMF log messages are now prefixed with a shorter `[EMF]`
+- temporarily disabled texture overrides with tridents as they are broken and difficult to troubleshoot
+- added debug render option `Wireframe over texture` which renders both the wireframe and texture of a model together at the same time
+- added debug render option `Wireframe flashing over texture` which renders both the wireframe and texture of a model together at the same time but the wireframe fades in and out
+- emf now correctly reads all texture overrides with the various relative paths set by optifine e.g. `./`, `~/` etc
+- added a config setting *(enabled by default)* that allows EMF to modify the `enhanced block entity (EBE)` mod's config to disable it for block entities that have custom EMF models loaded
+- fixed texture overrides acting weird with feature renderers *(fixes Ewan's entity health bars cem models with villagers)*
+- added `left_ear` & `right_ear` to `head_piglin.jem` which seems to be correct but missing in OptiFine's documentation :/
+- reduced and reworded some of the loading log spam that would worry users *(for example Fresh Animations 1.9 now sends no log errors on load)*
+- added EMF only rotational logic functions for radians and degrees `wrapdeg() wraprad() degdiff() raddiff()`
+  - the `wrap` functions will wrap a rotation value down to it's smallest identical value, e.g. `wrapdeg(370)` will return `10` & `wrapdeg(350)` will return `-10`
+  - the `diff` functions will return the resulting difference between two rotation values factoring in the rotation, e.g. `degdiff(10, 350)` will return `-20` & `degdiff(10, 370)` will return `0` 
+- added very many EMF only interpolation animation functions
+  - `catmullrom() quadbezier() cubicbezier() hermite() easeinoutexpo() easeinexpo() easeoutexpo() easeinoutcirc() easeincirc()  easeoutcirc()  easeinoutelastic()  easeinelastic()  easeoutelastic()  easeinoutback() easeinback()  easeoutback()  easeinoutbounce()  easeinbounce()  easeoutbounce()  easeinquad()  easeoutquad()  easeinoutquad()  easeincubic()  easeoutcubic()  easeinoutcubic()  easeinquart()  easeoutquart()  easeinoutquart()  easeinquint()  easeoutquint()  easeinoutquint()  easeinsine()  easeoutsine()  easeinoutsine()`
+  - hermite & catmullrom have 5 args, the bezier's have 4, the rest have 3, and all are used in the same way as `lerp()` with the delta value being the first argument.
+  - this is a good website to get an idea on what most of these look like https://easings.net/
+- `e` variable added
+- fixes for a certain mixin causing crashes
+- EMF now supports modifying modded block entity models which use the vanilla block entity models separately from the vanilla ones
+  - *(e.g. the `lootr` mod's chest now tries to read `modded/lootr/special_loot_chest.jem` instead of conflicting with `chest.jem`)*
+  - enabling the "print unknown models" setting will print out these examples to the log
+- completely rewrote the creation of animation Variables and Functions this should reduce memory usage and also allows other mods to add their own variables and functions
+- reworded some of the translations
 
 1.2.2
 

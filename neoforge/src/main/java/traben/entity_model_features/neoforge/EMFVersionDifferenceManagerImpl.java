@@ -17,8 +17,6 @@ public class EMFVersionDifferenceManagerImpl {
     }
 
 
-
-
     public static boolean isThisModLoaded(String modId) {
         try {
             ModList list = ModList.get();
@@ -27,17 +25,17 @@ public class EMFVersionDifferenceManagerImpl {
                 return list2 != null && checkInitialModList(list2, modId);
             }
             return list.isLoaded(modId);
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean checkInitialModList(@NotNull LoadingModList list, String modId){
+    private static boolean checkInitialModList(@NotNull LoadingModList list, String modId) {
         try {
             for (ModInfo mod : list.getMods()) {
-                if(mod.getModId().equals(modId)) return true;
+                if (mod.getModId().equals(modId)) return true;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
         }
         return false;
     }

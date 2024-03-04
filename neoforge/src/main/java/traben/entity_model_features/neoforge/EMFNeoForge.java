@@ -9,6 +9,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.ConfigScreenHandler;
 import traben.entity_model_features.EMFClient;
 import traben.entity_model_features.config.EMFConfigScreenMain;
+import traben.entity_model_features.utils.EMFUtils;
 
 @Mod(EMFClient.MOD_ID)
 public class EMFNeoForge {
@@ -27,7 +28,7 @@ public class EMFNeoForge {
                         ConfigScreenHandler.ConfigScreenFactory.class,
                         () -> new ConfigScreenHandler.ConfigScreenFactory((minecraftClient, screen) -> new EMFConfigScreenMain(screen)));
             } catch (NoClassDefFoundError e) {
-                System.out.println("[Entity Model Features]: Mod config screen broken, download latest forge version");
+                EMFUtils.logError("[Entity Model Features]: Mod config screen broken, download latest forge version");
             }
 
             EMFClient.init();

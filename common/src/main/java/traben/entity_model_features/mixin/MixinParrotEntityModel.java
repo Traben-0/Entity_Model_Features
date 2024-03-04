@@ -8,13 +8,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 
 @Mixin(ParrotEntityModel.class)
 public class MixinParrotEntityModel {
 
     @Inject(method = "poseOnShoulder", at = @At("HEAD"))
     private void injected(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float limbAngle, float limbDistance, float headYaw, float headPitch, int danceAngle, CallbackInfo ci) {
-        EMFAnimationHelper.setCurrentEntityOnShoulder();
+        EMFAnimationEntityContext.setCurrentEntityOnShoulder();
     }
 }

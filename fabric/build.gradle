@@ -38,7 +38,7 @@ dependencies {
         exclude(group: "net.fabricmc.fabric-api")
     }
 
-   // modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    // modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
 
 
 //    implementation("org.apache.commons:commons-math3:3.0")
@@ -61,18 +61,18 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier.set( "dev-shadow")
+    archiveClassifier.set("dev-shadow")
 }
 
 remapJar {
     injectAccessWidener = true
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    archiveClassifier.set( null)
+    archiveClassifier.set(null)
 }
 
 jar {
-    archiveClassifier.set( "dev")
+    archiveClassifier.set("dev")
 }
 
 sourcesJar {
