@@ -41,15 +41,11 @@ public class EMFConfigScreenDebugLogOptions extends ETFConfigScreen {
         ));
 
 
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.render").getString() +
-                        ": " + emfParent.tempConfig.renderModeChoice.asText().getString()),
-                (button) -> {
-                    emfParent.tempConfig.renderModeChoice = emfParent.tempConfig.renderModeChoice.next();
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.render").getString() +
-                            ": " + emfParent.tempConfig.renderModeChoice.asText().getString()));
-                },
-                Text.translatable("entity_model_features.config.render.tooltip")
+        this.addDrawableChild(new EnumSliderWidget<>((int) (this.width * 0.2), (int) (this.height * 0.2), (int) (this.width * 0.6), 20,
+                Text.translatable("entity_model_features.config.render"),
+                EMFConfig.RenderModeChoice.NORMAL,
+                (value) -> emfParent.tempConfig.renderModeChoice = value,
+                Text.translatable("entity_model_features.config.render.tooltip"),this
         ));
 
         this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.3), (int) (this.width * 0.6), 20,

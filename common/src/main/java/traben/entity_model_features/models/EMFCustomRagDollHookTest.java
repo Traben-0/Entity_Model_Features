@@ -15,9 +15,9 @@ public class EMFCustomRagDollHookTest implements RagdollHook {
     @Override
     public void map(Ragdoll ragdoll, Entity entity, EntityModel entityModel) {
 
-        if(((IEMFModel)entityModel).emf$isEMFModel()) {
+        if (((IEMFModel) entityModel).emf$isEMFModel()) {
             //this is the custom class model root
-            EMFModelPartRoot root = ((IEMFModel)entityModel).emf$getEMFRootModel();
+            EMFModelPartRoot root = ((IEMFModel) entityModel).emf$getEMFRootModel();
 
             //this root is the raw original vanilla model root
 //            ModelPart rawVanillaRoot = root.vanillaRoot;
@@ -34,14 +34,13 @@ public class EMFCustomRagDollHookTest implements RagdollHook {
 
             //none of them work here
             RagdollMapper.Counter counter = new RagdollMapper.Counter();
-            RagdollMapper.getCuboids(ragdoll,currentStateAsVanillaModelParts,counter,true);
+            RagdollMapper.getCuboids(ragdoll, currentStateAsVanillaModelParts, counter, true);
 
             //not sure what I'm doing here
             ragdoll.addConnection(1, 0, true);
 
         }
     }
-
 
 
     @Override

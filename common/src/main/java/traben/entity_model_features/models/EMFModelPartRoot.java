@@ -14,7 +14,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.animation.EMFAnimation;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFManager;
@@ -62,12 +62,12 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         receiveOneTimeRunnable(this::registerModelRunnableWithEntityTypeContext);
     }
 
-    private void registerModelRunnableWithEntityTypeContext(){
-        if(EMFAnimationHelper.getEMFEntity() != null) {
+    private void registerModelRunnableWithEntityTypeContext() {
+        if (EMFAnimationEntityContext.getEMFEntity() != null) {
 
             //register models to entity type for debug print
             if (EMFConfig.getConfig().debugOnRightClick) {
-                String type = EMFAnimationHelper.getEMFEntity().emf$getTypeString();
+                String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
                 Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForDebug.get(type);
                 if (roots == null) {
                     Set<EMFModelPartRoot> newRootSet = new ObjectLinkedOpenHashSet<>();
@@ -80,7 +80,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
             //register variant runnable
             if (this.variantTester != null) {
-                String type = EMFAnimationHelper.getEMFEntity().emf$getTypeString();
+                String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
                 if (EMFConfig.getConfig().logModelCreationData)
                     EMFUtils.log("Registered new variating model for: " + type);
 
@@ -100,14 +100,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public void doVariantCheck() {
         int finalSuffix;
-        UUID id = EMFAnimationHelper.getEMFEntity().etf$getUuid();
+        UUID id = EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
         int knownSuffix = entitySuffixMap.getInt(id);
         if (knownSuffix != -1) {
             checkIfShouldExpireEntity(id);
             finalSuffix = knownSuffix;
         } else {
             int newSuffix;
-            newSuffix = this.variantTester.getSuffixForETFEntity(EMFAnimationHelper.getEMFEntity());
+            newSuffix = this.variantTester.getSuffixForETFEntity(EMFAnimationEntityContext.getEMFEntity());
             if (newSuffix == 0) {//DONT ALLOW 0 IN EMF
                 this.entitySuffixMap.put(id, 1);
                 finalSuffix = 1;
@@ -127,7 +127,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 case Instant -> this.entitySuffixMap.removeInt(id);
                 default -> {
                     int delay = EMFConfig.getConfig().modelUpdateFrequency.getDelay();
-                    int time = (int) (EMFAnimationHelper.getTime() % delay);
+                    int time = (int) (EMFAnimationEntityContext.getTime() % delay);
                     if (time == Math.abs(id.hashCode()) % delay) {
                         this.entitySuffixMap.removeInt(id);
                     }
@@ -139,7 +139,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     //root only
     public void addVariantOfJem(EMFJemData jemData, int variant) {
         if (EMFConfig.getConfig().logModelCreationData)
-            System.out.println(" > " + jemData.getMobModelIDInfo().getfileName() + ", constructing variant #" + variant);
+            EMFUtils.log(" > " + jemData.getMobModelIDInfo().getfileName() + ", constructing variant #" + variant);
 
         Map<String, EMFModelPartCustom> newEmfParts = new HashMap<>();
         for (EMFPartData part :
@@ -164,7 +164,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 EMFModelPartCustom newPart = newPartEntry.getValue();
                 if (thisPartName.equals(newPart.partToBeAttached)) {
                     if (EMFConfig.getConfig().logModelCreationData)
-                        System.out.println(" > > > EMF custom part attached: " + newPartEntry.getKey());
+                        EMFUtils.log(" > > > EMF custom part attached: " + newPartEntry.getKey());
                     if (!newPart.attach) {
                         thisPart.cuboids = List.of();
                         thisPart.children.values().forEach((part) -> {
@@ -219,7 +219,8 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     }
                     //receiveOneTimeRunnable(this::registerModelRunnable);
                 } else {
-                    EMFUtils.logWarn("properties with only 1 variant found: " + propertyID + "\n please check this is correct.");
+                    if (EMFConfig.getConfig().logModelCreationData)
+                        EMFUtils.logWarn("properties with only 1 variant found: " + propertyID + ".");
                     //variantTester = null;
                     //variantDirectoryApplier = null;
                 }
@@ -236,14 +237,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public void setVariant1ToVanilla0() {
         allKnownStateVariants.put(1, allKnownStateVariants.get(0));
-        allVanillaParts.forEach((k,child)->child.allKnownStateVariants.put(1, child.allKnownStateVariants.get(0)));
+        allVanillaParts.forEach((k, child) -> child.allKnownStateVariants.put(1, child.allKnownStateVariants.get(0)));
     }
 
 
     public void tryRenderVanillaRootNormally(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
         if (vanillaRoot != null) {
             matrixStack.push();
-            if (EMFConfig.getConfig().vanillaModelHologramRenderMode == EMFConfig.VanillaModelRenderMode.Positon_offset) {
+            if (EMFConfig.getConfig().vanillaModelHologramRenderMode_2 == EMFConfig.VanillaModelRenderMode.OFFSET) {
                 matrixStack.translate(1, 0, 0);
             }
             vanillaRoot.render(matrixStack, vertexConsumer, light, overlay, 1, 0.5f, 0.5f, 0.5f);
@@ -271,7 +272,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         return vanillaFormatModelPartOfEachState.get(currentModelVariant);
     }
 
-    public void receiveAnimations(int variant, Collection<EMFAnimation> animationList){// Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> orderedAnimationsByPartName) {
+    public void receiveAnimations(int variant, Collection<EMFAnimation> animationList) {// Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> orderedAnimationsByPartName) {
 //        LinkedList<EMFAnimation> animationList = new LinkedList<>();
 //        if (orderedAnimationsByPartName.size() > 0) {
 //            allVanillaParts.values().forEach((emf) -> {

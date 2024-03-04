@@ -15,11 +15,8 @@ public class EMFClient {
 
     public static final int EYES_FEATURE_LIGHT_VALUE = LightmapTextureManager.MAX_LIGHT_COORDINATE + 1;
     public static final String MOD_ID = "entity_model_features";
-
-    public static boolean forgeHadLoadingError = false;
-    public static boolean testedForge = !EMFVersionDifferenceManager.isForge();
     private static final String[] quips = {
-            "special thanks to Cody!",
+            "special thanks to Cody, top donator!",
             "your third cousin's, dog's, previous owner's, uncle's, old boss's, fifth favourite mod!",
             "Thanks for 200K plus downloads!!",
             "why does no one download Solid Mobs :(",
@@ -42,8 +39,11 @@ public class EMFClient {
             "100% of the time it works 90% of the time!",
             "now moving all models 0.00001 blocks to the left every 4 seconds.",
             "PI = " + ((float) Math.PI) + " and you can't convince me otherwise.",
-            "90 =" + ((float) Math.toRadians(90)) + "!"
+            "90 =" + ((float) Math.toRadians(90)) + "!",
+            "making those animations fresh since 1862!"
     };
+    public static boolean forgeHadLoadingError = false;
+    public static boolean testedForge = !EMFVersionDifferenceManager.isForge();
 
     public static void init() {
         LogManager.getLogger().info("Loading Entity Model Features, " + randomQuip());
@@ -58,7 +58,7 @@ public class EMFClient {
 
     }
 
-    public static boolean testForForgeLoadingError(){
+    public static boolean testForForgeLoadingError() {
         if (!testedForge) {
             testedForge = true;
             // this is required for forge
@@ -74,12 +74,12 @@ public class EMFClient {
             try {
                 EMFManager.getInstance();
             } catch (IncompatibleClassChangeError error) {
-                if(error.getMessage().contains("cannot inherit from final class")) {
+                if (error.getMessage().contains("cannot inherit from final class")) {
                     EMFClient.forgeHadLoadingError = true;
                     EMFUtils.logError(
-                        "EMF has crashed due to a (possibly) unrelated forge dependency error,\n EMF has been disabled so the true culprit will be sent to users after game load:\n"
-                                + error.getMessage());
-                }else{
+                            "EMF has crashed due to a (possibly) unrelated forge dependency error,\n EMF has been disabled so the true culprit will be sent to users after game load:\n"
+                                    + error.getMessage());
+                } else {
                     //throw the error if it's something we were not expecting
                     throw error;
                 }

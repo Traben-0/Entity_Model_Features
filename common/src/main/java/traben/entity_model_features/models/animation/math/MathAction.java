@@ -1,49 +1,49 @@
-package traben.entity_model_features.models.animation.animation_math_parser;
+package traben.entity_model_features.models.animation.math;
 
 import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.utils.EMFUtils;
 
 public enum MathAction implements MathComponent {
     ADD {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return first.get() + second.get();
+            return first.getResult() + second.getResult();
         }
     },
     SUBTRACT {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return first.get() - second.get();
+            return first.getResult() - second.getResult();
         }
     },
     MULTIPLY {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return first.get() * second.get();
+            return first.getResult() * second.getResult();
         }
     },
     DIVIDE {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            float sec = second.get();
+            float sec = second.getResult();
             //if value is a variable it likely defaults to 0 during animation validation so here we intercept that and prevent invalidating the animation
             if (sec == 0 && !second.isConstant() && EMFManager.getInstance().isAnimationValidationPhase) {
-                return first.get();
+                return first.getResult();
             }
-            return first.get() / sec;
+            return first.getResult() / sec;
         }
     },
     DIVISION_REMAINDER {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            float sec = second.get();
+            float sec = second.getResult();
             //if value is a variable it likely defaults to 0 during animation validation so here we intercept that and prevent invalidating the animation
             if (sec == 0 && !second.isConstant() && EMFManager.getInstance().isAnimationValidationPhase) {
-                return first.get();
+                return first.getResult();
             }
-            return first.get() % sec;
+            return first.getResult() % sec;
         }
     },
-    // power,
     COMMA,
     OPEN_BRACKET,
     CLOSED_BRACKET,
@@ -51,50 +51,50 @@ public enum MathAction implements MathComponent {
     AND {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return ((first.get() == 1) && (second.get() == 1)) ? 1 : 0;
+            return ((first.getResult() == 1) && (second.getResult() == 1)) ? 1 : 0;
         }
     },
     OR {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return ((first.get() == 1) || (second.get() == 1)) ? 1 : 0;
+            return ((first.getResult() == 1) || (second.getResult() == 1)) ? 1 : 0;
         }
     },
     LARGER_THAN {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.get() > second.get()) ? 1 : 0;
+            return (first.getResult() > second.getResult()) ? 1 : 0;
         }
     },
     SMALLER_THAN {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.get() < second.get()) ? 1 : 0;
+            return (first.getResult() < second.getResult()) ? 1 : 0;
         }
     },
 
     LARGER_THAN_OR_EQUALS {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.get() >= second.get()) ? 1 : 0;
+            return (first.getResult() >= second.getResult()) ? 1 : 0;
         }
     },
     SMALLER_THAN_OR_EQUALS {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.get() <= second.get()) ? 1 : 0;
+            return (first.getResult() <= second.getResult()) ? 1 : 0;
         }
     },
     EQUALS {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.get() == second.get()) ? 1f : 0f;
+            return (first.getResult() == second.getResult()) ? 1f : 0f;
         }
     },
     NOT_EQUALS {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.get() != second.get()) ? 1 : 0;
+            return (first.getResult() != second.getResult()) ? 1 : 0;
         }
     },
     BOOLEAN_CHAR;
@@ -126,8 +126,8 @@ public enum MathAction implements MathComponent {
     }
 
     @Override
-    public float get() {
-        System.out.println("ERROR: math action incorrectly called [" + this + "].");
+    public float getResult() {
+        EMFUtils.logError("math action incorrectly called [" + this + "].");
         return Float.NaN;
     }
 }

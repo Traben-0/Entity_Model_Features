@@ -13,3 +13,5 @@ mutable field net/minecraft/client/model/ModelPart cuboids Ljava/util/List;
 mutable field net/minecraft/client/model/ModelPart children Ljava/util/Map;
 
 accessible field net/minecraft/client/model/Model layerFactory Ljava/util/function/Function;
+
+accessible field net/minecraft/client/MinecraftClient currentFps I

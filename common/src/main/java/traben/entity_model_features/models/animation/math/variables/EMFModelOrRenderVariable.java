@@ -1,8 +1,9 @@
-package traben.entity_model_features.models.animation;
+package traben.entity_model_features.models.animation.math.variables;
 
 import net.minecraft.client.model.ModelPart;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.EMFModelPart;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 
 public enum EMFModelOrRenderVariable {
     TX() {
@@ -151,12 +152,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_shadow_size() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationHelper.setShadowSize(value);
+            EMFAnimationEntityContext.setShadowSize(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationHelper.getShadowSize();
+            return EMFAnimationEntityContext.getShadowSize();
         }
 
         @Override
@@ -167,12 +168,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_SHADOW_OPACITY() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationHelper.setShadowOpacity(value);
+            EMFAnimationEntityContext.setShadowOpacity(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationHelper.getShadowOpacity();
+            return EMFAnimationEntityContext.getShadowOpacity();
         }
 
         @Override
@@ -183,12 +184,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_SHADOW_X() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationHelper.setShadowX(value);
+            EMFAnimationEntityContext.setShadowX(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationHelper.getShadowX();
+            return EMFAnimationEntityContext.getShadowX();
         }
 
         @Override
@@ -199,12 +200,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_SHADOW_Z() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationHelper.setShadowZ(value);
+            EMFAnimationEntityContext.setShadowZ(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationHelper.getShadowZ();
+            return EMFAnimationEntityContext.getShadowZ();
         }
 
         @Override
@@ -215,12 +216,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_LEASH_X() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationHelper.setLeashX(value);
+            EMFAnimationEntityContext.setLeashX(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationHelper.getLeashX();
+            return EMFAnimationEntityContext.getLeashX();
         }
 
         @Override
@@ -231,12 +232,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_LEASH_Y() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationHelper.setLeashY(value);
+            EMFAnimationEntityContext.setLeashY(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationHelper.getLeashY();
+            return EMFAnimationEntityContext.getLeashY();
         }
 
         @Override
@@ -247,12 +248,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_LEASH_Z() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationHelper.setLeashZ(value);
+            EMFAnimationEntityContext.setLeashZ(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationHelper.getLeashZ();
+            return EMFAnimationEntityContext.getLeashZ();
         }
 
         @Override
@@ -309,5 +310,5 @@ public enum EMFModelOrRenderVariable {
     }
 
 
-    abstract void setValue(EMFModelPart modelPart, float value);
+    public abstract void setValue(EMFModelPart modelPart, float value);
 }

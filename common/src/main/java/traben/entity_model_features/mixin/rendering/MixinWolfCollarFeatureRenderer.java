@@ -34,7 +34,7 @@ public abstract class MixinWolfCollarFeatureRenderer extends FeatureRenderer<Wol
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void setEmf$Model(FeatureRendererContext<?, ?> featureRendererContext, CallbackInfo ci) {
-        if(EMFClient.testForForgeLoadingError()) return;
+        if (EMFClient.testForForgeLoadingError()) return;
 
         ModelPart collarModel = EMFManager.getInstance().injectIntoModelRootGetter(emf$collar_layer, WolfEntityModel.getTexturedModelData().createModel());
 
@@ -44,7 +44,8 @@ public abstract class MixinWolfCollarFeatureRenderer extends FeatureRenderer<Wol
                 if (featureRendererContext.getModel() instanceof EMFWolfCollarHolder<?> holder) {
                     holder.emf$setCollarModel(new WolfEntityModel<>(collarModel));
                 }
-            }catch (Exception ignored){}
+            } catch (Exception ignored) {
+            }
         }
     }
 

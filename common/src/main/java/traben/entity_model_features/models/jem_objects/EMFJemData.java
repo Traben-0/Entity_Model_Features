@@ -12,15 +12,20 @@ import java.util.*;
 
 public class EMFJemData {
 
-    public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
-        return allTopLevelAnimationsByVanillaPartName;
-    }
-
     private final LinkedHashMap<String, LinkedHashMap<String, String>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();
     public String texture = "";
     public int[] textureSize = null;
     public double shadow_size = 1.0;
     public LinkedList<EMFPartData> models = new LinkedList<>();
+    private String fileName = "none";
+    private String filePath = "";
+    private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
+    //public String mobName = "none";
+    private Identifier customTexture = null;
+
+    public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
+        return allTopLevelAnimationsByVanillaPartName;
+    }
 
     public String getFileName() {
         return fileName;
@@ -38,45 +43,56 @@ public class EMFJemData {
         return customTexture;
     }
 
-    private String fileName = "none";
-    private String filePath = "";
-    private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
-
-    //public String mobName = "none";
-    private Identifier customTexture = null;
-
     @Nullable
-    public Identifier validateJemTexture(String texture) {
-        texture = texture.trim();
-        if (!texture.isBlank()) {
-            if (!texture.endsWith(".png")) texture = texture + ".png";
-            //if no folder parenting assume it is relative to model
-            if (!texture.contains("/")) {
-                String[] directorySplit = fileName.split("/");
-                if (directorySplit.length > 1) {
-                    String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
-                    String folderOfModel = fileName.replace(lastDirectoryComponentOfFileName, "");
-                    texture = folderOfModel + texture;
+    public Identifier validateJemTexture(String textureIn) {// "textures/entity/trident.png"
+        if (textureIn == null) return null;
+
+        String textureTest = textureIn.trim();
+        if (!textureTest.isBlank()) {
+
+            //todo add support for trident no idea why it breaks currently
+            if (textureTest.endsWith("/trident.jem")) {
+                EMFUtils.logWarn("trident textureTest overrides are not supported currently, they will be ignored.");
+                return null;
+            }
+
+            if (!textureTest.contains(":")) {
+                if (!textureTest.endsWith(".png")) textureTest = textureTest + ".png";
+
+                //if no folder parenting assume it is relative to model
+                if (!textureTest.contains("/") || textureTest.startsWith("./")) {
+                    textureTest = filePath + textureTest;
+                } else if (textureTest.startsWith("~/")) {
+                    textureTest = "optifine/" + textureTest;
                 }
             }
-            Identifier possibleTexture = new Identifier(texture);
-            if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
-                return possibleTexture;
+            if (Identifier.isValid(textureTest)) {
+                Identifier possibleTexture = new Identifier(textureTest);
+                if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
+                    return possibleTexture;
+                }
+            } else {
+                EMFUtils.logWarn("Invalid texture identifier: " + textureTest + " for " + fileName);
+
             }
         }
         return null;
+    }
+
+    private String workingDirectory() {
+        String[] directorySplit = fileName.split("/");
+        if (directorySplit.length > 1) {
+            String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
+            return fileName.replaceAll(lastDirectoryComponentOfFileName + "$", "");
+        }
+        return "optifine/cem/";
     }
 
     public void prepare(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
         this.mobModelIDInfo = mobModelIDInfo;
         this.fileName = fileName;
 
-        String[] directorySplit = fileName.split("/");
-        if (directorySplit.length > 1) {
-            String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
-            filePath = fileName.replace(lastDirectoryComponentOfFileName, "");
-
-        }
+        filePath = workingDirectory();
 
         LinkedList<EMFPartData> originalModelsForReadingOnly = new LinkedList<>(models);
 
@@ -85,13 +101,13 @@ public class EMFJemData {
         String mapId = mobModelIDInfo.getMapId();
         Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(mapId, null);
 
+
         //change all part values to their vanilla counterparts
         for (EMFPartData partData :
                 models) {
             if (partData.part != null) {
                 if (map.containsKey(partData.part)) {
                     partData.part = map.get(partData.part);
-
                 }
             }
         }
@@ -141,7 +157,7 @@ public class EMFJemData {
         }
 
         //place in a simple animation to set the shadow size
-        if(shadow_size != 1.0){
+        if (shadow_size != 1.0) {
             if (shadow_size < 0) shadow_size = 0;
 
             String rootPart = "EMF_root";
@@ -168,6 +184,7 @@ public class EMFJemData {
                 '}';
     }
 
+    @SuppressWarnings("unused")
     public static class EMFJemPrinter {//todo use and assign values
         public String texture = "";
         public int[] textureSize = {16, 16};

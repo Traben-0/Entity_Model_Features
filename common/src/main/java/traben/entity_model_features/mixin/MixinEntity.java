@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFEntity;
 
 @Mixin(Entity.class)
@@ -86,9 +86,9 @@ public abstract class MixinEntity implements EMFEntity {
     @Inject(method = "Lnet/minecraft/entity/Entity;getLeashOffset()Lnet/minecraft/util/math/Vec3d;", at = @At("RETURN"))
     private void injected(CallbackInfoReturnable<Vec3d> cir) {
         //return new Vec3d(0.0, (double)this.getStandingEyeHeight(), (double)(this.getWidth() * 0.4F));
-        if (EMFAnimationHelper.getLeashX() != 0 || EMFAnimationHelper.getLeashY() != 0 || EMFAnimationHelper.getLeashZ() != 0) {
+        if (EMFAnimationEntityContext.getLeashX() != 0 || EMFAnimationEntityContext.getLeashY() != 0 || EMFAnimationEntityContext.getLeashZ() != 0) {
             Vec3d vec = cir.getReturnValue();
-            vec.add(EMFAnimationHelper.getLeashX(), EMFAnimationHelper.getLeashY(), EMFAnimationHelper.getLeashZ());
+            vec.add(EMFAnimationEntityContext.getLeashX(), EMFAnimationEntityContext.getLeashY(), EMFAnimationEntityContext.getLeashZ());
         }
     }
 
