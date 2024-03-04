@@ -10,11 +10,10 @@ public class EMFModMenuEntry implements ModMenuApi {
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         try {
             return EMFConfigScreenMain::new;
-        }catch (Exception e){
+        } catch (Exception e) {
             return screen -> null;
         }
     }
-
 
 
 }

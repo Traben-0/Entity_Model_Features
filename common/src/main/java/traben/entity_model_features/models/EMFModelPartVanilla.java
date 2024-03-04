@@ -7,6 +7,7 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
 
@@ -32,7 +33,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         this.name = name;
 
         if (EMFConfig.getConfig().logModelCreationData)
-            System.out.println(" > EMF vanilla part made: " + name);
+            EMFUtils.log(" > EMF vanilla part made: " + name);
 
         isOptiFinePartSpecified = optifinePartNames.contains(name);
         rootType = name.equals("root") || name.equals("EMF_root");
@@ -63,8 +64,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     }
 
 
-
-
     public void setHideInTheseStates(int variant) {
         hideInTheseStates.add(variant);
         children.values().forEach((part) -> {
@@ -75,20 +74,12 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
 
     public void receiveRootAnimationRunnable(int variant, Runnable run) {
-//        Runnable run = () -> {
-//            if (this.lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
-//                this.lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
-//                animList.forEach((EMFAnimation::calculateAndSet));
-//            }else{
-//                animList.forEach((EMFAnimation::getLastAndSet));
-//            }
-//        };
         allKnownStateVariants.get(variant).animation().setAnimation(run);
     }
 
     @Override
     public String toString() {
-        return "[vanilla part " + name + "], cubes ="+ cuboids.size()+", children = "+ children.size();
+        return "[vanilla part " + name + "], cubes =" + cuboids.size() + ", children = " + children.size();
     }
 
     @Override

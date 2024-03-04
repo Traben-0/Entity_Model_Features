@@ -14,6 +14,9 @@ import traben.entity_model_features.utils.EMFWolfCollarHolder;
 public class MixinWolfEntityModel<T extends WolfEntity> implements EMFWolfCollarHolder<T> {
 
 
+    @Unique
+    WolfEntityModel<T> emf$collarModel = null;
+
     @Inject(method = "setAngles(Lnet/minecraft/entity/passive/WolfEntity;FFFFF)V",
             at = @At(value = "HEAD")
     )
@@ -36,9 +39,6 @@ public class MixinWolfEntityModel<T extends WolfEntity> implements EMFWolfCollar
     public WolfEntityModel<T> emf$getCollarModel() {
         return emf$collarModel;
     }
-
-    @Unique
-    WolfEntityModel<T> emf$collarModel = null;
 
     @Override
     public void emf$setCollarModel(WolfEntityModel<T> model) {

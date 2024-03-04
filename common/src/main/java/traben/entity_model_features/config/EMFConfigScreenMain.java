@@ -135,7 +135,6 @@ public class EMFConfigScreenMain extends ETFConfigScreen {
         } else {
             drawCenteredTextWithShadow(matrices,this.textRenderer, Text.of("Load a world and nearby entities will appear here."), this.width / 3, this.height / 2, Color.GRAY.getRGB());
         }
-//        super.render(context, mouseX, mouseY, delta);
     }
 
 }

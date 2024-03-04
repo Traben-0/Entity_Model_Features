@@ -6,6 +6,7 @@ import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +14,17 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class EMFModelPartWithState extends EMFModelPart {
-    public final Int2ObjectOpenHashMap<EMFModelState> allKnownStateVariants = new Int2ObjectOpenHashMap<>();
+    public final Int2ObjectOpenHashMap<EMFModelState> allKnownStateVariants = new Int2ObjectOpenHashMap<>() {
+        @Override
+        public EMFModelState get(final int k) {
+            if (!containsKey(k)) {
+                EMFUtils.logWarn("EMFModelState variant with key " + k + " does not exist in part [" + toStringShort() + "], returning copy of 0");
+                put(k, EMFModelState.copy(get(0)));
+            }
+            return super.get(k);
+        }
+    };
+
     public int currentModelVariant = 0;
     Map<String, ModelPart> vanillaChildren = new HashMap<>();
     Runnable startOfRenderRunnable = null;
@@ -46,7 +57,6 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
 
     }
-
 
 
     EMFModelState getCurrentState() {

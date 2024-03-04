@@ -37,6 +37,8 @@ Armor jem models have the following model parts
 
 ### Player model CEM support
 
+#### *please note that BlockBench's player model found in it's "unsupported model" section incorrectly names the arm_sleeve parts as arm_sleve, you need to change it via a text editor*
+
 Player models are fully supported by EMF and can be animated and varied using the random model feature of OptiFine
 
 `File names: "player.jem" & "player_slim.jem"`
@@ -46,7 +48,7 @@ Player jem models have the following model parts
   
 *(yes "ear" is a valid part,all players technically have the DeadMau5 ears in their model)*
 
-cloak does indeed refer to the player cape
+cloak does indeed refer to the player cape however does not animate currently
 
 ### EMF only animations variables
 
@@ -65,20 +67,17 @@ cloak does indeed refer to the player cape
   - **TL;DR** if you add both a "moving forwards" & a "strafing to the right" animation you can effectively multiply them by `move_forward` & `move_strafing` respectively to get a smooth blend between the two when the models moves around.
 
 
-  
+
 ### EMF modded entity CEM support
 
-EMF supports custom entity models for all modded entities who's model factories appear through the proper 'vanilla' channels, this means mods using other custom model mods are not likely to be supported.
+EMF supports custom entity models for all modded entities who's model factories appear through the proper channels, this means mods using other custom model mods are not likely to be supported.
 
-To find out if your modded entity is supported, open the EMF settings screen and open the `Tools` screen, you will then see a button labelled `Print out unknown model info`. 
-If you enable this option and then leave the settings screen, the loading screen will then appear as the game reloads all resources *(including models)*
-EMF will then write details into the game log of all unknown entity models found during this reload.
+To find out if your modded entity is supported follow the instructions in the **"EMF model exporting option"** section found below.
 
-Depending on what option you set for the setting EMF will either:
-- just log all the models information including: part names, .jem file location, possible default pivots & other model values
-- log this info **AND** create an example .jem model for the model and place it in `MC_DIRECTORY/emf/unknown_cem/`. *(please note these example models are **not perfect** at this time and are meant as a **guide only**)*
+These modded CEM models support all CEM features and can be varied by random models and animated fully. 
 
-These modded CEM models support all CEM features and can be varied by random models and animated fully.
+Please keep in mind that for all models known to OptiFine CEM their part names are changed from what they use in the game code, 
+so you will find that a `modded/cow.jem` will have very different part names to `cow.jem` even if the modded one simply copies the vanilla cow model.
 
 ### EMF additional vanilla CEM
  As explained above EMF can identify unknown models and automatically supports them, with that being said a few Vanilla models not present in OptiFine CEM also get captured by this system. 
@@ -87,6 +86,24 @@ These are: `(modelname # parts)`
 - `shield.jem` # *plate, handle*
 - `elytra.jem` # *right_wing, left_wing*
 - `spin_attack.jem` # *box*
+- models not yet released in OptiFine such as the Breeze mob's various models
+
+
+### EMF model exporting option
+
+This option will export in-game entity models if they are EMF compatible.
+
+open the EMF settings screen and open the `Tools` screen, you will then see a slider labelled `Export models`.
+If you enable this option for all or unknown models and then leave the settings screen, the loading screen will then appear as the game reloads all resources *(including models)*
+EMF will then write details into the game log of all compatible entity models found during this reload.
+
+Depending on what option you set for the setting EMF will either:
+- do this for all models found in the game
+- do this for all models found in the game that are not already known to OptiFine CEM *(i.e unknown models)*
+- just log the found models information including: part names, .jem file location, possible default pivots & other model values
+- log this info **AND** create an example `.jem` model for the model and place it in `MC_DIRECTORY/emf/export/`.
+  *(these models will have correct pivots boxes and texture uv's and are immediately ready for use in BlockBench)*
+
 
 ### EMF only random property for model variation (1.2+)
 
@@ -99,9 +116,22 @@ the property name is `variant` or `variants`.
 The property allows regex, pattern, or a simple list of variant names.
 If the property starts with "print:" it will print the variant found for the entity to the game log, and use the rest of the property text as normal.
 This property will work with any modded entity that implements the `VariantHolder` class and will use the string representation of the type, e.g. "black" for a cat, "oak" for a boat.
-This property also works uniquely with these block entities: signs (wood), bed (color), shulkerbox (color), Decorated pot (all 4 sherd face types).
+This property also works uniquely with these block entities: 
+- signs (wood)
+- bed (color)
+- shulkerbox (color)
+- Decorated pot (all 4 sherd face types)
+- skulls(appending facing direction at the end)
+
 For all other regular & block entities it returns the EntityType or BlockEntityType registry id.
-The above allows for the separation of different entity types that might use the same model name, such as various modded entities do.
+This allows for the separation of different entity types that might use the same model name, such as various modded entities do.
+
+### ETFAnimationApi
+
+EMF has a built-in animation API that allows for the registering of custom animation functions and variables by other mods.
+
+This API can be found [here](common/src/main/java/traben/entity_model_features/EMFAnimationApi.java), and it and some relevant classes have JavaDocs for documentation.
+
 
 
 # OptiFine working features
@@ -116,7 +146,6 @@ All the listed features below are present in EMF and work just like in OptiFine,
 
 # OptiFine missing features
 
-- animation variables `is_in_hand` & `is_in_item_frame` do not currently work and will just return `false`
 - some animation variables *(especially for block entities & non-living entities)* might be a bit off from their values in OptiFine
 - Sprites are not currently supported
 - Non-CEM features. EMF only supports OptiFine CEM. For other features you will need other mods, like ETF which supports OptiFine random and emissive entity textures.

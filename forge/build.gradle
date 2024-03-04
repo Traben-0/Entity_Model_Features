@@ -18,6 +18,7 @@ loom {
 
         mixinConfig "entity_model_features-common.mixins.json"
         mixinConfig "entity_model_features.mixins.json"
+        mixinConfig "entity_model_features-optional.mixins.json"
     }
 }
 
@@ -54,17 +55,17 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier.set( "dev-shadow")
+    archiveClassifier.set("dev-shadow")
 }
 
 remapJar {
     input.set shadowJar.archiveFile
     dependsOn shadowJar
-    archiveClassifier.set( null)
+    archiveClassifier.set(null)
 }
 
 jar {
-    archiveClassifier.set( "dev")
+    archiveClassifier.set("dev")
 }
 
 sourcesJar {

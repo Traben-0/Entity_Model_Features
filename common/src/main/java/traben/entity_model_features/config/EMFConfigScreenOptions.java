@@ -1,8 +1,11 @@
 package traben.entity_model_features.config;
 
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.NotNull;
 import traben.entity_texture_features.config.ETFConfig;
 import traben.entity_texture_features.config.screens.ETFConfigScreen;
 
@@ -29,6 +32,8 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                     emfParent.tempConfig.attemptRevertingEntityModelsAlteredByAnotherMod = true;
                     emfParent.tempConfig.attemptPhysicsModPatch_2 = EMFConfig.PhysicsModCompatChoice.CUSTOM;
                     emfParent.tempConfig.modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
+                    emfParent.tempConfig.allowEBEModConfigModify = true;
+                    emfParent.tempConfig.animationLODDistance = 20;
                     this.clearAndInit();
                     //Objects.requireNonNull(client).setScreen(parent);
                 }).dimensions((int) (this.width * 0.4), (int) (this.height * 0.9), (int) (this.width * 0.22), 20).build());
@@ -62,16 +67,69 @@ public class EMFConfigScreenOptions extends ETFConfigScreen {
                 Text.translatable("entity_model_features.config.physics.tooltip")
         ));
 
-        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
-                Text.of(Text.translatable("entity_model_features.config.update").getString() +
-                        ": " + emfParent.tempConfig.modelUpdateFrequency.toString()),
-                (button) -> {
-                    emfParent.tempConfig.modelUpdateFrequency = emfParent.tempConfig.modelUpdateFrequency.next();
-                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.update").getString() +
-                            ": " + emfParent.tempConfig.modelUpdateFrequency.toString()));
-                },
+
+        this.addDrawableChild(new EnumSliderWidget<>((int) (this.width * 0.2), (int) (this.height * 0.4), (int) (this.width * 0.6), 20,
+                Text.translatable("entity_model_features.config.update"),
+                ETFConfig.UpdateFrequency.Average,
+                (value) -> emfParent.tempConfig.modelUpdateFrequency = value,
                 Text.translatable("entity_model_features.config.update.tooltip")
         ));
+
+
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.5), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("entity_model_features.config.ebe_config_modify").getString() +
+                        ": " + (emfParent.tempConfig.allowEBEModConfigModify ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                (button) -> {
+                    emfParent.tempConfig.allowEBEModConfigModify = !emfParent.tempConfig.allowEBEModConfigModify;
+                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.ebe_config_modify").getString() +
+                            ": " + (emfParent.tempConfig.allowEBEModConfigModify ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                },
+                Text.translatable("entity_model_features.config.ebe_config_modify.tooltip")
+        ));
+
+        this.addDrawableChild(getLodSlider());
+
+        this.addDrawableChild(getETFButton((int) (this.width * 0.2), (int) (this.height * 0.7), (int) (this.width * 0.6), 20,
+                Text.of(Text.translatable("entity_model_features.config.low_fps_lod").getString() +
+                        ": " + (emfParent.tempConfig.retainDetailOnLowFps ? ScreenTexts.ON : ScreenTexts.OFF).getString()),
+                (button) -> {
+                    emfParent.tempConfig.retainDetailOnLowFps = !emfParent.tempConfig.retainDetailOnLowFps;
+                    button.setMessage(Text.of(Text.translatable("entity_model_features.config.low_fps_lod").getString() +
+                            ": " + (emfParent.tempConfig.retainDetailOnLowFps ? ScreenTexts.ON : ScreenTexts.OFF).getString()));
+                },
+                Text.translatable("entity_model_features.config.low_fps_lod.tooltip")
+        ));
+    }
+
+    @NotNull
+    private SliderWidget getLodSlider() {
+        var lodSlider = new SliderWidget((int) (this.width * 0.2), (int) (this.height * 0.6), (int) (this.width * 0.6), 20,
+                Text.translatable("entity_model_features.config.lod"), emfParent.tempConfig.animationLODDistance / 65d
+        ) {
+            private static final String title = Text.translatable("entity_model_features.config.lod").getString();
+
+            @Override
+            protected void updateMessage() {
+                int val = getIntWrappedValue();
+                setMessage(Text.of(title + ": " + (val == 0 ? ScreenTexts.OFF.getString() : val)));
+            }
+
+            private int getIntWrappedValue() {
+                //allow the start and end of the slider to both mean none
+                int val = (int) (value * 65);
+                value = val / 65d;
+                return val > 64 ? 0 : val;
+            }
+
+            @Override
+            protected void applyValue() {
+
+                emfParent.tempConfig.animationLODDistance = getIntWrappedValue();
+            }
+        };
+        lodSlider.updateMessage();
+        lodSlider.setTooltip(Tooltip.of(Text.translatable("entity_model_features.config.lod.tooltip")));
+        return lodSlider;
     }
 
 

@@ -11,7 +11,7 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
-import traben.entity_model_features.models.animation.EMFAnimationHelper;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_texture_features.features.ETFRenderContext;
 import traben.entity_texture_features.features.texture_handlers.ETFTexture;
@@ -24,8 +24,8 @@ import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
 
 public abstract class EMFModelPart extends ModelPart {
     public Identifier textureOverride;
-//    protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
-    private long lastTextureOverride = -1L;
+    //    protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
+    protected long lastTextureOverride = -1L;
 
 
     public EMFModelPart(List<Cuboid> cuboids, Map<String, ModelPart> children) {
@@ -38,10 +38,7 @@ public abstract class EMFModelPart extends ModelPart {
         this.children = new Object2ObjectOpenHashMap<>(children);
     }
 
-
-
     void renderWithTextureOverride(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-
         if (textureOverride == null
                 || lastTextureOverride == EMFManager.getInstance().entityRenderCount) {//prevents texture overrides carrying over into feature renderers that reuse the base model
             //normal vertex consumer
@@ -50,30 +47,35 @@ public abstract class EMFModelPart extends ModelPart {
                 && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() //do not allow new etf emissive rendering here
                 && vertices instanceof ETFVertexConsumer etfVertexConsumer) { //can restore to previous render layer
 
-            VertexConsumerProvider provider =etfVertexConsumer.etf$getProvider();
-            if(provider == null) return;
+            // if the texture override is the same as the current texture, render as normal
+            var etfTextureTest = etfVertexConsumer.etf$getETFTexture();
+            if (etfTextureTest != null && etfTextureTest.thisIdentifier.equals(textureOverride)) {
+                renderLikeETF(matrices, vertices, light, overlay, red, green, blue, alpha);
+                return;
+            }
+
+            VertexConsumerProvider provider = etfVertexConsumer.etf$getProvider();
+            if (provider == null) return;
 
             RenderLayer originalLayer = etfVertexConsumer.etf$getRenderLayer();
-            if(originalLayer == null) return;
-
+            if (originalLayer == null) return;
 
 
             lastTextureOverride = EMFManager.getInstance().entityRenderCount;
 
 
-            RenderLayer layerModified = EMFAnimationHelper.getLayerFromRecentFactoryOrTranslucent(textureOverride);
+            RenderLayer layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrTranslucent(textureOverride);
             VertexConsumer newConsumer = provider.getBuffer(layerModified);
 
             renderLikeVanilla(matrices, newConsumer, light, overlay, red, green, blue, alpha);
 
-            if(newConsumer instanceof ETFVertexConsumer newETFConsumer){
+            if (newConsumer instanceof ETFVertexConsumer newETFConsumer) {
                 ETFTexture etfTexture = newETFConsumer.etf$getETFTexture();
-                if(etfTexture == null) return;
-                ETFUtils2.RenderMethodForOverlay renderMethodForOverlay = (prov,ligh)-> renderLikeVanilla(matrices,prov,ligh,overlay,red,green,blue,alpha);
+                if (etfTexture == null) return;
+                ETFUtils2.RenderMethodForOverlay renderMethodForOverlay = (prov, ligh) -> renderLikeVanilla(matrices, prov, ligh, overlay, red, green, blue, alpha);
                 ETFUtils2.renderEmissive(etfTexture, provider, renderMethodForOverlay);
                 ETFUtils2.renderEnchanted(etfTexture, provider, light, renderMethodForOverlay);
             }
-
 
 
             //reset render settings
@@ -125,7 +127,7 @@ public abstract class EMFModelPart extends ModelPart {
                     //are these render required objects valid?
                     if (provider != null && layer != null) {
                         //attempt special renders as eager OR checks
-                        ETFUtils2.RenderMethodForOverlay renderMethodForOverlay = (prov,ligh)-> renderLikeVanilla(matrices,prov,ligh,overlay,red,green,blue,alpha);
+                        ETFUtils2.RenderMethodForOverlay renderMethodForOverlay = (prov, ligh) -> renderLikeVanilla(matrices, prov, ligh, overlay, red, green, blue, alpha);
                         if (ETFUtils2.renderEmissive(texture, provider, renderMethodForOverlay) |
                                 ETFUtils2.renderEnchanted(texture, provider, light, renderMethodForOverlay)) {
                             //reset render layer stuff behind the scenes if special renders occurred
@@ -189,7 +191,7 @@ public void renderBoxes(MatrixStack matrices, VertexConsumer vertices){
                 }
                 }
                 for (ModelPart modelPart : children.values()) {
-                    if(modelPart instanceof EMFModelPart emf)
+                    if (modelPart instanceof EMFModelPart emf)
                         emf.renderBoxes(matrices, vertices);
                 }
                 matrices.pop();
@@ -197,6 +199,22 @@ public void renderBoxes(MatrixStack matrices, VertexConsumer vertices){
         }
     }
 
+
+    public void renderBoxesNoChildren(MatrixStack matrices, VertexConsumer vertices, float alpha) {
+        if (this.visible) {
+            if (!cuboids.isEmpty() || !children.isEmpty()) {
+                matrices.push();
+                this.rotate(matrices);
+                if (!this.hidden) {
+                    for (Cuboid cuboid : cuboids) {
+                        Box box = new Box(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
+                        WorldRenderer.drawBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, alpha);
+                    }
+                }
+                matrices.pop();
+            }
+        }
+    }
 
     //required for sodium pre 0.5.4
     @Override
@@ -208,15 +226,15 @@ public void renderBoxes(MatrixStack matrices, VertexConsumer vertices){
         }
     }
 
-    public String simplePrintChildren(int depth){
+    public String simplePrintChildren(int depth) {
         StringBuilder mapper = new StringBuilder();
         mapper.append("\n  | ");
         mapper.append("- ".repeat(Math.max(0, depth)));
         mapper.append(this.toStringShort());
-        for (ModelPart child:
-             children.values()) {
-            if(child instanceof EMFModelPart emf){
-                mapper.append(emf.simplePrintChildren(depth+1));
+        for (ModelPart child :
+                children.values()) {
+            if (child instanceof EMFModelPart emf) {
+                mapper.append(emf.simplePrintChildren(depth + 1));
             }
         }
         return mapper.toString();
@@ -232,9 +250,8 @@ public void renderBoxes(MatrixStack matrices, VertexConsumer vertices){
     }
 
 
-
-//    private static int indent = 0;
-    public ModelPart getVanillaModelPartsOfCurrentState(){
+    //    private static int indent = 0;
+    public ModelPart getVanillaModelPartsOfCurrentState() {
 //        indent++;
         Map<String, ModelPart> children = new HashMap<>();
         for (Map.Entry<String, ModelPart> child :
@@ -243,15 +260,11 @@ public void renderBoxes(MatrixStack matrices, VertexConsumer vertices){
                 children.put(child.getKey(), emf.getVanillaModelPartsOfCurrentState());
             }
         }
-//        indent--;
-//        for (int i = 0; i < indent; i++) {
-//            System.out.print("\\ ");
-//        }
-//        System.out.print("made: "+ this + "\n");
+
         List<Cuboid> cubes;
-        if(cuboids.isEmpty()){
-            cubes = List.of(new Cuboid(0,0,0,0,0,0,0,0,0,0,0,false,0,0, Set.of()));
-        }else{
+        if (cuboids.isEmpty()) {
+            cubes = List.of(new Cuboid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, Set.of()));
+        } else {
             cubes = cuboids;
         }
 
@@ -316,7 +329,6 @@ public void renderBoxes(MatrixStack matrices, VertexConsumer vertices){
         }
         return mapOfAll;
     }
-
 
 
     public static class Animator implements Runnable {

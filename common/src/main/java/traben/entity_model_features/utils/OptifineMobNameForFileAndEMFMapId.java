@@ -7,6 +7,11 @@ public class OptifineMobNameForFileAndEMFMapId {
     private String fileName;
     private String mapId;
 
+    public OptifineMobNameForFileAndEMFMapId(String both) {
+        this.fileName = both;
+        this.mapId = null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -18,11 +23,6 @@ public class OptifineMobNameForFileAndEMFMapId {
     @Override
     public int hashCode() {
         return Objects.hash(fileName, mapId);
-    }
-
-    public OptifineMobNameForFileAndEMFMapId(String both) {
-        this.fileName = both;
-        this.mapId = null;
     }
 
     @Override
