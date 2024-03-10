@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
+import static traben.entity_model_features.EMF.EYES_FEATURE_LIGHT_VALUE;
 
 @Mixin(EyesFeatureRenderer.class)
 public class MixinEyesFeatureRenderer {

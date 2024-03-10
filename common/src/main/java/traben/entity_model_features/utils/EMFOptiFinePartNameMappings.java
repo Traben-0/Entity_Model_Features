@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import net.minecraft.client.model.ModelPart;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
@@ -145,7 +146,7 @@ public class EMFOptiFinePartNameMappings {
             return root == null ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null);
         }
         //trigger the export of the known model if we are exporting all
-        if (EMFConfig.getConfig().modelExportMode.doesAll())
+        if (EMF.config().getConfig().modelExportMode.doesAll())
             exploreProvidedEntityModelAndExportIfNeeded(root, mobName, knownMap);
 
         return knownMap;
@@ -904,7 +905,7 @@ public class EMFOptiFinePartNameMappings {
         }
         //cache result;
         UNKNOWN_MODEL_MAP_CACHE.put(mobName, mobMap);
-        if (EMFConfig.getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
+        if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
             StringBuilder mapString = new StringBuilder();
             mapString.append(" |-[optifine/cem/").append(mobName).append(".jem]\n");
             mobMap.forEach((key, entry) -> {
@@ -919,7 +920,7 @@ public class EMFOptiFinePartNameMappings {
                 EMFUtils.log("Unknown possibly modded model detected, Mapping now...\n" + mapString);
             }
 
-            if (EMFConfig.getConfig().modelExportMode.doesJems()) {
+            if (EMF.config().getConfig().modelExportMode.doesJems()) {
                 EMFUtils.log("creating example .jem file for " + mobName);
                 EMFJemData.EMFJemPrinter jemPrinter = new EMFJemData.EMFJemPrinter();
                 int[] textureSize = null;
@@ -1018,7 +1019,7 @@ public class EMFOptiFinePartNameMappings {
         }
         //add this part and its children names
         newMap.put(partName, partName);
-        if (EMFConfig.getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
+        if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
             detailsMap.put(partName,
                     " | | |-pivots=" + originalModel.pivotX + ", " + originalModel.pivotY + ", " + originalModel.pivotZ +
                             "\n | | |-rotations=" + Math.toDegrees(originalModel.pitch) + ", " + Math.toDegrees(originalModel.yaw) + ", " + Math.toDegrees(originalModel.roll) +

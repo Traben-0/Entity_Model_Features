@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
@@ -32,7 +32,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         super(new ArrayList<>(), new HashMap<>());
         this.name = name;
 
-        if (EMFConfig.getConfig().logModelCreationData)
+        if (EMF.config().getConfig().logModelCreationData)
             EMFUtils.log(" > EMF vanilla part made: " + name);
 
         isOptiFinePartSpecified = optifinePartNames.contains(name);

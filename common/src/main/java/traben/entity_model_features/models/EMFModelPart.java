@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
+import static traben.entity_model_features.EMF.EYES_FEATURE_LIGHT_VALUE;
 
 public abstract class EMFModelPart extends ModelPart {
     public Identifier textureOverride;

@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 
 /**
@@ -20,7 +20,7 @@ public class MixinGameRenderer{
     @Inject(method = "getFov",
             at = @At(value = "RETURN"))
     private void emf$injectAnnouncer(final Camera camera, final float tickDelta, final boolean changingFov, final CallbackInfoReturnable<Double> cir) {
-        if (EMFConfig.getConfig().animationLODDistance != 0) {
+        if (EMF.config().getConfig().animationLODDistance != 0) {
             EMFAnimationEntityContext.lastFOV = cir.getReturnValue();
         }
     }

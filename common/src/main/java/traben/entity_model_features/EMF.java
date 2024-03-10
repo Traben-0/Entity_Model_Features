@@ -2,8 +2,13 @@ package traben.entity_model_features;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.LightmapTextureManager;
 import org.apache.logging.log4j.LogManager;
+import traben.entity_features.config.EFConfigHandler;
+import traben.entity_features.config.gui.EFConfigScreenMain;
+import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETFApi;
@@ -11,7 +16,7 @@ import traben.entity_texture_features.ETFApi;
 import java.util.Random;
 
 @Environment(EnvType.CLIENT)
-public class EMFClient {
+public class EMF {
 
     public static final int EYES_FEATURE_LIGHT_VALUE = LightmapTextureManager.MAX_LIGHT_COORDINATE + 1;
     public static final String MOD_ID = "entity_model_features";
@@ -45,6 +50,15 @@ public class EMFClient {
     public static boolean forgeHadLoadingError = false;
     public static boolean testedForge = !EMFVersionDifferenceManager.isForge();
 
+    private static EFConfigHandler<EMFConfig> configHandler = null;
+
+    public static EFConfigHandler<EMFConfig> config(){
+        if (configHandler == null) {
+            configHandler = new EFConfigHandler<>(EMFConfig::new, MOD_ID,"EMF");
+        }
+        return configHandler;
+    }
+
     public static void init() {
         LogManager.getLogger().info("Loading Entity Model Features, " + randomQuip());
         //init data manager
@@ -56,6 +70,16 @@ public class EMFClient {
         //register EMF physics mod hook
 //        RagdollMapper.addHook(new EMFCustomRagDollHookTest());
 
+    }
+
+    //mod menu config screen factory
+    public static Screen getConfigScreen(Screen parent) {
+        return getConfigScreen(null, parent);
+    }
+
+    //forge config screen factory
+    public static Screen getConfigScreen(MinecraftClient ignored, Screen parent) {
+        return new EFConfigScreenMain(parent);
     }
 
     public static boolean testForForgeLoadingError() {
@@ -75,7 +99,7 @@ public class EMFClient {
                 EMFManager.getInstance();
             } catch (IncompatibleClassChangeError error) {
                 if (error.getMessage().contains("cannot inherit from final class")) {
-                    EMFClient.forgeHadLoadingError = true;
+                    EMF.forgeHadLoadingError = true;
                     EMFUtils.logError(
                             "EMF has crashed due to a (possibly) unrelated forge dependency error,\n EMF has been disabled so the true culprit will be sent to users after game load:\n"
                                     + error.getMessage());

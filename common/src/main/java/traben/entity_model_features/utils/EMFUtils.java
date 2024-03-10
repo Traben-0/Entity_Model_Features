@@ -12,7 +12,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 
 import java.io.BufferedReader;
@@ -111,7 +111,7 @@ public class EMFUtils {
         try {
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJpm));
             if (res.isEmpty()) {
-                if (EMFConfig.getConfig().logModelCreationData)
+                if (EMF.config().getConfig().logModelCreationData)
                     log("jpm failed " + pathOfJpm + " does not exist", false);
                 return null;
             }
@@ -129,7 +129,7 @@ public class EMFUtils {
             return jpm;
             //}
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData) log("jpm failed " + e, false);
+            if (EMF.config().getConfig().logModelCreationData) log("jpm failed " + e, false);
         }
         return null;
     }

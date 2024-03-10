@@ -12,6 +12,7 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.EBEConfigModifier;
@@ -123,11 +124,11 @@ public class EMFManager {//singleton for data holding and resetting needs
         try {
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
             if (res.isEmpty()) {
-                if (EMFConfig.getConfig().logModelCreationData)
+                if (EMF.config().getConfig().logModelCreationData)
                     EMFUtils.log(".jem read failed " + pathOfJem + " does not exist", false);
                 return null;
             }
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log(".jem read success " + pathOfJem + " exists", false);
             Resource jemResource = res.get();
             //File jemFile = new File(pathOfJem);
@@ -145,7 +146,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             return jem;
             //}
         } catch (InvalidIdentifierException | FileNotFoundException e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log(".jem failed to load " + e, false);
         } catch (Exception e) {
             EMFUtils.log(".jem failed to load " + e, false);
@@ -184,7 +185,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public void modifyEBEIfRequired() {
-        if (IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMFConfig.getConfig().allowEBEModConfigModify) {
+        if (IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMF.config().getConfig().allowEBEModConfigModify) {
             try {
                 EBEConfigModifier.modifyEBEConfig(EBE_JEMS_FOUND);
             } catch (Exception | Error e) {
@@ -213,7 +214,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             EMFManager.lastCreatedRootModelPart = null;
 
-            boolean printing = (EMFConfig.getConfig().logModelCreationData);
+            boolean printing = (EMF.config().getConfig().logModelCreationData);
 
 
             if (!"main".equals(layer.getName())) {
@@ -286,7 +287,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                                 case "sign", "hanging_sign" ->
                                         mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading);
                                 default -> {
-                                    if (EMFConfig.getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
+                                    if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
                                         EMFUtils.log("EMF unknown modifiable block entity model identified during loading: " + currentSpecifiedModelLoading + ".jem");
                                     mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading);
                                 }
@@ -315,7 +316,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 }
             }
 
-            if (EMFConfig.getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE
+            if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE
                     && !currentSpecifiedModelLoading.isBlank() && currentSpecifiedModelLoading.startsWith("modded/")) {
                 EMFUtils.log("EMF modifiable modded block entity model identified during loading: " + mobNameForFileAndMap.getfileName() + ".jem");
             }
@@ -397,7 +398,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {
 
-        boolean printing = EMFConfig.getConfig().logModelCreationData;
+        boolean printing = EMF.config().getConfig().logModelCreationData;
 
         Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
         allPartsBySingleAndFullHeirachicalId.put("EMF_root", emfRootPart);
@@ -413,7 +414,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
         jemData.getAllTopLevelAnimationsByVanillaPartName().forEach((part, anims) -> {
             anims.forEach((animKey, animationExpression) -> {
-                if (EMFConfig.getConfig().logModelCreationData)
+                if (EMF.config().getConfig().logModelCreationData)
                     EMFUtils.log("parsing animation value: [" + animKey + "]");
                 String modelId = animKey.split("\\.")[0];
                 String modelVariable = animKey.split("\\.")[1];

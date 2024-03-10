@@ -20,7 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionTypes;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.accessor.EntityRenderDispatcherAccessor;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.models.EMFModelPartRoot;
@@ -82,7 +82,7 @@ public class EMFAnimationEntityContext {
     public static int getLODFactorOfEntity() {
         if (lodFactor != -1) return lodFactor;
 
-        if (EMFConfig.getConfig().animationLODDistance == 0) return 0;
+        if (EMF.config().getConfig().animationLODDistance == 0) return 0;
 
         //no factor when using spyglass or player is null
         if (MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().player.isUsingSpyglass()) {
@@ -94,12 +94,12 @@ public class EMFAnimationEntityContext {
         int distance = distanceOfEntityFrom(MinecraftClient.getInstance().player.getBlockPos());
         if (distance < 1) return 0;
 
-        int factor = distance / EMFConfig.getConfig().animationLODDistance;
+        int factor = distance / EMF.config().getConfig().animationLODDistance;
         //reduce factor when using zoom mods or lower fov
         int factorByFOV = (int) (factor * lastFOV / 70);
 
         //factor in low fps detail retention
-        if(EMFConfig.getConfig().retainDetailOnLowFps && MinecraftClient.getInstance().getCurrentFps() < 59){ // count often drops to 59 while capped at 60 :/
+        if(EMF.config().getConfig().retainDetailOnLowFps && MinecraftClient.getInstance().getCurrentFps() < 59){ // count often drops to 59 while capped at 60 :/
             float fpsPercentageOf60 = MinecraftClient.getInstance().getCurrentFps() / 60f;
             //reduce factor by the percentage of fps below 60 to recover some level of detail
             lodFactor = (int) (factorByFOV * fpsPercentageOf60);
@@ -130,7 +130,7 @@ public class EMFAnimationEntityContext {
         }
 
         //if this entity requires a debug print do it now after models have variated
-        if (EMFConfig.getConfig().debugOnRightClick
+        if (EMF.config().getConfig().debugOnRightClick
                 && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)) {
             announceModels = true;
             EMFManager.getInstance().entityForDebugPrint = null;

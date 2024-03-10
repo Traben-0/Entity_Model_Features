@@ -3,7 +3,7 @@ package traben.entity_model_features.models.jem_objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
@@ -119,7 +119,7 @@ public class EMFJemData {
 
         ///prep animations
         SortedMap<String, EMFPartData> alphabeticalOrderedParts = new TreeMap<>(Comparator.naturalOrder());
-        if (EMFConfig.getConfig().logModelCreationData)
+        if (EMF.config().getConfig().logModelCreationData)
             EMFUtils.log("originalModelsForReadingOnly #= " + originalModelsForReadingOnly.size());
         for (EMFPartData partData :
                 originalModelsForReadingOnly) {
@@ -129,7 +129,7 @@ public class EMFJemData {
             alphabeticalOrderedParts.put(partData.id, partData);
         }
 
-        if (EMFConfig.getConfig().logModelCreationData)
+        if (EMF.config().getConfig().logModelCreationData)
             EMFUtils.log("alphabeticalOrderedParts = " + alphabeticalOrderedParts);
         for (EMFPartData part :
                 alphabeticalOrderedParts.values()) {

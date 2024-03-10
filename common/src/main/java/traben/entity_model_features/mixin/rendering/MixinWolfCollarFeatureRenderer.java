@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.EMFClient;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.utils.EMFManager;
@@ -34,7 +34,7 @@ public abstract class MixinWolfCollarFeatureRenderer extends FeatureRenderer<Wol
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void setEmf$Model(FeatureRendererContext<?, ?> featureRendererContext, CallbackInfo ci) {
-        if (EMFClient.testForForgeLoadingError()) return;
+        if (EMF.testForForgeLoadingError()) return;
 
         ModelPart collarModel = EMFManager.getInstance().injectIntoModelRootGetter(emf$collar_layer, WolfEntityModel.getTexturedModelData().createModel());
 

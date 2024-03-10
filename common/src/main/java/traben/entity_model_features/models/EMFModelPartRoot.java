@@ -12,6 +12,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
@@ -66,7 +67,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         if (EMFAnimationEntityContext.getEMFEntity() != null) {
 
             //register models to entity type for debug print
-            if (EMFConfig.getConfig().debugOnRightClick) {
+            if (EMF.config().getConfig().debugOnRightClick) {
                 String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
                 Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForDebug.get(type);
                 if (roots == null) {
@@ -81,7 +82,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             //register variant runnable
             if (this.variantTester != null) {
                 String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
-                if (EMFConfig.getConfig().logModelCreationData)
+                if (EMF.config().getConfig().logModelCreationData)
                     EMFUtils.log("Registered new variating model for: " + type);
 
                 Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(type);
@@ -121,12 +122,12 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public void checkIfShouldExpireEntity(UUID id) {
         if (this.variantTester.entityCanUpdate(id)) {
-            switch (EMFConfig.getConfig().modelUpdateFrequency) {
+            switch (EMF.config().getConfig().modelUpdateFrequency) {
                 case Never -> {
                 }
                 case Instant -> this.entitySuffixMap.removeInt(id);
                 default -> {
-                    int delay = EMFConfig.getConfig().modelUpdateFrequency.getDelay();
+                    int delay = EMF.config().getConfig().modelUpdateFrequency.getDelay();
                     int time = (int) (EMFAnimationEntityContext.getTime() % delay);
                     if (time == Math.abs(id.hashCode()) % delay) {
                         this.entitySuffixMap.removeInt(id);
@@ -138,7 +139,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     //root only
     public void addVariantOfJem(EMFJemData jemData, int variant) {
-        if (EMFConfig.getConfig().logModelCreationData)
+        if (EMF.config().getConfig().logModelCreationData)
             EMFUtils.log(" > " + jemData.getMobModelIDInfo().getfileName() + ", constructing variant #" + variant);
 
         Map<String, EMFModelPartCustom> newEmfParts = new HashMap<>();
@@ -163,7 +164,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     newEmfParts.entrySet()) {
                 EMFModelPartCustom newPart = newPartEntry.getValue();
                 if (thisPartName.equals(newPart.partToBeAttached)) {
-                    if (EMFConfig.getConfig().logModelCreationData)
+                    if (EMF.config().getConfig().logModelCreationData)
                         EMFUtils.log(" > > > EMF custom part attached: " + newPartEntry.getKey());
                     if (!newPart.attach) {
                         thisPart.cuboids = List.of();
@@ -201,7 +202,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                         setVariantStateTo(1);
 
                         String jemNameVariant = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getfileName() + variant + ".jem");
-                        if (EMFConfig.getConfig().logModelCreationData)
+                        if (EMF.config().getConfig().logModelCreationData)
                             EMFUtils.log(" > incorporating variant jem file: " + jemNameVariant);
                         EMFJemData jemDataVariant = getJemDataWithDirectory(jemNameVariant, modelName);
                         if (jemDataVariant != null) {
@@ -212,14 +213,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                         } else {
                             //make this variant map to 1
                             allKnownStateVariants.put(variant, allKnownStateVariants.get(1));
-                            if (EMFConfig.getConfig().logModelCreationData)
+                            if (EMF.config().getConfig().logModelCreationData)
                                 EMFUtils.log(" > invalid jem variant file: " + jemNameVariant);
                         }
 
                     }
                     //receiveOneTimeRunnable(this::registerModelRunnable);
                 } else {
-                    if (EMFConfig.getConfig().logModelCreationData)
+                    if (EMF.config().getConfig().logModelCreationData)
                         EMFUtils.logWarn("properties with only 1 variant found: " + propertyID + ".");
                     //variantTester = null;
                     //variantDirectoryApplier = null;
@@ -244,7 +245,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public void tryRenderVanillaRootNormally(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
         if (vanillaRoot != null) {
             matrixStack.push();
-            if (EMFConfig.getConfig().vanillaModelHologramRenderMode_2 == EMFConfig.VanillaModelRenderMode.OFFSET) {
+            if (EMF.config().getConfig().vanillaModelHologramRenderMode_2 == EMFConfig.VanillaModelRenderMode.OFFSET) {
                 matrixStack.translate(1, 0, 0);
             }
             vanillaRoot.render(matrixStack, vertexConsumer, light, overlay, 1, 0.5f, 0.5f, 0.5f);
@@ -253,7 +254,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     public void tryRenderVanillaFormatRoot(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
-        if (EMFConfig.getConfig().attemptPhysicsModPatch_2 == EMFConfig.PhysicsModCompatChoice.VANILLA) {
+        if (EMF.config().getConfig().attemptPhysicsModPatch_2 == EMFConfig.PhysicsModCompatChoice.VANILLA) {
             if (vanillaRoot != null) {
                 vanillaRoot.render(matrixStack, vertexConsumer, light, overlay, 1, 1, 1, 1);
             }
