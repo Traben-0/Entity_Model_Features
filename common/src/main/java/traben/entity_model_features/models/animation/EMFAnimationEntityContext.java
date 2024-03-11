@@ -3,7 +3,6 @@ package traben.entity_model_features.models.animation;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
@@ -25,7 +24,6 @@ import traben.entity_model_features.mixin.accessor.EntityRenderDispatcherAccesso
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.utils.*;
-import traben.entity_texture_features.ETFApi;
 
 import java.util.Map;
 import java.util.Set;
@@ -264,13 +262,7 @@ public class EMFAnimationEntityContext {
 
     public static float getRuleIndex() {
         if (emfEntity == null) return 0;
-        int index;
-        if (emfEntity instanceof Entity entity) {
-            index = ETFApi.getLastMatchingRuleOfEntity(entity);
-        } else {
-            index = ETFApi.getLastMatchingRuleOfBlockEntity((BlockEntity) emfEntity);
-        }
-        return index == -1 ? 0 : index;
+        return EMFManager.getInstance().lastModelRuleOfEntity.getInt(emfEntity.etf$getUuid());
     }
 
     public static EMFEntity getEMFEntity() {

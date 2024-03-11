@@ -23,6 +23,7 @@ import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
+import traben.entity_texture_features.utils.EntityIntLRU;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -46,6 +47,8 @@ public class EMFManager {//singleton for data holding and resetting needs
     private static EMFManager self = null;
     public final boolean IS_PHYSICS_MOD_INSTALLED;
     public final boolean IS_EBE_INSTALLED;
+
+    public final EntityIntLRU lastModelRuleOfEntity;
     public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
@@ -70,6 +73,8 @@ public class EMFManager {//singleton for data holding and resetting needs
         IS_PHYSICS_MOD_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
 //        IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
         IS_EBE_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("enhancedblockentities");
+        lastModelRuleOfEntity = new EntityIntLRU();
+        lastModelRuleOfEntity.defaultReturnValue(0);
     }
 
     public static EMFManager getInstance() {

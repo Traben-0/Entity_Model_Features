@@ -1,6 +1,7 @@
 
 
 - added distance is_blocking is_crawling
+- improved rule_index
 
 
 

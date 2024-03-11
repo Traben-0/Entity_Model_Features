@@ -22,6 +22,7 @@ import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 import traben.entity_texture_features.ETFApi;
+import traben.entity_texture_features.features.property_reading.PropertiesRandomProvider;
 import traben.entity_texture_features.utils.EntityIntLRU;
 
 import java.util.*;
@@ -192,6 +193,12 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         Identifier propertyID = new Identifier(thisDirectoryFileName + ".properties");
         if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
             variantTester = ETFApi.getVariantSupplierOrNull(propertyID, new Identifier(thisDirectoryFileName + ".jem"), "models");
+
+            if(variantTester instanceof PropertiesRandomProvider propertiesRandomProvider){
+                propertiesRandomProvider.setOnMeetsRuleHook((entity,rule)->
+                        EMFManager.getInstance().lastModelRuleOfEntity.put(entity.etf$getUuid(),rule.RULE_NUMBER));
+            }
+
             if (variantTester != null) {
                 IntOpenHashSet allModelVariants = variantTester.getAllSuffixes();
                 allModelVariants.remove(1);
