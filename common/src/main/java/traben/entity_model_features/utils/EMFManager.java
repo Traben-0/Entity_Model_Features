@@ -50,6 +50,9 @@ public class EMFManager {//singleton for data holding and resetting needs
         defaultReturnValue(null);
     }};
     public final ObjectSet<OptifineMobNameForFileAndEMFMapId> modelsAnnounced = new ObjectOpenHashSet<>();
+    public final Object2ObjectLinkedOpenHashMap<String, Set<Runnable>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
+        defaultReturnValue(null);
+    }};
     private final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
     private final Object2IntOpenHashMap<EntityModelLayer> amountOfLayerAttempts = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
@@ -60,9 +63,6 @@ public class EMFManager {//singleton for data holding and resetting needs
     public boolean isAnimationValidationPhase = false;
     public String currentSpecifiedModelLoading = "";
     public BlockEntityType<?> currentBlockEntityTypeLoading = null;
-    public final Object2ObjectLinkedOpenHashMap<String, Set<Runnable>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
-        defaultReturnValue(null);
-    }};
     private boolean traderLlamaHappened = false;
 
     private EMFManager() {

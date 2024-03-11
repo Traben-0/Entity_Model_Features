@@ -28,6 +28,7 @@ public interface EMFAnimationApi {
      *
      * @return The current version of the EMF API.
      */
+    @SuppressWarnings("SameReturnValue")
     static int getApiVersion() {
         return 1;
     }

@@ -52,9 +52,9 @@ public class EMF {
 
     private static EFConfigHandler<EMFConfig> configHandler = null;
 
-    public static EFConfigHandler<EMFConfig> config(){
+    public static EFConfigHandler<EMFConfig> config() {
         if (configHandler == null) {
-            configHandler = new EFConfigHandler<>(EMFConfig::new, MOD_ID,"EMF");
+            configHandler = new EFConfigHandler<>(EMFConfig::new, MOD_ID, "EMF");
         }
         return configHandler;
     }

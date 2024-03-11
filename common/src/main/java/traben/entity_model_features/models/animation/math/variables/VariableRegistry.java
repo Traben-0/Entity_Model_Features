@@ -1,5 +1,8 @@
 package traben.entity_model_features.models.animation.math.variables;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.MathComponent;
@@ -78,8 +81,21 @@ public final class VariableRegistry {
         registerSimpleFloatVariable("move_forward", EMFAnimationEntityContext::getMoveForward);
         registerSimpleFloatVariable("move_strafing", EMFAnimationEntityContext::getMoveStrafe);
         registerSimpleFloatVariable("nan", () -> EMFManager.getInstance().isAnimationValidationPhase ? 0 : Float.NaN);
+        registerSimpleFloatVariable("distance", ()->{
+            if (EMFAnimationEntityContext.getEMFEntity() == null) return 0;
+            return EMFAnimationEntityContext.getEMFEntity().etf$distanceTo(MinecraftClient.getInstance().player);
+        });
+
 
         //simple booleans
+        registerSimpleBoolVariable("is_blocking", ()->{
+            if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
+            return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity livingEntity && livingEntity.isBlocking();
+        });
+        registerSimpleBoolVariable("is_crawling", ()->{
+            if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
+            return EMFAnimationEntityContext.getEMFEntity() instanceof Entity entity && entity.isCrawling();
+        });
         registerSimpleBoolVariable("is_climbing", EMFAnimationEntityContext::isClimbing);
         registerSimpleBoolVariable("is_child", EMFAnimationEntityContext::isChild);
         registerSimpleBoolVariable("is_in_water", EMFAnimationEntityContext::isInWater);

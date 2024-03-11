@@ -14,7 +14,7 @@ import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
  * less impactful than collecting all the values required and calling the method itself
  */
 @Mixin(GameRenderer.class)
-public class MixinGameRenderer{
+public class MixinGameRenderer {
 
 
     @Inject(method = "getFov",

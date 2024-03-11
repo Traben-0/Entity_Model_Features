@@ -28,6 +28,7 @@ public abstract class MixinWolfCollarFeatureRenderer extends FeatureRenderer<Wol
     @Unique
     private static final EntityModelLayer emf$collar_layer = new EntityModelLayer(new Identifier("minecraft", "wolf"), "collar");
 
+    @SuppressWarnings("unused")
     public MixinWolfCollarFeatureRenderer(FeatureRendererContext<WolfEntity, WolfEntityModel<WolfEntity>> context) {
         super(context);
     }

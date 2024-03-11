@@ -43,6 +43,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     @Unique
     private EMFEntity emf$heldEntity = null;
 
+    @SuppressWarnings("unused")
     protected MixinLivingEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
     }

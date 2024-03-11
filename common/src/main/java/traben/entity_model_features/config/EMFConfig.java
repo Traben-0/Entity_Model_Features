@@ -31,32 +31,32 @@ public class EMFConfig extends EFConfig {
     public EFOptionCategory getGUIOptions() {
         return new EFOptionCategory.Empty().add(
                 new EFOptionCategory("config.entity_features.models_main").add(
-                        new EFOptionCategory("entity_model_features.config.options","entity_model_features.config.options.tooltip").add(
-                                new EFOptionBoolean("entity_model_features.config.force_models","entity_model_features.config.force_models.tooltip",
+                        new EFOptionCategory("entity_model_features.config.options", "entity_model_features.config.options.tooltip").add(
+                                new EFOptionBoolean("entity_model_features.config.force_models", "entity_model_features.config.force_models.tooltip",
                                         () -> attemptRevertingEntityModelsAlteredByAnotherMod, value -> attemptRevertingEntityModelsAlteredByAnotherMod = value, true),
-                                new EFOptionEnum<>("entity_model_features.config.physics","entity_model_features.config.physics.tooltip",
+                                new EFOptionEnum<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
                                         () -> attemptPhysicsModPatch_2, value -> attemptPhysicsModPatch_2 = value, PhysicsModCompatChoice.CUSTOM),
-                                new EFOptionEnum<>("entity_model_features.config.update","entity_model_features.config.update.tooltip",
+                                new EFOptionEnum<>("entity_model_features.config.update", "entity_model_features.config.update.tooltip",
                                         () -> modelUpdateFrequency, value -> modelUpdateFrequency = value, ETFConfig.UpdateFrequency.Average),
-                                new EFOptionBoolean("entity_model_features.config.ebe_config_modify","entity_model_features.config.ebe_config_modify.tooltip",
+                                new EFOptionBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
                                         () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
-                                new EFOptionInt("entity_model_features.config.lod","entity_model_features.config.lod.tooltip",
-                                        () -> animationLODDistance, value -> animationLODDistance = value, 20, 0, 65,true,true),
-                                new EFOptionBoolean("entity_model_features.config.low_fps_lod","entity_model_features.config.low_fps_lod",
+                                new EFOptionInt("entity_model_features.config.lod", "entity_model_features.config.lod.tooltip",
+                                        () -> animationLODDistance, value -> animationLODDistance = value, 20, 0, 65, true, true),
+                                new EFOptionBoolean("entity_model_features.config.low_fps_lod", "entity_model_features.config.low_fps_lod",
                                         () -> retainDetailOnLowFps, value -> retainDetailOnLowFps = value, true)
                         ),
-                        new EFOptionCategory("entity_model_features.config.tools","entity_model_features.config.tools.tooltip").add(
-                                new EFOptionEnum<>("entity_model_features.config.vanilla_render","entity_model_features.config.vanilla_render.tooltip",
+                        new EFOptionCategory("entity_model_features.config.tools", "entity_model_features.config.tools.tooltip").add(
+                                new EFOptionEnum<>("entity_model_features.config.vanilla_render", "entity_model_features.config.vanilla_render.tooltip",
                                         () -> vanillaModelHologramRenderMode_2, value -> vanillaModelHologramRenderMode_2 = value, VanillaModelRenderMode.OFF),
-                                new EFOptionEnum<>("entity_model_features.config.print_mode","entity_model_features.config.print_mode.tooltip",
+                                new EFOptionEnum<>("entity_model_features.config.print_mode", "entity_model_features.config.print_mode.tooltip",
                                         () -> modelExportMode, value -> modelExportMode = value, ModelPrintMode.NONE)
                         ),
-                        new EFOptionCategory("entity_model_features.config.debug","entity_model_features.config.debug.tooltip").add(
-                                new EFOptionEnum<>("entity_model_features.config.render","entity_model_features.config.render.tooltip",
+                        new EFOptionCategory("entity_model_features.config.debug", "entity_model_features.config.debug.tooltip").add(
+                                new EFOptionEnum<>("entity_model_features.config.render", "entity_model_features.config.render.tooltip",
                                         () -> renderModeChoice, value -> renderModeChoice = value, RenderModeChoice.NORMAL),
-                                new EFOptionBoolean("entity_model_features.config.log_models","entity_model_features.config.log_models.tooltip",
+                                new EFOptionBoolean("entity_model_features.config.log_models", "entity_model_features.config.log_models.tooltip",
                                         () -> logModelCreationData, value -> logModelCreationData = value, false),
-                                new EFOptionBoolean("entity_model_features.config.debug_right_click","entity_model_features.config.debug_right_click.tooltip",
+                                new EFOptionBoolean("entity_model_features.config.debug_right_click", "entity_model_features.config.debug_right_click.tooltip",
                                         () -> debugOnRightClick, value -> debugOnRightClick = value, false)
                         )
                 )//, new EFOptionCategory("config.entity_features.general_settings.title")

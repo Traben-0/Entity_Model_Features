@@ -2,6 +2,7 @@ package traben.entity_model_features.models.jem_objects;
 
 import java.util.Arrays;
 
+@SuppressWarnings("CanBeFinal")
 public class EMFBoxData {
 
     // https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_part.txt#L15

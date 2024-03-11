@@ -19,7 +19,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     final String name;
     //construct single vanilla
     final boolean isOptiFinePartSpecified;
-    final boolean rootType;
 
     final Set<Integer> hideInTheseStates = new HashSet<>();
 
@@ -36,7 +35,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
             EMFUtils.log(" > EMF vanilla part made: " + name);
 
         isOptiFinePartSpecified = optifinePartNames.contains(name);
-        rootType = name.equals("root") || name.equals("EMF_root");
 
 
         EMFModelState state = getStateOf(vanillaPart);

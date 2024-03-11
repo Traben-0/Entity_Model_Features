@@ -1,5 +1,10 @@
 
 
+- added distance is_blocking is_crawling
+
+
+
+1.3
 - added the `EMFAnimationApi` which allows other mods to register their own custom animation variables and functions to EMF
   - variables can be added to the `EMFAnimationApi` 
     - via a `FloatSupplier` for simple number variables 

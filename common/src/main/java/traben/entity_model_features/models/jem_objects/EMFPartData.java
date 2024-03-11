@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Objects;
 
+@SuppressWarnings("CanBeFinal")
 public class EMFPartData {
 
 

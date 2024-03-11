@@ -34,10 +34,6 @@ public class MixinModelPart implements IEMFModelNameContainer, EMFTextureSizeSup
         }
     }
 
-    @Override
-    public OptifineMobNameForFileAndEMFMapId emf$getKnownMappings() {
-        return emf$modelInfo;
-    }
 
     @Override
     public void emf$insertKnownMappings(OptifineMobNameForFileAndEMFMapId newName) {

@@ -237,6 +237,7 @@ public class MathExpressionParser {
         }
     }
 
+    @SuppressWarnings("RedundantThrows")
     private void readVariableOrConstant(final RollingReader rollingReader) throws EMFMathException {
         if (!rollingReader.isEmpty()) {
             //discover rolling read value

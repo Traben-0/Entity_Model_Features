@@ -10,6 +10,7 @@ import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 
 import java.util.*;
 
+@SuppressWarnings("CanBeFinal")
 public class EMFJemData {
 
     private final LinkedHashMap<String, LinkedHashMap<String, String>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();

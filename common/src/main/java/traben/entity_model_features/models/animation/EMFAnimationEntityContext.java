@@ -41,6 +41,7 @@ public class EMFAnimationEntityContext {
     public static boolean setInHand = false;
     public static boolean setInItemFrame = false;
     public static boolean setIsOnHead = false;
+    public static double lastFOV = 70;
     private static EMFEntity emfEntity = null;
     private static float shadowSize = Float.NaN;
     private static float shadowOpacity = Float.NaN;
@@ -56,15 +57,12 @@ public class EMFAnimationEntityContext {
     private static float tickDelta = 0;
     private static boolean onShoulder = false;
     private static Function<Identifier, RenderLayer> layerFactory = null;
-
     private static int lodFactor = -1;
     private static boolean announceModels = false;
 
     private EMFAnimationEntityContext() {
 
     }
-
-    public static double lastFOV = 70;
 
     public static void setLayerFactory(Function<Identifier, RenderLayer> layerFactory) {
         EMFAnimationEntityContext.layerFactory = layerFactory;
@@ -90,7 +88,6 @@ public class EMFAnimationEntityContext {
         }
 
 
-
         int distance = distanceOfEntityFrom(MinecraftClient.getInstance().player.getBlockPos());
         if (distance < 1) return 0;
 
@@ -99,7 +96,7 @@ public class EMFAnimationEntityContext {
         int factorByFOV = (int) (factor * lastFOV / 70);
 
         //factor in low fps detail retention
-        if(EMF.config().getConfig().retainDetailOnLowFps && MinecraftClient.getInstance().getCurrentFps() < 59){ // count often drops to 59 while capped at 60 :/
+        if (EMF.config().getConfig().retainDetailOnLowFps && MinecraftClient.getInstance().getCurrentFps() < 59) { // count often drops to 59 while capped at 60 :/
             float fpsPercentageOf60 = MinecraftClient.getInstance().getCurrentFps() / 60f;
             //reduce factor by the percentage of fps below 60 to recover some level of detail
             lodFactor = (int) (factorByFOV * fpsPercentageOf60);
@@ -794,5 +791,7 @@ public class EMFAnimationEntityContext {
     public static void setShadowZ(float shadowZ) {
         EMFAnimationEntityContext.shadowZ = shadowZ;
     }
+
+
 
 }
