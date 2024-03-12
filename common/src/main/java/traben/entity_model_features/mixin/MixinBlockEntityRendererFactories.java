@@ -30,6 +30,7 @@ public class MixinBlockEntityRendererFactories {
 
     @Inject(method = "reload", at = @At(value = "RETURN"))
     private static void emf$clearMarker(final BlockEntityRendererFactory.Context args, final CallbackInfoReturnable<Map<BlockEntityType<?>, BlockEntityRenderer<?>>> cir) {
+        if (EMF.testForForgeLoadingError()) return;
         EMFManager.getInstance().currentSpecifiedModelLoading = "";
         EMFManager.getInstance().currentBlockEntityTypeLoading = null;
         if (EMF.config().getConfig().logModelCreationData || EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)

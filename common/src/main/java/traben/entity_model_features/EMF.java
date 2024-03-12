@@ -11,7 +11,6 @@ import traben.entity_features.config.gui.EFConfigScreenMain;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
-import traben.entity_texture_features.ETFApi;
 
 import java.util.Random;
 
@@ -65,7 +64,7 @@ public class EMF {
         EMFManager.getInstance();
 
         //register new etf random property for emf to track variants
-        ETFApi.registerCustomRandomPropertyFactory(MOD_ID, EntityVariantProperty::getPropertyOrNull);
+        //ETFApi.registerCustomRandomPropertyFactory(MOD_ID, EntityVariantProperty::getPropertyOrNull);
 
         //register EMF physics mod hook
 //        RagdollMapper.addHook(new EMFCustomRagDollHookTest());

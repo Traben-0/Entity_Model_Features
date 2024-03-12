@@ -2,7 +2,8 @@
 
 - added distance is_blocking is_crawling
 - improved rule_index
-
+- fixed the `cannot inherit from final class` forge crash returning in v1.3
+- moved the variant property into ETF
 
 
 1.3
