@@ -1,16 +1,25 @@
 package traben.entity_model_features.config;
 
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import traben.entity_features.config.EFConfig;
-import traben.entity_features.config.gui.options.EFOptionBoolean;
-import traben.entity_features.config.gui.options.EFOptionCategory;
-import traben.entity_features.config.gui.options.EFOptionEnum;
-import traben.entity_features.config.gui.options.EFOptionInt;
+import org.jetbrains.annotations.NotNull;
+import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
+import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
+import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.config.ETFConfig;
+import traben.tconfig.TConfig;
+import traben.tconfig.gui.entries.*;
 
-public class EMFConfig extends EFConfig {
+import java.util.*;
+
+public class EMFConfig extends TConfig {
 
     public boolean logModelCreationData = false;
     public boolean debugOnRightClick = false;
@@ -21,6 +30,11 @@ public class EMFConfig extends EFConfig {
     public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
 
+    public ETFConfig.String2EnumNullMap<RenderModeChoice> entityRenderModeOverrides = new ETFConfig.String2EnumNullMap<>();
+    public ETFConfig.String2EnumNullMap<PhysicsModCompatChoice> entityPhysicsModPatchOverrides = new ETFConfig.String2EnumNullMap<>();
+    public ETFConfig.String2EnumNullMap<VanillaModelRenderMode> entityVanillaHologramOverrides = new ETFConfig.String2EnumNullMap<>();
+    public ObjectOpenHashSet<String> modelsNamesDisabled = new ObjectOpenHashSet();
+
     public boolean allowEBEModConfigModify = true;
 
     public int animationLODDistance = 20;
@@ -28,39 +42,166 @@ public class EMFConfig extends EFConfig {
     public boolean retainDetailOnLowFps = true;
 
     @Override
-    public EFOptionCategory getGUIOptions() {
-        return new EFOptionCategory.Empty().add(
-                new EFOptionCategory("config.entity_features.models_main").add(
-                        new EFOptionCategory("entity_model_features.config.options", "entity_model_features.config.options.tooltip").add(
-                                new EFOptionBoolean("entity_model_features.config.force_models", "entity_model_features.config.force_models.tooltip",
+    public TConfigEntryCategory getGUIOptions() {
+        return new TConfigEntryCategory.Empty().add(
+                new TConfigEntryCategory("config.entity_features.models_main").add(
+                        new TConfigEntryCategory("entity_model_features.config.options", "entity_model_features.config.options.tooltip").add(
+                                new TConfigEntryBoolean("entity_model_features.config.force_models", "entity_model_features.config.force_models.tooltip",
                                         () -> attemptRevertingEntityModelsAlteredByAnotherMod, value -> attemptRevertingEntityModelsAlteredByAnotherMod = value, true),
-                                new EFOptionEnum<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
+                                new TConfigEntryEnumButton<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
                                         () -> attemptPhysicsModPatch_2, value -> attemptPhysicsModPatch_2 = value, PhysicsModCompatChoice.CUSTOM),
-                                new EFOptionEnum<>("entity_model_features.config.update", "entity_model_features.config.update.tooltip",
+                                new TConfigEntryEnumSlider<>("entity_model_features.config.update", "entity_model_features.config.update.tooltip",
                                         () -> modelUpdateFrequency, value -> modelUpdateFrequency = value, ETFConfig.UpdateFrequency.Average),
-                                new EFOptionBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
+                                new TConfigEntryBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
                                         () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
-                                new EFOptionInt("entity_model_features.config.lod", "entity_model_features.config.lod.tooltip",
+                                new TConfigEntryInt("entity_model_features.config.lod", "entity_model_features.config.lod.tooltip",
                                         () -> animationLODDistance, value -> animationLODDistance = value, 20, 0, 65, true, true),
-                                new EFOptionBoolean("entity_model_features.config.low_fps_lod", "entity_model_features.config.low_fps_lod",
+                                new TConfigEntryBoolean("entity_model_features.config.low_fps_lod", "entity_model_features.config.low_fps_lod",
                                         () -> retainDetailOnLowFps, value -> retainDetailOnLowFps = value, true)
                         ),
-                        new EFOptionCategory("entity_model_features.config.tools", "entity_model_features.config.tools.tooltip").add(
-                                new EFOptionEnum<>("entity_model_features.config.vanilla_render", "entity_model_features.config.vanilla_render.tooltip",
+                        new TConfigEntryCategory("entity_model_features.config.tools", "entity_model_features.config.tools.tooltip").add(
+                                new TConfigEntryEnumSlider<>("entity_model_features.config.vanilla_render", "entity_model_features.config.vanilla_render.tooltip",
                                         () -> vanillaModelHologramRenderMode_2, value -> vanillaModelHologramRenderMode_2 = value, VanillaModelRenderMode.OFF),
-                                new EFOptionEnum<>("entity_model_features.config.print_mode", "entity_model_features.config.print_mode.tooltip",
+                                new TConfigEntryEnumSlider<>("entity_model_features.config.print_mode", "entity_model_features.config.print_mode.tooltip",
                                         () -> modelExportMode, value -> modelExportMode = value, ModelPrintMode.NONE)
                         ),
-                        new EFOptionCategory("entity_model_features.config.debug", "entity_model_features.config.debug.tooltip").add(
-                                new EFOptionEnum<>("entity_model_features.config.render", "entity_model_features.config.render.tooltip",
+                        new TConfigEntryCategory("entity_model_features.config.debug", "entity_model_features.config.debug.tooltip").add(
+                                new TConfigEntryEnumSlider<>("entity_model_features.config.render", "entity_model_features.config.render.tooltip",
                                         () -> renderModeChoice, value -> renderModeChoice = value, RenderModeChoice.NORMAL),
-                                new EFOptionBoolean("entity_model_features.config.log_models", "entity_model_features.config.log_models.tooltip",
+                                new TConfigEntryBoolean("entity_model_features.config.log_models", "entity_model_features.config.log_models.tooltip",
                                         () -> logModelCreationData, value -> logModelCreationData = value, false),
-                                new EFOptionBoolean("entity_model_features.config.debug_right_click", "entity_model_features.config.debug_right_click.tooltip",
+                                new TConfigEntryBoolean("entity_model_features.config.debug_right_click", "entity_model_features.config.debug_right_click.tooltip",
                                         () -> debugOnRightClick, value -> debugOnRightClick = value, false)
-                        )
-                )//, new EFOptionCategory("config.entity_features.general_settings.title")
+                        ), getInfoSettings()
+                )//, new TConfigEntryCategory("config.entity_features.general_settings.title")
+                ,getEntitySettings()
         );
+    }
+    private TConfigEntryCategory getInfoSettings() {
+        TConfigEntryCategory category = new TConfigEntryCategory("Model info");
+        for (Map.Entry<OptifineMobNameForFileAndEMFMapId, EntityModelLayer>  _in
+                : EMFManager.getInstance().cache_LayersByModelName.entrySet()) {
+            var vanilla = MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(_in.getValue());
+            if (vanilla != null) {
+                var fileName = _in.getKey().getfileName();
+                TConfigEntryCategory model = new TConfigEntryCategory(fileName);
+                category.add(model);
+
+                TConfigEntry export = getExport(_in);
+
+                model.add(
+                        new TConfigEntryBoolean("enabled", "ltip",
+                        () -> !modelsNamesDisabled.contains(fileName),
+                                value -> {
+                                    if (value) {
+                                        modelsNamesDisabled.remove(fileName);
+                                    } else {
+                                        modelsNamesDisabled.add(fileName);
+                                    }
+
+                                },
+                                true),
+                        new TConfigEntryCategory("Model part names").addAll(
+                                getmappings(_in.getKey().getMapId())
+                        ),
+                        export
+
+
+                );
+            }
+        }
+
+
+
+        return category;
+    }
+
+    @NotNull
+    private TConfigEntry getExport(final Map.Entry<OptifineMobNameForFileAndEMFMapId, EntityModelLayer> _in) {
+        TConfigEntry export;
+        try {
+            Objects.requireNonNull(_in.getKey().getMapId());
+            Objects.requireNonNull(MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(_in.getValue()));
+            export = new TConfigEntryCustomButton("export model", "jhv", (button) -> {
+                var old = modelExportMode;
+                modelExportMode = ModelPrintMode.ALL_LOG_AND_JEM;
+                EMFOptiFinePartNameMappings.getMapOf(_in.getKey().getMapId(),
+                        MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(_in.getValue()).createModel());
+                modelExportMode = old;
+            });
+        } catch (Exception e) {
+            export = new TConfigEntryText("cannot export model currently...");
+        }
+        return export;
+    }
+
+
+    private Collection<TConfigEntry> getmappings(String mapKey) {
+        var list = new ArrayList<TConfigEntry>();
+        Map<String,String> map;
+        if (EMFOptiFinePartNameMappings.OPTIFINE_MODEL_MAP_CACHE.containsKey(mapKey)) {
+            list.add(new TConfigEntryText("optifine part names:"));
+            list.add(new TConfigEntryText("\\/"));
+            map = EMFOptiFinePartNameMappings.OPTIFINE_MODEL_MAP_CACHE.get(mapKey);
+        } else {
+            list.add(new TConfigEntryText("un mapped part names:"));
+            list.add(new TConfigEntryText("\\/"));
+            map = EMFOptiFinePartNameMappings.UNKNOWN_MODEL_MAP_CACHE.get(mapKey);
+        }
+        if (map == null) {
+            return List.of();
+        }
+
+        for (String entry : map.keySet()) {
+            list.add(new TConfigEntryText(entry));
+        }
+        return list;
+    }
+
+
+    private TConfigEntryCategory getEntitySettings() {
+        TConfigEntryCategory category = new TConfigEntryCategory("config.entity_features.per_entity_settings");
+
+        try {
+            Registries.ENTITY_TYPE.forEach((entityType) -> {
+                //if (entityType != EntityType.PLAYER) {
+                    String translationKey = entityType.getTranslationKey();
+                    TConfigEntryCategory entityCategory = new TConfigEntryCategory(translationKey);
+                    this.addEntityConfigs(entityCategory, translationKey);
+                    category.add(entityCategory);
+                //}
+            });
+            BlockEntityRendererFactories.FACTORIES.keySet().forEach((entityType) -> {
+                String translationKey = ETFApi.getBlockEntityTypeToTranslationKey(entityType);
+                TConfigEntryCategory entityCategory = (new TConfigEntryCategory(translationKey));
+                this.addEntityConfigs(entityCategory, translationKey);
+                category.add(entityCategory);
+            });
+        } catch (Exception var4) {
+            var4.printStackTrace();
+        }
+
+        return category;
+    }
+
+    private void addEntityConfigs(TConfigEntryCategory entityCategory, String translationKey) {
+        TConfigEntryCategory category = new TConfigEntryCategory("model settings");
+        entityCategory.add(category);
+        category.add(
+                new TConfigEntryEnumSlider<>("render mode", "",
+                        () -> this.entityRenderModeOverrides.getNullable(translationKey),
+                        (layer) -> this.entityRenderModeOverrides.putNullable(translationKey, layer),
+                        null, RenderModeChoice.class),
+                new TConfigEntryEnumButton<>("vanilla hologram", "",
+                        () -> this.entityVanillaHologramOverrides.getNullable(translationKey),
+                        (layer) -> this.entityVanillaHologramOverrides.putNullable(translationKey, layer),
+                        null, VanillaModelRenderMode.class),
+                new TConfigEntryEnumButton<>("physics mod patch", "",
+                        () -> this.entityPhysicsModPatchOverrides.getNullable(translationKey),
+                        (layer) -> this.entityPhysicsModPatchOverrides.putNullable(translationKey, layer),
+                        null, PhysicsModCompatChoice.class)
+        );
+
     }
 
     @Override

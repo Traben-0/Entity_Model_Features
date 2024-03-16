@@ -103,7 +103,7 @@ public class EMFPartData {
         }
 
 
-        if (this.textureSize == null || textureSize.length != 2) this.textureSize = textureSize;
+        if (this.textureSize == null || this.textureSize.length != 2) this.textureSize = textureSize;
         this.customTexture = jem.validateJemTexture(texture);
 
         if (customTexture == null) customTexture = jemTexture;

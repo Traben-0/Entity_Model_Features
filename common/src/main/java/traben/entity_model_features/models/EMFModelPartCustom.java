@@ -89,7 +89,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                                 box.textureOffset[0], box.textureOffset[1],
                                 box.coordinates[0], box.coordinates[1], box.coordinates[2],
                                 box.coordinates[3], box.coordinates[4], box.coordinates[5],
-                                box.sizeAdd, box.sizeAdd, box.sizeAdd,
+                                box.sizeAddX, box.sizeAddY, box.sizeAddZ,
                                 emfPartData.textureSize[0], emfPartData.textureSize[1],
                                 emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));//selfModelData.invertAxis);
                     } else {
@@ -99,7 +99,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                                 box.uvSouth, box.uvWest, box.uvEast,
                                 box.coordinates[0], box.coordinates[1], box.coordinates[2],
                                 box.coordinates[3], box.coordinates[4], box.coordinates[5],
-                                box.sizeAdd, box.sizeAdd, box.sizeAdd,
+                                box.sizeAddX, box.sizeAddY, box.sizeAddZ,
                                 emfPartData.textureSize[0], emfPartData.textureSize[1],
                                 emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));//selfModelData.invertAxis);
                     }

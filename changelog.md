@@ -4,6 +4,12 @@
 - improved rule_index
 - fixed the `cannot inherit from final class` forge crash returning in v1.3
 - moved the variant property into ETF
+- fixed crash `.jem failed to load java.lang.NullPointerException: Cannot read the array length because "textureSize" is null`
+- added the model file name to crash messages where it was missing
+- added `sizeAdd` to the emf model exporting
+- the emf model exporting now does 2 export log passes for each model with known OptiFine part names, one pass with, and one without the OptiFine part names. The one without might reveal some extra parts, that do not get used by OptiFine, or have been added by mods 
+- EMF model part boxes may now additionally declare `sizeAddX sizeAddY sizeAddZ`, as opposed to just `sizeAdd` with OptiFine, for per axis model inflation. `sizeAdd` will still work as before, though will be overridden if the others are present.
+- added OptiFine part name definitions for `breeze`, `breeze_eyes`, `breeze_wind`, `wind_charge`
 
 
 1.3

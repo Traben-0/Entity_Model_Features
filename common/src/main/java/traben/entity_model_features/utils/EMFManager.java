@@ -56,7 +56,8 @@ public class EMFManager {//singleton for data holding and resetting needs
     public final Object2ObjectLinkedOpenHashMap<String, Set<Runnable>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
-    private final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
+    public final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
+    public final Object2ObjectOpenHashMap<OptifineMobNameForFileAndEMFMapId, EntityModelLayer> cache_LayersByModelName = new Object2ObjectOpenHashMap<>();
     private final Object2IntOpenHashMap<EntityModelLayer> amountOfLayerAttempts = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
@@ -130,11 +131,11 @@ public class EMFManager {//singleton for data holding and resetting needs
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
             if (res.isEmpty()) {
                 if (EMF.config().getConfig().logModelCreationData)
-                    EMFUtils.log(".jem read failed " + pathOfJem + " does not exist", false);
+                    EMFUtils.log(pathOfJem+", .jem read failed " + pathOfJem + " does not exist", false);
                 return null;
             }
             if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log(".jem read success " + pathOfJem + " exists", false);
+                EMFUtils.log(pathOfJem+", .jem read success " + pathOfJem + " exists", false);
             Resource jemResource = res.get();
             //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -152,9 +153,10 @@ public class EMFManager {//singleton for data holding and resetting needs
             //}
         } catch (InvalidIdentifierException | FileNotFoundException e) {
             if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log(".jem failed to load " + e, false);
+                EMFUtils.log(pathOfJem+", .jem failed to load: " + e, false);
         } catch (Exception e) {
-            EMFUtils.log(".jem failed to load " + e, false);
+            EMFUtils.log(pathOfJem+", .jem failed to load: " + e, false);
+            e.printStackTrace();
         }
         return null;
     }
@@ -337,6 +339,8 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
             ///jem name is final and correct from here
+
+            cache_LayersByModelName.put(mobNameForFileAndMap, layer);
 
             //if (EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap).isEmpty()) {
             //construct simple map for modded or unknown entities
