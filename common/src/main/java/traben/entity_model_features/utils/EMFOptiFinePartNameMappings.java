@@ -1145,6 +1145,10 @@ public class EMFOptiFinePartNameMappings {
     }
 
     public static Map<String, String> getMapOf(String mobName, @Nullable ModelPart root) {
+        return getMapOf(mobName, root, true);
+    }
+
+    public static Map<String, String> getMapOf(String mobName, @Nullable ModelPart root, boolean exportOnlyFirstTime) {
 
 
         Map<String, String> knownMap;
@@ -1154,22 +1158,32 @@ public class EMFOptiFinePartNameMappings {
             knownMap = getKnownMap(mobName);
         }
         if (knownMap == null) {
-            return root == null ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null);
+            return root == null ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null,exportOnlyFirstTime);
         }
         //trigger the export of the known model if we are exporting all
         if (EMF.config().getConfig().modelExportMode.doesAll()) {
-            EMFUtils.log("Exporting/logging  model for " + mobName + " that has known OptiFine part names:");
-            exploreProvidedEntityModelAndExportIfNeeded(root, mobName, knownMap);
-            //also print out the model with its actual values in case a mod has added something
-            EMFUtils.log("Additionally exporting/logging model for " + mobName + " again as though it did not have known OptiFine part names:\nThis might highlight some vanilla, or mod added, parts that are not usually exposed by OptiFine");
-
-            var old = EMF.config().getConfig().modelExportMode;
-            EMF.config().getConfig().modelExportMode = EMFConfig.ModelPrintMode.ALL_LOG_ONLY;
-            exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null);
-            EMF.config().getConfig().modelExportMode = old;
+            exportKnown(mobName, root, knownMap,exportOnlyFirstTime);
         }
 
         return knownMap;
+    }
+
+    private static void exportKnown(final String mobName, final @Nullable ModelPart root, final Map<String, String> knownMap, boolean exportOnlyFirstTime) {
+        EMFUtils.log("Exporting/logging  model for " + mobName + " that has known OptiFine part names:");
+        exploreProvidedEntityModelAndExportIfNeeded(root, mobName, knownMap, exportOnlyFirstTime);
+        //also print out the model with its actual values in case a mod has added something
+        EMFUtils.log("Additionally exporting/logging model for " + mobName + " again as though it did not have known OptiFine part names:\nThis might highlight some vanilla, or mod added, parts that are not usually exposed by OptiFine");
+
+        var old = EMF.config().getConfig().modelExportMode;
+        EMF.config().getConfig().modelExportMode = EMFConfig.ModelPrintMode.ALL_LOG_ONLY;
+        try {
+            exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null, exportOnlyFirstTime);
+        }catch (Exception e){
+            EMFUtils.logError("Error while exporting model for " + mobName + " again as though it did not have known OptiFine part names:");
+            e.printStackTrace();
+        }
+
+        EMF.config().getConfig().modelExportMode = old;
     }
 
     private static @Nullable Map<String, String> getKnownMap(String mobName) {
@@ -1189,9 +1203,8 @@ public class EMFOptiFinePartNameMappings {
 
     //
     //this would make a usable mapping of the given model but with no part name changing as it would not be optifine customized
-    public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, String mobName, @Nullable Map<String, String> mobMap) {
-
-        if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName))
+    public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, String mobName, @Nullable Map<String, String> mobMap, boolean exportOnlyFirstTime) {
+        if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName) && exportOnlyFirstTime)
             return UNKNOWN_MODEL_MAP_CACHE.get(mobName);
 
         if (originalModel == null) {

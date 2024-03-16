@@ -13,6 +13,7 @@ import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 import traben.entity_texture_features.ETFApi;
+import traben.entity_texture_features.ETFVersionDifferenceHandler;
 import traben.entity_texture_features.config.ETFConfig;
 import traben.tconfig.TConfig;
 import traben.tconfig.gui.entries.*;
@@ -33,7 +34,7 @@ public class EMFConfig extends TConfig {
     public ETFConfig.String2EnumNullMap<RenderModeChoice> entityRenderModeOverrides = new ETFConfig.String2EnumNullMap<>();
     public ETFConfig.String2EnumNullMap<PhysicsModCompatChoice> entityPhysicsModPatchOverrides = new ETFConfig.String2EnumNullMap<>();
     public ETFConfig.String2EnumNullMap<VanillaModelRenderMode> entityVanillaHologramOverrides = new ETFConfig.String2EnumNullMap<>();
-    public ObjectOpenHashSet<String> modelsNamesDisabled = new ObjectOpenHashSet();
+    public ObjectOpenHashSet<String> modelsNamesDisabled = new ObjectOpenHashSet<>();
 
     public boolean allowEBEModConfigModify = true;
 
@@ -78,19 +79,19 @@ public class EMFConfig extends TConfig {
         );
     }
     private TConfigEntryCategory getInfoSettings() {
-        TConfigEntryCategory category = new TConfigEntryCategory("Model info");
+        TConfigEntryCategory category = new TConfigEntryCategory("All models");
         for (Map.Entry<OptifineMobNameForFileAndEMFMapId, EntityModelLayer>  _in
                 : EMFManager.getInstance().cache_LayersByModelName.entrySet()) {
             var vanilla = MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(_in.getValue());
             if (vanilla != null) {
                 var fileName = _in.getKey().getfileName();
-                TConfigEntryCategory model = new TConfigEntryCategory(fileName);
+                TConfigEntryCategory model = new TConfigEntryCategory(fileName+".jem");
                 category.add(model);
 
                 TConfigEntry export = getExport(_in);
 
                 model.add(
-                        new TConfigEntryBoolean("enabled", "ltip",
+                        new TConfigEntryBoolean("Enabled", "ltip",
                         () -> !modelsNamesDisabled.contains(fileName),
                                 value -> {
                                     if (value) {
@@ -122,12 +123,19 @@ public class EMFConfig extends TConfig {
         try {
             Objects.requireNonNull(_in.getKey().getMapId());
             Objects.requireNonNull(MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(_in.getValue()));
-            export = new TConfigEntryCustomButton("export model", "jhv", (button) -> {
+            export = new TConfigEntryCustomButton("Export model", "jhv", (button) -> {
                 var old = modelExportMode;
                 modelExportMode = ModelPrintMode.ALL_LOG_AND_JEM;
-                EMFOptiFinePartNameMappings.getMapOf(_in.getKey().getMapId(),
-                        MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(_in.getValue()).createModel());
+                try{
+                    EMFOptiFinePartNameMappings.getMapOf(_in.getKey().getMapId(),
+                        MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(_in.getValue()).createModel(),
+                            false);
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
                 modelExportMode = old;
+                button.active=false;
+                button.setMessage(ETFVersionDifferenceHandler.getTextFromTranslation("Exported"));
             });
         } catch (Exception e) {
             export = new TConfigEntryText("cannot export model currently...");
@@ -178,6 +186,7 @@ public class EMFConfig extends TConfig {
                 category.add(entityCategory);
             });
         } catch (Exception var4) {
+            //noinspection CallToPrintStackTrace
             var4.printStackTrace();
         }
 
@@ -185,18 +194,18 @@ public class EMFConfig extends TConfig {
     }
 
     private void addEntityConfigs(TConfigEntryCategory entityCategory, String translationKey) {
-        TConfigEntryCategory category = new TConfigEntryCategory("model settings");
+        TConfigEntryCategory category = new TConfigEntryCategory("config.entity_features.models_main");
         entityCategory.add(category);
         category.add(
-                new TConfigEntryEnumSlider<>("render mode", "",
+                new TConfigEntryEnumSlider<>("entity_model_features.config.render", "entity_model_features.config.render.tooltip",
                         () -> this.entityRenderModeOverrides.getNullable(translationKey),
                         (layer) -> this.entityRenderModeOverrides.putNullable(translationKey, layer),
                         null, RenderModeChoice.class),
-                new TConfigEntryEnumButton<>("vanilla hologram", "",
+                new TConfigEntryEnumButton<>("entity_model_features.config.vanilla_render", "entity_model_features.config.vanilla_render.tooltip",
                         () -> this.entityVanillaHologramOverrides.getNullable(translationKey),
                         (layer) -> this.entityVanillaHologramOverrides.putNullable(translationKey, layer),
                         null, VanillaModelRenderMode.class),
-                new TConfigEntryEnumButton<>("physics mod patch", "",
+                new TConfigEntryEnumButton<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
                         () -> this.entityPhysicsModPatchOverrides.getNullable(translationKey),
                         (layer) -> this.entityPhysicsModPatchOverrides.putNullable(translationKey, layer),
                         null, PhysicsModCompatChoice.class)
