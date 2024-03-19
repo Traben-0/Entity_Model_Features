@@ -24,6 +24,7 @@ import traben.entity_model_features.mixin.accessor.EntityRenderDispatcherAccesso
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.utils.*;
+import traben.entity_texture_features.ETF;
 
 import java.util.Map;
 import java.util.Set;
@@ -102,6 +103,13 @@ public class EMFAnimationEntityContext {
             lodFactor = factorByFOV;
         }
 
+        if (EMF.config().getConfig().retainDetailOnLargerMobs && emfEntity instanceof Entity entity){
+            var entitySize = Math.max(entity.getWidth(), entity.getHeight());
+            if (entitySize > 2){
+                lodFactor = (int) (lodFactor / (entitySize/2));
+            }
+        }
+
         return lodFactor;
     }
 
@@ -158,7 +166,7 @@ public class EMFAnimationEntityContext {
                 if (debugRoot.variantDirectoryApplier != null) {
                     model.append(entryAndValue("directory",
                             debugRoot.variantDirectoryApplier
-                                    .getThisDirectoryOfFilename(debugRoot.modelName.getfileName())));
+                                    .getThisDirectoryOfFilename(debugRoot.modelName.getNamespace(),debugRoot.modelName.getfileName())));
                 }
 
                 if (debugRoot.textureOverride != null) {
@@ -253,9 +261,19 @@ public class EMFAnimationEntityContext {
         lodFactor = -1;
     }
 
-    public static RenderLayer getLayerFromRecentFactoryOrTranslucent(Identifier identifier) {
+    public static RenderLayer getLayerFromRecentFactoryOrETFOverrideOrTranslucent(Identifier identifier) {
         if (layerFactory == null) {
-            return RenderLayer.getEntityTranslucent(identifier);
+            var layer = ETF.config().getConfig().getRenderLayerOverride();
+            if (layer == null) {
+                return RenderLayer.getEntityTranslucent(identifier);
+            }else {
+                return switch (layer){
+                    case TRANSLUCENT -> RenderLayer.getEntityTranslucent(identifier);
+                    case TRANSLUCENT_CULL -> RenderLayer.getEntityTranslucentCull(identifier);
+                    case END -> RenderLayer.getEndGateway();
+                    case OUTLINE -> RenderLayer.getOutline(identifier);
+                };
+            }
         }
         return layerFactory.apply(identifier);
     }
@@ -410,7 +428,48 @@ public class EMFAnimationEntityContext {
         return emfEntity instanceof LivingEntity alive ? (alive.hurtTime > 0 ? alive.hurtTime - tickDelta : 0) : 0;
     }
 
-    public static boolean isInWater() {
+    public static float getHeightAboveGround(){
+        if (emfEntity == null) return 0;
+        float y = getEntityY();
+        BlockPos pos = emfEntity.etf$getBlockPos();
+        int worldBottom = emfEntity.etf$getWorld().getBottomY();
+        while (!emfEntity.etf$getWorld().getBlockState(pos).getBlock().collidable && pos.getY() > worldBottom) {
+            pos = pos.down();
+        }
+        return y - pos.getY();
+    }
+
+    public static float getFluidDepthDown(){
+        if (emfEntity == null
+                || emfEntity.etf$getWorld().getFluidState(emfEntity.etf$getBlockPos()).isEmpty()) return 0;
+
+        BlockPos pos = emfEntity.etf$getBlockPos();
+        int worldBottom = emfEntity.etf$getWorld().getBottomY();
+        while (!emfEntity.etf$getWorld().getFluidState(pos).isEmpty() && pos.getY() > worldBottom) {
+            pos = pos.down();
+        }
+        return emfEntity.etf$getBlockPos().getY() - pos.getY();
+    }
+
+    public static float getFluidDepthUp(){
+        if (emfEntity == null
+                || emfEntity.etf$getWorld().getFluidState(emfEntity.etf$getBlockPos()).isEmpty()) return 0;
+
+        BlockPos pos = emfEntity.etf$getBlockPos();
+        int worldTop = emfEntity.etf$getWorld().getTopY();
+        while (!emfEntity.etf$getWorld().getFluidState(pos).isEmpty() && pos.getY() < worldTop) {
+            pos = pos.up();
+        }
+        return pos.getY() - emfEntity.etf$getBlockPos().getY();
+    }
+
+    public static float getFluidDepth() {
+        if (emfEntity == null
+                || emfEntity.etf$getWorld().getFluidState(emfEntity.etf$getBlockPos()).isEmpty()) return 0;
+        return getFluidDepthDown() + getFluidDepthUp() - 1;
+    }
+
+        public static boolean isInWater() {
         return emfEntity != null && emfEntity.emf$isTouchingWater();
     }
 
@@ -501,7 +560,8 @@ public class EMFAnimationEntityContext {
                 (emfEntity instanceof FoxEntity fox && fox.isSitting()) ||
                 (emfEntity instanceof ParrotEntity parrot && parrot.isInSittingPose()) ||
                 (emfEntity instanceof CatEntity cat && cat.isInSittingPose()) ||
-                (emfEntity instanceof WolfEntity wolf && wolf.isInSittingPose());
+                (emfEntity instanceof WolfEntity wolf && wolf.isInSittingPose()) ||
+                (emfEntity instanceof CamelEntity camel && camel.isSitting());
     }
 
 

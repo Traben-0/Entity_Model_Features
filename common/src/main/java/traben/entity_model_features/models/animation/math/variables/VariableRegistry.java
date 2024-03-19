@@ -80,6 +80,10 @@ public final class VariableRegistry {
         registerSimpleFloatVariable("anger_time_start", EMFAnimationEntityContext::getAngerTimeStart);
         registerSimpleFloatVariable("move_forward", EMFAnimationEntityContext::getMoveForward);
         registerSimpleFloatVariable("move_strafing", EMFAnimationEntityContext::getMoveStrafe);
+        registerSimpleFloatVariable("height_above_ground", EMFAnimationEntityContext::getHeightAboveGround);
+        registerSimpleFloatVariable("fluid_depth", EMFAnimationEntityContext::getFluidDepth);
+        registerSimpleFloatVariable("fluid_depth_down", EMFAnimationEntityContext::getFluidDepthDown);
+        registerSimpleFloatVariable("fluid_depth_up", EMFAnimationEntityContext::getFluidDepthUp);
         registerSimpleFloatVariable("nan", () -> EMFManager.getInstance().isAnimationValidationPhase ? 0 : Float.NaN);
         registerSimpleFloatVariable("distance", ()->{
             if (EMFAnimationEntityContext.getEMFEntity() == null) return 0;
@@ -167,18 +171,18 @@ public final class VariableRegistry {
 
     public MathComponent getVariable(String variableName, boolean isNegative, EMFAnimation calculationInstance) {
         try {
-            String variableKey = isNegative ? "-" + variableName : variableName;
-            if (singletonVariables.containsKey(variableKey)) {
-                return singletonVariables.get(variableKey);
+            String variableWithNegative = isNegative ? "-" + variableName : variableName;
+            if (singletonVariables.containsKey(variableWithNegative)) {
+                return singletonVariables.get(variableWithNegative);
             } else {
                 // context dependant variable.
                 // uses EMFAnimation object for context to create a new variable instance
                 boolean invertBooleans = variableName.startsWith("!");
-
+                String variableNameWithoutBooleanInvert =invertBooleans ? variableName.substring(1) : variableName;
                 //check if any of the unique variable factories can create this variable
                 for (UniqueVariableFactory uniqueVariableFactory : uniqueVariableFactories) {
-                    if (uniqueVariableFactory.createsThisVariable(invertBooleans ? variableName.substring(1) : variableName)) {
-                        var supplier = uniqueVariableFactory.getSupplierOrNull(variableName, calculationInstance);
+                    if (uniqueVariableFactory.createsThisVariable(variableNameWithoutBooleanInvert)) {
+                        var supplier = uniqueVariableFactory.getSupplierOrNull(variableNameWithoutBooleanInvert, calculationInstance);
                         if (supplier != null) {
                             return new MathVariable(variableName, isNegative,
                                     invertBooleans ?

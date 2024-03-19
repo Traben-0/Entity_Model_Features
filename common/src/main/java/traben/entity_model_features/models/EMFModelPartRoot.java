@@ -189,7 +189,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public void discoverAndInitVariants() {
         //get random properties and init variants
-        String thisDirectoryFileName = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getfileName());
+        String thisDirectoryFileName = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getNamespace(), modelName.getfileName());
         Identifier propertyID = new Identifier(thisDirectoryFileName + ".properties");
         if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
             variantTester = ETFApi.getVariantSupplierOrNull(propertyID, new Identifier(thisDirectoryFileName + ".jem"), "models");
@@ -208,7 +208,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     for (int variant : allModelVariants) {
                         setVariantStateTo(1);
 
-                        String jemNameVariant = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getfileName() + variant + ".jem");
+                        String jemNameVariant = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getNamespace(), modelName.getfileName() + variant + ".jem");
                         if (EMF.config().getConfig().logModelCreationData)
                             EMFUtils.log(" > incorporating variant jem file: " + jemNameVariant);
                         EMFJemData jemDataVariant = getJemDataWithDirectory(jemNameVariant, modelName);

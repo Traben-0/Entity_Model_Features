@@ -42,6 +42,8 @@ public class EMFConfig extends TConfig {
 
     public boolean retainDetailOnLowFps = true;
 
+    public boolean retainDetailOnLargerMobs = true;
+
     @Override
     public TConfigEntryCategory getGUIOptions() {
         return new TConfigEntryCategory.Empty().add(
@@ -51,14 +53,18 @@ public class EMFConfig extends TConfig {
                                         () -> attemptRevertingEntityModelsAlteredByAnotherMod, value -> attemptRevertingEntityModelsAlteredByAnotherMod = value, true),
                                 new TConfigEntryEnumButton<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
                                         () -> attemptPhysicsModPatch_2, value -> attemptPhysicsModPatch_2 = value, PhysicsModCompatChoice.CUSTOM),
+                                new TConfigEntryBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
+                                        () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true)
+                        ),
+                        new TConfigEntryCategory("entity_model_features.config.performance").add(
                                 new TConfigEntryEnumSlider<>("entity_model_features.config.update", "entity_model_features.config.update.tooltip",
                                         () -> modelUpdateFrequency, value -> modelUpdateFrequency = value, ETFConfig.UpdateFrequency.Average),
-                                new TConfigEntryBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
-                                        () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
                                 new TConfigEntryInt("entity_model_features.config.lod", "entity_model_features.config.lod.tooltip",
                                         () -> animationLODDistance, value -> animationLODDistance = value, 20, 0, 65, true, true),
-                                new TConfigEntryBoolean("entity_model_features.config.low_fps_lod", "entity_model_features.config.low_fps_lod",
-                                        () -> retainDetailOnLowFps, value -> retainDetailOnLowFps = value, true)
+                                new TConfigEntryBoolean("entity_model_features.config.low_fps_lod", "entity_model_features.config.low_fps_lod.tooltip",
+                                        () -> retainDetailOnLowFps, value -> retainDetailOnLowFps = value, true),
+                                new TConfigEntryBoolean("entity_model_features.config.large_mob_lod", "entity_model_features.config.large_mob_lod.tooltip",
+                                        () -> retainDetailOnLargerMobs, value -> retainDetailOnLargerMobs = value, true)
                         ),
                         new TConfigEntryCategory("entity_model_features.config.tools", "entity_model_features.config.tools.tooltip").add(
                                 new TConfigEntryEnumSlider<>("entity_model_features.config.vanilla_render", "entity_model_features.config.vanilla_render.tooltip",
@@ -210,7 +216,6 @@ public class EMFConfig extends TConfig {
                         (layer) -> this.entityPhysicsModPatchOverrides.putNullable(translationKey, layer),
                         null, PhysicsModCompatChoice.class)
         );
-
     }
 
     @Override

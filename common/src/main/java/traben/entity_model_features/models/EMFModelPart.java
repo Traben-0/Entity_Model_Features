@@ -67,7 +67,7 @@ public abstract class EMFModelPart extends ModelPart {
             lastTextureOverride = EMFManager.getInstance().entityRenderCount;
 
 
-            RenderLayer layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrTranslucent(textureOverride);
+            RenderLayer layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrETFOverrideOrTranslucent(textureOverride);
             VertexConsumer newConsumer = provider.getBuffer(layerModified);
 
             renderLikeVanilla(matrices, newConsumer, light, overlay, red, green, blue, alpha);
