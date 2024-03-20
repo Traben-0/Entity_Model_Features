@@ -22,7 +22,7 @@ subprojects {
         //mappings loom.officialMojangMappings()
         // The following line declares the yarn mappings you may select this one as well.
         mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-
+        implementation 'com.demonwav.mcdev:annotations:2.1.0'
     }
 }
 
@@ -50,6 +50,7 @@ allprojects {
         maven {
             url = "https://api.modrinth.com/maven"
         }
+        maven { url "https://mvnrepository.com/artifact/com.demonwav.mcdev/annotations" }
     }
 
     tasks.withType(JavaCompile) {

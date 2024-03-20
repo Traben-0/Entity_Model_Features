@@ -23,6 +23,11 @@ For all features that are described as matching OptiFine you may follow the Opti
 - [OptiFine CEM pretty documentation](https://optifine.readthedocs.io/cem.html)
 - [OptiFine CEM plaintext documentation](https://github.com/sp614x/optifine/tree/master/OptiFineDoc/doc)
 
+EMF also has a copy of the plaintext documentation, with EMF additions, that can be found here:
+- [EMF model documentation](.github/emf_model.txt)
+- [EMF part documentation](.github/emf_part.txt)
+- [EMF animation documentation](.github/emf_animation.txt)
+
 # EMF _exclusive_ features
 
 ### Custom armor models for all biped mobs

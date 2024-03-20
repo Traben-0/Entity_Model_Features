@@ -1,5 +1,6 @@
 package traben.entity_model_features.models.animation.math.variables;
 
+import com.demonwav.mcdev.annotations.Translatable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -33,6 +34,16 @@ public final class VariableRegistry {
 
     private static final VariableRegistry INSTANCE = new VariableRegistry();
     private final Map<String, MathComponent> singletonVariables = new HashMap<>();
+    private final Map<String, String> singletonVariableExplanationTranslationKeys = new HashMap<>();
+
+    public Map<String, String> getSingletonVariableExplanationTranslationKeys() {
+        return singletonVariableExplanationTranslationKeys;
+    }
+
+    public List<UniqueVariableFactory> getUniqueVariableFactories() {
+        return uniqueVariableFactories;
+    }
+
     private final List<UniqueVariableFactory> uniqueVariableFactories = new ArrayList<>();
 
     private VariableRegistry() {
@@ -40,12 +51,16 @@ public final class VariableRegistry {
         //these constants are better hardcoded
         singletonVariables.put("pi", new MathConstant((float) Math.PI));
         singletonVariables.put("-pi", new MathConstant((float) -Math.PI));
+        singletonVariableExplanationTranslationKeys.put("pi", emfTranslationKey("pi"));
         singletonVariables.put("e", new MathConstant((float) Math.E));
         singletonVariables.put("-e", new MathConstant((float) -Math.E));
+        singletonVariableExplanationTranslationKeys.put("e", emfTranslationKey("e"));
         singletonVariables.put("true", MathConstant.ONE);
         singletonVariables.put("!true", MathConstant.ZERO);
+        singletonVariableExplanationTranslationKeys.put("true", emfTranslationKey("true"));
         singletonVariables.put("false", MathConstant.ZERO);
         singletonVariables.put("!false", MathConstant.ONE);
+        singletonVariableExplanationTranslationKeys.put("false", emfTranslationKey("false"));
 
 
         //simple floats
@@ -59,16 +74,16 @@ public final class VariableRegistry {
         registerSimpleFloatVariable("hurt_time", EMFAnimationEntityContext::getHurtTime);
         registerSimpleFloatVariable("dimension", EMFAnimationEntityContext::getDimension);
         registerSimpleFloatVariable("time", EMFAnimationEntityContext::getTime);
-        registerSimpleFloatVariable("player_pos_x", EMFAnimationEntityContext::getPlayerX);
-        registerSimpleFloatVariable("player_pos_y", EMFAnimationEntityContext::getPlayerY);
-        registerSimpleFloatVariable("player_pos_z", EMFAnimationEntityContext::getPlayerZ);
-        registerSimpleFloatVariable("pos_x", EMFAnimationEntityContext::getEntityX);
-        registerSimpleFloatVariable("pos_y", EMFAnimationEntityContext::getEntityY);
-        registerSimpleFloatVariable("pos_z", EMFAnimationEntityContext::getEntityZ);
-        registerSimpleFloatVariable("player_rot_x", EMFAnimationEntityContext::getPlayerRX);
-        registerSimpleFloatVariable("player_rot_y", EMFAnimationEntityContext::getPlayerRY);
-        registerSimpleFloatVariable("rot_x", EMFAnimationEntityContext::getEntityRX);
-        registerSimpleFloatVariable("rot_y", EMFAnimationEntityContext::getEntityRY);
+        registerSimpleFloatVariable("player_pos_x", emfTranslationKey("player_pos"), EMFAnimationEntityContext::getPlayerX);
+        registerSimpleFloatVariable("player_pos_y", emfTranslationKey("player_pos"), EMFAnimationEntityContext::getPlayerY);
+        registerSimpleFloatVariable("player_pos_z", emfTranslationKey("player_pos"), EMFAnimationEntityContext::getPlayerZ);
+        registerSimpleFloatVariable("pos_x", emfTranslationKey("pos"), EMFAnimationEntityContext::getEntityX);
+        registerSimpleFloatVariable("pos_y", emfTranslationKey("pos"), EMFAnimationEntityContext::getEntityY);
+        registerSimpleFloatVariable("pos_z", emfTranslationKey("pos"), EMFAnimationEntityContext::getEntityZ);
+        registerSimpleFloatVariable("player_rot_x", emfTranslationKey("player_rot"), EMFAnimationEntityContext::getPlayerRX);
+        registerSimpleFloatVariable("player_rot_y", emfTranslationKey("player_rot"), EMFAnimationEntityContext::getPlayerRY);
+        registerSimpleFloatVariable("rot_x", emfTranslationKey("rot"), EMFAnimationEntityContext::getEntityRX);
+        registerSimpleFloatVariable("rot_y", emfTranslationKey("rot"), EMFAnimationEntityContext::getEntityRY);
         registerSimpleFloatVariable("health", EMFAnimationEntityContext::getHealth);
         registerSimpleFloatVariable("death_time", EMFAnimationEntityContext::getDeathTime);
         registerSimpleFloatVariable("anger_time", EMFAnimationEntityContext::getAngerTime);
@@ -133,6 +148,11 @@ public final class VariableRegistry {
 
     }
 
+    private static String emfTranslationKey(String key){
+        return "entity_model_features.config.variable_explanation." + key;
+
+    }
+
     public static VariableRegistry getInstance() {
         return INSTANCE;
     }
@@ -150,22 +170,32 @@ public final class VariableRegistry {
         uniqueVariableFactories.add(factory);
     }
 
-    public void registerSimpleFloatVariable(String variableName, MathValue.ResultSupplier supplier) {
+    private void registerSimpleFloatVariable(String variableName, MathValue.ResultSupplier supplier) {
+        registerSimpleFloatVariable(variableName, emfTranslationKey(variableName), supplier);
+    }
+
+    public void registerSimpleFloatVariable(String variableName, @Translatable String explanationTranslationKey, MathValue.ResultSupplier supplier) {
         if (singletonVariables.containsKey(variableName)) {
             EMFUtils.log("Duplicate variable: " + variableName + ". ignoring duplicate");
             return;
         }
         singletonVariables.put(variableName, new MathVariable(variableName, false, supplier));
         singletonVariables.put("-" + variableName, new MathVariable("-" + variableName, true, supplier));
+        singletonVariableExplanationTranslationKeys.put(variableName, explanationTranslationKey);
     }
 
-    public void registerSimpleBoolVariable(String variableName, BooleanSupplier boolGetter) {
+    private void registerSimpleBoolVariable(String variableName, BooleanSupplier boolGetter) {
+        registerSimpleBoolVariable(variableName, emfTranslationKey(variableName), boolGetter);
+    }
+
+    public void registerSimpleBoolVariable(String variableName, @Translatable String explanationTranslationKey, BooleanSupplier boolGetter) {
         if (singletonVariables.containsKey(variableName)) {
             EMFUtils.log("Duplicate variable: " + variableName + ". ignoring duplicate");
             return;
         }
         singletonVariables.put(variableName, new MathVariable(variableName, () -> (boolGetter.getAsBoolean()) ? 1f : 0f));
         singletonVariables.put("!" + variableName, new MathVariable("!" + variableName, () -> (boolGetter.getAsBoolean()) ? 0f : 1f));
+        singletonVariableExplanationTranslationKeys.put(variableName, explanationTranslationKey);
     }
 
 

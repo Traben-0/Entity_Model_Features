@@ -24,6 +24,12 @@ public final class MethodRegistry {
     private static final MethodRegistry INSTANCE = new MethodRegistry();
     private final Map<String, MethodFactory> methodFactories = new HashMap<>();
 
+    private final Map<String, String> methodExplanationTranslationKeys = new HashMap<>();
+
+    public Map<String, String> getMethodExplanationTranslationKeys() {
+        return methodExplanationTranslationKeys;
+    }
+
     private MethodRegistry() {
 
         //optifine methods
@@ -114,28 +120,53 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("easeinoutsine", TriFunctionMethods::easeInOutSine);
     }
 
+    private static String emfTranslationKey(String key){
+        return "entity_model_features.config.function_explanation." + key;
+
+    }
+
     public static MethodRegistry getInstance() {
         return INSTANCE;
     }
-
-    public void registerSimpleMethodFactory(String methodName, Function<Float, Float> function) {
-        methodFactories.put(methodName, FunctionMethods.makeFactory(methodName, function));
+    private void registerSimpleMethodFactory(String methodName, Function<Float, Float> function) {
+        registerSimpleMethodFactory(methodName, emfTranslationKey(methodName), function);
+    }
+    public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, Function<Float, Float> function) {
+        register(methodName, explanationTranslationKey, FunctionMethods.makeFactory(methodName, function));
     }
 
-    public void registerSimpleMethodFactory(String methodName, BiFunction<Float, Float, Float> function) {
-        methodFactories.put(methodName, BiFunctionMethods.makeFactory(methodName, function));
+    private void registerSimpleMethodFactory(String methodName, BiFunction<Float, Float, Float> function) {
+        registerSimpleMethodFactory(methodName, emfTranslationKey(methodName), function);
     }
 
-    public void registerSimpleMethodFactory(String methodName, TriFunction<Float, Float, Float, Float> function) {
-        methodFactories.put(methodName, TriFunctionMethods.makeFactory(methodName, function));
+    public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, BiFunction<Float, Float, Float> function) {
+        register(methodName, explanationTranslationKey, BiFunctionMethods.makeFactory(methodName, function));
     }
 
-    public void registerSimpleMultiMethodFactory(String methodName, Function<List<Float>, Float> function) {
-        methodFactories.put(methodName, MultiFunctionMethods.makeFactory(methodName, function));
+    private void registerSimpleMethodFactory(String methodName, TriFunction<Float, Float, Float, Float> function) {
+        registerSimpleMethodFactory(methodName, emfTranslationKey(methodName), function);
+    }
+    public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, TriFunction<Float, Float, Float, Float> function) {
+        register(methodName, explanationTranslationKey, TriFunctionMethods.makeFactory(methodName, function));
     }
 
-    public void registerAndWrapMethodFactory(String methodName, MethodFactory factory) {
-        methodFactories.put(methodName, (a, b, c) -> {
+    private void registerSimpleMultiMethodFactory(String methodName, Function<List<Float>, Float> function) {
+        registerSimpleMultiMethodFactory(methodName, emfTranslationKey(methodName), function);
+    }
+    public void registerSimpleMultiMethodFactory(String methodName, String explanationTranslationKey, Function<List<Float>, Float> function) {
+        register(methodName, explanationTranslationKey, MultiFunctionMethods.makeFactory(methodName, function));
+    }
+
+    private void register(String methodName, String explanationTranslationKey, MethodFactory factory) {
+        methodExplanationTranslationKeys.put(methodName, explanationTranslationKey);
+        methodFactories.put(methodName, factory);
+    }
+
+    private void registerAndWrapMethodFactory(String methodName, MethodFactory factory) {
+        registerAndWrapMethodFactory(methodName, emfTranslationKey(methodName), factory);
+    }
+    public void registerAndWrapMethodFactory(String methodName, String explanationTranslationKey, MethodFactory factory) {
+        register(methodName, explanationTranslationKey, (a, b, c) -> {
             try {
                 return factory.getMethod(a, b, c);
             } catch (Exception e) {

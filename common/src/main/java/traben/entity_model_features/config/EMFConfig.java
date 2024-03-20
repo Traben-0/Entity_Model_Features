@@ -9,6 +9,9 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
+import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
+import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
+import traben.entity_model_features.models.animation.math.variables.factories.UniqueVariableFactory;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
@@ -80,9 +83,40 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryBoolean("entity_model_features.config.debug_right_click", "entity_model_features.config.debug_right_click.tooltip",
                                         () -> debugOnRightClick, value -> debugOnRightClick = value, false)
                         ), getInfoSettings()
+                        , getMathInfo()
                 )//, new TConfigEntryCategory("config.entity_features.general_settings.title")
                 ,getEntitySettings()
         );
+    }
+
+    private TConfigEntryCategory getMathInfo() {
+        TConfigEntryCategory category = new TConfigEntryCategory("Math info");
+        TConfigEntryCategory variables = new TConfigEntryCategory("Variables");
+        category.add(variables);
+        variables.add(new TConfigEntryText("Variables are used in animations to allow for dynamic and complex animations."));
+        for (UniqueVariableFactory uniqueVariableFactory : VariableRegistry.getInstance().getUniqueVariableFactories()) {
+            TConfigEntryCategory unique = new TConfigEntryCategory(uniqueVariableFactory.getTitleTranslationKey())
+                    .addAll(TConfigEntryText.fromLongOrMultilineTranslation(uniqueVariableFactory.getExplanationTranslationKey(),200, TConfigEntryText.TextAlignment.LEFT));
+            variables.add(unique);
+        }
+        VariableRegistry.getInstance().getSingletonVariableExplanationTranslationKeys().keySet().stream().sorted().forEach(key -> {
+            var value = VariableRegistry.getInstance().getSingletonVariableExplanationTranslationKeys().get(key);
+            TConfigEntryCategory unique = new TConfigEntryCategory(key)
+                    .addAll(TConfigEntryText.fromLongOrMultilineTranslation(value,200, TConfigEntryText.TextAlignment.LEFT));
+            variables.add(unique);
+        });
+        TConfigEntryCategory methods = new TConfigEntryCategory("Functions");
+        category.add(methods);
+        methods.add(new TConfigEntryText("Functions are used in animations to allow for dynamic and complex animations."));
+        MethodRegistry.getInstance().getMethodExplanationTranslationKeys().keySet().stream().sorted().forEach(key -> {
+            var value = MethodRegistry.getInstance().getMethodExplanationTranslationKeys().get(key);
+            TConfigEntryCategory method = new TConfigEntryCategory(key)
+                    .addAll(TConfigEntryText.fromLongOrMultilineTranslation(value,200, TConfigEntryText.TextAlignment.LEFT));
+            methods.add(method);
+        });
+
+
+        return category;
     }
     private TConfigEntryCategory getInfoSettings() {
         TConfigEntryCategory category = new TConfigEntryCategory("All models");

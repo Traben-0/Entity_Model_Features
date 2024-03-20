@@ -1,5 +1,6 @@
 package traben.entity_model_features.models.animation.math.variables.factories;
 
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.MathConstant;
@@ -33,5 +34,15 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
     public boolean createsThisVariable(final String variableKey) {
         if (variableKey == null) return false;
         return variableKey.matches("[a-zA-Z0-9_]+\\.([trs][xyz]$|visible$|visible_boxes$)");
+    }
+
+    @Override
+    public @Nullable String getExplanationTranslationKey() {
+        return "entity_model_features.config.variable_explanation.model_part";
+    }
+
+    @Override
+    public @Nullable String getTitleTranslationKey() {
+        return "entity_model_features.config.variable_explanation.model_part.title";
     }
 }
