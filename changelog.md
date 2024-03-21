@@ -17,6 +17,7 @@
   - this change makes things more consistent with modded name spaces
   - the `emf/cem/` directory is also valid in these namespaces as well as the ability to put the `<modelname>.jem` file within a folder of the same name, such as `<modelname>/<modelname>.jem`
 - the animation distance LOD setting now factors in an entities size to affect larger entities less
+- fixed a crash when methods were directly inverted e.g `!between(....)`
 
 1.3
 - added the `EMFAnimationApi` which allows other mods to register their own custom animation variables and functions to EMF

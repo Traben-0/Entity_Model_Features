@@ -157,7 +157,8 @@ public abstract class MathMethod extends MathValue implements MathComponent {
 
     private void invertSupplierBoolean() {
         if (optimizedAlternativeToThis == null) {
-            supplier = () -> supplier.get() == 1 ? 0 : 1;
+            var currentSupplier = supplier;
+            supplier = () -> currentSupplier.get() == 1 ? 0 : 1;
         } else {
             optimizedAlternativeToThis = new MathConstant(optimizedAlternativeToThis.getResult() == 1 ? 0 : 1, isNegative);
         }
