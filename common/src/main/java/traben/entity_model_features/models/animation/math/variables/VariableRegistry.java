@@ -193,8 +193,8 @@ public final class VariableRegistry {
             EMFUtils.log("Duplicate variable: " + variableName + ". ignoring duplicate");
             return;
         }
-        singletonVariables.put(variableName, new MathVariable(variableName, () -> (boolGetter.getAsBoolean()) ? 1f : 0f));
-        singletonVariables.put("!" + variableName, new MathVariable("!" + variableName, () -> (boolGetter.getAsBoolean()) ? 0f : 1f));
+        singletonVariables.put(variableName, new MathVariable(variableName, () -> MathValue.fromBoolean (boolGetter)));
+        singletonVariables.put("!" + variableName, new MathVariable("!" + variableName, () -> MathValue.invertBoolean(boolGetter)));
         singletonVariableExplanationTranslationKeys.put(variableName, explanationTranslationKey);
     }
 
@@ -216,7 +216,7 @@ public final class VariableRegistry {
                         if (supplier != null) {
                             return new MathVariable(variableName, isNegative,
                                     invertBooleans ?
-                                            () -> supplier.get() == 1 ? 0 : 1
+                                            () -> MathValue.invertBoolean(supplier)
                                             : supplier);
                         }
                     }

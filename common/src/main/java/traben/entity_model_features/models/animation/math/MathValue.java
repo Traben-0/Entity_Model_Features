@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.animation.math;
 
-import net.minecraft.util.math.floatprovider.FloatSupplier;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 public abstract class MathValue implements MathComponent {
 
@@ -25,6 +26,44 @@ public abstract class MathValue implements MathComponent {
 //        this.calculationInstance = null;
     }
 
+
+    /**
+     * The singular method for EMF to parse a boolean into its math equivalent float
+     *
+     * @param value the boolean to convert
+     * @return the float
+     */
+    public static float fromBoolean(boolean value) {
+        return value ? 1 : 0;
+    }
+
+    /**
+     * The singular method for EMF to parse a float into its boolean equivalent
+     *
+     * @param value the float to convert
+     * @return the boolean
+     */
+    public static boolean toBoolean(float value) {
+        return value != 0;//todo investigate if false == negative, true == positive is any better
+    }
+    public static float invertBoolean(boolean value) {
+        return fromBoolean(!value);
+    }
+    public static float invertBoolean(float value) {
+        return fromBoolean(!toBoolean(value));
+    }
+    public static float invertBoolean(ResultSupplier value) {
+        return fromBoolean(!toBoolean(value.get()));
+    }
+    public static float fromBoolean(BooleanSupplier value) {
+        return fromBoolean(value.getAsBoolean());
+    }
+    public static float invertBoolean(BooleanSupplier value) {
+        return invertBoolean(value.getAsBoolean());
+    }
+
+
+
     abstract ResultSupplier getResultSupplier();
 
 
@@ -38,8 +77,8 @@ public abstract class MathValue implements MathComponent {
     }
 
     /**
-     * This is simply a {@link FloatSupplier}
-     * It is declared separately for the sake of code clarity and to avoid confusion with {@link FloatSupplier} & {@link MathComponent}
+     * This is simply a {@link Supplier<Float>}
+     * It is declared separately for the sake of code clarity and to avoid confusion with {@link Supplier<Float>} & {@link MathComponent}
      * <p>
      * It is used to supply the result of a {@link MathValue} as that super class will then handle the negation of the value if needed
      */

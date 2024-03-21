@@ -112,7 +112,7 @@ public class EMFConfig extends TConfig {
         methods.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.functions.explain",200, TConfigEntryText.TextAlignment.LEFT));
         MethodRegistry.getInstance().getMethodExplanationTranslationKeys().keySet().stream().sorted().forEach(key -> {
             var value = MethodRegistry.getInstance().getMethodExplanationTranslationKeys().get(key);
-            TConfigEntryCategory method = new TConfigEntryCategory(key + "(...)")
+            TConfigEntryCategory method = new TConfigEntryCategory(key + "()")
                     .addAll(TConfigEntryText.fromLongOrMultilineTranslation(value,200, TConfigEntryText.TextAlignment.LEFT));
             methods.add(method);
         });

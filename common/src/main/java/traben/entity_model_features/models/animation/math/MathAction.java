@@ -51,50 +51,52 @@ public enum MathAction implements MathComponent {
     AND {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return ((first.getResult() == 1) && (second.getResult() == 1)) ? 1 : 0;
+            return MathValue.fromBoolean(MathValue.toBoolean(first.getResult())
+                            && (MathValue.toBoolean(second.getResult())));
         }
     },
     OR {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return ((first.getResult() == 1) || (second.getResult() == 1)) ? 1 : 0;
+            return MathValue.fromBoolean(MathValue.toBoolean(first.getResult())
+                    || (MathValue.toBoolean(second.getResult())));
         }
     },
     LARGER_THAN {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.getResult() > second.getResult()) ? 1 : 0;
+            return MathValue.fromBoolean(first.getResult() > second.getResult());
         }
     },
     SMALLER_THAN {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.getResult() < second.getResult()) ? 1 : 0;
+            return MathValue.fromBoolean(first.getResult() < second.getResult());
         }
     },
 
     LARGER_THAN_OR_EQUALS {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.getResult() >= second.getResult()) ? 1 : 0;
+            return MathValue.fromBoolean(first.getResult() >= second.getResult());
         }
     },
     SMALLER_THAN_OR_EQUALS {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.getResult() <= second.getResult()) ? 1 : 0;
+            return MathValue.fromBoolean(first.getResult() <= second.getResult());
         }
     },
     EQUALS {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.getResult() == second.getResult()) ? 1f : 0f;
+            return MathValue.fromBoolean(first.getResult() == second.getResult());
         }
     },
     NOT_EQUALS {
         @Override
         public float execute(MathComponent first, MathComponent second) {
-            return (first.getResult() != second.getResult()) ? 1 : 0;
+            return MathValue.fromBoolean(first.getResult() != second.getResult());
         }
     },
     BOOLEAN_CHAR;
