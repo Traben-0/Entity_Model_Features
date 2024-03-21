@@ -90,10 +90,12 @@ public class EMFConfig extends TConfig {
     }
 
     private TConfigEntryCategory getMathInfo() {
-        TConfigEntryCategory category = new TConfigEntryCategory("Math info");
-        TConfigEntryCategory variables = new TConfigEntryCategory("Variables");
+        TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.math");
+        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.math.explain",200, TConfigEntryText.TextAlignment.LEFT));
+
+        TConfigEntryCategory variables = new TConfigEntryCategory("entity_model_features.config.variables");
         category.add(variables);
-        variables.add(new TConfigEntryText("Variables are used in animations to allow for dynamic and complex animations."));
+        variables.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.variables.explain",200, TConfigEntryText.TextAlignment.LEFT));
         for (UniqueVariableFactory uniqueVariableFactory : VariableRegistry.getInstance().getUniqueVariableFactories()) {
             TConfigEntryCategory unique = new TConfigEntryCategory(uniqueVariableFactory.getTitleTranslationKey())
                     .addAll(TConfigEntryText.fromLongOrMultilineTranslation(uniqueVariableFactory.getExplanationTranslationKey(),200, TConfigEntryText.TextAlignment.LEFT));
@@ -105,12 +107,12 @@ public class EMFConfig extends TConfig {
                     .addAll(TConfigEntryText.fromLongOrMultilineTranslation(value,200, TConfigEntryText.TextAlignment.LEFT));
             variables.add(unique);
         });
-        TConfigEntryCategory methods = new TConfigEntryCategory("Functions");
+        TConfigEntryCategory methods = new TConfigEntryCategory("entity_model_features.config.functions");
         category.add(methods);
-        methods.add(new TConfigEntryText("Functions are used in animations to allow for dynamic and complex animations."));
+        methods.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.functions.explain",200, TConfigEntryText.TextAlignment.LEFT));
         MethodRegistry.getInstance().getMethodExplanationTranslationKeys().keySet().stream().sorted().forEach(key -> {
             var value = MethodRegistry.getInstance().getMethodExplanationTranslationKeys().get(key);
-            TConfigEntryCategory method = new TConfigEntryCategory(key)
+            TConfigEntryCategory method = new TConfigEntryCategory(key + "(...)")
                     .addAll(TConfigEntryText.fromLongOrMultilineTranslation(value,200, TConfigEntryText.TextAlignment.LEFT));
             methods.add(method);
         });
@@ -119,66 +121,64 @@ public class EMFConfig extends TConfig {
         return category;
     }
     private TConfigEntryCategory getInfoSettings() {
-        TConfigEntryCategory category = new TConfigEntryCategory("All models");
-        for (Map.Entry<OptifineMobNameForFileAndEMFMapId, EntityModelLayer>  _in
-                : EMFManager.getInstance().cache_LayersByModelName.entrySet()) {
-            var vanilla = MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(_in.getValue());
-            if (vanilla != null) {
-                var fileName = _in.getKey().getfileName();
-                TConfigEntryCategory model = new TConfigEntryCategory(fileName+".jem");
-                category.add(model);
+        TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.models");
+        EMFManager.getInstance().cache_LayersByModelName.keySet().stream().sorted().forEach(mapData -> {
+            var layer = EMFManager.getInstance().cache_LayersByModelName.get(mapData);
+            if (layer != null) {
+                var vanilla = MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer);
+                if (vanilla != null) {
+                    var fileName = mapData.getfileName();
+                    TConfigEntryCategory model = new TConfigEntryCategory(fileName + ".jem");
+                    category.add(model);
 
-                TConfigEntry export = getExport(_in);
+                    TConfigEntry export = getExport(mapData, layer);
 
-                model.add(
-                        new TConfigEntryBoolean("Enabled", "ltip",
-                        () -> !modelsNamesDisabled.contains(fileName),
-                                value -> {
-                                    if (value) {
-                                        modelsNamesDisabled.remove(fileName);
-                                    } else {
-                                        modelsNamesDisabled.add(fileName);
-                                    }
+                    model.add(
+                            new TConfigEntryBoolean("entity_model_features.config.models.enabled", "entity_model_features.config.models.enabled.tooltip",
+                                    () -> !modelsNamesDisabled.contains(fileName),
+                                    value -> {
+                                        if (value) {
+                                            modelsNamesDisabled.remove(fileName);
+                                        } else {
+                                            modelsNamesDisabled.add(fileName);
+                                        }
 
-                                },
-                                true),
-                        new TConfigEntryCategory("Model part names").addAll(
-                                getmappings(_in.getKey().getMapId())
-                        ),
-                        export
-
-
-                );
+                                    },
+                                    true),
+                            new TConfigEntryCategory("entity_model_features.config.models.part_names").addAll(
+                                    getmappings(mapData.getMapId())
+                            ),
+                            export
+                    );
+                }
             }
-        }
-
-
-
+        });
         return category;
     }
 
     @NotNull
-    private TConfigEntry getExport(final Map.Entry<OptifineMobNameForFileAndEMFMapId, EntityModelLayer> _in) {
+    private TConfigEntry getExport(final OptifineMobNameForFileAndEMFMapId key, EntityModelLayer layer) {
         TConfigEntry export;
         try {
-            Objects.requireNonNull(_in.getKey().getMapId());
-            Objects.requireNonNull(MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(_in.getValue()));
-            export = new TConfigEntryCustomButton("Export model", "jhv", (button) -> {
+            Objects.requireNonNull(key.getMapId());
+            Objects.requireNonNull(MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer));
+            export = new TConfigEntryCustomButton("entity_model_features.config.models.export", "entity_model_features.config.models.export.tooltip", (button) -> {
                 var old = modelExportMode;
                 modelExportMode = ModelPrintMode.ALL_LOG_AND_JEM;
                 try{
-                    EMFOptiFinePartNameMappings.getMapOf(_in.getKey().getMapId(),
-                        MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(_in.getValue()).createModel(),
+                    EMFOptiFinePartNameMappings.getMapOf(key.getMapId(),
+                        MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer).createModel(),
                             false);
                 }catch (Exception e) {
+                    //noinspection CallToPrintStackTrace
                     e.printStackTrace();
                 }
                 modelExportMode = old;
                 button.active=false;
-                button.setMessage(ETFVersionDifferenceHandler.getTextFromTranslation("Exported"));
+                button.setMessage(ETFVersionDifferenceHandler.getTextFromTranslation("entity_model_features.config.models.export.success"));
             });
         } catch (Exception e) {
-            export = new TConfigEntryText("cannot export model currently...");
+            export = new TConfigEntryText.TwoLines("entity_model_features.config.models.export.fail", e.getMessage());
         }
         return export;
     }

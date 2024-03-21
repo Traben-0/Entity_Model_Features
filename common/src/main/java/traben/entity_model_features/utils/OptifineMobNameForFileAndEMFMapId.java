@@ -1,10 +1,11 @@
 package traben.entity_model_features.utils;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class OptifineMobNameForFileAndEMFMapId {
+public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMobNameForFileAndEMFMapId>{
 
     private String fileName;
     private String mapId;
@@ -84,4 +85,8 @@ public class OptifineMobNameForFileAndEMFMapId {
     }
 
 
+    @Override
+    public int compareTo(@NotNull final OptifineMobNameForFileAndEMFMapId o) {
+        return this.getfileName().compareTo(o.getfileName());
+    }
 }
