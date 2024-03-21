@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.animation.math.variables;
 
 import com.demonwav.mcdev.annotations.Translatable;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -18,7 +19,6 @@ import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -33,8 +33,8 @@ import java.util.function.BooleanSupplier;
 public final class VariableRegistry {
 
     private static final VariableRegistry INSTANCE = new VariableRegistry();
-    private final Map<String, MathComponent> singletonVariables = new HashMap<>();
-    private final Map<String, String> singletonVariableExplanationTranslationKeys = new HashMap<>();
+    private final Map<String, MathComponent> singletonVariables = new Object2ObjectOpenHashMap<>();
+    private final Map<String, String> singletonVariableExplanationTranslationKeys = new Object2ObjectOpenHashMap<>();
 
     public Map<String, String> getSingletonVariableExplanationTranslationKeys() {
         return singletonVariableExplanationTranslationKeys;

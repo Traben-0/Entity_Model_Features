@@ -231,7 +231,9 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             //add simple modded layer checks
             if (!"minecraft".equals(layer.getId().getNamespace())) {
-                mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + originalLayerName).toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
+                //mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + originalLayerName).toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
+                mobNameForFileAndMap.setBoth(originalLayerName.toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
+                mobNameForFileAndMap.namespace = layer.getId().getNamespace();
             } else {
                 //vanilla model
                 if (mobNameForFileAndMap.getfileName().contains("pufferfish"))
@@ -324,7 +326,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             }
 
             if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE
-                    && !currentSpecifiedModelLoading.isBlank() && currentSpecifiedModelLoading.startsWith("modded/")) {
+                    && !currentSpecifiedModelLoading.isBlank() && currentSpecifiedModelLoading.contains(":")) {
                 EMFUtils.log("EMF modifiable modded block entity model identified during loading: " + mobNameForFileAndMap.getfileName() + ".jem");
             }
 

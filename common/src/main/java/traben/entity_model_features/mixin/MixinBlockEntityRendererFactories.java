@@ -54,7 +54,7 @@ public class MixinBlockEntityRendererFactories {
             if (id.getNamespace().equals("minecraft")) {
                 EMFManager.getInstance().currentSpecifiedModelLoading = id.getPath();
             } else {
-                EMFManager.getInstance().currentSpecifiedModelLoading = "modded/" + id.getNamespace() + "/" + id.getPath();
+                EMFManager.getInstance().currentSpecifiedModelLoading = id.getNamespace() + ":" + id.getPath();
             }
         }
         emf$renderers.add(EMFManager.getInstance().currentSpecifiedModelLoading);

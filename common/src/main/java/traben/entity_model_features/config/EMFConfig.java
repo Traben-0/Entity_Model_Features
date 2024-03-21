@@ -82,7 +82,7 @@ public class EMFConfig extends TConfig {
                                         () -> logModelCreationData, value -> logModelCreationData = value, false),
                                 new TConfigEntryBoolean("entity_model_features.config.debug_right_click", "entity_model_features.config.debug_right_click.tooltip",
                                         () -> debugOnRightClick, value -> debugOnRightClick = value, false)
-                        ), getInfoSettings()
+                        ), getModelSettings()
                         , getMathInfo()
                 )//, new TConfigEntryCategory("config.entity_features.general_settings.title")
                 ,getEntitySettings()
@@ -120,21 +120,19 @@ public class EMFConfig extends TConfig {
 
         return category;
     }
-    private TConfigEntryCategory getInfoSettings() {
+    private TConfigEntryCategory getModelSettings() {
         TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.models");
         EMFManager.getInstance().cache_LayersByModelName.keySet().stream().sorted().forEach(mapData -> {
             var layer = EMFManager.getInstance().cache_LayersByModelName.get(mapData);
             if (layer != null) {
                 var vanilla = MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer);
                 if (vanilla != null) {
-                    var fileName = mapData.getfileName();
+                    String namespace = "minecraft".equals(mapData.getNamespace()) ? "" : mapData.getNamespace()+':';
+                    var fileName = namespace + mapData.getfileName();
                     TConfigEntryCategory model = new TConfigEntryCategory(fileName + ".jem");
                     category.add(model);
 
-                    TConfigEntry export = getExport(mapData, layer);
-
-                    model.add(
-                            new TConfigEntryBoolean("entity_model_features.config.models.enabled", "entity_model_features.config.models.enabled.tooltip",
+                    model.add(new TConfigEntryBoolean("entity_model_features.config.models.enabled", "entity_model_features.config.models.enabled.tooltip",
                                     () -> !modelsNamesDisabled.contains(fileName),
                                     value -> {
                                         if (value) {
@@ -148,8 +146,15 @@ public class EMFConfig extends TConfig {
                             new TConfigEntryCategory("entity_model_features.config.models.part_names").addAll(
                                     getmappings(mapData.getMapId())
                             ),
-                            export
+                            getExport(mapData, layer)
                     );
+                    model.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
+                            "assets/"+mapData.getNamespace()+"/optifine/cem/"+  mapData.getfileName()+                          ".jem\n" +
+                                        //"assets/"+mapData.getNamespace()+"/optifine/cem/"+  mapData.getfileName()+"/"+mapData.getfileName()+".jem\n" +
+                                        "assets/"+mapData.getNamespace()+"/emf/cem/"+       mapData.getfileName()+                          ".jem\n" //+
+                                        //"assets/"+mapData.getNamespace()+"/emf/cem/"+       mapData.getfileName()+"/"+mapData.getfileName()+".jem\n"
+                            ,
+                            200, TConfigEntryText.TextAlignment.LEFT));
                 }
             }
         });

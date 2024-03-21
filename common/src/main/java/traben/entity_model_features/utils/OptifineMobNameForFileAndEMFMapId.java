@@ -66,22 +66,34 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
         return namespace;
     }
 
-    private String namespace = "minecraft";
+    String namespace = "minecraft";
     public void finish(){
-        //assert new namespaced modded model folder
-        if(getfileName().startsWith("modded/")){
-            String[] split = fileName.split("/");
-            if (split.length >= 3 && !split[1].isEmpty()) {
-                namespace = split[1];
-                String modelFileName = fileName.replace("modded/"+namespace+"/","");
-                deprecatedFileName = fileName;
-                fileName = modelFileName;
+//        //assert new namespaced modded model folder
+//        if(getfileName().startsWith("modded/")){
+//            String[] split = fileName.split("/");
+//            if (split.length >= 3 && !split[1].isEmpty()) {
+//                namespace = split[1];
+//                String modelFileName = fileName.replace("modded/"+namespace+"/","");
+//                deprecatedFileName = fileName;
+//                fileName = modelFileName;
+//            }
+//        }
+
+        //recreate old modded directory method for back compatibility
+        if(getfileName().contains(":")) {
+            var split = fileName.split(":");
+            if (split.length == 2) {
+                if (mapId == null) mapId = fileName;
+                namespace = split[0];
+                fileName = split[1];
+                deprecatedFileName = "modded/"+namespace+"/"+fileName;
             }
         }
     }
 
     public String getMapId() {
-        return mapId == null ? fileName : mapId;
+        String namespace = getNamespace().equals("minecraft") ? "" : getNamespace() + "/";
+        return namespace + (mapId == null ? fileName : mapId);
     }
 
 
