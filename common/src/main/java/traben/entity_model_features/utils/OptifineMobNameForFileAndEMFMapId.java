@@ -79,16 +79,22 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
 //            }
 //        }
 
-        //recreate old modded directory method for back compatibility
+        //validate namespaces which may have been injected earlier by block entity factories
         if(getfileName().contains(":")) {
             var split = fileName.split(":");
             if (split.length == 2) {
-                if (mapId == null) mapId = fileName;
-                namespace = split[0];
-                fileName = split[1];
-                deprecatedFileName = "modded/"+namespace+"/"+fileName;
+                assertNamespaceAndCreateDeprecatedFileName(split[0], split[1]);
             }
+        }else if (!"minecraft".equals(namespace)) {
+            assertNamespaceAndCreateDeprecatedFileName(namespace, fileName);
         }
+    }
+
+    private void assertNamespaceAndCreateDeprecatedFileName(final String namespace, final String fileName){
+        this.namespace = namespace;
+        this.fileName = fileName;
+        //recreate old modded directory method for back compatibility
+        this.deprecatedFileName = "modded/"+namespace+"/"+fileName;
     }
 
     public String getMapId() {
@@ -100,5 +106,10 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
     @Override
     public int compareTo(@NotNull final OptifineMobNameForFileAndEMFMapId o) {
         return this.getfileName().compareTo(o.getfileName());
+    }
+
+    public String getDisplayFileName(){
+        if (fileName.startsWith("modded/")) return fileName + ".jem";
+        return "assets/" + namespace + "/optifine/cem/" + fileName + ".jem";
     }
 }

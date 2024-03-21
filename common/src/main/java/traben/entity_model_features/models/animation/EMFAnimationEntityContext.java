@@ -197,7 +197,7 @@ public class EMFAnimationEntityContext {
             for (OptifineMobNameForFileAndEMFMapId data : EMFManager.getInstance().modelsAnnounced) {
                 StringBuilder model = new StringBuilder();
                 model.append("\n§Non-Custom Model #").append(count).append("§r")
-                        .append(entryAndValue("possible .jem name", data.getfileName() + ".jem"));
+                        .append(entryAndValue("possible .jem name", data.getDisplayFileName()));
 
                 Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(data.getMapId(), null);
                 if (!map.isEmpty()) {
