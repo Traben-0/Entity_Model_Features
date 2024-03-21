@@ -11,10 +11,7 @@ import traben.entity_model_features.models.animation.math.MathComponent;
 import traben.entity_model_features.models.animation.math.MathConstant;
 import traben.entity_model_features.models.animation.math.MathValue;
 import traben.entity_model_features.models.animation.math.MathVariable;
-import traben.entity_model_features.models.animation.math.variables.factories.ModelPartVariableFactory;
-import traben.entity_model_features.models.animation.math.variables.factories.ModelVariableFactory;
-import traben.entity_model_features.models.animation.math.variables.factories.RenderVariableFactory;
-import traben.entity_model_features.models.animation.math.variables.factories.UniqueVariableFactory;
+import traben.entity_model_features.models.animation.math.variables.factories.*;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -35,15 +32,6 @@ public final class VariableRegistry {
     private static final VariableRegistry INSTANCE = new VariableRegistry();
     private final Map<String, MathComponent> singletonVariables = new Object2ObjectOpenHashMap<>();
     private final Map<String, String> singletonVariableExplanationTranslationKeys = new Object2ObjectOpenHashMap<>();
-
-    public Map<String, String> getSingletonVariableExplanationTranslationKeys() {
-        return singletonVariableExplanationTranslationKeys;
-    }
-
-    public List<UniqueVariableFactory> getUniqueVariableFactories() {
-        return uniqueVariableFactories;
-    }
-
     private final List<UniqueVariableFactory> uniqueVariableFactories = new ArrayList<>();
 
     private VariableRegistry() {
@@ -100,18 +88,18 @@ public final class VariableRegistry {
         registerSimpleFloatVariable("fluid_depth_down", EMFAnimationEntityContext::getFluidDepthDown);
         registerSimpleFloatVariable("fluid_depth_up", EMFAnimationEntityContext::getFluidDepthUp);
         registerSimpleFloatVariable("nan", () -> EMFManager.getInstance().isAnimationValidationPhase ? 0 : Float.NaN);
-        registerSimpleFloatVariable("distance", ()->{
+        registerSimpleFloatVariable("distance", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return 0;
             return EMFAnimationEntityContext.getEMFEntity().etf$distanceTo(MinecraftClient.getInstance().player);
         });
 
 
         //simple booleans
-        registerSimpleBoolVariable("is_blocking", ()->{
+        registerSimpleBoolVariable("is_blocking", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
             return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity livingEntity && livingEntity.isBlocking();
         });
-        registerSimpleBoolVariable("is_crawling", ()->{
+        registerSimpleBoolVariable("is_crawling", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
             return EMFAnimationEntityContext.getEMFEntity() instanceof Entity entity && entity.isCrawling();
         });
@@ -142,13 +130,15 @@ public final class VariableRegistry {
 
         //context variables
         // these variables require a context to be created, and are not constants
+        // additionally they do not have static names
         registerContextVariable(new ModelPartVariableFactory());
         registerContextVariable(new ModelVariableFactory());
         registerContextVariable(new RenderVariableFactory());
+        registerContextVariable(new GlobalVariableFactory());
 
     }
 
-    private static String emfTranslationKey(String key){
+    private static String emfTranslationKey(String key) {
         return "entity_model_features.config.variable_explanation." + key;
 
     }
@@ -157,6 +147,13 @@ public final class VariableRegistry {
         return INSTANCE;
     }
 
+    public Map<String, String> getSingletonVariableExplanationTranslationKeys() {
+        return singletonVariableExplanationTranslationKeys;
+    }
+
+    public List<UniqueVariableFactory> getUniqueVariableFactories() {
+        return uniqueVariableFactories;
+    }
 
     public void registerContextVariable(UniqueVariableFactory factory) {
         if (factory == null) {
@@ -193,7 +190,7 @@ public final class VariableRegistry {
             EMFUtils.log("Duplicate variable: " + variableName + ". ignoring duplicate");
             return;
         }
-        singletonVariables.put(variableName, new MathVariable(variableName, () -> MathValue.fromBoolean (boolGetter)));
+        singletonVariables.put(variableName, new MathVariable(variableName, () -> MathValue.fromBoolean(boolGetter)));
         singletonVariables.put("!" + variableName, new MathVariable("!" + variableName, () -> MathValue.invertBoolean(boolGetter)));
         singletonVariableExplanationTranslationKeys.put(variableName, explanationTranslationKey);
     }
@@ -208,7 +205,7 @@ public final class VariableRegistry {
                 // context dependant variable.
                 // uses EMFAnimation object for context to create a new variable instance
                 boolean invertBooleans = variableName.startsWith("!");
-                String variableNameWithoutBooleanInvert =invertBooleans ? variableName.substring(1) : variableName;
+                String variableNameWithoutBooleanInvert = invertBooleans ? variableName.substring(1) : variableName;
                 //check if any of the unique variable factories can create this variable
                 for (UniqueVariableFactory uniqueVariableFactory : uniqueVariableFactories) {
                     if (uniqueVariableFactory.createsThisVariable(variableNameWithoutBooleanInvert)) {

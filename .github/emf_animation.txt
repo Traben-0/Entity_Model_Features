@@ -59,6 +59,13 @@
 # Entity variables are useful for storing animation data between frames.
 @ In EMF this is supported for block entities.
 #
+@ Global variables
+@
+@ Global variables are specified in the format "global_var.<name>" (float) or "global_varb.<name>" (boolean)
+@ The name can be any string, for example "global_var.xyz", "global_var.last_rx", etc.
+@ The variable is saved globally and has a default value 0 or false.
+@ Global variables are useful for storing animation data to be accessed by many entities.
+#
 # Render variables
 #   render.shadow_size                                                  - The size of the shadow underneath an entity
 #   render.shadow_opacity                                               - How transparent the shadow is

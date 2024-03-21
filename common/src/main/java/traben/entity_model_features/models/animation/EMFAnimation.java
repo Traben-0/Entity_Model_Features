@@ -1,7 +1,7 @@
 package traben.entity_model_features.models.animation;
 
+import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import traben.entity_model_features.EMF;
@@ -9,6 +9,7 @@ import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.math.MathComponent;
 import traben.entity_model_features.models.animation.math.MathExpressionParser;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
+import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.UUID;
@@ -20,38 +21,41 @@ public class EMFAnimation {
     public final String modelName;
     public final boolean isVariable;
     private final EMFModelPart partToApplyTo;
-    private final EMFModelOrRenderVariable variableToChange;
+    private final EMFModelOrRenderVariable modelOrRenderVariableToChange;
     private final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
-    private final Object2IntOpenHashMap<UUID> lodTimer = new Object2IntOpenHashMap<>();
+
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
     public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
     private MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
-    private EMFAnimation trueVariableToSet = null;
+    private FloatConsumer redirectVariableResult = null;
 
     public EMFAnimation(EMFModelPart partToApplyTo,
-                        EMFModelOrRenderVariable variableToChange,
+                        EMFModelOrRenderVariable modelOrRenderVariableToChange,
                         String animKey,
                         String initialExpression,
                         String modelName
     ) {
         this.modelName = modelName;
         this.animKey = animKey;
-        isVariable = animKey.startsWith("var");
-        this.variableToChange = isVariable ? null : variableToChange;
+        isVariable = animKey.startsWith("var") || animKey.startsWith("global_var");
+        if (animKey.startsWith("global_var")) {
+            redirectVariableResult = value -> GlobalVariableFactory.setGlobalVariable(animKey, value);
+        }
+        this.modelOrRenderVariableToChange = isVariable ? null : modelOrRenderVariableToChange;
         this.partToApplyTo = partToApplyTo;
 
         float defaultValue;
-        if (this.variableToChange != null) {
+        if (this.modelOrRenderVariableToChange != null) {
             if (partToApplyTo == null) {
-                if (this.variableToChange.isRenderVariable()) {
-                    defaultValue = this.variableToChange.getValue();
+                if (this.modelOrRenderVariableToChange.isRenderVariable()) {
+                    defaultValue = this.modelOrRenderVariableToChange.getValue();
                 } else {
                     if (EMF.config().getConfig().logModelCreationData)
                         EMFUtils.log("null part for " + animKey);
                     defaultValue = 0;
                 }
             } else {
-                defaultValue = this.variableToChange.getValue(partToApplyTo);
+                defaultValue = this.modelOrRenderVariableToChange.getValue(partToApplyTo);
             }
         } else {
             defaultValue = 0;
@@ -61,7 +65,7 @@ public class EMFAnimation {
     }
 
     public void setTrueVariableSource(EMFAnimation trueVariableSource) {
-        this.trueVariableToSet = trueVariableSource;
+        this.redirectVariableResult = trueVariableSource::sendValueToTrueVariable;
     }
 
     @Override
@@ -95,9 +99,13 @@ public class EMFAnimation {
         }
 
         float result = calculatorRun();
-        result = result == Float.MIN_VALUE ? 0f : result;
-        prevResult.put(id, result);
-        return result;
+        if (Float.isNaN(result) || result == Float.MIN_VALUE) {
+            prevResult.put(id, 0);
+            return 0;
+        } else {
+            prevResult.put(id, result);
+            return result;
+        }
     }
 
 
@@ -112,26 +120,17 @@ public class EMFAnimation {
     }
 
     public void calculateAndSet() {
-        if (EMF.config().getConfig().animationLODDistance == 0) {
-            calculateAndSetPostLod();
-            return;
-        }
-        int lodTimer = this.lodTimer.getInt(EMFAnimationEntityContext.getEMFEntity().etf$getUuid());
-        int lodResult;
-        //check lod
-        if (lodTimer < 1) {
-            lodResult = EMFAnimationEntityContext.getLODFactorOfEntity();
+        if (EMFAnimationEntityContext.isLODSkippingThisFrame()) {
+            handleResult(getLastResultOnly());
         } else {
-            lodResult = lodTimer - 1;
+            calculateAndSetPostLod();
         }
-        this.lodTimer.put(EMFAnimationEntityContext.getEMFEntity().etf$getUuid(), lodResult);
-        handleResult(lodResult > 0 ? getLastResultOnly() : getResultViaCalculate());
     }
 
     private void calculateAndSetPostLod() {
         if (isVariable) {
-            if (trueVariableToSet != null) {
-                trueVariableToSet.sendValueToTrueVariable(getResultViaCalculate());
+            if (redirectVariableResult != null) {
+                redirectVariableResult.accept(getResultViaCalculate());
             } else {
                 getResultViaCalculate();
             }
@@ -142,11 +141,11 @@ public class EMFAnimation {
 
     private void handleResult(float result) {
         //if(animKey.equals("left_rein2.visible")) System.out.println("result rein "+result+varToChange);
-        if (variableToChange != null) {
-            if (Double.isNaN(result)) {
-                variableToChange.setValue(partToApplyTo, Float.MAX_VALUE);
+        if (modelOrRenderVariableToChange != null) {
+            if (Float.isNaN(result)) {
+                modelOrRenderVariableToChange.setValue(partToApplyTo, Float.MAX_VALUE);
             } else {
-                variableToChange.setValue(partToApplyTo, result);
+                modelOrRenderVariableToChange.setValue(partToApplyTo, result);
             }
         }
     }

@@ -194,9 +194,9 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
             variantTester = ETFApi.getVariantSupplierOrNull(propertyID, new Identifier(thisDirectoryFileName + ".jem"), "models");
 
-            if(variantTester instanceof PropertiesRandomProvider propertiesRandomProvider){
-                propertiesRandomProvider.setOnMeetsRuleHook((entity,rule)->
-                        EMFManager.getInstance().lastModelRuleOfEntity.put(entity.etf$getUuid(),rule.RULE_NUMBER));
+            if (variantTester instanceof PropertiesRandomProvider propertiesRandomProvider) {
+                propertiesRandomProvider.setOnMeetsRuleHook((entity, rule) ->
+                        EMFManager.getInstance().lastModelRuleOfEntity.put(entity.etf$getUuid(), rule.RULE_NUMBER));
             }
 
             if (variantTester != null) {

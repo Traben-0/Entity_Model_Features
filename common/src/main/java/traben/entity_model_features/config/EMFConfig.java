@@ -23,6 +23,7 @@ import traben.tconfig.gui.entries.*;
 
 import java.util.*;
 
+@SuppressWarnings("CanBeFinal")
 public class EMFConfig extends TConfig {
 
     public boolean logModelCreationData = false;
@@ -85,41 +86,42 @@ public class EMFConfig extends TConfig {
                         ), getModelSettings()
                         , getMathInfo()
                 )//, new TConfigEntryCategory("config.entity_features.general_settings.title")
-                ,getEntitySettings()
+                , getEntitySettings()
         );
     }
 
     private TConfigEntryCategory getMathInfo() {
         TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.math");
-        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.math.explain",200, TConfigEntryText.TextAlignment.LEFT));
+        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.math.explain", 200, TConfigEntryText.TextAlignment.LEFT));
 
         TConfigEntryCategory variables = new TConfigEntryCategory("entity_model_features.config.variables");
         category.add(variables);
-        variables.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.variables.explain",200, TConfigEntryText.TextAlignment.LEFT));
+        variables.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.variables.explain", 200, TConfigEntryText.TextAlignment.LEFT));
         for (UniqueVariableFactory uniqueVariableFactory : VariableRegistry.getInstance().getUniqueVariableFactories()) {
             TConfigEntryCategory unique = new TConfigEntryCategory(uniqueVariableFactory.getTitleTranslationKey())
-                    .addAll(TConfigEntryText.fromLongOrMultilineTranslation(uniqueVariableFactory.getExplanationTranslationKey(),200, TConfigEntryText.TextAlignment.LEFT));
+                    .addAll(TConfigEntryText.fromLongOrMultilineTranslation(uniqueVariableFactory.getExplanationTranslationKey(), 200, TConfigEntryText.TextAlignment.LEFT));
             variables.add(unique);
         }
         VariableRegistry.getInstance().getSingletonVariableExplanationTranslationKeys().keySet().stream().sorted().forEach(key -> {
             var value = VariableRegistry.getInstance().getSingletonVariableExplanationTranslationKeys().get(key);
             TConfigEntryCategory unique = new TConfigEntryCategory(key)
-                    .addAll(TConfigEntryText.fromLongOrMultilineTranslation(value,200, TConfigEntryText.TextAlignment.LEFT));
+                    .addAll(TConfigEntryText.fromLongOrMultilineTranslation(value, 200, TConfigEntryText.TextAlignment.LEFT));
             variables.add(unique);
         });
         TConfigEntryCategory methods = new TConfigEntryCategory("entity_model_features.config.functions");
         category.add(methods);
-        methods.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.functions.explain",200, TConfigEntryText.TextAlignment.LEFT));
+        methods.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.functions.explain", 200, TConfigEntryText.TextAlignment.LEFT));
         MethodRegistry.getInstance().getMethodExplanationTranslationKeys().keySet().stream().sorted().forEach(key -> {
             var value = MethodRegistry.getInstance().getMethodExplanationTranslationKeys().get(key);
             TConfigEntryCategory method = new TConfigEntryCategory(key + "()")
-                    .addAll(TConfigEntryText.fromLongOrMultilineTranslation(value,200, TConfigEntryText.TextAlignment.LEFT));
+                    .addAll(TConfigEntryText.fromLongOrMultilineTranslation(value, 200, TConfigEntryText.TextAlignment.LEFT));
             methods.add(method);
         });
 
 
         return category;
     }
+
     private TConfigEntryCategory getModelSettings() {
         TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.models");
         EMFManager.getInstance().cache_LayersByModelName.keySet().stream().sorted().forEach(mapData -> {
@@ -127,7 +129,7 @@ public class EMFConfig extends TConfig {
             if (layer != null) {
                 var vanilla = MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer);
                 if (vanilla != null) {
-                    String namespace = "minecraft".equals(mapData.getNamespace()) ? "" : mapData.getNamespace()+':';
+                    String namespace = "minecraft".equals(mapData.getNamespace()) ? "" : mapData.getNamespace() + ':';
                     var fileName = namespace + mapData.getfileName();
                     TConfigEntryCategory model = new TConfigEntryCategory(fileName + ".jem");
                     category.add(model);
@@ -149,10 +151,10 @@ public class EMFConfig extends TConfig {
                             getExport(mapData, layer)
                     );
                     model.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
-                            "assets/"+mapData.getNamespace()+"/optifine/cem/"+  mapData.getfileName()+                          ".jem\n" +
-                                        //"assets/"+mapData.getNamespace()+"/optifine/cem/"+  mapData.getfileName()+"/"+mapData.getfileName()+".jem\n" +
-                                        "assets/"+mapData.getNamespace()+"/emf/cem/"+       mapData.getfileName()+                          ".jem\n" //+
-                                        //"assets/"+mapData.getNamespace()+"/emf/cem/"+       mapData.getfileName()+"/"+mapData.getfileName()+".jem\n"
+                            "assets/" + mapData.getNamespace() + "/optifine/cem/" + mapData.getfileName() + ".jem\n" +
+                                    //"assets/"+mapData.getNamespace()+"/optifine/cem/"+  mapData.getfileName()+"/"+mapData.getfileName()+".jem\n" +
+                                    "assets/" + mapData.getNamespace() + "/emf/cem/" + mapData.getfileName() + ".jem\n" //+
+                            //"assets/"+mapData.getNamespace()+"/emf/cem/"+       mapData.getfileName()+"/"+mapData.getfileName()+".jem\n"
                             ,
                             200, TConfigEntryText.TextAlignment.LEFT));
                 }
@@ -170,16 +172,16 @@ public class EMFConfig extends TConfig {
             export = new TConfigEntryCustomButton("entity_model_features.config.models.export", "entity_model_features.config.models.export.tooltip", (button) -> {
                 var old = modelExportMode;
                 modelExportMode = ModelPrintMode.ALL_LOG_AND_JEM;
-                try{
+                try {
                     EMFOptiFinePartNameMappings.getMapOf(key.getMapId(),
-                        MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer).createModel(),
+                            MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer).createModel(),
                             false);
-                }catch (Exception e) {
+                } catch (Exception e) {
                     //noinspection CallToPrintStackTrace
                     e.printStackTrace();
                 }
                 modelExportMode = old;
-                button.active=false;
+                button.active = false;
                 button.setMessage(ETFVersionDifferenceHandler.getTextFromTranslation("entity_model_features.config.models.export.success"));
             });
         } catch (Exception e) {
@@ -191,7 +193,7 @@ public class EMFConfig extends TConfig {
 
     private Collection<TConfigEntry> getmappings(String mapKey) {
         var list = new ArrayList<TConfigEntry>();
-        Map<String,String> map;
+        Map<String, String> map;
         if (EMFOptiFinePartNameMappings.OPTIFINE_MODEL_MAP_CACHE.containsKey(mapKey)) {
             list.add(new TConfigEntryText("optifine part names:"));
             list.add(new TConfigEntryText("\\/"));
@@ -218,10 +220,10 @@ public class EMFConfig extends TConfig {
         try {
             Registries.ENTITY_TYPE.forEach((entityType) -> {
                 //if (entityType != EntityType.PLAYER) {
-                    String translationKey = entityType.getTranslationKey();
-                    TConfigEntryCategory entityCategory = new TConfigEntryCategory(translationKey);
-                    this.addEntityConfigs(entityCategory, translationKey);
-                    category.add(entityCategory);
+                String translationKey = entityType.getTranslationKey();
+                TConfigEntryCategory entityCategory = new TConfigEntryCategory(translationKey);
+                this.addEntityConfigs(entityCategory, translationKey);
+                category.add(entityCategory);
                 //}
             });
             BlockEntityRendererFactories.FACTORIES.keySet().forEach((entityType) -> {

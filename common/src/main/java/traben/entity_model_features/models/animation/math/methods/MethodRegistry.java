@@ -12,6 +12,7 @@ import traben.entity_model_features.models.animation.math.methods.simple.BiFunct
 import traben.entity_model_features.models.animation.math.methods.simple.FunctionMethods;
 import traben.entity_model_features.models.animation.math.methods.simple.MultiFunctionMethods;
 import traben.entity_model_features.models.animation.math.methods.simple.TriFunctionMethods;
+import traben.entity_model_features.utils.EMFManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +26,6 @@ public final class MethodRegistry {
     private final Map<String, MethodFactory> methodFactories = new HashMap<>();
 
     private final Map<String, String> methodExplanationTranslationKeys = new HashMap<>();
-
-    public Map<String, String> getMethodExplanationTranslationKeys() {
-        return methodExplanationTranslationKeys;
-    }
 
     private MethodRegistry() {
 
@@ -47,13 +44,13 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("floor", (v) -> (float) Math.floor(v));
         registerSimpleMethodFactory("ceil", (v) -> (float) Math.ceil(v));
         registerSimpleMethodFactory("round", (v) -> (float) Math.round(v));
-        registerSimpleMethodFactory("log", (v) -> (float) Math.log(v));
+        registerSimpleMethodFactory("log", (v) -> v == 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : (float) Math.log(v));
         registerSimpleMethodFactory("exp", (v) -> (float) Math.exp(v));
         registerSimpleMethodFactory("torad", (v) -> (float) Math.toRadians(v));
         registerSimpleMethodFactory("todeg", (v) -> (float) Math.toDegrees(v));
         registerSimpleMethodFactory("frac", MathHelper::fractionalPart);
         registerSimpleMethodFactory("signum", Math::signum);
-        registerSimpleMethodFactory("sqrt", (v) -> (float) Math.sqrt(v));
+        registerSimpleMethodFactory("sqrt", (v) -> v == 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : (float) Math.sqrt(v));
         registerSimpleMethodFactory("fmod", (v, w) -> (float) Math.floorMod((int) (float) v, (int) (float) w));
         registerSimpleMethodFactory("pow", (v, w) -> (float) Math.pow(v, w));
         registerSimpleMethodFactory("atan2", (v, w) -> (float) Math.atan2(v, w));
@@ -120,7 +117,7 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("easeinoutsine", TriFunctionMethods::easeInOutSine);
     }
 
-    private static String emfTranslationKey(String key){
+    private static String emfTranslationKey(String key) {
         return "entity_model_features.config.function_explanation." + key;
 
     }
@@ -128,9 +125,15 @@ public final class MethodRegistry {
     public static MethodRegistry getInstance() {
         return INSTANCE;
     }
+
+    public Map<String, String> getMethodExplanationTranslationKeys() {
+        return methodExplanationTranslationKeys;
+    }
+
     private void registerSimpleMethodFactory(String methodName, Function<Float, Float> function) {
         registerSimpleMethodFactory(methodName, emfTranslationKey(methodName), function);
     }
+
     public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, Function<Float, Float> function) {
         register(methodName, explanationTranslationKey, FunctionMethods.makeFactory(methodName, function));
     }
@@ -146,6 +149,7 @@ public final class MethodRegistry {
     private void registerSimpleMethodFactory(String methodName, TriFunction<Float, Float, Float, Float> function) {
         registerSimpleMethodFactory(methodName, emfTranslationKey(methodName), function);
     }
+
     public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, TriFunction<Float, Float, Float, Float> function) {
         register(methodName, explanationTranslationKey, TriFunctionMethods.makeFactory(methodName, function));
     }
@@ -153,6 +157,7 @@ public final class MethodRegistry {
     private void registerSimpleMultiMethodFactory(String methodName, Function<List<Float>, Float> function) {
         registerSimpleMultiMethodFactory(methodName, emfTranslationKey(methodName), function);
     }
+
     public void registerSimpleMultiMethodFactory(String methodName, String explanationTranslationKey, Function<List<Float>, Float> function) {
         register(methodName, explanationTranslationKey, MultiFunctionMethods.makeFactory(methodName, function));
     }
@@ -165,6 +170,7 @@ public final class MethodRegistry {
     private void registerAndWrapMethodFactory(String methodName, MethodFactory factory) {
         registerAndWrapMethodFactory(methodName, emfTranslationKey(methodName), factory);
     }
+
     public void registerAndWrapMethodFactory(String methodName, String explanationTranslationKey, MethodFactory factory) {
         register(methodName, explanationTranslationKey, (a, b, c) -> {
             try {

@@ -1,6 +1,7 @@
 
-
-- added distance is_blocking is_crawling
+1.4
+- added variables `distance` `is_blocking` `is_crawling` `height_above_ground` `fluid_depth` `fluid_depth_down` `fluid_depth_up`
+- added Global variables, they are specified in the format "global_var.<name>" (float) or "global_varb.<name>" (boolean)
 - improved rule_index
 - fixed the `cannot inherit from final class` forge crash returning in v1.3
 - moved the variant property into ETF
@@ -10,14 +11,19 @@
 - the emf model exporting now does 2 export log passes for each model with known OptiFine part names, one pass with, and one without the OptiFine part names. The one without might reveal some extra parts, that do not get used by OptiFine, or have been added by mods 
 - EMF model part boxes may now additionally declare `sizeAddX sizeAddY sizeAddZ`, as opposed to just `sizeAdd` with OptiFine, for per axis model inflation. `sizeAdd` will still work as before, though will be overridden if the others are present.
 - added OptiFine part name definitions for `breeze`, `breeze_eyes`, `breeze_wind`, `wind_charge`
-- height_above_ground fluid_depth down and up
 - fixed case where "!(arms.visible)" works but "!arms.visible" doesn't in 1.3
 - the directory format for modded models has been changed from `assets/minecraft/optifine/cem/modded/<namespace>/<modelname>.jem` to `assets/<namespace>/optifine/cem/<modelname>.jem`
   - the old directory with the /modded/ folder is still supported for now but is considered deprecated 
   - this change makes things more consistent with modded name spaces
-  - the `emf/cem/` directory is also valid in these namespaces as well as the ability to put the `<modelname>.jem` file within a folder of the same name, such as `<modelname>/<modelname>.jem`
-- the animation distance LOD setting now factors in an entities size to affect larger entities less
+  - the `emf/cem/` directory is also valid in these namespaces as well as the ability to put the `<modelname>.jem` file within a folder of the same name, such as `cem/<modelname>/<modelname>.jem`
+- added a setting for the animation distance LOD setting, to now factor in an entities size to affect larger entities less
 - fixed a crash when methods were directly inverted e.g `!between(....)`
+- failed animation expressions will now resolve to `0` when applied to a model part or variable *(OptiFine parity)*
+- supports ETF's new config screen builder
+  - added a category `Animation math details` which lists and explains all functions and variables registered to the animation math system
+  - added a category `All models` which allows applying certain settings per .jem file as well as selectively disable the loading of certain models
+  - moved a few settings, mostly for the distance LOD, into the new category `performance settings`
+  - added settings into the `per entity settings` category to allows applying certain settings to only those entities
 
 1.3
 - added the `EMFAnimationApi` which allows other mods to register their own custom animation variables and functions to EMF

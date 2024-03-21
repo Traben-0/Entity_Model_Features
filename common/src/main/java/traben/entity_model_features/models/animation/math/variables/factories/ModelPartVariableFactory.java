@@ -7,6 +7,7 @@ import traben.entity_model_features.models.animation.math.MathConstant;
 import traben.entity_model_features.models.animation.math.MathValue;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.utils.EMFUtils;
 
 public class ModelPartVariableFactory extends UniqueVariableFactory {
     @Override
@@ -26,7 +27,7 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
             return MathConstant.ZERO.getResultSupplier();
         }
 
-        //EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.allPartsBySingleAndFullHeirachicalId.keySet());
+        EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.allPartsBySingleAndFullHeirachicalId.keySet());
         return null;
     }
 

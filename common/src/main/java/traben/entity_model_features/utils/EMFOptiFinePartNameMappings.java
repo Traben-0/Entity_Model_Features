@@ -25,7 +25,7 @@ public class EMFOptiFinePartNameMappings {
     public static final Map<String, Map<String, String>> UNKNOWN_MODEL_MAP_CACHE = new HashMap<>();
     public static final Map<String, Map<String, String>> OPTIFINE_MODEL_MAP_CACHE = new HashMap<>();
 
-    public static Map<String,String> genericNonPlayerBiped = Map.ofEntries(
+    public static final Map<String, String> genericNonPlayerBiped = Map.ofEntries(
             getOptifineMapEntry("head"),
             getOptifineMapEntry("headwear", "hat"),
             getOptifineMapEntry("body"),
@@ -101,9 +101,6 @@ public class EMFOptiFinePartNameMappings {
         );
 
 
-
-
-
         optifineModels("villager", "wandering_trader")
                 .accept(Map.ofEntries(
                         getOptifineMapEntry("head"),
@@ -138,20 +135,20 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("leg7", "right_front_leg"),
                         getOptifineMapEntry("leg8", "left_front_leg")));
 
-       var genericQuadraped = Map.ofEntries(
+        var genericQuadraped = Map.ofEntries(
                 getOptifineMapEntry("head"),
                 getOptifineMapEntry("body"),
                 getOptifineMapEntry("leg1", "right_hind_leg"),
                 getOptifineMapEntry("leg2", "left_hind_leg"),
                 getOptifineMapEntry("leg3", "right_front_leg"),
                 getOptifineMapEntry("leg4", "left_front_leg"));
-       var genericLlama = new HashMap<>(genericQuadraped) {{
+        var genericLlama = new HashMap<>(genericQuadraped) {{
             putAll(Map.ofEntries(
                     getOptifineMapEntry("chest_left", "left_chest"),
                     getOptifineMapEntry("chest_right", "right_chest")
             ));
 
-       }};
+        }};
 
         optifineModels("sheep", "cow", "creeper", "creeper_charge", "mooshroom", "panda", "pig", "pig_saddle", "polar_bear", "sheep_wool")
                 .accept(
@@ -1154,15 +1151,15 @@ public class EMFOptiFinePartNameMappings {
         Map<String, String> knownMap;
         if (mobName.endsWith("_inner_armor") || mobName.endsWith("_outer_armor")) {
             knownMap = genericNonPlayerBiped;
-        }else{
+        } else {
             knownMap = getKnownMap(mobName);
         }
         if (knownMap == null) {
-            return root == null ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null,exportOnlyFirstTime);
+            return root == null ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null, exportOnlyFirstTime);
         }
         //trigger the export of the known model if we are exporting all
         if (EMF.config().getConfig().modelExportMode.doesAll()) {
-            exportKnown(mobName, root, knownMap,exportOnlyFirstTime);
+            exportKnown(mobName, root, knownMap, exportOnlyFirstTime);
         }
 
         return knownMap;
@@ -1178,8 +1175,9 @@ public class EMFOptiFinePartNameMappings {
         EMF.config().getConfig().modelExportMode = EMFConfig.ModelPrintMode.ALL_LOG_ONLY;
         try {
             exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null, exportOnlyFirstTime);
-        }catch (Exception e){
+        } catch (Exception e) {
             EMFUtils.logError("Error while exporting model for " + mobName + " again as though it did not have known OptiFine part names:");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
 

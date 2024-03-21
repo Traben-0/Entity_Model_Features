@@ -6,7 +6,7 @@ import java.util.function.Supplier;
 public abstract class MathValue implements MathComponent {
 
 
-//    final EMFAnimation calculationInstance;
+    //    final EMFAnimation calculationInstance;
     boolean isNegative;
 
 //    MathValue(boolean isNegative ){
@@ -46,22 +46,26 @@ public abstract class MathValue implements MathComponent {
     public static boolean toBoolean(float value) {
         return value != 0;//todo investigate if false == negative, true == positive is any better
     }
+
     public static float invertBoolean(boolean value) {
         return fromBoolean(!value);
     }
+
     public static float invertBoolean(float value) {
         return fromBoolean(!toBoolean(value));
     }
+
     public static float invertBoolean(ResultSupplier value) {
         return fromBoolean(!toBoolean(value.get()));
     }
+
     public static float fromBoolean(BooleanSupplier value) {
         return fromBoolean(value.getAsBoolean());
     }
+
     public static float invertBoolean(BooleanSupplier value) {
         return invertBoolean(value.getAsBoolean());
     }
-
 
 
     abstract ResultSupplier getResultSupplier();

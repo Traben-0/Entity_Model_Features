@@ -56,6 +56,7 @@ Player jem models have the following model parts
 cloak does indeed refer to the player cape however does not animate currently
 
 ### EMF only animation variables
+This info can also be found either [here](.github/emf_animation.txt) or in the in-game config GUI
 
 - The `is_climbing` animation variable, true when the entity is climbing.
 - The `is_blocking` animation variable, true when the entity is blocking.
@@ -81,6 +82,7 @@ cloak does indeed refer to the player cape however does not animate currently
 - 
 
 ### EMF only animation functions
+This info can also be found either [here](.github/emf_animation.txt) or in the in-game config GUI
 
 - The `keyframe()` & `keyframeloop()` animation functions simplify keyframe format animations, the format is
   `keyframe(k, a, b, c,...)` with `k` being the linear progress of the keyframes (typically a timer), and all further values being the individual keyframes value.
@@ -105,7 +107,7 @@ cloak does indeed refer to the player cape however does not animate currently
 
 ### EMF modded entity CEM support
 
-EMF supports custom entity models for all modded entities who's model factories appear through the proper channels, this means mods using other custom model mods are not likely to be supported.
+EMF supports custom entity models for all modded entities who's model factories appear through the entity model loader, this means mods using other custom model mods are not likely to be supported.
 
 To find out if your modded entity is supported follow the instructions in the **"EMF model exporting option"** section found below.
 
@@ -121,22 +123,31 @@ These are: `(modelname # parts)`
 - `shield.jem` # *plate, handle*
 - `elytra.jem` # *right_wing, left_wing*
 - `spin_attack.jem` # *box*
-- models not yet released in OptiFine such as the Breeze mob's various models
+- models not yet released in OptiFine
 
 
 ### EMF model exporting option
 
 This option will export in-game entity models if they are EMF compatible.
 
-open the EMF settings screen and open the `Tools` screen, you will then see a slider labelled `Export models`.
+#### Single model export
+> Just open EMF's in-game config GUI and navigate to: Models > All models > [model_name]
+> 
+> and click the button: Export model as .jem file
+>
+> you will find your exported .jem file in the `[MC_DIRECTORY]/emf/export/` folder 
+
+#### All models export
+
+>open the EMF settings screen and open the `Tools` screen, you will then see a slider labelled `Export models`.
 If you enable this option for all or unknown models and then leave the settings screen, the loading screen will then appear as the game reloads all resources *(including models)*
 EMF will then write details into the game log of all compatible entity models found during this reload.
-
-Depending on what option you set for the setting EMF will either:
-- do this for all models found in the game
-- do this for all models found in the game that are not already known to OptiFine CEM *(i.e unknown models)*
-- just log the found models information including: part names, .jem file location, possible default pivots & other model values
-- log this info **AND** create an example `.jem` model for the model and place it in `MC_DIRECTORY/emf/export/`.
+>
+>Depending on what option you set for the setting EMF will either:
+>- do this for all models found in the game
+>- do this for all models found in the game that are not already known to OptiFine CEM *(i.e unknown models)*
+>- just log the found models information including: part names, .jem file location, possible default pivots & other model values
+>- log this info **AND** create an example `.jem` model for the model and place it in `[MC_DIRECTORY]/emf/export/`.
   *(these models will have correct pivots boxes and texture uv's and are immediately ready for use in BlockBench)*
 
 ### ETFAnimationApi

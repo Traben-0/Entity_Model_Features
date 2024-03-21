@@ -194,8 +194,7 @@
   "entity_model_features.config.variable_explanation.swing_progress": "How far through an attack the entity is. Counts up from 0 to 1",
   "entity_model_features.config.variable_explanation.time": "The total game time in ticks, not related to the daylight cycle",
   "entity_model_features.config.variable_explanation.true": "Constant value\ntrue",
-
-  "entity_model_features.config.models": "Models",
+  "entity_model_features.config.models": "All models",
   "entity_model_features.config.models.enabled": "Enable model",
   "entity_model_features.config.models.enabled.tooltip": "Sets whether or not to load the given .jem model file",
   "entity_model_features.config.models.part_names": "Part names for this model",
@@ -203,12 +202,13 @@
   "entity_model_features.config.models.export.tooltip": "Exports this model as .jem file to the directory \"MC_DIRECTORY/emf/export\"\nThis file can be opened in Blockbench and contains all the necessary data for a custom model\nincluding pivot points, boxes, and UVs\nAdditional data will also be printed in the log, such as where to put this .jem file for use in a resource pack.",
   "entity_model_features.config.models.export.success": "Exported model successfully",
   "entity_model_features.config.models.export.fail": "Model cannot be exported, because:",
-
   "entity_model_features.config.variables": "Variables",
   "entity_model_features.config.functions": "Functions",
   "entity_model_features.config.math": "Animation math details",
   "entity_model_features.config.math.explain": "This section provides details on the math functions and variables available for use in EMF custom entity model animations.\nIncluding anything added to EMF from another mod using it's API.\nEach function and variable will provide more details when clicked on.",
   "entity_model_features.config.variables.explain": "A list of all the math variables currently registered for use in EMF custom entity model animations.\nEach variable will provide more details when clicked on.",
   "entity_model_features.config.functions.explain": "A list of all the math functions currently registered for use in EMF custom entity model animations.\nEach function will provide more details when clicked on.",
-  "entity_model_features.title": "Entity Model Features"
+  "entity_model_features.title": "Entity Model Features",
+  "entity_model_features.config.variable_explanation.global_variable": "Global variables are specified in the format \"global_var.<name>\" (float) or \"global_varb.<name>\" (boolean) \nThe name can be any string, for example \"global_var.xyz\", \"global_var.last_rx\", etc.\nThe variable is globally saved and has a default value 0 or false.\nGlobal variables are useful for storing animation data used by multiple entities.",
+  "entity_model_features.config.variable_explanation.global_variable.title": "Global variables"
 }

@@ -22,6 +22,7 @@ public class EMFJemData {
     private String filePath = "";
     private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
     private Identifier customTexture = null;
+
     public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
         return allTopLevelAnimationsByVanillaPartName;
     }
@@ -90,7 +91,7 @@ public class EMFJemData {
 
     public void prepare(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
         if (textureSize != null && textureSize.length != 2) {
-            textureSize =new int[]{64,32};
+            textureSize = new int[]{64, 32};
             EMFUtils.logWarn("No textureSize provided for: " + fileName + ". Defaulting to 64x32 texture size for model.");
         }
 
