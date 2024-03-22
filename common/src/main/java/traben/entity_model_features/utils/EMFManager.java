@@ -430,7 +430,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         boolean printing = EMF.config().getConfig().logModelCreationData;
 
         Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
-        allPartsBySingleAndFullHeirachicalId.put("EMF_root", emfRootPart);
+        allPartsBySingleAndFullHeirachicalId.put("root", emfRootPart);
         allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFOptiFinePartNameMappings.getMapOf(emfRootPart.modelName.getMapId(), null)));
 
         //Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> emfAnimationsByPartName = new Object2ObjectLinkedOpenHashMap<>();

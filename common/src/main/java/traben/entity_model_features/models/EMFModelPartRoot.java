@@ -51,7 +51,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                             Collection<String> optifinePartNames,
                             Map<String, EMFModelPartVanilla> mapForCreatedParts) {
         //create vanilla root model object
-        super("EMF_root", vanillaRoot, optifinePartNames, mapForCreatedParts);
+        super("root", vanillaRoot, optifinePartNames, mapForCreatedParts);
         allVanillaParts = mapForCreatedParts;
         allVanillaParts.put(name, this);
 

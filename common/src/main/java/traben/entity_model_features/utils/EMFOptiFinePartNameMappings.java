@@ -783,7 +783,7 @@ public class EMFOptiFinePartNameMappings {
 
         optifineModels("tadpole")
                 .accept(Map.ofEntries(
-                        getOptifineMapEntry("body", "EMF_root"),//body = root for some reason because we don't need things to make sense when it comes to optifine
+                        getOptifineMapEntry("body", "root"),//body = root for some reason because we don't need things to make sense when it comes to optifine
                         getOptifineMapEntry("EMPTY", "body"),//EMPTY is important
                         getOptifineMapEntry("tail")
                 ));
@@ -1093,7 +1093,7 @@ public class EMFOptiFinePartNameMappings {
 
         optifineModels("sign")
                 .accept(Map.ofEntries(
-                        getOptifineMapEntry("board", "EMF_root"),//todo check
+                        getOptifineMapEntry("board", "root"),//todo check
                         //getOptifineMapEntry("EMPTY","sign"),//todo check
                         getOptifineMapEntry("stick")
                 ));
@@ -1101,7 +1101,7 @@ public class EMFOptiFinePartNameMappings {
 //# trident                  body
 
         optifineModels("trident")
-                .accept(Map.ofEntries(getOptifineMapEntry("body", "EMF_root")));
+                .accept(Map.ofEntries(getOptifineMapEntry("body", "root")));
 //todo check
 
 //# breeze                   body, rods, head, wind_body, wind_middle, wind_bottom, wind_top

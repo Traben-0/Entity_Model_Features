@@ -166,7 +166,7 @@ public class EMFJemData {
         if (shadow_size != 1.0) {
             if (shadow_size < 0) shadow_size = 0;
 
-            String rootPart = "EMF_root";
+            String rootPart = "root";
             LinkedHashMap<String, String> shadowAnimation = new LinkedHashMap<>();
             shadowAnimation.put("render.shadow_size", String.valueOf(shadow_size));
             if (allTopLevelAnimationsByVanillaPartName.containsKey(rootPart)) {
