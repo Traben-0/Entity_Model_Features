@@ -111,7 +111,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("arms"),
                         getOptifineMapEntry("right_leg"),
                         getOptifineMapEntry("left_leg"),
-                        getOptifineMapEntry("nose")));
+                        getOptifineMapEntry("nose"),
+                        getOptifineMapEntry("root")));
         optifineModels("iron_golem")
                 .accept(Map.ofEntries(
                         getOptifineMapEntry("head"),
@@ -119,7 +120,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("left_arm"),
                         getOptifineMapEntry("right_arm"),
                         getOptifineMapEntry("left_leg"),
-                        getOptifineMapEntry("right_leg")));
+                        getOptifineMapEntry("right_leg"),
+                        getOptifineMapEntry("root")));
 
         optifineModels("spider", "cave_spider")
                 .accept(Map.ofEntries(
@@ -133,7 +135,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("leg5", "right_middle_front_leg"),
                         getOptifineMapEntry("leg6", "left_middle_front_leg"),
                         getOptifineMapEntry("leg7", "right_front_leg"),
-                        getOptifineMapEntry("leg8", "left_front_leg")));
+                        getOptifineMapEntry("leg8", "left_front_leg"),
+                        getOptifineMapEntry("root")));
 
         var genericQuadraped = Map.ofEntries(
                 getOptifineMapEntry("head"),
@@ -150,9 +153,12 @@ public class EMFOptiFinePartNameMappings {
 
         }};
 
-        optifineModels("sheep", "cow", "creeper", "creeper_charge", "mooshroom", "panda", "pig", "pig_saddle", "polar_bear", "sheep_wool")
-                .accept(
-                        genericQuadraped);
+        optifineModels("sheep", "cow", "mooshroom", "panda", "pig", "pig_saddle", "polar_bear", "sheep_wool")
+                .accept(genericQuadraped);
+
+        optifineModels("creeper", "creeper_charge").accept(
+                new HashMap<>(genericQuadraped){{put("root","root");}}
+        );
 
 
         optifineModels("zombie", "husk", "drowned", "drowned_outer", "enderman", "giant", "skeleton", "stray", "stray_outer", "wither_skeleton", "zombie_pigman")
@@ -173,7 +179,8 @@ public class EMFOptiFinePartNameMappings {
                                 getOptifineMapEntry("left_arm"),
                                 getOptifineMapEntry("right_arm"),
                                 getOptifineMapEntry("left_wing"),
-                                getOptifineMapEntry("right_wing")
+                                getOptifineMapEntry("right_wing"),
+                                getOptifineMapEntry("root")
                         ));
 
 
@@ -187,7 +194,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("tentacle5", "tentacle4"),
                         getOptifineMapEntry("tentacle6", "tentacle5"),
                         getOptifineMapEntry("tentacle7", "tentacle6"),
-                        getOptifineMapEntry("tentacle8", "tentacle7")
+                        getOptifineMapEntry("tentacle8", "tentacle7"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -202,7 +210,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("tentacle6", "tentacle5"),
                         getOptifineMapEntry("tentacle7", "tentacle6"),
                         getOptifineMapEntry("tentacle8", "tentacle7"),
-                        getOptifineMapEntry("tentacle9", "tentacle8")
+                        getOptifineMapEntry("tentacle9", "tentacle8"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -220,30 +229,36 @@ public class EMFOptiFinePartNameMappings {
 
 
         optifineModels("shulker_bullet")
-                .accept(Map.ofEntries(getOptifineMapEntry("bullet", "main")));
+                .accept(Map.ofEntries(getOptifineMapEntry("bullet", "main"),
+                        getOptifineMapEntry("root")));
 
 
         optifineModels("llama_spit")
-                .accept(Map.ofEntries(getOptifineMapEntry("body", "main")));
+                .accept(Map.ofEntries(getOptifineMapEntry("body", "main"),
+                        getOptifineMapEntry("root")));
 
 
         optifineModels("wither_skull", "head_zombie", "head_wither_skeleton", "head_skeleton", "head_player", "head_creeper")
                 .accept(
-                        Map.ofEntries(getOptifineMapEntry("head")));
+                        Map.ofEntries(
+                                getOptifineMapEntry("head"),
+                                getOptifineMapEntry("root")));
 
 
         optifineModels("head_piglin")
                 .accept(Map.ofEntries(
                         getOptifineMapEntry("head"),
                         getOptifineMapEntry("left_ear"),
-                        getOptifineMapEntry("right_ear")
+                        getOptifineMapEntry("right_ear"),
+                        getOptifineMapEntry("root")
                 ));
 
 
         optifineModels("head_dragon")
                 .accept(Map.ofEntries(
                         getOptifineMapEntry("head"),
-                        getOptifineMapEntry("jaw")
+                        getOptifineMapEntry("jaw"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -263,7 +278,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("front_right_leg", "right_front_leg"),
                         getOptifineMapEntry("saddle"),
                         getOptifineMapEntry("reins"),
-                        getOptifineMapEntry("bridle")
+                        getOptifineMapEntry("bridle"),
+                        getOptifineMapEntry("root")
 
                 ));
 
@@ -357,7 +373,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("left_arm"),
                         getOptifineMapEntry("right_arm"),
                         getOptifineMapEntry("left_leg"),
-                        getOptifineMapEntry("right_leg")
+                        getOptifineMapEntry("right_leg"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -401,7 +418,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("outer_right_wing", "right_wing_tip"),
                         getOptifineMapEntry("outer_left_wing", "left_wing_tip"),
                         //feet added to new bat
-                        getOptifineMapEntry("feet")
+                        getOptifineMapEntry("feet"),
+                        getOptifineMapEntry("root")
 
                 ));
 
@@ -435,7 +453,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("stick9", "part8"),
                         getOptifineMapEntry("stick10", "part9"),
                         getOptifineMapEntry("stick11", "part10"),
-                        getOptifineMapEntry("stick12", "part11")
+                        getOptifineMapEntry("stick12", "part11"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -473,7 +492,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("tail", "tail_fin"),
                         getOptifineMapEntry("fin_right", "right_fin"),
                         getOptifineMapEntry("fin_left", "left_fin"),
-                        getOptifineMapEntry("fin_back", "top_fin")
+                        getOptifineMapEntry("fin_back", "top_fin"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -485,7 +505,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("head"),
                         getOptifineMapEntry("right_fin"),
                         getOptifineMapEntry("left_fin"),
-                        getOptifineMapEntry("back_fin")
+                        getOptifineMapEntry("back_fin"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -509,7 +530,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("spine9", "spike8"),
                         getOptifineMapEntry("spine10", "spike9"),
                         getOptifineMapEntry("spine11", "spike10"),
-                        getOptifineMapEntry("spine12", "spike11")
+                        getOptifineMapEntry("spine12", "spike11"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -518,7 +540,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("body1", "segment0"),
                         getOptifineMapEntry("body2", "segment1"),
                         getOptifineMapEntry("body3", "segment2"),
-                        getOptifineMapEntry("body4", "segment3")
+                        getOptifineMapEntry("body4", "segment3"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -526,7 +549,8 @@ public class EMFOptiFinePartNameMappings {
                 .accept(Map.ofEntries(
                         getOptifineMapEntry("base"),
                         getOptifineMapEntry("upper_jaw"),
-                        getOptifineMapEntry("lower_jaw")
+                        getOptifineMapEntry("lower_jaw"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -553,7 +577,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("left_arm"),
                         getOptifineMapEntry("right_arm"),
                         getOptifineMapEntry("tongue"),
-                        getOptifineMapEntry("eyes")
+                        getOptifineMapEntry("eyes"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -595,7 +620,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("segment5", "cube4"),
                         getOptifineMapEntry("segment6", "cube5"),
                         getOptifineMapEntry("segment7", "cube6"),
-                        getOptifineMapEntry("segment8", "cube7")
+                        getOptifineMapEntry("segment8", "cube7"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -608,7 +634,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("left_wing", "left_wing_base"),
                         getOptifineMapEntry("right_wing", "right_wing_base"),
                         getOptifineMapEntry("left_wing_tip"),
-                        getOptifineMapEntry("right_wing_tip")
+                        getOptifineMapEntry("right_wing_tip"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -620,7 +647,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("left_wing"),
                         getOptifineMapEntry("right_wing"),
                         getOptifineMapEntry("left_leg"),
-                        getOptifineMapEntry("right_leg")
+                        getOptifineMapEntry("right_leg"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -638,7 +666,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("spikes_middle_bottom", "bottom_middle_fin"),
                         getOptifineMapEntry("spikes_back_bottom", "bottom_back_fin"),
                         getOptifineMapEntry("spikes_back_right", "right_back_fin"),
-                        getOptifineMapEntry("spikes_back_left", "left_back_fin")
+                        getOptifineMapEntry("spikes_back_left", "left_back_fin"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -654,7 +683,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("spikes_front_bottom", "bottom_front_fin"),
                         getOptifineMapEntry("spikes_back_bottom", "bottom_back_fin"),
                         getOptifineMapEntry("spikes_back_right", "right_back_fin"),
-                        getOptifineMapEntry("spikes_back_left", "left_back_fin")
+                        getOptifineMapEntry("spikes_back_left", "left_back_fin"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -665,7 +695,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("fin_left", "left_fin"),
                         getOptifineMapEntry("eye_right", "right_eye"),
                         getOptifineMapEntry("eye_left", "left_eye"),
-                        getOptifineMapEntry("tail", "back_fin")
+                        getOptifineMapEntry("tail", "back_fin"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -695,7 +726,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("leg3", "right_front_leg"),
                         getOptifineMapEntry("leg4", "left_front_leg"),
                         getOptifineMapEntry("jaw", "mouth"),
-                        getOptifineMapEntry("neck")
+                        getOptifineMapEntry("neck"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -708,7 +740,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("fin_back_2", "top_back_fin"),
                         getOptifineMapEntry("tail", "back_fin"),
                         getOptifineMapEntry("fin_right", "right_fin"),
-                        getOptifineMapEntry("fin_left", "left_fin")
+                        getOptifineMapEntry("fin_left", "left_fin"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -738,7 +771,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("body7", "segment6"),
                         getOptifineMapEntry("wing1", "layer0"),
                         getOptifineMapEntry("wing2", "layer1"),
-                        getOptifineMapEntry("wing3", "layer2")
+                        getOptifineMapEntry("wing3", "layer2"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -747,7 +781,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("body", "cube"),
                         getOptifineMapEntry("left_eye"),
                         getOptifineMapEntry("right_eye"),
-                        getOptifineMapEntry("mouth")
+                        getOptifineMapEntry("mouth"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -763,7 +798,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("body_bottom", "lower_body"),
                         getOptifineMapEntry("head"),
                         getOptifineMapEntry("left_hand", "left_arm"),
-                        getOptifineMapEntry("right_hand", "right_arm")
+                        getOptifineMapEntry("right_hand", "right_arm"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -777,7 +813,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("hair_right_bottom", "right_bottom_bristle"),
                         getOptifineMapEntry("hair_left_top", "left_top_bristle"),
                         getOptifineMapEntry("hair_left_middle", "left_middle_bristle"),
-                        getOptifineMapEntry("hair_left_bottom", "left_bottom_bristle")
+                        getOptifineMapEntry("hair_left_bottom", "left_bottom_bristle"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -795,7 +832,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("tail"),
                         getOptifineMapEntry("fin_right", "right_fin"),
                         getOptifineMapEntry("fin_left", "left_fin"),
-                        getOptifineMapEntry("fin_top", "top_fin")
+                        getOptifineMapEntry("fin_top", "top_fin"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -806,7 +844,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("fin_right", "right_fin"),
                         getOptifineMapEntry("fin_left", "left_fin"),
                         getOptifineMapEntry("fin_top", "top_fin"),
-                        getOptifineMapEntry("fin_bottom", "bottom_fin")
+                        getOptifineMapEntry("fin_bottom", "bottom_fin"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -834,7 +873,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("left_tendril"),
                         getOptifineMapEntry("right_tendril"),
                         getOptifineMapEntry("left_ribcage"),
-                        getOptifineMapEntry("right_ribcage")
+                        getOptifineMapEntry("right_ribcage"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -849,7 +889,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("right_leg"),
                         getOptifineMapEntry("left_leg"),
                         getOptifineMapEntry("nose"),
-                        getOptifineMapEntry("mole")
+                        getOptifineMapEntry("mole"),
+                        getOptifineMapEntry("root")
                 ));
 
         //# wither                   body1 ... body3, head1 ... head3
@@ -861,7 +902,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("body3", "tail"),
                         getOptifineMapEntry("head1", "center_head"),
                         getOptifineMapEntry("head2", "right_head"),
-                        getOptifineMapEntry("head3", "left_head")
+                        getOptifineMapEntry("head3", "left_head"),
+                        getOptifineMapEntry("root")
                 ));
 
 
@@ -1001,7 +1043,8 @@ public class EMFOptiFinePartNameMappings {
                                 getOptifineMapEntry("back"),
                                 getOptifineMapEntry("front"),
                                 getOptifineMapEntry("right"),
-                                getOptifineMapEntry("left")
+                                getOptifineMapEntry("left"),
+                                getOptifineMapEntry("root")
                         ));
 
 //# conduit                  base, eye, cage, wind
@@ -1057,7 +1100,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("pages_right", "left_pages"),
                         getOptifineMapEntry("flipping_page_right", "flip_page1"),
                         getOptifineMapEntry("flipping_page_left", "flip_page2"),
-                        getOptifineMapEntry("book_spine", "seam")
+                        getOptifineMapEntry("book_spine", "seam"),
+                        getOptifineMapEntry("root")
                 ));
 
 //# end_crystal              cube, glass, base
@@ -1087,8 +1131,9 @@ public class EMFOptiFinePartNameMappings {
 //# lead_knot                knot
 
         optifineModels("lead_knot")
-                .accept(Map.ofEntries(getOptifineMapEntry("knot")));
-//todo possibly needs root assigned);
+                .accept(Map.ofEntries(getOptifineMapEntry("knot"),
+                        getOptifineMapEntry("root")));
+
 //# sign                     board, stick
 
         optifineModels("sign")
@@ -1101,7 +1146,22 @@ public class EMFOptiFinePartNameMappings {
 //# trident                  body
 
         optifineModels("trident")
-                .accept(Map.ofEntries(getOptifineMapEntry("body", "root")));
+                .accept(Map.ofEntries(
+                        getOptifineMapEntry("body", "pole"),
+                        getOptifineMapEntry("root"),
+                        getOptifineMapEntry("base"),
+                        getOptifineMapEntry("left_spike"),
+                        getOptifineMapEntry("middle_spike"),
+                        getOptifineMapEntry("right_spike")));
+
+        optifineModels("spectral_arrow","arrow")
+                .accept(Map.ofEntries(getOptifineMapEntry("body" )));
+
+        optifineModels("shield")
+                .accept(Map.ofEntries(
+                        getOptifineMapEntry("plate"),
+                        getOptifineMapEntry("handle"),
+                        getOptifineMapEntry("root")));
 //todo check
 
 //# breeze                   body, rods, head, wind_body, wind_middle, wind_bottom, wind_top
@@ -1116,7 +1176,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("wind_body"),
                         getOptifineMapEntry("wind_middle", "wind_mid"),
                         getOptifineMapEntry("wind_bottom"),
-                        getOptifineMapEntry("wind_top")
+                        getOptifineMapEntry("wind_top"),
+                        getOptifineMapEntry("root")
                 ));
 
 //# wind_charge              core, wind, cube1, cube2, charge
@@ -1127,7 +1188,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("wind"),
                         getOptifineMapEntry("cube1", "cube_r1"),
                         getOptifineMapEntry("cube2", "cube_r2"),
-                        getOptifineMapEntry("charge", "wind_charge")
+                        getOptifineMapEntry("charge", "wind_charge"),
+                        getOptifineMapEntry("root")
                 ));
 
 
