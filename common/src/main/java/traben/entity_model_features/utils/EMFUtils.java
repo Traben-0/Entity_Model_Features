@@ -3,7 +3,11 @@ package traben.entity_model_features.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.model.ModelData;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.model.ModelPartData;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.resource.Resource;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.PlainTextContent;
@@ -13,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 
 import java.io.BufferedReader;
@@ -23,6 +28,21 @@ import java.util.Set;
 
 
 public class EMFUtils {
+
+    public static EMFModelPartRoot getArrowOrNull(EntityModelLayer layer){
+        ModelData modelData = new ModelData();
+        ModelPartData modelPartData = modelData.getRoot();
+        ModelPart part = modelPartData.createPart(32,32);
+        //todo default transforms?
+//        part.setPivot(0,2.5f,-7);
+//        part.setDefaultTransform(part.getTransform());
+
+        ModelPart possiblyEMF = EMFManager.getInstance().injectIntoModelRootGetter(layer, part);
+        if (possiblyEMF instanceof EMFModelPartRoot) {
+            return (EMFModelPartRoot) possiblyEMF;
+        }
+        return null;
+    }
 
     private static final String MOD_ID_SHORT = "EMF";
 

@@ -1155,7 +1155,7 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("right_spike")));
 
         optifineModels("spectral_arrow","arrow")
-                .accept(Map.ofEntries(getOptifineMapEntry("body" )));
+                .accept(Map.ofEntries(getOptifineMapEntry("body","root" )));
 
         optifineModels("shield")
                 .accept(Map.ofEntries(
