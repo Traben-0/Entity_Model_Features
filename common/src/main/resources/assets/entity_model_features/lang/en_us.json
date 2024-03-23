@@ -202,6 +202,7 @@
   "entity_model_features.config.models.export.tooltip": "Exports this model as .jem file to the directory \"MC_DIRECTORY/emf/export\"\nThis file can be opened in Blockbench and contains all the necessary data for a custom model\nincluding pivot points, boxes, and UVs\nAdditional data will also be printed in the log, such as where to put this .jem file for use in a resource pack.",
   "entity_model_features.config.models.export.success": "Exported model successfully",
   "entity_model_features.config.models.export.fail": "Model cannot be exported, because:",
+  "entity_model_features.config.models.arrows": "arrow.jem & spectral_arrow.jem will not appear here, but are both supported",
   "entity_model_features.config.variables": "Variables",
   "entity_model_features.config.functions": "Functions",
   "entity_model_features.config.math": "Animation math details",

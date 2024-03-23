@@ -30,6 +30,7 @@ import java.util.Set;
 public class EMFUtils {
 
     public static EMFModelPartRoot getArrowOrNull(EntityModelLayer layer){
+        if (EMF.testForForgeLoadingError()) return null;
         ModelData modelData = new ModelData();
         ModelPartData modelPartData = modelData.getRoot();
         ModelPart part = modelPartData.createPart(32,32);

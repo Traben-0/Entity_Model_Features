@@ -196,7 +196,8 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
             if (variantTester instanceof PropertiesRandomProvider propertiesRandomProvider) {
                 propertiesRandomProvider.setOnMeetsRuleHook((entity, rule) ->
-                        EMFManager.getInstance().lastModelRuleOfEntity.put(entity.etf$getUuid(), rule.RULE_NUMBER));
+                        EMFManager.getInstance().lastModelRuleOfEntity.put(entity.etf$getUuid(),
+                                rule == null ? 0 : rule.RULE_NUMBER));
             }
 
             if (variantTester != null) {

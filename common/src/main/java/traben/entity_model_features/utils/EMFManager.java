@@ -43,6 +43,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             BlockEntityType.BELL, "bell",
             BlockEntityType.SIGN, "sign",
             BlockEntityType.DECORATED_POT, "decorated_pot");
+
     public static EMFModelPartRoot lastCreatedRootModelPart = null;
     private static EMFManager self = null;
     public final boolean IS_PHYSICS_MOD_INSTALLED;
@@ -191,6 +192,8 @@ public class EMFManager {//singleton for data holding and resetting needs
         //EMFUtils.logWarn("NULL animation hierachy id result of: " + hierarchId + "\n in " + map);
         return null;
     }
+
+
 
     public void modifyEBEIfRequired() {
         if (IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMF.config().getConfig().allowEBEModConfigModify) {

@@ -1,8 +1,11 @@
 
 1.4
+
+- added arrow & spectral_arrow model support
+- added new model parts listed in `OptiFine 1.20.4_HD_U_I8_pre3`
 - added variables `distance` `is_blocking` `is_crawling` `height_above_ground` `fluid_depth` `fluid_depth_down` `fluid_depth_up`
-- added Global variables, they are specified in the format "global_var.<name>" (float) or "global_varb.<name>" (boolean)
-- improved rule_index
+- added Global variables, they are specified in the format "global_var.<name>" (float) or "global_varb.<name>" (boolean), they are shared by all mobs and block entities and allow more technical things like counting entities
+- improved rule_index, now correctly applies 0 when no rule is met
 - fixed the `cannot inherit from final class` forge crash returning in v1.3
 - moved the variant property into ETF
 - fixed crash `.jem failed to load java.lang.NullPointerException: Cannot read the array length because "textureSize" is null`
