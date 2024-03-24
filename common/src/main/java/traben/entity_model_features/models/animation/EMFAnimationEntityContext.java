@@ -60,6 +60,8 @@ public class EMFAnimationEntityContext {
     private static Boolean lodFrameSkipping = null;
     private static boolean announceModels = false;
 
+    public static boolean is_in_ground_override = false;
+
     private EMFAnimationEntityContext() {
 
     }
@@ -539,7 +541,7 @@ public class EMFAnimationEntityContext {
     }
 
     public static boolean isInGround() {
-        return emfEntity instanceof ProjectileEntity proj && proj.isInsideWall();
+        return is_in_ground_override || emfEntity instanceof ProjectileEntity proj && proj.isInsideWall();
     }
 
     public static boolean isInGui() {
