@@ -1,6 +1,7 @@
 
 1.4
 
+- added attachment points
 - added arrow & spectral_arrow model support
 - added new model parts listed in `OptiFine 1.20.4_HD_U_I8_pre3`
 - added variables `distance` `is_blocking` `is_crawling` `height_above_ground` `fluid_depth` `fluid_depth_down` `fluid_depth_up`
