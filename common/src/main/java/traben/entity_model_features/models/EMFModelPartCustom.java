@@ -18,6 +18,7 @@ import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 
 @Environment(value = EnvType.CLIENT)
@@ -28,6 +29,8 @@ public class EMFModelPartCustom extends EMFModelPart {
     public final String id;
     public final boolean attach;
 
+    private final @Nullable List<Consumer<MatrixStack>> attachments;
+
     public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id) {//,//float[] parentalTransforms) {
 
         super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variant));
@@ -36,6 +39,10 @@ public class EMFModelPartCustom extends EMFModelPart {
         this.id = id;
         //selfModelData = emfPartData;
         textureOverride = emfPartData.getCustomTexture();
+
+        var attachments = emfPartData.getAttachments();
+        this.attachments = attachments.isEmpty() ? null : attachments;
+
 
         //seems to be just straight into model no bullshit?
         //todo check up on scale?
@@ -405,6 +412,15 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+        if (attachments != null) {
+            for (Consumer<MatrixStack> attachment : attachments) {
+                matrices.push();
+                this.rotate(matrices);
+                attachment.accept(matrices);
+                matrices.pop();
+            }
+        }
+
         switch (EMF.config().getConfig().renderModeChoice) {
             case NORMAL -> renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
             case GREEN -> {
