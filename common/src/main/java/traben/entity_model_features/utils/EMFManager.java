@@ -50,6 +50,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     public final boolean IS_EBE_INSTALLED;
 
     public final EntityIntLRU lastModelRuleOfEntity;
+    public final EntityIntLRU lastModelSuffixOfEntity;
     public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
@@ -77,6 +78,8 @@ public class EMFManager {//singleton for data holding and resetting needs
         IS_EBE_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("enhancedblockentities");
         lastModelRuleOfEntity = new EntityIntLRU();
         lastModelRuleOfEntity.defaultReturnValue(0);
+        lastModelSuffixOfEntity = new EntityIntLRU();
+        lastModelSuffixOfEntity.defaultReturnValue(0);
     }
 
     public static EMFManager getInstance() {

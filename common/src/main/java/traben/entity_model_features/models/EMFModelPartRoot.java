@@ -118,6 +118,11 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 finalSuffix = newSuffix;
             }
         }
+        if (finalSuffix == 0){
+            EMFManager.getInstance().lastModelSuffixOfEntity.removeInt(id);
+        }else {
+            EMFManager.getInstance().lastModelSuffixOfEntity.put(id, finalSuffix);
+        }
         setVariantStateTo(finalSuffix);
     }
 
@@ -195,9 +200,13 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             variantTester = ETFApi.getVariantSupplierOrNull(propertyID, new Identifier(thisDirectoryFileName + ".jem"), "models");
 
             if (variantTester instanceof PropertiesRandomProvider propertiesRandomProvider) {
-                propertiesRandomProvider.setOnMeetsRuleHook((entity, rule) ->
-                        EMFManager.getInstance().lastModelRuleOfEntity.put(entity.etf$getUuid(),
-                                rule == null ? 0 : rule.RULE_NUMBER));
+                propertiesRandomProvider.setOnMeetsRuleHook((entity, rule) -> {
+                    if (rule == null){
+                        EMFManager.getInstance().lastModelRuleOfEntity.removeInt(entity.etf$getUuid());
+                    }else{
+                        EMFManager.getInstance().lastModelRuleOfEntity.put(entity.etf$getUuid(), rule.RULE_NUMBER);
+                    }
+                });
             }
 
             if (variantTester != null) {
