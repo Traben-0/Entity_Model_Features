@@ -12,6 +12,9 @@ public class GlobalVariableFactory extends UniqueVariableFactory {
     public static void setGlobalVariable(String key, float value) {
         globalVariables.put(key, value);
     }
+    public static float getGlobalVariable(String key) {
+        return globalVariables.getFloat(key);
+    }
 
     @Override
     public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
