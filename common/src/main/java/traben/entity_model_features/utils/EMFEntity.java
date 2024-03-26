@@ -1,5 +1,6 @@
 package traben.entity_model_features.utils;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.util.math.Vec3d;
 import traben.entity_texture_features.utils.ETFEntity;
 
@@ -53,6 +54,8 @@ public interface EMFEntity extends ETFEntity {
     Vec3d emf$getVelocity();
 
     String emf$getTypeString();
+
+    Object2FloatOpenHashMap<String> emf$getVariableMap();
 
 
 }

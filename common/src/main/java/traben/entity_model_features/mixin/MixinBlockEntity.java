@@ -1,5 +1,6 @@
 package traben.entity_model_features.mixin;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -9,6 +10,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import traben.entity_model_features.utils.EMFEntity;
 
 @Mixin(BlockEntity.class)
@@ -147,5 +149,13 @@ public abstract class MixinBlockEntity implements EMFEntity {
     @Override
     public String emf$getTypeString() {
         return getType().toString();
+    }
+
+    @Unique
+    private final Object2FloatOpenHashMap<String> emf$variableMap = new Object2FloatOpenHashMap<>(){{defaultReturnValue(0);}};
+
+    @Override
+    public Object2FloatOpenHashMap<String> emf$getVariableMap() {
+        return emf$variableMap;
     }
 }

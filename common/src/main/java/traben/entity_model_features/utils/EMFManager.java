@@ -469,10 +469,14 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                 if (emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVariable) {
                     //this is a secondary variable modification
-                    // add it in the animation list but hash out the key name
-                    emfAnimations.put(animKey + '#' + System.currentTimeMillis(), newAnimation);
+                    String key = animKey  + '#';
+                    while(emfAnimations.containsKey(key)){
+                        key += '#';
+                    }
+                    // add it in the animation list but alter the key name
+                    emfAnimations.put(key, newAnimation);
                     //set this variable to instead set the value of the true variable source
-                    newAnimation.setTrueVariableSource(emfAnimations.get(animKey));
+                    //newAnimation.setTrueVariableSource(emfAnimations.get(animKey));
                 } else {
                     emfAnimations.put(animKey, newAnimation);
                 }

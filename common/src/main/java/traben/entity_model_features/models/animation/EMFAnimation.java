@@ -27,7 +27,7 @@ public class EMFAnimation {
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
     public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
     private MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
-    private FloatConsumer redirectVariableResult = null;
+    private FloatConsumer handleVariableResult = null;
 
     public EMFAnimation(EMFModelPart partToApplyTo,
                         EMFModelOrRenderVariable modelOrRenderVariableToChange,
@@ -38,8 +38,10 @@ public class EMFAnimation {
         this.modelName = modelName;
         this.animKey = animKey;
         isVariable = animKey.startsWith("var") || animKey.startsWith("global_var");
-        if (animKey.startsWith("global_var")) {
-            redirectVariableResult = value -> GlobalVariableFactory.setGlobalVariable(animKey, value);
+        if (isVariable) {
+            handleVariableResult = animKey.startsWith("global_var") ?
+                    value -> GlobalVariableFactory.setGlobalVariable(animKey, value)
+            :       value -> EMFAnimationEntityContext.setEntityVariable(animKey, value);
         }
         this.modelOrRenderVariableToChange = isVariable ? null : modelOrRenderVariableToChange;
         this.partToApplyTo = partToApplyTo;
@@ -64,9 +66,6 @@ public class EMFAnimation {
         expressionString = initialExpression;
     }
 
-    public void setTrueVariableSource(EMFAnimation trueVariableSource) {
-        this.redirectVariableResult = trueVariableSource::sendValueToTrueVariable;
-    }
 
     @Override
     public String toString() {
@@ -113,11 +112,6 @@ public class EMFAnimation {
         return EMFCalculator.getResult();
     }
 
-    private void sendValueToTrueVariable(float value) {
-        if (EMFAnimationEntityContext.getEMFEntity() == null) return;
-        UUID id = EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
-        prevResult.put(id, value);
-    }
 
     public void calculateAndSet() {
         if (EMFAnimationEntityContext.isLODSkippingThisFrame()) {
@@ -129,10 +123,11 @@ public class EMFAnimation {
 
     private void calculateAndSetPostLod() {
         if (isVariable) {
-            if (redirectVariableResult != null) {
-                redirectVariableResult.accept(getResultViaCalculate());
+            if (handleVariableResult != null) {
+                handleVariableResult.accept(getResultViaCalculate());
             } else {
-                getResultViaCalculate();
+                EMFUtils.logError(animKey + ": variable did not have result handler in: " + modelName);
+               // getResultViaCalculate();
             }
         } else {
             handleResult(getResultViaCalculate());

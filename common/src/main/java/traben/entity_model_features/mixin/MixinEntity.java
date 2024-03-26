@@ -1,11 +1,13 @@
 package traben.entity_model_features.mixin;
 
 
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -211,5 +213,13 @@ public abstract class MixinEntity implements EMFEntity {
     @Override
     public String emf$getTypeString() {
         return getType().toString();
+    }
+
+    @Unique
+    private final Object2FloatOpenHashMap<String> emf$variableMap = new Object2FloatOpenHashMap<>(){{defaultReturnValue(0);}};
+
+    @Override
+    public Object2FloatOpenHashMap<String> emf$getVariableMap() {
+        return emf$variableMap;
     }
 }

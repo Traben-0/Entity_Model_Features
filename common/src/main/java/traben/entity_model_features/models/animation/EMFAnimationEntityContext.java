@@ -66,6 +66,18 @@ public class EMFAnimationEntityContext {
 
     }
 
+
+    public static void setEntityVariable(String variable, float value){
+        if (emfEntity == null) return;
+        if (value==0) emfEntity.emf$getVariableMap().removeFloat(variable);
+        else emfEntity.emf$getVariableMap().put(variable, value);
+    }
+
+    public static float getEntityVariable(String variable){
+        if (emfEntity == null) return 0;
+        return emfEntity.emf$getVariableMap().getFloat(variable);
+    }
+
     public static void setLayerFactory(Function<Identifier, RenderLayer> layerFactory) {
         EMFAnimationEntityContext.layerFactory = layerFactory;
     }
