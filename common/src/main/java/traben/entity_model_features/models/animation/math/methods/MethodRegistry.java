@@ -44,13 +44,13 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("floor", (v) -> (float) Math.floor(v));
         registerSimpleMethodFactory("ceil", (v) -> (float) Math.ceil(v));
         registerSimpleMethodFactory("round", (v) -> (float) Math.round(v));
-        registerSimpleMethodFactory("log", (v) -> v == 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : (float) Math.log(v));
+        registerSimpleMethodFactory("log", (v) -> v < 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : (float) Math.log(v));
         registerSimpleMethodFactory("exp", (v) -> (float) Math.exp(v));
         registerSimpleMethodFactory("torad", (v) -> (float) Math.toRadians(v));
         registerSimpleMethodFactory("todeg", (v) -> (float) Math.toDegrees(v));
         registerSimpleMethodFactory("frac", MathHelper::fractionalPart);
         registerSimpleMethodFactory("signum", Math::signum);
-        registerSimpleMethodFactory("sqrt", (v) -> v == 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : (float) Math.sqrt(v));
+        registerSimpleMethodFactory("sqrt", (v) -> v < 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : (float) Math.sqrt(v));
         registerSimpleMethodFactory("fmod", (v, w) -> (float) Math.floorMod((int) (float) v, (int) (float) w));
         registerSimpleMethodFactory("pow", (v, w) -> (float) Math.pow(v, w));
         registerSimpleMethodFactory("atan2", (v, w) -> (float) Math.atan2(v, w));
