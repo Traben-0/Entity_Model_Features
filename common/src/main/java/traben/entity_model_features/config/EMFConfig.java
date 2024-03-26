@@ -2,13 +2,21 @@ package traben.entity_model_features.config;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.*;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Box;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
 import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
 import traben.entity_model_features.models.animation.math.variables.factories.UniqueVariableFactory;
@@ -19,6 +27,7 @@ import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.ETFVersionDifferenceHandler;
 import traben.entity_texture_features.config.ETFConfig;
 import traben.tconfig.TConfig;
+import traben.tconfig.gui.TConfigScreenList;
 import traben.tconfig.gui.entries.*;
 
 import java.util.*;
@@ -124,6 +133,7 @@ public class EMFConfig extends TConfig {
 
     private TConfigEntryCategory getModelSettings() {
         TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.models");
+        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.models_text",200,TConfigEntryText.TextAlignment.LEFT));
         EMFManager.getInstance().cache_LayersByModelName.keySet().stream().sorted().forEach(mapData -> {
             var layer = EMFManager.getInstance().cache_LayersByModelName.get(mapData);
             if (layer != null) {
@@ -132,6 +142,8 @@ public class EMFConfig extends TConfig {
                     String namespace = "minecraft".equals(mapData.getNamespace()) ? "" : mapData.getNamespace() + ':';
                     var fileName = namespace + mapData.getfileName();
                     TConfigEntryCategory model = new TConfigEntryCategory(fileName + ".jem");
+                    model.setAlign(TConfigScreenList.Align.RIGHT);
+                    model.setRenderFeature(new ModelRootRenderer(layer));
                     category.add(model);
 
                     model.add(new TConfigEntryBoolean("entity_model_features.config.models.enabled", "entity_model_features.config.models.enabled.tooltip",
@@ -197,11 +209,13 @@ public class EMFConfig extends TConfig {
         var list = new ArrayList<TConfigEntry>();
         Map<String, String> map;
         if (EMFOptiFinePartNameMappings.OPTIFINE_MODEL_MAP_CACHE.containsKey(mapKey)) {
-            list.add(new TConfigEntryText("optifine part names:"));
+            list.add(new TConfigEntryText("entity_model_features.config.variable_explanation.optifine_parts"));
+            //noinspection NoTranslation
             list.add(new TConfigEntryText("\\/"));
             map = EMFOptiFinePartNameMappings.OPTIFINE_MODEL_MAP_CACHE.get(mapKey);
         } else {
-            list.add(new TConfigEntryText("un mapped part names:"));
+            list.add(new TConfigEntryText("entity_model_features.config.variable_explanation.unknown_parts"));
+            //noinspection NoTranslation
             list.add(new TConfigEntryText("\\/"));
             map = EMFOptiFinePartNameMappings.UNKNOWN_MODEL_MAP_CACHE.get(mapKey);
         }
@@ -353,6 +367,81 @@ public class EMFConfig extends TConfig {
         @Override
         public String toString() {
             return text;
+        }
+    }
+
+
+    private static class ModelRootRenderer implements TConfigScreenList.Renderable {
+
+        private final EntityModelLayer layer;
+        private ModelPart root = null;
+        private boolean asserted = false;
+        ModelRootRenderer(EntityModelLayer layer){
+            this.layer = layer;
+        }
+
+        private boolean canRender(){
+            if (!asserted && root == null){
+                asserted = true;
+                try {
+                    root = MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer).createModel();
+                }catch (Exception e){
+                    //noinspection CallToPrintStackTrace
+                    e.printStackTrace();
+                }
+            }
+            return root != null;
+        }
+        @Override
+        public void render(final DrawContext context, final int mouseX, final int mouseY) {
+            if (canRender()){
+                Screen screen = MinecraftClient.getInstance().currentScreen;
+                if (screen == null) return;
+
+
+                int y = (int)((double) screen.height * 0.75);
+                int x = (int)((double)screen.width * 0.33);
+                float g = (float)(-Math.atan((((float)(-mouseY) + (float)screen.height / 2.0F) / 40.0F)));
+                float g2 = (float)(-Math.atan((((float)(-mouseX) + (float)screen.width / 3.0F) / 400.0F)));
+                Quaternionf quaternionf = (new Quaternionf()).rotateZ(3.1415927F).rotateY(g2*8);
+                Quaternionf quaternionf2 = (new Quaternionf()).rotateX(-(g * 20.0F * 0.017453292F)*2);
+                quaternionf.mul(quaternionf2);
+                context.getMatrices().push();
+                context.getMatrices().translate(x, y, 150.0);
+                float scaling = (float)((double)screen.height * 0.3);
+                context.getMatrices().multiplyPositionMatrix((new Matrix4f()).scaling(scaling, scaling, -scaling));
+                context.getMatrices().multiply(quaternionf);
+                DiffuseLighting.method_34742();
+                MatrixStack matrixStack = context.getMatrices();
+
+                matrixStack.push();
+                matrixStack.scale(-1.0F, -1.0F, 1.0F);
+                matrixStack.translate(0.0F, -1.501F, 0.0F);
+                 var buffer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines());
+                if (buffer != null) {
+                    renderBoxes(matrixStack, buffer, root);
+                }
+                matrixStack.pop();
+            }
+        }
+
+        private void renderBoxes(MatrixStack matrices, VertexConsumer vertices, ModelPart modelPart) {
+            if (modelPart.visible) {
+                if (!modelPart.cuboids.isEmpty() || !modelPart.children.isEmpty()) {
+                    matrices.push();
+                    modelPart.rotate(matrices);
+                    if (!modelPart.hidden) {
+                        for (ModelPart.Cuboid cuboid : modelPart.cuboids) {
+                            Box box = new Box(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
+                            WorldRenderer.drawBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
+                        }
+                    }
+                    for (ModelPart modelPartChildren : modelPart.children.values()) {
+                        renderBoxes(matrices, vertices, modelPartChildren);
+                    }
+                    matrices.pop();
+                }
+            }
         }
     }
 

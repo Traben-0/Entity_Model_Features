@@ -1,6 +1,10 @@
 
 1.4
 
+- added the `modelRule modelSuffix var varb global_var global_varb` random properties
+- removed the restriction on entity variables making them only accessible from the declaring model *(OptiFine parity)* *(wolf_collar.jem can now correctly access variables set by wolf.jem on the same wolf)*
+
+
 - added attachment points
 - added arrow & spectral_arrow model support
 - added new model parts listed in `OptiFine 1.20.4_HD_U_I8_pre3`
