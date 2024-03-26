@@ -168,7 +168,7 @@ public class EMFConfig extends TConfig {
                                     "assets/" + mapData.getNamespace() + "/emf/cem/" + mapData.getfileName() + ".jem\n" //+
                             //"assets/"+mapData.getNamespace()+"/emf/cem/"+       mapData.getfileName()+"/"+mapData.getfileName()+".jem\n"
                             ,
-                            200, TConfigEntryText.TextAlignment.LEFT));
+                            100, TConfigEntryText.TextAlignment.LEFT));
                 }
             }
         });

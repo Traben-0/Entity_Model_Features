@@ -3,7 +3,7 @@
 
 - added the `modelRule modelSuffix var varb global_var global_varb` random properties
 - removed the restriction on entity variables making them only accessible from the declaring model *(OptiFine parity)* *(wolf_collar.jem can now correctly access variables set by wolf.jem on the same wolf)*
-
+- added a model display to the model list in the gui to see the model before exporting its .jem file
 
 - added attachment points
 - added arrow & spectral_arrow model support
