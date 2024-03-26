@@ -7,6 +7,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.LightmapTextureManager;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.propeties.EntityVariableBooleanProperty;
+import traben.entity_model_features.propeties.EntityVariableFloatProperty;
+import traben.entity_model_features.propeties.ModelRuleIndexProperty;
+import traben.entity_model_features.propeties.ModelSuffixProperty;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETF;
@@ -70,7 +74,13 @@ public class EMF {
                         ModelRuleIndexProperty::getPropertyOrNull),
                 RandomProperties.RandomPropertyFactory.of("modelSuffix",
                         "entity_model_features.suffix_property",
-                        ModelSuffixProperty::getPropertyOrNull));
+                        ModelSuffixProperty::getPropertyOrNull),
+                RandomProperties.RandomPropertyFactory.of("var",
+                        "entity_model_features.var_property",
+                        EntityVariableFloatProperty::getPropertyOrNull),
+                RandomProperties.RandomPropertyFactory.of("varb",
+                        "entity_model_features.varb_property",
+                        EntityVariableBooleanProperty::getPropertyOrNull));
 
         //register EMF physics mod hook
 //todo        RagdollMapper.addHook(new EMFCustomRagDollHookTest());

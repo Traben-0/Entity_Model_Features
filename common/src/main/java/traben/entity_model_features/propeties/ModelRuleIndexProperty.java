@@ -1,4 +1,4 @@
-package traben.entity_model_features;
+package traben.entity_model_features.propeties;
 
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.utils.EMFManager;

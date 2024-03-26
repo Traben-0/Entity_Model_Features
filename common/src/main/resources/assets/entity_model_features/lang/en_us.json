@@ -215,6 +215,8 @@
   "entity_model_features.title": "Entity Model Features",
   "entity_model_features.suffix_property": "Model Suffix (Optional)\nmatches the last random model suffix number that the entities model was set to\ndefaults to 0\nExample: modelSuffix.1= 2 4 6\n§amodelSuffix.<n>=<list>",
   "entity_model_features.rule_property": "Model Rule (Optional)\nmatches the last random model rule number that the entities model matched against\ndefaults to 0\nExample: modelRule.1= 2 4 6\n§amodelRule.<n>=<list>",
+  "entity_model_features.var_property": "Entity Variable Float (Optional)\nmatches the CEM animation variable value of the entity\ndefaults to 0\nExample: (for animation variable 'var.xyz') var.1.xyz= 2 4 6\n§avar.<n>.<variable>=<list>",
+  "entity_model_features.varb_property": "Entity Variable Boolean (Optional)\nmatches the CEM animation variable value of the entity\ndefaults to false\nExample: (for animation variable 'varb.xyz') varb.1.xyz=true\n§avarb.<n>.<variable>=<true|false>",
   "entity_model_features.config.variable_explanation.global_variable": "Global variables are specified in the format \"global_var.<name>\" (float) or \"global_varb.<name>\" (boolean) \nThe name can be any string, for example \"global_var.xyz\", \"global_var.last_rx\", etc.\nThe variable is globally saved and has a default value 0 or false.\nGlobal variables are useful for storing animation data used by multiple entities.",
   "entity_model_features.config.variable_explanation.global_variable.title": "Global variables"
 }
