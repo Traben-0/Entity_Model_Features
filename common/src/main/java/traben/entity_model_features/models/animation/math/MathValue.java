@@ -34,7 +34,7 @@ public abstract class MathValue implements MathComponent {
      * @return the float
      */
     public static float fromBoolean(boolean value) {
-        return value ? 1 : 0;
+        return value ? TRUE : FALSE;
     }
 
     /**
@@ -44,7 +44,10 @@ public abstract class MathValue implements MathComponent {
      * @return the boolean
      */
     public static boolean toBoolean(float value) {
-        return value != 0;//todo investigate if false == negative, true == positive is any better
+        if (value == FALSE) return false;
+        if (value == TRUE) return true;
+        throw new IllegalArgumentException("Value is not a boolean");
+
     }
 
     public static float invertBoolean(boolean value) {
@@ -55,7 +58,7 @@ public abstract class MathValue implements MathComponent {
         return fromBoolean(!toBoolean(value));
     }
 
-    public static float invertBoolean(ResultSupplier value) {
+    public static float invertBoolean(ResultSupplier value){
         return fromBoolean(!toBoolean(value.get()));
     }
 
@@ -90,5 +93,7 @@ public abstract class MathValue implements MathComponent {
         float get();
     }
 
+    public static float TRUE = Float.POSITIVE_INFINITY;
+    public static float FALSE = Float.NEGATIVE_INFINITY;
 
 }

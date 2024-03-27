@@ -20,6 +20,9 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import static traben.entity_model_features.models.animation.math.MathValue.FALSE;
+import static traben.entity_model_features.models.animation.math.MathValue.TRUE;
+
 public final class MethodRegistry {
 
     private static final MethodRegistry INSTANCE = new MethodRegistry();
@@ -30,12 +33,11 @@ public final class MethodRegistry {
     private MethodRegistry() {
 
         //optifine methods
-        registerAndWrapMethodFactory("if", IfMethod::new);
         registerAndWrapMethodFactory("max", MaxMethod::new);
         registerAndWrapMethodFactory("min", MinMethod::new);
         registerAndWrapMethodFactory("random", RandomMethod::new);
         registerSimpleMethodFactory("sin", (v) -> (float) Math.sin(v));
-        registerSimpleMethodFactory("asin", (v) -> (float) Math.asin(v));
+        registerSimpleMethodFactory("asin", (v)-> (float) Math.asin(v));
         registerSimpleMethodFactory("cos", (v) -> (float) Math.cos(v));
         registerSimpleMethodFactory("acos", (v) -> (float) Math.acos(v));
         registerSimpleMethodFactory("tan", (v) -> (float) Math.tan(v));
@@ -53,14 +55,17 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("sqrt", (v) -> v < 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : (float) Math.sqrt(v));
         registerSimpleMethodFactory("fmod", (v, w) -> (float) Math.floorMod((int) (float) v, (int) (float) w));
         registerSimpleMethodFactory("pow", (v, w) -> (float) Math.pow(v, w));
-        registerSimpleMethodFactory("atan2", (v, w) -> (float) Math.atan2(v, w));
+        registerSimpleMethodFactory("atan2",(v, w) -> (float) Math.atan2(v, w));
         registerSimpleMethodFactory("clamp", MathHelper::clamp);
-        registerSimpleMethodFactory("between", (a, b, c) -> a > c ? 0 : (a < b ? 0 : 1f));
-        registerSimpleMethodFactory("equals", (x, y, epsilon) -> Math.abs(y - x) <= epsilon ? 1f : 0f);
         registerSimpleMethodFactory("lerp", MathHelper::lerp);
-        registerAndWrapMethodFactory("in", InMethod::new);
         registerAndWrapMethodFactory("print", PrintMethod::new);
         registerAndWrapMethodFactory("printb", PrintBMethod::new);
+
+        // booleans
+        registerAndWrapMethodFactory("if", IfMethod::new);
+        registerAndWrapMethodFactory("in", InMethod::new);
+        registerSimpleMethodFactory("between", (a, b, c) -> a > c ? FALSE : (a < b ? FALSE : TRUE));
+        registerSimpleMethodFactory("equals",(x, y, epsilon) -> Math.abs(y - x) <= epsilon ? TRUE : FALSE);
 
 
         //emf methods

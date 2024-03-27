@@ -4,17 +4,17 @@ public class MathBinaryExpressionComponent extends MathValue implements MathComp
 
 
     private final MathComponent first;
-    private final MathAction action;
+    private final MathOperator action;
     private final MathComponent second;
 
 
-    private MathBinaryExpressionComponent(MathComponent first, MathAction action, MathComponent second) {
+    private MathBinaryExpressionComponent(MathComponent first, MathOperator action, MathComponent second) {
         this.first = first;
         this.action = action;
         this.second = second;
     }
 
-    public static MathComponent getOptimizedExpression(MathComponent first, MathAction action, MathComponent second) {
+    public static MathComponent getOptimizedExpression(MathComponent first, MathOperator action, MathComponent second) {
         MathBinaryExpressionComponent component = new MathBinaryExpressionComponent(first, action, second);
         if (component.first.isConstant() && component.second.isConstant()) {
             //result is always constant so return a constant instead

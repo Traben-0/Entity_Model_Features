@@ -26,7 +26,7 @@ public class EMFAnimation {
 
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
     public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
-    private MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
+    private MathComponent emfCalculator = MathExpressionParser.NULL_EXPRESSION;
     private FloatConsumer handleVariableResult = null;
 
     public EMFAnimation(EMFModelPart partToApplyTo,
@@ -77,7 +77,7 @@ public class EMFAnimation {
                                Object2ObjectOpenHashMap<String, EMFModelPart> allPartByName) {
         this.emfAnimationVariables = emfAnimationVariables;
         this.allPartsBySingleAndFullHeirachicalId = allPartByName;
-        EMFCalculator = MathExpressionParser.getOptimizedExpression(expressionString, false, this);
+        emfCalculator = MathExpressionParser.getOptimizedExpression(expressionString, false, this);
         this.emfAnimationVariables = null;
         this.allPartsBySingleAndFullHeirachicalId = null;
     }
@@ -98,18 +98,19 @@ public class EMFAnimation {
         }
 
         float result = calculatorRun();
-        if (Float.isNaN(result) || result == Float.MIN_VALUE) {
-            prevResult.put(id, 0);
-            return 0;
-        } else {
-            prevResult.put(id, result);
-            return result;
-        }
+
+        prevResult.put(id, result);
+        return result;
     }
 
 
     private float calculatorRun() {
-        return EMFCalculator.getResult();
+        float result = emfCalculator.getResult();
+        if (Float.isNaN(result) || Float.isInfinite(result) ||  Math.abs(result) == Float.MIN_VALUE) {
+            return 0;
+        } else {
+            return result;
+        }
     }
 
 
@@ -127,7 +128,6 @@ public class EMFAnimation {
                 handleVariableResult.accept(getResultViaCalculate());
             } else {
                 EMFUtils.logError(animKey + ": variable did not have result handler in: " + modelName);
-               // getResultViaCalculate();
             }
         } else {
             handleResult(getResultViaCalculate());
@@ -135,18 +135,13 @@ public class EMFAnimation {
     }
 
     private void handleResult(float result) {
-        //if(animKey.equals("left_rein2.visible")) System.out.println("result rein "+result+varToChange);
         if (modelOrRenderVariableToChange != null) {
-            if (Float.isNaN(result)) {
-                modelOrRenderVariableToChange.setValue(partToApplyTo, Float.MAX_VALUE);
-            } else {
-                modelOrRenderVariableToChange.setValue(partToApplyTo, result);
-            }
+            modelOrRenderVariableToChange.setValue(partToApplyTo, result);
         }
     }
 
     public boolean isValid() {
-        return EMFCalculator != MathExpressionParser.NULL_EXPRESSION;
+        return emfCalculator != MathExpressionParser.NULL_EXPRESSION;
     }
 
 

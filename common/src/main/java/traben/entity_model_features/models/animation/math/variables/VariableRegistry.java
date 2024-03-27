@@ -43,11 +43,15 @@ public final class VariableRegistry {
         singletonVariables.put("e", new MathConstant((float) Math.E));
         singletonVariables.put("-e", new MathConstant((float) -Math.E));
         singletonVariableExplanationTranslationKeys.put("e", emfTranslationKey("e"));
-        singletonVariables.put("true", MathConstant.ONE);
-        singletonVariables.put("!true", MathConstant.ZERO);
+
+        var inf = new MathConstant(Float.POSITIVE_INFINITY);
+        var ninf = new MathConstant(Float.NEGATIVE_INFINITY);
+
+        singletonVariables.put("true", inf);
+        singletonVariables.put("!true", ninf);
         singletonVariableExplanationTranslationKeys.put("true", emfTranslationKey("true"));
-        singletonVariables.put("false", MathConstant.ZERO);
-        singletonVariables.put("!false", MathConstant.ONE);
+        singletonVariables.put("false", ninf);
+        singletonVariables.put("!false", inf);
         singletonVariableExplanationTranslationKeys.put("false", emfTranslationKey("false"));
 
 

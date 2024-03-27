@@ -3,7 +3,7 @@ package traben.entity_model_features.models.animation.math;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
-public enum MathAction implements MathComponent {
+public enum MathOperator implements MathComponent {
     ADD {
         @Override
         public float execute(MathComponent first, MathComponent second) {
@@ -101,7 +101,7 @@ public enum MathAction implements MathComponent {
     },
     BOOLEAN_CHAR;
 
-    public static MathAction getAction(char ch) {
+    public static MathOperator getAction(char ch) {
         return switch (ch) {
             case '+' -> ADD;
             case '-' -> SUBTRACT;

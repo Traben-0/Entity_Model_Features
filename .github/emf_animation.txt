@@ -236,11 +236,12 @@
 #   equals(x, y, epsilon)  - Compare two float values with error margin
 #   in(x, val1, val2, ...) - Check if a value equals one of several values
 #
-@ Note about booleans in EMF: Unlike OptiFine, EMF internally uses 0 for false and 1 for true.
-@ This streamlines the underlying code and makes it easier to use booleans in expressions.
-@ While this does allow doing some cool things like "value * is_in_water" to zero out a value when not in water, this is
-@ not an intended feature and should be avoided (as it may change). It's best to use the if() function to make the code
-@ more readable, maintainable, and of course remain OptiFine compatible.
+@ Note about booleans in EMF:
+@ Unlike OptiFine, EMF internally uses Float.NEGATIVE_INFINITY for false, and Float.POSITIVE_INFINITY for true.
+@ This streamlines the underlying math code and makes it easier to use booleans in expressions, the math will still warn
+@ you when using a numbers where a boolean is expected.
+@ However, for the interest of performance, the reverse check is not done and booleans may be used in place of numbers.
+@ Such cases will almost always result in a NaN value at the end and will usually zero out the expression, but I cannot guarantee this.
 #
 # Examples:
 #    ...
