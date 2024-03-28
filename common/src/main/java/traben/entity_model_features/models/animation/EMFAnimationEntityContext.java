@@ -72,12 +72,14 @@ public class EMFAnimationEntityContext {
 
 
     public static void setEntityVariable(String variable, float value){
+        //if (variable.equals("var.fly")) System.out.println("setEntityVariable: " + variable + " " + (emfEntity != null ? emfEntity.emf$getVariableMap().getOrDefault(variable, value) : "null"));
         if (emfEntity != null) {
             emfEntity.emf$getVariableMap().put(variable, value);
         }
     }
 
     public static float getEntityVariable(String variable, float defaultValue){
+        //if (variable.equals("var.fly")) System.out.println("getEntityVariable: " + variable + " " + (emfEntity != null ? emfEntity.emf$getVariableMap().getOrDefault(variable, defaultValue) : "null"));
         if (emfEntity == null) return defaultValue;
         return emfEntity.emf$getVariableMap().getOrDefault(variable, defaultValue);
     }

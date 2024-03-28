@@ -497,7 +497,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                 anim.initExpression(emfAnimations, allPartsBySingleAndFullHeirachicalId);
                 if (!anim.isValid()) {
                     EMFUtils.logError("animation was invalid: [" + anim.animKey + "] = [" + anim.expressionString +"] in model [" + emfRootPart.modelName + "]");
-                    animMapIterate.remove();
+                    //animMapIterate.remove();
+                    isAnimationValidationPhase = false;
+                    return;
                 }
             } else {
                 animMapIterate.remove();

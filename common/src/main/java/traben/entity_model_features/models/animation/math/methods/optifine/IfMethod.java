@@ -31,7 +31,7 @@ public class IfMethod extends MathMethod {
 
             setSupplierAndOptimize(() -> {
                 float condition = bool.getResult();
-                if (condition == 1) {
+                if (MathValue.toBoolean(condition)) {
                     return tru.getResult();
                 } else {
                     return fals.getResult();

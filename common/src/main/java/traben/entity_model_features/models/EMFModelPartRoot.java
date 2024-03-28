@@ -53,7 +53,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         //create vanilla root model object
         super("root", vanillaRoot, optifinePartNames, mapForCreatedParts);
         allVanillaParts = mapForCreatedParts;
-        allVanillaParts.put(name, this);
+        allVanillaParts.putIfAbsent(name, this);
 
         this.modelName = mobNameForFileAndMap;
         this.variantDirectoryApplier = variantDirectoryApplier;

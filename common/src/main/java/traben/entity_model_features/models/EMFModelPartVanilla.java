@@ -43,7 +43,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         for (Map.Entry<String, ModelPart> child :
                 vanillaPart.children.entrySet()) {
 
-
             EMFModelPartVanilla vanilla = new EMFModelPartVanilla(child.getKey(), child.getValue(), optifinePartNames, allVanillaParts);
             children.put(child.getKey(), vanilla);
             allVanillaParts.put(child.getKey(), vanilla);
