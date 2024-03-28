@@ -467,7 +467,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         jemData.getFileName()//, variableSuppliers
                 );
 
-                if (emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVariable) {
+                if (emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVariable()) {
                     //this is a secondary variable modification
                     String key = animKey  + '#';
                     while(emfAnimations.containsKey(key)){

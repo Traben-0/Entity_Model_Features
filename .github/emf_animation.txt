@@ -148,6 +148,7 @@
 @   is_climbing      - If the entity is climbing a climbable block or is a spider on a wall
 @   is_blocking      - If the entity is blocking with a shield
 @   is_crawling      - If the entity is crawling
+@   is_jumping       - If the entity is jumping
 #
 # Operators
 #   +, -, *, /, %
@@ -187,6 +188,7 @@
 @   wraprad(x)                                  - Wraps the radian value x to the range -pi to pi that it matches
 @   degdiff(x, y)                               - Returns the shortest angular degree difference between two degree values x and y
 @   raddiff(x, y)                               - Returns the shortest angular radian difference between two radian values x and y
+@   catch(x, c, id)                             - Returns x if x is not NaN or has an Error, otherwise returns c. id is optional, if it is added the catch function will print the reason c was used to the game log with this id
 #
 @ EMF interpolation functions
 @   keyframe(k, a, b, c,...)                    - Interpolates between values based on the current frame 'k' and the keyframes 'a' is 'k=0', 'b' is 'k=1', 'c' is 'k=2' etc.
@@ -232,9 +234,11 @@
 
 #
 # Boolean functions                 
-#   between(x, min, max)   - Check if a value is between min and max values
-#   equals(x, y, epsilon)  - Compare two float values with error margin
-#   in(x, val1, val2, ...) - Check if a value equals one of several values
+#   between(x, min, max)                        - Check if a value is between min and max values
+#   equals(x, y, epsilon)                       - Compare two float values with error margin
+#   in(x, val1, val2, ...)                      - Check if a value equals one of several values
+@   ifb(cond, val, [cond2, val2, ...], val_else)- Select a value based one or more conditions, returns a boolean
+@   randomb(seed)                               - Random boolean true|false. Providing a seed will always return the same result. The seed is optional
 #
 @ Note about booleans in EMF:
 @ Unlike OptiFine, EMF internally uses Float.NEGATIVE_INFINITY for false, and Float.POSITIVE_INFINITY for true.

@@ -1,6 +1,11 @@
 
 1.4
 
+- added the `ifb() randomb() catch()` animation functions
+  - `ifb()` is a boolean returning version of `if()` 
+  - `randomb()` is a boolean returning version of `random()`
+  - `catch(x, c, id)` is a new debug function that will always return `x` unless it had an error in which case it will return `c`. `id` is optional and will make the function print the reason `c` was returned to the log with this `id` to identify the printout
+- added the `is_jumping` animation variable
 - added the `modelRule modelSuffix var varb global_var global_varb` random properties
 - removed the restriction on entity variables making them only accessible from the declaring model *(OptiFine parity)* *(wolf_collar.jem can now correctly access variables set by wolf.jem on the same wolf)*
 - added a model display to the model list in the gui to see the model before exporting its .jem file

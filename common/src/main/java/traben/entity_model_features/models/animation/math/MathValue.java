@@ -46,8 +46,13 @@ public abstract class MathValue implements MathComponent {
     public static boolean toBoolean(float value) {
         if (value == FALSE) return false;
         if (value == TRUE) return true;
-        throw new IllegalArgumentException("Value is not a boolean");
+        throw new IllegalArgumentException("Value ["+value+"] is not a boolean");
+    }
 
+    public static float validateBoolean(float value){
+        //noinspection ResultOfMethodCallIgnored
+        toBoolean(value);
+        return value;
     }
 
     public static float invertBoolean(boolean value) {

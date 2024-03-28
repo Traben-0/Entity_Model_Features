@@ -5,6 +5,8 @@ import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.MathValue;
 
+import static traben.entity_model_features.models.animation.math.MathValue.FALSE;
+
 public class ModelVariableFactory extends UniqueVariableFactory {
     @Override
     public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
@@ -12,7 +14,12 @@ public class ModelVariableFactory extends UniqueVariableFactory {
 //        if (variableCalculator != null) {
 //            return variableCalculator::getLastResultOnly;
 //        }
-        return () -> EMFAnimationEntityContext.getEntityVariable(variableKey);
+        if (variableKey.startsWith("varb")) {
+            return () -> EMFAnimationEntityContext.getEntityVariable(variableKey,FALSE);
+        }else{
+            return () -> EMFAnimationEntityContext.getEntityVariable(variableKey,0);
+        }
+
     }
 
     @Override

@@ -73,6 +73,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     public void receiveRootAnimationRunnable(int variant, Runnable run) {
         allKnownStateVariants.get(variant).animation().setAnimation(run);
+
     }
 
     @Override

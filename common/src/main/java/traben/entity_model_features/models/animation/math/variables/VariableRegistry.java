@@ -131,6 +131,7 @@ public final class VariableRegistry {
         registerSimpleBoolVariable("is_sprinting", EMFAnimationEntityContext::isSprinting);
         registerSimpleBoolVariable("is_tamed", EMFAnimationEntityContext::isTamed);
         registerSimpleBoolVariable("is_wet", EMFAnimationEntityContext::isWet);
+        registerSimpleBoolVariable("is_jumping", EMFAnimationEntityContext::isJumping);
 
         //context variables
         // these variables require a context to be created, and are not constants

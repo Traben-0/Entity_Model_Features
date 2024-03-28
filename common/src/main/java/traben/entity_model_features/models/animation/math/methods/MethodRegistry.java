@@ -60,9 +60,12 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("lerp", MathHelper::lerp);
         registerAndWrapMethodFactory("print", PrintMethod::new);
         registerAndWrapMethodFactory("printb", PrintBMethod::new);
+        registerAndWrapMethodFactory("catch", CatchMethod::new);
 
         // booleans
         registerAndWrapMethodFactory("if", IfMethod::new);
+        registerAndWrapMethodFactory("ifb", IfBMethod::new);
+        registerAndWrapMethodFactory("randomb", RandomBMethod::new);
         registerAndWrapMethodFactory("in", InMethod::new);
         registerSimpleMethodFactory("between", (a, b, c) -> a > c ? FALSE : (a < b ? FALSE : TRUE));
         registerSimpleMethodFactory("equals",(x, y, epsilon) -> Math.abs(y - x) <= epsilon ? TRUE : FALSE);

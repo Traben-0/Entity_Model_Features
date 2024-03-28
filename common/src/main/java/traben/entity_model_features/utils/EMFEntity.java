@@ -58,4 +58,5 @@ public interface EMFEntity extends ETFEntity {
     Object2FloatOpenHashMap<String> emf$getVariableMap();
 
 
+
 }

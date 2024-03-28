@@ -21,3 +21,5 @@ accessible field net/minecraft/block/AbstractBlock collidable Z
 
 accessible field net/minecraft/client/util/math/MatrixStack stack Ljava/util/Deque;
 accessible method net/minecraft/client/util/math/MatrixStack$Entry <init> (Lorg/joml/Matrix4f;Lorg/joml/Matrix3f;)V
+
+accessible field net/minecraft/entity/LivingEntity jumping Z

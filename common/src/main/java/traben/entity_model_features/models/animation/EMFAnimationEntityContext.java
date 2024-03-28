@@ -66,16 +66,20 @@ public class EMFAnimationEntityContext {
 
     }
 
-
-    public static void setEntityVariable(String variable, float value){
-        if (emfEntity == null) return;
-        if (value==0) emfEntity.emf$getVariableMap().removeFloat(variable);
-        else emfEntity.emf$getVariableMap().put(variable, value);
+    public static boolean isJumping(){
+        return emfEntity instanceof LivingEntity alive && alive.jumping;
     }
 
-    public static float getEntityVariable(String variable){
-        if (emfEntity == null) return 0;
-        return emfEntity.emf$getVariableMap().getFloat(variable);
+
+    public static void setEntityVariable(String variable, float value){
+        if (emfEntity != null) {
+            emfEntity.emf$getVariableMap().put(variable, value);
+        }
+    }
+
+    public static float getEntityVariable(String variable, float defaultValue){
+        if (emfEntity == null) return defaultValue;
+        return emfEntity.emf$getVariableMap().getOrDefault(variable, defaultValue);
     }
 
     public static void setLayerFactory(Function<Identifier, RenderLayer> layerFactory) {

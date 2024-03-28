@@ -30,8 +30,8 @@ import java.util.Objects;
  */
 public abstract class MathMethod extends MathValue implements MathComponent {
 
-    private MathComponent optimizedAlternativeToThis = null;
-    private ResultSupplier supplier = null;
+    protected MathComponent optimizedAlternativeToThis = null;
+    protected ResultSupplier supplier = null;
 
     protected MathMethod(boolean isNegative, EMFAnimation calculationInstance, int argCount) throws EMFMathException {
         super(isNegative);

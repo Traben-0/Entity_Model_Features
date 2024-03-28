@@ -154,7 +154,7 @@ public class MathExpressionParser {
 
             //just a boolean inverting wrapper
             if (expression.wasInvertedBooleanExpression) {
-                return () -> optimized.getResult() == 1 ? 0 : 1;
+                return () -> MathValue.invertBoolean(optimized.getResult());
             }
 
             return optimized;
@@ -261,7 +261,7 @@ public class MathExpressionParser {
         }
 
         //if the expression is not valid, then return NaN
-        if (Double.isNaN(this.validateCalculationAndOptimize())) {
+        if (Float.isNaN(this.validateCalculationAndOptimize())) {
             EMFUtils.logWarn("result was NaN, expression not valid: " + originalExpression);
         }
     }

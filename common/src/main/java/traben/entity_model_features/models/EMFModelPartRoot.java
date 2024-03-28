@@ -302,11 +302,22 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 //                }
 //            });
 //        }
+        final var finalList = new ArrayList<>(animationList);
         if (!animationList.isEmpty()) {
             Runnable run = () -> {
                 if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
                     lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
-                    animationList.forEach((EMFAnimation::calculateAndSet));
+                        for (EMFAnimation emfAnimation : finalList) {
+                            try {
+                                emfAnimation.calculateAndSet();
+                            }catch (Exception e) {
+                                EMFUtils.logError("Error in animation expression [" + emfAnimation.animKey + "] for model ["+ modelName.getfileName()+"] with expression ["+emfAnimation.expressionString+"].");
+                                EMFUtils.logError("Error was: " + e.getMessage());
+                               // e.printStackTrace();
+                                EMFUtils.logError("Disabling all animations for model: ["+ modelName+"]");
+                                allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, null));
+                            }
+                        }
                 }
             };
             allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, run));
