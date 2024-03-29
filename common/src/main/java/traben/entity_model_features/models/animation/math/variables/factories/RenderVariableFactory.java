@@ -10,7 +10,7 @@ public class RenderVariableFactory extends UniqueVariableFactory {
     @Override
     public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
         //requires calculation instance check before global check so must be a factory
-        EMFAnimation renderVariableCalculator = calculationInstance.emfAnimationVariables.get(variableKey);
+        EMFAnimation renderVariableCalculator = calculationInstance.temp_emfAnimationVariables.get(variableKey);
         if (renderVariableCalculator != null) {
             return renderVariableCalculator::getLastResultOnly;
         }

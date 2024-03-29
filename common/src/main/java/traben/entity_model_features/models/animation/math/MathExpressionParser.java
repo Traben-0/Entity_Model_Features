@@ -304,8 +304,8 @@ public class MathExpressionParser {
                 } else {
                     //save optimized version of valid expression
                     optimizedComponent = optimised.getLast();
-                    if (optimizedComponent instanceof MathValue value) {
-                        value.makeNegative(this.isNegative);
+                    if (optimizedComponent instanceof MathValue value && this.isNegative) {
+                        optimizedComponent = value.getNegative();
                     }
                 }
                 return result;

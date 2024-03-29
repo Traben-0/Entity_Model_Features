@@ -4,9 +4,11 @@ import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.math.MathComponent;
 import traben.entity_model_features.models.animation.math.MathExpressionParser;
+import traben.entity_model_features.models.animation.math.MathValue;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
 
@@ -19,17 +21,18 @@ public class EMFAnimation {
     public final String animKey;
     public final String expressionString;
     public final String modelName;
-    public boolean isVariable(){
-        return handleVariableResult != null;
+    public boolean isVar(){
+        return variableResultConsumer != null;
     }
     private final EMFModelPart partToApplyTo;
     private final EMFModelOrRenderVariable modelOrRenderVariableToChange;
     private final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
 
-    public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
-    public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
+    public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> temp_emfAnimationVariables = null;
+    public Object2ObjectOpenHashMap<String, EMFModelPart> temp_allPartsBySingleAndFullHeirachicalId = null;
+    @NotNull
     private MathComponent emfCalculator = MathExpressionParser.NULL_EXPRESSION;
-    private final FloatConsumer handleVariableResult;
+    private final FloatConsumer variableResultConsumer;
 
     public EMFAnimation(EMFModelPart partToApplyTo,
                         EMFModelOrRenderVariable modelOrRenderVariableToChange,
@@ -45,46 +48,34 @@ public class EMFAnimation {
             //global
             if (animKeyIsBoolean){
                 //boolean
-                handleVariableResult = value -> GlobalVariableFactory.setGlobalVariable(animKey, Float.isInfinite(value) ? value : FALSE);
+                variableResultConsumer = value -> GlobalVariableFactory.setGlobalVariable(animKey,
+                        MathValue.isBoolean(value) ? value : FALSE);
             }else{
                 //float
-                handleVariableResult = value -> GlobalVariableFactory.setGlobalVariable(animKey, Float.isInfinite(value) ? 0 : value);
+                variableResultConsumer = value -> GlobalVariableFactory.setGlobalVariable(animKey,
+                        MathValue.isBoolean(value) ? 0 : value);
             }
         }else if (animKey.startsWith("var")){
             //entity
             if (animKeyIsBoolean){
                 //boolean
-                handleVariableResult = value -> EMFAnimationEntityContext.setEntityVariable(animKey, Float.isInfinite(value) ? value : FALSE);
+                variableResultConsumer = value -> EMFAnimationEntityContext.setEntityVariable(animKey,
+                        MathValue.isBoolean(value) ? value : FALSE);
             }else{
                 //float
-                handleVariableResult = value -> EMFAnimationEntityContext.setEntityVariable(animKey, Float.isInfinite(value) ? 0 : value);
+                variableResultConsumer = value -> EMFAnimationEntityContext.setEntityVariable(animKey,
+                        MathValue.isBoolean(value) ? 0 : value);
             }
         } else {
-            handleVariableResult = null;
+            variableResultConsumer = null;
         }
 
-        this.modelOrRenderVariableToChange = isVariable() ? null : modelOrRenderVariableToChange;
+        this.modelOrRenderVariableToChange = isVar() ? null : modelOrRenderVariableToChange;
         this.partToApplyTo = partToApplyTo;
 
-        float defaultValue;
-//        if (this.modelOrRenderVariableToChange != null) {
-//            if (partToApplyTo == null) {
-//                if (this.modelOrRenderVariableToChange.isRenderVariable()) {
-//                    defaultValue = this.modelOrRenderVariableToChange.getValue();
-//                } else {
-//                    if (EMF.config().getConfig().logModelCreationData)
-//                        EMFUtils.log("null part for " + animKey);
-//                    defaultValue = 0;
-//                }
-//            } else {
-//                defaultValue = this.modelOrRenderVariableToChange.getValue(partToApplyTo);
-//            }
-//        } else {
-            defaultValue = animKeyIsBoolean ||
+        this.defaultValue = animKeyIsBoolean ||
                     (modelOrRenderVariableToChange != null && modelOrRenderVariableToChange.isBoolean())
                     ? FALSE : 0;
-//        }
-        this.defaultValue = defaultValue;
         prevResult.defaultReturnValue(this.defaultValue);
         expressionString = initialExpression;
     }
@@ -100,11 +91,11 @@ public class EMFAnimation {
 
     public void initExpression(Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables,
                                Object2ObjectOpenHashMap<String, EMFModelPart> allPartByName) {
-        this.emfAnimationVariables = emfAnimationVariables;
-        this.allPartsBySingleAndFullHeirachicalId = allPartByName;
+        this.temp_emfAnimationVariables = emfAnimationVariables;
+        this.temp_allPartsBySingleAndFullHeirachicalId = allPartByName;
         emfCalculator = MathExpressionParser.getOptimizedExpression(expressionString, false, this);
-        this.emfAnimationVariables = null;
-        this.allPartsBySingleAndFullHeirachicalId = null;
+        this.temp_emfAnimationVariables = null;
+        this.temp_allPartsBySingleAndFullHeirachicalId = null;
     }
 
 
@@ -141,15 +132,15 @@ public class EMFAnimation {
 
     public void calculateAndSet() {
             if (EMFAnimationEntityContext.isLODSkippingThisFrame()) {
-                handleResultNonVariable(getLastResultOnly());
+                if (!isVar()) handleResultNonVariable(getLastResultOnly());
             } else {
-                calculateAndSetPostLod();
+                calculateAndSetNotLod();
             }
     }
 
-    private void calculateAndSetPostLod() {
-        if (isVariable()) {
-            handleVariableResult.accept(getResultViaCalculate());
+    private void calculateAndSetNotLod() {
+        if (isVar()) {
+            variableResultConsumer.accept(getResultViaCalculate());
         } else {
             handleResultNonVariable(getResultViaCalculate());
         }

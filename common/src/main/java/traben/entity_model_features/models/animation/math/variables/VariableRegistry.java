@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
 
+import static traben.entity_model_features.models.animation.math.MathValue.FALSE;
+import static traben.entity_model_features.models.animation.math.MathValue.TRUE;
+
 /**
  * This class is used to register all the variables that can be used in the math parser.
  * It also contains the logic to create the variables when they are used in the parser.
@@ -43,15 +46,11 @@ public final class VariableRegistry {
         singletonVariables.put("e", new MathConstant((float) Math.E));
         singletonVariables.put("-e", new MathConstant((float) -Math.E));
         singletonVariableExplanationTranslationKeys.put("e", emfTranslationKey("e"));
-
-        var inf = new MathConstant(Float.POSITIVE_INFINITY);
-        var ninf = new MathConstant(Float.NEGATIVE_INFINITY);
-
-        singletonVariables.put("true", inf);
-        singletonVariables.put("!true", ninf);
+        singletonVariables.put("true", new MathConstant(TRUE));
+        singletonVariables.put("!true", new MathConstant(FALSE));
         singletonVariableExplanationTranslationKeys.put("true", emfTranslationKey("true"));
-        singletonVariables.put("false", ninf);
-        singletonVariables.put("!false", inf);
+        singletonVariables.put("false", new MathConstant(FALSE));
+        singletonVariables.put("!false", new MathConstant(TRUE));
         singletonVariableExplanationTranslationKeys.put("false", emfTranslationKey("false"));
 
 
@@ -229,6 +228,6 @@ public final class VariableRegistry {
         } catch (Exception e) {
             EMFUtils.logWarn("Error finding variable: [" + variableName + "] in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
         }
-        return MathConstant.ZERO;
+        return MathConstant.ZERO_CONST;
     }
 }

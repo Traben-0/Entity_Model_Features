@@ -1,4 +1,4 @@
-package traben.entity_model_features.models.animation.math.methods.optifine;
+package traben.entity_model_features.models.animation.math.methods.emf;
 
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;

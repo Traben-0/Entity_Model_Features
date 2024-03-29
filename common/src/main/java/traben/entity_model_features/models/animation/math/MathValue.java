@@ -84,8 +84,9 @@ public abstract class MathValue implements MathComponent {
         return isNegative ? -getResultSupplier().get() : getResultSupplier().get();
     }
 
-    public void makeNegative(boolean become) {
-        if (become) isNegative = !isNegative;
+    public MathValue getNegative() {
+        isNegative = !isNegative;
+        return this;
     }
 
     /**
@@ -100,5 +101,9 @@ public abstract class MathValue implements MathComponent {
 
     public static float TRUE = Float.POSITIVE_INFINITY;
     public static float FALSE = Float.NEGATIVE_INFINITY;
+
+    public static boolean isBoolean(float value){
+        return value == TRUE || value == FALSE;
+    }
 
 }

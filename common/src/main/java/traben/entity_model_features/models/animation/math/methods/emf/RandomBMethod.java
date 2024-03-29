@@ -1,13 +1,14 @@
-package traben.entity_model_features.models.animation.math.methods.optifine;
+package traben.entity_model_features.models.animation.math.methods.emf;
 
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.models.animation.math.MathValue;
+import traben.entity_model_features.models.animation.math.methods.optifine.RandomMethod;
 
 import java.util.List;
 import java.util.Random;
 
-public class RandomBMethod extends RandomMethod{
+public class RandomBMethod extends RandomMethod {
 
 
     public RandomBMethod(final List<String> args, final boolean isNegative, final EMFAnimation calculationInstance) throws EMFMathException {

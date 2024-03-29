@@ -15,7 +15,7 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
         String[] split = variableKey.split("\\.");//todo only works with one split point
         String partName = split[0];
         EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
-        EMFModelPart part = EMFManager.getModelFromHierarchichalId(partName, calculationInstance.allPartsBySingleAndFullHeirachicalId);
+        EMFModelPart part = EMFManager.getModelFromHierarchichalId(partName, calculationInstance.temp_allPartsBySingleAndFullHeirachicalId);
         if (partVariable != null && part != null) {
             return () -> partVariable.getValue(part);
         }
@@ -24,10 +24,10 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
         //todo possibly need the same in bed.jem???
         if (calculationInstance.modelName.endsWith("chest_large.jem") && (partName.endsWith("_left") || partName.endsWith("_right"))) {
             //just silences the log spam when the left chest cant find the parts of the right side animation lines :/
-            return MathConstant.ZERO.getResultSupplier();
+            return MathConstant.ZERO_CONST::getResult;
         }
 
-        EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.allPartsBySingleAndFullHeirachicalId.keySet());
+        EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.temp_allPartsBySingleAndFullHeirachicalId.keySet());
         return null;
     }
 
