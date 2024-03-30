@@ -12,13 +12,14 @@ import java.util.Properties;
 
 public class GlobalVariableBooleanProperty extends RandomProperty {
     private final Map<String, Boolean> VARIABLE_MAP;
+
     protected GlobalVariableBooleanProperty(Properties properties, int propertyNum) throws RandomPropertyException {
         String keyPrefix = "global_varb." + propertyNum + ".";
         this.VARIABLE_MAP = new Object2ObjectLinkedOpenHashMap<>();
         properties.forEach((key, value) -> {
-            if (key != null && ((String)key).startsWith(keyPrefix)) {
-                String instruction = ((String)value).trim();
-                String variableKey = "global_varb." + ((String)key).replaceAll(keyPrefix, "");
+            if (key != null && ((String) key).startsWith(keyPrefix)) {
+                String instruction = ((String) value).trim();
+                String variableKey = "global_varb." + ((String) key).replaceAll(keyPrefix, "");
                 if (!variableKey.isBlank() && !instruction.isBlank()) {
                     boolean matchTrue = instruction.contains("true");
                     this.VARIABLE_MAP.put(variableKey, matchTrue);

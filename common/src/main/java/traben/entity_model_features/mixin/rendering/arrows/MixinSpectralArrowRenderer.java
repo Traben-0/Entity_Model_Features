@@ -20,6 +20,9 @@ import traben.entity_model_features.utils.EMFUtils;
 public abstract class MixinSpectralArrowRenderer extends ProjectileEntityRenderer<ArrowEntity> implements EMFCustomModelHolder {
 
 
+    @Unique
+    private EMFModelPartRoot emf$model = null;
+
     public MixinSpectralArrowRenderer(final EntityRendererFactory.Context context) {
         super(context);
     }
@@ -29,8 +32,6 @@ public abstract class MixinSpectralArrowRenderer extends ProjectileEntityRendere
         EntityModelLayer layer = new EntityModelLayer(new Identifier("minecraft", "spectral"), "arrow");
         emf$setModel(EMFUtils.getArrowOrNull(layer));
     }
-    @Unique
-    private EMFModelPartRoot emf$model = null;
 
     @Override
     public EMFModelPartRoot emf$getModel() {

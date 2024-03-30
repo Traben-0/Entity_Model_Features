@@ -65,7 +65,7 @@ public class EMF {
         EMFManager.getInstance();
 
         //register EMF random properties to ETF
-        ETFApi.registerCustomRandomPropertyFactory( MOD_ID,
+        ETFApi.registerCustomRandomPropertyFactory(MOD_ID,
                 RandomProperties.RandomPropertyFactory.of("modelRule",
                         "entity_model_features.rule_property",
                         ModelRuleIndexProperty::getPropertyOrNull),

@@ -11,22 +11,23 @@ public enum EMFAttachments {
     right_handheld_item;
 
 
+    private MatrixStack.Entry stackEntry = null;
+
     public MatrixStack.Entry getAndNullify() {
         MatrixStack.Entry hold = stackEntry;
         stackEntry = null;
         return hold;
     }
-    private MatrixStack.Entry stackEntry = null;
 
     public void setAttachment(MatrixStack entry, float x, float y, float z) {
         entry.push();
-        entry.translate(x/16, y/16, z/16);
+        entry.translate(x / 16, y / 16, z / 16);
         var save = entry.peek();
-        this.stackEntry = new MatrixStack.Entry(new Matrix4f(save.getPositionMatrix()),new Matrix3f(save.getNormalMatrix()));//save;
+        this.stackEntry = new MatrixStack.Entry(new Matrix4f(save.getPositionMatrix()), new Matrix3f(save.getNormalMatrix()));//save;
         entry.pop();
     }
 
-    public Consumer<MatrixStack> getConsumerWithTranslates(float x, float y, float z){
+    public Consumer<MatrixStack> getConsumerWithTranslates(float x, float y, float z) {
         return (entry) -> this.setAttachment(entry, x, y, z);
     }
 

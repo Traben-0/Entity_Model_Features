@@ -29,16 +29,16 @@ public abstract class MixinProjectileEntityRenderer<T extends PersistentProjecti
 
     @Inject(method = "render(Lnet/minecraft/entity/projectile/PersistentProjectileEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;peek()Lnet/minecraft/client/util/math/MatrixStack$Entry;",
-                    shift = At.Shift.BEFORE),cancellable = true)
+                    shift = At.Shift.BEFORE), cancellable = true)
     private void emf$cancelAndCEMRender(final T persistentProjectileEntity, final float f, final float g, final MatrixStack matrixStack, final VertexConsumerProvider vertexConsumerProvider, final int i, final CallbackInfo ci) {
         if (this instanceof EMFCustomModelHolder customModelHolder && customModelHolder.emf$hasModel()) {
             //matrixStack.translate(4,0,0);
-            matrixStack.scale(16,-12.8f,-12.8f);//result 0.9,  0.72   0.72
+            matrixStack.scale(16, -12.8f, -12.8f);//result 0.9,  0.72   0.72
             EMFAnimationEntityContext.setHeadYaw(f);
-            float s = (float)persistentProjectileEntity.shake - g;
+            float s = (float) persistentProjectileEntity.shake - g;
             EMFAnimationEntityContext.setHeadPitch(-MathHelper.sin(s * 3.0F) * s);// copy of t
             VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(RenderLayer.getEntityCutout(this.getTexture(persistentProjectileEntity)));
-            customModelHolder.emf$getModel().render(matrixStack, vertexConsumer, i, OverlayTexture.DEFAULT_UV,1,1,1,1);
+            customModelHolder.emf$getModel().render(matrixStack, vertexConsumer, i, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
             matrixStack.pop();
             ci.cancel();
         }

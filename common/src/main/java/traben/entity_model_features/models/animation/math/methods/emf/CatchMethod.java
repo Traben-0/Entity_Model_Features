@@ -18,9 +18,9 @@ public class CatchMethod extends MathMethod {
         MathComponent c = MathExpressionParser.getOptimizedExpression(args.get(1), false, calculationInstance);
 
         final String print;
-        if(args.size() == 3 && !args.get(2).isBlank()){
+        if (args.size() == 3 && !args.get(2).isBlank()) {
             print = args.get(2);
-        } else{
+        } else {
             print = null;
         }
 
@@ -37,7 +37,7 @@ public class CatchMethod extends MathMethod {
             } catch (Exception e) {
                 //EMFUtils.log("Caught exception: " + e.getMessage());
                 if (print != null) {
-                    EMFUtils.log("print: catch(" + print + ") found Exception in x: "+ e.getMessage());
+                    EMFUtils.log("print: catch(" + print + ") found Exception in x: " + e.getMessage());
                 }
                 return c.getResult();
             }

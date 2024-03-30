@@ -118,9 +118,9 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 finalSuffix = newSuffix;
             }
         }
-        if (finalSuffix == 0){
+        if (finalSuffix == 0) {
             EMFManager.getInstance().lastModelSuffixOfEntity.removeInt(id);
-        }else {
+        } else {
             EMFManager.getInstance().lastModelSuffixOfEntity.put(id, finalSuffix);
         }
         setVariantStateTo(finalSuffix);
@@ -201,9 +201,9 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
             if (variantTester instanceof PropertiesRandomProvider propertiesRandomProvider) {
                 propertiesRandomProvider.setOnMeetsRuleHook((entity, rule) -> {
-                    if (rule == null){
+                    if (rule == null) {
                         EMFManager.getInstance().lastModelRuleOfEntity.removeInt(entity.etf$getUuid());
-                    }else{
+                    } else {
                         EMFManager.getInstance().lastModelRuleOfEntity.put(entity.etf$getUuid(), rule.RULE_NUMBER);
                     }
                 });
@@ -307,17 +307,17 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             Runnable run = () -> {
                 if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
                     lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
-                        for (EMFAnimation emfAnimation : finalList) {
-                            try {
-                                emfAnimation.calculateAndSet();
-                            }catch (Exception e) {
-                                EMFUtils.logError("Error in animation expression [" + emfAnimation.animKey + "] for model ["+ modelName.getfileName()+"] with expression ["+emfAnimation.expressionString+"].");
-                                EMFUtils.logError("Error was: " + e.getMessage());
-                               // e.printStackTrace();
-                                EMFUtils.logError("Disabling all animations for model: ["+ modelName+"]");
-                                allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, null));
-                            }
+                    for (EMFAnimation emfAnimation : finalList) {
+                        try {
+                            emfAnimation.calculateAndSet();
+                        } catch (Exception e) {
+                            EMFUtils.logError("Error in animation expression [" + emfAnimation.animKey + "] for model [" + modelName.getfileName() + "] with expression [" + emfAnimation.expressionString + "].");
+                            EMFUtils.logError("Error was: " + e.getMessage());
+                            // e.printStackTrace();
+                            EMFUtils.logError("Disabling all animations for model: [" + modelName + "]");
+                            allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, null));
                         }
+                    }
                 }
             };
             allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, run));

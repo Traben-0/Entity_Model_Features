@@ -12,13 +12,14 @@ import java.util.Properties;
 
 public class EntityVariableBooleanProperty extends RandomProperty {
     private final Map<String, Boolean> VARIABLE_MAP;
+
     protected EntityVariableBooleanProperty(Properties properties, int propertyNum) throws RandomProperty.RandomPropertyException {
         String keyPrefix = "varb." + propertyNum + ".";
         this.VARIABLE_MAP = new Object2ObjectLinkedOpenHashMap<>();
         properties.forEach((key, value) -> {
-            if (key != null && ((String)key).startsWith(keyPrefix)) {
-                String instruction = ((String)value).trim();
-                String variableKey = "varb." + ((String)key).replaceAll(keyPrefix, "");
+            if (key != null && ((String) key).startsWith(keyPrefix)) {
+                String instruction = ((String) value).trim();
+                String variableKey = "varb." + ((String) key).replaceAll(keyPrefix, "");
                 if (!variableKey.isBlank() && !instruction.isBlank()) {
                     boolean matchTrue = instruction.contains("true");
                     this.VARIABLE_MAP.put(variableKey, matchTrue);

@@ -29,11 +29,14 @@ import java.util.Set;
 
 public class EMFUtils {
 
-    public static EMFModelPartRoot getArrowOrNull(EntityModelLayer layer){
+    private static final String MOD_ID_SHORT = "EMF";
+    private static final Logger LOGGER = LoggerFactory.getLogger("EMF");
+
+    public static EMFModelPartRoot getArrowOrNull(EntityModelLayer layer) {
         if (EMF.testForForgeLoadingError()) return null;
         ModelData modelData = new ModelData();
         ModelPartData modelPartData = modelData.getRoot();
-        ModelPart part = modelPartData.createPart(32,32);
+        ModelPart part = modelPartData.createPart(32, 32);
         //todo default transforms?
 //        part.setPivot(0,2.5f,-7);
 //        part.setDefaultTransform(part.getTransform());
@@ -44,11 +47,6 @@ public class EMFUtils {
         }
         return null;
     }
-
-    private static final String MOD_ID_SHORT = "EMF";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger("EMF");
-
 
     public static void overrideMessage(String originalClass, String overriddenClassFromMod, boolean wasReverted) {
         LOGGER.warn("[" + MOD_ID_SHORT + "]: Entity model [" + originalClass + "] has been overridden by [" + overriddenClassFromMod + "] likely from a mod.");

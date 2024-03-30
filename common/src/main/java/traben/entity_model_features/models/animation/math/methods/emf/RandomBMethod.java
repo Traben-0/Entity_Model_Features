@@ -29,5 +29,4 @@ public class RandomBMethod extends RandomMethod {
     }
 
 
-
 }

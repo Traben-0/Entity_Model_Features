@@ -314,7 +314,9 @@ public enum EMFModelOrRenderVariable {
         return false;
     }
 
-    public boolean isBoolean(){return false;}
+    public boolean isBoolean() {
+        return false;
+    }
 
     public abstract float getValue(ModelPart modelPart);
 

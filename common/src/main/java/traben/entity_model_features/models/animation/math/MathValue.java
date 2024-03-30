@@ -6,8 +6,7 @@ import java.util.function.Supplier;
 public abstract class MathValue implements MathComponent {
 
 
-    //    final EMFAnimation calculationInstance;
-    boolean isNegative;
+    public static final float TRUE = Float.POSITIVE_INFINITY;
 
 //    MathValue(boolean isNegative ){
 //        this.isNegative = isNegative;
@@ -15,6 +14,10 @@ public abstract class MathValue implements MathComponent {
 //        if (calculationInstance == null)
 //            throw new EMFMathException("calculationInstance cannot be null if declared");//todo check if still needed
 //    }
+    public static final float FALSE = Float.NEGATIVE_INFINITY;
+    //    final EMFAnimation calculationInstance;
+    boolean isNegative;
+
 
     MathValue(boolean isNegative) {
         this.isNegative = isNegative;
@@ -25,7 +28,6 @@ public abstract class MathValue implements MathComponent {
         this.isNegative = false;
 //        this.calculationInstance = null;
     }
-
 
     /**
      * The singular method for EMF to parse a boolean into its math equivalent float
@@ -46,10 +48,10 @@ public abstract class MathValue implements MathComponent {
     public static boolean toBoolean(float value) {
         if (value == FALSE) return false;
         if (value == TRUE) return true;
-        throw new IllegalArgumentException("Value ["+value+"] is not a boolean");
+        throw new IllegalArgumentException("Value [" + value + "] is not a boolean");
     }
 
-    public static float validateBoolean(float value){
+    public static float validateBoolean(float value) {
         //noinspection ResultOfMethodCallIgnored
         toBoolean(value);
         return value;
@@ -63,7 +65,7 @@ public abstract class MathValue implements MathComponent {
         return fromBoolean(!toBoolean(value));
     }
 
-    public static float invertBoolean(ResultSupplier value){
+    public static float invertBoolean(ResultSupplier value) {
         return fromBoolean(!toBoolean(value.get()));
     }
 
@@ -75,9 +77,11 @@ public abstract class MathValue implements MathComponent {
         return invertBoolean(value.getAsBoolean());
     }
 
+    public static boolean isBoolean(float value) {
+        return value == TRUE || value == FALSE;
+    }
 
     abstract ResultSupplier getResultSupplier();
-
 
     @Override
     public float getResult() {
@@ -97,13 +101,6 @@ public abstract class MathValue implements MathComponent {
      */
     public interface ResultSupplier {
         float get();
-    }
-
-    public static float TRUE = Float.POSITIVE_INFINITY;
-    public static float FALSE = Float.NEGATIVE_INFINITY;
-
-    public static boolean isBoolean(float value){
-        return value == TRUE || value == FALSE;
     }
 
 }

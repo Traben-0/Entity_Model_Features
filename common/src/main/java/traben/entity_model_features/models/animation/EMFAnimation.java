@@ -21,18 +21,15 @@ public class EMFAnimation {
     public final String animKey;
     public final String expressionString;
     public final String modelName;
-    public boolean isVar(){
-        return variableResultConsumer != null;
-    }
     private final EMFModelPart partToApplyTo;
     private final EMFModelOrRenderVariable modelOrRenderVariableToChange;
     private final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
-
+    private final FloatConsumer variableResultConsumer;
+    private final float defaultValue;
     public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> temp_emfAnimationVariables = null;
     public Object2ObjectOpenHashMap<String, EMFModelPart> temp_allPartsBySingleAndFullHeirachicalId = null;
     @NotNull
     private MathComponent emfCalculator = MathExpressionParser.NULL_EXPRESSION;
-    private final FloatConsumer variableResultConsumer;
 
     public EMFAnimation(EMFModelPart partToApplyTo,
                         EMFModelOrRenderVariable modelOrRenderVariableToChange,
@@ -44,24 +41,24 @@ public class EMFAnimation {
         this.animKey = animKey;
         boolean animKeyIsBoolean = (animKey.startsWith("global_varb") || animKey.startsWith("varb"));
 
-        if (animKey.startsWith("global_var")){
+        if (animKey.startsWith("global_var")) {
             //global
-            if (animKeyIsBoolean){
+            if (animKeyIsBoolean) {
                 //boolean
                 variableResultConsumer = value -> GlobalVariableFactory.setGlobalVariable(animKey,
                         MathValue.isBoolean(value) ? value : FALSE);
-            }else{
+            } else {
                 //float
                 variableResultConsumer = value -> GlobalVariableFactory.setGlobalVariable(animKey,
                         MathValue.isBoolean(value) ? 0 : value);
             }
-        }else if (animKey.startsWith("var")){
+        } else if (animKey.startsWith("var")) {
             //entity
-            if (animKeyIsBoolean){
+            if (animKeyIsBoolean) {
                 //boolean
                 variableResultConsumer = value -> EMFAnimationEntityContext.setEntityVariable(animKey,
                         MathValue.isBoolean(value) ? value : FALSE);
-            }else{
+            } else {
                 //float
                 variableResultConsumer = value -> EMFAnimationEntityContext.setEntityVariable(animKey,
                         MathValue.isBoolean(value) ? 0 : value);
@@ -74,14 +71,15 @@ public class EMFAnimation {
         this.partToApplyTo = partToApplyTo;
 
         this.defaultValue = animKeyIsBoolean ||
-                    (modelOrRenderVariableToChange != null && modelOrRenderVariableToChange.isBoolean())
-                    ? FALSE : 0;
+                (modelOrRenderVariableToChange != null && modelOrRenderVariableToChange.isBoolean())
+                ? FALSE : 0;
         prevResult.defaultReturnValue(this.defaultValue);
         expressionString = initialExpression;
     }
 
-    private final float defaultValue;
-
+    public boolean isVar() {
+        return variableResultConsumer != null;
+    }
 
     @Override
     public String toString() {
@@ -131,11 +129,11 @@ public class EMFAnimation {
 
 
     public void calculateAndSet() {
-            if (EMFAnimationEntityContext.isLODSkippingThisFrame()) {
-                if (!isVar()) handleResultNonVariable(getLastResultOnly());
-            } else {
-                calculateAndSetNotLod();
-            }
+        if (EMFAnimationEntityContext.isLODSkippingThisFrame()) {
+            if (!isVar()) handleResultNonVariable(getLastResultOnly());
+        } else {
+            calculateAndSetNotLod();
+        }
     }
 
     private void calculateAndSetNotLod() {

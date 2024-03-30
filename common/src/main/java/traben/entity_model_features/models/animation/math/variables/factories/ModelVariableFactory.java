@@ -15,9 +15,9 @@ public class ModelVariableFactory extends UniqueVariableFactory {
 //            return variableCalculator::getLastResultOnly;
 //        }
         if (variableKey.startsWith("varb")) {
-            return () -> EMFAnimationEntityContext.getEntityVariable(variableKey,FALSE);
-        }else{
-            return () -> EMFAnimationEntityContext.getEntityVariable(variableKey,0);
+            return () -> EMFAnimationEntityContext.getEntityVariable(variableKey, FALSE);
+        } else {
+            return () -> EMFAnimationEntityContext.getEntityVariable(variableKey, 0);
         }
 
     }

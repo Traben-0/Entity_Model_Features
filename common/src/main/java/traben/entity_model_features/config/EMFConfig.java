@@ -5,7 +5,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.DiffuseLighting;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -133,7 +136,7 @@ public class EMFConfig extends TConfig {
 
     private TConfigEntryCategory getModelSettings() {
         TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.models");
-        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.models_text",200,TConfigEntryText.TextAlignment.LEFT));
+        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.models_text", 200, TConfigEntryText.TextAlignment.LEFT));
         EMFManager.getInstance().cache_LayersByModelName.keySet().stream().sorted().forEach(mapData -> {
             var layer = EMFManager.getInstance().cache_LayersByModelName.get(mapData);
             if (layer != null) {
@@ -173,7 +176,7 @@ public class EMFConfig extends TConfig {
             }
         });
         category.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
-                "entity_model_features.config.models.arrows",200, TConfigEntryText.TextAlignment.LEFT));
+                "entity_model_features.config.models.arrows", 200, TConfigEntryText.TextAlignment.LEFT));
         return category;
     }
 
@@ -376,39 +379,41 @@ public class EMFConfig extends TConfig {
         private final EntityModelLayer layer;
         private ModelPart root = null;
         private boolean asserted = false;
-        ModelRootRenderer(EntityModelLayer layer){
+
+        ModelRootRenderer(EntityModelLayer layer) {
             this.layer = layer;
         }
 
-        private boolean canRender(){
-            if (!asserted && root == null){
+        private boolean canRender() {
+            if (!asserted && root == null) {
                 asserted = true;
                 try {
                     root = MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer).createModel();
-                }catch (Exception e){
+                } catch (Exception e) {
                     //noinspection CallToPrintStackTrace
                     e.printStackTrace();
                 }
             }
             return root != null;
         }
+
         @Override
         public void render(final DrawContext context, final int mouseX, final int mouseY) {
-            if (canRender()){
+            if (canRender()) {
                 Screen screen = MinecraftClient.getInstance().currentScreen;
                 if (screen == null) return;
 
 
-                int y = (int)((double) screen.height * 0.75);
-                int x = (int)((double)screen.width * 0.33);
-                float g = (float)(-Math.atan((((float)(-mouseY) + (float)screen.height / 2.0F) / 40.0F)));
-                float g2 = (float)(-Math.atan((((float)(-mouseX) + (float)screen.width / 3.0F) / 400.0F)));
-                Quaternionf quaternionf = (new Quaternionf()).rotateZ(3.1415927F).rotateY(g2*8);
-                Quaternionf quaternionf2 = (new Quaternionf()).rotateX(-(g * 20.0F * 0.017453292F)*2);
+                int y = (int) ((double) screen.height * 0.75);
+                int x = (int) ((double) screen.width * 0.33);
+                float g = (float) (-Math.atan((((float) (-mouseY) + (float) screen.height / 2.0F) / 40.0F)));
+                float g2 = (float) (-Math.atan((((float) (-mouseX) + (float) screen.width / 3.0F) / 400.0F)));
+                Quaternionf quaternionf = (new Quaternionf()).rotateZ(3.1415927F).rotateY(g2 * 8);
+                Quaternionf quaternionf2 = (new Quaternionf()).rotateX(-(g * 20.0F * 0.017453292F) * 2);
                 quaternionf.mul(quaternionf2);
                 context.getMatrices().push();
                 context.getMatrices().translate(x, y, 150.0);
-                float scaling = (float)((double)screen.height * 0.3);
+                float scaling = (float) ((double) screen.height * 0.3);
                 context.getMatrices().multiplyPositionMatrix((new Matrix4f()).scaling(scaling, scaling, -scaling));
                 context.getMatrices().multiply(quaternionf);
                 DiffuseLighting.method_34742();
@@ -417,7 +422,7 @@ public class EMFConfig extends TConfig {
                 matrixStack.push();
                 matrixStack.scale(-1.0F, -1.0F, 1.0F);
                 matrixStack.translate(0.0F, -1.501F, 0.0F);
-                 var buffer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines());
+                var buffer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines());
                 if (buffer != null) {
                     renderBoxes(matrixStack, buffer, root);
                 }

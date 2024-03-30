@@ -42,6 +42,7 @@ public class EMFAnimationEntityContext {
     public static boolean setInItemFrame = false;
     public static boolean setIsOnHead = false;
     public static double lastFOV = 70;
+    public static boolean is_in_ground_override = false;
     private static EMFEntity emfEntity = null;
     private static float shadowSize = Float.NaN;
     private static float shadowOpacity = Float.NaN;
@@ -60,25 +61,23 @@ public class EMFAnimationEntityContext {
     private static Boolean lodFrameSkipping = null;
     private static boolean announceModels = false;
 
-    public static boolean is_in_ground_override = false;
-
     private EMFAnimationEntityContext() {
 
     }
 
-    public static boolean isJumping(){
+    public static boolean isJumping() {
         return emfEntity instanceof LivingEntity alive && alive.jumping;
     }
 
 
-    public static void setEntityVariable(String variable, float value){
+    public static void setEntityVariable(String variable, float value) {
         //if (variable.equals("var.fly")) System.out.println("setEntityVariable: " + variable + " " + (emfEntity != null ? emfEntity.emf$getVariableMap().getOrDefault(variable, value) : "null"));
         if (emfEntity != null) {
             emfEntity.emf$getVariableMap().put(variable, value);
         }
     }
 
-    public static float getEntityVariable(String variable, float defaultValue){
+    public static float getEntityVariable(String variable, float defaultValue) {
         //if (variable.equals("var.fly")) System.out.println("getEntityVariable: " + variable + " " + (emfEntity != null ? emfEntity.emf$getVariableMap().getOrDefault(variable, defaultValue) : "null"));
         if (emfEntity == null) return defaultValue;
         return emfEntity.emf$getVariableMap().getOrDefault(variable, defaultValue);

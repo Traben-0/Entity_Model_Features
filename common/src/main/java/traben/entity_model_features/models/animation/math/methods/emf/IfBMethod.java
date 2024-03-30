@@ -16,7 +16,7 @@ public class IfBMethod extends IfMethod {
         //validate output is boolean
         supplier = () -> MathValue.validateBoolean(supplier.get());
         if (optimizedAlternativeToThis != null) {
-            optimizedAlternativeToThis = ()-> MathValue.validateBoolean(optimizedAlternativeToThis.getResult());
+            optimizedAlternativeToThis = () -> MathValue.validateBoolean(optimizedAlternativeToThis.getResult());
         }
     }
 }

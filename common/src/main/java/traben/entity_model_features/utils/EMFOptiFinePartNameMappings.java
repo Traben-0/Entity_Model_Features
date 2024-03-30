@@ -157,7 +157,9 @@ public class EMFOptiFinePartNameMappings {
                 .accept(genericQuadraped);
 
         optifineModels("creeper", "creeper_charge").accept(
-                new HashMap<>(genericQuadraped){{put("root","root");}}
+                new HashMap<>(genericQuadraped) {{
+                    put("root", "root");
+                }}
         );
 
 
@@ -1154,8 +1156,8 @@ public class EMFOptiFinePartNameMappings {
                         getOptifineMapEntry("middle_spike"),
                         getOptifineMapEntry("right_spike")));
 
-        optifineModels("spectral_arrow","arrow")
-                .accept(Map.ofEntries(getOptifineMapEntry("body","root" )));
+        optifineModels("spectral_arrow", "arrow")
+                .accept(Map.ofEntries(getOptifineMapEntry("body", "root")));
 
         optifineModels("shield")
                 .accept(Map.ofEntries(

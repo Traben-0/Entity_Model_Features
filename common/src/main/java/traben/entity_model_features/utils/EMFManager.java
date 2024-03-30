@@ -197,7 +197,6 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
 
-
     public void modifyEBEIfRequired() {
         if (IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMF.config().getConfig().allowEBEModConfigModify) {
             try {
@@ -469,8 +468,8 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                 if (emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVar()) {
                     //this is a secondary variable modification
-                    String key = animKey  + '#';
-                    while(emfAnimations.containsKey(key)){
+                    String key = animKey + '#';
+                    while (emfAnimations.containsKey(key)) {
                         key += '#';
                     }
                     // add it in the animation list but alter the key name
@@ -496,7 +495,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             if (anim != null) {
                 anim.initExpression(emfAnimations, allPartsBySingleAndFullHeirachicalId);
                 if (!anim.isValid()) {
-                    EMFUtils.logError("animation was invalid: [" + anim.animKey + "] = [" + anim.expressionString +"] in model [" + emfRootPart.modelName + "]");
+                    EMFUtils.logError("animation was invalid: [" + anim.animKey + "] = [" + anim.expressionString + "] in model [" + emfRootPart.modelName + "]");
                     //animMapIterate.remove();
                     isAnimationValidationPhase = false;
                     return;

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 
 @Mixin(StuckObjectsFeatureRenderer.class)
-public abstract class MixinStuckArrowsFeatureRenderer  {
+public abstract class MixinStuckArrowsFeatureRenderer {
 
 
     @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFF)V",

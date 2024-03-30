@@ -36,7 +36,7 @@ public final class MethodRegistry {
         registerAndWrapMethodFactory("min", MinMethod::new);
         registerAndWrapMethodFactory("random", RandomMethod::new);
         registerSimpleMethodFactory("sin", (v) -> (float) Math.sin(v));
-        registerSimpleMethodFactory("asin", (v)-> (float) Math.asin(v));
+        registerSimpleMethodFactory("asin", (v) -> (float) Math.asin(v));
         registerSimpleMethodFactory("cos", (v) -> (float) Math.cos(v));
         registerSimpleMethodFactory("acos", (v) -> (float) Math.acos(v));
         registerSimpleMethodFactory("tan", (v) -> (float) Math.tan(v));
@@ -54,7 +54,7 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("sqrt", (v) -> v < 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : (float) Math.sqrt(v));
         registerSimpleMethodFactory("fmod", (v, w) -> (float) Math.floorMod((int) (float) v, (int) (float) w));
         registerSimpleMethodFactory("pow", (v, w) -> (float) Math.pow(v, w));
-        registerSimpleMethodFactory("atan2",(v, w) -> (float) Math.atan2(v, w));
+        registerSimpleMethodFactory("atan2", (v, w) -> (float) Math.atan2(v, w));
         registerSimpleMethodFactory("clamp", MathHelper::clamp);
         registerSimpleMethodFactory("lerp", MathHelper::lerp);
         registerAndWrapMethodFactory("print", PrintMethod::new);
@@ -67,7 +67,7 @@ public final class MethodRegistry {
         registerAndWrapMethodFactory("randomb", RandomBMethod::new);
         registerAndWrapMethodFactory("in", InMethod::new);
         registerSimpleMethodFactory("between", (a, b, c) -> a > c ? FALSE : (a < b ? FALSE : TRUE));
-        registerSimpleMethodFactory("equals",(x, y, epsilon) -> Math.abs(y - x) <= epsilon ? TRUE : FALSE);
+        registerSimpleMethodFactory("equals", (x, y, epsilon) -> Math.abs(y - x) <= epsilon ? TRUE : FALSE);
 
 
         //emf methods

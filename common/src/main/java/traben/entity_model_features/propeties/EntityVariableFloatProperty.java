@@ -16,6 +16,7 @@ import java.util.function.Function;
 public class EntityVariableFloatProperty extends RandomProperty {
 
     private final List<FloatRangeFromStringArrayProperty> VARIABLES;
+
     protected EntityVariableFloatProperty(Properties properties, int propertyNum) throws RandomProperty.RandomPropertyException {
 //        super(readPropertiesOrThrow(properties, propertyNum, "var"));
         String keyPrefix = "var." + propertyNum + ".";
@@ -24,7 +25,7 @@ public class EntityVariableFloatProperty extends RandomProperty {
             String key = objectObjectEntry.getKey().toString();
             Object value = objectObjectEntry.getValue();
             if (key != null && key.startsWith(keyPrefix)) {
-                String instruction = ((String)value).trim();
+                String instruction = ((String) value).trim();
                 String variableKey = "var." + key.replaceAll(keyPrefix, "");
                 if (!variableKey.isBlank() && !instruction.isBlank()) {
                     var tester = new InnerTester(instruction, (emfEntity) -> emfEntity.emf$getVariableMap().getFloat(variableKey), variableKey);
@@ -46,7 +47,6 @@ public class EntityVariableFloatProperty extends RandomProperty {
     }
 
 
-
     @Override
     protected boolean testEntityInternal(final ETFEntity etfEntity) {
         for (FloatRangeFromStringArrayProperty variable : VARIABLES) {
@@ -66,11 +66,12 @@ public class EntityVariableFloatProperty extends RandomProperty {
         return null;
     }
 
-    private static class InnerTester extends FloatRangeFromStringArrayProperty{
+    private static class InnerTester extends FloatRangeFromStringArrayProperty {
 
-        private final Function<EMFEntity,Float> getter;
+        private final Function<EMFEntity, Float> getter;
         private final String id;
-        protected InnerTester(final String string, Function<EMFEntity,Float> getter, String id) throws RandomPropertyException {
+
+        protected InnerTester(final String string, Function<EMFEntity, Float> getter, String id) throws RandomPropertyException {
             super(string);
             this.getter = getter;
             this.id = id;

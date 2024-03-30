@@ -18,10 +18,10 @@ public class RandomMethod extends MathMethod {
         var rand = new Random();
         if (hasSeed) {
             var arg = parseArg(args.get(0), calculationInstance);
-            setSupplierAndOptimize(() ->nextValue(rand,arg.getResult()), arg);
+            setSupplierAndOptimize(() -> nextValue(rand, arg.getResult()), arg);
         } else {
             //true random
-            setSupplierAndOptimize(()-> nextValue(rand));
+            setSupplierAndOptimize(() -> nextValue(rand));
         }
     }
 

@@ -17,6 +17,11 @@ import traben.entity_model_features.utils.EMFEntity;
 public abstract class MixinBlockEntity implements EMFEntity {
 
 
+    @Unique
+    private final Object2FloatOpenHashMap<String> emf$variableMap = new Object2FloatOpenHashMap<>() {{
+        defaultReturnValue(0);
+    }};
+
     @Shadow
     public abstract BlockPos getPos();
 
@@ -95,7 +100,6 @@ public abstract class MixinBlockEntity implements EMFEntity {
         return false;
     }
 
-
     @Override
     public boolean emf$isGlowing() {
         return false;
@@ -150,9 +154,6 @@ public abstract class MixinBlockEntity implements EMFEntity {
     public String emf$getTypeString() {
         return getType().toString();
     }
-
-    @Unique
-    private final Object2FloatOpenHashMap<String> emf$variableMap = new Object2FloatOpenHashMap<>(){{defaultReturnValue(0);}};
 
     @Override
     public Object2FloatOpenHashMap<String> emf$getVariableMap() {
