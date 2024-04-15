@@ -59,7 +59,7 @@ public enum MathOperator implements MathComponent {
         @Override
         public float execute(MathComponent first, MathComponent second) {
             return MathValue.fromBoolean(MathValue.toBoolean(first.getResult())
-                    || (MathValue.toBoolean(second.getResult())));
+                    || MathValue.toBoolean(second.getResult()));
         }
     },
     LARGER_THAN {

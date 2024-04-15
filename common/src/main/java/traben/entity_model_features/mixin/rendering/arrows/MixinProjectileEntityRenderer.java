@@ -37,7 +37,7 @@ public abstract class MixinProjectileEntityRenderer<T extends PersistentProjecti
             EMFAnimationEntityContext.setHeadYaw(f);
             float s = (float) persistentProjectileEntity.shake - g;
             EMFAnimationEntityContext.setHeadPitch(-MathHelper.sin(s * 3.0F) * s);// copy of t
-            VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(RenderLayer.getEntityCutout(this.getTexture(persistentProjectileEntity)));
+            VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(this.getTexture(persistentProjectileEntity)));
             customModelHolder.emf$getModel().render(matrixStack, vertexConsumer, i, OverlayTexture.DEFAULT_UV, 1, 1, 1, 1);
             matrixStack.pop();
             ci.cancel();

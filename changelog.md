@@ -1,6 +1,7 @@
 
-1.4
 
+
+- fixed first person hand jittering with certain player animation resource-packs
 - added the `ifb() randomb() catch()` animation functions
   - `ifb()` is a boolean returning version of `if()` 
   - `randomb()` is a boolean returning version of `random()`

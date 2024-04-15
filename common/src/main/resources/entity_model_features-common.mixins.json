@@ -31,6 +31,7 @@
     "rendering.MixinItemFrameEntityRenderer",
     "rendering.MixinLivingEntityRenderer",
     "rendering.MixinLlamaDecorFeatureRenderer",
+    "rendering.MixinPlayerEntityRenderer",
     "rendering.MixinSaddleFeatureRenderer",
     "rendering.MixinSheepWoolFeatureRenderer",
     "rendering.MixinSlimeOverlayFeatureRenderer",

@@ -5,6 +5,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Arm;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.MathComponent;
@@ -98,6 +100,23 @@ public final class VariableRegistry {
 
 
         //simple booleans
+        registerSimpleBoolVariable("is_right_handed", () -> {
+            if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
+            return EMFAnimationEntityContext.getEMFEntity() instanceof PlayerEntity entity && entity.getMainArm() == Arm.RIGHT;
+        });
+        registerSimpleBoolVariable("is_swimming", () -> {
+            if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
+            return EMFAnimationEntityContext.getEMFEntity() instanceof Entity entity && entity.isSwimming();
+        });
+
+        registerSimpleBoolVariable("is_gliding", () -> {
+            if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
+            return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity entity && entity.isFallFlying();
+
+        });
+
+
+
         registerSimpleBoolVariable("is_blocking", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
             return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity livingEntity && livingEntity.isBlocking();

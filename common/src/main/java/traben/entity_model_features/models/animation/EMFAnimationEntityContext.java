@@ -139,7 +139,7 @@ public class EMFAnimationEntityContext {
 
         if (EMF.config().getConfig().animationLODDistance == 0 || emfEntity == null) return false;
 
-        int lodTimer = lodEntityTimers.getInt(EMFAnimationEntityContext.getEMFEntity().etf$getUuid());
+        int lodTimer = lodEntityTimers.getInt(emfEntity.etf$getUuid());
         int lodResult;
         //check lod
         if (lodTimer < 1) {
@@ -147,15 +147,15 @@ public class EMFAnimationEntityContext {
         } else {
             lodResult = lodTimer - 1;
         }
-        lodEntityTimers.put(EMFAnimationEntityContext.getEMFEntity().etf$getUuid(), lodResult);
+        lodEntityTimers.put(emfEntity.etf$getUuid(), lodResult);
         lodFrameSkipping = lodResult > 0;
         return lodFrameSkipping;
     }
 
     public static void setCurrentEntityIteration(EMFEntity entityIn) {
-        layerFactory = null;
-        newEntity(entityIn);
         EMFManager.getInstance().entityRenderCount++;
+        layerFactory = null;
+
         tickDelta = MinecraftClient.getInstance().isPaused() ? ((MinecraftClientAccessor) MinecraftClient.getInstance()).getPausedTickDelta() : MinecraftClient.getInstance().getTickDelta();
         shadowSize = Float.NaN;
         shadowOpacity = Float.NaN;
@@ -164,19 +164,25 @@ public class EMFAnimationEntityContext {
         leashZ = 0;
         shadowX = 0;
         shadowZ = 0;
-        //perform variant checking for this entity types models
-        //this is the only way to keep it generic and also before the entity is rendered and affect al its models
-        Set<Runnable> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(entityIn.emf$getTypeString());
-        if (roots != null) {
-            roots.forEach(Runnable::run);
+
+        newEntity(entityIn);
+
+        if (entityIn != null){
+            //perform variant checking for this entity types models
+            //this is the only way to keep it generic and also before the entity is rendered and affect al its models
+            Set<Runnable> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(entityIn.emf$getTypeString());
+            if (roots != null) {
+                roots.forEach(Runnable::run);
+            }
+
+            //if this entity requires a debug print do it now after models have variated
+            if (EMF.config().getConfig().debugOnRightClick
+                    && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)) {
+                announceModels = true;
+                EMFManager.getInstance().entityForDebugPrint = null;
+            }
         }
 
-        //if this entity requires a debug print do it now after models have variated
-        if (EMF.config().getConfig().debugOnRightClick
-                && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)) {
-            announceModels = true;
-            EMFManager.getInstance().entityForDebugPrint = null;
-        }
 
         lodFrameSkipping = null;
     }
@@ -419,6 +425,9 @@ public class EMFAnimationEntityContext {
             return (float) (emfEntity.etf$getWorld().getTimeOfDay() / 24000L) + tickDelta;
         }
     }
+
+
+
 
     public static float getHealth() {
         if (emfEntity == null) return 0;
