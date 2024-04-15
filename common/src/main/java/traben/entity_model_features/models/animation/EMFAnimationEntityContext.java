@@ -167,7 +167,7 @@ public class EMFAnimationEntityContext {
 
         newEntity(entityIn);
 
-        if (entityIn != null){
+        if (entityIn != null) {
             //perform variant checking for this entity types models
             //this is the only way to keep it generic and also before the entity is rendered and affect al its models
             Set<Runnable> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(entityIn.emf$getTypeString());
@@ -425,8 +425,6 @@ public class EMFAnimationEntityContext {
             return (float) (emfEntity.etf$getWorld().getTimeOfDay() / 24000L) + tickDelta;
         }
     }
-
-
 
 
     public static float getHealth() {

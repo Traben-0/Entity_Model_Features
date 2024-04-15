@@ -116,7 +116,6 @@ public final class VariableRegistry {
         });
 
 
-
         registerSimpleBoolVariable("is_blocking", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
             return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity livingEntity && livingEntity.isBlocking();

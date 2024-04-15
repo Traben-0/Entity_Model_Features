@@ -8,7 +8,7 @@ public abstract class MathValue implements MathComponent {
 
     public static final float TRUE = Float.POSITIVE_INFINITY;
 
-//    MathValue(boolean isNegative ){
+    //    MathValue(boolean isNegative ){
 //        this.isNegative = isNegative;
 //        this.calculationInstance = calculationInstance;
 //        if (calculationInstance == null)

@@ -196,13 +196,13 @@ public interface EMFAnimationApi {
     @Deprecated(since = "api v2")
     static void registerSingletonAnimationVariable(String sourceModId, String variableName, BooleanSupplier variableValueSupplier) {
         EMFUtils.logWarn("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
-        registerSingletonAnimationVariable(sourceModId, variableName,variableName, variableValueSupplier);
+        registerSingletonAnimationVariable(sourceModId, variableName, variableName, variableValueSupplier);
     }
 
     @Deprecated(since = "api v2")
     static void registerSingletonAnimationVariable(String sourceModId, String variableName, FloatSupplier variableValueSupplier) {
         EMFUtils.logWarn("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
-        registerSingletonAnimationVariable(sourceModId, variableName,variableName, variableValueSupplier);
+        registerSingletonAnimationVariable(sourceModId, variableName, variableName, variableValueSupplier);
     }
 
 

@@ -93,14 +93,14 @@ public class EMFPartData {
         var list = new ArrayList<Consumer<MatrixStack>>();
         for (String s : attachments.keySet()) {
             float[] floats = attachments.get(s);
-            System.out.println("found " + s + " = " + Arrays.toString(floats));
+//            System.out.println("found " + s + " = " + Arrays.toString(floats));
             try {
                 boolean invX = invertAxis.contains("x");
                 boolean invY = invertAxis.contains("y");
                 boolean invZ = invertAxis.contains("z");
                 if (floats != null && floats.length == 3) {
                     var attachment = EMFAttachments.valueOf(s);
-                    System.out.println("added " + s + " as " + attachment);
+//                    System.out.println("added " + s + " as " + attachment);
                     list.add(attachment.getConsumerWithTranslates(
                             floats[0] * (invX ? -1 : 1),//- translate[0],
                             floats[1] * (invY ? -1 : 1),//- translate[1],
@@ -109,7 +109,7 @@ public class EMFPartData {
             } catch (IllegalArgumentException e) {
                 EMFUtils.log("Unknown attachment point: " + s);
             }
-            System.out.println("sent" + list.size() + " attachments");
+//            System.out.println("sent" + list.size() + " attachments");
         }
 
         return list;
