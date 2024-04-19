@@ -5,6 +5,7 @@ import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.models.animation.math.MathComponent;
 import traben.entity_model_features.models.animation.math.MathMethod;
+import traben.entity_model_features.models.animation.math.MathValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,12 +26,12 @@ public class IfMethod extends MathMethod {
 
             //if the condition is constant, we can optimize to only use the correct branch
             if (bool.isConstant()) {
-                setOptimizedAlternativeToThis(bool.getResult() == 1 ? tru : fals);
+                setOptimizedAlternativeToThis(MathValue.toBoolean(bool.getResult()) ? tru : fals);
             }
 
             setSupplierAndOptimize(() -> {
                 float condition = bool.getResult();
-                if (condition == 1) {
+                if (MathValue.toBoolean(condition)) {
                     return tru.getResult();
                 } else {
                     return fals.getResult();
@@ -46,8 +47,12 @@ public class IfMethod extends MathMethod {
                 var next = iterator.next();
                 if (iterator.hasNext()) {
                     if (!next.isConstant()) {
+                        //test is valid boolean won't throw exception
+                        //noinspection ResultOfMethodCallIgnored
+                        MathValue.toBoolean(next.getResult());
+
                         ifSets.add(new Pair<>(next, iterator.next()));
-                    } else if (next.getResult() == 1) {
+                    } else if (MathValue.toBoolean(next.getResult())) {
                         //if next is a true constant then end here
                         lastElse = iterator.next();
                         break;
@@ -61,7 +66,7 @@ public class IfMethod extends MathMethod {
             final MathComponent finalElse = lastElse;
             setSupplierAndOptimize(() -> {
                 for (Pair<MathComponent, MathComponent> ifSet : ifSets) {
-                    if (ifSet.getLeft().getResult() == 1) {
+                    if (MathValue.toBoolean(ifSet.getLeft().getResult())) {
                         return ifSet.getRight().getResult();
                     }
                 }

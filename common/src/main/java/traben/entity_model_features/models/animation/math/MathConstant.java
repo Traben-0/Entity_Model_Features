@@ -5,34 +5,10 @@ import traben.entity_model_features.utils.EMFUtils;
 public class MathConstant extends MathValue implements MathComponent {
 
 
-    public static final MathConstant ZERO = new MathConstant(0) {
-        //make this constant to avoid object instantiation
-        private static final ResultSupplier supplier = () -> 0;
+    public static final MathConstant ZERO_CONST = new MathConstant(0);
 
-        @Override
-        public void makeNegative(boolean become) {
-        }
 
-        @Override
-        public ResultSupplier getResultSupplier() {
-            return supplier;
-        }
-    };
-    public static final MathConstant ONE = new MathConstant(1) {
-        //make this constant to avoid object instantiation
-        private static final ResultSupplier supplier = () -> 1;
-
-        @Override
-        public void makeNegative(boolean become) {
-        }
-
-        @Override
-        public ResultSupplier getResultSupplier() {
-            return supplier;
-        }
-    };
-
-    private float hardCodedValue;
+    private final float hardCodedValue;
 
     public MathConstant(float number, boolean isNegative) {
         hardCodedValue = isNegative ? -number : number;
@@ -44,7 +20,7 @@ public class MathConstant extends MathValue implements MathComponent {
 
     @Override
     public ResultSupplier getResultSupplier() {
-        EMFUtils.logError("EMF math constant: this shouldn't happen!");
+        EMFUtils.logError("EMF math constant called supplier: this shouldn't happen!");
         return () -> hardCodedValue;
     }
 
@@ -54,8 +30,8 @@ public class MathConstant extends MathValue implements MathComponent {
     }
 
     @Override
-    public void makeNegative(boolean become) {
-        if (become) hardCodedValue = -hardCodedValue;
+    public MathValue getNegative() {
+        return new MathConstant(-hardCodedValue);
     }
 
     @Override

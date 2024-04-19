@@ -6,27 +6,37 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.utils.EMFTextureUVSupplier;
+import traben.entity_model_features.EMF;
+import traben.entity_model_features.utils.EMFCuboidDataSupplier;
 
 import java.util.Set;
 
 @Mixin(ModelPart.Cuboid.class)
-public class MixinModelPart$Cuboid implements EMFTextureUVSupplier {
+public class MixinModelPart$Cuboid implements EMFCuboidDataSupplier {
 
 
     @Unique
     private int[] emf$textureUV = null;
 
+    @Unique
+    private float[] emf$sizeAdd = null;
+
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
     private void emf$injectAnnouncer(final int u, final int v, final float x, final float y, final float z, final float sizeX, final float sizeY, final float sizeZ, final float extraX, final float extraY, final float extraZ, final boolean mirror, final float textureWidth, final float textureHeight, final Set<?> set, final CallbackInfo ci) {
-        if (EMFConfig.getConfig().modelExportMode.doesLog())
+        if (EMF.config().getConfig().modelExportMode.doesLog()) {
             emf$textureUV = new int[]{u, v};
+            emf$sizeAdd = new float[]{extraX, extraY, extraZ};
+        }
     }
 
     @Override
     public int[] emf$getTextureUV() {
         return emf$textureUV;
+    }
+
+    @Override
+    public float[] emf$getSizeAdd() {
+        return emf$sizeAdd;
     }
 }

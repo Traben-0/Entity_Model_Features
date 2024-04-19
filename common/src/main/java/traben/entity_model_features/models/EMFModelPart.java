@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static traben.entity_model_features.EMFClient.EYES_FEATURE_LIGHT_VALUE;
+import static traben.entity_model_features.EMF.EYES_FEATURE_LIGHT_VALUE;
 
 public abstract class EMFModelPart extends ModelPart {
     public Identifier textureOverride;
@@ -67,7 +67,7 @@ public abstract class EMFModelPart extends ModelPart {
             lastTextureOverride = EMFManager.getInstance().entityRenderCount;
 
 
-            RenderLayer layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrTranslucent(textureOverride);
+            RenderLayer layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrETFOverrideOrTranslucent(textureOverride);
             VertexConsumer newConsumer = provider.getBuffer(layerModified);
 
             renderLikeVanilla(matrices, newConsumer, light, overlay, red, green, blue, alpha);

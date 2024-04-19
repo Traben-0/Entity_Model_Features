@@ -1,13 +1,15 @@
 package traben.entity_model_features.models.jem_objects;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.utils.EMFUtils;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Consumer;
 
+@SuppressWarnings("CanBeFinal")
 public class EMFPartData {
 
 
@@ -27,6 +29,8 @@ public class EMFPartData {
     public String part = null;//"!!!!!";     //- Entity part to which the part model is attached
     public boolean attach = false; //- True: attach to the entity part, False: replace it
     public float scale = 1.0f;
+
+    public Object2ObjectOpenHashMap<String, float[]> attachments = new Object2ObjectOpenHashMap<>();
 
     public LinkedList<LinkedHashMap<String, String>> animations = null;
     private Identifier customTexture = null;
@@ -85,11 +89,46 @@ public class EMFPartData {
             this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
     }
 
+    public List<Consumer<MatrixStack>> getAttachments() {
+        var list = new ArrayList<Consumer<MatrixStack>>();
+        for (String s : attachments.keySet()) {
+            float[] floats = attachments.get(s);
+//            System.out.println("found " + s + " = " + Arrays.toString(floats));
+            try {
+                boolean invX = invertAxis.contains("x");
+                boolean invY = invertAxis.contains("y");
+                boolean invZ = invertAxis.contains("z");
+                if (floats != null && floats.length == 3) {
+                    var attachment = EMFAttachments.valueOf(s);
+//                    System.out.println("added " + s + " as " + attachment);
+                    list.add(attachment.getConsumerWithTranslates(
+                            floats[0] * (invX ? -1 : 1),//- translate[0],
+                            floats[1] * (invY ? -1 : 1),//- translate[1],
+                            floats[2] * (invZ ? -1 : 1)));//- translate[2]));
+                }
+            } catch (IllegalArgumentException e) {
+                EMFUtils.log("Unknown attachment point: " + s);
+            }
+//            System.out.println("sent" + list.size() + " attachments");
+        }
+
+        return list;
+    }
+
     public void prepare(int[] textureSize, EMFJemData jem, Identifier jemTexture) {
         if (this.id.isBlank())
             this.id = "EMF_" + hashCode();
         else
             this.id = "EMF_" + this.id;
+
+//        var map = new Object2ObjectOpenHashMap<>(attachments);
+//
+//        for (String s : map.keySet()) {
+//            float[] floats = map.get(s);
+//            if (floats != null && floats.length != 3) {
+//                attachments.remove(s);
+//            }
+//        }
 
 
         //check if we need to load a .jpm into this object
@@ -102,7 +141,7 @@ public class EMFPartData {
         }
 
 
-        if (this.textureSize == null || textureSize.length != 2) this.textureSize = textureSize;
+        if (this.textureSize == null || this.textureSize.length != 2) this.textureSize = textureSize;
         this.customTexture = jem.validateJemTexture(texture);
 
         if (customTexture == null) customTexture = jemTexture;

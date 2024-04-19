@@ -38,4 +38,8 @@ public abstract class UniqueVariableFactory {
      */
     abstract public boolean createsThisVariable(String variableKey);
 
+    abstract public @Nullable String getExplanationTranslationKey();
+
+    abstract public @Nullable String getTitleTranslationKey();
+
 }

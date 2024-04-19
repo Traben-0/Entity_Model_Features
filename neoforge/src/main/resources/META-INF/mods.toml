@@ -25,14 +25,14 @@ side = "CLIENT"
 [[dependencies.entity_model_features]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.4,)"
+versionRange = "[1.20.5,)"
 ordering = "NONE"
 side = "CLIENT"
 
 [[dependencies.entity_model_features]]
 modId = "entity_texture_features"
 mandatory = true
-versionRange = "[5.2,)"
+versionRange = "[6.0,)"
 ordering = "NONE"
 side = "CLIENT"
 

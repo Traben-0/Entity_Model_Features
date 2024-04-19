@@ -7,7 +7,7 @@ architectury {
     neoForge()
 }
 
-archivesBaseName = rootProject.archives_base_name + "_neoforge_1.20.4"
+archivesBaseName = rootProject.archives_base_name + "_neoforge_1.20.5"
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
@@ -38,7 +38,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
-    modImplementation files("run/mods/entity_texture_features_neoforge_1.20.4-5.2.1.jar")
+//    modImplementation files("common/run/mods/entity_texture_features_neoforge_1.20.4-5.2.1.jar")
     //modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version_forge}")
 }
 

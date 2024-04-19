@@ -44,4 +44,6 @@ public class MixinWolfEntityModel<T extends WolfEntity> implements EMFWolfCollar
     public void emf$setCollarModel(WolfEntityModel<T> model) {
         emf$collarModel = model;
     }
+
+
 }

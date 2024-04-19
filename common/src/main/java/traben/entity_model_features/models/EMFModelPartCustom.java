@@ -10,7 +10,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.accessor.CuboidAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
@@ -18,6 +18,7 @@ import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 
 @Environment(value = EnvType.CLIENT)
@@ -28,6 +29,8 @@ public class EMFModelPartCustom extends EMFModelPart {
     public final String id;
     public final boolean attach;
 
+    private final @Nullable List<Consumer<MatrixStack>> attachments;
+
     public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id) {//,//float[] parentalTransforms) {
 
         super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variant));
@@ -36,6 +39,10 @@ public class EMFModelPartCustom extends EMFModelPart {
         this.id = id;
         //selfModelData = emfPartData;
         textureOverride = emfPartData.getCustomTexture();
+
+        var attachments = emfPartData.getAttachments();
+        this.attachments = attachments.isEmpty() ? null : attachments;
+
 
         //seems to be just straight into model no bullshit?
         //todo check up on scale?
@@ -54,7 +61,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
         this.setDefaultTransform(this.getTransform());
 
-        if (EMFConfig.getConfig().logModelCreationData)
+        if (EMF.config().getConfig().logModelCreationData)
             EMFUtils.log(" > > EMF custom part made: " + emfPartData.id);
         //if (variantNumber == 0)
 
@@ -89,7 +96,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                                 box.textureOffset[0], box.textureOffset[1],
                                 box.coordinates[0], box.coordinates[1], box.coordinates[2],
                                 box.coordinates[3], box.coordinates[4], box.coordinates[5],
-                                box.sizeAdd, box.sizeAdd, box.sizeAdd,
+                                box.sizeAddX, box.sizeAddY, box.sizeAddZ,
                                 emfPartData.textureSize[0], emfPartData.textureSize[1],
                                 emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));//selfModelData.invertAxis);
                     } else {
@@ -99,7 +106,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                                 box.uvSouth, box.uvWest, box.uvEast,
                                 box.coordinates[0], box.coordinates[1], box.coordinates[2],
                                 box.coordinates[3], box.coordinates[4], box.coordinates[5],
-                                box.sizeAdd, box.sizeAdd, box.sizeAdd,
+                                box.sizeAddX, box.sizeAddY, box.sizeAddZ,
                                 emfPartData.textureSize[0], emfPartData.textureSize[1],
                                 emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));//selfModelData.invertAxis);
                     }
@@ -182,7 +189,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? p : q,
                     textureWidth, textureHeight, false, mirrorV ? Direction.UP : Direction.DOWN));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-dwn failed for " + selfModelData.id);
         }
         try {
@@ -195,7 +202,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? q : p,
                     textureWidth, textureHeight, false, mirrorV ? Direction.DOWN : Direction.UP));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-up failed for " + selfModelData.id);
         }
         try {
@@ -208,7 +215,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? q : r,
                     textureWidth, textureHeight, false, mirrorU ? Direction.EAST : Direction.WEST));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-west failed for " + selfModelData.id);
         }
         try {
@@ -221,7 +228,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? q : r,
                     textureWidth, textureHeight, false, Direction.NORTH));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-nrth failed for " + selfModelData.id);
         }
         try {
@@ -234,7 +241,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? q : r,
                     textureWidth, textureHeight, false, mirrorU ? Direction.WEST : Direction.EAST));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-east failed for " + selfModelData.id);
         }
         try {
@@ -247,7 +254,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? q : r,
                     textureWidth, textureHeight, false, Direction.SOUTH));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-sth failed for " + selfModelData.id);
         }
 
@@ -322,7 +329,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? uvUp[1] : uvUp[3],
                     textureWidth, textureHeight, false, mirrorV ? Direction.UP : Direction.DOWN));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-up failed for " + selfModelData.id);
         }
         try {
@@ -334,7 +341,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? uvDown[1] : uvDown[3],
                     textureWidth, textureHeight, false, mirrorV ? Direction.DOWN : Direction.UP));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-down failed for " + selfModelData.id);
         }
         try {
@@ -346,7 +353,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? uvWest[1] : uvWest[3],
                     textureWidth, textureHeight, false, mirrorU ? Direction.WEST : Direction.EAST));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-west failed for " + selfModelData.id);
         }
         try {
@@ -358,7 +365,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? uvNorth[1] : uvNorth[3],
                     textureWidth, textureHeight, false, Direction.NORTH));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-north failed for " + selfModelData.id);
         }
         try {
@@ -370,7 +377,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? uvEast[1] : uvEast[3],
                     textureWidth, textureHeight, false, mirrorU ? Direction.EAST : Direction.WEST));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-east failed for " + selfModelData.id);
         }
         try {
@@ -382,7 +389,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                     mirrorV ? uvSouth[1] : uvSouth[3],
                     textureWidth, textureHeight, false, Direction.SOUTH));
         } catch (Exception e) {
-            if (EMFConfig.getConfig().logModelCreationData)
+            if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("uv-south failed for " + selfModelData.id);
         }
 
@@ -405,7 +412,16 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     @Override
     public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
-        switch (EMFConfig.getConfig().renderModeChoice) {
+        if (attachments != null) {
+            for (Consumer<MatrixStack> attachment : attachments) {
+                matrices.push();
+                this.rotate(matrices);
+                attachment.accept(matrices);
+                matrices.pop();
+            }
+        }
+
+        switch (EMF.config().getConfig().renderModeChoice) {
             case NORMAL -> renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
             case GREEN -> {
                 float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));

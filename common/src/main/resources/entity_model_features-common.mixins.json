@@ -31,13 +31,18 @@
     "rendering.MixinItemFrameEntityRenderer",
     "rendering.MixinLivingEntityRenderer",
     "rendering.MixinLlamaDecorFeatureRenderer",
+    "rendering.MixinPlayerEntityRenderer",
     "rendering.MixinSaddleFeatureRenderer",
     "rendering.MixinSheepWoolFeatureRenderer",
     "rendering.MixinSlimeOverlayFeatureRenderer",
     "rendering.MixinStrayOverlayFeatureRenderer",
     "rendering.MixinTropicalFishPatternFeatureRenderer",
     "rendering.MixinWolfCollarFeatureRenderer",
-    "rendering.MixinWolfEntityModel"
+    "rendering.MixinWolfEntityModel",
+    "rendering.arrows.MixinArrowRenderer",
+    "rendering.arrows.MixinProjectileEntityRenderer",
+    "rendering.arrows.MixinSpectralArrowRenderer",
+    "rendering.arrows.MixinStuckArrowsFeatureRenderer"
   ],
   "mixins": [
   ],

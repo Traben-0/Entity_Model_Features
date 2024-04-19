@@ -2,6 +2,7 @@ package traben.entity_model_features.models.jem_objects;
 
 import java.util.Arrays;
 
+@SuppressWarnings("CanBeFinal")
 public class EMFBoxData {
 
     // https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_part.txt#L15
@@ -22,10 +23,21 @@ public class EMFBoxData {
     public float[] coordinates = {};
     public float sizeAdd = 0.0f; // just part dilation lol
 
+    //emf only
+    public float sizeAddX = 0.0f;
+    //emf only
+    public float sizeAddY = 0.0f;
+    //emf only
+    public float sizeAddZ = 0.0f;
 
     public void prepare(boolean invertX, boolean invertY, boolean invertZ) {
         checkAndFixUVLegacyDirections();
 
+        if (sizeAdd != 0.0f && sizeAddX == 0.0f && sizeAddY == 0.0f && sizeAddZ == 0.0f) {
+            sizeAddX = sizeAdd;
+            sizeAddY = sizeAdd;
+            sizeAddZ = sizeAdd;
+        }
 
         //then invert?
         if (invertX) {
@@ -80,5 +92,9 @@ public class EMFBoxData {
 
         public float[] coordinates = {0, 0, 0, 0, 0, 0};
         public float sizeAdd = 0.0f;
+
+        public float sizeAddX = 0.0f;
+        public float sizeAddY = 0.0f;
+        public float sizeAddZ = 0.0f;
     }
 }

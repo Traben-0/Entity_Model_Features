@@ -23,6 +23,11 @@ For all features that are described as matching OptiFine you may follow the Opti
 - [OptiFine CEM pretty documentation](https://optifine.readthedocs.io/cem.html)
 - [OptiFine CEM plaintext documentation](https://github.com/sp614x/optifine/tree/master/OptiFineDoc/doc)
 
+EMF also has a copy of the plaintext documentation, with EMF additions, that can be found here:
+- [EMF model documentation](.github/emf_model.txt)
+- [EMF part documentation](.github/emf_part.txt)
+- [EMF animation documentation](.github/emf_animation.txt)
+
 # EMF _exclusive_ features
 
 ### Custom armor models for all biped mobs
@@ -51,8 +56,15 @@ Player jem models have the following model parts
 cloak does indeed refer to the player cape however does not animate currently
 
 ### EMF only animation variables
+This info can also be found either [here](.github/emf_animation.txt) or in the in-game config GUI
 
 - The `is_climbing` animation variable, true when the entity is climbing.
+- The `is_blocking` animation variable, true when the entity is blocking.
+- The `is_crawling` animation variable, true when the entity is crawling.
+- The `distance` animation variable, the distance in blocks the entity is from the client player.
+- The `fluid_depth` animation variable, amount of fluid blocks above and below the submerged entity, 0 if not submerged.
+- The `fluid_depth_down` animation variable, amount of fluid blocks below the submerged entity, 0 if not submerged.
+- The `fluid_depth_up` animation variable, amount of fluid blocks above the submerged entity, 0 if not submerged.
 - The `move_forward` & `move_strafing` animation variables actually have a function, they function as a measurement of the directionality of a mobs movement relevant to it's facing direction.
   - `move_forward` & `move_strafing` are the `Y` & `X` co-ordinates for where the entities current horizontal movement vector, compared from their head angle, intersects with the circumference of a unit circle. *(with positive Y being the entities facing direction and positive X being 90 degrees to the right of that )*
   - `move_forward` ranges from -1 to 1 and is a measure of how much of an entities movement is directed in their looking direction. 
@@ -67,8 +79,10 @@ cloak does indeed refer to the player cape however does not animate currently
   - **TL;DR** if you add both a "moving forwards" & a "strafing to the right" animation you can effectively multiply them by `move_forward` & `move_strafing` respectively to get a smooth blend between the two when the models moves around.
 - The `nan` variable will resolve to Float.NaN at runtime and is useful for debugging maths expressions
 - The `e` variable referring to the base of the natural logarithm
+- 
 
 ### EMF only animation functions
+This info can also be found either [here](.github/emf_animation.txt) or in the in-game config GUI
 
 - The `keyframe()` & `keyframeloop()` animation functions simplify keyframe format animations, the format is
   `keyframe(k, a, b, c,...)` with `k` being the linear progress of the keyframes (typically a timer), and all further values being the individual keyframes value.
@@ -93,14 +107,14 @@ cloak does indeed refer to the player cape however does not animate currently
 
 ### EMF modded entity CEM support
 
-EMF supports custom entity models for all modded entities who's model factories appear through the proper channels, this means mods using other custom model mods are not likely to be supported.
+EMF supports custom entity models for all modded entities who's model factories appear through the entity model loader, this means mods using other custom model mods are not likely to be supported.
 
 To find out if your modded entity is supported follow the instructions in the **"EMF model exporting option"** section found below.
 
 These modded CEM models support all CEM features and can be varied by random models and animated fully. 
 
 Please keep in mind that for all models known to OptiFine CEM their part names are changed from what they use in the game code, 
-so you will find that a `modded/cow.jem` will have very different part names to `cow.jem` even if the modded one simply copies the vanilla cow model.
+so you will find that a modded`cow.jem` will have very different part names to the vanilla `cow.jem` even if the modded one simply copies the vanilla cow model.
 
 ### EMF additional vanilla CEM
  As explained above EMF can identify unknown models and automatically supports them, with that being said a few Vanilla models not present in OptiFine CEM also get captured by this system. 
@@ -109,45 +123,32 @@ These are: `(modelname # parts)`
 - `shield.jem` # *plate, handle*
 - `elytra.jem` # *right_wing, left_wing*
 - `spin_attack.jem` # *box*
-- models not yet released in OptiFine such as the Breeze mob's various models
+- models not yet released in OptiFine
 
 
 ### EMF model exporting option
 
 This option will export in-game entity models if they are EMF compatible.
 
-open the EMF settings screen and open the `Tools` screen, you will then see a slider labelled `Export models`.
+#### Single model export
+> Just open EMF's in-game config GUI and navigate to: Models > All models > [model_name]
+> 
+> and click the button: Export model as .jem file
+>
+> you will find your exported .jem file in the `[MC_DIRECTORY]/emf/export/` folder 
+
+#### All models export
+
+>open the EMF settings screen and open the `Tools` screen, you will then see a slider labelled `Export models`.
 If you enable this option for all or unknown models and then leave the settings screen, the loading screen will then appear as the game reloads all resources *(including models)*
 EMF will then write details into the game log of all compatible entity models found during this reload.
-
-Depending on what option you set for the setting EMF will either:
-- do this for all models found in the game
-- do this for all models found in the game that are not already known to OptiFine CEM *(i.e unknown models)*
-- just log the found models information including: part names, .jem file location, possible default pivots & other model values
-- log this info **AND** create an example `.jem` model for the model and place it in `MC_DIRECTORY/emf/export/`.
+>
+>Depending on what option you set for the setting EMF will either:
+>- do this for all models found in the game
+>- do this for all models found in the game that are not already known to OptiFine CEM *(i.e unknown models)*
+>- just log the found models information including: part names, .jem file location, possible default pivots & other model values
+>- log this info **AND** create an example `.jem` model for the model and place it in `[MC_DIRECTORY]/emf/export/`.
   *(these models will have correct pivots boxes and texture uv's and are immediately ready for use in BlockBench)*
-
-
-### EMF only random property for model variation (1.2+)
-
-*usable in .properties files used to variate models*
-*(technically it also works for .properties used to vary textures but this is almost always useless in practise)*
-
-EMF  adds a random property to make model variation easier in cases that do not typically need properties in ETF.
-e.g. you don't need a property to check a cat variant in ETF because you are already working with the black cat texture directly.
-the property name is `variant` or `variants`. 
-The property allows regex, pattern, or a simple list of variant names.
-If the property starts with "print:" it will print the variant found for the entity to the game log, and use the rest of the property text as normal.
-This property will work with any modded entity that implements the `VariantHolder` class and will use the string representation of the type, e.g. "black" for a cat, "oak" for a boat.
-This property also works uniquely with these block entities: 
-- signs (wood)
-- bed (color)
-- shulkerbox (color)
-- Decorated pot (all 4 sherd face types)
-- skulls(appending facing direction at the end)
-
-For all other regular & block entities it returns the EntityType or BlockEntityType registry id.
-This allows for the separation of different entity types that might use the same model name, such as various modded entities do.
 
 ### ETFAnimationApi
 
