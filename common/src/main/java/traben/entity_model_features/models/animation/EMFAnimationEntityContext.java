@@ -3,7 +3,6 @@ package traben.entity_model_features.models.animation;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
@@ -20,12 +19,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.dimension.DimensionTypes;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.accessor.EntityRenderDispatcherAccessor;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.utils.*;
-import traben.entity_texture_features.ETFApi;
+import traben.entity_texture_features.ETF;
 
 import java.util.Map;
 import java.util.Set;
@@ -38,9 +37,12 @@ public class EMFAnimationEntityContext {
     private static final Object2IntOpenHashMap<UUID> knownHighestAngerTimeByUUID = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
+    private static final Object2IntOpenHashMap<UUID> lodEntityTimers = new Object2IntOpenHashMap<>();
     public static boolean setInHand = false;
     public static boolean setInItemFrame = false;
     public static boolean setIsOnHead = false;
+    public static double lastFOV = 70;
+    public static boolean is_in_ground_override = false;
     private static EMFEntity emfEntity = null;
     private static float shadowSize = Float.NaN;
     private static float shadowOpacity = Float.NaN;
@@ -56,15 +58,30 @@ public class EMFAnimationEntityContext {
     private static float tickDelta = 0;
     private static boolean onShoulder = false;
     private static Function<Identifier, RenderLayer> layerFactory = null;
-
-    private static int lodFactor = -1;
+    private static Boolean lodFrameSkipping = null;
     private static boolean announceModels = false;
 
     private EMFAnimationEntityContext() {
 
     }
 
-    public static double lastFOV = 70;
+    public static boolean isJumping() {
+        return emfEntity instanceof LivingEntity alive && alive.jumping;
+    }
+
+
+    public static void setEntityVariable(String variable, float value) {
+        //if (variable.equals("var.fly")) System.out.println("setEntityVariable: " + variable + " " + (emfEntity != null ? emfEntity.emf$getVariableMap().getOrDefault(variable, value) : "null"));
+        if (emfEntity != null) {
+            emfEntity.emf$getVariableMap().put(variable, value);
+        }
+    }
+
+    public static float getEntityVariable(String variable, float defaultValue) {
+        //if (variable.equals("var.fly")) System.out.println("getEntityVariable: " + variable + " " + (emfEntity != null ? emfEntity.emf$getVariableMap().getOrDefault(variable, defaultValue) : "null"));
+        if (emfEntity == null) return defaultValue;
+        return emfEntity.emf$getVariableMap().getOrDefault(variable, defaultValue);
+    }
 
     public static void setLayerFactory(Function<Identifier, RenderLayer> layerFactory) {
         EMFAnimationEntityContext.layerFactory = layerFactory;
@@ -79,10 +96,10 @@ public class EMFAnimationEntityContext {
         return (int) MathHelper.sqrt(f * f + g * g + h * h);
     }
 
-    public static int getLODFactorOfEntity() {
-        if (lodFactor != -1) return lodFactor;
+    private static int getLODFactorOfEntity() {
+        //if (lodFactor != -1) return lodFactor;
 
-        if (EMFConfig.getConfig().animationLODDistance == 0) return 0;
+        if (EMF.config().getConfig().animationLODDistance == 0) return 0;
 
         //no factor when using spyglass or player is null
         if (MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().player.isUsingSpyglass()) {
@@ -90,16 +107,16 @@ public class EMFAnimationEntityContext {
         }
 
 
-
         int distance = distanceOfEntityFrom(MinecraftClient.getInstance().player.getBlockPos());
         if (distance < 1) return 0;
 
-        int factor = distance / EMFConfig.getConfig().animationLODDistance;
+        int factor = distance / EMF.config().getConfig().animationLODDistance;
         //reduce factor when using zoom mods or lower fov
         int factorByFOV = (int) (factor * lastFOV / 70);
 
+        int lodFactor;
         //factor in low fps detail retention
-        if(EMFConfig.getConfig().retainDetailOnLowFps && MinecraftClient.getInstance().getCurrentFps() < 59){ // count often drops to 59 while capped at 60 :/
+        if (EMF.config().getConfig().retainDetailOnLowFps && MinecraftClient.getInstance().getCurrentFps() < 59) { // count often drops to 59 while capped at 60 :/
             float fpsPercentageOf60 = MinecraftClient.getInstance().getCurrentFps() / 60f;
             //reduce factor by the percentage of fps below 60 to recover some level of detail
             lodFactor = (int) (factorByFOV * fpsPercentageOf60);
@@ -107,13 +124,38 @@ public class EMFAnimationEntityContext {
             lodFactor = factorByFOV;
         }
 
+        if (EMF.config().getConfig().retainDetailOnLargerMobs && emfEntity instanceof Entity entity) {
+            var entitySize = Math.max(entity.getWidth(), entity.getHeight());
+            if (entitySize > 2) {
+                lodFactor = (int) (lodFactor / (entitySize / 2));
+            }
+        }
+
         return lodFactor;
     }
 
+    public static boolean isLODSkippingThisFrame() {
+        if (lodFrameSkipping != null) return lodFrameSkipping;
+
+        if (EMF.config().getConfig().animationLODDistance == 0 || emfEntity == null) return false;
+
+        int lodTimer = lodEntityTimers.getInt(emfEntity.etf$getUuid());
+        int lodResult;
+        //check lod
+        if (lodTimer < 1) {
+            lodResult = EMFAnimationEntityContext.getLODFactorOfEntity();
+        } else {
+            lodResult = lodTimer - 1;
+        }
+        lodEntityTimers.put(emfEntity.etf$getUuid(), lodResult);
+        lodFrameSkipping = lodResult > 0;
+        return lodFrameSkipping;
+    }
+
     public static void setCurrentEntityIteration(EMFEntity entityIn) {
-        layerFactory = null;
-        newEntity(entityIn);
         EMFManager.getInstance().entityRenderCount++;
+        layerFactory = null;
+
         tickDelta = MinecraftClient.getInstance().isPaused() ? ((MinecraftClientAccessor) MinecraftClient.getInstance()).getPausedTickDelta() : MinecraftClient.getInstance().getTickDelta();
         shadowSize = Float.NaN;
         shadowOpacity = Float.NaN;
@@ -122,21 +164,27 @@ public class EMFAnimationEntityContext {
         leashZ = 0;
         shadowX = 0;
         shadowZ = 0;
-        //perform variant checking for this entity types models
-        //this is the only way to keep it generic and also before the entity is rendered and affect al its models
-        Set<Runnable> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(entityIn.emf$getTypeString());
-        if (roots != null) {
-            roots.forEach(Runnable::run);
+
+        newEntity(entityIn);
+
+        if (entityIn != null) {
+            //perform variant checking for this entity types models
+            //this is the only way to keep it generic and also before the entity is rendered and affect al its models
+            Set<Runnable> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(entityIn.emf$getTypeString());
+            if (roots != null) {
+                roots.forEach(Runnable::run);
+            }
+
+            //if this entity requires a debug print do it now after models have variated
+            if (EMF.config().getConfig().debugOnRightClick
+                    && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)) {
+                announceModels = true;
+                EMFManager.getInstance().entityForDebugPrint = null;
+            }
         }
 
-        //if this entity requires a debug print do it now after models have variated
-        if (EMFConfig.getConfig().debugOnRightClick
-                && entityIn.etf$getUuid().equals(EMFManager.getInstance().entityForDebugPrint)) {
-            announceModels = true;
-            EMFManager.getInstance().entityForDebugPrint = null;
-        }
 
-        lodFactor = -1;
+        lodFrameSkipping = null;
     }
 
     public static void anounceModels(EMFEntity assertEntity) {
@@ -163,7 +211,7 @@ public class EMFAnimationEntityContext {
                 if (debugRoot.variantDirectoryApplier != null) {
                     model.append(entryAndValue("directory",
                             debugRoot.variantDirectoryApplier
-                                    .getThisDirectoryOfFilename(debugRoot.modelName.getfileName())));
+                                    .getThisDirectoryOfFilename(debugRoot.modelName.getNamespace(), debugRoot.modelName.getfileName())));
                 }
 
                 if (debugRoot.textureOverride != null) {
@@ -194,7 +242,7 @@ public class EMFAnimationEntityContext {
             for (OptifineMobNameForFileAndEMFMapId data : EMFManager.getInstance().modelsAnnounced) {
                 StringBuilder model = new StringBuilder();
                 model.append("\n§Non-Custom Model #").append(count).append("§r")
-                        .append(entryAndValue("possible .jem name", data.getfileName() + ".jem"));
+                        .append(entryAndValue("possible .jem name", data.getDisplayFileName()));
 
                 Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(data.getMapId(), null);
                 if (!map.isEmpty()) {
@@ -255,25 +303,29 @@ public class EMFAnimationEntityContext {
         leashZ = 0;
         shadowX = 0;
         shadowZ = 0;
-        lodFactor = -1;
+        lodFrameSkipping = null;
     }
 
-    public static RenderLayer getLayerFromRecentFactoryOrTranslucent(Identifier identifier) {
+    public static RenderLayer getLayerFromRecentFactoryOrETFOverrideOrTranslucent(Identifier identifier) {
         if (layerFactory == null) {
-            return RenderLayer.getEntityTranslucent(identifier);
+            var layer = ETF.config().getConfig().getRenderLayerOverride();
+            if (layer == null) {
+                return RenderLayer.getEntityTranslucent(identifier);
+            } else {
+                return switch (layer) {
+                    case TRANSLUCENT -> RenderLayer.getEntityTranslucent(identifier);
+                    case TRANSLUCENT_CULL -> RenderLayer.getEntityTranslucentCull(identifier);
+                    case END -> RenderLayer.getEndGateway();
+                    case OUTLINE -> RenderLayer.getOutline(identifier);
+                };
+            }
         }
         return layerFactory.apply(identifier);
     }
 
     public static float getRuleIndex() {
         if (emfEntity == null) return 0;
-        int index;
-        if (emfEntity instanceof Entity entity) {
-            index = ETFApi.getLastMatchingRuleOfEntity(entity);
-        } else {
-            index = ETFApi.getLastMatchingRuleOfBlockEntity((BlockEntity) emfEntity);
-        }
-        return index == -1 ? 0 : index;
+        return EMFManager.getInstance().lastModelRuleOfEntity.getInt(emfEntity.etf$getUuid());
     }
 
     public static EMFEntity getEMFEntity() {
@@ -374,6 +426,7 @@ public class EMFAnimationEntityContext {
         }
     }
 
+
     public static float getHealth() {
         if (emfEntity == null) return 0;
         return emfEntity instanceof LivingEntity alive ? alive.getHealth() : 1;
@@ -419,6 +472,47 @@ public class EMFAnimationEntityContext {
 
     public static float getHurtTime() {
         return emfEntity instanceof LivingEntity alive ? (alive.hurtTime > 0 ? alive.hurtTime - tickDelta : 0) : 0;
+    }
+
+    public static float getHeightAboveGround() {
+        if (emfEntity == null) return 0;
+        float y = getEntityY();
+        BlockPos pos = emfEntity.etf$getBlockPos();
+        int worldBottom = emfEntity.etf$getWorld().getBottomY();
+        while (!emfEntity.etf$getWorld().getBlockState(pos).getBlock().collidable && pos.getY() > worldBottom) {
+            pos = pos.down();
+        }
+        return y - pos.getY();
+    }
+
+    public static float getFluidDepthDown() {
+        if (emfEntity == null
+                || emfEntity.etf$getWorld().getFluidState(emfEntity.etf$getBlockPos()).isEmpty()) return 0;
+
+        BlockPos pos = emfEntity.etf$getBlockPos();
+        int worldBottom = emfEntity.etf$getWorld().getBottomY();
+        while (!emfEntity.etf$getWorld().getFluidState(pos).isEmpty() && pos.getY() > worldBottom) {
+            pos = pos.down();
+        }
+        return emfEntity.etf$getBlockPos().getY() - pos.getY();
+    }
+
+    public static float getFluidDepthUp() {
+        if (emfEntity == null
+                || emfEntity.etf$getWorld().getFluidState(emfEntity.etf$getBlockPos()).isEmpty()) return 0;
+
+        BlockPos pos = emfEntity.etf$getBlockPos();
+        int worldTop = emfEntity.etf$getWorld().getTopY();
+        while (!emfEntity.etf$getWorld().getFluidState(pos).isEmpty() && pos.getY() < worldTop) {
+            pos = pos.up();
+        }
+        return pos.getY() - emfEntity.etf$getBlockPos().getY();
+    }
+
+    public static float getFluidDepth() {
+        if (emfEntity == null
+                || emfEntity.etf$getWorld().getFluidState(emfEntity.etf$getBlockPos()).isEmpty()) return 0;
+        return getFluidDepthDown() + getFluidDepthUp() - 1;
     }
 
     public static boolean isInWater() {
@@ -471,7 +565,7 @@ public class EMFAnimationEntityContext {
     }
 
     public static boolean isInGround() {
-        return emfEntity instanceof ProjectileEntity proj && proj.isInsideWall();
+        return is_in_ground_override || emfEntity instanceof ProjectileEntity proj && proj.isInsideWall();
     }
 
     public static boolean isInGui() {
@@ -512,7 +606,8 @@ public class EMFAnimationEntityContext {
                 (emfEntity instanceof FoxEntity fox && fox.isSitting()) ||
                 (emfEntity instanceof ParrotEntity parrot && parrot.isInSittingPose()) ||
                 (emfEntity instanceof CatEntity cat && cat.isInSittingPose()) ||
-                (emfEntity instanceof WolfEntity wolf && wolf.isInSittingPose());
+                (emfEntity instanceof WolfEntity wolf && wolf.isInSittingPose()) ||
+                (emfEntity instanceof CamelEntity camel && camel.isSitting());
     }
 
 
@@ -794,5 +889,6 @@ public class EMFAnimationEntityContext {
     public static void setShadowZ(float shadowZ) {
         EMFAnimationEntityContext.shadowZ = shadowZ;
     }
+
 
 }

@@ -2,6 +2,7 @@ package traben.entity_model_features.models.jem_objects;
 
 import java.util.Arrays;
 
+@SuppressWarnings("ALL")
 public class EMFSpriteData {
 
     // https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_part.txt#L15
@@ -10,8 +11,9 @@ public class EMFSpriteData {
     public double[] coordinates = {};
     public double[] sizeAdd = {}; // just part dilation lol
 
+    @SuppressWarnings("EmptyMethod")
     public void prepare() {
-        //nothing to do yet
+        //todo?
     }
 
     @Override

@@ -8,11 +8,10 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.network.NetworkConstants;
-import traben.entity_model_features.EMFClient;
-import traben.entity_model_features.config.EMFConfigScreenMain;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFUtils;
 
-@Mod(EMFClient.MOD_ID)
+@Mod(EMF.MOD_ID)
 public class EMFForge {
     public EMFForge() {
         // Submit our event bus to let architectury register our content on the right time
@@ -27,12 +26,12 @@ public class EMFForge {
             try {
                 ModLoadingContext.get().registerExtensionPoint(
                         ConfigScreenHandler.ConfigScreenFactory.class,
-                        () -> new ConfigScreenHandler.ConfigScreenFactory((minecraftClient, screen) -> new EMFConfigScreenMain(screen)));
+                        () -> new ConfigScreenHandler.ConfigScreenFactory(EMF::getConfigScreen));
             } catch (NoClassDefFoundError e) {
                 EMFUtils.logError("[Entity Model Features]: Mod config screen broken, download latest forge version");
             }
 
-            EMFClient.init();
+            EMF.init();
         } else {
 
             throw new UnsupportedOperationException("Attempting to load a clientside only mod [EMF] on the server, refusing");

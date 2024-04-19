@@ -12,6 +12,7 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.EBEConfigModifier;
@@ -22,6 +23,7 @@ import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
+import traben.entity_texture_features.utils.EntityIntLRU;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -41,15 +43,23 @@ public class EMFManager {//singleton for data holding and resetting needs
             BlockEntityType.BELL, "bell",
             BlockEntityType.SIGN, "sign",
             BlockEntityType.DECORATED_POT, "decorated_pot");
+
     public static EMFModelPartRoot lastCreatedRootModelPart = null;
     private static EMFManager self = null;
     public final boolean IS_PHYSICS_MOD_INSTALLED;
     public final boolean IS_EBE_INSTALLED;
+
+    public final EntityIntLRU lastModelRuleOfEntity;
+    public final EntityIntLRU lastModelSuffixOfEntity;
     public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
     public final ObjectSet<OptifineMobNameForFileAndEMFMapId> modelsAnnounced = new ObjectOpenHashSet<>();
-    private final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
+    public final Object2ObjectLinkedOpenHashMap<String, Set<Runnable>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
+        defaultReturnValue(null);
+    }};
+    public final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
+    public final Object2ObjectOpenHashMap<OptifineMobNameForFileAndEMFMapId, EntityModelLayer> cache_LayersByModelName = new Object2ObjectOpenHashMap<>();
     private final Object2IntOpenHashMap<EntityModelLayer> amountOfLayerAttempts = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
@@ -59,9 +69,6 @@ public class EMFManager {//singleton for data holding and resetting needs
     public boolean isAnimationValidationPhase = false;
     public String currentSpecifiedModelLoading = "";
     public BlockEntityType<?> currentBlockEntityTypeLoading = null;
-    public final Object2ObjectLinkedOpenHashMap<String, Set<Runnable>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
-        defaultReturnValue(null);
-    }};
     private boolean traderLlamaHappened = false;
 
     private EMFManager() {
@@ -69,6 +76,10 @@ public class EMFManager {//singleton for data holding and resetting needs
         IS_PHYSICS_MOD_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
 //        IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
         IS_EBE_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("enhancedblockentities");
+        lastModelRuleOfEntity = new EntityIntLRU();
+        lastModelRuleOfEntity.defaultReturnValue(0);
+        lastModelSuffixOfEntity = new EntityIntLRU();
+        lastModelSuffixOfEntity.defaultReturnValue(0);
     }
 
     public static EMFManager getInstance() {
@@ -86,30 +97,30 @@ public class EMFManager {//singleton for data holding and resetting needs
     public static EMFJemData getJemData(String jemFileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
 
         //try emf folder
-        EMFJemData emfJemData = getJemDataWithDirectory("emf/cem/" + jemFileName, mobModelIDInfo);
+        EMFJemData emfJemData = getJemDataWithDirectory(mobModelIDInfo.getNamespace() + ":emf/cem/" + jemFileName, mobModelIDInfo);
         if (emfJemData != null) return emfJemData;
-        emfJemData = getJemDataWithDirectory("emf/cem/" + mobModelIDInfo + "/" + jemFileName, mobModelIDInfo);
+        emfJemData = getJemDataWithDirectory(mobModelIDInfo.getNamespace() + ":emf/cem/" + mobModelIDInfo + "/" + jemFileName, mobModelIDInfo);
         if (emfJemData != null) return emfJemData;
 
         //try read optifine jems
-        emfJemData = getJemDataWithDirectory("optifine/cem/" + jemFileName, mobModelIDInfo);
+        emfJemData = getJemDataWithDirectory(mobModelIDInfo.getNamespace() + ":optifine/cem/" + jemFileName, mobModelIDInfo);
         if (emfJemData != null) return emfJemData;
-        emfJemData = getJemDataWithDirectory("optifine/cem/" + mobModelIDInfo + "/" + jemFileName, mobModelIDInfo);
+        emfJemData = getJemDataWithDirectory(mobModelIDInfo.getNamespace() + ":optifine/cem/" + mobModelIDInfo + "/" + jemFileName, mobModelIDInfo);
         return emfJemData;
 
     }
 
     @Nullable
-    public static CemDirectoryApplier getResourceCemDirectoryApplierOrNull(String inCemPathResource, String rawMobName) {
+    public static CemDirectoryApplier getResourceCemDirectoryApplierOrNull(String namespace, String inCemPathResource, String rawMobName) {
         ResourceManager resources = MinecraftClient.getInstance().getResourceManager();
         //try emf folder
-        if (resources.getResource(new Identifier("emf/cem/" + inCemPathResource)).isPresent())
+        if (resources.getResource(new Identifier(namespace, "emf/cem/" + inCemPathResource)).isPresent())
             return CemDirectoryApplier.getEMF();
-        if (resources.getResource(new Identifier("emf/cem/" + rawMobName + "/" + inCemPathResource)).isPresent())
+        if (resources.getResource(new Identifier(namespace, "emf/cem/" + rawMobName + "/" + inCemPathResource)).isPresent())
             return CemDirectoryApplier.getEMF_Mob(rawMobName);
-        if (resources.getResource(new Identifier("optifine/cem/" + inCemPathResource)).isPresent())
+        if (resources.getResource(new Identifier(namespace, "optifine/cem/" + inCemPathResource)).isPresent())
             return CemDirectoryApplier.getCEM();
-        if (resources.getResource(new Identifier("optifine/cem/" + rawMobName + "/" + inCemPathResource)).isPresent())
+        if (resources.getResource(new Identifier(namespace, "optifine/cem/" + rawMobName + "/" + inCemPathResource)).isPresent())
             return CemDirectoryApplier.getCem_Mob(rawMobName);
         return null;
     }
@@ -123,12 +134,12 @@ public class EMFManager {//singleton for data holding and resetting needs
         try {
             Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJem));
             if (res.isEmpty()) {
-                if (EMFConfig.getConfig().logModelCreationData)
-                    EMFUtils.log(".jem read failed " + pathOfJem + " does not exist", false);
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log(pathOfJem + ", .jem read failed " + pathOfJem + " does not exist", false);
                 return null;
             }
-            if (EMFConfig.getConfig().logModelCreationData)
-                EMFUtils.log(".jem read success " + pathOfJem + " exists", false);
+            if (EMF.config().getConfig().logModelCreationData)
+                EMFUtils.log(pathOfJem + ", .jem read success " + pathOfJem + " exists", false);
             Resource jemResource = res.get();
             //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -145,10 +156,12 @@ public class EMFManager {//singleton for data holding and resetting needs
             return jem;
             //}
         } catch (InvalidIdentifierException | FileNotFoundException e) {
-            if (EMFConfig.getConfig().logModelCreationData)
-                EMFUtils.log(".jem failed to load " + e, false);
+            if (EMF.config().getConfig().logModelCreationData)
+                EMFUtils.log(pathOfJem + ", .jem failed to load: " + e, false);
         } catch (Exception e) {
-            EMFUtils.log(".jem failed to load " + e, false);
+            EMFUtils.log(pathOfJem + ", .jem failed to load: " + e, false);
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
         }
         return null;
     }
@@ -179,12 +192,13 @@ public class EMFManager {//singleton for data holding and resetting needs
             if (!anyMissing && entry.getKey().endsWith(last)) return entry.getValue();
         }
         //all possible occurances should be accounted for above must be null
-        EMFUtils.logWarn("NULL animation hierachy id result of: " + hierarchId + "\n in " + map);
+        //EMFUtils.logWarn("NULL animation hierachy id result of: " + hierarchId + "\n in " + map);
         return null;
     }
 
+
     public void modifyEBEIfRequired() {
-        if (IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMFConfig.getConfig().allowEBEModConfigModify) {
+        if (IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMF.config().getConfig().allowEBEModConfigModify) {
             try {
                 EBEConfigModifier.modifyEBEConfig(EBE_JEMS_FOUND);
             } catch (Exception | Error e) {
@@ -213,7 +227,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             EMFManager.lastCreatedRootModelPart = null;
 
-            boolean printing = (EMFConfig.getConfig().logModelCreationData);
+            boolean printing = (EMF.config().getConfig().logModelCreationData);
 
 
             if (!"main".equals(layer.getName())) {
@@ -223,7 +237,9 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             //add simple modded layer checks
             if (!"minecraft".equals(layer.getId().getNamespace())) {
-                mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + originalLayerName).toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
+                //mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + originalLayerName).toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
+                mobNameForFileAndMap.setBoth(originalLayerName.toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
+                mobNameForFileAndMap.namespace = layer.getId().getNamespace();
             } else {
                 //vanilla model
                 if (mobNameForFileAndMap.getfileName().contains("pufferfish"))
@@ -286,7 +302,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                                 case "sign", "hanging_sign" ->
                                         mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading);
                                 default -> {
-                                    if (EMFConfig.getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
+                                    if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
                                         EMFUtils.log("EMF unknown modifiable block entity model identified during loading: " + currentSpecifiedModelLoading + ".jem");
                                     mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading);
                                 }
@@ -315,8 +331,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                 }
             }
 
-            if (EMFConfig.getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE
-                    && !currentSpecifiedModelLoading.isBlank() && currentSpecifiedModelLoading.startsWith("modded/")) {
+            if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE
+                    && !currentSpecifiedModelLoading.isBlank() && currentSpecifiedModelLoading.contains(":")) {
                 EMFUtils.log("EMF modifiable modded block entity model identified during loading: " + mobNameForFileAndMap.getfileName() + ".jem");
             }
 
@@ -327,10 +343,13 @@ public class EMFManager {//singleton for data holding and resetting needs
                 mobNameForFileAndMap.setBoth(newValidPath, mobNameForFileAndMap.getMapId());
             }
 
+            ///jem name is final and correct from here
+            mobNameForFileAndMap.finish();
+
+            cache_LayersByModelName.put(mobNameForFileAndMap, layer);
+
             if (printing) EMFUtils.log(" > EMF try to find a model for: " + mobNameForFileAndMap);
 
-
-            ///jem name is final and correct from here
 
             //if (EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap).isEmpty()) {
             //construct simple map for modded or unknown entities
@@ -338,13 +357,29 @@ public class EMFManager {//singleton for data holding and resetting needs
             //}
 
 
-            if (printing) EMFUtils.log(" >> EMF trying to find: optifine/cem/" + mobNameForFileAndMap + ".jem");
+            if (printing)
+                EMFUtils.log(" >> EMF trying to find model: " + mobNameForFileAndMap.getNamespace() + ":optifine/cem/" + mobNameForFileAndMap + ".jem");
             String jemName = /*"optifine/cem/" +*/ mobNameForFileAndMap + ".jem";
-            CemDirectoryApplier hasVariantsAndCanApplyThisDirectory = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + ".properties", mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
+            CemDirectoryApplier hasVariantsAndCanApplyThisDirectory = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap + ".properties", mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
             if (hasVariantsAndCanApplyThisDirectory == null) {
-                hasVariantsAndCanApplyThisDirectory = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap + "2.jem", mobNameForFileAndMap.getfileName());
+                hasVariantsAndCanApplyThisDirectory = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap + "2.jem", mobNameForFileAndMap.getfileName());
             }
             EMFJemData jemData = getJemData(jemName, mobNameForFileAndMap);
+
+            //try again with deprecated modded model directory if failed
+            if (jemData == null && hasVariantsAndCanApplyThisDirectory == null && mobNameForFileAndMap.getDeprecated() != null) {
+                mobNameForFileAndMap = mobNameForFileAndMap.getDeprecated();
+                if (printing)
+                    EMFUtils.log(" >> EMF trying to find model: " + mobNameForFileAndMap.getNamespace() + ":optifine/cem/" + mobNameForFileAndMap + ".jem");
+                jemName = /*"optifine/cem/" +*/ mobNameForFileAndMap + ".jem";
+                hasVariantsAndCanApplyThisDirectory = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap + ".properties", mobNameForFileAndMap.getfileName());// (MinecraftClient.getInstance().getResourceManager().getResource(new Identifier("optifine/cem/" + mobNameForFileAndMap + ".properties")).isPresent());
+                if (hasVariantsAndCanApplyThisDirectory == null) {
+                    hasVariantsAndCanApplyThisDirectory = getResourceCemDirectoryApplierOrNull(mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap + "2.jem", mobNameForFileAndMap.getfileName());
+                }
+                jemData = getJemData(jemName, mobNameForFileAndMap);
+            }
+
+
             if (jemData != null || hasVariantsAndCanApplyThisDirectory != null) {
                 //we do indeed need custom models
 
@@ -407,10 +442,10 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {
 
-        boolean printing = EMFConfig.getConfig().logModelCreationData;
+        boolean printing = EMF.config().getConfig().logModelCreationData;
 
         Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
-        allPartsBySingleAndFullHeirachicalId.put("EMF_root", emfRootPart);
+        allPartsBySingleAndFullHeirachicalId.put("root", emfRootPart);
         allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFOptiFinePartNameMappings.getMapOf(emfRootPart.modelName.getMapId(), null)));
 
         //Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> emfAnimationsByPartName = new Object2ObjectLinkedOpenHashMap<>();
@@ -423,7 +458,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
         jemData.getAllTopLevelAnimationsByVanillaPartName().forEach((part, anims) -> {
             anims.forEach((animKey, animationExpression) -> {
-                if (EMFConfig.getConfig().logModelCreationData)
+                if (EMF.config().getConfig().logModelCreationData)
                     EMFUtils.log("parsing animation value: [" + animKey + "]");
                 String modelId = animKey.split("\\.")[0];
                 String modelVariable = animKey.split("\\.")[1];
@@ -441,12 +476,16 @@ public class EMFManager {//singleton for data holding and resetting needs
                         jemData.getFileName()//, variableSuppliers
                 );
 
-                if (emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVariable) {
+                if (emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVar()) {
                     //this is a secondary variable modification
-                    // add it in the animation list but hash out the key name
-                    emfAnimations.put(animKey + '#' + System.currentTimeMillis(), newAnimation);
+                    String key = animKey + '#';
+                    while (emfAnimations.containsKey(key)) {
+                        key += '#';
+                    }
+                    // add it in the animation list but alter the key name
+                    emfAnimations.put(key, newAnimation);
                     //set this variable to instead set the value of the true variable source
-                    newAnimation.setTrueVariableSource(emfAnimations.get(animKey));
+                    //newAnimation.setTrueVariableSource(emfAnimations.get(animKey));
                 } else {
                     emfAnimations.put(animKey, newAnimation);
                 }
@@ -466,8 +505,10 @@ public class EMFManager {//singleton for data holding and resetting needs
             if (anim != null) {
                 anim.initExpression(emfAnimations, allPartsBySingleAndFullHeirachicalId);
                 if (!anim.isValid()) {
-                    EMFUtils.logWarn("animation was invalid: " + anim.animKey + " = " + anim.expressionString);
-                    animMapIterate.remove();
+                    EMFUtils.logError("animation was invalid: [" + anim.animKey + "] = [" + anim.expressionString + "] in model [" + emfRootPart.modelName + "]");
+                    //animMapIterate.remove();
+                    isAnimationValidationPhase = false;
+                    return;
                 }
             } else {
                 animMapIterate.remove();
@@ -483,22 +524,22 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public interface CemDirectoryApplier {
         static CemDirectoryApplier getEMF() {
-            return (fileName) -> "emf/cem/" + fileName;
+            return (namespace, fileName) -> namespace + ":emf/cem/" + fileName;
         }
 
         static CemDirectoryApplier getEMF_Mob(String mobname) {
-            return (fileName) -> "emf/cem/" + mobname + "/" + fileName;
+            return (namespace, fileName) -> namespace + ":emf/cem/" + mobname + "/" + fileName;
         }
 
         static CemDirectoryApplier getCEM() {
-            return (fileName) -> "optifine/cem/" + fileName;
+            return (namespace, fileName) -> namespace + ":optifine/cem/" + fileName;
         }
 
         static CemDirectoryApplier getCem_Mob(String mobName) {
-            return (fileName) -> "optifine/cem/" + mobName + "/" + fileName;
+            return (namespace, fileName) -> namespace + ":optifine/cem/" + mobName + "/" + fileName;
         }
 
-        String getThisDirectoryOfFilename(String fileName);
+        String getThisDirectoryOfFilename(String namespace, String fileName);
     }
 
 

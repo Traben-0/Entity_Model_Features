@@ -30,11 +30,11 @@ import java.util.Objects;
  */
 public abstract class MathMethod extends MathValue implements MathComponent {
 
-    private MathComponent optimizedAlternativeToThis = null;
-    private ResultSupplier supplier = null;
+    protected MathComponent optimizedAlternativeToThis = null;
+    protected ResultSupplier supplier = null;
 
     protected MathMethod(boolean isNegative, EMFAnimation calculationInstance, int argCount) throws EMFMathException {
-        super(isNegative, calculationInstance);
+        super(isNegative);
         if (!hasCorrectArgCount(argCount)) {
             throw new EMFMathException("ERROR: wrong number of arguments [" + argCount + "] in [" + this.getClass().getSimpleName() + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
         }
@@ -157,9 +157,10 @@ public abstract class MathMethod extends MathValue implements MathComponent {
 
     private void invertSupplierBoolean() {
         if (optimizedAlternativeToThis == null) {
-            supplier = () -> supplier.get() == 1 ? 0 : 1;
+            var currentSupplier = supplier;
+            supplier = () -> MathValue.invertBoolean(currentSupplier);
         } else {
-            optimizedAlternativeToThis = new MathConstant(optimizedAlternativeToThis.getResult() == 1 ? 0 : 1, isNegative);
+            optimizedAlternativeToThis = new MathConstant(MathValue.invertBoolean(optimizedAlternativeToThis.getResult()), isNegative);
         }
     }
 

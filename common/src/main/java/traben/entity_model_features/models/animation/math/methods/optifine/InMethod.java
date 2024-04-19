@@ -25,10 +25,10 @@ public class InMethod extends MathMethod {
             for (MathComponent expression :
                     vals) {
                 if (expression.getResult() == X) {
-                    return 1f;
+                    return TRUE;
                 }
             }
-            return 0f;
+            return FALSE;
         }, parsedArgs);
     }
 

@@ -1,11 +1,13 @@
 package traben.entity_model_features.mixin;
 
 
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -15,6 +17,10 @@ import traben.entity_model_features.utils.EMFEntity;
 @Mixin(Entity.class)
 public abstract class MixinEntity implements EMFEntity {
 
+    @Unique
+    private final Object2FloatOpenHashMap<String> emf$variableMap = new Object2FloatOpenHashMap<>() {{
+        defaultReturnValue(0);
+    }};
     @Shadow
     public double prevX;
     @Shadow
@@ -157,7 +163,6 @@ public abstract class MixinEntity implements EMFEntity {
         return isAlive();
     }
 
-
     @Override
     public boolean emf$isGlowing() {
         return isGlowing();
@@ -211,5 +216,10 @@ public abstract class MixinEntity implements EMFEntity {
     @Override
     public String emf$getTypeString() {
         return getType().toString();
+    }
+
+    @Override
+    public Object2FloatOpenHashMap<String> emf$getVariableMap() {
+        return emf$variableMap;
     }
 }
