@@ -1,6 +1,6 @@
 
 
-
+- texture overrides now give the `missing texture` texture if the texture wasn't found instead of not applying
 - fixed first person hand jittering with certain player animation resource-packs
 - added the `ifb() randomb() catch()` animation functions
   - `ifb()` is a boolean returning version of `if()` 

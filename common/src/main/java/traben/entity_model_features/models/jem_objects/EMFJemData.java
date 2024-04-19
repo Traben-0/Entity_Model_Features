@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.jem_objects;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
@@ -45,14 +46,14 @@ public class EMFJemData {
 
     @Nullable
     public Identifier validateJemTexture(String textureIn) {// "textures/entity/trident.png"
-        if (textureIn == null) return null;
+        if (textureIn == null || textureIn.isBlank()) return null;
 
         String textureTest = textureIn.trim();
         if (!textureTest.isBlank()) {
 
             //todo add support for trident no idea why it breaks currently
             if (textureTest.endsWith("/trident.jem")) {
-                EMFUtils.logWarn("trident textureTest overrides are not supported currently, they will be ignored.");
+                EMFUtils.logWarn("trident texture overrides are not supported currently, they will be ignored.");
                 return null;
             }
 
@@ -76,7 +77,7 @@ public class EMFJemData {
 
             }
         }
-        return null;
+        return MissingSprite.getMissingSpriteId();
     }
 
     private String workingDirectory() {
