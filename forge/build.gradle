@@ -38,7 +38,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
-    modImplementation files("run/mods/entity_texture_features_forge_1.19.2-5.2.1.jar")
+//    modImplementation files("run/mods/entity_texture_features_forge_1.19.2-5.2.1.jar")
     //modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version_forge}")
 }
 

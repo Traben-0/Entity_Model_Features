@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
@@ -19,7 +19,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     final String name;
     //construct single vanilla
     final boolean isOptiFinePartSpecified;
-    final boolean rootType;
 
     final Set<Integer> hideInTheseStates = new HashSet<>();
 
@@ -32,11 +31,10 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         super(new ArrayList<>(), new HashMap<>());
         this.name = name;
 
-        if (EMFConfig.getConfig().logModelCreationData)
+        if (EMF.config().getConfig().logModelCreationData)
             EMFUtils.log(" > EMF vanilla part made: " + name);
 
         isOptiFinePartSpecified = optifinePartNames.contains(name);
-        rootType = name.equals("root") || name.equals("EMF_root");
 
 
         EMFModelState state = getStateOf(vanillaPart);
@@ -44,7 +42,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         //Map<String, ModelPart> children = this.children;
         for (Map.Entry<String, ModelPart> child :
                 vanillaPart.children.entrySet()) {
-
 
             EMFModelPartVanilla vanilla = new EMFModelPartVanilla(child.getKey(), child.getValue(), optifinePartNames, allVanillaParts);
             children.put(child.getKey(), vanilla);
@@ -75,6 +72,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     public void receiveRootAnimationRunnable(int variant, Runnable run) {
         allKnownStateVariants.get(variant).animation().setAnimation(run);
+
     }
 
     @Override

@@ -1,0 +1,314 @@
+######################################################################
+@ Entity Model Features Animations
+@ Reference configuration for EMF's Custom Entity Models
+@
+@ Adapted from the original OptiFine spec:
+@ https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_animation.txt
+@
+@ Lines starting with @ are EMF only features
+# whereas lines starting with # are OptiFine & EMF features
+######################################################################
+# Each model variable which is to be animated is assigned an expression. 
+# The expression is evaluated every time the model is rendered and its value is assigned to the variable.
+# The variables and expressions are defined in the "animation" section of the json entity model (JEM).
+@ EMF also allows storing animations within .jpm files, which can be referenced by multiple entities.
+#  
+#  "animations":
+#  [
+#    {
+#      "variable1": "expression1",    
+#      "variable2": "expression2,
+#      ...
+#    }
+#  ]
+# 
+# 
+# Variables
+#
+# Model variables are specified in the format 
+#   "<model>.<variable_name>"
+#
+# The model can be:
+#  "this" - current custom model
+#  "part" - the original part model to which the custom model is attached
+#  "<part>" - original model by part name  
+#  "<id>" - custom model by ID
+#  "<part>:<sub_id>:<sub_sub_id>:..." - (hierarchical) start with original model by part name, then find children by ID
+#  "<id>:<sub_id>:<sub_sub_id>:..." - (hierarchical) start with model by ID, then find children by ID
+#
+# The first model found by part name or ID is used if there are duplicates.
+# The model search by ID is deep, also when used in a hierarchical specification. 
+#
+# The hierarchical specification allows model groups (json part models) to be reused for different parts. 
+# For example one hand model ("shoulder:upper_arm:elbow:forearm:palm:finger[1.5]" can be used for both left and right hand.
+# The animation can use "left_hand:finger1" for the left thumb and "right_hand:finger1" for the right thumb. 
+# The intermediate parents in the hierarchical specification can be skipped. 
+#
+# Variable names
+#   tx, ty, tz    - Translation x, y, z
+#   rx, ry, rz    - Rotation x, y, z
+#   sx, sy, sz    - Scale x, y, z
+#   visible       - Show model and submodels (boolean)
+#   visible_boxes - Show model only, does not affect submodels (boolean)
+#
+# Entity variables
+#
+# Entity variables are specified in the format "var.<name>" (float) or "varb.<name>" (boolean) 
+# The name can be any string, for example "var.xyz", "var.last_rx", etc.
+# The variable is attached to the rendered entity and has a default value 0 or false.
+# Entity variables are useful for storing animation data between frames.
+@ In EMF this is supported for block entities.
+#
+@ Global variables
+@
+@ Global variables are specified in the format "global_var.<name>" (float) or "global_varb.<name>" (boolean)
+@ The name can be any string, for example "global_var.xyz", "global_var.last_rx", etc.
+@ The variable is saved globally and has a default value 0 or false.
+@ Global variables are useful for storing animation data to be accessed by many entities.
+#
+# Render variables
+#   render.shadow_size                                                  - The size of the shadow underneath an entity
+#   render.shadow_opacity                                               - How transparent the shadow is
+#   render.shadow_offset_x, render.shadow_offset_z                      - The location of the shadow
+#   render.leash_offset_x, render.leash_offset_y, render.leash_offset_z - The position of the point the leash attaches to
+# 
+# Expressions
+#
+# Expressions are general mathematical expressions with brackets, constants, variables, operators and functions.
+#
+# Constants
+#   <number> - Floating point number
+#   pi       - 3.1415926
+#   true
+#   false
+@   e        - Euler's number 2.718281.....
+@   nan      - Not a number, throws an exception during runtime, used for debugging
+#
+# Variables
+#   <model>.<var> - Model variable, see the model variable specification
+#   time          - The total game time in ticks, not related to the daylight cycle (0-720720)
+#   day_time      - The current day time in ticks (0-24000)
+#   day_count     - The current day count
+#
+# Render parameters
+#   limb_swing                               - Limb animation counter. Counts up in ticks when the entity moves
+#   limb_speed                               - Limb movement speed. Ranges from 0 to 1 (still = 0, sprinting = 1)
+#   age                                      - Age in ticks
+#   head_pitch                               - Head pitch (x Rotation)
+#   head_yaw                                 - Head yaw   (y rotation)
+#   player_pos_x, player_pos_y, player_pos_z - The client players current world position
+#   player_rot_x, player_rot_y               - The client players current world rotation. North is 0
+#   frame_time                               - The time in seconds since the last frame
+#   dimension                                - The current dimension. Overworld: 0, Nether: -1, End: 1
+#   rule_index                               - The index of the current matching random models rule. Defaults to 0
+#
+# Entity parameters (float)
+#   health              - The entity's current health
+#   hurt_time           - The time the entity is hurt for. Counts down from 10 to 0
+#   death_time          - The time the entity is dead. Counts up from 0 to 20
+#   anger_time          - The remaining entity angry time in ticks. Starts with 400-780 while agressive, and then counts down to 0 when the target is lost
+#   anger_time_start    - The start value of anger_time 
+#   max_health          - The entity's maximum health
+@   move_forward        - The entity's current movement in the direction they are facing. Ranges from -1 to 1 denoting the Y axis intercept of a unit circle of the players current movement vector.
+@   move_strafing       - The entity's current movement in the direction 90 degrees to the right of their facing direction. Ranges from -1 to 1 denoting the X axis intercept of a unit circle of the players current movement vector.
+#   pos_x, pos_y, pos_z - The entities current world position
+#   rot_x, rot_y        - The entities current world rotation. North is 0
+#   swing_progress      - How far through an attack the entity is. Counts up from 0 to 1
+#   id                  - A unique numeric identifier for the entity
+@   distance            - The entities distance from the client player in blocks
+@   height_above_ground - The distance the entity is above the ground, ground being the highest point below the entity with a collidable block
+@   fluid_depth         - The depth of the fluid above and below a submerged entity, 0 if not submerged
+@   fluid_depth_down    - The depth of the fluid below a submerged entity, 0 if not submerged
+@   fluid_depth_up      - The depth of the fluid above a submerged entity, 0 if not submerged
+#
+# Entity parameters (boolean)
+#   is_aggressive    - If the entity is aggressive towards a player or another entity
+#   is_alive         - If the entity is alive
+#   is_burning       - If the entity is on fire
+#   is_child         - If the entity is in its baby state
+#   is_glowing       - If the entity has the Glowing effect
+#   is_hurt          - If the entity is taking damage
+#   is_in_hand       - If the entity is being held in your hand
+#   is_in_item_frame - If the entity is in an item frame
+#   is_in_ground     - If a trident is impaled in the ground
+#   is_in_gui        - If the entity is inside the GUI
+#   is_in_lava       - If the entity is touching lava
+#   is_in_water      - If the entity is touching water
+#   is_invisible     - If the entity has the Invisibility effect/NBT tag
+#   is_on_ground     - If the entity is touching the ground
+#   is_on_head       - If the entity is worn on another entity's head
+#   is_on_shoulder   - If a parrot is sitting on your shoulder
+#   is_ridden        - If the entity is being ridden by another entity
+#   is_riding        - If the entity is riding another entity
+#   is_sitting       - If a cat/wolf/parrot is sitting
+#   is_sneaking      - If a cat/ocelot is sneaking
+#   is_sprinting     - If a cat/ocelot is sprinting
+#   is_tamed         - If a cat/wolf/parrot is tamed
+#   is_wet           - If the entity is inside water/rain
+@   is_climbing      - If the entity is climbing a climbable block or is a spider on a wall
+@   is_blocking      - If the entity is blocking with a shield
+@   is_crawling      - If the entity is crawling
+@   is_jumping       - If the entity is jumping
+#
+# Operators
+#   +, -, *, /, %
+#   !, &&, || 
+#   >, >=, <, <=, ==, !=
+#
+# Functions
+#   sin(x)                                      - Get the sine of x
+#   cos(x)                                      - Get the cosine of c
+#   asin(x)                                     - Get the arc sine of x
+#   acos(x)                                     - Get the arc cosine of x
+#   tan(x)                                      - Get the tangent of x
+#   atan(x)                                     - Get the arc tangent of x
+#   atan2(y, x)                                 - Get the angle between the positive x-axis and the point (x, y)
+#   torad(deg)                                  - Convert degrees to radians
+#   todeg(rad)                                  - Convert radians to degrees
+#   min(x, y ,...)                              - Get the smallest number from a list of numbers
+#   max(x, y, ...)                              - Get the largest number from a list of numbers
+#   clamp(x, min, max)                          - Limits a number to be between min and max values
+#   abs(x)                                      - Get the absolute value of a number. Will turn negative numbers positive
+#   floor(x)                                    - Round x down to the nearest whole number
+#   ceil(x)                                     - Round x up to the nearest whole number
+#   exp(x)                                      - Get e (Euler's constant) raised to the power of x
+#   frac(x)                                     - Get the fractional part of x (what's behind the decimal point)
+#   log(x)                                      - Get the natural logarithm of x
+#   pow(x, y)                                   - Get x raised to the power of y
+#   random(seed)                                - Random number from 0 to 1. Providing a seed will always return the same result. The seed is optional
+#   round(x)                                    - Round x to nearest whole number
+#   signum(x)                                   - Get the sign of x (positive or negative)
+#   sqrt(x)                                     - Get the square root of x
+#   fmod(x, y)                                  - Similar to the % operator, but the returned value always has the same sign as the divisor
+#   lerp(k, x, y)                               - Linear interpolation between X and Y
+#   if(cond, val, [cond2, val2, ...], val_else) - Select a value based one or more conditions
+#   print(id, n, x)                             - Prints the value "x" every N-th frame
+#   printb(id, n, x)                            - Prints the boolean value "x" every N-th frame
+@   wrapdeg(x)                                  - Wraps the degree value x to the range -180 to 180 that it matches
+@   wraprad(x)                                  - Wraps the radian value x to the range -pi to pi that it matches
+@   degdiff(x, y)                               - Returns the shortest angular degree difference between two degree values x and y
+@   raddiff(x, y)                               - Returns the shortest angular radian difference between two radian values x and y
+@   catch(x, c, id)                             - Returns x if x is not NaN or has an Error, otherwise returns c. id is optional, if it is added the catch function will print the reason c was used to the game log with this id
+#
+@ EMF interpolation functions
+@   keyframe(k, a, b, c,...)                    - Interpolates between values based on the current frame 'k' and the keyframes 'a' is 'k=0', 'b' is 'k=1', 'c' is 'k=2' etc.
+@   keyframeloop(k, a, b, c,...)                - Interpolates between values based on the current frame 'k' and the keyframes 'a' is 'k=0', 'b' is 'k=1', 'c' is 'k=2' etc. but loops the animation back to frame 'a' when 'k' is greater than the number of keyframes
+@   catmullrom(k, x, y, z, w)                   - Interpolates between x and y using the catmull-rom spline function with control points z and w
+@   hermite(k, x, y, z, w)                      - Interpolates between x and y using the hermite spline function with control points z and w
+@   cubicbezier(k, x, y, z, w)                  - Interpolates between x and y using the cubic bezier spline function with control points z and w
+@   quadbezier(k, x, y, z)                      - Interpolates between x and y using the quadratic bezier spline function with control point z
+@ The following easing interpolations all have examples here: https://easings.net/
+@ Ease in-out
+@   easeinoutexpo(k, x, y)                      - Interpolates between x and y using the ease in and ease out expo function
+@   easeinoutquad(k, x, y)                      - Interpolates between x and y using the ease in and ease out quad function
+@   easeinoutquart(k, x, y)                     - Interpolates between x and y using the ease in and ease out quart function
+@   easeinoutsine(k, x, y)                      - Interpolates between x and y using the ease in and ease out sine function
+@   easeinoutbounce(k, x, y)                    - Interpolates between x and y using the ease in and ease out bounce function
+@   easeinoutcubic(k, x, y)                     - Interpolates between x and y using the ease in and ease out cubic function
+@   easeinoutquint(k, x, y)                     - Interpolates between x and y using the ease in and ease out quint function
+@   easeinoutcirc(k, x, y)                      - Interpolates between x and y using the ease in and ease out circ function
+@   easeinoutelastic(k, x, y)                   - Interpolates between x and y using the ease in and ease out elastic function
+@   easeinoutback(k, x, y)                      - Interpolates between x and y using the ease in and ease out back function
+@ Ease in
+@   easeinexpo(k, x, y)                         - Interpolates between x and y using the ease in expo function
+@   easeinquad(k, x, y)                         - Interpolates between x and y using the ease in quad function
+@   easeinquart(k, x, y)                        - Interpolates between x and y using the ease in quart function
+@   easeinsine(k, x, y)                         - Interpolates between x and y using the ease in sine function
+@   easeinbounce(k, x, y)                       - Interpolates between x and y using the ease in bounce function
+@   easeincubic(k, x, y)                        - Interpolates between x and y using the ease in cubic function
+@   easeinquint(k, x, y)                        - Interpolates between x and y using the ease in quint function
+@   easeincirc(k, x, y)                         - Interpolates between x and y using the ease in circ function
+@   easeinelastic(k, x, y)                      - Interpolates between x and y using the ease in elastic function
+@   easeinback(k, x, y)                         - Interpolates between x and y using the ease in back function
+@ Ease out
+@   easeoutexpo(k, x, y)                        - Interpolates between x and y using the ease out expo function
+@   easeoutquad(k, x, y)                        - Interpolates between x and y using the ease out quad function
+@   easeoutquart(k, x, y)                       - Interpolates between x and y using the ease out quart function
+@   easeoutsine(k, x, y)                        - Interpolates between x and y using the ease out sine function
+@   easeoutbounce(k, x, y)                      - Interpolates between x and y using the ease out bounce function
+@   easeoutcubic(k, x, y)                       - Interpolates between x and y using the ease out cubic function
+@   easeoutquint(k, x, y)                       - Interpolates between x and y using the ease out quint function
+@   easeoutcirc(k, x, y)                        - Interpolates between x and y using the ease out circ function
+@   easeoutelastic(k, x, y)                     - Interpolates between x and y using the ease out elastic function
+@   easeoutback(k, x, y)                        - Interpolates between x and y using the ease out back function
+
+#
+# Boolean functions                 
+#   between(x, min, max)                        - Check if a value is between min and max values
+#   equals(x, y, epsilon)                       - Compare two float values with error margin
+#   in(x, val1, val2, ...)                      - Check if a value equals one of several values
+@   ifb(cond, val, [cond2, val2, ...], val_else)- Select a value based one or more conditions, returns a boolean
+@   randomb(seed)                               - Random boolean true|false. Providing a seed will always return the same result. The seed is optional
+#
+@ Note about booleans in EMF:
+@ Unlike OptiFine, EMF internally uses Float.NEGATIVE_INFINITY for false, and Float.POSITIVE_INFINITY for true.
+@ This streamlines the underlying math code and makes it easier to use booleans in expressions, the math will still warn
+@ you when using a numbers where a boolean is expected.
+@ However, for the interest of performance, the reverse check is not done and booleans may be used in place of numbers.
+@ Such cases will almost always result in a NaN value at the end and will usually zero out the expression, but I cannot guarantee this.
+#
+# Examples:
+#    ...
+#    "animations":
+#    [
+#      {
+#        "this.rx": "clamp(-0.5 * part.rx, 0, 90)",
+#        "this.tx": "3 * sin(limb_swing / 4) - 2",
+#        "this:Hoof.rx": "if(leg4:Hoof.rx > 90, leg4:Hoof.rx - 90, 0)"
+#        ...
+#      }
+#    ]
+#    
+# Walking animation:
+#    x is a multiplier to control how fast the leg swings back and forth, and y is a multiplier to control how far it swings back and forth
+@    This is a matter of modifying a wave function (sin()), you will have a much easier time if you can understand how to modify a wave function
+@    I would highly recommend looking up YouTube tutorials for beginners it is much easier than it may appear at first glance.
+#
+#    "left_leg.rx": "sin(limb_swing*x)*limb_speed*y"
+# 
+# Attack animation:
+#    x is a multipler for how much it rotates
+#
+#    "head.rx": "sin(swing_progress*pi)*x"
+#
+# Hurt animation:
+#    x is a multipler for how much it rotates
+#
+#    "head.rx": "-sin(hurt_time/pi)*x"
+#
+# Custom counter:
+#    This is a counter that will count up while an entity is in water, and count down again when it leaves
+#
+#    "var.counter": "if(is_in_water, min(20, var.counter + 0.1 * frame_time * 20), max(0, var.counter - 0.1 * frame_time * 20))"
+#
+@ Value history stack:
+@   This is a stack of variables that hold a previous value for several frames
+@   This specific example will result in "var.x1" having the value that "pos_x" was 10 frames prior
+@   This can be used to create a delay effect, or to compare a value to what it was in the past
+@   Note: this does not work in the reverse order as they are processed in the order they are defined
+@
+@    "var.x1": "var.x2"
+@    "var.x2": "var.x3"
+@    "var.x3": "var.x4"
+@    "var.x4": "var.x5"
+@    "var.x5": "var.x6"
+@    "var.x6": "var.x7"
+@    "var.x7": "var.x8"
+@    "var.x8": "var.x9"
+@    "var.x9": "var.x10"
+@    "var.x10": "pos_x"
+@
+@ Timers for real time
+@   This is a timer that will count up in real time
+@
+@   "var.seconds":  "var.seconds + frame_time"
+@   "var.minutes":  "var.seconds/60"
+@   "var.hours":    "var.minutes/60"
+@
+@ Loop through preset values
+@   This is a keyframe-like loop that will interpolate between 5, 10, 15, (the result of sin(head_pitch)), 25, 30, 35, (the value of age), 45, 50, and back to 5.
+@   Each frame of the keyframe method will align with every whole number of the first input "var.seconds" which is every second
+@   so the whole thing loops every 10 seconds
+@
+@   "var.seconds":  "var.seconds + frame_time"
+@   "head.rx": "keyframeloop(var.seconds, 5, 10, 15, sin(head_pitch), 25, 30, 35, age, 45, 50)"

@@ -18,6 +18,7 @@ import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements FeatureRendererContext<T, M> {
 
 
+    @SuppressWarnings("unused")
     protected MixinLivingEntityRenderer_ValueCapturing(EntityRendererFactory.Context ctx) {
         super(ctx);
     }

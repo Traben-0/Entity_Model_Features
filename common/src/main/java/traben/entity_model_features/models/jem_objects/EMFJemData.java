@@ -3,13 +3,14 @@ package traben.entity_model_features.models.jem_objects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 
 import java.util.*;
 
+@SuppressWarnings("CanBeFinal")
 public class EMFJemData {
 
     private final LinkedHashMap<String, LinkedHashMap<String, String>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();
@@ -20,7 +21,6 @@ public class EMFJemData {
     private String fileName = "none";
     private String filePath = "";
     private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
-    //public String mobName = "none";
     private Identifier customTexture = null;
 
     public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
@@ -88,7 +88,13 @@ public class EMFJemData {
         return "optifine/cem/";
     }
 
+
     public void prepare(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+        if (textureSize != null && textureSize.length != 2) {
+            textureSize = new int[]{64, 32};
+            EMFUtils.logWarn("No textureSize provided for: " + fileName + ". Defaulting to 64x32 texture size for model.");
+        }
+
         this.mobModelIDInfo = mobModelIDInfo;
         this.fileName = fileName;
 
@@ -119,7 +125,7 @@ public class EMFJemData {
 
         ///prep animations
         SortedMap<String, EMFPartData> alphabeticalOrderedParts = new TreeMap<>(Comparator.naturalOrder());
-        if (EMFConfig.getConfig().logModelCreationData)
+        if (EMF.config().getConfig().logModelCreationData)
             EMFUtils.log("originalModelsForReadingOnly #= " + originalModelsForReadingOnly.size());
         for (EMFPartData partData :
                 originalModelsForReadingOnly) {
@@ -129,7 +135,7 @@ public class EMFJemData {
             alphabeticalOrderedParts.put(partData.id, partData);
         }
 
-        if (EMFConfig.getConfig().logModelCreationData)
+        if (EMF.config().getConfig().logModelCreationData)
             EMFUtils.log("alphabeticalOrderedParts = " + alphabeticalOrderedParts);
         for (EMFPartData part :
                 alphabeticalOrderedParts.values()) {
@@ -160,7 +166,7 @@ public class EMFJemData {
         if (shadow_size != 1.0) {
             if (shadow_size < 0) shadow_size = 0;
 
-            String rootPart = "EMF_root";
+            String rootPart = "root";
             LinkedHashMap<String, String> shadowAnimation = new LinkedHashMap<>();
             shadowAnimation.put("render.shadow_size", String.valueOf(shadow_size));
             if (allTopLevelAnimationsByVanillaPartName.containsKey(rootPart)) {

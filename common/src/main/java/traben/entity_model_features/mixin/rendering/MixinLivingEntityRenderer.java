@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
@@ -42,6 +43,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     @Unique
     private EMFEntity emf$heldEntity = null;
 
+    @SuppressWarnings("unused")
     protected MixinLivingEntityRenderer(EntityRendererFactory.Context ctx) {
         super(ctx);
     }
@@ -62,7 +64,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(model) && !(livingEntity instanceof PufferfishEntity)) {
-                boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace());
+                boolean replace = EMF.config().getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(livingEntity.getType()).getNamespace());
                 EMFUtils.overrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
                 if (replace) {
                     model = emf$heldModelToForce;
@@ -77,11 +79,11 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
             EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
-                if (EMFConfig.getConfig().vanillaModelHologramRenderMode_2 != EMFConfig.VanillaModelRenderMode.OFF) {
+                if (EMF.config().getConfig().vanillaModelHologramRenderMode_2 != EMFConfig.VanillaModelRenderMode.OFF) {
                     root.tryRenderVanillaRootNormally(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))), i, OverlayTexture.DEFAULT_UV);
                 }
                 //simple attempt at a physics mod workaround
-                if (livingEntity.isDead() && EMFManager.getInstance().IS_PHYSICS_MOD_INSTALLED && EMFConfig.getConfig().attemptPhysicsModPatch_2 != EMFConfig.PhysicsModCompatChoice.OFF) {
+                if (livingEntity.isDead() && EMFManager.getInstance().IS_PHYSICS_MOD_INSTALLED && EMF.config().getConfig().attemptPhysicsModPatch_2 != EMFConfig.PhysicsModCompatChoice.OFF) {
                     root.tryRenderVanillaFormatRoot(matrixStack, vertexConsumerProvider.getBuffer(RenderLayer.getEntityTranslucent(getTexture(livingEntity))), i, OverlayTexture.DEFAULT_UV);
                     //the regular render will get cancelled anyway nothing further to do
                 }

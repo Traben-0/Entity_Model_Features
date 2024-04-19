@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -40,7 +40,7 @@ public class MixinSheepWoolFeatureRenderer {
     private void emf$resetModel(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, SheepEntity sheepEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(model)) {
-                boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(sheepEntity.getType()).getNamespace());
+                boolean replace = EMF.config().getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(sheepEntity.getType()).getNamespace());
                 EMFUtils.overrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
                 if (replace) {
                     model = emf$heldModelToForce;

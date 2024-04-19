@@ -12,6 +12,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
@@ -21,6 +22,7 @@ import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 import traben.entity_texture_features.ETFApi;
+import traben.entity_texture_features.features.property_reading.PropertiesRandomProvider;
 import traben.entity_texture_features.utils.EntityIntLRU;
 
 import java.util.*;
@@ -49,9 +51,9 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                             Collection<String> optifinePartNames,
                             Map<String, EMFModelPartVanilla> mapForCreatedParts) {
         //create vanilla root model object
-        super("EMF_root", vanillaRoot, optifinePartNames, mapForCreatedParts);
+        super("root", vanillaRoot, optifinePartNames, mapForCreatedParts);
         allVanillaParts = mapForCreatedParts;
-        allVanillaParts.put(name, this);
+        allVanillaParts.putIfAbsent(name, this);
 
         this.modelName = mobNameForFileAndMap;
         this.variantDirectoryApplier = variantDirectoryApplier;
@@ -66,7 +68,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         if (EMFAnimationEntityContext.getEMFEntity() != null) {
 
             //register models to entity type for debug print
-            if (EMFConfig.getConfig().debugOnRightClick) {
+            if (EMF.config().getConfig().debugOnRightClick) {
                 String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
                 Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForDebug.get(type);
                 if (roots == null) {
@@ -81,7 +83,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             //register variant runnable
             if (this.variantTester != null) {
                 String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
-                if (EMFConfig.getConfig().logModelCreationData)
+                if (EMF.config().getConfig().logModelCreationData)
                     EMFUtils.log("Registered new variating model for: " + type);
 
                 Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(type);
@@ -116,17 +118,22 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 finalSuffix = newSuffix;
             }
         }
+        if (finalSuffix == 0) {
+            EMFManager.getInstance().lastModelSuffixOfEntity.removeInt(id);
+        } else {
+            EMFManager.getInstance().lastModelSuffixOfEntity.put(id, finalSuffix);
+        }
         setVariantStateTo(finalSuffix);
     }
 
     public void checkIfShouldExpireEntity(UUID id) {
         if (this.variantTester.entityCanUpdate(id)) {
-            switch (EMFConfig.getConfig().modelUpdateFrequency) {
+            switch (EMF.config().getConfig().modelUpdateFrequency) {
                 case Never -> {
                 }
                 case Instant -> this.entitySuffixMap.removeInt(id);
                 default -> {
-                    int delay = EMFConfig.getConfig().modelUpdateFrequency.getDelay();
+                    int delay = EMF.config().getConfig().modelUpdateFrequency.getDelay();
                     int time = (int) (EMFAnimationEntityContext.getTime() % delay);
                     if (time == Math.abs(id.hashCode()) % delay) {
                         this.entitySuffixMap.removeInt(id);
@@ -138,7 +145,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     //root only
     public void addVariantOfJem(EMFJemData jemData, int variant) {
-        if (EMFConfig.getConfig().logModelCreationData)
+        if (EMF.config().getConfig().logModelCreationData)
             EMFUtils.log(" > " + jemData.getMobModelIDInfo().getfileName() + ", constructing variant #" + variant);
 
         Map<String, EMFModelPartCustom> newEmfParts = new HashMap<>();
@@ -163,7 +170,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     newEmfParts.entrySet()) {
                 EMFModelPartCustom newPart = newPartEntry.getValue();
                 if (thisPartName.equals(newPart.partToBeAttached)) {
-                    if (EMFConfig.getConfig().logModelCreationData)
+                    if (EMF.config().getConfig().logModelCreationData)
                         EMFUtils.log(" > > > EMF custom part attached: " + newPartEntry.getKey());
                     if (!newPart.attach) {
                         thisPart.cuboids = List.of();
@@ -187,10 +194,21 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public void discoverAndInitVariants() {
         //get random properties and init variants
-        String thisDirectoryFileName = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getfileName());
+        String thisDirectoryFileName = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getNamespace(), modelName.getfileName());
         Identifier propertyID = new Identifier(thisDirectoryFileName + ".properties");
         if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
             variantTester = ETFApi.getVariantSupplierOrNull(propertyID, new Identifier(thisDirectoryFileName + ".jem"), "models");
+
+            if (variantTester instanceof PropertiesRandomProvider propertiesRandomProvider) {
+                propertiesRandomProvider.setOnMeetsRuleHook((entity, rule) -> {
+                    if (rule == null) {
+                        EMFManager.getInstance().lastModelRuleOfEntity.removeInt(entity.etf$getUuid());
+                    } else {
+                        EMFManager.getInstance().lastModelRuleOfEntity.put(entity.etf$getUuid(), rule.RULE_NUMBER);
+                    }
+                });
+            }
+
             if (variantTester != null) {
                 IntOpenHashSet allModelVariants = variantTester.getAllSuffixes();
                 allModelVariants.remove(1);
@@ -200,8 +218,8 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     for (int variant : allModelVariants) {
                         setVariantStateTo(1);
 
-                        String jemNameVariant = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getfileName() + variant + ".jem");
-                        if (EMFConfig.getConfig().logModelCreationData)
+                        String jemNameVariant = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getNamespace(), modelName.getfileName() + variant + ".jem");
+                        if (EMF.config().getConfig().logModelCreationData)
                             EMFUtils.log(" > incorporating variant jem file: " + jemNameVariant);
                         EMFJemData jemDataVariant = getJemDataWithDirectory(jemNameVariant, modelName);
                         if (jemDataVariant != null) {
@@ -212,14 +230,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                         } else {
                             //make this variant map to 1
                             allKnownStateVariants.put(variant, allKnownStateVariants.get(1));
-                            if (EMFConfig.getConfig().logModelCreationData)
+                            if (EMF.config().getConfig().logModelCreationData)
                                 EMFUtils.log(" > invalid jem variant file: " + jemNameVariant);
                         }
 
                     }
                     //receiveOneTimeRunnable(this::registerModelRunnable);
                 } else {
-                    if (EMFConfig.getConfig().logModelCreationData)
+                    if (EMF.config().getConfig().logModelCreationData)
                         EMFUtils.logWarn("properties with only 1 variant found: " + propertyID + ".");
                     //variantTester = null;
                     //variantDirectoryApplier = null;
@@ -244,7 +262,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public void tryRenderVanillaRootNormally(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
         if (vanillaRoot != null) {
             matrixStack.push();
-            if (EMFConfig.getConfig().vanillaModelHologramRenderMode_2 == EMFConfig.VanillaModelRenderMode.OFFSET) {
+            if (EMF.config().getConfig().vanillaModelHologramRenderMode_2 == EMFConfig.VanillaModelRenderMode.OFFSET) {
                 matrixStack.translate(1, 0, 0);
             }
             vanillaRoot.render(matrixStack, vertexConsumer, light, overlay, 1, 0.5f, 0.5f, 0.5f);
@@ -253,7 +271,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     public void tryRenderVanillaFormatRoot(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
-        if (EMFConfig.getConfig().attemptPhysicsModPatch_2 == EMFConfig.PhysicsModCompatChoice.VANILLA) {
+        if (EMF.config().getConfig().attemptPhysicsModPatch_2 == EMFConfig.PhysicsModCompatChoice.VANILLA) {
             if (vanillaRoot != null) {
                 vanillaRoot.render(matrixStack, vertexConsumer, light, overlay, 1, 1, 1, 1);
             }
@@ -284,11 +302,22 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 //                }
 //            });
 //        }
+        final var finalList = new ArrayList<>(animationList);
         if (!animationList.isEmpty()) {
             Runnable run = () -> {
                 if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
                     lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
-                    animationList.forEach((EMFAnimation::calculateAndSet));
+                    for (EMFAnimation emfAnimation : finalList) {
+                        try {
+                            emfAnimation.calculateAndSet();
+                        } catch (Exception e) {
+                            EMFUtils.logError("Error in animation expression [" + emfAnimation.animKey + "] for model [" + modelName.getfileName() + "] with expression [" + emfAnimation.expressionString + "].");
+                            EMFUtils.logError("Error was: " + e.getMessage());
+                            // e.printStackTrace();
+                            EMFUtils.logError("Disabling all animations for model: [" + modelName + "]");
+                            allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, null));
+                        }
+                    }
                 }
             };
             allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, run));
