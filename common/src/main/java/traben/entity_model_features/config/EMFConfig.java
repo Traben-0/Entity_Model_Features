@@ -146,6 +146,7 @@ public class EMFConfig extends TConfig {
                     var fileName = namespace + mapData.getfileName();
                     TConfigEntryCategory model = new TConfigEntryCategory(fileName + ".jem");
                     model.setAlign(TConfigScreenList.Align.RIGHT);
+                    model.setWidgetBackgroundToFullWidth();
                     model.setRenderFeature(new ModelRootRenderer(layer));
                     category.add(model);
 

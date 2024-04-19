@@ -25,7 +25,7 @@ side = "CLIENT"
 [[dependencies.entity_model_features]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.4,)"
+versionRange = "[1.20.5,)"
 ordering = "NONE"
 side = "CLIENT"
 

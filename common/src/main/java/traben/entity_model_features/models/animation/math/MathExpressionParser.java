@@ -122,8 +122,8 @@ public class MathExpressionParser {
                 }
                 lastComponent = component;
             }
-            if (newComponents.get(0) == MathOperator.ADD) {
-                newComponents.remove(0);
+            if (newComponents.getFirst() == MathOperator.ADD) {
+                newComponents.removeFirst();
             }
             if (newComponents.size() != components.size()) components = newComponents;
 
@@ -407,8 +407,8 @@ public class MathExpressionParser {
             return super.get(size - 1);
         }
 
-        public void removeLast() {
-            super.remove(size - 1);
-        }
+//        public void removeLast() {
+//            super.remove(size - 1);
+//        }
     }
 }

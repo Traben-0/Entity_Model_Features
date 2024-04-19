@@ -7,7 +7,7 @@ architectury {
     fabric()
 }
 
-archivesBaseName = rootProject.archives_base_name + "_fabric_1.20.4"
+archivesBaseName = rootProject.archives_base_name + "_fabric_1.20.5"
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath

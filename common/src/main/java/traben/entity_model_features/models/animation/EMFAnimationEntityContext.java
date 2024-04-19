@@ -336,7 +336,9 @@ public class EMFAnimationEntityContext {
         if (emfEntity == null || emfEntity.etf$getWorld() == null) {
             return 0;
         } else {
-            Identifier id = emfEntity.etf$getWorld().getDimensionKey().getValue();
+            var optional = emfEntity.etf$getWorld().getDimensionEntry().getKey();
+            if (optional.isEmpty()) return 0;
+            Identifier id = optional.get().getValue();
             if (id.equals(DimensionTypes.THE_NETHER_ID)) {
                 return -1;
             } else if (id.equals(DimensionTypes.THE_END_ID)) {

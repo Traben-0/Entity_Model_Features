@@ -12,4 +12,6 @@ public interface EMFWolfCollarHolder<T extends WolfEntity> {
     WolfEntityModel<T> emf$getCollarModel();
 
     void emf$setCollarModel(WolfEntityModel<T> model);
+
+
 }

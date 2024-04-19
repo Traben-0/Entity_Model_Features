@@ -2,13 +2,15 @@ package traben.entity_model_features.mixin.rendering;
 
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.feature.StrayOverlayFeatureRenderer;
+import net.minecraft.client.render.entity.feature.SkeletonOverlayFeatureRenderer;
+import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.render.entity.model.EntityModelLoader;
 import net.minecraft.client.render.entity.model.SkeletonEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.RangedAttackMob;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,7 +19,7 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.utils.EMFUtils;
 
-@Mixin(StrayOverlayFeatureRenderer.class)
+@Mixin(SkeletonOverlayFeatureRenderer.class)
 public class MixinStrayOverlayFeatureRenderer<T extends MobEntity & RangedAttackMob> {
 
 
@@ -30,7 +32,7 @@ public class MixinStrayOverlayFeatureRenderer<T extends MobEntity & RangedAttack
 
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
-    private void emf$saveEMFModel(FeatureRendererContext<?, ?> context, EntityModelLoader loader, CallbackInfo ci) {
+    private void emf$saveEMFModel(final FeatureRendererContext<?,?> context, final EntityModelLoader loader, final EntityModelLayer layer, final Identifier texture, final CallbackInfo ci) {
         if (this.model != null && ((IEMFModel) model).emf$isEMFModel()) {
             emf$heldModelToForce = model;
         }
