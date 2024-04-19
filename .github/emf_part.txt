@@ -1,0 +1,101 @@
+######################################################################
+@ Entity Model Features Part Model
+@ Reference configuration for EMF's Custom Entity Models
+@
+@ Adapted from the original OptiFine spec:
+@ https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_part.txt
+@
+@ Lines starting with @ are EMF only features
+# whereas lines starting with # are OptiFine & EMF features
+######################################################################
+# This file contains the definition of one model part and it can be
+# referenced as "model" from the entity model.
+# The file extension ".jpm" is recommended, but not required.
+# It should be located in the "assets/minecraft/optifine/cem" folder of your resource pack.
+@ or "assets/minecraft/emf/cem" as an EMF only override for optifine compatibility
+#
+# Texture UV can be specified in box format with "textureOffset" or 
+# individually with "uvDown", "uvUp", "uvNorth", "uvSouth", "uvWest" and "uvEast".
+# Either the box format or the individual face UV should be used, they can not be mixed.
+# The box format UV mapping is shown in https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/images/cem_box.png.
+@ Think of the box format like a zombies head in "textures/entity/zombie/zombie.png" with "textureOffset": [0, 0]
+#
+# Textures can be specified as:
+#   "texture" - (no '/' in name), look in current folder
+#   "./folder/texture" - relative to current folder
+#   "~/folder/texture" - relative to folder "assets/minecraft/optifine/"
+#   "folder/texture" - relative to folder "assets/minecraft/"
+#   "mod:folder/texture - resolves as "assets/mod/folder/texture.png"
+# 
+# The texture suffix ".png" is optional.
+#
+# Required elements:
+# - "textureOffset" or individual face UV
+# - "coordinates"
+#
+@ EMf adds the optional sizeAddX, sizeAddY and sizeAddZ to the box format
+@ these allow for axis specific scaling and might be found in modded model exports
+@ the x,y,z sizeAdd values will override the sizeAdd value for that axis if present
+#
+# Entities can have items/blocks attached to them. The attachments system allows you to render these items/blocks attached to model parts of your choice.
+#
+# Attachment name          Supported models
+# ======================== ======================================================
+# left_handheld_item       allay, armor_stand, drowned, evoker, giant, husk, illusioner, piglin, piglin_brute, pillager, skeleton, stray, vex, vindicator,
+#                          wither_skeleton, zombie, zombie_villager, zombified_piglin
+# right_handheld_item      allay, armor_stand, drowned, evoker, giant, husk, illusioner, piglin, piglin_brute, pillager, skeleton, stray, vex, vindicator,
+#                          wither_skeleton, zombie, zombie_villager, zombified_piglin
+#
+# Note: This is not a valid JSON format and it should only be used as a reference  
+######################################################################
+{
+  # Part model definition 
+  "texture": <texture.png>,                                             - Texture used by the part model
+  "textureSize": [<width>, <height>],                                   - Texture size in pixels
+  "invertAxis": <axis_to_invert>,                                       - Axis to invert, for example "xyz" inverts all axes
+  "translate": [<x>, <y>, <z>],                                         - Translate (pixels)
+  "rotate": [<angle_x>, <angle_y>, <angle_z>],                          - Rotate (degrees)
+  "mirrorTexture": <axis_to_mirror>,                                    - Texture axis to mirror, for example "uv" mirrors both U and V axis
+  "boxes"                                                               - List of part model boxes
+  "attachments":                                                        - Attachment points for vanilla rendering
+  {
+      "attachment_name": [tx, ty, tz]                                   - Render an attachment with translation (tx, ty, tz). See attachment section for details.
+  },
+  [
+    {
+      "textureOffset": [<u>, <v>],                                      - Texture offset for box format, see "model_box.png"
+      "uvDown": [<u1>, <v1>, <u2>, <v2>],                               - UV for face down
+      "uvUp": [<u1>, <v1>, <u2>, <v2>],                                 - UV for face up
+      "uvNorth": [<u1>, <v1>, <u2>, <v2>],                              - UV for face north, alias "uvFront"
+      "uvSouth": [<u1>, <v1>, <u2>, <v2>],                              - UV for face south, alias "uvBack"
+      "uvWest": [<u1>, <v1>, <u2>, <v2>],                               - UV for face west, alias "uvLeft"
+      "uvEast": [<u1>, <v1>, <u2>, <v2>],                               - UV for face east, alias "uvRight"
+      "coordinates": [<x>, <y>, <z>, <width>, <height>, <depth>],       - Box position and dimensions
+      "sizeAdd": <size_add>                                             - Size increment (added to all dimensions) can be used for asymmetric scaling
+@     "sizeAddX": <size_add_x>                                          - Size increment (added to the X dimension) can be used for asymmetric scaling
+@     "sizeAddY": <size_add_y>                                          - Size increment (added to the Y dimension) can be used for asymmetric scaling
+@     "sizeAddZ": <size_add_z>                                          - Size increment (added to the Z dimension) can be used for asymmetric scaling
+    },
+    ...
+  ],
+@not in EMF!  "sprites"                                                             - List of 3D sprite models (depth 1)
+@not in EMF!  [
+@not in EMF!    {
+@not in EMF!      "textureOffset": [<u>, <v>],                                      - Texture offset (pixels)
+@not in EMF!      "coordinates": [<x>, <y>, <z>, <width>, <height>, <depth>],       - Box position and dimensions
+@not in EMF!      "sizeAdd": <size_add>                                             - Size increment (added to all dimensions) can be used for asymmetric scaling
+@not in EMF!    },
+@not in EMF!    ...
+@not in EMF!  ],
+  "submodel":                                                           - Sub-model (attached to the parent, moving and rotating with it)
+  {
+    # Part model definition                                             - Sub-model definition                          
+  },
+  "submodels":                                                          - List of sub-models (attached to the parent, moving and rotating with it)
+  [
+    {
+      # Part model definition                                           - Sub-model definition                          
+    },
+    ...
+  ]
+}

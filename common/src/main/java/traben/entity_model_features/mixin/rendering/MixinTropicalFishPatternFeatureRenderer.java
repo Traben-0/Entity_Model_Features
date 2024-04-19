@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -49,7 +49,7 @@ public class MixinTropicalFishPatternFeatureRenderer {
     private void emf$resetModel(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, TropicalFishEntity tropicalFishEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(smallModel)) {
-                boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(tropicalFishEntity.getType()).getNamespace());
+                boolean replace = EMF.config().getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(tropicalFishEntity.getType()).getNamespace());
                 EMFUtils.overrideMessage(emf$heldModelToForce.getClass().getName(), smallModel == null ? "null" : smallModel.getClass().getName(), replace);
                 if (replace) {
                     smallModel = emf$heldModelToForce;
@@ -59,7 +59,7 @@ public class MixinTropicalFishPatternFeatureRenderer {
         }
         if (emf$heldModelToForce2 != null) {
             if (!emf$heldModelToForce2.equals(largeModel)) {
-                boolean replace = EMFConfig.getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(tropicalFishEntity.getType()).getNamespace());
+                boolean replace = EMF.config().getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getId(tropicalFishEntity.getType()).getNamespace());
                 EMFUtils.overrideMessage(emf$heldModelToForce2.getClass().getName(), largeModel == null ? "null" : largeModel.getClass().getName(), replace);
                 if (replace) {
                     largeModel = emf$heldModelToForce2;

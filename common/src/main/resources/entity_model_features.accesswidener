@@ -14,4 +14,14 @@ mutable field net/minecraft/client/model/ModelPart children Ljava/util/Map;
 
 accessible field net/minecraft/client/model/Model layerFactory Ljava/util/function/Function;
 
+accessible field net/minecraft/client/render/block/entity/BlockEntityRendererFactories FACTORIES Ljava/util/Map;
+accessible field net/minecraft/client/render/entity/model/EntityModelLoader modelParts Ljava/util/Map;
+
+accessible field net/minecraft/block/AbstractBlock collidable Z
+
+accessible field net/minecraft/client/util/math/MatrixStack stack Ljava/util/Deque;
+accessible method net/minecraft/client/util/math/MatrixStack$Entry <init> (Lnet/minecraft/util/math/Matrix4f;Lnet/minecraft/util/math/Matrix3f;)V
+
+accessible field net/minecraft/entity/LivingEntity jumping Z
+
 accessible field net/minecraft/client/MinecraftClient currentFps I

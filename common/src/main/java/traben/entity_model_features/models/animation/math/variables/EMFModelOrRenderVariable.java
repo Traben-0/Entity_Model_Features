@@ -4,6 +4,7 @@ import net.minecraft.client.model.ModelPart;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.math.MathValue;
 
 public enum EMFModelOrRenderVariable {
     TX() {
@@ -130,27 +131,38 @@ public enum EMFModelOrRenderVariable {
         @Override
         public void setValue(EMFModelPart modelPart, float value) {
             if (modelPart == null) return;
-            modelPart.visible = value == 1;
+            modelPart.visible = MathValue.toBoolean(value);
         }
 
         @Override
         public float getValue(ModelPart modelPart) {
             if (modelPart == null) return 0;
-            return modelPart.visible ? 1 : 0;
+            return MathValue.fromBoolean(modelPart.visible);
+        }
+
+        @Override
+        public boolean isBoolean() {
+            return true;
         }
     },
     VISIBLE_BOXES() {
         @Override
         public void setValue(EMFModelPart modelPart, float value) {
             if (modelPart == null) return;
-            modelPart.hidden = value == 1;
+            modelPart.hidden = MathValue.toBoolean(value);
         }
 
         @Override
         public float getValue(ModelPart modelPart) {
             if (modelPart == null) return 0;
-            if(modelPart instanceof EMFModelPart emf) return emf.hidden ? 1 : 0;
+            if(modelPart instanceof EMFModelPart emf) return MathValue.fromBoolean(emf.hidden);
             return 0;
+        }
+
+
+        @Override
+        public boolean isBoolean() {
+            return true;
         }
     },
     RENDER_shadow_size() {
@@ -307,6 +319,10 @@ public enum EMFModelOrRenderVariable {
         return false;
     }
 
+    public boolean isBoolean() {
+        return false;
+    }
+
     public abstract float getValue(ModelPart modelPart);
 
     public float getValue() {
@@ -315,4 +331,5 @@ public enum EMFModelOrRenderVariable {
 
 
     public abstract void setValue(EMFModelPart modelPart, float value);
+
 }

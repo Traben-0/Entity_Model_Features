@@ -14,6 +14,7 @@ public abstract class EBEConfigModifier {
      * @throws Exception if the config file cannot be modified
      * @throws Error     if the config file cannot be modified
      */
+    @SuppressWarnings("RedundantThrows")
     public static void modifyEBEConfig(Set<String> ebeAffectingJemsFound) throws Exception, Error {
         final var ebeConfig = EnhancedBlockEntities.CONFIG;
 

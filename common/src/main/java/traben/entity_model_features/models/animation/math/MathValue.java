@@ -1,41 +1,96 @@
 package traben.entity_model_features.models.animation.math;
 
 
-import traben.entity_model_features.models.animation.EMFAnimation;
+import java.util.function.BooleanSupplier;
 
 public abstract class MathValue implements MathComponent {
 
 
-    final EMFAnimation calculationInstance;
+    public static final float TRUE = Float.POSITIVE_INFINITY;
+
+    //    MathValue(boolean isNegative ){
+//        this.isNegative = isNegative;
+//        this.calculationInstance = calculationInstance;
+//        if (calculationInstance == null)
+//            throw new EMFMathException("calculationInstance cannot be null if declared");//todo check if still needed
+//    }
+    public static final float FALSE = Float.NEGATIVE_INFINITY;
+    //    final EMFAnimation calculationInstance;
     boolean isNegative;
 
-    MathValue(boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
-        this.isNegative = isNegative;
-        this.calculationInstance = calculationInstance;
-        if (calculationInstance == null)
-            throw new EMFMathException("calculationInstance cannot be null if declared");//todo check if still needed
-    }
 
     MathValue(boolean isNegative) {
         this.isNegative = isNegative;
-        this.calculationInstance = null;
+//        this.calculationInstance = null;
     }
 
     MathValue() {
         this.isNegative = false;
-        this.calculationInstance = null;
+//        this.calculationInstance = null;
+    }
+
+    /**
+     * The singular method for EMF to parse a boolean into its math equivalent float
+     *
+     * @param value the boolean to convert
+     * @return the float
+     */
+    public static float fromBoolean(boolean value) {
+        return value ? TRUE : FALSE;
+    }
+
+    /**
+     * The singular method for EMF to parse a float into its boolean equivalent
+     *
+     * @param value the float to convert
+     * @return the boolean
+     */
+    public static boolean toBoolean(float value) {
+        if (value == FALSE) return false;
+        if (value == TRUE) return true;
+        throw new IllegalArgumentException("Value [" + value + "] is not a boolean");
+    }
+
+    public static float validateBoolean(float value) {
+        //noinspection ResultOfMethodCallIgnored
+        toBoolean(value);
+        return value;
+    }
+
+    public static float invertBoolean(boolean value) {
+        return fromBoolean(!value);
+    }
+
+    public static float invertBoolean(float value) {
+        return fromBoolean(!toBoolean(value));
+    }
+
+    public static float invertBoolean(ResultSupplier value) {
+        return fromBoolean(!toBoolean(value.get()));
+    }
+
+    public static float fromBoolean(BooleanSupplier value) {
+        return fromBoolean(value.getAsBoolean());
+    }
+
+    public static float invertBoolean(BooleanSupplier value) {
+        return invertBoolean(value.getAsBoolean());
+    }
+
+    public static boolean isBoolean(float value) {
+        return value == TRUE || value == FALSE;
     }
 
     abstract ResultSupplier getResultSupplier();
-
 
     @Override
     public float getResult() {
         return isNegative ? -getResultSupplier().get() : getResultSupplier().get();
     }
 
-    public void makeNegative(boolean become) {
-        if (become) isNegative = !isNegative;
+    public MathValue getNegative() {
+        isNegative = !isNegative;
+        return this;
     }
 
     /**
@@ -47,6 +102,5 @@ public abstract class MathValue implements MathComponent {
     public interface ResultSupplier {
         float get();
     }
-
 
 }

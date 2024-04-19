@@ -1,67 +1,84 @@
 package traben.entity_model_features.models.animation;
 
+import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import traben.entity_model_features.config.EMFConfig;
+import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.math.MathComponent;
 import traben.entity_model_features.models.animation.math.MathExpressionParser;
+import traben.entity_model_features.models.animation.math.MathValue;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
-import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
 
 import java.util.UUID;
+
+import static traben.entity_model_features.models.animation.math.MathValue.FALSE;
 
 public class EMFAnimation {
 
     public final String animKey;
     public final String expressionString;
     public final String modelName;
-    public final boolean isVariable;
     private final EMFModelPart partToApplyTo;
-    private final EMFModelOrRenderVariable variableToChange;
+    private final EMFModelOrRenderVariable modelOrRenderVariableToChange;
     private final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
-    private final Object2IntOpenHashMap<UUID> lodTimer = new Object2IntOpenHashMap<>();
-    public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables = null;
-    public Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = null;
-    private MathComponent EMFCalculator = MathExpressionParser.NULL_EXPRESSION;
-    private EMFAnimation trueVariableToSet = null;
+    private final FloatConsumer variableResultConsumer;
+    private final float defaultValue;
+    public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> temp_emfAnimationVariables = null;
+    public Object2ObjectOpenHashMap<String, EMFModelPart> temp_allPartsBySingleAndFullHeirachicalId = null;
+    @NotNull
+    private MathComponent emfCalculator = MathExpressionParser.NULL_EXPRESSION;
 
     public EMFAnimation(EMFModelPart partToApplyTo,
-                        EMFModelOrRenderVariable variableToChange,
+                        EMFModelOrRenderVariable modelOrRenderVariableToChange,
                         String animKey,
                         String initialExpression,
                         String modelName
     ) {
         this.modelName = modelName;
         this.animKey = animKey;
-        isVariable = animKey.startsWith("var");
-        this.variableToChange = isVariable ? null : variableToChange;
-        this.partToApplyTo = partToApplyTo;
+        boolean animKeyIsBoolean = (animKey.startsWith("global_varb") || animKey.startsWith("varb"));
 
-        float defaultValue;
-        if (this.variableToChange != null) {
-            if (partToApplyTo == null) {
-                if (this.variableToChange.isRenderVariable()) {
-                    defaultValue = this.variableToChange.getValue();
-                } else {
-                    if (EMFConfig.getConfig().logModelCreationData)
-                        EMFUtils.log("null part for " + animKey);
-                    defaultValue = 0;
-                }
+        if (animKey.startsWith("global_var")) {
+            //global
+            if (animKeyIsBoolean) {
+                //boolean
+                variableResultConsumer = value -> GlobalVariableFactory.setGlobalVariable(animKey,
+                        MathValue.isBoolean(value) ? value : FALSE);
             } else {
-                defaultValue = this.variableToChange.getValue(partToApplyTo);
+                //float
+                variableResultConsumer = value -> GlobalVariableFactory.setGlobalVariable(animKey,
+                        MathValue.isBoolean(value) ? 0 : value);
+            }
+        } else if (animKey.startsWith("var")) {
+            //entity
+            if (animKeyIsBoolean) {
+                //boolean
+                variableResultConsumer = value -> EMFAnimationEntityContext.setEntityVariable(animKey,
+                        MathValue.isBoolean(value) ? value : FALSE);
+            } else {
+                //float
+                variableResultConsumer = value -> EMFAnimationEntityContext.setEntityVariable(animKey,
+                        MathValue.isBoolean(value) ? 0 : value);
             }
         } else {
-            defaultValue = 0;
+            variableResultConsumer = null;
         }
-        prevResult.defaultReturnValue(defaultValue);
+
+        this.modelOrRenderVariableToChange = isVar() ? null : modelOrRenderVariableToChange;
+        this.partToApplyTo = partToApplyTo;
+
+        this.defaultValue = animKeyIsBoolean ||
+                (modelOrRenderVariableToChange != null && modelOrRenderVariableToChange.isBoolean())
+                ? FALSE : 0;
+        prevResult.defaultReturnValue(this.defaultValue);
         expressionString = initialExpression;
     }
 
-    public void setTrueVariableSource(EMFAnimation trueVariableSource) {
-        this.trueVariableToSet = trueVariableSource;
+    public boolean isVar() {
+        return variableResultConsumer != null;
     }
 
     @Override
@@ -72,17 +89,17 @@ public class EMFAnimation {
 
     public void initExpression(Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables,
                                Object2ObjectOpenHashMap<String, EMFModelPart> allPartByName) {
-        this.emfAnimationVariables = emfAnimationVariables;
-        this.allPartsBySingleAndFullHeirachicalId = allPartByName;
-        EMFCalculator = MathExpressionParser.getOptimizedExpression(expressionString, false, this);
-        this.emfAnimationVariables = null;
-        this.allPartsBySingleAndFullHeirachicalId = null;
+        this.temp_emfAnimationVariables = emfAnimationVariables;
+        this.temp_allPartsBySingleAndFullHeirachicalId = allPartByName;
+        emfCalculator = MathExpressionParser.getOptimizedExpression(expressionString, false, this);
+        this.temp_emfAnimationVariables = null;
+        this.temp_allPartsBySingleAndFullHeirachicalId = null;
     }
 
 
     public float getLastResultOnly() {
         if (EMFAnimationEntityContext.getEMFEntity() == null) {
-            return 0;
+            return defaultValue;
         }
         return prevResult.getFloat(EMFAnimationEntityContext.getEMFEntity().etf$getUuid());
 
@@ -91,68 +108,52 @@ public class EMFAnimation {
     public float getResultViaCalculate() {
         UUID id = EMFAnimationEntityContext.getEMFEntity() == null ? null : EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
         if (id == null) {
-            return 0;
+            return defaultValue;
         }
 
         float result = calculatorRun();
-        result = result == Float.MIN_VALUE ? 0f : result;
+
         prevResult.put(id, result);
         return result;
     }
 
 
     private float calculatorRun() {
-        return EMFCalculator.getResult();
+        float result = emfCalculator.getResult();
+        if (Float.isNaN(result) || Math.abs(result) == Float.MIN_VALUE) {
+            return defaultValue;
+        } else {
+            return result;
+        }
     }
 
-    private void sendValueToTrueVariable(float value) {
-        if (EMFAnimationEntityContext.getEMFEntity() == null) return;
-        UUID id = EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
-        prevResult.put(id, value);
-    }
 
     public void calculateAndSet() {
-        if (EMFConfig.getConfig().animationLODDistance == 0) {
-            calculateAndSetPostLod();
-            return;
-        }
-        int lodTimer = this.lodTimer.getInt(EMFAnimationEntityContext.getEMFEntity().etf$getUuid());
-        int lodResult;
-        //check lod
-        if (lodTimer < 1) {
-            lodResult = EMFAnimationEntityContext.getLODFactorOfEntity();
+        if (EMFAnimationEntityContext.isLODSkippingThisFrame()) {
+            if (!isVar()) handleResultNonVariable(getLastResultOnly());
         } else {
-            lodResult = lodTimer - 1;
-        }
-        this.lodTimer.put(EMFAnimationEntityContext.getEMFEntity().etf$getUuid(), lodResult);
-        handleResult(lodResult > 0 ? getLastResultOnly() : getResultViaCalculate());
-    }
-
-    private void calculateAndSetPostLod() {
-        if (isVariable) {
-            if (trueVariableToSet != null) {
-                trueVariableToSet.sendValueToTrueVariable(getResultViaCalculate());
-            } else {
-                getResultViaCalculate();
-            }
-        } else {
-            handleResult(getResultViaCalculate());
+            calculateAndSetNotLod();
         }
     }
 
-    private void handleResult(float result) {
-        //if(animKey.equals("left_rein2.visible")) System.out.println("result rein "+result+varToChange);
-        if (variableToChange != null) {
-            if (Double.isNaN(result)) {
-                variableToChange.setValue(partToApplyTo, Float.MAX_VALUE);
-            } else {
-                variableToChange.setValue(partToApplyTo, result);
-            }
+    private void calculateAndSetNotLod() {
+        if (isVar()) {
+            variableResultConsumer.accept(getResultViaCalculate());
+        } else {
+            handleResultNonVariable(getResultViaCalculate());
+        }
+    }
+
+    private void handleResultNonVariable(float result) {
+        if (modelOrRenderVariableToChange != null) {
+            //todo potentially could validate boolean and non boolean values here, but that could represent a performance hit
+            //modelOrRenderVariableToChange.isBoolean()... etc
+            modelOrRenderVariableToChange.setValue(partToApplyTo, result);
         }
     }
 
     public boolean isValid() {
-        return EMFCalculator != MathExpressionParser.NULL_EXPRESSION;
+        return emfCalculator != MathExpressionParser.NULL_EXPRESSION;
     }
 
 
