@@ -140,7 +140,7 @@
   "entity_model_features.config.variable_explanation.day_time": "The current day time in ticks (0-24000)",
   "entity_model_features.config.variable_explanation.death_time": "The time the entity is dead. Counts up from 0 to 20",
   "entity_model_features.config.variable_explanation.dimension": "The current dimension. Overworld: 0, Nether: -1, End: 1",
-  "entity_model_features.config.variable_explanation.distance": "The entities distance from the client player in blocks",
+  "entity_model_features.config.variable_explanation.distance": "The entities distance from the client player in blocks\n\nwhile the distance variable was added for convenience, the same can be achieved on OptiFine with the following code:\n\"var.distance\": \"sqrt(pow(pos_x  -player_pos_x, 2) + pow(pos_y - player_pos_y, 2) + pow(pos_z - player_pos_z, 2))\"",
   "entity_model_features.config.variable_explanation.e": "CEuler's number\n2.718281.....",
   "entity_model_features.config.variable_explanation.entity_variable": "Entity variables are specified in the format \"var.<name>\" (float) or \"varb.<name>\" (boolean) \n\nThe name can be any string, for example \"var.xyz\", \"var.last_rx\", etc.\n\nThe variable is attached to the rendered entity and has a default value 0 or false.\n\nEntity variables are useful for storing animation data between frames.",
   "entity_model_features.config.variable_explanation.entity_variable.title": "Entity variables",
