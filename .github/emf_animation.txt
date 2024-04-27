@@ -149,6 +149,9 @@
 @   is_blocking      - If the entity is blocking with a shield
 @   is_crawling      - If the entity is crawling
 @   is_jumping       - If the entity is jumping
+@   is_swimming      - If the entity is in its swimming pose
+@   is_right_handed  - If the biped entity is right handed
+@   is_first_person_hand - If the model part rendering if the first person player hand
 #
 # Operators
 #   +, -, *, /, %
@@ -312,3 +315,6 @@
 @
 @   "var.seconds":  "var.seconds + frame_time"
 @   "head.rx": "keyframeloop(var.seconds, 5, 10, 15, sin(head_pitch), 25, 30, 35, age, 45, 50)"
+@
+@ while the distance variable was added for convenience, the same can be achieved on OptiFine with the following code:
+@   "var.distance": "sqrt(pow(pos_x  -player_pos_x, 2) + pow(pos_y - player_pos_y, 2) + pow(pos_z - player_pos_z, 2))"

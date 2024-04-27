@@ -100,6 +100,7 @@ public final class VariableRegistry {
 
 
         //simple booleans
+        registerSimpleBoolVariable("is_first_person_hand", () -> EMFAnimationEntityContext.isFirstPersonHand);
         registerSimpleBoolVariable("is_right_handed", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
             return EMFAnimationEntityContext.getEMFEntity() instanceof PlayerEntity entity && entity.getMainArm() == Arm.RIGHT;
