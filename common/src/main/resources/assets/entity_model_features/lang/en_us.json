@@ -140,8 +140,8 @@
   "entity_model_features.config.variable_explanation.day_time": "The current day time in ticks (0-24000)",
   "entity_model_features.config.variable_explanation.death_time": "The time the entity is dead. Counts up from 0 to 20",
   "entity_model_features.config.variable_explanation.dimension": "The current dimension. Overworld: 0, Nether: -1, End: 1",
-  "entity_model_features.config.variable_explanation.distance": "The entities distance from the client player in blocks",
-  "entity_model_features.config.variable_explanation.e": "CEuler's number\n2.718281.....",
+  "entity_model_features.config.variable_explanation.distance": "The entities distance from the client player in blocks\n\nwhile the distance variable was added for convenience, the same can be achieved on OptiFine with the following code:\n\"var.distance\": \"sqrt(pow(pos_x  -player_pos_x, 2) + pow(pos_y - player_pos_y, 2) + pow(pos_z - player_pos_z, 2))\"",
+  "entity_model_features.config.variable_explanation.e": "Euler's number\n2.718281.....",
   "entity_model_features.config.variable_explanation.entity_variable": "Entity variables are specified in the format \"var.<name>\" (float) or \"varb.<name>\" (boolean) \n\nThe name can be any string, for example \"var.xyz\", \"var.last_rx\", etc.\n\nThe variable is attached to the rendered entity and has a default value 0 or false.\n\nEntity variables are useful for storing animation data between frames.",
   "entity_model_features.config.variable_explanation.entity_variable.title": "Entity variables",
   "entity_model_features.config.variable_explanation.false": "Constant value\nfalse",
@@ -185,6 +185,7 @@
   "entity_model_features.config.variable_explanation.is_right_handed": "If the player is right handed",
   "entity_model_features.config.variable_explanation.is_swimming": "If the entity is swimming",
   "entity_model_features.config.variable_explanation.is_gliding": "If the entity is gliding",
+  "entity_model_features.config.variable_explanation.is_first_person_hand": "If the game is currently rendering the first person hand",
   "entity_model_features.config.variable_explanation.limb_speed": "Limb movement speed. Ranges from 0 to 1 (still = 0, sprinting = 1)",
   "entity_model_features.config.variable_explanation.limb_swing": "Limb animation counter. Counts up in ticks when the entity moves",
   "entity_model_features.config.variable_explanation.max_health": "The entity's maximum health",
@@ -230,5 +231,7 @@
   "entity_model_features.config.variable_explanation.global_variable.title": "Global variables",
   "entity_model_features.config.variable_explanation.optifine_parts": "OptiFine part names:",
   "entity_model_features.config.variable_explanation.unknown_parts": "Un mapped part names:",
+  "entity_model_features.config.prevent_hand": "Prevent first person hand animations",
+  "entity_model_features.config.prevent_hand.tooltip": "If enabled this will forcibly prevent all custom EMF animations from playing on the first person hand model",
   "entity_model_features.config.models_text": "These are all the models modifiable via EMF\nThese screens will only show / export information about these models unmodified state\nIf you want to see the current state of a model you will have to look at the model in game"
 }

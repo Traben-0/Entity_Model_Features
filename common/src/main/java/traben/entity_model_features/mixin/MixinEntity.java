@@ -68,8 +68,6 @@ public abstract class MixinEntity implements EMFEntity {
     @Shadow
     public abstract boolean hasPassengers();
 
-    @Shadow
-    public abstract boolean isSneaking();
 
     @Shadow
     public abstract boolean isSprinting();
@@ -88,6 +86,9 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Shadow
     public abstract EntityType<?> getType();
+
+
+    @Shadow public abstract boolean isInSneakingPose();
 
     @Inject(method = "Lnet/minecraft/entity/Entity;getLeashOffset()Lnet/minecraft/util/math/Vec3d;", at = @At("RETURN"))
     private void injected(CallbackInfoReturnable<Vec3d> cir) {
@@ -185,7 +186,7 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public boolean emf$isSneaking() {
-        return isSneaking();
+        return isInSneakingPose();
     }
 
     @Override
