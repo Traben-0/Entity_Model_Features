@@ -39,6 +39,7 @@ public class EMFAnimationEntityContext {
     }};
     private static final Object2IntOpenHashMap<UUID> lodEntityTimers = new Object2IntOpenHashMap<>();
     public static boolean setInHand = false;
+    public static boolean isFirstPersonHand = false;
     public static boolean setInItemFrame = false;
     public static boolean setIsOnHead = false;
     public static double lastFOV = 70;
@@ -288,6 +289,7 @@ public class EMFAnimationEntityContext {
     }
 
     public static void reset() {
+        isFirstPersonHand = false;
         layerFactory = null;
         emfEntity = null;
         limbAngle = Float.NaN;

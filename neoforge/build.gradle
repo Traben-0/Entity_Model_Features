@@ -38,6 +38,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive = false }
 
+
 //    modImplementation files("common/run/mods/entity_texture_features_neoforge_1.20.4-5.2.1.jar")
     //modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version_forge}")
 }
@@ -45,7 +46,7 @@ dependencies {
 processResources {
     inputs.property "version", project.version
 
-    filesMatching("META-INF/mods.toml") {
+    filesMatching("META-INF/neoforge.mods.toml") {
         expand "version": project.version
     }
 }
