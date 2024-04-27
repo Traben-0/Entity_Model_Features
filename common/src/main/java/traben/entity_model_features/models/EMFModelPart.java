@@ -3,6 +3,7 @@ package traben.entity_model_features.models;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -48,43 +49,52 @@ public abstract class EMFModelPart extends ModelPart {
             renderLikeETF(matrices, vertices, light, overlay, red, green, blue, alpha);
         } else if (light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
                 && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() //do not allow new etf emissive rendering here
-                && vertices instanceof ETFVertexConsumer etfVertexConsumer) { //can restore to previous render layer
+                //&& vertices instanceof ETFVertexConsumer etfVertexConsumer
+        ) { //can restore to previous render layer
 
-            // if the texture override is the same as the current texture, render as normal
-            var etfTextureTest = etfVertexConsumer.etf$getETFTexture();
-            if (etfTextureTest != null && etfTextureTest.thisIdentifier.equals(textureOverride)) {
-                renderLikeETF(matrices, vertices, light, overlay, red, green, blue, alpha);
-                return;
+            if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
+                // if the texture override is the same as the current texture, render as normal
+                var etfTextureTest = etfVertexConsumer.etf$getETFTexture();
+                if (etfTextureTest != null && etfTextureTest.thisIdentifier.equals(textureOverride)) {
+                    renderLikeETF(matrices, vertices, light, overlay, red, green, blue, alpha);
+                    return;
+                }
+
+
+                RenderLayer originalLayer = etfVertexConsumer.etf$getRenderLayer();
+                if (originalLayer == null) return;
+
+                VertexConsumerProvider provider = etfVertexConsumer.etf$getProvider();
+                if (provider == null) return;
+
+                renderTextureOverrideWithoutReset(provider, matrices, light, overlay, red, green, blue, alpha);
+
+                //reset render settings
+                provider.getBuffer(originalLayer);
+            }else{
+                //could be a sprite originally, if so lets ignore trying to reset the texture at all to its original
+                VertexConsumerProvider provider = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+                renderTextureOverrideWithoutReset(provider, matrices, light, overlay, red, green, blue, alpha);
             }
-
-            VertexConsumerProvider provider = etfVertexConsumer.etf$getProvider();
-            if (provider == null) return;
-
-            RenderLayer originalLayer = etfVertexConsumer.etf$getRenderLayer();
-            if (originalLayer == null) return;
-
-
-            lastTextureOverride = EMFManager.getInstance().entityRenderCount;
-
-
-            RenderLayer layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrETFOverrideOrTranslucent(textureOverride);
-            VertexConsumer newConsumer = provider.getBuffer(layerModified);
-
-            renderLikeVanilla(matrices, newConsumer, light, overlay, red, green, blue, alpha);
-
-            if (newConsumer instanceof ETFVertexConsumer newETFConsumer) {
-                ETFTexture etfTexture = newETFConsumer.etf$getETFTexture();
-                if (etfTexture == null) return;
-                ETFUtils2.RenderMethodForOverlay renderMethodForOverlay = (prov, ligh) -> renderLikeVanilla(matrices, prov, ligh, overlay, red, green, blue, alpha);
-                ETFUtils2.renderEmissive(etfTexture, provider, renderMethodForOverlay);
-                ETFUtils2.renderEnchanted(etfTexture, provider, light, renderMethodForOverlay);
-            }
-
-
-            //reset render settings
-            provider.getBuffer(originalLayer);
         }
         //else cancel out render
+    }
+
+    private void renderTextureOverrideWithoutReset(VertexConsumerProvider provider, MatrixStack matrices, int light, int overlay, float red, float green, float blue, float alpha){
+        lastTextureOverride = EMFManager.getInstance().entityRenderCount;
+
+        RenderLayer layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrETFOverrideOrTranslucent(textureOverride);
+        VertexConsumer newConsumer = provider.getBuffer(layerModified);
+
+        renderLikeVanilla(matrices, newConsumer, light, overlay, red, green, blue, alpha);
+
+        if (newConsumer instanceof ETFVertexConsumer newETFConsumer) {
+            ETFTexture etfTexture = newETFConsumer.etf$getETFTexture();
+            if (etfTexture == null) return;
+            ETFUtils2.RenderMethodForOverlay renderMethodForOverlay = (prov, ligh) -> renderLikeVanilla(matrices, prov, ligh, overlay, red, green, blue, alpha);
+            ETFUtils2.renderEmissive(etfTexture, provider, renderMethodForOverlay);
+            ETFUtils2.renderEnchanted(etfTexture, provider, light, renderMethodForOverlay);
+        }
     }
 
     //required for sodium 0.5.4+

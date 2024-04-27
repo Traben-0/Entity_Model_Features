@@ -4,6 +4,7 @@ package traben.entity_model_features.mixin;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -88,6 +89,10 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Shadow
     public abstract EntityType<?> getType();
+
+    @Shadow public abstract void playSound(final SoundEvent sound, final float volume, final float pitch);
+
+    @Shadow public abstract boolean isInSneakingPose();
 
     @Inject(method = "Lnet/minecraft/entity/Entity;getLeashOffset()Lnet/minecraft/util/math/Vec3d;", at = @At("RETURN"))
     private void injected(CallbackInfoReturnable<Vec3d> cir) {
@@ -185,7 +190,7 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public boolean emf$isSneaking() {
-        return isSneaking();
+        return isInSneakingPose();
     }
 
     @Override

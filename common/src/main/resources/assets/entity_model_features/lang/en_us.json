@@ -185,6 +185,7 @@
   "entity_model_features.config.variable_explanation.is_right_handed": "If the player is right handed",
   "entity_model_features.config.variable_explanation.is_swimming": "If the entity is swimming",
   "entity_model_features.config.variable_explanation.is_gliding": "If the entity is gliding",
+  "entity_model_features.config.variable_explanation.is_first_person_hand": "If the game is currently rendering the first person hand",
   "entity_model_features.config.variable_explanation.limb_speed": "Limb movement speed. Ranges from 0 to 1 (still = 0, sprinting = 1)",
   "entity_model_features.config.variable_explanation.limb_swing": "Limb animation counter. Counts up in ticks when the entity moves",
   "entity_model_features.config.variable_explanation.max_health": "The entity's maximum health",
@@ -230,5 +231,7 @@
   "entity_model_features.config.variable_explanation.global_variable.title": "Global variables",
   "entity_model_features.config.variable_explanation.optifine_parts": "OptiFine part names:",
   "entity_model_features.config.variable_explanation.unknown_parts": "Un mapped part names:",
+  "entity_model_features.config.prevent_hand": "Prevent first person hand animations",
+  "entity_model_features.config.prevent_hand.tooltip": "If enabled this will forcibly prevent all custom EMF animations from playing on the first person hand model",
   "entity_model_features.config.models_text": "These are all the models modifiable via EMF\nThese screens will only show / export information about these models unmodified state\nIf you want to see the current state of a model you will have to look at the model in game"
 }
