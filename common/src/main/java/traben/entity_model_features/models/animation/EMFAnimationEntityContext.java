@@ -61,6 +61,8 @@ public class EMFAnimationEntityContext {
     private static Boolean lodFrameSkipping = null;
     private static boolean announceModels = false;
 
+    public static boolean isFirstPersonHand = false;
+
     private EMFAnimationEntityContext() {
 
     }
@@ -288,6 +290,7 @@ public class EMFAnimationEntityContext {
     }
 
     public static void reset() {
+        isFirstPersonHand = false;
         layerFactory = null;
         emfEntity = null;
         limbAngle = Float.NaN;

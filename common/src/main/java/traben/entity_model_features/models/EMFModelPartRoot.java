@@ -303,10 +303,13 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 //            });
 //        }
         final var finalList = new ArrayList<>(animationList);
-        if (!animationList.isEmpty()) {
+        if (!finalList.isEmpty()) {
             Runnable run = () -> {
                 if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
                     lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
+
+                    if (EMFAnimationEntityContext.isFirstPersonHand && EMF.config().getConfig().preventFirstPersonHandAnimating) return;
+
                     for (EMFAnimation emfAnimation : finalList) {
                         try {
                             emfAnimation.calculateAndSet();
