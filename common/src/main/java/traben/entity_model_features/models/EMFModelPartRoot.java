@@ -10,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.EMF;
@@ -86,14 +87,33 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 if (EMF.config().getConfig().logModelCreationData)
                     EMFUtils.log("Registered new variating model for: " + type);
 
-                Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(type);
-                if (variators == null) {
-                    Set<Runnable> newVariators = new HashSet<>();
-                    EMFManager.getInstance().rootPartsPerEntityTypeForVariation.put(type, newVariators);
-                    newVariators.add(this::doVariantCheck);
-                } else {
-                    variators.add(this::doVariantCheck);
+                Runnable run;
+                if (EMFAnimationEntityContext.getEMFEntity() instanceof PlayerEntity && EMF.config().getConfig().onlyClientPlayerModel){
+                    run = ()-> {
+                        if (EMFAnimationEntityContext.getEMFEntity() instanceof PlayerEntity player && !player.isMainPlayer()) {
+                            setVariantStateTo(0);
+                        } else {
+                            doVariantCheck();
+                        }
+                    };
+                }else{
+                    run = this::doVariantCheck;
                 }
+                Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation
+                        .computeIfAbsent(type, k -> new HashSet<>());
+                variators.add(run);
+            }else if(EMFAnimationEntityContext.getEMFEntity() instanceof PlayerEntity && EMF.config().getConfig().onlyClientPlayerModel){
+                //no variant tester, but player model setting must apply vanilla variant
+                String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
+                Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation
+                        .computeIfAbsent(type, k -> new HashSet<>());
+                variators.add(()-> {
+                    if (EMFAnimationEntityContext.getEMFEntity() instanceof PlayerEntity player && !player.isMainPlayer()) {
+                        setVariantStateTo(0);
+                    } else {
+                        setVariantStateTo(1);
+                    }
+                });
             }
         }
         //now set the runnable to null so it only runs once
