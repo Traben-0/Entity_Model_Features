@@ -2,8 +2,11 @@
 2.0.1
 
 - added `is_first_person_hand` variable to detect then the model part being rendered is the first person player hand
-- added a setting to forcibly prevent all custom hand animations from playing in first person view
-- fixed the is_sneaking variable not working correctly, should now line up with all models that have a sneaking pose
+- added the `player settings` category in the model settings gui
+  - added a setting to force custom player models to only apply to your own player and not others in multiplayer
+  - added a setting to forcibly prevent all custom hand animations from playing in first person view
+  - both are disabled by default
+- fixed the `is_sneaking` variable not working correctly, should now line up with all models that have a sneaking pose
 - added missing variables to the animation docs
 - fixed block entities, and some other edge cases, with texture overrides in the model not rendering at all
 
