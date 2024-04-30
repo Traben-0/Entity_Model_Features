@@ -150,8 +150,10 @@
 @   is_crawling      - If the entity is crawling
 @   is_jumping       - If the entity is jumping
 @   is_swimming      - If the entity is in its swimming pose
-@   is_right_handed  - If the biped entity is right handed
-@   is_first_person_hand - If the model part rendering if the first person player hand
+@   is_right_handed         - If the biped entity is right handed
+@   is_swinging_right_arm   - If the biped entity is swinging it's right arm
+@   is_swinging_left_arm    - If the biped entity is swinging it's left arm
+@   is_first_person_hand    - If the model part rendering is the first person player hand
 #
 # Operators
 #   +, -, *, /, %

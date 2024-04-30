@@ -187,6 +187,8 @@ public class EMFConfig extends TConfig {
         });
         category.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
                 "entity_model_features.config.models.arrows", 200, TConfigEntryText.TextAlignment.LEFT));
+        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
+                "entity_model_features.config.models.cape", 200, TConfigEntryText.TextAlignment.LEFT));
         return category;
     }
 

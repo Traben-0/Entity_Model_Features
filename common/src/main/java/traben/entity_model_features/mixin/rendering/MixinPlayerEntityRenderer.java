@@ -16,8 +16,8 @@ public class MixinPlayerEntityRenderer {
     @Inject(method = "renderArm",
             at = @At(value = "HEAD"))
     private void emf$setHand(final CallbackInfo ci) {
-        EMFAnimationEntityContext.isFirstPersonHand = true;
         EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntity) MinecraftClient.getInstance().player);
+        EMFAnimationEntityContext.isFirstPersonHand = true;
     }
 
     @Inject(method = "renderArm",
