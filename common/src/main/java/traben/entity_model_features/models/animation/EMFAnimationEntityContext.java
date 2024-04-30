@@ -14,6 +14,8 @@ import net.minecraft.entity.passive.*;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
+import net.minecraft.util.Arm;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -155,6 +157,7 @@ public class EMFAnimationEntityContext {
     }
 
     public static void setCurrentEntityIteration(EMFEntity entityIn) {
+        isFirstPersonHand = false;
         EMFManager.getInstance().entityRenderCount++;
         layerFactory = null;
 
@@ -545,6 +548,23 @@ public class EMFAnimationEntityContext {
     public static boolean isAlive() {
         if (emfEntity == null) return false;
         return emfEntity.emf$isAlive();
+    }
+
+    public static boolean isUsingHand(boolean right) {
+        if (emfEntity == null) return false;
+        if (emfEntity instanceof LivingEntity entity) {
+            if(!entity.isUsingItem()) return false;
+
+            boolean isRightHanded = entity.getMainArm() == Arm.RIGHT;
+            boolean usingMainHand = entity.getActiveHand() == Hand.MAIN_HAND;
+            if (right){
+                return isRightHanded == usingMainHand;
+            } else {
+                return isRightHanded != usingMainHand;
+            }
+
+        }
+        return false;
     }
 
     public static boolean isAggressive() {
