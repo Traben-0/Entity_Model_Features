@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Arm;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
@@ -103,8 +102,10 @@ public final class VariableRegistry {
         registerSimpleBoolVariable("is_first_person_hand", () -> EMFAnimationEntityContext.isFirstPersonHand);
         registerSimpleBoolVariable("is_right_handed", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
-            return EMFAnimationEntityContext.getEMFEntity() instanceof PlayerEntity entity && entity.getMainArm() == Arm.RIGHT;
+            return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity entity && entity.getMainArm() == Arm.RIGHT;
         });
+        registerSimpleBoolVariable("is_swinging_right_arm", () -> EMFAnimationEntityContext.isUsingHand(true));
+        registerSimpleBoolVariable("is_swinging_left_arm", () -> EMFAnimationEntityContext.isUsingHand(false));
         registerSimpleBoolVariable("is_swimming", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
             return EMFAnimationEntityContext.getEMFEntity() instanceof Entity entity && entity.isSwimming();

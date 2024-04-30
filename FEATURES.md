@@ -46,14 +46,28 @@ Armor jem models have the following model parts
 
 Player models are fully supported by EMF and can be animated and varied using the random model feature of OptiFine
 
-`File names: "player.jem" & "player_slim.jem"`
+`File names: "player.jem" & "player_slim.jem & "player_cape.jem""`
 
 Player jem models have the following model parts
 - `head, headwear, body, left_arm, right_arm, left_leg, right_leg, ear, left_sleeve, right_sleeve, left_pants, right_pants, jacket, cloak`
-  
+
 *(yes "ear" is a valid part,all players technically have the DeadMau5 ears in their model)*
 
-cloak does indeed refer to the player cape however does not animate currently
+#### Cape
+`player_cape.jem` only contains a `cloak` part, positioned exactly as it is in the regular `player.jem`, 
+if this model is present it will render in a special way that will not apply the vanilla animations to the cape. 
+Allowing much easier custom animations 
+*(note this jem file can not be exported by the EMF config, but the `player.jem` exported model will work perfectly)*
+
+The only transforms EMF applies to `player_cape.jem` before rendering & custom animating is:
+- rotating the cape 180 degrees around the `y` axis. (matching vanilla)
+- translating the cape 2 pixels backwards. (matching vanilla)
+- translating the cape a further 1 pixel backwards & upwards if the player has a chest-plate on. (matching vanilla)
+
+No other rotations or translations are applied to the cape, allowing for fully custom animations.
+
+The `cloak` part inside the regular `player.jem` will render if `player_cape.jem` is not present, but will not benefit from having its vanilla animation cancelled by EMF
+
 
 ### EMF only animations variables
 This info can also be found either [here](.github/emf_animation.txt) or in the in-game config GUI
