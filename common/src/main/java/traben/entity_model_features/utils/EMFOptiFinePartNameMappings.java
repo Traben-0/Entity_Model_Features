@@ -941,6 +941,8 @@ public class EMFOptiFinePartNameMappings {
 
         optifineModels("player", "player_slim")
                 .accept(genericPlayerBiped);
+        optifineModels("player_cape")
+                .accept(Map.ofEntries(getOptifineMapEntry("cloak")));
 
 
 //# boat                     bottom, back, front, right, left, paddle_left, paddle_right, bottom_no_water
@@ -1321,6 +1323,7 @@ public class EMFOptiFinePartNameMappings {
 //                                    (float) Math.toDegrees(vanillaModelPart.yaw),
 //                                    -(float) Math.toDegrees(vanillaModelPart.roll)};
                             partPrinter.scale = vanillaModelPart.xScale;
+                            //get part size incase empty, though cuboids often have better ideas about this
                             partPrinter.textureSize = ((EMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
                             textureSize = partPrinter.textureSize;
                             //List<ModelPart.Cuboid> cuboids = vanillaModelPart.cuboids;
@@ -1334,7 +1337,8 @@ public class EMFOptiFinePartNameMappings {
                                         cube.maxX - cube.minX,
                                         cube.maxY - cube.minY,
                                         cube.maxZ - cube.minZ};
-
+                                //can be different from part
+                                partPrinter.textureSize = ((EMFCuboidDataSupplier) cube).emf$getTextureXY();
                                 boxPrinter.textureOffset = ((EMFCuboidDataSupplier) cube).emf$getTextureUV();
                                 var adds = ((EMFCuboidDataSupplier) cube).emf$getSizeAdd();
                                 if (adds != null) {

@@ -1,4 +1,26 @@
 
+
+2.0.2
+- fixed the first person hand settings not getting reset correctly in 2.0.1
+- added the `is_swinging_right_arm` & `is_swinging_left_arm` boolean variables, 
+used to distinguish right and left arm swinging in biped models, if no arm is swinging both should be false, if `swing_progress > 0` then one of these should be true.
+- added support for an optional `player_cape.jem` model file to be used for better animating the player cape
+`player_cape.jem` only contains a `cloak` part, positioned exactly as it is in the regular `player.jem`,
+  if this model is present it will render in a special way that will not apply the vanilla animations to the cape.
+  Allowing much easier custom animations
+  *(note this jem file can not be exported by the EMF config, but the `player.jem` exported model will work perfectly for it, as of v2.0.2)*
+
+The only transforms EMF applies to `player_cape.jem` before rendering & custom animating is:
+- rotating the cape 180 degrees around the `y` axis. (matching vanilla)
+- translating the cape 2 pixels backwards. (matching vanilla)
+- translating the cape a further 1 pixel backwards & upwards if the player has a chest-plate on. (matching vanilla)
+
+No other rotations or translations are applied to the cape, allowing for fully custom animations.
+
+The `cloak` part inside the regular `player.jem` will render if `player_cape.jem` is not present, but will not benefit from having its vanilla animation cancelled by EMF
+
+
+
 2.0.1
 
 - added `is_first_person_hand` variable to detect then the model part being rendered is the first person player hand

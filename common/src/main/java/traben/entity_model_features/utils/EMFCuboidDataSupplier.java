@@ -5,5 +5,7 @@ public interface EMFCuboidDataSupplier {
 
     int[] emf$getTextureUV();
 
+    int[] emf$getTextureXY();
+
     float[] emf$getSizeAdd();
 }
