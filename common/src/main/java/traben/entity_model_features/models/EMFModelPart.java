@@ -192,16 +192,13 @@ public abstract class EMFModelPart extends ModelPart {
             }
         }
     }
-
-
-
     //required for sodium pre 0.5.4
-    @Override
     // overrides to circumvent sodium optimizations that mess with custom uv quad creation and swapping out cuboids
-    public void compile(PoseStack.Pose entry, VertexConsumer vertexConsumer, int light, int overlay, #if MC >= MC_21 int k #else float red, float green, float blue, float alpha #endif) {
+    @Override
+    public void compile(final PoseStack.Pose pose, final VertexConsumer vertexConsumer, final int i, final int j, #if MC >= MC_21 int k #else float red, float green, float blue, float alpha #endif) {
         //this is a copy of the vanilla renderCuboids() method
         for (Cube cuboid : cubes) {
-            cuboid.compile(entry, vertexConsumer, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+            cuboid.compile(pose, vertexConsumer, i, j, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
         }
     }
 

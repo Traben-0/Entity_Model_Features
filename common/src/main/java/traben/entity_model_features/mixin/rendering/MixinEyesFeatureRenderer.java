@@ -12,7 +12,11 @@ public class MixinEyesFeatureRenderer {
     @SuppressWarnings("SameReturnValue")
     @ModifyArg(
             method = "render",
+            #if MC >= MC_21
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V"),
+            #else
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V"),
+            #endif
             index = 2
     )
     private int emf$markEyeLight(int i) {
