@@ -1,6 +1,5 @@
 package traben.entity_model_features.mixin;
 
-import net.minecraft.client.model.ModelPart;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,8 +9,9 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFCuboidDataSupplier;
 
 import java.util.Set;
+import net.minecraft.client.model.geom.ModelPart;
 
-@Mixin(ModelPart.Cuboid.class)
+@Mixin(ModelPart.Cube.class)
 public class MixinModelPart$Cuboid implements EMFCuboidDataSupplier {
 
 

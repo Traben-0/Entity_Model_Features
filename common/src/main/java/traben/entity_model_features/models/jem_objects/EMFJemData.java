@@ -1,8 +1,5 @@
 package traben.entity_model_features.models.jem_objects;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.MissingSprite;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
@@ -10,6 +7,9 @@ import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 
 import java.util.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.resources.ResourceLocation;
 
 @SuppressWarnings("CanBeFinal")
 public class EMFJemData {
@@ -22,7 +22,7 @@ public class EMFJemData {
     private String fileName = "none";
     private String filePath = "";
     private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
-    private Identifier customTexture = null;
+    private ResourceLocation customTexture = null;
 
     public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
         return allTopLevelAnimationsByVanillaPartName;
@@ -40,12 +40,12 @@ public class EMFJemData {
         return mobModelIDInfo;
     }
 
-    public Identifier getCustomTexture() {
+    public ResourceLocation getCustomTexture() {
         return customTexture;
     }
 
     @Nullable
-    public Identifier validateJemTexture(String textureIn) {// "textures/entity/trident.png"
+    public ResourceLocation validateJemTexture(String textureIn) {// "textures/entity/trident.png"
         if (textureIn == null || textureIn.isBlank()) return null;
 
         String textureTest = textureIn.trim();
@@ -67,9 +67,15 @@ public class EMFJemData {
                     textureTest = "optifine/" + textureTest;
                 }
             }
-            if (Identifier.isValid(textureTest)) {
-                Identifier possibleTexture = new Identifier(textureTest);
-                if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
+            if (
+                #if MC >= MC_21
+                    ResourceLocation.tryParse(textureTest) != null
+                #else
+                    ResourceLocation.isValidResourceLocation(textureTest)
+                #endif
+            ) {
+                ResourceLocation possibleTexture = EMFUtils.res(textureTest);
+                if (Minecraft.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
                     return possibleTexture;
                 }
             } else {
@@ -77,7 +83,7 @@ public class EMFJemData {
 
             }
         }
-        return MissingSprite.getMissingSpriteId();
+        return MissingTextureAtlasSprite.getLocation();
     }
 
     private String workingDirectory() {

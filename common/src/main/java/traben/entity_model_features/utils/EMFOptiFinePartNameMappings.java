@@ -1,13 +1,14 @@
 package traben.entity_model_features.utils;
 
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.client.model.ModelPart;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.config.EMFConfig.ModelPrintMode;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import net.minecraft.client.model.geom.ModelPart;
 
 public class EMFOptiFinePartNameMappings {
 
@@ -1314,9 +1316,9 @@ public class EMFOptiFinePartNameMappings {
                         if (vanillaModelPart != null) {
                             //invert x and y's
                             partPrinter.translate = new float[]{
-                                    vanillaModelPart.pivotX,
-                                    -24 + vanillaModelPart.pivotY,
-                                    -vanillaModelPart.pivotZ};
+                                    vanillaModelPart.x,
+                                    -24 + vanillaModelPart.y,
+                                    -vanillaModelPart.z};
                             //these are inherited
 //                            partPrinter.rotate = new float[]{
 //                                    (float) Math.toDegrees(vanillaModelPart.pitch),
@@ -1327,8 +1329,8 @@ public class EMFOptiFinePartNameMappings {
                             partPrinter.textureSize = ((EMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
                             textureSize = partPrinter.textureSize;
                             //List<ModelPart.Cuboid> cuboids = vanillaModelPart.cuboids;
-                            for (ModelPart.Cuboid cube :
-                                    vanillaModelPart.cuboids) {
+                            for (ModelPart.Cube cube :
+                                    vanillaModelPart.cubes) {
                                 EMFBoxData.EMFBoxPrinter boxPrinter = new EMFBoxData.EMFBoxPrinter();
                                 boxPrinter.coordinates = new float[]{
                                         cube.minX,
@@ -1414,10 +1416,10 @@ public class EMFOptiFinePartNameMappings {
         newMap.put(partName, partName);
         if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
             detailsMap.put(partName,
-                    " | | |-pivots=" + originalModel.pivotX + ", " + originalModel.pivotY + ", " + originalModel.pivotZ +
-                            "\n | | |-rotations=" + Math.toDegrees(originalModel.pitch) + ", " + Math.toDegrees(originalModel.yaw) + ", " + Math.toDegrees(originalModel.roll) +
+                    " | | |-pivots=" + originalModel.x + ", " + originalModel.y + ", " + originalModel.z +
+                            "\n | | |-rotations=" + Math.toDegrees(originalModel.xRot) + ", " + Math.toDegrees(originalModel.yRot) + ", " + Math.toDegrees(originalModel.zRot) +
                             "\n | | |-scales=" + originalModel.xScale + ", " + originalModel.yScale + ", " + originalModel.zScale +
-                            "\n | |  \\visibles=" + originalModel.visible + ", " + originalModel.hidden + "\n"
+                            "\n | |  \\visibles=" + originalModel.visible + ", " + originalModel.skipDraw + "\n"
             );
         }
     }

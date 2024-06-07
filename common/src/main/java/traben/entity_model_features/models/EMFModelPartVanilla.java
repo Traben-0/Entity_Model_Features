@@ -3,12 +3,11 @@ package traben.entity_model_features.models;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.model.geom.ModelPart;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFUtils;
-
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.*;
 
 
@@ -54,10 +53,10 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
 
     @Override
-    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public void render(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
         //ignore non optifine specified parts when not vanilla variant
         if (!hideInTheseStates.contains(currentModelVariant))
-            super.render(matrices, vertices, light, overlay, red, green, blue, alpha);
+            super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
     }
 
 
@@ -77,7 +76,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     @Override
     public String toString() {
-        return "[vanilla part " + name + "], cubes =" + cuboids.size() + ", children = " + children.size();
+        return "[vanilla part " + name + "], cubes =" + cubes.size() + ", children = " + children.size();
     }
 
     @Override

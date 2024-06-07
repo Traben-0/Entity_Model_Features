@@ -1,12 +1,12 @@
 package traben.entity_model_features.mixin;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,47 +22,49 @@ public abstract class MixinBlockEntity implements EMFEntity {
         defaultReturnValue(0);
     }};
 
-    @Shadow
-    public abstract BlockPos getPos();
 
-    @Shadow
-    public abstract BlockState getCachedState();
+
+
 
     @Shadow
     @Nullable
-    public abstract World getWorld();
+    public abstract Level getLevel();
 
     @Shadow
     public abstract BlockEntityType<?> getType();
 
+    @Shadow public abstract BlockPos getBlockPos();
+
+    @Shadow public abstract BlockState getBlockState();
+
     @Override
     public double emf$prevX() {
-        return getPos().getX();
+        return getBlockPos().getX();
     }
 
     @Override
     public double emf$getX() {
-        return getPos().getX();
+        return getBlockPos().getX();
     }
 
     @Override
     public double emf$prevY() {
-        return getPos().getY();
+        return getBlockPos().getY();
     }
 
     @Override
     public double emf$getY() {
-        return getPos().getY();
+        return getBlockPos().getY();
     }
 
     @Override
     public double emf$prevZ() {
-        return getPos().getZ();
+        return getBlockPos().getZ();
     }
 
     @Override
     public double emf$getZ() {
-        return getPos().getZ();
+        return getBlockPos().getZ();
     }
 
     @Override
@@ -77,7 +79,7 @@ public abstract class MixinBlockEntity implements EMFEntity {
 
     @Override
     public boolean emf$isTouchingWater() {
-        return !getCachedState().getFluidState().isEmpty();
+        return !getBlockState().getFluidState().isEmpty();
     }
 
     @Override
@@ -92,7 +94,7 @@ public abstract class MixinBlockEntity implements EMFEntity {
 
     @Override
     public boolean emf$isOnGround() {
-        return getWorld() != null && !getWorld().getBlockState(getPos()).isAir();
+        return getLevel() != null && !getLevel().getBlockState(getBlockPos()).isAir();
     }
 
     @Override
@@ -132,7 +134,7 @@ public abstract class MixinBlockEntity implements EMFEntity {
 
     @Override
     public boolean emf$isWet() {
-        return !getCachedState().getFluidState().isEmpty();
+        return !getBlockState().getFluidState().isEmpty();
     }
 
     @Override
@@ -146,8 +148,8 @@ public abstract class MixinBlockEntity implements EMFEntity {
     }
 
     @Override
-    public Vec3d emf$getVelocity() {
-        return new Vec3d(0, 0, 0);
+    public Vec3 emf$getVelocity() {
+        return new Vec3(0, 0, 0);
     }
 
     @Override

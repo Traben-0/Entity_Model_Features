@@ -1,17 +1,17 @@
 package traben.entity_model_features.utils;
 
-import net.minecraft.client.render.entity.model.WolfEntityModel;
-import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.client.model.WolfModel;
+import net.minecraft.world.entity.animal.Wolf;
 
-public interface EMFWolfCollarHolder<T extends WolfEntity> {
+public interface EMFWolfCollarHolder<T extends Wolf> {
 
     default boolean emf$hasCollarModel() {
         return emf$getCollarModel() != null;
     }
 
-    WolfEntityModel<T> emf$getCollarModel();
+    WolfModel<T> emf$getCollarModel();
 
-    void emf$setCollarModel(WolfEntityModel<T> model);
+    void emf$setCollarModel(WolfModel<T> model);
 
 
 }

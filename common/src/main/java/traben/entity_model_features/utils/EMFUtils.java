@@ -2,17 +2,7 @@ package traben.entity_model_features.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.model.ModelData;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.model.ModelPartData;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.resource.Resource;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.PlainTextContent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,18 +15,44 @@ import java.io.InputStreamReader;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.PlainTextContents;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 
 
 public class EMFUtils {
 
+    public static @NotNull ResourceLocation res(String fullPath){
+        #if MC >= MC_21
+        return ResourceLocation.parse(fullPath);
+        #else
+        return EMFUtils.res(fullPath);
+        #endif
+    }
+
+    public static @NotNull ResourceLocation res(String namespace, String path){
+        #if MC >= MC_21
+        return ResourceLocation.fromNamespaceAndPath(namespace, path);
+        #else
+        return EMFUtils.res(namespace, path);
+        #endif
+    }
     private static final String MOD_ID_SHORT = "EMF";
     private static final Logger LOGGER = LoggerFactory.getLogger("EMF");
 
-    public static EMFModelPartRoot getArrowOrNull(EntityModelLayer layer) {
+    public static EMFModelPartRoot getArrowOrNull(ModelLayerLocation layer) {
         if (EMF.testForForgeLoadingError()) return null;
-        ModelData modelData = new ModelData();
-        ModelPartData modelPartData = modelData.getRoot();
-        ModelPart part = modelPartData.createPart(32, 32);
+        MeshDefinition modelData = new MeshDefinition();
+        PartDefinition modelPartData = modelData.getRoot();
+        ModelPart part = modelPartData.bake(32, 32);
         //todo default transforms?
 //        part.setPivot(0,2.5f,-7);
 //        part.setDefaultTransform(part.getTransform());
@@ -65,9 +81,9 @@ public class EMFUtils {
 
     public static void log(String message, boolean inChat, boolean noPrefix) {
         if (inChat) {
-            ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
+            LocalPlayer plyr = Minecraft.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of((noPrefix ? "" : "§6[" + MOD_ID_SHORT + "]:§r ") + message), false);
+                plyr.displayClientMessage(Component.nullToEmpty((noPrefix ? "" : "§6[" + MOD_ID_SHORT + "]:§r ") + message), false);
             } else {
                 LOGGER.info((noPrefix ? "" : "[" + MOD_ID_SHORT + "]: ") + message);
             }
@@ -77,9 +93,9 @@ public class EMFUtils {
     }
 
     public static void chat(String message) {
-        ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
+        LocalPlayer plyr = Minecraft.getInstance().player;
         if (plyr != null) {
-            plyr.sendMessage(MutableText.of(new PlainTextContent.Literal(message)), false);
+            plyr.displayClientMessage(MutableComponent.create(new PlainTextContents.LiteralContents(message)), false);
         }
     }
 
@@ -90,9 +106,9 @@ public class EMFUtils {
 
     public static void logWarn(String message, boolean inChat) {
         if (inChat) {
-            ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
+            LocalPlayer plyr = Minecraft.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of("§6[" + MOD_ID_SHORT + "]§r: " + message), false);
+                plyr.displayClientMessage(Component.nullToEmpty("§6[" + MOD_ID_SHORT + "]§r: " + message), false);
             } else {
                 LOGGER.warn("[" + MOD_ID_SHORT + "]: " + message);
             }
@@ -107,9 +123,9 @@ public class EMFUtils {
 
     public static void logError(String message, boolean inChat) {
         if (inChat) {
-            ClientPlayerEntity plyr = MinecraftClient.getInstance().player;
+            LocalPlayer plyr = Minecraft.getInstance().player;
             if (plyr != null) {
-                plyr.sendMessage(Text.of("§6[" + MOD_ID_SHORT + "]§r: " + message), false);
+                plyr.displayClientMessage(Component.nullToEmpty("§6[" + MOD_ID_SHORT + "]§r: " + message), false);
             } else {
                 LOGGER.error("[" + MOD_ID_SHORT + "]: " + message);
             }
@@ -128,7 +144,7 @@ public class EMFUtils {
             pathOfJpm = pathOfJpm + ".jpm";
         }
         try {
-            Optional<Resource> res = MinecraftClient.getInstance().getResourceManager().getResource(new Identifier(pathOfJpm));
+            Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(EMFUtils.res(pathOfJpm));
             if (res.isEmpty()) {
                 if (EMF.config().getConfig().logModelCreationData)
                     log("jpm failed " + pathOfJpm + " does not exist", false);
@@ -140,7 +156,7 @@ public class EMFUtils {
             //System.out.println("jem exists "+ jemFile.exists());
             //if (jemFile.exists()) {
             //FileReader fileReader = new FileReader(jemFile);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(jpmResource.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(jpmResource.open()));
 
             EMFPartData jpm = gson.fromJson(reader, EMFPartData.class);
             reader.close();

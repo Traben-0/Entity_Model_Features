@@ -3,7 +3,7 @@ architectury {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/entity_model_features.accesswidener")
+    accessWidenerPath = file("src/main/resources/entity_model_features_${project.mc_build}.accesswidener")
 }
 
 dependencies {

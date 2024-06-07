@@ -1,25 +1,31 @@
 package traben.entity_model_features.mixin;
 
-import net.minecraft.client.MinecraftClient;
+#if MC > MC_20_1
+import net.minecraft.client.Minecraft;
+#else
+import net.minecraft.client.ResourceLoadStateTracker;
+#endif
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFManager;
 
 
-@Mixin(MinecraftClient.class)
-public abstract class MixinResourceReload {
+#if MC > MC_20_1
+@Mixin(Minecraft.class)
+#else
+@Mixin(ResourceLoadStateTracker.class)
+#endif
+public abstract class MixinResourceReloadEnd {
 
-    @Inject(method = "reloadResources()Ljava/util/concurrent/CompletableFuture;", at = @At("HEAD"))
-    private void emf$reloadStart(CallbackInfoReturnable<Float> cir) {
-        if (EMF.testForForgeLoadingError()) return;
-        EMFManager.resetInstance();
-    }
 
-    @Inject(method = "onFinishedLoading", at = @At("HEAD"))
+    #if MC > MC_20_1
+    @Inject(method = "onResourceLoadFinished", at = @At("HEAD"))
+    #else
+    @Inject(method = "finishReload", at = @At("HEAD"))
+    #endif
     private void emf$reloadFinish(final CallbackInfo ci) {
         if (EMF.testForForgeLoadingError()) return;
         EMFManager.getInstance().modifyEBEIfRequired();

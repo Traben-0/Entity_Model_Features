@@ -1,22 +1,9 @@
 package traben.entity_model_features.config;
 
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Box;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -25,6 +12,7 @@ import traben.entity_model_features.models.animation.math.variables.VariableRegi
 import traben.entity_model_features.models.animation.math.variables.factories.UniqueVariableFactory;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
+import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.ETFVersionDifferenceHandler;
@@ -34,6 +22,20 @@ import traben.tconfig.gui.TConfigScreenList;
 import traben.tconfig.gui.entries.*;
 
 import java.util.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
 
 @SuppressWarnings("CanBeFinal")
 public class EMFConfig extends TConfig {
@@ -150,7 +152,7 @@ public class EMFConfig extends TConfig {
         EMFManager.getInstance().cache_LayersByModelName.keySet().stream().sorted().forEach(mapData -> {
             var layer = EMFManager.getInstance().cache_LayersByModelName.get(mapData);
             if (layer != null) {
-                var vanilla = MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer);
+                var vanilla = Minecraft.getInstance().getEntityModels().roots.get(layer);
                 if (vanilla != null) {
                     String namespace = "minecraft".equals(mapData.getNamespace()) ? "" : mapData.getNamespace() + ':';
                     var fileName = namespace + mapData.getfileName();
@@ -194,17 +196,17 @@ public class EMFConfig extends TConfig {
     }
 
     @NotNull
-    private TConfigEntry getExport(final OptifineMobNameForFileAndEMFMapId key, EntityModelLayer layer) {
+    private TConfigEntry getExport(final OptifineMobNameForFileAndEMFMapId key, ModelLayerLocation layer) {
         TConfigEntry export;
         try {
             Objects.requireNonNull(key.getMapId());
-            Objects.requireNonNull(MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer));
+            Objects.requireNonNull(Minecraft.getInstance().getEntityModels().roots.get(layer));
             export = new TConfigEntryCustomButton("entity_model_features.config.models.export", "entity_model_features.config.models.export.tooltip", (button) -> {
                 var old = modelExportMode;
                 modelExportMode = ModelPrintMode.ALL_LOG_AND_JEM;
                 try {
                     EMFOptiFinePartNameMappings.getMapOf(key.getMapId(),
-                            MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer).createModel(),
+                            Minecraft.getInstance().getEntityModels().roots.get(layer).bakeRoot(),
                             false);
                 } catch (Exception e) {
                     //noinspection CallToPrintStackTrace
@@ -250,15 +252,15 @@ public class EMFConfig extends TConfig {
         TConfigEntryCategory category = new TConfigEntryCategory("config.entity_features.per_entity_settings");
 
         try {
-            Registries.ENTITY_TYPE.forEach((entityType) -> {
+            BuiltInRegistries.ENTITY_TYPE.forEach((entityType) -> {
                 //if (entityType != EntityType.PLAYER) {
-                String translationKey = entityType.getTranslationKey();
+                String translationKey = entityType.getDescriptionId();
                 TConfigEntryCategory entityCategory = new TConfigEntryCategory(translationKey);
                 this.addEntityConfigs(entityCategory, translationKey);
                 category.add(entityCategory);
                 //}
             });
-            BlockEntityRendererFactories.FACTORIES.keySet().forEach((entityType) -> {
+            BlockEntityRenderers.PROVIDERS.keySet().forEach((entityType) -> {
                 String translationKey = ETFApi.getBlockEntityTypeToTranslationKey(entityType);
                 TConfigEntryCategory entityCategory = (new TConfigEntryCategory(translationKey));
                 this.addEntityConfigs(entityCategory, translationKey);
@@ -292,23 +294,23 @@ public class EMFConfig extends TConfig {
     }
 
     @Override
-    public Identifier getModIcon() {
-        return new Identifier("entity_model_features", "textures/gui/icon.png");
+    public ResourceLocation getModIcon() {
+        return EMFUtils.res("entity_model_features", "textures/gui/icon.png");
     }
 
 
     public enum ModelPrintMode {
-        NONE(ScreenTexts.OFF),
+        NONE(CommonComponents.OPTION_OFF),
         @SuppressWarnings("unused")
-        LOG_ONLY(Text.translatable("entity_model_features.config.print_mode.log")),
-        LOG_AND_JEM(Text.translatable("entity_model_features.config.print_mode.log_jem")),
+        LOG_ONLY(Component.translatable("entity_model_features.config.print_mode.log")),
+        LOG_AND_JEM(Component.translatable("entity_model_features.config.print_mode.log_jem")),
         @SuppressWarnings("unused")
-        ALL_LOG_ONLY(Text.translatable("entity_model_features.config.print_mode.all_log")),
-        ALL_LOG_AND_JEM(Text.translatable("entity_model_features.config.print_mode.all_log_jem"));
+        ALL_LOG_ONLY(Component.translatable("entity_model_features.config.print_mode.all_log")),
+        ALL_LOG_AND_JEM(Component.translatable("entity_model_features.config.print_mode.all_log_jem"));
 
-        private final Text text;
+        private final Component text;
 
-        ModelPrintMode(Text text) {
+        ModelPrintMode(Component text) {
             this.text = text;
         }
 
@@ -331,14 +333,14 @@ public class EMFConfig extends TConfig {
     }
 
     public enum VanillaModelRenderMode {
-        OFF(ScreenTexts.OFF),
+        OFF(CommonComponents.OPTION_OFF),
         @SuppressWarnings("unused")
-        NORMAL(Text.translatable("entity_model_features.config.vanilla_render.normal")),
-        OFFSET(Text.translatable("entity_model_features.config.vanilla_render.offset"));
+        NORMAL(Component.translatable("entity_model_features.config.vanilla_render.normal")),
+        OFFSET(Component.translatable("entity_model_features.config.vanilla_render.offset"));
 
-        private final Text text;
+        private final Component text;
 
-        VanillaModelRenderMode(Text text) {
+        VanillaModelRenderMode(Component text) {
             this.text = text;
         }
 
@@ -349,13 +351,13 @@ public class EMFConfig extends TConfig {
     }
 
     public enum PhysicsModCompatChoice {
-        OFF(ScreenTexts.OFF),
-        VANILLA(Text.translatable("entity_model_features.config.physics.1")),
-        CUSTOM(Text.translatable("entity_model_features.config.physics.2"));
+        OFF(CommonComponents.OPTION_OFF),
+        VANILLA(Component.translatable("entity_model_features.config.physics.1")),
+        CUSTOM(Component.translatable("entity_model_features.config.physics.2"));
 
-        private final Text text;
+        private final Component text;
 
-        PhysicsModCompatChoice(Text text) {
+        PhysicsModCompatChoice(Component text) {
             this.text = text;
         }
 
@@ -366,17 +368,17 @@ public class EMFConfig extends TConfig {
     }
 
     public enum RenderModeChoice {
-        NORMAL(Text.translatable("entity_model_features.config.render.normal")),
-        GREEN(Text.translatable("entity_model_features.config.render.green")),
-        LINES_AND_TEXTURE(Text.translatable("entity_model_features.config.render.lines_texture")),
-        LINES_AND_TEXTURE_FLASH(Text.translatable("entity_model_features.config.render.lines_texture_flash")),
-        LINES(Text.translatable("entity_model_features.config.render.lines")),
-        NONE(Text.translatable("entity_model_features.config.render.none"));
+        NORMAL(Component.translatable("entity_model_features.config.render.normal")),
+        GREEN(Component.translatable("entity_model_features.config.render.green")),
+        LINES_AND_TEXTURE(Component.translatable("entity_model_features.config.render.lines_texture")),
+        LINES_AND_TEXTURE_FLASH(Component.translatable("entity_model_features.config.render.lines_texture_flash")),
+        LINES(Component.translatable("entity_model_features.config.render.lines")),
+        NONE(Component.translatable("entity_model_features.config.render.none"));
 
         private final String text;
 
 
-        RenderModeChoice(Text text) {
+        RenderModeChoice(Component text) {
             this.text = text.getString();
         }
 
@@ -389,11 +391,11 @@ public class EMFConfig extends TConfig {
 
     private static class ModelRootRenderer implements TConfigScreenList.Renderable {
 
-        private final EntityModelLayer layer;
+        private final ModelLayerLocation layer;
         private ModelPart root = null;
         private boolean asserted = false;
 
-        ModelRootRenderer(EntityModelLayer layer) {
+        ModelRootRenderer(ModelLayerLocation layer) {
             this.layer = layer;
         }
 
@@ -401,7 +403,7 @@ public class EMFConfig extends TConfig {
             if (!asserted && root == null) {
                 asserted = true;
                 try {
-                    root = MinecraftClient.getInstance().getEntityModelLoader().modelParts.get(layer).createModel();
+                    root = Minecraft.getInstance().getEntityModels().roots.get(layer).bakeRoot();
                 } catch (Exception e) {
                     //noinspection CallToPrintStackTrace
                     e.printStackTrace();
@@ -411,9 +413,9 @@ public class EMFConfig extends TConfig {
         }
 
         @Override
-        public void render(final DrawContext context, final int mouseX, final int mouseY) {
+        public void render(final GuiGraphics context, final int mouseX, final int mouseY) {
             if (canRender()) {
-                Screen screen = MinecraftClient.getInstance().currentScreen;
+                Screen screen = Minecraft.getInstance().screen;
                 if (screen == null) return;
 
 
@@ -424,40 +426,40 @@ public class EMFConfig extends TConfig {
                 Quaternionf quaternionf = (new Quaternionf()).rotateZ(3.1415927F).rotateY(g2 * 8);
                 Quaternionf quaternionf2 = (new Quaternionf()).rotateX(-(g * 20.0F * 0.017453292F) * 2);
                 quaternionf.mul(quaternionf2);
-                context.getMatrices().push();
-                context.getMatrices().translate(x, y, 150.0);
+                context.pose().pushPose();
+                context.pose().translate(x, y, 150.0);
                 float scaling = (float) ((double) screen.height * 0.3);
-                context.getMatrices().multiplyPositionMatrix((new Matrix4f()).scaling(scaling, scaling, -scaling));
-                context.getMatrices().multiply(quaternionf);
-                DiffuseLighting.method_34742();
-                MatrixStack matrixStack = context.getMatrices();
+                context.pose().mulPose((new Matrix4f()).scaling(scaling, scaling, -scaling));
+                context.pose().mulPose(quaternionf);
+                Lighting.setupForEntityInInventory();
+                PoseStack matrixStack = context.pose();
 
-                matrixStack.push();
+                matrixStack.pushPose();
                 matrixStack.scale(-1.0F, -1.0F, 1.0F);
                 matrixStack.translate(0.0F, -1.501F, 0.0F);
-                var buffer = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers().getBuffer(RenderLayer.getLines());
+                var buffer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines());
                 if (buffer != null) {
                     renderBoxes(matrixStack, buffer, root);
                 }
-                matrixStack.pop();
+                matrixStack.popPose();
             }
         }
 
-        private void renderBoxes(MatrixStack matrices, VertexConsumer vertices, ModelPart modelPart) {
+        private void renderBoxes(PoseStack matrices, VertexConsumer vertices, ModelPart modelPart) {
             if (modelPart.visible) {
-                if (!modelPart.cuboids.isEmpty() || !modelPart.children.isEmpty()) {
-                    matrices.push();
-                    modelPart.rotate(matrices);
-                    if (!modelPart.hidden) {
-                        for (ModelPart.Cuboid cuboid : modelPart.cuboids) {
-                            Box box = new Box(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
-                            WorldRenderer.drawBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
+                if (!modelPart.cubes.isEmpty() || !modelPart.children.isEmpty()) {
+                    matrices.pushPose();
+                    modelPart.translateAndRotate(matrices);
+                    if (!modelPart.skipDraw) {
+                        for (ModelPart.Cube cuboid : modelPart.cubes) {
+                            AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
+                            LevelRenderer.renderLineBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
                         }
                     }
                     for (ModelPart modelPartChildren : modelPart.children.values()) {
                         renderBoxes(matrices, vertices, modelPartChildren);
                     }
-                    matrices.pop();
+                    matrices.popPose();
                 }
             }
         }

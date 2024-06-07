@@ -2,9 +2,9 @@ package traben.entity_model_features;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.LightTexture;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.propeties.*;
@@ -20,7 +20,7 @@ import java.util.Random;
 @Environment(EnvType.CLIENT)
 public class EMF {
 
-    public static final int EYES_FEATURE_LIGHT_VALUE = LightmapTextureManager.MAX_LIGHT_COORDINATE + 1;
+    public static final int EYES_FEATURE_LIGHT_VALUE = LightTexture.FULL_BRIGHT + 1;
     public static final String MOD_ID = "entity_model_features";
     private static final String[] quips = {
             "special thanks to Cody, top donator!",
@@ -96,7 +96,7 @@ public class EMF {
     }
 
     //forge config screen factory
-    public static Screen getConfigScreen(MinecraftClient ignored, Screen parent) {
+    public static Screen getConfigScreen(Minecraft ignored, Screen parent) {
         return ETF.getConfigScreen(parent);
     }
 

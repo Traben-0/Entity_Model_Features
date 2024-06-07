@@ -1,13 +1,13 @@
 package traben.entity_model_features.models.jem_objects;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
 import java.util.function.Consumer;
+import net.minecraft.resources.ResourceLocation;
 
 @SuppressWarnings("CanBeFinal")
 public class EMFPartData {
@@ -33,9 +33,9 @@ public class EMFPartData {
     public Object2ObjectOpenHashMap<String, float[]> attachments = new Object2ObjectOpenHashMap<>();
 
     public LinkedList<LinkedHashMap<String, String>> animations = null;
-    private Identifier customTexture = null;
+    private ResourceLocation customTexture = null;
 
-    public Identifier getCustomTexture() {
+    public ResourceLocation getCustomTexture() {
         return customTexture;
     }
 
@@ -89,8 +89,8 @@ public class EMFPartData {
             this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
     }
 
-    public List<Consumer<MatrixStack>> getAttachments() {
-        var list = new ArrayList<Consumer<MatrixStack>>();
+    public List<Consumer<PoseStack>> getAttachments() {
+        var list = new ArrayList<Consumer<PoseStack>>();
         for (String s : attachments.keySet()) {
             float[] floats = attachments.get(s);
 //            System.out.println("found " + s + " = " + Arrays.toString(floats));
@@ -115,7 +115,7 @@ public class EMFPartData {
         return list;
     }
 
-    public void prepare(int[] textureSize, EMFJemData jem, Identifier jemTexture) {
+    public void prepare(int[] textureSize, EMFJemData jem, ResourceLocation jemTexture) {
         if (this.id.isBlank())
             this.id = "EMF_" + hashCode();
         else

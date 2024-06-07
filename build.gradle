@@ -1,7 +1,40 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "1.6-SNAPSHOT" apply false
+    id "systems.manifold.manifold-gradle-plugin" version "0.0.2-alpha"
 }
+
+private void setupPreProcess(def index){
+    println "Setting up preprocessor for version index $index"
+    new File(projectDir,"build.properties").text = """
+    MC_18   = 0
+    MC_19_2 = 1
+    MC_19_4 = 2
+    MC_20_1 = 3
+    MC_20_2 = 4
+    MC_20_4 = 5
+    MC_20_6 = 6
+    MC_21   = 7
+    MC      = ${index}
+    """
+
+    File indexProps = new File(projectDir,"property_variants/${index}.properties")
+    println "Applying gradle.properties overrides: $indexProps.path"
+    Properties properties = new Properties()
+    properties.load(indexProps.newDataInputStream())
+
+    def maxKeyLength = properties.keySet().collect { it.toString().length() }.max()
+    properties.forEach { key, value ->
+        //set in each project scope
+        gradle.rootProject.setProperty(key as String, value)
+        project.setProperty(key as String, value)
+        subprojects.forEach { it.setProperty(key as String, value)}
+
+        println " - ${key.padRight(maxKeyLength)} = $value"
+    }
+
+}
+setupPreProcess(rootProject.mc_build)
 
 architectury {
     minecraft = rootProject.minecraft_version
@@ -11,6 +44,7 @@ architectury {
 
 subprojects {
     apply plugin: "dev.architectury.loom"
+    apply plugin: "systems.manifold.manifold-gradle-plugin"
 
     loom {
         silentMojangMappingsLicense()
@@ -18,17 +52,45 @@ subprojects {
 
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        // The following line declares the mojmap mappings, you may use other mappings as well
-        //mappings loom.officialMojangMappings()
-        // The following line declares the yarn mappings you may select this one as well.
-        //mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-        mappings loom.layered {
-            it.mappings("net.fabricmc:yarn:1.20.5+build.1:v2")
-            it.mappings("dev.architectury:yarn-mappings-patch-neoforge:1.20.5+build.3")
+
+        if(rootProject.parchment_version != "no") {
+            println "Using Parchment mappings ${rootProject.parchment_version}"
+            mappings loom.layered() {
+                officialMojangMappings()
+                parchment("org.parchmentmc.data:parchment-${rootProject.parchment_version}@zip")
+            }
+        }else{
+            println "Not using Parchment mappings"
+            mappings loom.officialMojangMappings()
         }
+
         implementation 'com.demonwav.mcdev:annotations:2.1.0'
+
+        annotationProcessor 'systems.manifold:manifold-preprocessor:2023.1.17'
+    }
+
+    processResources {
+        inputs.property "version", rootProject.mod_version
+        inputs.property "compatible_mc_fabric", rootProject.compatible_mc_fabric
+        inputs.property "compatible_mc_forge", rootProject.compatible_mc_forge
+
+        filesMatching("fabric.mod.json") {
+            expand(["version": rootProject.mod_version,
+                    "compatible_mc_fabric": rootProject.compatible_mc_fabric])
+        }
+        filesMatching("META-INF/mods.toml") {
+            expand(["version": rootProject.mod_version,
+                    "compatible_mc_forge": rootProject.compatible_mc_forge])
+        }
+        filesMatching("META-INF/neoforge.mods.toml") {
+            expand(["version": rootProject.mod_version,
+                    "compatible_mc_forge": rootProject.compatible_mc_forge])
+        }
+
     }
 }
+
+
 
 allprojects {
 
@@ -36,30 +98,26 @@ allprojects {
     apply plugin: "java"
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
+    apply plugin: "systems.manifold.manifold-gradle-plugin"
 
     archivesBaseName = rootProject.archives_base_name
     version = rootProject.mod_version
     group = rootProject.maven_group
 
     repositories {
-        // Add repositories to retrieve artifacts from in here.
-        // You should only use this when depending on other mods because
-        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-        // for more information about repositories.
         maven { url "https://maven.shedaniel.me/" }
         maven { url "https://maven.terraformersmc.com/releases/" }
         maven { url = "https://maven.isxander.dev/releases" }
-        //maven { url = "https://mvnrepository.com/artifact/org.apache.commons/commons-math3" }
-        maven {
-            url = "https://api.modrinth.com/maven"
-        }
+        maven {url = "https://api.modrinth.com/maven"}
         maven { url "https://mvnrepository.com/artifact/com.demonwav.mcdev/annotations" }
+        maven { url "https://maven.parchmentmc.org" }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
-        options.release = 21
+        options.release = rootProject.java_version as int
+        options.compilerArgs += ["-Xplugin:Manifold"]
     }
 
     java {

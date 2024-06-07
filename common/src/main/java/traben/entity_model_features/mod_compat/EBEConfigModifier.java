@@ -1,6 +1,7 @@
 package traben.entity_model_features.mod_compat;
 
 import foundationgames.enhancedblockentities.EnhancedBlockEntities;
+import foundationgames.enhancedblockentities.config.EBEConfig;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.Set;

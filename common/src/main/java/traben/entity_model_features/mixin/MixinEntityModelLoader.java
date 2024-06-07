@@ -1,9 +1,9 @@
 package traben.entity_model_features.mixin;
 
 
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.client.render.entity.model.EntityModelLoader;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,11 +12,11 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFManager;
 
 
-@Mixin(EntityModelLoader.class)
+@Mixin(EntityModelSet.class)
 public class MixinEntityModelLoader {
-    @Inject(method = "getModelPart",
+    @Inject(method = "bakeLayer",
             at = @At(value = "RETURN"), cancellable = true)
-    private void emf$injectModelLoad(EntityModelLayer layer, CallbackInfoReturnable<ModelPart> cir) {
+    private void emf$injectModelLoad(ModelLayerLocation layer, CallbackInfoReturnable<ModelPart> cir) {
         if (EMF.testForForgeLoadingError()) return;
 
         cir.setReturnValue(EMFManager.getInstance().injectIntoModelRootGetter(layer, cir.getReturnValue()));

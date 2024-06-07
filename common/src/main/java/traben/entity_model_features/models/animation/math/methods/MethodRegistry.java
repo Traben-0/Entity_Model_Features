@@ -1,6 +1,5 @@
 package traben.entity_model_features.models.animation.math.methods;
 
-import net.minecraft.util.math.MathHelper;
 import org.apache.commons.lang3.function.TriFunction;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
@@ -18,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import net.minecraft.util.Mth;
 
 import static traben.entity_model_features.models.animation.math.MathValue.FALSE;
 import static traben.entity_model_features.models.animation.math.MathValue.TRUE;
@@ -49,14 +49,14 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("exp", (v) -> (float) Math.exp(v));
         registerSimpleMethodFactory("torad", (v) -> (float) Math.toRadians(v));
         registerSimpleMethodFactory("todeg", (v) -> (float) Math.toDegrees(v));
-        registerSimpleMethodFactory("frac", MathHelper::fractionalPart);
+        registerSimpleMethodFactory("frac", Mth::frac);
         registerSimpleMethodFactory("signum", Math::signum);
         registerSimpleMethodFactory("sqrt", (v) -> v < 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : (float) Math.sqrt(v));
         registerSimpleMethodFactory("fmod", (v, w) -> (float) Math.floorMod((int) (float) v, (int) (float) w));
         registerSimpleMethodFactory("pow", (v, w) -> (float) Math.pow(v, w));
         registerSimpleMethodFactory("atan2", (v, w) -> (float) Math.atan2(v, w));
-        registerSimpleMethodFactory("clamp", MathHelper::clamp);
-        registerSimpleMethodFactory("lerp", MathHelper::lerp);
+        registerSimpleMethodFactory("clamp", Mth::clamp);
+        registerSimpleMethodFactory("lerp", Mth::lerp);
         registerAndWrapMethodFactory("print", PrintMethod::new);
         registerAndWrapMethodFactory("printb", PrintBMethod::new);
         registerAndWrapMethodFactory("catch", CatchMethod::new);
@@ -74,10 +74,10 @@ public final class MethodRegistry {
 
         registerAndWrapMethodFactory("keyframe", KeyframeMethod::new);
         registerAndWrapMethodFactory("keyframeloop", KeyframeloopMethod::new);
-        registerSimpleMethodFactory("wrapdeg", MathHelper::wrapDegrees);
-        registerSimpleMethodFactory("wraprad", (v) -> (float) Math.toRadians(MathHelper.wrapDegrees(Math.toDegrees(v))));
-        registerSimpleMethodFactory("degdiff", MathHelper::angleBetween);
-        registerSimpleMethodFactory("raddiff", (v, w) -> (float) Math.toRadians(MathHelper.angleBetween((float) Math.toDegrees(v), (float) Math.toDegrees(w))));
+        registerSimpleMethodFactory("wrapdeg", Mth::wrapDegrees);
+        registerSimpleMethodFactory("wraprad", (v) -> (float) Math.toRadians(Mth.wrapDegrees(Math.toDegrees(v))));
+        registerSimpleMethodFactory("degdiff", Mth::degreesDifferenceAbs);
+        registerSimpleMethodFactory("raddiff", (v, w) -> (float) Math.toRadians(Mth.degreesDifferenceAbs((float) Math.toDegrees(v), (float) Math.toDegrees(w))));
 
         //deprecated
         registerSimpleMethodFactory("easeinout", TriFunctionMethods::easeInOutSine);
@@ -88,7 +88,7 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("cubiceaseout", TriFunctionMethods::easeOutCubic);
 
         //lerps
-        registerSimpleMultiMethodFactory("catmullrom", (args) -> MathHelper.catmullRom(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
+        registerSimpleMultiMethodFactory("catmullrom", (args) -> Mth.catmullrom(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
         registerSimpleMultiMethodFactory("quadbezier", (args) -> MultiFunctionMethods.quadraticBezier(args.get(0), args.get(1), args.get(2), args.get(3)));
         registerSimpleMultiMethodFactory("cubicbezier", (args) -> MultiFunctionMethods.cubicBezier(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
         registerSimpleMultiMethodFactory("hermite", (args) -> MultiFunctionMethods.hermiteInterpolation(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));

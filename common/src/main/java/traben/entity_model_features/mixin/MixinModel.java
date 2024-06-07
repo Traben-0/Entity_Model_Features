@@ -2,8 +2,8 @@ package traben.entity_model_features.mixin;
 
 
 import net.minecraft.client.model.Model;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,7 +29,6 @@ public class MixinModel implements IEMFModel {
         if (EMF.testForForgeLoadingError()) return;
         emf$thisEMFModelRoot = EMFManager.lastCreatedRootModelPart;
         EMFManager.lastCreatedRootModelPart = null;
-
     }
 
     @Override
@@ -43,9 +42,9 @@ public class MixinModel implements IEMFModel {
     }
 
 
-    @Inject(method = "getLayer",
+    @Inject(method = "renderType",
             at = @At(value = "HEAD"))
-    private void emf$discoverEMFModel(Identifier texture, CallbackInfoReturnable<RenderLayer> cir) {
-        EMFAnimationEntityContext.setLayerFactory(((Model) ((Object) this)).layerFactory);
+    private void emf$discoverEMFModel(ResourceLocation texture, CallbackInfoReturnable<RenderType> cir) {
+        EMFAnimationEntityContext.setLayerFactory(((Model) ((Object) this)).renderType);
     }
 }

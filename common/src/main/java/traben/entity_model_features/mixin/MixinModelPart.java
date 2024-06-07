@@ -1,8 +1,8 @@
 package traben.entity_model_features.mixin;
 
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.model.geom.ModelPart;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,9 +26,14 @@ public class MixinModelPart implements IEMFModelNameContainer, EMFTextureSizeSup
     @Unique
     private int[] emf$textureSize = null;
 
-    @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V",
+    @Inject(method =
+            #if MC >= MC_21
+                "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;III)V",
+            #else
+                "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V",
+            #endif
             at = @At(value = "HEAD"))
-    private void emf$injectAnnouncer(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha, CallbackInfo ci) {
+    private void emf$injectAnnouncer2(final PoseStack poseStack, final VertexConsumer vertexConsumer, final int i, final int j, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif, final CallbackInfo ci) {
         if (EMFAnimationEntityContext.doAnnounceModels() && emf$modelInfo != null) {
             EMFManager.getInstance().modelsAnnounced.add(emf$modelInfo);
         }

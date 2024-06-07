@@ -1,12 +1,12 @@
 package traben.entity_model_features.utils;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 import traben.entity_texture_features.utils.ETFEntity;
 
 /**
  * This interface is applied to all entities that are used in the Entity Model Features system.
- * EMF itself applies these to all {@link net.minecraft.entity.Entity} and {@link net.minecraft.block.entity.BlockEntity} instances.
+ * EMF itself applies these to all {@link net.minecraft.world.entity.Entity} and {@link net.minecraft.world.level.block.entity.BlockEntity} instances.
  * <p>
  * This interface is used to provide a common set of methods that are used in the EMF system.
  * It extends from an ETF interface that does the exact same thing, but for the Entity Texture Features system.
@@ -60,7 +60,7 @@ public interface EMFEntity extends ETFEntity {
 
     float emf$getYaw();
 
-    Vec3d emf$getVelocity();
+    Vec3 emf$getVelocity();
 
     String emf$getTypeString();
 

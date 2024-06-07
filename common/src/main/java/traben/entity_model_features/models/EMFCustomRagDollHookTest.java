@@ -4,10 +4,9 @@ import net.diebuddies.physics.PhysicsEntity;
 import net.diebuddies.physics.ragdoll.Ragdoll;
 import net.diebuddies.physics.ragdoll.RagdollHook;
 import net.diebuddies.physics.ragdoll.RagdollMapper;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.entity.model.EntityModel;
-import net.minecraft.entity.Entity;
-
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.Entity;
 import java.util.List;
 
 public class EMFCustomRagDollHookTest implements RagdollHook {

@@ -1,17 +1,17 @@
 package traben.entity_model_features.models;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.model.ModelTransform;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.resources.ResourceLocation;
 
 public abstract class EMFModelPartWithState extends EMFModelPart {
     public final Int2ObjectOpenHashMap<EMFModelState> allKnownStateVariants = new Int2ObjectOpenHashMap<>() {
@@ -30,7 +30,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     Runnable startOfRenderRunnable = null;
     Animator tryAnimate = new Animator();
 
-    public EMFModelPartWithState(List<Cuboid> cuboids, Map<String, ModelPart> children) {
+    public EMFModelPartWithState(List<Cube> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
     }
 
@@ -45,7 +45,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
 
 
     @Override
-    public void render(MatrixStack matrices, VertexConsumer vertices, int light, int overlay, float red, float green, float blue, float alpha) {
+    public void render(PoseStack matrices, VertexConsumer vertices, int light, int overlay,#if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
 
         if (startOfRenderRunnable != null) {
             startOfRenderRunnable.run();
@@ -54,18 +54,18 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         if (tryAnimate != null) {
             tryAnimate.run();
         }
-        renderWithTextureOverride(matrices, vertices, light, overlay, red, green, blue, alpha);
+        renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
 
     }
 
 
     EMFModelState getCurrentState() {
         return new EMFModelState(
-                getDefaultTransform(),
-                cuboids,
+                getInitialPose(),
+                cubes,
                 children,
                 xScale, yScale, zScale,
-                visible, hidden,
+                visible, skipDraw,
                 textureOverride, tryAnimate
         );
     }
@@ -73,28 +73,28 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     EMFModelState getStateOf(ModelPart modelPart) {
         if (modelPart instanceof EMFModelPartWithState emf) {
             return new EMFModelState(
-                    modelPart.getDefaultTransform(),
-                    modelPart.cuboids,
+                    modelPart.getInitialPose(),
+                    modelPart.cubes,
                     modelPart.children,
                     modelPart.xScale, modelPart.yScale, modelPart.zScale,
-                    modelPart.visible, modelPart.hidden,
+                    modelPart.visible, modelPart.skipDraw,
                     emf.textureOverride, emf.tryAnimate
             );
         }
         return new EMFModelState(
-                modelPart.getDefaultTransform(),
-                modelPart.cuboids,
+                modelPart.getInitialPose(),
+                modelPart.cubes,
                 new HashMap<>(),
                 modelPart.xScale, modelPart.yScale, modelPart.zScale,
-                modelPart.visible, modelPart.hidden,
+                modelPart.visible, modelPart.skipDraw,
                 null, new Animator()
         );
     }
 
     void setFromState(EMFModelState newState) {
-        setDefaultTransform(newState.defaultTransform());
-        setTransform(getDefaultTransform());
-        cuboids = newState.cuboids();
+        setInitialPose(newState.defaultTransform());
+        loadPose(getInitialPose());
+        cubes = newState.cuboids();
 
         children = newState.variantChildren();
 
@@ -102,7 +102,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         yScale = newState.yScale();
         zScale = newState.zScale();
         visible = newState.visible();
-        hidden = newState.hidden();
+        skipDraw = newState.hidden();
         textureOverride = newState.texture();
         tryAnimate = newState.animation();
     }
@@ -121,25 +121,25 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     }
 
     public record EMFModelState(
-            ModelTransform defaultTransform,
+            PartPose defaultTransform,
             // ModelTransform currentTransform,
-            List<Cuboid> cuboids,
+            List<Cube> cuboids,
             Map<String, ModelPart> variantChildren,
             float xScale,
             float yScale,
             float zScale,
             boolean visible,
             boolean hidden,
-            Identifier texture,
+            ResourceLocation texture,
             Animator animation
     ) {
 
         public static EMFModelState copy(EMFModelState copyFrom) {
-            ModelTransform trans = copyFrom.defaultTransform();
+            PartPose trans = copyFrom.defaultTransform();
             Animator animator = new Animator();
             animator.setAnimation(copyFrom.animation().getAnimation());
             return new EMFModelState(
-                    ModelTransform.of(trans.pivotX, trans.pivotY, trans.pivotZ, trans.pitch, trans.yaw, trans.roll),
+                    PartPose.offsetAndRotation(trans.x, trans.y, trans.z, trans.xRot, trans.yRot, trans.zRot),
                     new ArrayList<>(copyFrom.cuboids()),
                     new HashMap<>(copyFrom.variantChildren()),
                     copyFrom.xScale(),

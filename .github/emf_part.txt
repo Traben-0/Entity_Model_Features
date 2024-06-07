@@ -43,8 +43,10 @@
 # ======================== ======================================================
 # left_handheld_item       allay, armor_stand, drowned, evoker, giant, husk, illusioner, piglin, piglin_brute, pillager, skeleton, stray, vex, vindicator,
 #                          wither_skeleton, zombie, zombie_villager, zombified_piglin
+@                          player
 # right_handheld_item      allay, armor_stand, drowned, evoker, giant, husk, illusioner, piglin, piglin_brute, pillager, skeleton, stray, vex, vindicator,
 #                          wither_skeleton, zombie, zombie_villager, zombified_piglin
+@                          player
 #
 # Note: This is not a valid JSON format and it should only be used as a reference  
 ######################################################################

@@ -1,8 +1,8 @@
 package traben.entity_model_features.mixin.rendering;
 
 
-import net.minecraft.client.render.entity.model.WolfEntityModel;
-import net.minecraft.entity.passive.WolfEntity;
+import net.minecraft.client.model.WolfModel;
+import net.minecraft.world.entity.animal.Wolf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,38 +10,38 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.utils.EMFWolfCollarHolder;
 
-@Mixin(WolfEntityModel.class)
-public class MixinWolfEntityModel<T extends WolfEntity> implements EMFWolfCollarHolder<T> {
+@Mixin(WolfModel.class)
+public class MixinWolfEntityModel<T extends Wolf> implements EMFWolfCollarHolder<T> {
 
 
     @Unique
-    WolfEntityModel<T> emf$collarModel = null;
+    WolfModel<T> emf$collarModel = null;
 
-    @Inject(method = "setAngles(Lnet/minecraft/entity/passive/WolfEntity;FFFFF)V",
+    @Inject(method = "setupAnim(Lnet/minecraft/world/entity/animal/Wolf;FFFFF)V",
             at = @At(value = "HEAD")
     )
     private void smf$setAngles(T wolfEntity, float f, float g, float h, float i, float j, CallbackInfo ci) {
         if (emf$hasCollarModel()) {
-            emf$collarModel.setAngles(wolfEntity, f, g, h, i, j);
+            emf$collarModel.setupAnim(wolfEntity, f, g, h, i, j);
         }
     }
 
-    @Inject(method = "animateModel(Lnet/minecraft/entity/passive/WolfEntity;FFF)V",
+    @Inject(method = "prepareMobModel(Lnet/minecraft/world/entity/animal/Wolf;FFF)V",
             at = @At(value = "HEAD")
     )
     private void smf$animateModel(T wolfEntity, float f, float g, float h, CallbackInfo ci) {
         if (emf$hasCollarModel()) {
-            emf$collarModel.animateModel(wolfEntity, f, g, h);
+            emf$collarModel.prepareMobModel(wolfEntity, f, g, h);
         }
     }
 
     @Override
-    public WolfEntityModel<T> emf$getCollarModel() {
+    public WolfModel<T> emf$getCollarModel() {
         return emf$collarModel;
     }
 
     @Override
-    public void emf$setCollarModel(WolfEntityModel<T> model) {
+    public void emf$setCollarModel(WolfModel<T> model) {
         emf$collarModel = model;
     }
 

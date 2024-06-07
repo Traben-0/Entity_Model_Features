@@ -1,5 +1,6 @@
 package traben.entity_model_features.models.animation.math;
 
+
 import it.unimi.dsi.fastutil.chars.CharArrayList;
 import it.unimi.dsi.fastutil.chars.CharListIterator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;

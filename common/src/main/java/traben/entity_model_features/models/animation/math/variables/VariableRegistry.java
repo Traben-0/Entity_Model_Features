@@ -2,15 +2,12 @@ package traben.entity_model_features.models.animation.math.variables;
 
 import com.demonwav.mcdev.annotations.Translatable;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.Arm;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.MathComponent;
 import traben.entity_model_features.models.animation.math.MathConstant;
 import traben.entity_model_features.models.animation.math.MathValue;
+import traben.entity_model_features.models.animation.math.MathValue.ResultSupplier;
 import traben.entity_model_features.models.animation.math.MathVariable;
 import traben.entity_model_features.models.animation.math.variables.factories.*;
 import traben.entity_model_features.utils.EMFManager;
@@ -20,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
 
 import static traben.entity_model_features.models.animation.math.MathValue.FALSE;
 import static traben.entity_model_features.models.animation.math.MathValue.TRUE;
@@ -94,7 +95,7 @@ public final class VariableRegistry {
         registerSimpleFloatVariable("nan", () -> EMFManager.getInstance().isAnimationValidationPhase ? 0 : Float.NaN);
         registerSimpleFloatVariable("distance", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return 0;
-            return EMFAnimationEntityContext.getEMFEntity().etf$distanceTo(MinecraftClient.getInstance().player);
+            return EMFAnimationEntityContext.getEMFEntity().etf$distanceTo(Minecraft.getInstance().player);
         });
 
 
@@ -102,7 +103,7 @@ public final class VariableRegistry {
         registerSimpleBoolVariable("is_first_person_hand", () -> EMFAnimationEntityContext.isFirstPersonHand);
         registerSimpleBoolVariable("is_right_handed", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
-            return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity entity && entity.getMainArm() == Arm.RIGHT;
+            return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity entity && entity.getMainArm() == HumanoidArm.RIGHT;
         });
         registerSimpleBoolVariable("is_swinging_right_arm", () -> EMFAnimationEntityContext.isUsingHand(true));
         registerSimpleBoolVariable("is_swinging_left_arm", () -> EMFAnimationEntityContext.isUsingHand(false));
@@ -124,7 +125,7 @@ public final class VariableRegistry {
         });
         registerSimpleBoolVariable("is_crawling", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
-            return EMFAnimationEntityContext.getEMFEntity() instanceof Entity entity && entity.isCrawling();
+            return EMFAnimationEntityContext.getEMFEntity() instanceof Entity entity && entity.isVisuallyCrawling();
         });
         registerSimpleBoolVariable("is_climbing", EMFAnimationEntityContext::isClimbing);
         registerSimpleBoolVariable("is_child", EMFAnimationEntityContext::isChild);

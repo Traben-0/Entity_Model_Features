@@ -7,7 +7,7 @@ architectury {
     fabric()
 }
 
-archivesBaseName = rootProject.archives_base_name + "_fabric_1.20.5"
+archivesBaseName = rootProject.archives_base_name + "_fabric_${rootProject.minecraft_version}"
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
@@ -49,13 +49,13 @@ dependencies {
 
 }
 
-processResources {
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": project.version
-    }
-}
+//processResources {
+//    inputs.property "version", project.version
+//
+//    filesMatching("fabric.mod.json") {
+//        expand "version": project.version
+//    }
+//}
 
 shadowJar {
     exclude "architectury.common.json"

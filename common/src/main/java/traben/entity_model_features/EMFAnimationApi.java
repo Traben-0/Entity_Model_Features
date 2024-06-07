@@ -1,6 +1,5 @@
 package traben.entity_model_features;
 
-import net.minecraft.util.math.floatprovider.FloatSupplier;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
+import net.minecraft.util.valueproviders.SampledFloat;
 
 /**
  * The main API for registering custom animation math expressions and variables.
@@ -38,7 +38,7 @@ public interface EMFAnimationApi {
 
     /**
      * Gets current rendered entity.
-     * This may be either a {@link net.minecraft.entity.Entity} or {@link net.minecraft.block.entity.BlockEntity} or null.
+     * This may be either a {@link net.minecraft.world.entity.Entity} or {@link net.minecraft.world.level.block.entity.BlockEntity} or null.
      *
      * @return the currently rendered entity
      */
@@ -72,7 +72,7 @@ public interface EMFAnimationApi {
      * @param variableExplanationTranslationKeyOrText The explanation of the variable.
      * @param variableValueSupplier                   A supplier for the value of the variable.
      */
-    static void registerSingletonAnimationVariable(String sourceModId, String variableName, String variableExplanationTranslationKeyOrText, FloatSupplier variableValueSupplier) {
+    static void registerSingletonAnimationVariable(String sourceModId, String variableName, String variableExplanationTranslationKeyOrText, SampledFloat variableValueSupplier) {
         if (sourceModId != null && variableName != null && variableValueSupplier != null && variableExplanationTranslationKeyOrText != null) {
             VariableRegistry.getInstance().registerSimpleFloatVariable(variableName, variableExplanationTranslationKeyOrText, (MathValue.ResultSupplier) variableValueSupplier);
             EMFUtils.log("Successful registration of singleton variable:" + variableName + " from mod " + sourceModId);
@@ -200,7 +200,7 @@ public interface EMFAnimationApi {
     }
 
     @Deprecated(since = "api v2")
-    static void registerSingletonAnimationVariable(String sourceModId, String variableName, FloatSupplier variableValueSupplier) {
+    static void registerSingletonAnimationVariable(String sourceModId, String variableName, SampledFloat variableValueSupplier) {
         EMFUtils.logWarn("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
         registerSingletonAnimationVariable(sourceModId, variableName, variableName, variableValueSupplier);
     }

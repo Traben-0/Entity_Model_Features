@@ -2,11 +2,11 @@ package traben.entity_model_features.mixin;
 
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
-import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,14 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Mixin(BlockEntityRendererFactories.class)
+@Mixin(BlockEntityRenderers.class)
 public class MixinBlockEntityRendererFactories {
 
     @Unique
     private static final List<String> emf$renderers = new ArrayList<>();
 
-    @Inject(method = "reload", at = @At(value = "RETURN"))
-    private static void emf$clearMarker(final BlockEntityRendererFactory.Context args, final CallbackInfoReturnable<Map<BlockEntityType<?>, BlockEntityRenderer<?>>> cir) {
+    @Inject(method = "createEntityRenderers", at = @At(value = "RETURN"))
+    private static void emf$clearMarker(final BlockEntityRendererProvider.Context args, final CallbackInfoReturnable<Map<BlockEntityType<?>, BlockEntityRenderer<?>>> cir) {
         if (EMF.testForForgeLoadingError()) return;
         EMFManager.getInstance().currentSpecifiedModelLoading = "";
         EMFManager.getInstance().currentBlockEntityTypeLoading = null;
@@ -39,7 +39,7 @@ public class MixinBlockEntityRendererFactories {
     }
 
     @Inject(method = "method_32145", at = @At(value = "HEAD"))
-    private static void setEmf$Model(ImmutableMap.Builder<?, ?> builder, BlockEntityRendererFactory.Context context, BlockEntityType<?> type, BlockEntityRendererFactory<?> factory, CallbackInfo ci) {
+    private static void setEmf$Model(ImmutableMap.Builder<?, ?> builder, BlockEntityRendererProvider.Context context, BlockEntityType<?> type, BlockEntityRendererProvider<?> factory, CallbackInfo ci) {
         //mark which variant is currently specified for use by otherwise identical block entity renderers
         if (EMF.testForForgeLoadingError()) return;
 
@@ -49,8 +49,8 @@ public class MixinBlockEntityRendererFactories {
             EMFManager.getInstance().currentSpecifiedModelLoading = "enchanting_book";
         else if (BlockEntityType.LECTERN.equals(type))
             EMFManager.getInstance().currentSpecifiedModelLoading = "lectern_book";
-        else if (type.getRegistryEntry() != null && type.getRegistryEntry().getKey().isPresent()) {
-            Identifier id = type.getRegistryEntry().getKey().get().getValue();
+        else if (type.builtInRegistryHolder() != null && type.builtInRegistryHolder().unwrapKey().isPresent()) {
+            ResourceLocation id = type.builtInRegistryHolder().unwrapKey().get().location();
             if (id.getNamespace().equals("minecraft")) {
                 EMFManager.getInstance().currentSpecifiedModelLoading = id.getPath();
             } else {
