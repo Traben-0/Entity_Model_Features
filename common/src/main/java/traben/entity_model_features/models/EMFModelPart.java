@@ -1,5 +1,6 @@
 package traben.entity_model_features.models;
 
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -121,6 +122,14 @@ public abstract class EMFModelPart extends ModelPart {
     void renderLikeETF(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
         //etf ModelPartMixin copy
         ETFRenderContext.incrementCurrentModelPartDepth();
+
+        if (vertices instanceof BufferBuilder builder && !builder.building){
+            if (vertices instanceof ETFVertexConsumer etf
+                    && etf.etf$getRenderLayer() != null
+                    && etf.etf$getProvider() != null){
+                vertices = etf.etf$getProvider().getBuffer(etf.etf$getRenderLayer());
+            }
+        }
 
         renderLikeVanilla(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
 
