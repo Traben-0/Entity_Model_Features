@@ -1,5 +1,9 @@
 
 
+
+- fixed the `scale` model part default setting not correctly applying on mobs with new format animations like wardens & frogs
+
+
 2.0.2
 - fixed the first person hand settings not getting reset correctly in 2.0.1
 - added the `is_swinging_right_arm` & `is_swinging_left_arm` boolean variables, 

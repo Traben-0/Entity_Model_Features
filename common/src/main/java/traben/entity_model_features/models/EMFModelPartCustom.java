@@ -6,13 +6,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.layers.SheepFurLayer;
 import net.minecraft.core.Direction;
-import net.minecraft.util.ColorRGBA;
 import net.minecraft.util.FastColor;
-import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.accessor.CuboidAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
@@ -33,6 +30,8 @@ public class EMFModelPartCustom extends EMFModelPart {
     public final String id;
     public final boolean attach;
 
+    private final float defaultScale;
+
     private final @Nullable List<Consumer<PoseStack>> attachments;
 
     public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id) {//,//float[] parentalTransforms) {
@@ -49,10 +48,10 @@ public class EMFModelPartCustom extends EMFModelPart {
 
 
         //seems to be just straight into model no bullshit?
-        //todo check up on scale?
-        xScale = emfPartData.scale;
-        yScale = emfPartData.scale;
-        zScale = emfPartData.scale;
+        defaultScale = emfPartData.scale;
+        xScale = defaultScale;
+        yScale = defaultScale;
+        zScale = defaultScale;
 
 
         x = emfPartData.translate[0];
@@ -70,6 +69,14 @@ public class EMFModelPartCustom extends EMFModelPart {
         //if (variantNumber == 0)
 
 
+    }
+
+    @Override
+    public void resetPose() {
+        super.resetPose();
+        xScale = defaultScale;
+        yScale = defaultScale;
+        zScale = defaultScale;
     }
 
     private static List<Cube> getCuboidsFromData(EMFPartData emfPartData) {
