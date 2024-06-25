@@ -1150,15 +1150,10 @@ public class EMFOptiFinePartNameMappings {
                 ));
 
 //# trident                  body
-
         optifineModels("trident")
                 .accept(Map.ofEntries(
-                        getOptifineMapEntry("body", "pole"),
-                        getOptifineMapEntry("root"),
-                        getOptifineMapEntry("base"),
-                        getOptifineMapEntry("left_spike"),
-                        getOptifineMapEntry("middle_spike"),
-                        getOptifineMapEntry("right_spike")));
+                        getOptifineMapEntry("body", "pole")));
+
 
         optifineModels("spectral_arrow", "arrow")
                 .accept(Map.ofEntries(getOptifineMapEntry("body", "root")));

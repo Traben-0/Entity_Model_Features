@@ -2,7 +2,7 @@
 
 
 - fixed the `scale` model part default setting not correctly applying on mobs with new format animations like wardens & frogs
-
+- fixed the trident model part declaring additional parts in the OptiFine mapping by accident, which could cause vanilla trident parts to re-appear in many custom trident models
 
 2.0.2
 - fixed the first person hand settings not getting reset correctly in 2.0.1

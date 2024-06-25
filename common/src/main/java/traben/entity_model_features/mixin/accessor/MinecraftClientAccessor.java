@@ -1,9 +1,11 @@
 package traben.entity_model_features.mixin.accessor;
 
+    #if MC >= MC_21
 import net.minecraft.client.DeltaTracker;
+    #endif
+
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(Minecraft.class)
