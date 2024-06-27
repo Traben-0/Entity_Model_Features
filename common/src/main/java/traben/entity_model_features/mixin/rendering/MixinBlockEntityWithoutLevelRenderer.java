@@ -5,7 +5,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,6 +26,17 @@ public class MixinBlockEntityWithoutLevelRenderer {
                     shift = At.Shift.BEFORE))
     private void emf$setRenderFactory(final ItemStack itemStack, final ItemDisplayContext itemDisplayContext, final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final int j, final CallbackInfo ci) {
         EMFAnimationEntityContext.setLayerFactory(RenderType::entityCutoutNoCullZOffset);
+        EMFManager.getInstance().entityRenderCount++;
+        //placeholder entity for inventory rendered skull blocks to trigger ETF vertex consumer actions
+        //which won't run with a null entity
+        ETFRenderContext.setCurrentEntity((ETFEntity) Minecraft.getInstance().player);
+    }
+
+    @Inject(method = "renderByItem",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/model/TridentModel;renderType(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/RenderType;",
+                    shift = At.Shift.BEFORE))
+    private void emf$setTrident(final ItemStack itemStack, final ItemDisplayContext itemDisplayContext, final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final int j, final CallbackInfo ci) {
         EMFManager.getInstance().entityRenderCount++;
         //placeholder entity for inventory rendered skull blocks to trigger ETF vertex consumer actions
         //which won't run with a null entity

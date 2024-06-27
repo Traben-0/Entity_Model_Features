@@ -51,11 +51,6 @@ public class EMFJemData {
         String textureTest = textureIn.trim();
         if (!textureTest.isBlank()) {
 
-            //todo add support for trident no idea why it breaks currently
-            if (textureTest.endsWith("/trident.jem")) {
-                EMFUtils.logWarn("trident texture overrides are not supported currently, they will be ignored.");
-                return null;
-            }
 
             if (!textureTest.contains(":")) {
                 if (!textureTest.endsWith(".png")) textureTest = textureTest + ".png";
