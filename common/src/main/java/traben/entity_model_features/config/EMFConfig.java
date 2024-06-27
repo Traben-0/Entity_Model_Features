@@ -214,7 +214,8 @@ public class EMFConfig extends TConfig {
                 }
                 modelExportMode = old;
                 button.active = false;
-                button.setMessage(ETFVersionDifferenceHandler.getTextFromTranslation("entity_model_features.config.models.export.success"));
+                //dont use etf translation class it crashes for some unknown reason
+                button.setMessage(Component.translatable("entity_model_features.config.models.export.success"));
             });
         } catch (Exception e) {
             export = new TConfigEntryText.TwoLines("entity_model_features.config.models.export.fail", e.getMessage());

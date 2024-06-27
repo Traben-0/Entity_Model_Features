@@ -1,11 +1,14 @@
 package traben.entity_model_features.models;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.minecraft.client.renderer.SpriteCoordinateExpander;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.features.ETFRenderContext;
 import traben.entity_texture_features.features.texture_handlers.ETFTexture;
 import traben.entity_texture_features.utils.ETFUtils2;
@@ -117,19 +120,50 @@ public abstract class EMFModelPart extends ModelPart {
             }
         }
     }
+    #if MC >= MC_21
+    private VertexConsumer testForBuildingException(VertexConsumer vertices) {
+        BufferBuilder testBuilding;
+        if (vertices instanceof BufferBuilder) {
+            testBuilding = (BufferBuilder) vertices;
+        } else if (vertices instanceof SpriteCoordinateExpander sprite && sprite.delegate instanceof BufferBuilder) {
+            testBuilding = (BufferBuilder) sprite.delegate;
+        }else if (vertices instanceof VertexMultiConsumer.Double dub && dub.second instanceof BufferBuilder) {
+            testBuilding = (BufferBuilder) dub.second;
+        }else{
+            //exit early if not a buffer builder
+            return vertices;
+        }
+
+
+        if (testBuilding != null && !testBuilding.building){
+            if (testBuilding instanceof ETFVertexConsumer etf
+                    && etf.etf$getRenderLayer() != null
+                    && etf.etf$getProvider() != null){
+                boolean allowed = ETFRenderContext.isAllowedToRenderLayerTextureModify();
+                ETFRenderContext.preventRenderLayerTextureModify();
+
+                vertices = etf.etf$getProvider().getBuffer(etf.etf$getRenderLayer());
+
+                if (allowed) ETFRenderContext.allowRenderLayerTextureModify();
+            }else {
+                return null;
+            }
+        }
+        return vertices;
+    }
+    #endif
+
 
     //mimics etf model part mixins which can no longer be relied on due to sodium 0.5.5
     void renderLikeETF(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
+
+        #if MC >= MC_21
+        vertices = testForBuildingException(vertices);
+        if (vertices == null) return;
+        #endif
+
         //etf ModelPartMixin copy
         ETFRenderContext.incrementCurrentModelPartDepth();
-
-        if (vertices instanceof BufferBuilder builder && !builder.building){
-            if (vertices instanceof ETFVertexConsumer etf
-                    && etf.etf$getRenderLayer() != null
-                    && etf.etf$getProvider() != null){
-                vertices = etf.etf$getProvider().getBuffer(etf.etf$getRenderLayer());
-            }
-        }
 
         renderLikeVanilla(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
 
@@ -206,9 +240,17 @@ public abstract class EMFModelPart extends ModelPart {
     @Override
     public void compile(final PoseStack.Pose pose, final VertexConsumer vertexConsumer, final int i, final int j, #if MC >= MC_21 int k #else float red, float green, float blue, float alpha #endif) {
         //this is a copy of the vanilla renderCuboids() method
-        for (Cube cuboid : cubes) {
-            cuboid.compile(pose, vertexConsumer, i, j, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+        #if MC >= MC_21
+        try {
+        #endif
+            for (Cube cuboid : cubes) {
+                cuboid.compile(pose, vertexConsumer, i, j, #if MC >= MC_21 k #else red, green, blue, alpha #endif );
+            }
+        #if MC >= MC_21
+        } catch (IllegalStateException e) {
+            EMFUtils.logWarn("IllegalStateException caught in EMF model part");
         }
+        #endif
     }
 
     public String simplePrintChildren(int depth) {

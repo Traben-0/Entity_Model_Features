@@ -2,6 +2,9 @@
 
 
 - fixed the `scale` model part default setting not correctly applying on mobs with new format animations like wardens & frogs
+- fixed a crash when exporting models in 1.21
+- fixed a `not building` crash in 1.21
+- 
 - fixed the trident model part declaring additional parts in the OptiFine mapping by accident, which could cause vanilla trident parts to re-appear in many custom trident models
 
 2.0.2
