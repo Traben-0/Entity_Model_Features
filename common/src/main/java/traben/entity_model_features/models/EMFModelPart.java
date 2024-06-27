@@ -37,6 +37,7 @@ public abstract class EMFModelPart extends ModelPart {
     protected long lastTextureOverride = -1L;
 
 
+
     public EMFModelPart(List<Cube> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
 
@@ -48,6 +49,7 @@ public abstract class EMFModelPart extends ModelPart {
     }
 
     void renderWithTextureOverride(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
+
         if (textureOverride == null
                 || lastTextureOverride == EMFManager.getInstance().entityRenderCount) {//prevents texture overrides carrying over into feature renderers that reuse the base model
             //normal vertex consumer
@@ -65,13 +67,11 @@ public abstract class EMFModelPart extends ModelPart {
                     return;
                 }
 
-
                 RenderType originalLayer = etfVertexConsumer.etf$getRenderLayer();
                 if (originalLayer == null) return;
 
                 MultiBufferSource provider = etfVertexConsumer.etf$getProvider();
                 if (provider == null) return;
-
                 renderTextureOverrideWithoutReset(provider, matrices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
 
                 //reset render settings
@@ -86,8 +86,8 @@ public abstract class EMFModelPart extends ModelPart {
     }
 
     private void renderTextureOverrideWithoutReset(MultiBufferSource provider, PoseStack matrices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif){
-        lastTextureOverride = EMFManager.getInstance().entityRenderCount;
 
+        lastTextureOverride = EMFManager.getInstance().entityRenderCount;
         RenderType layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrETFOverrideOrTranslucent(textureOverride);
         VertexConsumer newConsumer = provider.getBuffer(layerModified);
 
@@ -104,6 +104,7 @@ public abstract class EMFModelPart extends ModelPart {
 
     //required for sodium 0.5.4+
     void renderLikeVanilla(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
+
         if (this.visible) {
             if (!cubes.isEmpty() || !children.isEmpty()) {
                 matrices.pushPose();
@@ -120,6 +121,7 @@ public abstract class EMFModelPart extends ModelPart {
             }
         }
     }
+
     #if MC >= MC_21
     private VertexConsumer testForBuildingException(VertexConsumer vertices) {
         BufferBuilder testBuilding;

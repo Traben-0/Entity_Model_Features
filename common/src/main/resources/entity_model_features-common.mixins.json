@@ -21,6 +21,7 @@
     "accessor.EntityRenderDispatcherAccessor",
     "accessor.MinecraftClientAccessor",
     "rendering.MixinBlockEntityRenderDispatcher",
+    "rendering.MixinBlockEntityWithoutLevelRenderer",
     "rendering.MixinCapeFeatureRenderer",
     "rendering.MixinCatCollarFeatureRenderer",
     "rendering.MixinCreeperChargeFeatureRenderer",
