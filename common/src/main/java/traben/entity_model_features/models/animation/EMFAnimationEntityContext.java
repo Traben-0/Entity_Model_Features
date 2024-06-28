@@ -496,11 +496,14 @@ public class EMFAnimationEntityContext {
     }
 
     public static float getHeightAboveGround() {
-        if (emfEntity == null) return 0;
+        if (!(emfEntity instanceof Entity)) return 0;
         float y = getEntityY();
         BlockPos pos = emfEntity.etf$getBlockPos();
         int worldBottom = emfEntity.etf$getWorld().getMinBuildHeight();
-        while (!emfEntity.etf$getWorld().getBlockState(pos).getBlock().hasCollision && pos.getY() > worldBottom) {
+        //loop down until we hit a block that can be stood on
+        while (!emfEntity.etf$getWorld().getBlockState(pos)
+                .entityCanStandOn(emfEntity.etf$getWorld(),pos, (Entity) emfEntity)
+                && pos.getY() > worldBottom) {
             pos = pos.below();
         }
         return y - pos.getY();
