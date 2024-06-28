@@ -6,9 +6,13 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.SpriteCoordinateExpander;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_texture_features.ETF;
+import traben.entity_texture_features.features.ETFManager;
 import traben.entity_texture_features.features.ETFRenderContext;
 import traben.entity_texture_features.features.texture_handlers.ETFTexture;
 import traben.entity_texture_features.utils.ETFUtils2;
@@ -58,6 +62,18 @@ public abstract class EMFModelPart extends ModelPart {
                 && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() //do not allow new etf emissive rendering here
                 //&& vertices instanceof ETFVertexConsumer etfVertexConsumer
         ) { //can restore to previous render layer
+
+            // check if need to skip due to being in iris shadow pass
+            // fixed weird bug with certain texture overrides rendering in first person as though from the sun's POV
+            // downside is incorrect shadows for some model parts :/
+            //todo triple check it is only block entities, I so far cannot recreate the bug for regular mobs
+            if (EMFAnimationEntityContext.getEMFEntity().etf$isBlockEntity()
+                    && ETF.IRIS_DETECTED
+                    && IrisShadowPassDetection.getInstance().inShadowPass()) {
+                //skip texture override
+                renderLikeETF(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+                return;
+            }
 
             if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
                 // if the texture override is the same as the current texture, render as normal

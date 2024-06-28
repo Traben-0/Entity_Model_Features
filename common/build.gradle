@@ -18,6 +18,9 @@ dependencies {
 
     modImplementation("maven.modrinth:physicsmod:dBxi3s11")
     modImplementation("maven.modrinth:ebe:${rootProject.ebe_version}")
+    modImplementation("maven.modrinth:iris:${rootProject.iris_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
 }
 
 publishing {
