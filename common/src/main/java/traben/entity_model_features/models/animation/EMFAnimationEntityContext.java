@@ -25,6 +25,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.accessor.EntityRenderDispatcherAccessor;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
+import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.utils.*;
 import traben.entity_texture_features.ETF;
@@ -140,6 +141,13 @@ public class EMFAnimationEntityContext {
 
     public static boolean isLODSkippingThisFrame() {
         if (lodFrameSkipping != null) return lodFrameSkipping;
+
+        //skip for shadow pass
+        if(ETF.IRIS_DETECTED
+                && IrisShadowPassDetection.getInstance().inShadowPass()
+                && EMF.config().getConfig().animationFrameSkipDuringIrisShadowPass) {
+            return true;
+        }
 
         if (EMF.config().getConfig().animationLODDistance == 0 || emfEntity == null) return false;
 

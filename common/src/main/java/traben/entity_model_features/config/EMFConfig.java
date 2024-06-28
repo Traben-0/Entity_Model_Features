@@ -61,6 +61,7 @@ public class EMFConfig extends TConfig {
     public boolean retainDetailOnLowFps = true;
 
     public boolean retainDetailOnLargerMobs = true;
+    public boolean animationFrameSkipDuringIrisShadowPass = true;
 
     public boolean preventFirstPersonHandAnimating = false;
 
@@ -92,7 +93,9 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryBoolean("entity_model_features.config.low_fps_lod", "entity_model_features.config.low_fps_lod.tooltip",
                                         () -> retainDetailOnLowFps, value -> retainDetailOnLowFps = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.large_mob_lod", "entity_model_features.config.large_mob_lod.tooltip",
-                                        () -> retainDetailOnLargerMobs, value -> retainDetailOnLargerMobs = value, true)
+                                        () -> retainDetailOnLargerMobs, value -> retainDetailOnLargerMobs = value, true),
+                                new TConfigEntryBoolean("entity_model_features.config.iris_shadow_skip", "entity_model_features.config.iris_shadow_skip.tooltip",
+                                        () -> animationFrameSkipDuringIrisShadowPass, value -> animationFrameSkipDuringIrisShadowPass = value, true)
                         ),
                         new TConfigEntryCategory("entity_model_features.config.tools", "entity_model_features.config.tools.tooltip").add(
                                 new TConfigEntryEnumSlider<>("entity_model_features.config.vanilla_render", "entity_model_features.config.vanilla_render.tooltip",

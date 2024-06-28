@@ -4,7 +4,8 @@
 - fixed the `scale` model part default setting not correctly applying on mobs with new format animations like wardens & frogs
 - fixed a crash when exporting models in 1.21
 - fixed a `not building` crash in 1.21
-- fixed a bug causing some block entity model texture overrides to appear in first person view in their shader shadow pass position
+- fixed a bug causing some block entity model texture overrides to appear in first person view in their iris shader shadow pass position
+- added an optimization option that will skip recalculating entity model animations during the iris shadow pass, on by default, and should always stay on, it is only an option in case of future breaking iris api changes or weird behaviour with iris ports. 
 - fixed the trident model part declaring additional parts in the OptiFine mapping by accident, which could cause vanilla trident parts to re-appear in many custom trident models
 
 2.0.2
