@@ -16,6 +16,7 @@ import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.animal.camel.Camel;
+import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
@@ -169,12 +170,14 @@ public class EMFAnimationEntityContext {
         EMFManager.getInstance().entityRenderCount++;
         layerFactory = null;
 
-        tickDelta =
+        if (tickDelta == 0) {
+            tickDelta =
         #if MC >= MC_21
-                ((MinecraftClientAccessor) Minecraft.getInstance()).getTimer().getGameTimeDeltaPartialTick(true);
+                    ((MinecraftClientAccessor) Minecraft.getInstance()).getTimer().getGameTimeDeltaPartialTick(true);
         #else
                 Minecraft.getInstance().isPaused() ? ((MinecraftClientAccessor) Minecraft.getInstance()).getPausePartialTick() : Minecraft.getInstance().getFrameTime();
         #endif
+        }
         shadowSize = Float.NaN;
         shadowOpacity = Float.NaN;
         leashX = 0;
@@ -301,8 +304,13 @@ public class EMFAnimationEntityContext {
         limbDistance = Float.NaN;
         headYaw = Float.NaN;
         headPitch = Float.NaN;
+        age = Float.NaN;
 
         onShoulder = false;
+    }
+
+    public static void setAge(final float age) {
+        EMFAnimationEntityContext.age = age;
     }
 
     public static void reset() {
@@ -313,6 +321,7 @@ public class EMFAnimationEntityContext {
         limbDistance = Float.NaN;
         headYaw = Float.NaN;
         headPitch = Float.NaN;
+        age = Float.NaN;
         onShoulder = false;
         tickDelta = 0;
         shadowSize = Float.NaN;
@@ -369,25 +378,25 @@ public class EMFAnimationEntityContext {
     }
 
     public static float getPlayerX() {
-        return Minecraft.getInstance().player == null ? 0 : (float) Mth.lerp(tickDelta, Minecraft.getInstance().player.xo, Minecraft.getInstance().player.getX());
+        return Minecraft.getInstance().player == null ? 0 : (float) Mth.lerp(getTickDelta(), Minecraft.getInstance().player.xo, Minecraft.getInstance().player.getX());
     }
 
     public static float getPlayerY() {
-        return Minecraft.getInstance().player == null ? 0 : (float) Mth.lerp(tickDelta, Minecraft.getInstance().player.yo, Minecraft.getInstance().player.getY());
+        return Minecraft.getInstance().player == null ? 0 : (float) Mth.lerp(getTickDelta(), Minecraft.getInstance().player.yo, Minecraft.getInstance().player.getY());
     }
 
     public static float getPlayerZ() {
-        return Minecraft.getInstance().player == null ? 0 : (float) Mth.lerp(tickDelta, Minecraft.getInstance().player.zo, Minecraft.getInstance().player.getZ());
+        return Minecraft.getInstance().player == null ? 0 : (float) Mth.lerp(getTickDelta(), Minecraft.getInstance().player.zo, Minecraft.getInstance().player.getZ());
     }
 
     public static float getPlayerRX() {
         return (Minecraft.getInstance().player == null) ? 0 :
-                (float) Math.toRadians(Mth.rotLerp(tickDelta, Minecraft.getInstance().player.xRotO, Minecraft.getInstance().player.getXRot()));
+                (float) Math.toRadians(Mth.rotLerp(getTickDelta(), Minecraft.getInstance().player.xRotO, Minecraft.getInstance().player.getXRot()));
     }
 
     public static float getPlayerRY() {
         return (Minecraft.getInstance().player == null) ? 0 :
-                (float) Math.toRadians(Mth.rotLerp(tickDelta, Minecraft.getInstance().player.yRotO, Minecraft.getInstance().player.getYRot()));
+                (float) Math.toRadians(Mth.rotLerp(getTickDelta(), Minecraft.getInstance().player.yRotO, Minecraft.getInstance().player.getYRot()));
     }
 
     public static float getEntityX() {
@@ -407,43 +416,43 @@ public class EMFAnimationEntityContext {
     public static float getEntityRX() {
         return (emfEntity == null) ? 0 :
                 //(double) Math.toRadians(entity.getPitch(tickDelta));
-                (float) Math.toRadians(Mth.rotLerp(tickDelta, emfEntity.emf$prevPitch(), emfEntity.emf$getPitch()));
+                (float) Math.toRadians(Mth.rotLerp(getTickDelta(), emfEntity.emf$prevPitch(), emfEntity.emf$getPitch()));
     }
 
     public static float getEntityRY() {
         if (emfEntity == null) return 0;
         return (emfEntity instanceof LivingEntity alive) ?
-                (float) Math.toRadians(Mth.rotLerp(tickDelta, alive.yBodyRotO, alive.getVisualRotationYInDegrees())) :
+                (float) Math.toRadians(Mth.rotLerp(getTickDelta(), alive.yBodyRotO, alive.getVisualRotationYInDegrees())) :
                 emfEntity instanceof Entity entity ?
-                        (float) Math.toRadians(Mth.rotLerp(tickDelta, entity.yRotO, entity.getYRot()))
+                        (float) Math.toRadians(Mth.rotLerp(getTickDelta(), entity.yRotO, entity.getYRot()))
                         : 0;
     }
 
     public static float getTime() {
         if (emfEntity == null || emfEntity.etf$getWorld() == null) {
-            return 0 + tickDelta;
+            return 0 + getTickDelta();
         } else {
             //limit value upper limit to preserve floating point precision
             long upTimeInTicks = emfEntity.etf$getWorld().getGameTime(); // (System.currentTimeMillis() - START_TIME)/50;
-            return constrainedFloat(upTimeInTicks, 720720) + tickDelta;
+            return constrainedFloat(upTimeInTicks, 720720) + getTickDelta();
         }
     }
 
     public static float getDayTime() {
         if (emfEntity == null || emfEntity.etf$getWorld() == null) {
-            return 0 + tickDelta;
+            return 0 + getTickDelta();
         } else {
             //limit value upper limit to preserve floating point precision
-            return constrainedFloat(emfEntity.etf$getWorld().getDayTime(), 24000) + tickDelta;
+            return constrainedFloat(emfEntity.etf$getWorld().getDayTime(), 24000) + getTickDelta();
         }
     }
 
     public static float getDayCount() {
         if (emfEntity == null || emfEntity.etf$getWorld() == null) {
-            return 0 + tickDelta;
+            return 0 + getTickDelta();
         } else {
             //limit value upper limit to preserve floating point precision
-            return (float) (emfEntity.etf$getWorld().getDayTime() / 24000L) + tickDelta;
+            return (float) (emfEntity.etf$getWorld().getDayTime() / 24000L) + getTickDelta();
         }
     }
 
@@ -473,7 +482,7 @@ public class EMFAnimationEntityContext {
         if (angerTime > currentKnownHighest) {
             knownHighestAngerTimeByUUID.put(emfEntity.etf$getUuid(), angerTime);
         }
-        return angerTime - tickDelta;
+        return angerTime - getTickDelta();
     }
 
     public static float getAngerTimeStart() {
@@ -492,7 +501,7 @@ public class EMFAnimationEntityContext {
     }
 
     public static float getHurtTime() {
-        return emfEntity instanceof LivingEntity alive ? (alive.hurtTime > 0 ? alive.hurtTime - tickDelta : 0) : 0;
+        return emfEntity instanceof LivingEntity alive ? (alive.hurtTime > 0 ? alive.hurtTime - getTickDelta() : 0) : 0;
     }
 
     public static float getHeightAboveGround() {
@@ -586,6 +595,27 @@ public class EMFAnimationEntityContext {
     }
 
     public static boolean isAggressive() {
+        if (emfEntity == null) return false;
+
+        if (emfEntity instanceof final EnderMan enderman) {
+            return enderman.isCreepy();
+        }
+        if (emfEntity instanceof final Blaze blaze) {
+            return blaze.isOnFire();
+        }
+        if (emfEntity instanceof final Guardian guardian) {
+            return guardian.getActiveAttackTarget() != null;
+        }
+        if (emfEntity instanceof final Vindicator vindicator) {
+            return vindicator.isAggressive();
+        }
+        if (emfEntity instanceof final SpellcasterIllager caster) {
+            return caster.isCastingSpell();
+        }
+        if (emfEntity instanceof final NeutralMob angry) {
+            return angry.isAngry();
+        }
+
         return emfEntity instanceof Mob mob && mob.isAggressive();
     }
 
@@ -669,14 +699,20 @@ public class EMFAnimationEntityContext {
     }
 
     public static float getSwingProgress() {
-        return emfEntity instanceof LivingEntity alive ? alive.getAttackAnim(tickDelta) : 0;
+        return emfEntity instanceof LivingEntity alive ? alive.getAttackAnim(getTickDelta()) : 0;
     }
 
+    private static float age = Float.NaN;
+
     public static float getAge() {
+        if (!Float.isNaN(age)) return age;
+
         if (emfEntity == null) {
-            return 0 + tickDelta;
+            age = 0 + getTickDelta();
+        }else {
+            age = constrainedFloat(emfEntity.emf$age(), 24000) + getTickDelta();
         }
-        return constrainedFloat(emfEntity.emf$age(), 24000) + tickDelta;
+        return age;
     }
 
     private static float constrainedFloat(float value, int constraint) {
@@ -739,8 +775,8 @@ public class EMFAnimationEntityContext {
         float o = 0;
         float n = 0;
         if (!emfEntity.emf$hasVehicle() && emfEntity instanceof LivingEntity alive) {
-            o = alive.walkAnimation.position(tickDelta);
-            n = alive.walkAnimation.speed(tickDelta);
+            o = alive.walkAnimation.position(getTickDelta());
+            n = alive.walkAnimation.speed(getTickDelta());
             if (alive.isBaby()) {
                 o *= 3.0F;
 
@@ -754,7 +790,7 @@ public class EMFAnimationEntityContext {
         } else if (emfEntity instanceof Boat boat) {
             n = 1;
             //o = boat.interpolatePaddlePhase(0, tickDelta);//1);
-            o = Math.max(boat.getRowingTime(1, tickDelta), boat.getRowingTime(0, tickDelta));
+            o = Math.max(boat.getRowingTime(1, getTickDelta()), boat.getRowingTime(0, getTickDelta()));
         }
         limbDistance = n;
         limbAngle = o;
@@ -786,12 +822,12 @@ public class EMFAnimationEntityContext {
 
     private static void doHeadValues() {
         if (emfEntity instanceof LivingEntity livingEntity) {
-            float h = Mth.rotLerp(tickDelta, livingEntity.yBodyRotO, livingEntity.yBodyRot);
-            float j = Mth.rotLerp(tickDelta, livingEntity.yHeadRotO, livingEntity.yHeadRot);
+            float h = Mth.rotLerp(getTickDelta(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
+            float j = Mth.rotLerp(getTickDelta(), livingEntity.yHeadRotO, livingEntity.yHeadRot);
             float k = j - h;
             float l;
             if (livingEntity.isPassenger() && livingEntity.getVehicle() instanceof LivingEntity livingEntity2) {
-                h = Mth.rotLerp(tickDelta, livingEntity2.yBodyRotO, livingEntity2.yBodyRot);
+                h = Mth.rotLerp(getTickDelta(), livingEntity2.yBodyRotO, livingEntity2.yBodyRot);
                 k = j - h;
                 l = Mth.wrapDegrees(k);
                 if (l < -85.0F) {
@@ -810,7 +846,7 @@ public class EMFAnimationEntityContext {
                 k = j - h;
             }
 
-            float m = Mth.lerp(tickDelta, livingEntity.xRotO, livingEntity.getXRot());
+            float m = Mth.lerp(getTickDelta(), livingEntity.xRotO, livingEntity.getXRot());
             if (LivingEntityRenderer.isEntityUpsideDown(livingEntity)) {
                 m *= -1.0F;
                 k *= -1.0F;
@@ -831,6 +867,9 @@ public class EMFAnimationEntityContext {
 
     public static float getTickDelta() {
         return tickDelta;
+    }
+    public static void setTickDelta(float val) {
+        tickDelta = val;
     }
 
     public static float getMoveForward() {

@@ -42,8 +42,8 @@ public final class VariableRegistry {
     private VariableRegistry() {
 
         //these constants are better hardcoded
-        singletonVariables.put("pi", new MathConstant((float) Math.PI));
-        singletonVariables.put("-pi", new MathConstant((float) -Math.PI));
+        singletonVariables.put("pi", new MathConstant(3.1415927F));
+        singletonVariables.put("-pi", new MathConstant(-3.1415927F));
         singletonVariableExplanationTranslationKeys.put("pi", emfTranslationKey("pi"));
         singletonVariables.put("e", new MathConstant((float) Math.E));
         singletonVariables.put("-e", new MathConstant((float) -Math.E));

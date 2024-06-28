@@ -24,13 +24,20 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingE
     }
 
 
+//    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+//            at = @At(value = "HEAD"))
+//    private void emf$getDelta(final T entity, final float entityYaw, final float partialTicks, final PoseStack poseStack, final MultiBufferSource buffer, final int packedLight, final CallbackInfo ci) {
+//        EMFAnimationEntityContext.setTickDelta(partialTicks);
+//    }
+
     @ModifyArg(
             method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V"),
             index = 1
     )
     private float emf$getLimbAngle(float limbAngle) {
-        EMFAnimationEntityContext.setLimbAngle(limbAngle == Float.MIN_VALUE ? 0 : limbAngle);
+        EMFAnimationEntityContext.setLimbAngle(limbAngle);
+//        EMFAnimationEntityContext.setLimbAngle(limbAngle == Float.MIN_VALUE ? 0 : limbAngle);
         return limbAngle;
     }
 
@@ -40,7 +47,8 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingE
             index = 2
     )
     private float emf$getLimbDistance(float limbDistance) {
-        EMFAnimationEntityContext.setLimbDistance(limbDistance == Float.MIN_VALUE ? 0 : limbDistance);
+        EMFAnimationEntityContext.setLimbDistance( limbDistance);
+//        EMFAnimationEntityContext.setLimbDistance(limbDistance == Float.MIN_VALUE ? 0 : limbDistance);
         return limbDistance;
     }
 
@@ -66,6 +74,16 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingE
     private float emf$getHeadPitch(float headPitch) {
         EMFAnimationEntityContext.setHeadPitch(headPitch);
         return headPitch;
+    }
+
+    @ModifyArg(
+            method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V"),
+            index = 3
+    )
+    private float emf$getAge(float age) {
+        EMFAnimationEntityContext.setAge(age);
+        return age;
     }
 
 }

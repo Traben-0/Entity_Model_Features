@@ -78,7 +78,7 @@
 #
 # Constants
 #   <number> - Floating point number
-#   pi       - 3.1415926
+#   pi       - 3.1415927
 #   true
 #   false
 @   e        - Euler's number 2.718281.....

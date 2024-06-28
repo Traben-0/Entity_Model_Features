@@ -4,6 +4,10 @@
 - fixed the `scale` model part default setting not correctly applying on mobs with new format animations like wardens & frogs
 - fixed a crash when exporting models in 1.21
 - fixed a `not building` crash in 1.21
+- changed `pi` from 3.1415926 to 3.1415927 to match vanilla pi usage and seems to match OptiFine despite the docs
+- changed various math methods such as `sin() & cos()` to no longer use java.lang.Math and instead use Minecraft internal math class
+- the above 2 changes fixed vindicators in fa 1.9.1
+- fixed some missing mobs suuport for the `is_aggressive` variable
 - changed the `height_above_ground` variable to detect blocks with standable top surfaces not just solid blocks
 - fixed a bug causing some block entity model texture overrides to appear in first person view in their iris shader shadow pass position
 - added an optimization option that will skip recalculating entity model animations during the iris shadow pass, on by default, and should always stay on, it is only an option in case of future breaking iris api changes or weird behaviour with iris ports. 
