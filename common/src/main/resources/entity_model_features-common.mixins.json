@@ -20,6 +20,7 @@
     "accessor.CuboidAccessor",
     "accessor.EntityRenderDispatcherAccessor",
     "accessor.MinecraftClientAccessor",
+    "rendering.MixinBannerRenderer",
     "rendering.MixinBlockEntityRenderDispatcher",
     "rendering.MixinBlockEntityWithoutLevelRenderer",
     "rendering.MixinCapeFeatureRenderer",
