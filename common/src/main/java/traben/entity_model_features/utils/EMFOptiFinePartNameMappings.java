@@ -1285,7 +1285,11 @@ public class EMFOptiFinePartNameMappings {
         UNKNOWN_MODEL_MAP_CACHE.put(mobName, mobMap);
         if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
             StringBuilder mapString = new StringBuilder();
-            mapString.append(" |-[optifine/cem/").append(mobName).append(".jem]\n");
+
+            String namespace = mobName.contains(":") ? mobName.split(":")[0] : "minecraft";
+            String fileName = mobName.contains(":") ? mobName.split(":")[1] : mobName;
+
+            mapString.append(" |-[assets/").append(namespace).append("/optifine/cem/").append(fileName).append(".jem]\n");
             mobMap.forEach((key, entry) -> {
                 mapString.append(" | |-[").append("root".equals(key) ? "(optional) " : "").append("part=").append(key).append("]\n");
                 mapString.append(detailsMap.get(key));
@@ -1372,7 +1376,8 @@ public class EMFOptiFinePartNameMappings {
                 }
                 jemPrinter.textureSize = textureSize;
 
-                String path = EMFVersionDifferenceManager.getConfigDirectory().toFile().getParent() + "/emf/export/" + mobName + ".jem";
+                String path = EMFVersionDifferenceManager.getConfigDirectory().toFile().getParent()
+                        + "/emf/export/" + "assets/"+namespace+"/optifine/cem/"+fileName + ".jem";
                 File outFile = new File(path);
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
 

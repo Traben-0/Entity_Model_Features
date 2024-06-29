@@ -10,6 +10,7 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
     private String fileName;
     private String mapId;
     private String secondaryFileName = null;
+    private String secondaryNamespace = null;
 
     public OptifineMobNameForFileAndEMFMapId(String both) {
         this(both, null);
@@ -59,7 +60,7 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
     public @Nullable OptifineMobNameForFileAndEMFMapId getSecondaryModel() {
         if (secondaryFileName != null) {
             var second = new OptifineMobNameForFileAndEMFMapId(secondaryFileName, getMapId());
-            second.namespace = namespace;
+            second.namespace = secondaryNamespace == null ? namespace : secondaryNamespace;
             return second;
         }
         return null;
@@ -101,11 +102,12 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
         this.namespace = namespace;
         this.fileName = fileName;
         //recreate old modded directory method for back compatibility
+        this.secondaryNamespace = "minecraft";
         this.secondaryFileName = "modded/" + namespace + "/" + fileName;
     }
 
     public String getMapId() {
-        String namespace = getNamespace().equals("minecraft") ? "" : getNamespace() + "/";
+        String namespace = getNamespace().equals("minecraft") ? "" : getNamespace() + ":";
         return namespace + (mapId == null ? fileName : mapId);
     }
 

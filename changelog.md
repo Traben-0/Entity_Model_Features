@@ -5,6 +5,8 @@
 - fixed a crash when exporting models in 1.21
 - fixed a `not building` crash in 1.21
 - fixed the `root` part not appearing in model exports
+- fixed the modded model export log using the old `modded` directory format, the export log now also gives a full path for the jem starting from the assets folder
+- model exports are now placed inside the `emf/export/assets/` folder in the `.minecraft` directory with a fully correct and namespaced path starting from the assets folder
 - fixed the vanilla banner model waving adding on top of EMF animations due to vanilla banners being rendered in multiple stages
 - changed `pi` from 3.1415926 to 3.1415927 to match vanilla pi usage and seems to match OptiFine despite the docs
 - changed various math methods such as `sin() & cos()` to no longer use java.lang.Math and instead use Minecraft internal math class
