@@ -66,12 +66,19 @@ public class EMFManager {//singleton for data holding and resetting needs
         defaultReturnValue(0);
     }};
     private final Set<String> EBE_JEMS_FOUND = new HashSet<>();
+    public final Set<String> EBE_JEMS_FOUND_LAST = new HashSet<>();
     public UUID entityForDebugPrint = null;
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
     public String currentSpecifiedModelLoading = "";
     public BlockEntityType<?> currentBlockEntityTypeLoading = null;
     private boolean traderLlamaHappened = false;
+
+    public boolean wasEBEModified() {
+        return !EBE_JEMS_FOUND_LAST.isEmpty();
+    }
+
+
 
     private EMFManager() {
         EMFAnimationEntityContext.reset();
@@ -82,6 +89,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         lastModelRuleOfEntity.defaultReturnValue(0);
         lastModelSuffixOfEntity = new EntityIntLRU();
         lastModelSuffixOfEntity.defaultReturnValue(0);
+
     }
 
     public static EMFManager getInstance() {
@@ -203,10 +211,13 @@ public class EMFManager {//singleton for data holding and resetting needs
         if (IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMF.config().getConfig().allowEBEModConfigModify) {
             try {
                 EBEConfigModifier.modifyEBEConfig(EBE_JEMS_FOUND);
+
             } catch (Exception | Error e) {
                 EMFUtils.logWarn("EBE config modification issue: " + e);
             }
         }
+        EBE_JEMS_FOUND_LAST.clear();
+        EBE_JEMS_FOUND_LAST.addAll(EBE_JEMS_FOUND);
         EBE_JEMS_FOUND.clear();
     }
 

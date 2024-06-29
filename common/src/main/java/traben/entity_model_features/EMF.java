@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.propeties.*;
@@ -12,6 +13,8 @@ import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETF;
 import traben.entity_texture_features.ETFApi;
+import traben.entity_texture_features.config.ETFConfigWarning;
+import traben.entity_texture_features.config.ETFConfigWarnings;
 import traben.entity_texture_features.features.property_reading.properties.RandomProperties;
 import traben.tconfig.TConfigHandler;
 
@@ -60,6 +63,24 @@ public class EMF {
                 RandomProperties.RandomPropertyFactory.of("global_varb",
                         "entity_model_features.global_varb_property",
                         GlobalVariableBooleanProperty::getPropertyOrNull));
+
+        ETFConfigWarnings.registerConfigWarning(new ETFConfigWarning.Simple(
+                "ebe_emf",
+                () -> EMFManager.getInstance().wasEBEModified(),
+                "entity_model_features.config.ebe_warn.1",
+                "entity_model_features.config.ebe_warn.2", null){
+            @Override
+            public String getSubTitle() {
+                var ebe = EMFManager.getInstance().EBE_JEMS_FOUND_LAST;
+                var timer = System.currentTimeMillis() % 9000D;
+                if (ebe.isEmpty() || timer < 3000) return super.getSubTitle();
+
+                if (timer < 6000) return Component.translatable("entity_model_features.config.ebe_warn.3").getString() + ebe;
+
+                return Component.translatable("entity_model_features.config.ebe_warn.4").getString();
+            }
+        });
+
 
         //register EMF physics mod hook
 //todo        RagdollMapper.addHook(new EMFCustomRagDollHookTest());

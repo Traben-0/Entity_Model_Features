@@ -1,7 +1,6 @@
 package traben.entity_model_features.mod_compat;
 
 import foundationgames.enhancedblockentities.EnhancedBlockEntities;
-import foundationgames.enhancedblockentities.config.EBEConfig;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.Set;
@@ -41,6 +40,7 @@ public abstract class EBEConfigModifier {
         ebeConfig.save();
         EnhancedBlockEntities.load();
         EMFUtils.log("EBE config modified by EMF, the following blocks have been disabled in EBE because they have custom entity models (this can be disabled in EMF's settings): " + ebeAffectingJemsFound);
+
     }
 
 }
