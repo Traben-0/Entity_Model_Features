@@ -4,6 +4,7 @@
 - fixed the `scale` model part default setting not correctly applying on mobs with new format animations like wardens & frogs
 - fixed a crash when exporting models in 1.21
 - fixed a `not building` crash in 1.21
+- fixed the `root` part not appearing in model exports
 - fixed the vanilla banner model waving adding on top of EMF animations due to vanilla banners being rendered in multiple stages
 - changed `pi` from 3.1415926 to 3.1415927 to match vanilla pi usage and seems to match OptiFine despite the docs
 - changed various math methods such as `sin() & cos()` to no longer use java.lang.Math and instead use Minecraft internal math class
