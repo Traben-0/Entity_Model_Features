@@ -6,6 +6,7 @@
 - fixed a `not building` crash in 1.21
 - changed `pi` from 3.1415926 to 3.1415927 to match vanilla pi usage and seems to match OptiFine despite the docs
 - changed various math methods such as `sin() & cos()` to no longer use java.lang.Math and instead use Minecraft internal math class
+- added support for `inner_armor.jem` & `outer_armor.jem` as fallbacks if an entity specific armor model is not found, e.g. `zombie_inner_armor.jem` & `zombie_outer_armor.jem`
 - the above 2 changes fixed vindicators in fa 1.9.1
 - fixed some missing mobs suuport for the `is_aggressive` variable
 - changed the `height_above_ground` variable to detect blocks with standable top surfaces not just solid blocks

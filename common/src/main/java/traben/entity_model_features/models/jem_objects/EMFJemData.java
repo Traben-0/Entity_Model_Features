@@ -21,6 +21,7 @@ public class EMFJemData {
     public LinkedList<EMFPartData> models = new LinkedList<>();
     private String fileName = "none";
     private String filePath = "";
+    public String packName = null;
     private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
     private ResourceLocation customTexture = null;
 
@@ -91,7 +92,10 @@ public class EMFJemData {
     }
 
 
-    public void prepare(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+
+    public void prepare(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo, String packName) {
+        this.packName = packName;
+
         if (textureSize != null && textureSize.length != 2) {
             textureSize = new int[]{64, 32};
             EMFUtils.logWarn("No textureSize provided for: " + fileName + ". Defaulting to 64x32 texture size for model.");
