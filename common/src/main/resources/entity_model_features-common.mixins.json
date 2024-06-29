@@ -27,6 +27,7 @@
     "rendering.MixinCatCollarFeatureRenderer",
     "rendering.MixinCreeperChargeFeatureRenderer",
     "rendering.MixinDragonModel",
+    "rendering.MixinDragonRenderer",
     "rendering.MixinDrownedOverlayFeatureRenderer",
     "rendering.MixinEntityRenderDispatcher",
     "rendering.MixinEyesFeatureRenderer",

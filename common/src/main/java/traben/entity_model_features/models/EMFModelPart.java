@@ -137,8 +137,8 @@ public abstract class EMFModelPart extends ModelPart {
             }
         }
     }
-
-    #if MC >= MC_21
+//todo 1.21 or 1.20.6?
+    #if MC >= MC_20_6
     private VertexConsumer testForBuildingException(VertexConsumer vertices) {
         BufferBuilder testBuilding;
         if (vertices instanceof BufferBuilder) {
@@ -175,7 +175,8 @@ public abstract class EMFModelPart extends ModelPart {
     //mimics etf model part mixins which can no longer be relied on due to sodium 0.5.5
     void renderLikeETF(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
 
-        #if MC >= MC_21
+        //todo 1.21 or 1.20.6?
+        #if MC >= MC_20_6
         vertices = testForBuildingException(vertices);
         if (vertices == null) return;
         #endif
