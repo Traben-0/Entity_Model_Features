@@ -13,6 +13,11 @@ public enum EMFAttachments {
 
     private PoseStack.Pose stackEntry = null;
 
+    public static void closeBoth(){
+        left_handheld_item.stackEntry = null;
+        right_handheld_item.stackEntry = null;
+    }
+
     public PoseStack.Pose getAndNullify() {
         PoseStack.Pose hold = stackEntry;
         stackEntry = null;

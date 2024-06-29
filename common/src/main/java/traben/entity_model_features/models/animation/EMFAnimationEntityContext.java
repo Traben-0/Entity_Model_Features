@@ -166,6 +166,7 @@ public class EMFAnimationEntityContext {
     }
 
     public static void setCurrentEntityIteration(EMFEntity entityIn) {
+        EMFAttachments.closeBoth();
         isFirstPersonHand = false;
         EMFManager.getInstance().entityRenderCount++;
         layerFactory = null;

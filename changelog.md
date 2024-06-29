@@ -5,6 +5,7 @@
 - fixed a crash when exporting models in 1.21
 - fixed a `not building` crash in 1.21
 - fixed the `root` part not appearing in model exports
+- fixed a bug where item attachments could carry over to other mob renders
 - the setting that allows EMF to disable EBE settings, when custom block entity models are loaded, now has a much more verbose and informative display in the EMF config warning screen
 - fixed the modded model export log using the old `modded` directory format, the export log now also gives a full path for the jem starting from the assets folder
 - model exports are now placed inside the `emf/export/assets/` folder in the `.minecraft` directory with a fully correct and namespaced path starting from the assets folder

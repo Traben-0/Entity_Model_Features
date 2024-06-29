@@ -57,4 +57,10 @@ public class MixinHeldItemFeatureRenderer {
         }
     }
 
+    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
+            at = @At(value = "TAIL"))
+    private void emf$unsetHand(final CallbackInfo ci) {
+        EMFAttachments.closeBoth();
+    }
+
 }
