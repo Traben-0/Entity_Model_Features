@@ -26,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
@@ -41,6 +42,11 @@ public abstract class MixinCapeFeatureRenderer  {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void setEmf$Model(RenderLayerParent<?, ?> featureRendererContext, CallbackInfo ci) {
         if (EMF.testForForgeLoadingError()) return;
+
+        if(EMFVersionDifferenceManager.isThisModLoaded("essential")){
+            EMFUtils.logWarn("The 'Essential' mod is loaded, disabling EMF's 'player_cape.jem' support due to conflict");
+            return;
+        }
 
         var layer = new ModelLayerLocation(EMFUtils.res("minecraft", "player"), "cape");
         ModelPart capeModel = EMFManager.getInstance().injectIntoModelRootGetter(layer, PlayerModel.createMesh(CubeDeformation.NONE,false).getRoot().bake(64,64));
