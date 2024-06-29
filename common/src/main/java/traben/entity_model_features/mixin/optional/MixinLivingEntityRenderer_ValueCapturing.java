@@ -76,14 +76,14 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingE
         return headPitch;
     }
 
-    @ModifyArg(
-            method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V"),
-            index = 3
-    )
-    private float emf$getAge(float age) {
-        EMFAnimationEntityContext.setAge(age);
-        return age;
-    }
+//    @ModifyArg(
+//            method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+//            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V"),
+//            index = 3
+//    )
+//    private float emf$getAge(float age) {
+//        EMFAnimationEntityContext.setAge(age);
+//        return age;
+//    }
 
 }

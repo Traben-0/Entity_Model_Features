@@ -61,7 +61,6 @@ public class EMFAnimationEntityContext {
     private static float limbDistance = Float.NaN;
     private static float headYaw = Float.NaN;
     private static float headPitch = Float.NaN;
-    private static float tickDelta = 0;
     private static boolean onShoulder = false;
     private static Function<ResourceLocation, RenderType> layerFactory = null;
     private static Boolean lodFrameSkipping = null;
@@ -171,14 +170,7 @@ public class EMFAnimationEntityContext {
         EMFManager.getInstance().entityRenderCount++;
         layerFactory = null;
 
-        if (tickDelta == 0) {
-            tickDelta =
-        #if MC >= MC_21
-                    ((MinecraftClientAccessor) Minecraft.getInstance()).getTimer().getGameTimeDeltaPartialTick(true);
-        #else
-                Minecraft.getInstance().isPaused() ? ((MinecraftClientAccessor) Minecraft.getInstance()).getPausePartialTick() : Minecraft.getInstance().getFrameTime();
-        #endif
-        }
+
         shadowSize = Float.NaN;
         shadowOpacity = Float.NaN;
         leashX = 0;
@@ -305,14 +297,14 @@ public class EMFAnimationEntityContext {
         limbDistance = Float.NaN;
         headYaw = Float.NaN;
         headPitch = Float.NaN;
-        age = Float.NaN;
+//        age = Float.NaN;
 
         onShoulder = false;
     }
 
-    public static void setAge(final float age) {
-        EMFAnimationEntityContext.age = age;
-    }
+//    public static void setAge(final float age) {
+//        EMFAnimationEntityContext.age = age;
+//    }
 
     public static void reset() {
         isFirstPersonHand = false;
@@ -322,9 +314,8 @@ public class EMFAnimationEntityContext {
         limbDistance = Float.NaN;
         headYaw = Float.NaN;
         headPitch = Float.NaN;
-        age = Float.NaN;
+//        age = Float.NaN;
         onShoulder = false;
-        tickDelta = 0;
         shadowSize = Float.NaN;
         shadowOpacity = Float.NaN;
         leashX = 0;
@@ -703,17 +694,17 @@ public class EMFAnimationEntityContext {
         return emfEntity instanceof LivingEntity alive ? alive.getAttackAnim(getTickDelta()) : 0;
     }
 
-    private static float age = Float.NaN;
+//    private static float age = Float.NaN;
 
     public static float getAge() {
-        if (!Float.isNaN(age)) return age;
+//        if (!Float.isNaN(age)) return age;
 
         if (emfEntity == null) {
-            age = 0 + getTickDelta();
+            return 0 + getTickDelta();
         }else {
-            age = constrainedFloat(emfEntity.emf$age(), 24000) + getTickDelta();
+            return constrainedFloat(emfEntity.emf$age(), 24000) + getTickDelta();
         }
-        return age;
+//        return age;
     }
 
     private static float constrainedFloat(float value, int constraint) {
@@ -867,11 +858,13 @@ public class EMFAnimationEntityContext {
     }
 
     public static float getTickDelta() {
-        return tickDelta;
+        return   #if MC >= MC_21
+        ((MinecraftClientAccessor) Minecraft.getInstance()).getTimer().getGameTimeDeltaPartialTick(true);
+        #else
+                Minecraft.getInstance().isPaused() ? ((MinecraftClientAccessor) Minecraft.getInstance()).getPausePartialTick() : Minecraft.getInstance().getFrameTime();
+        #endif
     }
-    public static void setTickDelta(float val) {
-        tickDelta = val;
-    }
+
 
     public static float getMoveForward() {
         if (emfEntity == null) return 0;
