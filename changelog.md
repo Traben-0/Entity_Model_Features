@@ -1,21 +1,21 @@
 
 
-
+[dev]
 - fixed the `scale` model part default setting not correctly applying on mobs with new format animations like wardens & frogs
 - fixed a crash when exporting models in 1.21
 - fixed a `not building` crash in 1.21
 - fixed the `root` part not appearing in model exports
 - fixed a bug where item attachments could carry over to other mob renders
-- fixed the enderdragon `spine` part not rendering when having a texture override
+- fixed the ender dragon `spine` part not rendering when having a texture override
 - the setting that allows EMF to disable EBE settings, when custom block entity models are loaded, now has a much more verbose and informative display in the EMF config warning screen
 - fixed the modded model export log using the old `modded` directory format, the export log now also gives a full path for the jem starting from the assets folder
 - model exports are now placed inside the `emf/export/assets/` folder in the `.minecraft` directory with a fully correct and namespaced path starting from the assets folder
 - fixed the vanilla banner model waving adding on top of EMF animations due to vanilla banners being rendered in multiple stages
 - changed `pi` from 3.1415926 to 3.1415927 to match vanilla pi usage and seems to match OptiFine despite the docs
 - changed various math methods such as `sin() & cos()` to no longer use java.lang.Math and instead use Minecraft internal math class
-- added support for `inner_armor.jem` & `outer_armor.jem` as fallbacks if an entity specific armor model is not found, e.g. `zombie_inner_armor.jem` & `zombie_outer_armor.jem`
 - the above 2 changes fixed vindicators in fa 1.9.1
-- fixed some missing mobs suuport for the `is_aggressive` variable
+- added support for `inner_armor.jem` & `outer_armor.jem` as fallbacks if an entity specific armor model is not found, e.g. `zombie_inner_armor.jem` & `zombie_outer_armor.jem`
+- fixed some missing mobs support for the `is_aggressive` variable
 - changed the `height_above_ground` variable to detect blocks with standable top surfaces not just solid blocks
 - fixed a bug causing some block entity model texture overrides to appear in first person view in their iris shader shadow pass position
 - added an optimization option that will skip recalculating entity model animations during the iris shadow pass, on by default, and should always stay on, it is only an option in case of future breaking iris api changes or weird behaviour with iris ports. 
