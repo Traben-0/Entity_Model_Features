@@ -359,11 +359,12 @@ public abstract class EMFModelPart extends ModelPart {
                     }
                 }
                 if (addThis) {
-                    mapOfAll.put(thisKey, part3);
+                    //put if absent so the first part with that id is the one referenced
+                    mapOfAll.putIfAbsent(thisKey, part3);
                     if (prefixableParents.isBlank()) {
                         mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(thisKey, variantNum, optifinePartNameMap));
                     } else {
-                        mapOfAll.put(prefixableParents + ':' + thisKey, part3);
+                        mapOfAll.putIfAbsent(prefixableParents + ':' + thisKey, part3);
                         mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(prefixableParents + ':' + thisKey, variantNum, optifinePartNameMap));
                     }
                 } else {

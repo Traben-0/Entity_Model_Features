@@ -1,6 +1,7 @@
 
 
 [dev]
+- fixed EMF applying values to the last part with the given id as opposed to the first *(OptiFine parity)*
 - fixed the `scale` model part default setting not correctly applying on mobs with new format animations like wardens & frogs
 - fixed a crash when exporting models in 1.21
 - fixed a `not building` crash in 1.21
