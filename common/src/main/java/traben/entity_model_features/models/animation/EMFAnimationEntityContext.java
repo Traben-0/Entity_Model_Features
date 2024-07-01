@@ -426,7 +426,7 @@ public class EMFAnimationEntityContext {
         } else {
             //limit value upper limit to preserve floating point precision
             long upTimeInTicks = emfEntity.etf$getWorld().getGameTime(); // (System.currentTimeMillis() - START_TIME)/50;
-            return constrainedFloat(upTimeInTicks, 720720) + getTickDelta();
+            return constrainedFloat(upTimeInTicks, 24000) + getTickDelta();
         }
     }
 
@@ -435,7 +435,7 @@ public class EMFAnimationEntityContext {
             return 0 + getTickDelta();
         } else {
             //limit value upper limit to preserve floating point precision
-            return constrainedFloat(emfEntity.etf$getWorld().getDayTime(), 24000) + getTickDelta();
+            return constrainedFloat(emfEntity.etf$getWorld().getDayTime(), 31415) + getTickDelta();
         }
     }
 
@@ -444,7 +444,7 @@ public class EMFAnimationEntityContext {
             return 0 + getTickDelta();
         } else {
             //limit value upper limit to preserve floating point precision
-            return (float) (emfEntity.etf$getWorld().getDayTime() / 24000L) + getTickDelta();
+            return (float) (emfEntity.etf$getWorld().getDayTime() / 24000L);
         }
     }
 

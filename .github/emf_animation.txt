@@ -86,7 +86,10 @@
 #
 # Variables
 #   <model>.<var> - Model variable, see the model variable specification
-#   time          - The total game time in ticks, not related to the daylight cycle (0-720720)
+@   time          - The total game time in ticks, not related to the daylight cycle (0-31415) *loops back to 0
+@                   This differs from OptiFines (0-720720) looping to help better preserve floating point precision
+@                   A multiple of PI is used as the wrap around to help disguise the single frame when it loops back to 0
+@                   every day and a half when used in wave functions
 #   day_time      - The current day time in ticks (0-24000)
 #   day_count     - The current day count
 #
