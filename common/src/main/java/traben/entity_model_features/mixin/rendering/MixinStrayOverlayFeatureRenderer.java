@@ -2,12 +2,7 @@ package traben.entity_model_features.mixin.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.SkeletonModel;
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.entity.layers.SkeletonClothingLayer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.RangedAttackMob;
@@ -19,7 +14,14 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.utils.EMFUtils;
 
+#if MC >= MC_20_6
+import net.minecraft.client.renderer.entity.layers.SkeletonClothingLayer;
+
 @Mixin(SkeletonClothingLayer.class)
+#else
+import net.minecraft.client.renderer.entity.layers.StrayClothingLayer;
+@Mixin(StrayClothingLayer.class)
+#endif
 public class MixinStrayOverlayFeatureRenderer<T extends Mob & RangedAttackMob> {
 
 
@@ -30,10 +32,9 @@ public class MixinStrayOverlayFeatureRenderer<T extends Mob & RangedAttackMob> {
     @Unique
     private SkeletonModel<T> emf$heldModelToForce = null;
 
-    @Inject(method = "<init>",
-            at = @At(value = "TAIL"))
-    private void emf$saveEMFModel(final RenderLayerParent<?,?> context, final EntityModelSet loader, final ModelLayerLocation layer, final ResourceLocation texture, final CallbackInfo ci) {
-        if (this.layerModel != null && ((IEMFModel) layerModel).emf$isEMFModel()) {
+    @Inject(method = "<init>", at = @At(value = "TAIL"))
+    private void emf$saveEMFModel(final CallbackInfo ci) {
+    if (this.layerModel != null && ((IEMFModel) layerModel).emf$isEMFModel()) {
             emf$heldModelToForce = layerModel;
         }
     }

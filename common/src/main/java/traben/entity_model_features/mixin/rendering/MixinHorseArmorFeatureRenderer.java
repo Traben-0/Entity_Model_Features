@@ -8,13 +8,10 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.HorseArmorLayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.horse.Horse;
-import net.minecraft.world.item.AnimalArmorItem;
-import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.utils.EMFUtils;
@@ -39,8 +36,8 @@ public class MixinHorseArmorFeatureRenderer {
     }
 
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/animal/horse/Horse;FFFFFF)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/HorseModel;setupAnim(Lnet/minecraft/world/entity/animal/horse/AbstractHorse;FFFFF)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void emf$setAngles(final PoseStack matrixStack, final MultiBufferSource vertexConsumerProvider, final int i, final Horse horseEntity, final float f, final float g, final float h, final float j, final float k, final float l, final CallbackInfo ci, final ItemStack itemStack, final AnimalArmorItem animalArmorItem) {
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/HorseModel;setupAnim(Lnet/minecraft/world/entity/animal/horse/AbstractHorse;FFFFF)V", shift = At.Shift.AFTER))
+    private void emf$setAngles(final PoseStack matrixStack, final MultiBufferSource vertexConsumerProvider, final int i, final Horse horseEntity, final float f, final float g, final float h, final float j, final float k, final float l, final CallbackInfo ci) {
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(model)) {
                 boolean replace = EMF.config().getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getKey(horseEntity.getType()).getNamespace());

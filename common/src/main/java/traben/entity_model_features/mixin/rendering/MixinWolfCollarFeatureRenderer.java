@@ -36,7 +36,14 @@ public abstract class MixinWolfCollarFeatureRenderer extends RenderLayer<Wolf, W
     private void setEmf$Model(RenderLayerParent<?, ?> featureRendererContext, CallbackInfo ci) {
         if (EMF.testForForgeLoadingError()) return;
 
-        ModelPart collarModel = EMFManager.getInstance().injectIntoModelRootGetter(emf$collar_layer, WolfModel.createMeshDefinition(CubeDeformation.NONE).getRoot().bake(64,32));
+        ModelPart collarModel = EMFManager.getInstance().injectIntoModelRootGetter(emf$collar_layer,
+                WolfModel
+                        #if MC >= MC_20_6
+                        .createMeshDefinition(CubeDeformation.NONE).getRoot().bake(64,32)
+                        #else
+                        .createBodyLayer().bakeRoot()
+                        #endif
+        );
 
         //separate the collar model, if it has a custom jem model or the base wolf has a custom jem model
         if (collarModel instanceof EMFModelPartRoot || ((IEMFModel) featureRendererContext.getModel()).emf$isEMFModel()) {

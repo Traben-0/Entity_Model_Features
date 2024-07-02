@@ -15,7 +15,7 @@ import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 import traben.entity_texture_features.ETFApi;
-import traben.entity_texture_features.ETFVersionDifferenceHandler;
+import traben.entity_texture_features.ETFVersionDifferenceManager;
 import traben.entity_texture_features.config.ETFConfig;
 import traben.tconfig.TConfig;
 import traben.tconfig.gui.TConfigScreenList;
@@ -433,7 +433,7 @@ public class EMFConfig extends TConfig {
                 context.pose().pushPose();
                 context.pose().translate(x, y, 150.0);
                 float scaling = (float) ((double) screen.height * 0.3);
-                context.pose().mulPose((new Matrix4f()).scaling(scaling, scaling, -scaling));
+                context.pose(). #if MC >= MC_20_6 mulPose #else mulPoseMatrix #endif ((new Matrix4f()).scaling(scaling, scaling, -scaling));
                 context.pose().mulPose(quaternionf);
                 Lighting.setupForEntityInInventory();
                 PoseStack matrixStack = context.pose();

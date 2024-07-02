@@ -123,8 +123,8 @@ public class MathExpressionParser {
                 }
                 lastComponent = component;
             }
-            if (newComponents.getFirst() == MathOperator.ADD) {
-                newComponents.removeFirst();
+            if (newComponents.get(0) == MathOperator.ADD) {
+                newComponents.remove(0);
             }
             if (newComponents.size() != components.size()) components = newComponents;
 
@@ -341,7 +341,7 @@ public class MathExpressionParser {
                     if (containedActions.contains(action)) {
                         MathComponent last = newComponents.getLast();
                         MathComponent next = compIterator.next();
-                        newComponents.removeLast();
+                        newComponents.remove(newComponents.size() - 1);
                         newComponents.add(MathBinaryExpressionComponent.getOptimizedExpression(last, action, next));
                     } else {
                         newComponents.add(component);

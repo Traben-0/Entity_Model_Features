@@ -68,7 +68,10 @@ public abstract class MixinCapeFeatureRenderer  {
             var consumer = vertexConsumerProvider.getBuffer(layer);
 
 
-            if (abstractClientPlayerEntity.getItemBySlot(EquipmentSlot.CHEST).is(ItemTags.CHEST_ARMOR)){
+            if (
+                    #if MC >= MC_20_6 abstractClientPlayerEntity.getItemBySlot(EquipmentSlot.CHEST).is(ItemTags.CHEST_ARMOR)
+                    #else !abstractClientPlayerEntity.getItemBySlot(EquipmentSlot.CHEST).isEmpty() #endif
+            ){
                 matrixStack.translate(0.0f, -0.0625f, 0.1875f);
             }else{
                 matrixStack.translate(0.0f, 0.0f, 0.125f);

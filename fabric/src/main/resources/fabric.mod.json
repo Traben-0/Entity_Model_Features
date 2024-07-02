@@ -38,7 +38,7 @@
   "depends": {
     "fabricloader": ">=0.14",
     "minecraft": "${compatible_mc_fabric}",
-    "entity_texture_features": ">=6.0"
+    "entity_texture_features": ">=6.1.3"
   },
   "breaks": {
     "optifabric": "*",
