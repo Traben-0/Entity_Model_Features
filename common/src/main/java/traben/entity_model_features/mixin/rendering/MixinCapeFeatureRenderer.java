@@ -2,7 +2,6 @@ package traben.entity_model_features.mixin.rendering;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -14,9 +13,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,6 +26,14 @@ import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
+
+#if MC >= MC_20_2
+import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+#endif
+
 
 @Mixin(CapeLayer.class)
 public abstract class MixinCapeFeatureRenderer  {
@@ -60,10 +64,15 @@ public abstract class MixinCapeFeatureRenderer  {
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V",
             at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V",shift = At.Shift.BEFORE),
             cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
+    #if MC >= MC_20_2
     private void emf$RenderCustomModelOnly(final PoseStack matrixStack, final MultiBufferSource vertexConsumerProvider, final int i, final AbstractClientPlayer abstractClientPlayerEntity, final float f, final float g, final float h, final float j, final float k, final float l, final CallbackInfo ci,
                                            final PlayerSkin skinTextures, final ItemStack itemStack) {
+    #else
+    private void emf$RenderCustomModelOnly(final PoseStack matrixStack, final MultiBufferSource vertexConsumerProvider, final int i, final AbstractClientPlayer abstractClientPlayerEntity, final float f, final float g, final float h, final float j, final float k, final float l, final CallbackInfo ci,
+                                           final ItemStack itemStack) {
+    #endif
         if (emf$capeModelPart != null) {
-            var cape = skinTextures.capeTexture();
+            var cape = #if MC >= MC_20_2 skinTextures.capeTexture(); #else abstractClientPlayerEntity.getCloakTextureLocation(); #endif
             var layer = RenderType.entityTranslucent(cape);
             var consumer = vertexConsumerProvider.getBuffer(layer);
 

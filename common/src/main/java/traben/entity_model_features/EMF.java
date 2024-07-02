@@ -151,7 +151,8 @@ public class EMF {
                 "now moving all models 0.00001 blocks to the left every 4 seconds.",
                 "PI = " + ((float) Math.PI) + " and you can't convince me otherwise.",
                 "90 =" + ((float) Math.toRadians(90)) + "!",
-                "making those animations fresh since 1862!"
+                "making those animations fresh since 1862!",
+                "Trabee got the flu!"
         };
         int rand = new Random().nextInt(quips.length);
         return quips[rand];

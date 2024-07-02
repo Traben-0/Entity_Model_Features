@@ -5,6 +5,9 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+#if MC < MC_20_2
+import net.minecraft.core.registries.BuiltInRegistries;
+#endif
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -49,8 +52,13 @@ public class MixinBlockEntityRendererFactories {
             EMFManager.getInstance().currentSpecifiedModelLoading = "enchanting_book";
         else if (BlockEntityType.LECTERN.equals(type))
             EMFManager.getInstance().currentSpecifiedModelLoading = "lectern_book";
+        #if MC >= MC_20_2
         else if (type.builtInRegistryHolder() != null && type.builtInRegistryHolder().unwrapKey().isPresent()) {
             ResourceLocation id = type.builtInRegistryHolder().unwrapKey().get().location();
+        #else
+        else if (BuiltInRegistries.BLOCK_ENTITY_TYPE.getResourceKey(type).isPresent()) {
+            ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getResourceKey(type).get().location();
+        #endif
             if (id.getNamespace().equals("minecraft")) {
                 EMFManager.getInstance().currentSpecifiedModelLoading = id.getPath();
             } else {
