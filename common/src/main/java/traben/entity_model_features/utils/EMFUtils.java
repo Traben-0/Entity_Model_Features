@@ -23,10 +23,14 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.PlainTextContents;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
-
+#if MC >= MC_20_6
+import net.minecraft.network.chat.contents.PlainTextContents;
+#else
+import net.minecraft.network.chat.contents.LiteralContents;
+#endif
 
 public class EMFUtils {
 
@@ -95,7 +99,13 @@ public class EMFUtils {
     public static void chat(String message) {
         LocalPlayer plyr = Minecraft.getInstance().player;
         if (plyr != null) {
-            plyr.displayClientMessage(MutableComponent.create(new PlainTextContents.LiteralContents(message)), false);
+            plyr.displayClientMessage(MutableComponent.create(
+                    #if MC >= MC_20_6
+                    new PlainTextContents.LiteralContents(message)
+                    #else
+                    new LiteralContents(message)
+                    #endif
+            ), false);
         }
     }
 
