@@ -84,7 +84,7 @@ public final class EMFAnimationEntityContext {
     public static @Nullable ModelPart[] getEntityPartsAnimPaused(){
         if (IEMFEntity == null) return null;
         var parts = entitiesPausedParts.get(IEMFEntity.etf$getUuid());
-        return parts.length == 0 ? null : parts;
+        return parts == null || parts.length == 0 ? null : parts;
     }
 
     private EMFAnimationEntityContext() {
