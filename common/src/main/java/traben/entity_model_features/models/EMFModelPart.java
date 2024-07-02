@@ -290,6 +290,7 @@ public abstract class EMFModelPart extends ModelPart {
         return toString();
     }
 
+
     @Override
     public String toString() {
         return "generic emf part";

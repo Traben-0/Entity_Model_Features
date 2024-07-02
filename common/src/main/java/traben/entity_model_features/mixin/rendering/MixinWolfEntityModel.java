@@ -8,10 +8,10 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.utils.EMFWolfCollarHolder;
+import traben.entity_model_features.utils.IEMFWolfCollarHolder;
 
 @Mixin(WolfModel.class)
-public class MixinWolfEntityModel<T extends Wolf> implements EMFWolfCollarHolder<T> {
+public class MixinWolfEntityModel<T extends Wolf> implements IEMFWolfCollarHolder<T> {
 
 
     @Unique

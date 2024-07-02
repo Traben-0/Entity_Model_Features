@@ -83,4 +83,5 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     public String toStringShort() {
         return "[vanilla part " + name + "]";
     }
+
 }

@@ -8,7 +8,6 @@ import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.WolfCollarLayer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Wolf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -20,7 +19,7 @@ import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
-import traben.entity_model_features.utils.EMFWolfCollarHolder;
+import traben.entity_model_features.utils.IEMFWolfCollarHolder;
 
 @Mixin(WolfCollarLayer.class)
 public abstract class MixinWolfCollarFeatureRenderer extends RenderLayer<Wolf, WolfModel<Wolf>> {
@@ -42,7 +41,7 @@ public abstract class MixinWolfCollarFeatureRenderer extends RenderLayer<Wolf, W
         //separate the collar model, if it has a custom jem model or the base wolf has a custom jem model
         if (collarModel instanceof EMFModelPartRoot || ((IEMFModel) featureRendererContext.getModel()).emf$isEMFModel()) {
             try {
-                if (featureRendererContext.getModel() instanceof EMFWolfCollarHolder<?> holder) {
+                if (featureRendererContext.getModel() instanceof IEMFWolfCollarHolder<?> holder) {
                     holder.emf$setCollarModel(new WolfModel<>(collarModel));
                 }
             } catch (Exception ignored) {
@@ -68,7 +67,7 @@ public abstract class MixinWolfCollarFeatureRenderer extends RenderLayer<Wolf, W
     @Override
     public WolfModel<Wolf> getParentModel() {
         var base = super.getParentModel();
-        if (base instanceof EMFWolfCollarHolder<?> holder && holder.emf$hasCollarModel()) {
+        if (base instanceof IEMFWolfCollarHolder<?> holder && holder.emf$hasCollarModel()) {
             //noinspection unchecked
             var model = (WolfModel<Wolf>) holder.emf$getCollarModel();
             model.attackTime = base.attackTime;

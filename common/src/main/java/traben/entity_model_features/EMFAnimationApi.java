@@ -1,5 +1,8 @@
 package traben.entity_model_features;
 
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
@@ -24,6 +27,8 @@ import net.minecraft.util.valueproviders.SampledFloat;
 @SuppressWarnings("unused")
 public interface EMFAnimationApi {
 
+
+
     /**
      * Gets the current version of the EMF API.
      * Future versions of the api will endeavor to maintain backwards compatibility,
@@ -33,7 +38,7 @@ public interface EMFAnimationApi {
      */
     @SuppressWarnings("SameReturnValue")
     static int getApiVersion() {
-        return 3;
+        return 4;
     }
 
     /**
@@ -191,6 +196,85 @@ public interface EMFAnimationApi {
         } else {
             EMFUtils.logError("Invalid registration of custom function:" + methodName + " from mod " + sourceModId);
         }
+    }
+
+
+    /**
+     * @param entity Entity to cast to EMFEntity
+     * @return the EMFEntity of the entity
+     */
+    static EMFEntity emfEntityOf (Entity entity){
+        return (EMFEntity) entity;
+    }
+    /**
+     * @param blockEntity BlockEntity to cast to EMFEntity
+     * @return the EMFEntity of the BlockEntity
+     */
+    static EMFEntity emfEntityOf (BlockEntity blockEntity){
+        return (EMFEntity) blockEntity;
+    }
+
+    /**
+     * @param entityOrBlockEntity The entity or block entity to pause animations for.
+     * @return true if valid inputs were supplied and the entity's animations were set to pause.
+     */
+    static boolean pauseAllCustomAnimationsForEntity(EMFEntity entityOrBlockEntity) {
+        if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
+            return false;
+        }
+        EMFAnimationEntityContext.entitiesPaused.add(entityOrBlockEntity.etf$getUuid());
+        return true;
+    }
+
+    /**
+     * @param entityOrBlockEntity The entity or block entity to resume animations for.
+     * @return true if valid inputs were supplied and the entity's animations were set to resume.
+     */
+    static boolean resumeAllCustomAnimationsForEntity(EMFEntity entityOrBlockEntity) {
+        if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
+            return false;
+        }
+        EMFAnimationEntityContext.entitiesPaused.remove(entityOrBlockEntity.etf$getUuid());
+        EMFAnimationEntityContext.entitiesPausedParts.remove(entityOrBlockEntity.etf$getUuid());
+        return true;
+    }
+
+    /**
+     * @param entityOrBlockEntity The entity or block entity to pause animations for.
+     * @param parts               The parts of the entity to pause animations for.
+     * @return true if valid inputs were supplied and the entity's animations were set to pause.
+     */
+    static boolean pauseCustomAnimationsForThesePartsOfEntity(EMFEntity entityOrBlockEntity, ModelPart... parts) {
+        if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null
+                || parts == null || parts.length == 0) {
+            return false;
+        }
+        EMFAnimationEntityContext.entitiesPausedParts.put(entityOrBlockEntity.etf$getUuid(), parts);
+        return true;
+    }
+
+    /**
+     * @param entityOrBlockEntity The entity or block entity to be forced into their vanilla model.
+     * @return true if valid inputs were supplied and the entity was marked to use the vanilla model.
+     */
+    static boolean lockEntityToVanillaModel(EMFEntity entityOrBlockEntity){
+        if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
+            return false;
+        }
+        EMFAnimationEntityContext.entitiesToForceVanillaModel.add(entityOrBlockEntity.etf$getUuid());
+        return true;
+    }
+
+    /**
+     * @param entityOrBlockEntity The entity or block entity to be re-allowed to variate.
+     * @return true if valid inputs were supplied and the entity was marked to use their variants again.
+     */
+    static boolean unlockEntityToVanillaModel(EMFEntity entityOrBlockEntity){
+        if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
+            return false;
+        }
+        EMFAnimationEntityContext.entitiesToForceVanillaModel.remove(entityOrBlockEntity.etf$getUuid());
+        return true;
     }
 
     @Deprecated(since = "api v2")

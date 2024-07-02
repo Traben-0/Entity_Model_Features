@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.config.EMFConfig.ModelPrintMode;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
@@ -1329,7 +1328,7 @@ public class EMFOptiFinePartNameMappings {
 //                                    -(float) Math.toDegrees(vanillaModelPart.roll)};
                         partPrinter.scale = vanillaModelPart.xScale;
                         //get part size incase empty, though cuboids often have better ideas about this
-                        partPrinter.textureSize = ((EMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
+                        partPrinter.textureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
                         textureSize = partPrinter.textureSize;
                         //List<ModelPart.Cuboid> cuboids = vanillaModelPart.cuboids;
                         for (ModelPart.Cube cube :
@@ -1343,9 +1342,9 @@ public class EMFOptiFinePartNameMappings {
                                     cube.maxY - cube.minY,
                                     cube.maxZ - cube.minZ};
                             //can be different from part
-                            partPrinter.textureSize = ((EMFCuboidDataSupplier) cube).emf$getTextureXY();
-                            boxPrinter.textureOffset = ((EMFCuboidDataSupplier) cube).emf$getTextureUV();
-                            var adds = ((EMFCuboidDataSupplier) cube).emf$getSizeAdd();
+                            partPrinter.textureSize = ((IEMFCuboidDataSupplier) cube).emf$getTextureXY();
+                            boxPrinter.textureOffset = ((IEMFCuboidDataSupplier) cube).emf$getTextureUV();
+                            var adds = ((IEMFCuboidDataSupplier) cube).emf$getSizeAdd();
                             if (adds != null) {
                                 if (adds[0] == adds[1] && adds[0] == adds[2]) {
                                     boxPrinter.sizeAdd = adds[0];

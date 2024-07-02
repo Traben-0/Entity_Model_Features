@@ -25,6 +25,7 @@ import traben.entity_texture_features.features.property_reading.PropertiesRandom
 import traben.entity_texture_features.utils.EntityIntLRU;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static traben.entity_model_features.utils.EMFManager.getJemDataWithDirectory;
 
@@ -83,38 +84,15 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             }
 
             //register variant runnable
+            String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
+            Set<EMFModelPartRoot> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation
+                    .computeIfAbsent(type, k -> new HashSet<>());
+
+            variators.add(this);
+
             if (this.variantTester != null) {
-                String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
                 if (EMF.config().getConfig().logModelCreationData)
                     EMFUtils.log("Registered new variating model for: " + type);
-
-                Runnable run;
-                if (EMFAnimationEntityContext.getEMFEntity() instanceof Player && EMF.config().getConfig().onlyClientPlayerModel){
-                    run = ()-> {
-                        if (EMFAnimationEntityContext.getEMFEntity() instanceof Player player && !player.isLocalPlayer()) {
-                            setVariantStateTo(0);
-                        } else {
-                            doVariantCheck();
-                        }
-                    };
-                }else{
-                    run = this::doVariantCheck;
-                }
-                Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation
-                        .computeIfAbsent(type, k -> new HashSet<>());
-                variators.add(run);
-            }else if(EMFAnimationEntityContext.getEMFEntity() instanceof Player && EMF.config().getConfig().onlyClientPlayerModel){
-                //no variant tester, but player model setting must apply vanilla variant
-                String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
-                Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation
-                        .computeIfAbsent(type, k -> new HashSet<>());
-                variators.add(()-> {
-                    if (EMFAnimationEntityContext.getEMFEntity() instanceof Player player && !player.isLocalPlayer()) {
-                        setVariantStateTo(0);
-                    } else {
-                        setVariantStateTo(1);
-                    }
-                });
             }
         }
         //now set the runnable to null so it only runs once
@@ -122,6 +100,11 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     public void doVariantCheck() {
+        if(this.variantTester == null) {
+            this.setVariantStateTo(1);
+            return;
+        }
+
         int finalSuffix;
         UUID id = EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
         int knownSuffix = entitySuffixMap.getInt(id);
@@ -331,9 +314,15 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
                     if (EMFAnimationEntityContext.isFirstPersonHand && EMF.config().getConfig().preventFirstPersonHandAnimating) return;
 
+                    var pausedParts = EMFAnimationEntityContext.getEntityPartsAnimPaused();
+
                     for (EMFAnimation emfAnimation : finalList) {
                         try {
-                            emfAnimation.calculateAndSet();
+                            if (pausedParts != null){
+                                emfAnimation.calculateAndSetIfNotPaused(pausedParts);
+                            }else{
+                                emfAnimation.calculateAndSet();
+                            }
                         } catch (Exception e) {
                             EMFUtils.logError("Error in animation expression [" + emfAnimation.animKey + "] for model [" + modelName.getfileName() + "] with expression [" + emfAnimation.expressionString + "].");
                             EMFUtils.logError("Error was: " + e.getMessage());
@@ -379,4 +368,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public String toStringShort() {
         return "[EMF root part of " + modelName.getfileName() + "]";
     }
+
+
 }

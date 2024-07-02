@@ -1,6 +1,12 @@
 
 
 [dev]
+- added new EMFAnimationAPI methods to allow other mods to:
+  - pause/resume entire custom model animations for an entity
+  - pause/resume individual custom model parts from animations for an entity
+  - lock/unlock an entity to only use their vanilla models
+  - utility methods to cast Entity and BlockEntity into the EMFEntity interface
+  these will allow other mods to inhibit EMF animations and models for specific entities when required e.g. for emotes
 - fixed EMF applying values to the last part with the given id as opposed to the first *(OptiFine parity)*
 - fixed the `scale` model part default setting not correctly applying on mobs with new format animations like wardens & frogs
 - fixed a crash when exporting models in 1.21

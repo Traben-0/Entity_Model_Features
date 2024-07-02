@@ -419,6 +419,8 @@ public class EMFModelPartCustom extends EMFModelPart {
         return "[custom part " + id.replaceFirst("EMF_", "") + "]";
     }
 
+
+
     // private static final Quad blankQuad = new Quad(new Vertex[]{0, 0, 0, 0}, 0, 0, 0, 0, 0, 0,false, Direction.NORTH);
 
     @Override

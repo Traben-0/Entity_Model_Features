@@ -3,6 +3,7 @@ package traben.entity_model_features.models;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
             startOfRenderRunnable.run();
         }
 
-        if (tryAnimate != null) {
+        if (tryAnimate != null && !EMFAnimationEntityContext.isEntityAnimPaused()) {
             tryAnimate.run();
         }
         renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);

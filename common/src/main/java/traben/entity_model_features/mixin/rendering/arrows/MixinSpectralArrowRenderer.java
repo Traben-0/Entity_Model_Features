@@ -5,7 +5,6 @@ import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.SpectralArrowRenderer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.Arrow;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -13,11 +12,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.EMFModelPartRoot;
-import traben.entity_model_features.utils.EMFCustomModelHolder;
+import traben.entity_model_features.utils.IEMFCustomModelHolder;
 import traben.entity_model_features.utils.EMFUtils;
 
 @Mixin(SpectralArrowRenderer.class)
-public abstract class MixinSpectralArrowRenderer extends ArrowRenderer<Arrow> implements EMFCustomModelHolder {
+public abstract class MixinSpectralArrowRenderer extends ArrowRenderer<Arrow> implements IEMFCustomModelHolder {
 
 
     @Unique

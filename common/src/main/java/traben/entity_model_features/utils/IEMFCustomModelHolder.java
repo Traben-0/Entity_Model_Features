@@ -2,7 +2,7 @@ package traben.entity_model_features.utils;
 
 import traben.entity_model_features.models.EMFModelPartRoot;
 
-public interface EMFCustomModelHolder {
+public interface IEMFCustomModelHolder {
 
     default boolean emf$hasModel() {
         return emf$getModel() != null;

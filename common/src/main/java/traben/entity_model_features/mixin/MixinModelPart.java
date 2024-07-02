@@ -12,13 +12,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.IEMFModelNameContainer;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFManager;
-import traben.entity_model_features.utils.EMFTextureSizeSupplier;
+import traben.entity_model_features.utils.IEMFTextureSizeSupplier;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 
 import java.util.Map;
 
 @Mixin(ModelPart.class)
-public class MixinModelPart implements IEMFModelNameContainer, EMFTextureSizeSupplier {
+public class MixinModelPart implements IEMFModelNameContainer, IEMFTextureSizeSupplier {
     @Shadow
     public Map<String, ModelPart> children;
     @Unique
