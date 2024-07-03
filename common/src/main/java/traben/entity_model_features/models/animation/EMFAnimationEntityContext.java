@@ -56,7 +56,7 @@ public final class EMFAnimationEntityContext {
     public static double lastFOV = 70;
     public static boolean is_in_ground_override = false;
     public static ObjectSet<UUID> entitiesToForceVanillaModel = new ObjectOpenHashSet<>();
-    private static EMFEntity IEMFEntity = null;
+    private static @Nullable EMFEntity IEMFEntity = null;
     private static float shadowSize = Float.NaN;
     private static float shadowOpacity = Float.NaN;
     private static float leashX = Float.NaN;
@@ -166,7 +166,11 @@ public final class EMFAnimationEntityContext {
         //skip for shadow pass
         if(ETF.IRIS_DETECTED
                 && IrisShadowPassDetection.getInstance().inShadowPass()
-                && EMF.config().getConfig().animationFrameSkipDuringIrisShadowPass) {
+                && EMF.config().getConfig().animationFrameSkipDuringIrisShadowPass
+                //not client player in first person
+                && !(EMFAnimationEntityContext.getEMFEntity() instanceof Player player
+                    && player.isLocalPlayer()
+                    && Minecraft.getInstance().options.getCameraType().isFirstPerson())) {
             return true;
         }
 
@@ -381,7 +385,7 @@ public final class EMFAnimationEntityContext {
                 && EMFAnimationEntityContext.getEMFEntity() instanceof Player player && !player.isLocalPlayer();
     }
 
-    public static EMFEntity getEMFEntity() {
+    public static @Nullable EMFEntity getEMFEntity() {
         return IEMFEntity;
     }
 

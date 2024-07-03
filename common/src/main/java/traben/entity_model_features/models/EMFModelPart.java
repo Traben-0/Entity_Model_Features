@@ -67,9 +67,8 @@ public abstract class EMFModelPart extends ModelPart {
             // fixed weird bug with certain texture overrides rendering in first person as though from the sun's POV
             // downside is incorrect shadows for some model parts :/
             //todo triple check it is only block entities, I so far cannot recreate the bug for regular mobs
-            if (EMFAnimationEntityContext.getEMFEntity().etf$isBlockEntity()
-                    && ETF.IRIS_DETECTED
-                    && IrisShadowPassDetection.getInstance().inShadowPass()) {
+            if ((EMFAnimationEntityContext.getEMFEntity() == null && EMFAnimationEntityContext.getEMFEntity().etf$isBlockEntity())
+                    && ETF.IRIS_DETECTED && IrisShadowPassDetection.getInstance().inShadowPass()) {
                 //skip texture override
                 renderLikeETF(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
                 return;
