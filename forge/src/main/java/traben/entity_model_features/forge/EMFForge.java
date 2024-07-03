@@ -1,6 +1,7 @@
 package traben.entity_model_features.forge;
 
 
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.fml.IExtensionPoint;
@@ -9,6 +10,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFUtils;
+
+import java.util.function.Function;
 
 @Mod(EMF.MOD_ID)
 public class EMFForge {
@@ -25,7 +28,7 @@ public class EMFForge {
             try {
                 ModLoadingContext.get().registerExtensionPoint(
                         ConfigScreenHandler.ConfigScreenFactory.class,
-                        () -> new ConfigScreenHandler.ConfigScreenFactory(EMF::getConfigScreen));
+                        () -> new ConfigScreenHandler.ConfigScreenFactory(#if MC >= MC_20_6 (Function<Screen, Screen>) #endif EMF::getConfigScreen));
             } catch (NoClassDefFoundError e) {
                 EMFUtils.logError("[Entity Model Features]: Mod config screen broken, download latest forge version");
             }

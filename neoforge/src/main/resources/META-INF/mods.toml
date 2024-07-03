@@ -18,7 +18,7 @@ logoFile = "icon.png"
 [[dependencies.entity_model_features]]
 modId = "neoforge"
 mandatory = true
-versionRange = "[20.4,)"
+versionRange = "[1,)"
 ordering = "NONE"
 side = "CLIENT"
 

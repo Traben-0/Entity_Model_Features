@@ -11,7 +11,13 @@ import traben.entity_model_features.utils.EMFManager;
 @Mixin(Minecraft.class)
 public abstract class MixinResourceReloadStart {
 
-    @Inject(method = "reloadResourcePacks(ZLnet/minecraft/client/Minecraft$GameLoadCookie;)Ljava/util/concurrent/CompletableFuture;", at = @At("HEAD"))
+    @Inject(
+            #if MC > MC_20_1
+            method = "reloadResourcePacks(ZLnet/minecraft/client/Minecraft$GameLoadCookie;)Ljava/util/concurrent/CompletableFuture;",
+            #else
+            method = "reloadResourcePacks(Z)Ljava/util/concurrent/CompletableFuture;",
+            #endif
+            at = @At("HEAD"))
     private void emf$reloadStart(CallbackInfoReturnable<Float> cir) {
         if (EMF.testForForgeLoadingError()) return;
         EMFManager.resetInstance();

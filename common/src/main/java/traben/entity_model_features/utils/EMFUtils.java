@@ -26,7 +26,7 @@ import net.minecraft.network.chat.MutableComponent;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
-#if MC >= MC_20_6
+#if MC >= MC_20_4
 import net.minecraft.network.chat.contents.PlainTextContents;
 #else
 import net.minecraft.network.chat.contents.LiteralContents;
@@ -38,7 +38,7 @@ public class EMFUtils {
         #if MC >= MC_21
         return ResourceLocation.parse(fullPath);
         #else
-        return EMFUtils.res(fullPath);
+        return new ResourceLocation(fullPath);
         #endif
     }
 
@@ -46,7 +46,7 @@ public class EMFUtils {
         #if MC >= MC_21
         return ResourceLocation.fromNamespaceAndPath(namespace, path);
         #else
-        return EMFUtils.res(namespace, path);
+        return new ResourceLocation(namespace, path);
         #endif
     }
     private static final String MOD_ID_SHORT = "EMF";
@@ -100,7 +100,7 @@ public class EMFUtils {
         LocalPlayer plyr = Minecraft.getInstance().player;
         if (plyr != null) {
             plyr.displayClientMessage(MutableComponent.create(
-                    #if MC >= MC_20_6
+                    #if MC >= MC_20_4
                     new PlainTextContents.LiteralContents(message)
                     #else
                     new LiteralContents(message)
