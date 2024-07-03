@@ -1,7 +1,7 @@
 
 [2.1.2]
 - fixed the player shadows not animating in first person with iris with custom player models
-- fixed a crash when holding tridents, chests, and other rendered entities.
+- fixed a crash when holding tridents, chests, and other custom entity models with texture overrides.
 
 [2.1.1]
 - now requires ETF 6.1.3 or newer
