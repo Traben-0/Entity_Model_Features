@@ -1,6 +1,7 @@
 
 
-[dev]
+[2.1.1]
+- now requires ETF 6.1.3 or newer
 - added new EMFAnimationAPI methods to allow other mods to:
   - pause/resume entire custom model animations for an entity
   - pause/resume individual custom model parts from animations for an entity
