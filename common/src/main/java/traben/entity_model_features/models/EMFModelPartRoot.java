@@ -6,12 +6,10 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
@@ -27,8 +25,12 @@ import traben.entity_texture_features.features.property_reading.PropertiesRandom
 import traben.entity_texture_features.utils.EntityIntLRU;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static traben.entity_model_features.utils.EMFManager.getJemDataWithDirectory;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 
 @Environment(value = EnvType.CLIENT)
@@ -82,38 +84,15 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             }
 
             //register variant runnable
+            String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
+            Set<EMFModelPartRoot> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation
+                    .computeIfAbsent(type, k -> new HashSet<>());
+
+            variators.add(this);
+
             if (this.variantTester != null) {
-                String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
                 if (EMF.config().getConfig().logModelCreationData)
                     EMFUtils.log("Registered new variating model for: " + type);
-
-                Runnable run;
-                if (EMFAnimationEntityContext.getEMFEntity() instanceof PlayerEntity && EMF.config().getConfig().onlyClientPlayerModel){
-                    run = ()-> {
-                        if (EMFAnimationEntityContext.getEMFEntity() instanceof PlayerEntity player && !player.isMainPlayer()) {
-                            setVariantStateTo(0);
-                        } else {
-                            doVariantCheck();
-                        }
-                    };
-                }else{
-                    run = this::doVariantCheck;
-                }
-                Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation
-                        .computeIfAbsent(type, k -> new HashSet<>());
-                variators.add(run);
-            }else if(EMFAnimationEntityContext.getEMFEntity() instanceof PlayerEntity && EMF.config().getConfig().onlyClientPlayerModel){
-                //no variant tester, but player model setting must apply vanilla variant
-                String type = EMFAnimationEntityContext.getEMFEntity().emf$getTypeString();
-                Set<Runnable> variators = EMFManager.getInstance().rootPartsPerEntityTypeForVariation
-                        .computeIfAbsent(type, k -> new HashSet<>());
-                variators.add(()-> {
-                    if (EMFAnimationEntityContext.getEMFEntity() instanceof PlayerEntity player && !player.isMainPlayer()) {
-                        setVariantStateTo(0);
-                    } else {
-                        setVariantStateTo(1);
-                    }
-                });
             }
         }
         //now set the runnable to null so it only runs once
@@ -121,6 +100,11 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     public void doVariantCheck() {
+        if(this.variantTester == null) {
+            this.setVariantStateTo(1);
+            return;
+        }
+
         int finalSuffix;
         UUID id = EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
         int knownSuffix = entitySuffixMap.getInt(id);
@@ -182,7 +166,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             EMFModelPartVanilla thisPart = vanillaEntry.getValue();
             EMFModelState vanillaState = EMFModelState.copy(thisPart.allKnownStateVariants.get(0));
             thisPart.setFromState(vanillaState);
-            if (thisPart instanceof EMFModelPartRoot root && !root.cuboids.isEmpty()) {
+            if (thisPart instanceof EMFModelPartRoot root && !root.cubes.isEmpty()) {
                 root.textureOverride = jemData.getCustomTexture();
             }
             Map<String, ModelPart> children = new HashMap<>();
@@ -193,7 +177,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     if (EMF.config().getConfig().logModelCreationData)
                         EMFUtils.log(" > > > EMF custom part attached: " + newPartEntry.getKey());
                     if (!newPart.attach) {
-                        thisPart.cuboids = List.of();
+                        thisPart.cubes = List.of();
                         thisPart.children.values().forEach((part) -> {
                             if (part instanceof EMFModelPartVanilla vanilla && !vanilla.isOptiFinePartSpecified)
                                 vanilla.setHideInTheseStates(variant);
@@ -215,9 +199,9 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public void discoverAndInitVariants() {
         //get random properties and init variants
         String thisDirectoryFileName = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getNamespace(), modelName.getfileName());
-        Identifier propertyID = new Identifier(thisDirectoryFileName + ".properties");
-        if (MinecraftClient.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
-            variantTester = ETFApi.getVariantSupplierOrNull(propertyID, new Identifier(thisDirectoryFileName + ".jem"), "models");
+        ResourceLocation propertyID = EMFUtils.res(thisDirectoryFileName + ".properties");
+        if (Minecraft.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
+            variantTester = ETFApi.getVariantSupplierOrNull(propertyID, EMFUtils.res(thisDirectoryFileName + ".jem"), "models");
 
             if (variantTester instanceof PropertiesRandomProvider propertiesRandomProvider) {
                 propertiesRandomProvider.setOnMeetsRuleHook((entity, rule) -> {
@@ -279,26 +263,26 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
 
-    public void tryRenderVanillaRootNormally(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
+    public void tryRenderVanillaRootNormally(PoseStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
         if (vanillaRoot != null) {
-            matrixStack.push();
+            matrixStack.pushPose();
             if (EMF.config().getConfig().vanillaModelHologramRenderMode_2 == EMFConfig.VanillaModelRenderMode.OFFSET) {
                 matrixStack.translate(1, 0, 0);
             }
-            vanillaRoot.render(matrixStack, vertexConsumer, light, overlay, 1, 0.5f, 0.5f, 0.5f);
-            matrixStack.pop();
+            vanillaRoot.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
+            matrixStack.popPose();
         }
     }
 
-    public void tryRenderVanillaFormatRoot(MatrixStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
+    public void tryRenderVanillaFormatRoot(PoseStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
         if (EMF.config().getConfig().attemptPhysicsModPatch_2 == EMFConfig.PhysicsModCompatChoice.VANILLA) {
             if (vanillaRoot != null) {
-                vanillaRoot.render(matrixStack, vertexConsumer, light, overlay, 1, 1, 1, 1);
+                vanillaRoot.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
             }
         } else {
             ModelPart vanillaFormat = getVanillaFormatRoot();
             if (vanillaFormat != null) {
-                vanillaFormat.render(matrixStack, vertexConsumer, light, overlay, 1, 1, 1, 1);
+                vanillaFormat.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
             }
         }
     }
@@ -330,9 +314,15 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
                     if (EMFAnimationEntityContext.isFirstPersonHand && EMF.config().getConfig().preventFirstPersonHandAnimating) return;
 
+                    var pausedParts = EMFAnimationEntityContext.getEntityPartsAnimPaused();
+
                     for (EMFAnimation emfAnimation : finalList) {
                         try {
-                            emfAnimation.calculateAndSet();
+                            if (pausedParts != null){
+                                emfAnimation.calculateAndSetIfNotPaused(pausedParts);
+                            }else{
+                                emfAnimation.calculateAndSet();
+                            }
                         } catch (Exception e) {
                             EMFUtils.logError("Error in animation expression [" + emfAnimation.animKey + "] for model [" + modelName.getfileName() + "] with expression [" + emfAnimation.expressionString + "].");
                             EMFUtils.logError("Error was: " + e.getMessage());
@@ -355,7 +345,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
      *
      * @return the top level jem texture
      */
-    public Identifier getTopLevelJemTexture() {
+    public ResourceLocation getTopLevelJemTexture() {
         if (hasRemovedTopLevelJemTextureFromChildren)
             return textureOverride;
 
@@ -378,4 +368,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public String toStringShort() {
         return "[EMF root part of " + modelName.getfileName() + "]";
     }
+
+
 }

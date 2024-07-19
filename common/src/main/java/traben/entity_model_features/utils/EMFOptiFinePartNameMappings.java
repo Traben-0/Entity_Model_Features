@@ -1,8 +1,8 @@
 package traben.entity_model_features.utils;
 
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.client.model.ModelPart;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import net.minecraft.client.model.geom.ModelPart;
 
 public class EMFOptiFinePartNameMappings {
 
@@ -1148,15 +1150,10 @@ public class EMFOptiFinePartNameMappings {
                 ));
 
 //# trident                  body
-
         optifineModels("trident")
                 .accept(Map.ofEntries(
-                        getOptifineMapEntry("body", "pole"),
-                        getOptifineMapEntry("root"),
-                        getOptifineMapEntry("base"),
-                        getOptifineMapEntry("left_spike"),
-                        getOptifineMapEntry("middle_spike"),
-                        getOptifineMapEntry("right_spike")));
+                        getOptifineMapEntry("body", "pole")));
+
 
         optifineModels("spectral_arrow", "arrow")
                 .accept(Map.ofEntries(getOptifineMapEntry("body", "root")));
@@ -1287,7 +1284,11 @@ public class EMFOptiFinePartNameMappings {
         UNKNOWN_MODEL_MAP_CACHE.put(mobName, mobMap);
         if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
             StringBuilder mapString = new StringBuilder();
-            mapString.append(" |-[optifine/cem/").append(mobName).append(".jem]\n");
+
+            String namespace = mobName.contains(":") ? mobName.split(":")[0] : "minecraft";
+            String fileName = mobName.contains(":") ? mobName.split(":")[1] : mobName;
+
+            mapString.append(" |-[assets/").append(namespace).append("/optifine/cem/").append(fileName).append(".jem]\n");
             mobMap.forEach((key, entry) -> {
                 mapString.append(" | |-[").append("root".equals(key) ? "(optional) " : "").append("part=").append(key).append("]\n");
                 mapString.append(detailsMap.get(key));
@@ -1306,72 +1307,76 @@ public class EMFOptiFinePartNameMappings {
                 int[] textureSize = null;
                 for (Map.Entry<String, String> entry :
                         mobMap.entrySet()) {
-                    if (!"root".equals(entry.getKey())) {
-                        EMFPartData.EMFPartPrinter partPrinter = new EMFPartData.EMFPartPrinter();
-                        partPrinter.part = entry.getKey();
-                        partPrinter.id = entry.getKey();
-                        ModelPart vanillaModelPart = getChildByName(entry.getValue(), originalModel);
-                        if (vanillaModelPart != null) {
-                            //invert x and y's
-                            partPrinter.translate = new float[]{
-                                    vanillaModelPart.pivotX,
-                                    -24 + vanillaModelPart.pivotY,
-                                    -vanillaModelPart.pivotZ};
-                            //these are inherited
+
+                    EMFPartData.EMFPartPrinter partPrinter = new EMFPartData.EMFPartPrinter();
+                    partPrinter.part = entry.getKey();
+                    partPrinter.id = entry.getKey();
+                    ModelPart searchPart = getChildByName(entry.getValue(), originalModel);
+                    //allow nested child parts named root to be found first otherwise apply the root part as the root
+                    ModelPart vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? originalModel : searchPart;
+
+                    if (vanillaModelPart != null) {
+                        //invert x and y's
+                        partPrinter.translate = new float[]{
+                                vanillaModelPart.x,
+                                -24 + vanillaModelPart.y,
+                                -vanillaModelPart.z};
+                        //these are inherited
 //                            partPrinter.rotate = new float[]{
 //                                    (float) Math.toDegrees(vanillaModelPart.pitch),
 //                                    (float) Math.toDegrees(vanillaModelPart.yaw),
 //                                    -(float) Math.toDegrees(vanillaModelPart.roll)};
-                            partPrinter.scale = vanillaModelPart.xScale;
-                            //get part size incase empty, though cuboids often have better ideas about this
-                            partPrinter.textureSize = ((EMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
-                            textureSize = partPrinter.textureSize;
-                            //List<ModelPart.Cuboid> cuboids = vanillaModelPart.cuboids;
-                            for (ModelPart.Cuboid cube :
-                                    vanillaModelPart.cuboids) {
-                                EMFBoxData.EMFBoxPrinter boxPrinter = new EMFBoxData.EMFBoxPrinter();
-                                boxPrinter.coordinates = new float[]{
-                                        cube.minX,
-                                        cube.minY,
-                                        cube.minZ,
-                                        cube.maxX - cube.minX,
-                                        cube.maxY - cube.minY,
-                                        cube.maxZ - cube.minZ};
-                                //can be different from part
-                                partPrinter.textureSize = ((EMFCuboidDataSupplier) cube).emf$getTextureXY();
-                                boxPrinter.textureOffset = ((EMFCuboidDataSupplier) cube).emf$getTextureUV();
-                                var adds = ((EMFCuboidDataSupplier) cube).emf$getSizeAdd();
-                                if (adds != null) {
-                                    if (adds[0] == adds[1] && adds[0] == adds[2]) {
-                                        boxPrinter.sizeAdd = adds[0];
-                                    } else {
-                                        boxPrinter.sizeAddX = adds[0];
-                                        boxPrinter.sizeAddY = adds[1];
-                                        boxPrinter.sizeAddZ = adds[2];
-                                    }
+                        partPrinter.scale = vanillaModelPart.xScale;
+                        //get part size incase empty, though cuboids often have better ideas about this
+                        partPrinter.textureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
+                        textureSize = partPrinter.textureSize;
+                        //List<ModelPart.Cuboid> cuboids = vanillaModelPart.cuboids;
+                        for (ModelPart.Cube cube :
+                                vanillaModelPart.cubes) {
+                            EMFBoxData.EMFBoxPrinter boxPrinter = new EMFBoxData.EMFBoxPrinter();
+                            boxPrinter.coordinates = new float[]{
+                                    cube.minX,
+                                    cube.minY,
+                                    cube.minZ,
+                                    cube.maxX - cube.minX,
+                                    cube.maxY - cube.minY,
+                                    cube.maxZ - cube.minZ};
+                            //can be different from part
+                            partPrinter.textureSize = ((IEMFCuboidDataSupplier) cube).emf$getTextureXY();
+                            boxPrinter.textureOffset = ((IEMFCuboidDataSupplier) cube).emf$getTextureUV();
+                            var adds = ((IEMFCuboidDataSupplier) cube).emf$getSizeAdd();
+                            if (adds != null) {
+                                if (adds[0] == adds[1] && adds[0] == adds[2]) {
+                                    boxPrinter.sizeAdd = adds[0];
+                                } else {
+                                    boxPrinter.sizeAddX = adds[0];
+                                    boxPrinter.sizeAddY = adds[1];
+                                    boxPrinter.sizeAddZ = adds[2];
                                 }
-
-                                //invert x and y
-                                boxPrinter.coordinates[0] = -boxPrinter.coordinates[0] - boxPrinter.coordinates[3] - partPrinter.translate[0];
-                                boxPrinter.coordinates[1] = -boxPrinter.coordinates[1] - boxPrinter.coordinates[4] - partPrinter.translate[1];
-
-                                boxPrinter.coordinates[2] = boxPrinter.coordinates[2] - partPrinter.translate[2];
-
-                                //add to array
-                                partPrinter.boxes = Arrays.copyOf(partPrinter.boxes, partPrinter.boxes.length + 1);
-                                partPrinter.boxes[partPrinter.boxes.length - 1] = boxPrinter;
                             }
 
+                            //invert x and y
+                            boxPrinter.coordinates[0] = -boxPrinter.coordinates[0] - boxPrinter.coordinates[3] - partPrinter.translate[0];
+                            boxPrinter.coordinates[1] = -boxPrinter.coordinates[1] - boxPrinter.coordinates[4] - partPrinter.translate[1];
+
+                            boxPrinter.coordinates[2] = boxPrinter.coordinates[2] - partPrinter.translate[2];
+
+                            //add to array
+                            partPrinter.boxes = Arrays.copyOf(partPrinter.boxes, partPrinter.boxes.length + 1);
+                            partPrinter.boxes[partPrinter.boxes.length - 1] = boxPrinter;
                         }
-                        jemPrinter.models.add(partPrinter);
+
                     }
+                    jemPrinter.models.add(partPrinter);
+
                 }
                 if (textureSize == null) {
                     textureSize = new int[]{64, 32};
                 }
                 jemPrinter.textureSize = textureSize;
 
-                String path = EMFVersionDifferenceManager.getConfigDirectory().toFile().getParent() + "/emf/export/" + mobName + ".jem";
+                String path = EMFVersionDifferenceManager.getConfigDirectory().toFile().getParent()
+                        + "/emf/export/" + "assets/"+namespace+"/optifine/cem/"+fileName + ".jem";
                 File outFile = new File(path);
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -1414,10 +1419,10 @@ public class EMFOptiFinePartNameMappings {
         newMap.put(partName, partName);
         if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
             detailsMap.put(partName,
-                    " | | |-pivots=" + originalModel.pivotX + ", " + originalModel.pivotY + ", " + originalModel.pivotZ +
-                            "\n | | |-rotations=" + Math.toDegrees(originalModel.pitch) + ", " + Math.toDegrees(originalModel.yaw) + ", " + Math.toDegrees(originalModel.roll) +
+                    " | | |-pivots=" + originalModel.x + ", " + originalModel.y + ", " + originalModel.z +
+                            "\n | | |-rotations=" + Math.toDegrees(originalModel.xRot) + ", " + Math.toDegrees(originalModel.yRot) + ", " + Math.toDegrees(originalModel.zRot) +
                             "\n | | |-scales=" + originalModel.xScale + ", " + originalModel.yScale + ", " + originalModel.zScale +
-                            "\n | |  \\visibles=" + originalModel.visible + ", " + originalModel.hidden + "\n"
+                            "\n | |  \\visibles=" + originalModel.visible + ", " + originalModel.skipDraw + "\n"
             );
         }
     }

@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.math.MathComponent;
@@ -127,6 +128,12 @@ public class EMFAnimation {
         }
     }
 
+    public void calculateAndSetIfNotPaused(@NotNull final ModelPart[] paused){
+        for (ModelPart part : paused) {
+            if (partToApplyTo == part) return;
+        }
+        calculateAndSet();
+    }
 
     public void calculateAndSet() {
         if (EMFAnimationEntityContext.isLODSkippingThisFrame()) {

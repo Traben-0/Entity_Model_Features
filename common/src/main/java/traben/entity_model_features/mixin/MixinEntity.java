@@ -2,10 +2,9 @@ package traben.entity_model_features.mixin;
 
 
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -15,6 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFEntity;
 
+import java.util.List;
+
 @Mixin(Entity.class)
 public abstract class MixinEntity implements EMFEntity {
 
@@ -22,16 +23,9 @@ public abstract class MixinEntity implements EMFEntity {
     private final Object2FloatOpenHashMap<String> emf$variableMap = new Object2FloatOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
-    @Shadow
-    public double prevX;
-    @Shadow
-    public double prevY;
-    @Shadow
-    public double prevZ;
-    @Shadow
-    public float prevPitch;
-    @Shadow
-    public int age;
+
+
+
 
     @Shadow
     public abstract double getX();
@@ -42,23 +36,19 @@ public abstract class MixinEntity implements EMFEntity {
     @Shadow
     public abstract double getZ();
 
-    @Shadow
-    public abstract boolean isTouchingWater();
+
 
     @Shadow
     public abstract boolean isOnFire();
 
-    @Shadow
-    public abstract boolean hasVehicle();
 
-    @Shadow
-    public abstract boolean isOnGround();
+
+
 
     @Shadow
     public abstract boolean isAlive();
 
-    @Shadow
-    public abstract boolean isGlowing();
+
 
     @Shadow
     public abstract boolean isInLava();
@@ -66,46 +56,56 @@ public abstract class MixinEntity implements EMFEntity {
     @Shadow
     public abstract boolean isInvisible();
 
-    @Shadow
-    public abstract boolean hasPassengers();
-
-    @Shadow
-    public abstract boolean isSneaking();
 
     @Shadow
     public abstract boolean isSprinting();
 
-    @Shadow
-    public abstract boolean isWet();
-
-    @Shadow
-    public abstract Vec3d getVelocity();
-
-    @Shadow
-    public abstract float getYaw();
-
-    @Shadow
-    public abstract float getPitch();
 
     @Shadow
     public abstract EntityType<?> getType();
 
-    @Shadow public abstract void playSound(final SoundEvent sound, final float volume, final float pitch);
+    @Shadow public abstract boolean isCrouching();
 
-    @Shadow public abstract boolean isInSneakingPose();
+    @Shadow public double zo;
 
-    @Inject(method = "Lnet/minecraft/entity/Entity;getLeashOffset()Lnet/minecraft/util/math/Vec3d;", at = @At("RETURN"))
-    private void injected(CallbackInfoReturnable<Vec3d> cir) {
+    @Shadow public double yo;
+
+    @Shadow public double xo;
+
+    @Shadow public float xRotO;
+
+    @Shadow private float xRot;
+
+    @Shadow private float yRot;
+
+    @Shadow public int tickCount;
+
+    @Shadow public abstract boolean isInWater();
+
+    @Shadow public abstract boolean isPassenger();
+
+    @Shadow public abstract boolean onGround();
+
+    @Shadow public abstract boolean hasGlowingTag();
+
+    @Shadow public abstract List<Entity> getPassengers();
+
+    @Shadow public abstract boolean isInWaterRainOrBubble();
+
+    @Shadow public abstract Vec3 getDeltaMovement();
+
+    @Inject(method = "getLeashOffset()Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"))
+    private void emf$leashwither(CallbackInfoReturnable<Vec3> cir) {
         //return new Vec3d(0.0, (double)this.getStandingEyeHeight(), (double)(this.getWidth() * 0.4F));
         if (EMFAnimationEntityContext.getLeashX() != 0 || EMFAnimationEntityContext.getLeashY() != 0 || EMFAnimationEntityContext.getLeashZ() != 0) {
-            Vec3d vec = cir.getReturnValue();
+            Vec3 vec = cir.getReturnValue();
             vec.add(EMFAnimationEntityContext.getLeashX(), EMFAnimationEntityContext.getLeashY(), EMFAnimationEntityContext.getLeashZ());
         }
     }
 
     @Override
     public double emf$prevX() {
-        return prevX;
+        return xo;
     }
 
     @Override
@@ -115,7 +115,7 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public double emf$prevY() {
-        return prevY;
+        return yo;
     }
 
     @Override
@@ -125,7 +125,7 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public double emf$prevZ() {
-        return prevZ;
+        return zo;
     }
 
     @Override
@@ -135,17 +135,17 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public float emf$prevPitch() {
-        return prevPitch;
+        return xRotO;
     }
 
     @Override
     public float emf$getPitch() {
-        return getPitch();
+        return xRot;
     }
 
     @Override
     public boolean emf$isTouchingWater() {
-        return isTouchingWater();
+        return isInWater();
     }
 
     @Override
@@ -155,12 +155,12 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public boolean emf$hasVehicle() {
-        return hasVehicle();
+        return isPassenger();
     }
 
     @Override
     public boolean emf$isOnGround() {
-        return isOnGround();
+        return onGround();
     }
 
     @Override
@@ -170,7 +170,7 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public boolean emf$isGlowing() {
-        return isGlowing();
+        return hasGlowingTag();
     }
 
     @Override
@@ -185,12 +185,12 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public boolean emf$hasPassengers() {
-        return hasPassengers();
+        return !getPassengers().isEmpty();
     }
 
     @Override
     public boolean emf$isSneaking() {
-        return isInSneakingPose();
+        return isCrouching();
     }
 
     @Override
@@ -200,22 +200,22 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public boolean emf$isWet() {
-        return isWet();
+        return isInWaterRainOrBubble();
     }
 
     @Override
     public float emf$age() {
-        return age;
+        return tickCount;
     }
 
     @Override
     public float emf$getYaw() {
-        return getYaw();
+        return yRot;
     }
 
     @Override
-    public Vec3d emf$getVelocity() {
-        return getVelocity();
+    public Vec3 emf$getVelocity() {
+        return getDeltaMovement();
     }
 
     @Override

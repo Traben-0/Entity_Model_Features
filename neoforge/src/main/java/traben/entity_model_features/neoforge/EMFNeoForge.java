@@ -4,7 +4,11 @@ package traben.entity_model_features.neoforge;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
+#if MC >= MC_20_6
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+#else
+import net.neoforged.neoforge.client.ConfigScreenHandler;
+#endif
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -22,8 +26,14 @@ public class EMFNeoForge {
 
             try {
                 ModLoadingContext.get().registerExtensionPoint(
+                          #if MC >= MC_20_6
                         IConfigScreenFactory.class,
-                        () -> EMF::getConfigScreen);
+                        ()-> EMF::getConfigScreen);
+                        #else
+                        ConfigScreenHandler.ConfigScreenFactory.class,
+                        ()-> new ConfigScreenHandler.ConfigScreenFactory(EMF::getConfigScreen));
+                        #endif
+
             } catch (NoClassDefFoundError e) {
                 EMFUtils.logError("[Entity Model Features]: Mod config screen broken, download latest forge version");
             }

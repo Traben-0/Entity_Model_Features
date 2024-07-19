@@ -1,0 +1,44 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+issueTrackerURL = "https://github.com/Traben-0/Entity_Texture_Features/issues"
+license = "LGPL-3.0"
+showAsResourcePack = false
+
+[[mods]]
+modId = "entity_model_features"
+version = "${version}"
+displayName = "Entity Model Features"
+authors = "Traben"
+description = '''
+This is an expansion of the ETF mod, it adds support for OptiFine format Custom Entity Model (CEM) resource packs.
+While still allowing to you disable this to use a different model mod :)
+'''
+logoFile = "icon.png"
+
+[[dependencies.entity_model_features]]
+modId = "neoforge"
+mandatory = true
+versionRange = "[1,)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.entity_model_features]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[${compatible_mc_forge})"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.entity_model_features]]
+modId = "entity_texture_features"
+mandatory = true
+versionRange = "[6.1.3,)"
+ordering = "NONE"
+side = "CLIENT"
+
+#[[mixins]]
+#config = "entity_model_features-forge.mixins.json"
+[[mixins]]
+config = "entity_model_features-common.mixins.json"
+[[mixins]]
+config = "entity_model_features-optional.mixins.json"

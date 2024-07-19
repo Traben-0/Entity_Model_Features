@@ -42,10 +42,10 @@ public class EntityVariableBooleanProperty extends RandomProperty {
 
     @Override
     protected boolean testEntityInternal(final ETFEntity etfEntity) {
-        if (etfEntity instanceof EMFEntity emfEntity) {
+        if (etfEntity instanceof EMFEntity IEMFEntity) {
             for (Map.Entry<String, Boolean> stringFunctionEntry : VARIABLE_MAP.entrySet()) {
                 boolean value = MathValue.toBoolean(
-                        emfEntity.emf$getVariableMap().getFloat(stringFunctionEntry.getKey())
+                        IEMFEntity.emf$getVariableMap().getFloat(stringFunctionEntry.getKey())
                 );
                 if (stringFunctionEntry.getValue() != value) {
                     return false;

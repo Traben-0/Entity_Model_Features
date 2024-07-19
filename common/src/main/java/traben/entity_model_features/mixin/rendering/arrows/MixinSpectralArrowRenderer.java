@@ -1,35 +1,34 @@
 package traben.entity_model_features.mixin.rendering.arrows;
 
 
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.ProjectileEntityRenderer;
-import net.minecraft.client.render.entity.SpectralArrowEntityRenderer;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.renderer.entity.ArrowRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.SpectralArrowRenderer;
+import net.minecraft.world.entity.projectile.Arrow;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.EMFModelPartRoot;
-import traben.entity_model_features.utils.EMFCustomModelHolder;
+import traben.entity_model_features.utils.IEMFCustomModelHolder;
 import traben.entity_model_features.utils.EMFUtils;
 
-@Mixin(SpectralArrowEntityRenderer.class)
-public abstract class MixinSpectralArrowRenderer extends ProjectileEntityRenderer<ArrowEntity> implements EMFCustomModelHolder {
+@Mixin(SpectralArrowRenderer.class)
+public abstract class MixinSpectralArrowRenderer extends ArrowRenderer<Arrow> implements IEMFCustomModelHolder {
 
 
     @Unique
     private EMFModelPartRoot emf$model = null;
 
-    public MixinSpectralArrowRenderer(final EntityRendererFactory.Context context) {
+    public MixinSpectralArrowRenderer(final EntityRendererProvider.Context context) {
         super(context);
     }
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     private void emf$findModel(CallbackInfo ci) {
-        EntityModelLayer layer = new EntityModelLayer(new Identifier("minecraft", "spectral"), "arrow");
+        ModelLayerLocation layer = new ModelLayerLocation(EMFUtils.res("minecraft", "spectral"), "arrow");
         emf$setModel(EMFUtils.getArrowOrNull(layer));
     }
 

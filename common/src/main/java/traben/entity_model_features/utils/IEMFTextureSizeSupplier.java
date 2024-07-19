@@ -1,6 +1,6 @@
 package traben.entity_model_features.utils;
 
-public interface EMFTextureSizeSupplier {
+public interface IEMFTextureSizeSupplier {
 
     int[] emf$getTextureSize();
 

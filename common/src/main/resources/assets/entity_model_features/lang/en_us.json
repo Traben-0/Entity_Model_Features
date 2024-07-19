@@ -239,5 +239,11 @@
   "entity_model_features.config.variable_explanation.unknown_parts": "Un mapped part names:",
   "entity_model_features.config.prevent_hand": "Prevent first person hand animations",
   "entity_model_features.config.prevent_hand.tooltip": "If enabled this will forcibly prevent all custom EMF animations from playing on the first person hand model",
-  "entity_model_features.config.models_text": "These are all the models modifiable via EMF\nThese screens will only show / export information about these models unmodified state\nIf you want to see the current state of a model you will have to look at the model in game"
+  "entity_model_features.config.models_text": "These are all the models modifiable via EMF\nThese screens will only show / export information about these models unmodified state\nIf you want to see the current state of a model you will have to look at the model in game",
+  "entity_model_features.config.ebe_warn.1": "Some EBE mod options have been forcibly disabled by EMF",
+  "entity_model_features.config.ebe_warn.2": "This happens because a resource-pack is loading a custom model for that block entity",
+  "entity_model_features.config.ebe_warn.3": "Currently disabling these options: ",
+  "entity_model_features.config.ebe_warn.4": "This can be changed in EMF's model settings",
+  "entity_model_features.config.iris_shadow_skip": "Skip animating Iris shadow pass",
+  "entity_model_features.config.iris_shadow_skip.tooltip": "This will make it so the entity model doesn't animate twice\neach frame for both the render and the iris shadow pass\nthis should always be ON and is only here in case of\nfuture breaking iris api changes"
 }

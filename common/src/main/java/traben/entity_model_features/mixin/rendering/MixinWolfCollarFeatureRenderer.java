@@ -1,15 +1,14 @@
 package traben.entity_model_features.mixin.rendering;
 
 
-import net.minecraft.client.model.Dilation;
-import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.entity.feature.FeatureRenderer;
-import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.feature.WolfCollarFeatureRenderer;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.client.render.entity.model.WolfEntityModel;
-import net.minecraft.entity.passive.WolfEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.model.WolfModel;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.layers.WolfCollarLayer;
+import net.minecraft.world.entity.animal.Wolf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,30 +18,38 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.utils.EMFManager;
-import traben.entity_model_features.utils.EMFWolfCollarHolder;
+import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.utils.IEMFWolfCollarHolder;
 
-@Mixin(WolfCollarFeatureRenderer.class)
-public abstract class MixinWolfCollarFeatureRenderer extends FeatureRenderer<WolfEntity, WolfEntityModel<WolfEntity>> {
+@Mixin(WolfCollarLayer.class)
+public abstract class MixinWolfCollarFeatureRenderer extends RenderLayer<Wolf, WolfModel<Wolf>> {
 
     @Unique
-    private static final EntityModelLayer emf$collar_layer = new EntityModelLayer(new Identifier("minecraft", "wolf"), "collar");
+    private static final ModelLayerLocation emf$collar_layer = new ModelLayerLocation(EMFUtils.res("minecraft", "wolf"), "collar");
 
     @SuppressWarnings("unused")
-    public MixinWolfCollarFeatureRenderer(FeatureRendererContext<WolfEntity, WolfEntityModel<WolfEntity>> context) {
+    public MixinWolfCollarFeatureRenderer(RenderLayerParent<Wolf, WolfModel<Wolf>> context) {
         super(context);
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void setEmf$Model(FeatureRendererContext<?, ?> featureRendererContext, CallbackInfo ci) {
+    private void setEmf$Model(RenderLayerParent<?, ?> featureRendererContext, CallbackInfo ci) {
         if (EMF.testForForgeLoadingError()) return;
 
-        ModelPart collarModel = EMFManager.getInstance().injectIntoModelRootGetter(emf$collar_layer, WolfEntityModel.getTexturedModelData(Dilation.NONE).getRoot().createPart(64,32));
+        ModelPart collarModel = EMFManager.getInstance().injectIntoModelRootGetter(emf$collar_layer,
+                WolfModel
+                        #if MC >= MC_20_6
+                        .createMeshDefinition(CubeDeformation.NONE).getRoot().bake(64,32)
+                        #else
+                        .createBodyLayer().bakeRoot()
+                        #endif
+        );
 
         //separate the collar model, if it has a custom jem model or the base wolf has a custom jem model
         if (collarModel instanceof EMFModelPartRoot || ((IEMFModel) featureRendererContext.getModel()).emf$isEMFModel()) {
             try {
-                if (featureRendererContext.getModel() instanceof EMFWolfCollarHolder<?> holder) {
-                    holder.emf$setCollarModel(new WolfEntityModel<>(collarModel));
+                if (featureRendererContext.getModel() instanceof IEMFWolfCollarHolder<?> holder) {
+                    holder.emf$setCollarModel(new WolfModel<>(collarModel));
                 }
             } catch (Exception ignored) {
             }
@@ -65,14 +72,14 @@ public abstract class MixinWolfCollarFeatureRenderer extends FeatureRenderer<Wol
 //    }
 
     @Override
-    public WolfEntityModel<WolfEntity> getContextModel() {
-        var base = super.getContextModel();
-        if (base instanceof EMFWolfCollarHolder<?> holder && holder.emf$hasCollarModel()) {
+    public WolfModel<Wolf> getParentModel() {
+        var base = super.getParentModel();
+        if (base instanceof IEMFWolfCollarHolder<?> holder && holder.emf$hasCollarModel()) {
             //noinspection unchecked
-            var model = (WolfEntityModel<WolfEntity>) holder.emf$getCollarModel();
-            model.handSwingProgress = base.handSwingProgress;
+            var model = (WolfModel<Wolf>) holder.emf$getCollarModel();
+            model.attackTime = base.attackTime;
             model.riding = base.riding;
-            model.child = base.child;
+            model.young = base.young;
             return model;
         }
         return base;

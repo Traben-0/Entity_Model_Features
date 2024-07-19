@@ -79,8 +79,8 @@ public class EntityVariableFloatProperty extends RandomProperty {
 
         @Override
         protected @Nullable Float getRangeValueFromEntity(final ETFEntity etfEntity) {
-            if (etfEntity instanceof EMFEntity emfEntity)
-                return getter.apply(emfEntity);
+            if (etfEntity instanceof EMFEntity IEMFEntity)
+                return getter.apply(IEMFEntity);
             return null;
         }
 

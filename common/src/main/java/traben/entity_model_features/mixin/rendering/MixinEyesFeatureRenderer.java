@@ -1,18 +1,22 @@
 package traben.entity_model_features.mixin.rendering;
 
-import net.minecraft.client.render.entity.feature.EyesFeatureRenderer;
+import net.minecraft.client.renderer.entity.layers.EyesLayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import static traben.entity_model_features.EMF.EYES_FEATURE_LIGHT_VALUE;
 
-@Mixin(EyesFeatureRenderer.class)
+@Mixin(EyesLayer.class)
 public class MixinEyesFeatureRenderer {
     @SuppressWarnings("SameReturnValue")
     @ModifyArg(
             method = "render",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V"),
+            #if MC >= MC_21
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V"),
+            #else
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V"),
+            #endif
             index = 2
     )
     private int emf$markEyeLight(int i) {

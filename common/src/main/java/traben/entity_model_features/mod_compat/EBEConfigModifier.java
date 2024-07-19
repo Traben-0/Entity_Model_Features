@@ -40,6 +40,7 @@ public abstract class EBEConfigModifier {
         ebeConfig.save();
         EnhancedBlockEntities.load();
         EMFUtils.log("EBE config modified by EMF, the following blocks have been disabled in EBE because they have custom entity models (this can be disabled in EMF's settings): " + ebeAffectingJemsFound);
+
     }
 
 }

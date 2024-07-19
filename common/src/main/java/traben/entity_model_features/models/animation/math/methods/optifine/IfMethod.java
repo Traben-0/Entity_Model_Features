@@ -1,6 +1,5 @@
 package traben.entity_model_features.models.animation.math.methods.optifine;
 
-import net.minecraft.util.Pair;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.models.animation.math.MathComponent;
@@ -8,7 +7,9 @@ import traben.entity_model_features.models.animation.math.MathMethod;
 import traben.entity_model_features.models.animation.math.MathValue;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import net.minecraft.util.Tuple;
 
 public class IfMethod extends MathMethod {
 
@@ -39,7 +40,7 @@ public class IfMethod extends MathMethod {
             }, parsedArgs);
         } else {
 
-            List<Pair<MathComponent, MathComponent>> ifSets = new ArrayList<>();
+            List<Tuple<MathComponent, MathComponent>> ifSets = new ArrayList<>();
             var lastElse = parsedArgs.get(parsedArgs.size() - 1);
 
             var iterator = parsedArgs.iterator();
@@ -51,7 +52,7 @@ public class IfMethod extends MathMethod {
                         //noinspection ResultOfMethodCallIgnored
                         MathValue.toBoolean(next.getResult());
 
-                        ifSets.add(new Pair<>(next, iterator.next()));
+                        ifSets.add(new Tuple<>(next, iterator.next()));
                     } else if (MathValue.toBoolean(next.getResult())) {
                         //if next is a true constant then end here
                         lastElse = iterator.next();
@@ -65,9 +66,9 @@ public class IfMethod extends MathMethod {
 
             final MathComponent finalElse = lastElse;
             setSupplierAndOptimize(() -> {
-                for (Pair<MathComponent, MathComponent> ifSet : ifSets) {
-                    if (MathValue.toBoolean(ifSet.getLeft().getResult())) {
-                        return ifSet.getRight().getResult();
+                for (Tuple<MathComponent, MathComponent> ifSet : ifSets) {
+                    if (MathValue.toBoolean(ifSet.getA().getResult())) {
+                        return ifSet.getB().getResult();
                     }
                 }
                 return finalElse.getResult();

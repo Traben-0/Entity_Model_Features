@@ -1,6 +1,6 @@
 package traben.entity_model_features.models.animation.math.variables;
 
-import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
@@ -11,78 +11,78 @@ public enum EMFModelOrRenderVariable {
         @Override
         public void setValue(EMFModelPart modelPart, float value) {
             if (modelPart == null) return;
-            modelPart.pivotX = value;
+            modelPart.x = value;
         }
 
         @Override
         public float getValue(ModelPart modelPart) {
             if (modelPart == null) return 0;
-            return modelPart.pivotX;
+            return modelPart.x;
         }
     },
     TY() {
         @Override
         public void setValue(EMFModelPart modelPart, float value) {
             if (modelPart == null) return;
-            modelPart.pivotY = value;
+            modelPart.y = value;
         }
 
         @Override
         public float getValue(ModelPart modelPart) {
             if (modelPart == null) return 0;
-            return modelPart.pivotY;
+            return modelPart.y;
         }
     },
     TZ() {
         @Override
         public void setValue(EMFModelPart modelPart, float value) {
             if (modelPart == null) return;
-            modelPart.pivotZ = value;
+            modelPart.z = value;
         }
 
         @Override
         public float getValue(ModelPart modelPart) {
             if (modelPart == null) return 0;
-            return modelPart.pivotZ;
+            return modelPart.z;
         }
     },
     RX() {
         @Override
         public void setValue(EMFModelPart modelPart, float value) {
             if (modelPart == null) return;
-            modelPart.pitch = value;
+            modelPart.xRot = value;
         }
 
         @Override
         public float getValue(ModelPart modelPart) {
             if (modelPart == null) return 0;
-            return modelPart.pitch;
+            return modelPart.xRot;
         }
     },
     RY() {
         @Override
         public void setValue(EMFModelPart modelPart, float value) {
             if (modelPart == null) return;
-            modelPart.yaw = value;
+            modelPart.yRot = value;
         }
 
         @Override
         public float getValue(ModelPart modelPart) {
             if (modelPart == null) return 0;
-            return modelPart.yaw;
+            return modelPart.yRot;
         }
     },
     RZ() {
         @Override
         public void setValue(EMFModelPart modelPart, float value) {
             if (modelPart == null) return;
-            modelPart.roll = value;
+            modelPart.zRot = value;
         }
 
         @Override
         public float getValue(ModelPart modelPart) {
             if (modelPart == null) return 0;
-            return modelPart.roll;
+            return modelPart.zRot;
         }
     },
     SX() {
@@ -146,13 +146,13 @@ public enum EMFModelOrRenderVariable {
         @Override
         public void setValue(EMFModelPart modelPart, float value) {
             if (modelPart == null) return;
-            modelPart.hidden = MathValue.toBoolean(value);
+            modelPart.skipDraw = MathValue.toBoolean(value);
         }
 
         @Override
         public float getValue(ModelPart modelPart) {
             if (modelPart == null) return 0;
-            return MathValue.fromBoolean(modelPart.hidden);
+            return MathValue.fromBoolean(modelPart.skipDraw);
         }
 
         @Override

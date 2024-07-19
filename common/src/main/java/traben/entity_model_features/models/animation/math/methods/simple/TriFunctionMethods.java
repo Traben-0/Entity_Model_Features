@@ -3,6 +3,7 @@ package traben.entity_model_features.models.animation.math.methods.simple;
 import org.apache.commons.lang3.function.TriFunction;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
+import traben.entity_model_features.models.animation.math.MathComponent;
 import traben.entity_model_features.models.animation.math.MathMethod;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
 

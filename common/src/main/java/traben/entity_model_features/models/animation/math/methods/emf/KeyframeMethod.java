@@ -1,6 +1,5 @@
 package traben.entity_model_features.models.animation.math.methods.emf;
 
-import net.minecraft.util.math.MathHelper;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.models.animation.math.MathComponent;
@@ -8,6 +7,7 @@ import traben.entity_model_features.models.animation.math.MathMethod;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.util.Mth;
 
 public class KeyframeMethod extends MathMethod {
 
@@ -37,7 +37,7 @@ public class KeyframeMethod extends MathMethod {
             var lastFrame = frames.get(frameIndex);
             var nextFrame = frames.get(frameIndex + 1);
 
-            return MathHelper.lerp(frameDelta, lastFrame.getResult(), nextFrame.getResult());
+            return Mth.lerp(frameDelta, lastFrame.getResult(), nextFrame.getResult());
         };
 
         if (delta.isConstant()) {
@@ -54,7 +54,7 @@ public class KeyframeMethod extends MathMethod {
             var lastFrame = frames.get(frameIndex);
             var nextFrame = frames.get(frameIndex + 1);
 
-            setOptimizedAlternativeToThis(() -> MathHelper.lerp(frameDelta, lastFrame.getResult(), nextFrame.getResult()));
+            setOptimizedAlternativeToThis(() -> Mth.lerp(frameDelta, lastFrame.getResult(), nextFrame.getResult()));
         }
 
         setSupplierAndOptimize(supplier, parsedArgs);

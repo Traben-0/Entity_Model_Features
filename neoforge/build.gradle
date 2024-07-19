@@ -7,7 +7,7 @@ architectury {
     neoForge()
 }
 
-archivesBaseName = rootProject.archives_base_name + "_neoforge_1.20.5"
+archivesBaseName = rootProject.archives_base_name + "_neoforge_${rootProject.minecraft_version}"
 
 loom {
     accessWidenerPath = project(":common").loom.accessWidenerPath
@@ -43,13 +43,16 @@ dependencies {
     //modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version_forge}")
 }
 
-processResources {
-    inputs.property "version", project.version
-
-    filesMatching("META-INF/neoforge.mods.toml") {
-        expand "version": project.version
-    }
-}
+//processResources {
+//    inputs.property "version", project.version
+//
+//    filesMatching("META-INF/neoforge.mods.toml") {
+//        expand "version": project.version
+//    }
+//    filesMatching("META-INF/mods.toml") {
+//        expand "version": project.version
+//    }
+//}
 
 shadowJar {
     exclude "fabric.mod.json"
@@ -60,7 +63,7 @@ shadowJar {
 }
 
 remapJar {
-    atAccessWideners.add('entity_model_features.accesswidener')
+    atAccessWideners.add("entity_model_features_${project.mc_build}.accesswidener")
     input.set shadowJar.archiveFile
     dependsOn shadowJar
     archiveClassifier.set(null)

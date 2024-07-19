@@ -1,18 +1,18 @@
 package traben.entity_model_features.mixin;
 
-import net.minecraft.client.model.ModelPart;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMF;
-import traben.entity_model_features.utils.EMFCuboidDataSupplier;
+import traben.entity_model_features.utils.IEMFCuboidDataSupplier;
 
 import java.util.Set;
+import net.minecraft.client.model.geom.ModelPart;
 
-@Mixin(ModelPart.Cuboid.class)
-public class MixinModelPart$Cuboid implements EMFCuboidDataSupplier {
+@Mixin(ModelPart.Cube.class)
+public class MixinModelPart$Cuboid implements IEMFCuboidDataSupplier {
 
 
     @Unique

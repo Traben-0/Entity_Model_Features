@@ -1,4 +1,36 @@
 
+[2.1.2]
+- fixed the player shadows not animating in first person with iris with custom player models
+- fixed a crash when holding tridents, chests, and other custom entity models with texture overrides.
+
+[2.1.1]
+- now requires ETF 6.1.3 or newer
+- added new EMFAnimationAPI methods to allow other mods to:
+  - pause/resume entire custom model animations for an entity
+  - pause/resume individual custom model parts from animations for an entity
+  - lock/unlock an entity to only use their vanilla models
+  - utility methods to cast Entity and BlockEntity into the EMFEntity interface
+  these will allow other mods to inhibit EMF animations and models for specific entities when required e.g. for emotes
+- fixed EMF applying values to the last part with the given id as opposed to the first *(OptiFine parity)*
+- fixed the `scale` model part default setting not correctly applying on mobs with new format animations like wardens & frogs
+- fixed a crash when exporting models in 1.21
+- fixed a `not building` crash in 1.21
+- fixed the `root` part not appearing in model exports
+- fixed a bug where item attachments could carry over to other mob renders
+- fixed the ender dragon `spine` part not rendering when having a texture override
+- the setting that allows EMF to disable EBE settings, when custom block entity models are loaded, now has a much more verbose and informative display in the EMF config warning screen
+- fixed the modded model export log using the old `modded` directory format, the export log now also gives a full path for the jem starting from the assets folder
+- model exports are now placed inside the `emf/export/assets/` folder in the `.minecraft` directory with a fully correct and namespaced path starting from the assets folder
+- fixed the vanilla banner model waving adding on top of EMF animations due to vanilla banners being rendered in multiple stages
+- changed `pi` from 3.1415926 to 3.1415927 to match vanilla pi usage and seems to match OptiFine despite the docs
+- changed various math methods such as `sin() & cos()` to no longer use java.lang.Math and instead use Minecraft internal math class
+- the above 2 changes fixed vindicators in fa 1.9.1
+- added support for `inner_armor.jem` & `outer_armor.jem` as fallbacks if an entity specific armor model is not found, e.g. `zombie_inner_armor.jem` & `zombie_outer_armor.jem`
+- fixed some missing mobs support for the `is_aggressive` variable
+- changed the `height_above_ground` variable to detect blocks with standable top surfaces not just solid blocks
+- fixed a bug causing some block entity model texture overrides to appear in first person view in their iris shader shadow pass position
+- added an optimization option that will skip recalculating entity model animations during the iris shadow pass, on by default, and should always stay on, it is only an option in case of future breaking iris api changes or weird behaviour with iris ports. 
+- fixed the trident model part declaring additional parts in the OptiFine mapping by accident, which could cause vanilla trident parts to re-appear in many custom trident models
 
 2.0.2
 - fixed the first person hand settings not getting reset correctly in 2.0.1

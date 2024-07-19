@@ -2,7 +2,6 @@ package traben.entity_model_features.utils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Objects;
 
 public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMobNameForFileAndEMFMapId> {
@@ -10,7 +9,8 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
     String namespace = "minecraft";
     private String fileName;
     private String mapId;
-    private String deprecatedFileName = null;
+    private String secondaryFileName = null;
+    private String secondaryNamespace = null;
 
     public OptifineMobNameForFileAndEMFMapId(String both) {
         this(both, null);
@@ -57,46 +57,57 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
         return this.fileName;
     }
 
-    public @Nullable OptifineMobNameForFileAndEMFMapId getDeprecated() {
-        return deprecatedFileName == null ? null : new OptifineMobNameForFileAndEMFMapId(deprecatedFileName, getMapId());
+    public @Nullable OptifineMobNameForFileAndEMFMapId getSecondaryModel() {
+        if (secondaryFileName != null) {
+            var second = new OptifineMobNameForFileAndEMFMapId(secondaryFileName, getMapId());
+            second.namespace = secondaryNamespace == null ? namespace : secondaryNamespace;
+            return second;
+        }
+        return null;
     }
+
 
     public String getNamespace() {
         return namespace;
     }
 
-    public void finish() {
-//        //assert new namespaced modded model folder
-//        if(getfileName().startsWith("modded/")){
-//            String[] split = fileName.split("/");
-//            if (split.length >= 3 && !split[1].isEmpty()) {
-//                namespace = split[1];
-//                String modelFileName = fileName.replace("modded/"+namespace+"/","");
-//                deprecatedFileName = fileName;
-//                fileName = modelFileName;
-//            }
-//        }
+    public void finishAndPrepSecondaries() {
 
         //validate namespaces which may have been injected earlier by block entity factories
         if (getfileName().contains(":")) {
             var split = fileName.split(":");
             if (split.length == 2) {
-                assertNamespaceAndCreateDeprecatedFileName(split[0], split[1]);
+                assertNamespaceAndCreateDeprecatedModdedFileName(split[0], split[1]);
             }
         } else if (!"minecraft".equals(namespace)) {
-            assertNamespaceAndCreateDeprecatedFileName(namespace, fileName);
+            //create old deprecated modded directory as secondary
+            assertNamespaceAndCreateDeprecatedModdedFileName(namespace, fileName);
+        }else if (fileName.endsWith("_inner_armor")){
+            //push the armor override jem name to the main filename
+            secondaryFileName = "inner_armor";
+
+        }else if (fileName.endsWith("_outer_armor")){
+            //push the armor override jem name to the main filename
+            secondaryFileName = "outer_armor";
+
         }
     }
 
-    private void assertNamespaceAndCreateDeprecatedFileName(final String namespace, final String fileName) {
+//    public void pushOverrideFileName(final String tryFirst) {
+//        this.secondaryFileName = fileName;
+//        fileName = tryFirst;
+//    }
+
+    private void assertNamespaceAndCreateDeprecatedModdedFileName(final String namespace, final String fileName) {
         this.namespace = namespace;
         this.fileName = fileName;
         //recreate old modded directory method for back compatibility
-        this.deprecatedFileName = "modded/" + namespace + "/" + fileName;
+        this.secondaryNamespace = "minecraft";
+        this.secondaryFileName = "modded/" + namespace + "/" + fileName;
     }
 
     public String getMapId() {
-        String namespace = getNamespace().equals("minecraft") ? "" : getNamespace() + "/";
+        String namespace = getNamespace().equals("minecraft") ? "" : getNamespace() + ":";
         return namespace + (mapId == null ? fileName : mapId);
     }
 

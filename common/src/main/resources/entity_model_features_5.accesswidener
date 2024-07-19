@@ -1,0 +1,34 @@
+accessWidener v2  named
+
+accessible method net/minecraft/client/model/geom/ModelPart compile (Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V
+
+extendable class net/minecraft/client/model/geom/ModelPart
+
+
+accessible class net/minecraft/client/model/geom/ModelPart$Polygon
+accessible class net/minecraft/client/model/geom/ModelPart$Vertex
+
+extendable method net/minecraft/client/model/geom/ModelPart compile (Lcom/mojang/blaze3d/vertex/PoseStack$Pose;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V
+
+accessible field net/minecraft/client/model/geom/ModelPart cubes Ljava/util/List;
+accessible field net/minecraft/client/model/geom/ModelPart children Ljava/util/Map;
+mutable field net/minecraft/client/model/geom/ModelPart cubes Ljava/util/List;
+mutable field net/minecraft/client/model/geom/ModelPart children Ljava/util/Map;
+
+accessible field net/minecraft/client/model/Model renderType Ljava/util/function/Function;
+
+accessible field net/minecraft/client/renderer/blockentity/BlockEntityRenderers PROVIDERS Ljava/util/Map;
+accessible field net/minecraft/client/model/geom/EntityModelSet roots Ljava/util/Map;
+
+accessible field net/minecraft/world/level/block/state/BlockBehaviour hasCollision Z
+
+accessible field com/mojang/blaze3d/vertex/PoseStack poseStack Ljava/util/Deque;
+accessible method com/mojang/blaze3d/vertex/PoseStack$Pose <init> (Lorg/joml/Matrix4f;Lorg/joml/Matrix3f;)V
+
+accessible field net/minecraft/world/entity/LivingEntity jumping Z
+
+accessible field com/mojang/blaze3d/vertex/BufferBuilder building Z
+
+accessible field net/minecraft/client/renderer/SpriteCoordinateExpander delegate Lcom/mojang/blaze3d/vertex/VertexConsumer;
+accessible class com/mojang/blaze3d/vertex/VertexMultiConsumer$Double
+accessible field com/mojang/blaze3d/vertex/VertexMultiConsumer$Double second Lcom/mojang/blaze3d/vertex/VertexConsumer;

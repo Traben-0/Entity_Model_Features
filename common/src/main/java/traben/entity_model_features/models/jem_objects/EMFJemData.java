@@ -1,8 +1,5 @@
 package traben.entity_model_features.models.jem_objects;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.MissingSprite;
-import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
@@ -10,6 +7,9 @@ import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 
 import java.util.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.resources.ResourceLocation;
 
 @SuppressWarnings("CanBeFinal")
 public class EMFJemData {
@@ -21,8 +21,9 @@ public class EMFJemData {
     public LinkedList<EMFPartData> models = new LinkedList<>();
     private String fileName = "none";
     private String filePath = "";
+    public String packName = null;
     private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
-    private Identifier customTexture = null;
+    private ResourceLocation customTexture = null;
 
     public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
         return allTopLevelAnimationsByVanillaPartName;
@@ -40,22 +41,17 @@ public class EMFJemData {
         return mobModelIDInfo;
     }
 
-    public Identifier getCustomTexture() {
+    public ResourceLocation getCustomTexture() {
         return customTexture;
     }
 
     @Nullable
-    public Identifier validateJemTexture(String textureIn) {// "textures/entity/trident.png"
+    public ResourceLocation validateJemTexture(String textureIn) {// "textures/entity/trident.png"
         if (textureIn == null || textureIn.isBlank()) return null;
 
         String textureTest = textureIn.trim();
         if (!textureTest.isBlank()) {
 
-            //todo add support for trident no idea why it breaks currently
-            if (textureTest.endsWith("/trident.jem")) {
-                EMFUtils.logWarn("trident texture overrides are not supported currently, they will be ignored.");
-                return null;
-            }
 
             if (!textureTest.contains(":")) {
                 if (!textureTest.endsWith(".png")) textureTest = textureTest + ".png";
@@ -67,9 +63,15 @@ public class EMFJemData {
                     textureTest = "optifine/" + textureTest;
                 }
             }
-            if (Identifier.isValid(textureTest)) {
-                Identifier possibleTexture = new Identifier(textureTest);
-                if (MinecraftClient.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
+            if (
+                #if MC >= MC_21
+                    ResourceLocation.tryParse(textureTest) != null
+                #else
+                    ResourceLocation.isValidResourceLocation(textureTest)
+                #endif
+            ) {
+                ResourceLocation possibleTexture = EMFUtils.res(textureTest);
+                if (Minecraft.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
                     return possibleTexture;
                 }
             } else {
@@ -77,7 +79,7 @@ public class EMFJemData {
 
             }
         }
-        return MissingSprite.getMissingSpriteId();
+        return MissingTextureAtlasSprite.getLocation();
     }
 
     private String workingDirectory() {
@@ -90,7 +92,10 @@ public class EMFJemData {
     }
 
 
-    public void prepare(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+
+    public void prepare(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo, String packName) {
+        this.packName = packName;
+
         if (textureSize != null && textureSize.length != 2) {
             textureSize = new int[]{64, 32};
             EMFUtils.logWarn("No textureSize provided for: " + fileName + ". Defaulting to 64x32 texture size for model.");
