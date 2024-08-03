@@ -9,7 +9,10 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.util.FastColor;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.accessor.CuboidAccessor;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
@@ -18,6 +21,7 @@ import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -103,7 +107,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
                     if (box.textureOffset.length == 2) {
                         //System.out.println("non custom uv box ignoring for now");
-                        cube = emfCuboidOf(emfPartData,
+                        cube = new EMFCube(emfPartData,
                                 box.textureOffset[0], box.textureOffset[1],
                                 box.coordinates[0], box.coordinates[1], box.coordinates[2],
                                 box.coordinates[3], box.coordinates[4], box.coordinates[5],
@@ -112,7 +116,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                                 emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));//selfModelData.invertAxis);
                     } else {
                         //create a custom uv cuboid
-                        cube = emfCuboidOf(emfPartData,
+                        cube = new EMFCube(emfPartData,
                                 box.uvDown, box.uvUp, box.uvNorth,
                                 box.uvSouth, box.uvWest, box.uvEast,
                                 box.coordinates[0], box.coordinates[1], box.coordinates[2],
@@ -133,281 +137,6 @@ public class EMFModelPartCustom extends EMFModelPart {
         return emfCuboids;
     }
 
-    //cuboid without custom UVs
-    public static Cube emfCuboidOf(EMFPartData selfModelData
-            , float textureU, float textureV,
-                                     float cubeX, float cubeY, float cubeZ,
-                                     float sizeX, float sizeY, float sizeZ,
-                                     float extraX, float extraY, float extraZ,
-                                     float textureWidth, float textureHeight,
-                                     boolean mirrorU, boolean mirrorV) {
-
-        Cube cube = new Cube((int) textureU, (int) textureV,
-                cubeX, cubeY, cubeZ,
-                sizeX, sizeY, sizeZ,
-                extraX, extraY, extraZ, false,
-                textureWidth, textureHeight, new HashSet<>() {{
-            addAll(List.of(Direction.values()));
-        }});
-
-        CuboidAccessor accessor = (CuboidAccessor) cube;
-        accessor.setMinX(cubeX);
-        accessor.setMinY(cubeY);
-        accessor.setMinZ(cubeZ);
-        accessor.setMaxX(cubeX + sizeX);
-        accessor.setMaxY(cubeY + sizeY);
-        accessor.setMaxZ(cubeZ + sizeZ);
-        //Quad[] sides = new Quad[6];
-        ArrayList<Polygon> sides = new ArrayList<>();
-        float cubeX2 = cubeX + sizeX;
-        float cubeY2 = cubeY + sizeY;
-        float cubeZ2 = cubeZ + sizeZ;
-        cubeX -= extraX;
-        cubeY -= extraY;
-        cubeZ -= extraZ;
-        cubeX2 += extraX;
-        cubeY2 += extraY;
-        cubeZ2 += extraZ;
-
-        Vertex vertex = new Vertex(cubeX, cubeY, cubeZ, 0.0f, 0.0f);
-        Vertex vertex2 = new Vertex(cubeX2, cubeY, cubeZ, 0.0f, 8.0f);
-        Vertex vertex3 = new Vertex(cubeX2, cubeY2, cubeZ, 8.0f, 8.0f);
-        Vertex vertex4 = new Vertex(cubeX, cubeY2, cubeZ, 8.0f, 0.0f);
-        Vertex vertex5 = new Vertex(cubeX, cubeY, cubeZ2, 0.0f, 0.0f);
-        Vertex vertex6 = new Vertex(cubeX2, cubeY, cubeZ2, 0.0f, 8.0f);
-        Vertex vertex7 = new Vertex(cubeX2, cubeY2, cubeZ2, 8.0f, 8.0f);
-        Vertex vertex8 = new Vertex(cubeX, cubeY2, cubeZ2, 8.0f, 0.0f);
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        float j = textureU;
-        float k = textureU + sizeZ;
-        float l = textureU + sizeZ + sizeX;
-        float m = textureU + sizeZ + sizeX + sizeX;
-        float n = textureU + sizeZ + sizeX + sizeZ;
-        float o = textureU + sizeZ + sizeX + sizeZ + sizeX;
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        float p = textureV;
-        float q = textureV + sizeZ;
-        float r = textureV + sizeZ + sizeY;
-
-        try {
-            // sides[2] = new Quad(new Vertex[]{vertex6, vertex5, vertex, vertex2}, k, p, l, q, textureWidth, textureHeight,false, Direction.DOWN);
-            sides.add(new Polygon(mirrorV ? new Vertex[]{vertex3, vertex4, vertex8, vertex7} : new Vertex[]{vertex6, vertex5, vertex, vertex2},
-                    //k, p, l, q,
-                    //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
-                    mirrorU ? l : k,
-                    mirrorV ? q : p,
-                    mirrorU ? k : l,
-                    mirrorV ? p : q,
-                    textureWidth, textureHeight, false, mirrorV ? Direction.UP : Direction.DOWN));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-dwn failed for " + selfModelData.id);
-        }
-        try {
-            sides.add(new Polygon(mirrorV ? new Vertex[]{vertex6, vertex5, vertex, vertex2} : new Vertex[]{vertex3, vertex4, vertex8, vertex7},
-                    //l, q, m, p,
-                    //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
-                    mirrorU ? m : l,
-                    mirrorV ? p : q,
-                    mirrorU ? l : m,
-                    mirrorV ? q : p,
-                    textureWidth, textureHeight, false, mirrorV ? Direction.DOWN : Direction.UP));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-up failed for " + selfModelData.id);
-        }
-        try {
-            sides.add(new Polygon(mirrorU ? new Vertex[]{vertex6, vertex2, vertex3, vertex7} : new Vertex[]{vertex, vertex5, vertex8, vertex4},
-                    //j, q, k, r,
-                    //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
-                    mirrorU ? k : j,
-                    mirrorV ? r : q,
-                    mirrorU ? j : k,
-                    mirrorV ? q : r,
-                    textureWidth, textureHeight, false, mirrorU ? Direction.EAST : Direction.WEST));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-west failed for " + selfModelData.id);
-        }
-        try {
-            sides.add(new Polygon(new Vertex[]{vertex2, vertex, vertex4, vertex3},
-                    // k, q, l, r,
-                    //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
-                    mirrorU ? l : k,
-                    mirrorV ? r : q,
-                    mirrorU ? k : l,
-                    mirrorV ? q : r,
-                    textureWidth, textureHeight, false, Direction.NORTH));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-nrth failed for " + selfModelData.id);
-        }
-        try {
-            sides.add(new Polygon(mirrorU ? new Vertex[]{vertex, vertex5, vertex8, vertex4} : new Vertex[]{vertex6, vertex2, vertex3, vertex7},
-                    //l, q, n, r,
-                    //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
-                    mirrorU ? n : l,
-                    mirrorV ? r : q,
-                    mirrorU ? l : n,
-                    mirrorV ? q : r,
-                    textureWidth, textureHeight, false, mirrorU ? Direction.WEST : Direction.EAST));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-east failed for " + selfModelData.id);
-        }
-        try {
-            sides.add(new Polygon(new Vertex[]{vertex5, vertex6, vertex7, vertex8},
-                    // n, q, o, r,
-                    //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
-                    mirrorU ? o : n,
-                    mirrorV ? r : q,
-                    mirrorU ? n : o,
-                    mirrorV ? q : r,
-                    textureWidth, textureHeight, false, Direction.SOUTH));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-sth failed for " + selfModelData.id);
-        }
-
-
-        ((CuboidAccessor) cube).setPolygons(sides.toArray(new Polygon[0]));
-        return cube;
-    }
-
-    //Cuboid with custom UVs
-    public static Cube emfCuboidOf(EMFPartData selfModelData,
-                                     float[] uvDown, float[] uvUp, float[] uvNorth, float[] uvSouth, float[] uvWest, float[] uvEast,
-                                     float cubeX, float cubeY, float cubeZ,
-                                     float sizeX, float sizeY, float sizeZ,
-                                     float extraX, float extraY, float extraZ,
-                                     float textureWidth, float textureHeight,
-                                     boolean mirrorU, boolean mirrorV) {
-
-        Cube cube = new Cube(0, 0,
-                cubeX, cubeY, cubeZ,
-                sizeX, sizeY, sizeZ,
-                extraX, extraY, extraZ, false,
-                textureWidth, textureHeight, new HashSet<>() {{
-            addAll(List.of(Direction.values()));
-        }});
-
-        CuboidAccessor accessor = (CuboidAccessor) cube;
-        accessor.setMinX(cubeX);
-        accessor.setMinY(cubeY);
-        accessor.setMinZ(cubeZ);
-        accessor.setMaxX(cubeX + sizeX);
-        accessor.setMaxY(cubeY + sizeY);
-        accessor.setMaxZ(cubeZ + sizeZ);
-        //Quad[] sides = new Quad[6];
-        ArrayList<Polygon> sides = new ArrayList<>();
-
-        float cubeX2 = cubeX + sizeX;
-        float cubeY2 = cubeY + sizeY;
-        float cubeZ2 = cubeZ + sizeZ;
-
-        //todo check this is right
-        cubeX -= extraX;
-        cubeY -= extraY;
-        cubeZ -= extraZ;
-        cubeX2 += extraX;
-        cubeY2 += extraY;
-        cubeZ2 += extraZ;
-
-
-        Vertex vertex = new Vertex(cubeX, cubeY, cubeZ, 0.0f, 0.0f);
-        Vertex vertex2 = new Vertex(cubeX2, cubeY, cubeZ, 0.0f, 8.0f);
-        Vertex vertex3 = new Vertex(cubeX2, cubeY2, cubeZ, 8.0f, 8.0f);
-        Vertex vertex4 = new Vertex(cubeX, cubeY2, cubeZ, 8.0f, 0.0f);
-        Vertex vertex5 = new Vertex(cubeX, cubeY, cubeZ2, 0.0f, 0.0f);
-        Vertex vertex6 = new Vertex(cubeX2, cubeY, cubeZ2, 0.0f, 8.0f);
-        Vertex vertex7 = new Vertex(cubeX2, cubeY2, cubeZ2, 8.0f, 8.0f);
-        Vertex vertex8 = new Vertex(cubeX, cubeY2, cubeZ2, 8.0f, 0.0f);
-
-        //altered custom uv quads see working out below
-        //probably needs to be adjusted but thats later me problem
-
-
-        //vertexes ordering format
-        // 1 2
-        // 4 3
-
-
-        try {
-            sides.add(new Polygon(mirrorV ? new Vertex[]{vertex8, vertex7, vertex3, vertex4} : new Vertex[]{vertex, vertex2, vertex6, vertex5},
-                    mirrorU ? uvUp[2] : uvUp[0],
-                    mirrorV ? uvUp[3] : uvUp[1],
-                    mirrorU ? uvUp[0] : uvUp[2],
-                    mirrorV ? uvUp[1] : uvUp[3],
-                    textureWidth, textureHeight, false, mirrorV ? Direction.UP : Direction.DOWN));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-up failed for " + selfModelData.id);
-        }
-        try {
-            sides.add(new Polygon(mirrorV ? new Vertex[]{vertex, vertex2, vertex6, vertex5} : new Vertex[]{vertex8, vertex7, vertex3, vertex4},//actually down
-                    // uvDown[0], uvDown[1], uvDown[2], uvDown[3],
-                    mirrorU ? uvDown[2] : uvDown[0],
-                    mirrorV ? uvDown[3] : uvDown[1],
-                    mirrorU ? uvDown[0] : uvDown[2],
-                    mirrorV ? uvDown[1] : uvDown[3],
-                    textureWidth, textureHeight, false, mirrorV ? Direction.DOWN : Direction.UP));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-down failed for " + selfModelData.id);
-        }
-        try {
-            sides.add(new Polygon(mirrorU ? new Vertex[]{vertex, vertex5, vertex8, vertex4} : new Vertex[]{vertex6, vertex2, vertex3, vertex7},
-                    // uvWest[0], uvWest[1], uvWest[2], uvWest[3],
-                    mirrorU ? uvWest[2] : uvWest[0],
-                    mirrorV ? uvWest[3] : uvWest[1],
-                    mirrorU ? uvWest[0] : uvWest[2],
-                    mirrorV ? uvWest[1] : uvWest[3],
-                    textureWidth, textureHeight, false, mirrorU ? Direction.WEST : Direction.EAST));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-west failed for " + selfModelData.id);
-        }
-        try {
-            sides.add(new Polygon(new Vertex[]{vertex2, vertex, vertex4, vertex3},
-                    //uvNorth[0], uvNorth[1], uvNorth[2], uvNorth[3],
-                    mirrorU ? uvNorth[2] : uvNorth[0],
-                    mirrorV ? uvNorth[3] : uvNorth[1],
-                    mirrorU ? uvNorth[0] : uvNorth[2],
-                    mirrorV ? uvNorth[1] : uvNorth[3],
-                    textureWidth, textureHeight, false, Direction.NORTH));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-north failed for " + selfModelData.id);
-        }
-        try {
-            sides.add(new Polygon(mirrorU ? new Vertex[]{vertex6, vertex2, vertex3, vertex7} : new Vertex[]{vertex, vertex5, vertex8, vertex4},
-                    //uvEast[0], uvEast[1], uvEast[2], uvEast[3],
-                    mirrorU ? uvEast[2] : uvEast[0],
-                    mirrorV ? uvEast[3] : uvEast[1],
-                    mirrorU ? uvEast[0] : uvEast[2],
-                    mirrorV ? uvEast[1] : uvEast[3],
-                    textureWidth, textureHeight, false, mirrorU ? Direction.EAST : Direction.WEST));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-east failed for " + selfModelData.id);
-        }
-        try {
-            sides.add(new Polygon(new Vertex[]{vertex5, vertex6, vertex7, vertex8},
-                    //uvSouth[0], uvSouth[1], uvSouth[2], uvSouth[3],
-                    mirrorU ? uvSouth[2] : uvSouth[0],
-                    mirrorV ? uvSouth[3] : uvSouth[1],
-                    mirrorU ? uvSouth[0] : uvSouth[2],
-                    mirrorV ? uvSouth[1] : uvSouth[3],
-                    textureWidth, textureHeight, false, Direction.SOUTH));
-        } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("uv-south failed for " + selfModelData.id);
-        }
-
-
-        ((CuboidAccessor) cube).setPolygons(sides.toArray(new Polygon[0]));
-        return cube;
-    }
 
     @Override
     public String toString() {
@@ -420,11 +149,10 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
 
-
     // private static final Quad blankQuad = new Quad(new Vertex[]{0, 0, 0, 0}, 0, 0, 0, 0, 0, 0,false, Direction.NORTH);
 
     @Override
-    public void render(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
+    public void render(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif ) {
         if (attachments != null) {
             for (Consumer<PoseStack> attachment : attachments) {
                 matrices.pushPose();
@@ -435,17 +163,18 @@ public class EMFModelPartCustom extends EMFModelPart {
         }
 
         switch (EMF.config().getConfig().renderModeChoice) {
-            case NORMAL -> renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+            case NORMAL ->
+                    renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif );
             case GREEN -> {
                 float flash = (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000d));
                 #if MC >= MC_21
-                    var col = FastColor.ARGB32.color(
-                            (int) (255 * flash),
-                            FastColor.ARGB32.green(k),
-                            (int) (255 * flash),
-                            FastColor.ARGB32.alpha(k)
-                            );
-                    renderWithTextureOverride(matrices, vertices, light, overlay, col);
+                var col = FastColor.ARGB32.color(
+                        (int) (255 * flash),
+                        FastColor.ARGB32.green(k),
+                        (int) (255 * flash),
+                        FastColor.ARGB32.alpha(k)
+                );
+                renderWithTextureOverride(matrices, vertices, light, overlay, col);
                 #else
                     renderWithTextureOverride(matrices, vertices, light, overlay, flash, green, flash, alpha);
                 #endif
@@ -453,11 +182,11 @@ public class EMFModelPartCustom extends EMFModelPart {
             case LINES ->
                     renderBoxes(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()));
             case LINES_AND_TEXTURE -> {
-                renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+                renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif );
                 renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()), 1f);
             }
             case LINES_AND_TEXTURE_FLASH -> {
-                renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+                renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif );
                 float flash = (float) (Math.sin(System.currentTimeMillis() / 1000d) + 1) / 2f;
                 renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()), flash);
             }
@@ -467,11 +196,264 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
     @Override
-    void renderWithTextureOverride(final PoseStack matrices, final VertexConsumer vertices, final int light, final int overlay,#if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
+    void renderWithTextureOverride(final PoseStack matrices, final VertexConsumer vertices, final int light, final int overlay,#if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif ) {
         //do not render if this is a custom part and are rendering a feature overlay
         if (textureOverride != null && lastTextureOverride == EMFManager.getInstance().entityRenderCount) return;
 
         //otherwise render as normal
-        super.renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+        super.renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif );
+    }
+
+    static class EMFCube extends Cube {
+
+        // cube with simple box UV
+        EMFCube(EMFPartData selfModelData,
+                float textureU, float textureV,
+                float cubeX, float cubeY, float cubeZ,
+                float sizeX, float sizeY, float sizeZ,
+                float extraX, float extraY, float extraZ,
+                float textureWidth, float textureHeight,
+                boolean mirrorU, boolean mirrorV) throws Exception {
+
+            super((int) textureU, (int) textureV,
+                    cubeX, cubeY, cubeZ,
+                    sizeX, sizeY, sizeZ,
+                    extraX, extraY, extraZ, false,
+                    textureWidth, textureHeight, new HashSet<>() {{
+                        addAll(List.of(Direction.values()));
+                    }});
+
+            CuboidAccessor accessor = (CuboidAccessor) this;
+            accessor.setMinX(cubeX);
+            accessor.setMinY(cubeY);
+            accessor.setMinZ(cubeZ);
+            accessor.setMaxX(cubeX + sizeX);
+            accessor.setMaxY(cubeY + sizeY);
+            accessor.setMaxZ(cubeZ + sizeZ);
+            //Quad[] sides = new Quad[6];
+
+            float cubeX2 = cubeX + sizeX;
+            float cubeY2 = cubeY + sizeY;
+            float cubeZ2 = cubeZ + sizeZ;
+            cubeX -= extraX;
+            cubeY -= extraY;
+            cubeZ -= extraZ;
+            cubeX2 += extraX;
+            cubeY2 += extraY;
+            cubeZ2 += extraZ;
+
+            Vertex vertex = new Vertex(cubeX, cubeY, cubeZ, 0.0f, 0.0f);
+            Vertex vertex2 = new Vertex(cubeX2, cubeY, cubeZ, 0.0f, 8.0f);
+            Vertex vertex3 = new Vertex(cubeX2, cubeY2, cubeZ, 8.0f, 8.0f);
+            Vertex vertex4 = new Vertex(cubeX, cubeY2, cubeZ, 8.0f, 0.0f);
+            Vertex vertex5 = new Vertex(cubeX, cubeY, cubeZ2, 0.0f, 0.0f);
+            Vertex vertex6 = new Vertex(cubeX2, cubeY, cubeZ2, 0.0f, 8.0f);
+            Vertex vertex7 = new Vertex(cubeX2, cubeY2, cubeZ2, 8.0f, 8.0f);
+            Vertex vertex8 = new Vertex(cubeX, cubeY2, cubeZ2, 8.0f, 0.0f);
+            ArrayList<Polygon> sides = new ArrayList<>();
+            @SuppressWarnings("UnnecessaryLocalVariable")
+            float j = textureU;
+            float k = textureU + sizeZ;
+            float l = textureU + sizeZ + sizeX;
+            float m = textureU + sizeZ + sizeX + sizeX;
+            float n = textureU + sizeZ + sizeX + sizeZ;
+            float o = textureU + sizeZ + sizeX + sizeZ + sizeX;
+            @SuppressWarnings("UnnecessaryLocalVariable")
+            float p = textureV;
+            float q = textureV + sizeZ;
+            float r = textureV + sizeZ + sizeY;
+
+            try {
+                sides.add(new Polygon(mirrorV ? new Vertex[]{vertex3, vertex4, vertex8, vertex7} : new Vertex[]{vertex6, vertex5, vertex, vertex2}, mirrorU ? l : k, mirrorV ? q : p, mirrorU ? k : l, mirrorV ? p : q, textureWidth, textureHeight, false, mirrorV ? Direction.UP : Direction.DOWN));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-dwn failed for " + selfModelData.id);
+                throw new Exception("uv-dwn failed for " + selfModelData.id);
+            }
+            try {
+                sides.add(new Polygon(mirrorV ? new Vertex[]{vertex6, vertex5, vertex, vertex2} : new Vertex[]{vertex3, vertex4, vertex8, vertex7}, mirrorU ? m : l, mirrorV ? p : q, mirrorU ? l : m, mirrorV ? q : p, textureWidth, textureHeight, false, mirrorV ? Direction.DOWN : Direction.UP));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-up failed for " + selfModelData.id);
+                throw new Exception("uv-up failed for " + selfModelData.id);
+            }
+            try {
+                sides.add(new Polygon(mirrorU ? new Vertex[]{vertex6, vertex2, vertex3, vertex7} : new Vertex[]{vertex, vertex5, vertex8, vertex4}, mirrorU ? k : j, mirrorV ? r : q, mirrorU ? j : k, mirrorV ? q : r, textureWidth, textureHeight, false, mirrorU ? Direction.EAST : Direction.WEST));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-west failed for " + selfModelData.id);
+                throw new Exception("uv-west failed for " + selfModelData.id);
+            }
+            try {
+                sides.add(new Polygon(new Vertex[]{vertex2, vertex, vertex4, vertex3}, mirrorU ? l : k, mirrorV ? r : q, mirrorU ? k : l, mirrorV ? q : r, textureWidth, textureHeight, false, Direction.NORTH));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-nrth failed for " + selfModelData.id);
+                throw new Exception("uv-nrth failed for " + selfModelData.id);
+            }
+            try {
+                sides.add(new Polygon(mirrorU ? new Vertex[]{vertex, vertex5, vertex8, vertex4} : new Vertex[]{vertex6, vertex2, vertex3, vertex7}, mirrorU ? n : l, mirrorV ? r : q, mirrorU ? l : n, mirrorV ? q : r, textureWidth, textureHeight, false, mirrorU ? Direction.WEST : Direction.EAST));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-east failed for " + selfModelData.id);
+                throw new Exception("uv-east failed for " + selfModelData.id);
+            }
+            try {
+                sides.add(new Polygon(new Vertex[]{vertex5, vertex6, vertex7, vertex8}, mirrorU ? o : n, mirrorV ? r : q, mirrorU ? n : o, mirrorV ? q : r, textureWidth, textureHeight, false, Direction.SOUTH));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-sth failed for " + selfModelData.id);
+                throw new Exception("uv-sth failed for " + selfModelData.id);
+            }
+
+
+            accessor.setPolygons(sides.toArray(new Polygon[0]));
+        }
+
+        EMFCube(EMFPartData selfModelData,
+                float[] uvDown, float[] uvUp, float[] uvNorth, float[] uvSouth, float[] uvWest, float[] uvEast,
+                float cubeX, float cubeY, float cubeZ,
+                float sizeX, float sizeY, float sizeZ,
+                float extraX, float extraY, float extraZ,
+                float textureWidth, float textureHeight,
+                boolean mirrorU, boolean mirrorV) {
+            super(0, 0,
+                    cubeX, cubeY, cubeZ,
+                    sizeX, sizeY, sizeZ,
+                    extraX, extraY, extraZ, false,
+                    textureWidth, textureHeight, new HashSet<>() {{
+                        addAll(List.of(Direction.values()));
+                    }});
+
+
+            CuboidAccessor accessor = (CuboidAccessor) this;
+            accessor.setMinX(cubeX);
+            accessor.setMinY(cubeY);
+            accessor.setMinZ(cubeZ);
+            accessor.setMaxX(cubeX + sizeX);
+            accessor.setMaxY(cubeY + sizeY);
+            accessor.setMaxZ(cubeZ + sizeZ);
+            //Quad[] sides = new Quad[6];
+
+            float cubeX2 = cubeX + sizeX;
+            float cubeY2 = cubeY + sizeY;
+            float cubeZ2 = cubeZ + sizeZ;
+            cubeX -= extraX;
+            cubeY -= extraY;
+            cubeZ -= extraZ;
+            cubeX2 += extraX;
+            cubeY2 += extraY;
+            cubeZ2 += extraZ;
+
+
+            Vertex vertex = new Vertex(cubeX, cubeY, cubeZ, 0.0f, 0.0f);
+            Vertex vertex2 = new Vertex(cubeX2, cubeY, cubeZ, 0.0f, 8.0f);
+            Vertex vertex3 = new Vertex(cubeX2, cubeY2, cubeZ, 8.0f, 8.0f);
+            Vertex vertex4 = new Vertex(cubeX, cubeY2, cubeZ, 8.0f, 0.0f);
+            Vertex vertex5 = new Vertex(cubeX, cubeY, cubeZ2, 0.0f, 0.0f);
+            Vertex vertex6 = new Vertex(cubeX2, cubeY, cubeZ2, 0.0f, 8.0f);
+            Vertex vertex7 = new Vertex(cubeX2, cubeY2, cubeZ2, 8.0f, 8.0f);
+            Vertex vertex8 = new Vertex(cubeX, cubeY2, cubeZ2, 8.0f, 0.0f);
+
+
+            ArrayList<Polygon> sides = new ArrayList<>();
+
+            //vertexes ordering format
+            // 1 2
+            // 4 3
+
+
+            try {
+                sides.add(new Polygon(mirrorV ? new Vertex[]{vertex8, vertex7, vertex3, vertex4} : new Vertex[]{vertex, vertex2, vertex6, vertex5}, mirrorU ? uvUp[2] : uvUp[0], mirrorV ? uvUp[3] : uvUp[1], mirrorU ? uvUp[0] : uvUp[2], mirrorV ? uvUp[1] : uvUp[3], textureWidth, textureHeight, false, mirrorV ? Direction.UP : Direction.DOWN));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-up failed for " + selfModelData.id);
+            }
+            try {
+                sides.add(new Polygon(mirrorV ? new Vertex[]{vertex, vertex2, vertex6, vertex5} : new Vertex[]{vertex8, vertex7, vertex3, vertex4}, mirrorU ? uvDown[2] : uvDown[0], mirrorV ? uvDown[3] : uvDown[1], mirrorU ? uvDown[0] : uvDown[2], mirrorV ? uvDown[1] : uvDown[3], textureWidth, textureHeight, false, mirrorV ? Direction.DOWN : Direction.UP));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-down failed for " + selfModelData.id);
+            }
+            try {
+                sides.add(new Polygon(mirrorU ? new Vertex[]{vertex, vertex5, vertex8, vertex4} : new Vertex[]{vertex6, vertex2, vertex3, vertex7}, mirrorU ? uvWest[2] : uvWest[0], mirrorV ? uvWest[3] : uvWest[1], mirrorU ? uvWest[0] : uvWest[2], mirrorV ? uvWest[1] : uvWest[3], textureWidth, textureHeight, false, mirrorU ? Direction.WEST : Direction.EAST));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-west failed for " + selfModelData.id);
+            }
+            try {
+                sides.add(new Polygon(new Vertex[]{vertex2, vertex, vertex4, vertex3}, mirrorU ? uvNorth[2] : uvNorth[0], mirrorV ? uvNorth[3] : uvNorth[1], mirrorU ? uvNorth[0] : uvNorth[2], mirrorV ? uvNorth[1] : uvNorth[3], textureWidth, textureHeight, false, Direction.NORTH));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-north failed for " + selfModelData.id);
+            }
+            try {
+                sides.add(new Polygon(mirrorU ? new Vertex[]{vertex6, vertex2, vertex3, vertex7} : new Vertex[]{vertex, vertex5, vertex8, vertex4}, mirrorU ? uvEast[2] : uvEast[0], mirrorV ? uvEast[3] : uvEast[1], mirrorU ? uvEast[0] : uvEast[2], mirrorV ? uvEast[1] : uvEast[3], textureWidth, textureHeight, false, mirrorU ? Direction.EAST : Direction.WEST));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-east failed for " + selfModelData.id);
+            }
+            try {
+                sides.add(new Polygon(new Vertex[]{vertex5, vertex6, vertex7, vertex8}, mirrorU ? uvSouth[2] : uvSouth[0], mirrorV ? uvSouth[3] : uvSouth[1], mirrorU ? uvSouth[0] : uvSouth[2], mirrorV ? uvSouth[1] : uvSouth[3], textureWidth, textureHeight, false, Direction.SOUTH));
+            } catch (Exception e) {
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("uv-south failed for " + selfModelData.id);
+            }
+
+
+            accessor.setPolygons(sides.toArray(new Polygon[0]));
+        }
+
+        //sodium 0.6 available versions
+        #if MC >= MC_21
+        @Override
+        public void compile(final PoseStack.Pose pose, final VertexConsumer vertexConsumer, final int i, final int j, final int k) {
+            //copy of vanilla compile() required to be overridden in sodium 0.6
+
+            Matrix4f matrix4f = pose.pose();
+            Vector3f vector3f = new Vector3f();
+
+            for (Polygon polygon : this.polygons) {
+                Vector3f vector3f2 = pose.transformNormal(polygon.normal, vector3f);
+                float f = vector3f2.x();
+                float g = vector3f2.y();
+                float h = vector3f2.z();
+                Vertex[] var16 = polygon.vertices;
+
+                for (Vertex vertex : var16) {
+                    float l = vertex.pos.x() / 16.0F;
+                    float m = vertex.pos.y() / 16.0F;
+                    float n = vertex.pos.z() / 16.0F;
+                    Vector3f vector3f3 = matrix4f.transformPosition(l, m, n, vector3f);
+                    vertexConsumer.addVertex(vector3f3.x(), vector3f3.y(), vector3f3.z(), k, vertex.u, vertex.v, j, i, f, g, h);
+                }
+            }
+
+        }
+        #elif MC == MC_20_1
+
+        @Override
+        public void compile(final PoseStack.Pose pose, final VertexConsumer vertexConsumer, final int i, final int j, final float f, final float g, final float h, final float k) {
+            Matrix4f matrix4f = pose.pose();
+            Matrix3f matrix3f = pose.normal();
+
+            for (Polygon polygon : this.polygons) {
+                Vector3f vector3f = matrix3f.transform(new Vector3f(polygon.normal));
+                float l = vector3f.x();
+                float m = vector3f.y();
+                float n = vector3f.z();
+                Vertex[] var19 = polygon.vertices;
+
+
+                for (Vertex vertex : var19) {
+                    float o = vertex.pos.x() / 16.0F;
+                    float p = vertex.pos.y() / 16.0F;
+                    float q = vertex.pos.z() / 16.0F;
+                    Vector4f vector4f = matrix4f.transform(new Vector4f(o, p, q, 1.0F));
+                    vertexConsumer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), f, g, h, k, vertex.u, vertex.v, j, i, l, m, n);
+                }
+            }
+        }
+        #endif
     }
 }

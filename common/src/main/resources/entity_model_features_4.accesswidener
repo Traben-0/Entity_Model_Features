@@ -32,3 +32,5 @@ accessible field com/mojang/blaze3d/vertex/BufferBuilder building Z
 accessible field net/minecraft/client/renderer/SpriteCoordinateExpander delegate Lcom/mojang/blaze3d/vertex/VertexConsumer;
 accessible class com/mojang/blaze3d/vertex/VertexMultiConsumer$Double
 accessible field com/mojang/blaze3d/vertex/VertexMultiConsumer$Double second Lcom/mojang/blaze3d/vertex/VertexConsumer;
+
+extendable class net/minecraft/client/model/geom/ModelPart$Cube
