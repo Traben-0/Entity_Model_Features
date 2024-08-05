@@ -7,7 +7,6 @@ import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.MathComponent;
 import traben.entity_model_features.models.animation.math.MathConstant;
 import traben.entity_model_features.models.animation.math.MathValue;
-import traben.entity_model_features.models.animation.math.MathValue.ResultSupplier;
 import traben.entity_model_features.models.animation.math.MathVariable;
 import traben.entity_model_features.models.animation.math.variables.factories.*;
 import traben.entity_model_features.utils.EMFManager;
@@ -105,8 +104,11 @@ public final class VariableRegistry {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
             return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity entity && entity.getMainArm() == HumanoidArm.RIGHT;
         });
-        registerSimpleBoolVariable("is_swinging_right_arm", () -> EMFAnimationEntityContext.isUsingHand(true));
-        registerSimpleBoolVariable("is_swinging_left_arm", () -> EMFAnimationEntityContext.isUsingHand(false));
+        registerSimpleBoolVariable("is_swinging_right_arm", () -> EMFAnimationEntityContext.isSwingingArm(true));
+        registerSimpleBoolVariable("is_swinging_left_arm", () -> EMFAnimationEntityContext.isSwingingArm(false));
+        registerSimpleBoolVariable("is_holding_item_right", () -> EMFAnimationEntityContext.isHoldingItem(true));
+        registerSimpleBoolVariable("is_holding_item_left", () -> EMFAnimationEntityContext.isHoldingItem(false));
+        registerSimpleBoolVariable("is_using_item", EMFAnimationEntityContext::isUsingItem);
         registerSimpleBoolVariable("is_swimming", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
             return EMFAnimationEntityContext.getEMFEntity() instanceof Entity entity && entity.isSwimming();

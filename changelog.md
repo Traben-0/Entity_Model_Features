@@ -1,4 +1,11 @@
 
+- fixed `slime_outer` models removing translucency when using texture overrides
+- fixed `is_swinging_right_arm` and `is_swinging_left_arm`
+- added `is_using_item` true when any item is being used, usually you can detect which arm via `is_swinging_right_arm` and `is_swinging_left_arm` but this is not reliable for all item usages
+- added `is_holding_item_right` and `is_holding_item_left` to detect if the entity is holding an item in the right or left hand, may not work for all entities that hold items, only tested with players
+- added vex charging to `is_aggressive` variable
+
+
 [2.1.2]
 - fixed the player shadows not animating in first person with iris with custom player models
 - fixed a crash when holding tridents, chests, and other custom entity models with texture overrides.

@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.SlimeOuterLayer;
 import net.minecraft.world.entity.EntityType;
@@ -17,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.IEMFModel;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFUtils;
 
 @Mixin(SlimeOuterLayer.class)
@@ -51,5 +53,11 @@ public class MixinSlimeOverlayFeatureRenderer<T extends LivingEntity> {
             emf$heldModelToForce = null;
         }
         //EMFManager.getInstance().preRenderEMFActions("slime_outer", livingEntity, vertexConsumerProvider, f, g, j, k, l);
+    }
+
+    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
+            at = @At(value = "HEAD"))
+    private void emf$setLayerForOverrides(CallbackInfo ci) {
+        EMFAnimationEntityContext.setLayerFactory(RenderType::entityTranslucent);
     }
 }

@@ -39,10 +39,9 @@ import traben.entity_texture_features.ETF;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
-@SuppressWarnings({"resource", "SameParameterValue", "unused"})
+@SuppressWarnings({ "SameParameterValue", "unused"})
 public final class EMFAnimationEntityContext {
 
     private static final Object2IntOpenHashMap<UUID> knownHighestAngerTimeByUUID = new Object2IntOpenHashMap<>() {{
@@ -606,11 +605,18 @@ public final class EMFAnimationEntityContext {
         return IEMFEntity.emf$isAlive();
     }
 
-    public static boolean isUsingHand(boolean right) {
+    public static boolean isUsingItem() {
         if (IEMFEntity == null) return false;
         if (IEMFEntity instanceof LivingEntity entity) {
-            if(!entity.isUsingItem()) return false;
+            return entity.isUsingItem();
+        }
+        return false;
+    }
 
+    public static boolean isSwingingArm(boolean right) {
+        if (IEMFEntity == null) return false;
+        if (getSwingProgress() == 0 && !isUsingItem()) return false;
+        if (IEMFEntity instanceof LivingEntity entity) {
             boolean isRightHanded = entity.getMainArm() == HumanoidArm.RIGHT;
             boolean usingMainHand = entity.getUsedItemHand() == InteractionHand.MAIN_HAND;
             if (right){
@@ -622,6 +628,23 @@ public final class EMFAnimationEntityContext {
         }
         return false;
     }
+
+    public static boolean isHoldingItem(boolean right) {
+        if (IEMFEntity == null) return false;
+        if (IEMFEntity instanceof LivingEntity entity) {
+            boolean isRightHanded = entity.getMainArm() == HumanoidArm.RIGHT;
+            InteractionHand arm;
+            if (right){
+                arm = isRightHanded ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+            } else {
+                arm = isRightHanded ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+            }
+            return !entity.getItemInHand(arm).isEmpty();
+        }
+        return false;
+    }
+
+
 
     public static boolean isAggressive() {
         if (IEMFEntity == null) return false;
@@ -643,6 +666,9 @@ public final class EMFAnimationEntityContext {
         }
         if (IEMFEntity instanceof final NeutralMob angry) {
             return angry.isAngry();
+        }
+        if (IEMFEntity instanceof final Vex vex) {
+            return vex.isCharging();
         }
 
         return IEMFEntity instanceof Mob mob && mob.isAggressive();
@@ -803,6 +829,7 @@ public final class EMFAnimationEntityContext {
     private static void doLimbValues() {
         float o = 0;
         float n = 0;
+        assert IEMFEntity != null;
         if (!IEMFEntity.emf$hasVehicle() && IEMFEntity instanceof LivingEntity alive) {
             o = alive.walkAnimation.position(getTickDelta());
             n = alive.walkAnimation.speed(getTickDelta());
