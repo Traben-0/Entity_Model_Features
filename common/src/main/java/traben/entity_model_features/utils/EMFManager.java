@@ -3,6 +3,7 @@ package traben.entity_model_features.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.client.renderer.blockentity.ChestRenderer;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
@@ -298,10 +299,30 @@ public class EMFManager {//singleton for data holding and resetting needs
                         }
                     }
                     case "chest" -> mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading, "chest");
-                    case "double_chest_left" ->
-                            mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading + "_large", "double_chest_left");
-                    case "double_chest_right" ->
-                            mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading + "_large", "double_chest_right");
+                    case "double_chest_left" -> {
+                        mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading + "_large", "double_chest_left");
+                        if (EMF.config().getConfig().doubleChestAnimFix) {
+                            if(printing) EMFUtils.log("injecting empty right side parts into 'double chest left' for animation purposes");
+                            //inject empty parts that will never render so that the opposite parts may attach and animate as user expects
+                            Map<String, ModelPart> newChildren = new HashMap<>(root.children);//mutable
+                            newChildren.putIfAbsent("lid_right", new ModelPart(List.of(), Map.of()));
+                            newChildren.putIfAbsent("base_right", new ModelPart(List.of(), Map.of()));
+                            newChildren.putIfAbsent("knob_right", new ModelPart(List.of(), Map.of()));
+                            root.children = newChildren;//mutable
+                        }
+                    }
+                    case "double_chest_right" -> {
+                        mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading + "_large", "double_chest_right");
+                        if (EMF.config().getConfig().doubleChestAnimFix) {
+                            if (printing) EMFUtils.log("injecting empty left side parts into 'double chest right' for animation purposes");
+                            //inject empty parts that will never render so that the opposite parts may attach and animate as user expects
+                            Map<String, ModelPart> newChildren = new HashMap<>(root.children);//mutable
+                            newChildren.putIfAbsent("lid_left", new ModelPart(List.of(), Map.of()));
+                            newChildren.putIfAbsent("base_left", new ModelPart(List.of(), Map.of()));
+                            newChildren.putIfAbsent("knob_left", new ModelPart(List.of(), Map.of()));
+                            root.children = newChildren;//mutable
+                        }
+                    }
                     case "shulker" -> {
                         if (currentSpecifiedModelLoading.equals("shulker_box")) {
                             mobNameForFileAndMap.setBoth("shulker_box");

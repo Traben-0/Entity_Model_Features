@@ -67,6 +67,8 @@ public class EMFConfig extends TConfig {
 
     public boolean onlyClientPlayerModel = false;
 
+    public boolean doubleChestAnimFix = true;
+
     @Override
     public TConfigEntryCategory getGUIOptions() {
         return new TConfigEntryCategory.Empty().add(
@@ -77,7 +79,9 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryEnumButton<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
                                         () -> attemptPhysicsModPatch_2, value -> attemptPhysicsModPatch_2 = value, PhysicsModCompatChoice.CUSTOM),
                                 new TConfigEntryBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
-                                        () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true)
+                                        () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
+                                new TConfigEntryBoolean("entity_model_features.config.double_chest_fix", "entity_model_features.config.double_chest_fix.tooltip",
+                                        () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true)
                         ),
                         new TConfigEntryCategory("entity_model_features.config.player_settings").add(
                                 new TConfigEntryBoolean("entity_model_features.config.prevent_hand", "entity_model_features.config.prevent_hand.tooltip",
