@@ -7,6 +7,7 @@ import traben.entity_model_features.models.animation.math.MathMethod;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import net.minecraft.util.Mth;
 
 public class KeyframeloopMethod extends MathMethod {
@@ -20,33 +21,54 @@ public class KeyframeloopMethod extends MathMethod {
         MathComponent delta = parsedArgs.get(0);
         List<MathComponent> frames = new ArrayList<>(parsedArgs);
         frames.remove(0);
-        frames.add(frames.get(1));//add the first frame to the end to make it loop
 
-        int max = frames.size() - 1;
+        MathComponent[] frameArray = frames.toArray(new MathComponent[0]);
+        int frameCount = frameArray.length;
 
         ResultSupplier supplier = () -> {
-            float deltaVal1 = delta.getResult() % max;
-            float deltaVal = deltaVal1 < 0 ? deltaVal1 + max : deltaVal1;
+            float deltaRaw = delta.getResult();
+            int deltaFloor = Mth.floor(deltaRaw);
+//@formatter:off
+            int baseFrameTime =     deltaFloor       % frameCount;
+            int beforeFrameTime =   (deltaFloor - 1) % frameCount;
+            int nextFrameTime =     (deltaFloor + 1) % frameCount;
+            int afterFrameTime =    (deltaFloor + 2) % frameCount;
 
-            int frameIndex = (int) deltaVal;
+            MathComponent baseFrame =   frameArray[baseFrameTime    < 0 ? frameCount + baseFrameTime    : baseFrameTime];
+            MathComponent beforeFrame = frameArray[beforeFrameTime  < 0 ? frameCount + beforeFrameTime  : beforeFrameTime];
+            MathComponent nextFrame =   frameArray[nextFrameTime    < 0 ? frameCount + nextFrameTime    : nextFrameTime];
+            MathComponent afterFrame =  frameArray[afterFrameTime   < 0 ? frameCount + afterFrameTime   : afterFrameTime];
+//@formatter:on
+            float individualFrameDelta = Mth.frac(deltaRaw);
 
-            float frameDelta = deltaVal - frameIndex;
-            var lastFrame = frames.get(frameIndex);
-            var nextFrame = frames.get(frameIndex + 1);
-
-            return Mth.lerp(frameDelta, lastFrame.getResult(), nextFrame.getResult());
+            return Mth.catmullrom(individualFrameDelta,
+                    beforeFrame.getResult(),
+                    baseFrame.getResult(),
+                    nextFrame.getResult(),
+                    afterFrame.getResult());
         };
 
+
         if (delta.isConstant()) {
-            float deltaVal1 = delta.getResult() % max;
-            float deltaVal = deltaVal1 < 0 ? deltaVal1 + max : deltaVal1;
+            float deltaRaw = delta.getResult();
+            int deltaFloor = Mth.floor(deltaRaw);
+//@formatter:off
+            int baseFrameTime =     deltaFloor       % frameCount;
+            int beforeFrameTime =   (deltaFloor - 1) % frameCount;
+            int nextFrameTime =     (deltaFloor + 1) % frameCount;
+            int afterFrameTime =    (deltaFloor + 2) % frameCount;
 
-            int frameIndex = (int) deltaVal;
-            float frameDelta = deltaVal - frameIndex;
-            var lastFrame = frames.get(frameIndex);
-            var nextFrame = frames.get(frameIndex + 1);
-
-            setOptimizedAlternativeToThis(() -> Mth.lerp(frameDelta, lastFrame.getResult(), nextFrame.getResult()));
+            MathComponent baseFrame =   frameArray[baseFrameTime    < 0 ? frameCount + baseFrameTime    : baseFrameTime];
+            MathComponent beforeFrame = frameArray[beforeFrameTime  < 0 ? frameCount + beforeFrameTime  : beforeFrameTime];
+            MathComponent nextFrame =   frameArray[nextFrameTime    < 0 ? frameCount + nextFrameTime    : nextFrameTime];
+            MathComponent afterFrame =  frameArray[afterFrameTime   < 0 ? frameCount + afterFrameTime   : afterFrameTime];
+//@formatter:on
+            float individualFrameDelta = Mth.frac(deltaRaw);
+            setOptimizedAlternativeToThis(() -> Mth.catmullrom(individualFrameDelta,
+                    beforeFrame.getResult(),
+                    baseFrame.getResult(),
+                    nextFrame.getResult(),
+                    afterFrame.getResult()));
         }
 
         setSupplierAndOptimize(supplier, parsedArgs);

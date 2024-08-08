@@ -1,9 +1,12 @@
 
-TODO TRANSLATIONS - fixed an issue with `chest_large.jem` due to how it has to be split into 2 half models in game, this removes the log spam about the missing left/right half and also somewhat fixes animations referring to the opposite side of the chest, you are still highly recommended to keep the left and right half animations separate. A config option has been enabled to toggle this fix in case of modded chest model conflicts.
+
+- fixed issues when used with the Sodium 0.6 betas
+- tweaked the `keyframe()` & `keyframeloop()` animation functions to use catmulrom spline interpolation for smooth transitions between keyframes, factoring in the previous and upcoming frames
+- fixed an issue with `chest_large.jem` due to how it has to be split into 2 half models in game, this removes the log spam about the missing left/right half and also somewhat fixes animations referring to the opposite side of the chest, you are still highly recommended to keep the left and right half animations separate. A config option has been enabled to toggle this fix in case of modded chest model conflicts.
 - fixed `slime_outer` models removing translucency when using texture overrides
 - fixed `is_swinging_right_arm` and `is_swinging_left_arm`
-TODO TRANSLATIONS - added `is_using_item` true when any item is being used, usually you can detect which arm via `is_swinging_right_arm` and `is_swinging_left_arm` but this is not reliable for all item usages
-TODO TRANSLATIONS - added `is_holding_item_right` and `is_holding_item_left` to detect if the entity is holding an item in the right or left hand, may not work for all entities that hold items, only tested with players
+- added `is_using_item` true when any item is being used, usually you can detect which arm via `is_swinging_right_arm` and `is_swinging_left_arm` but this is not reliable for all item usages
+- added `is_holding_item_right` and `is_holding_item_left` to detect if the entity is holding an item in the right or left hand, may not work for all entities that hold items, only tested with players
 - added vex charging to `is_aggressive` variable
 
 

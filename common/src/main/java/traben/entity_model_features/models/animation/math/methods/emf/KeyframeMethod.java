@@ -21,40 +21,67 @@ public class KeyframeMethod extends MathMethod {
         List<MathComponent> frames = new ArrayList<>(parsedArgs);
         frames.remove(0);
 
-        int max = frames.size() - 1;
+        MathComponent[] frameArray = frames.toArray(new MathComponent[0]);
+        int frameEnd = frameArray.length-1;
 
         ResultSupplier supplier = () -> {
-            float deltaVal = delta.getResult();
-            int frameIndex = (int) deltaVal;
-            //no looping
-            if (frameIndex >= max) {
-                return frames.get(max).getResult();
-            } else if (frameIndex < 0) {
-                return frames.get(0).getResult();
-            }
-            //unknown mathematical complexity in each frame so optimize if possible
-            float frameDelta = deltaVal - frameIndex;
-            var lastFrame = frames.get(frameIndex);
-            var nextFrame = frames.get(frameIndex + 1);
+            float deltaRaw = delta.getResult();
+            int deltaFloor = Mth.floor(deltaRaw);
 
-            return Mth.lerp(frameDelta, lastFrame.getResult(), nextFrame.getResult());
+            if(deltaFloor >= frameEnd){
+                return frameArray[frameEnd].getResult();
+            }else if(deltaFloor <= 0){
+                return frameArray[0].getResult();
+            }
+
+//@formatter:off
+            int baseFrameTime =     Mth.clamp(deltaFloor,       0, frameEnd);
+            int beforeFrameTime =   Mth.clamp((deltaFloor - 1), 0, frameEnd);
+            int nextFrameTime =     Mth.clamp((deltaFloor + 1), 0, frameEnd);
+            int afterFrameTime =    Mth.clamp((deltaFloor + 2), 0, frameEnd);
+
+            MathComponent baseFrame =   frameArray[baseFrameTime];
+            MathComponent beforeFrame = frameArray[beforeFrameTime];
+            MathComponent nextFrame =   frameArray[nextFrameTime];
+            MathComponent afterFrame =  frameArray[afterFrameTime];
+//@formatter:on
+            float individualFrameDelta = Mth.frac(deltaRaw);
+
+            return Mth.catmullrom(individualFrameDelta,
+                    beforeFrame.getResult(),
+                    baseFrame.getResult(),
+                    nextFrame.getResult(),
+                    afterFrame.getResult());
         };
 
-        if (delta.isConstant()) {
-            float deltaVal = delta.getResult();
-            int frameIndex = (int) deltaVal;
-            //no looping
-            if (frameIndex >= max) {
-                setOptimizedAlternativeToThis(() -> frames.get(max).getResult());
-            } else if (frameIndex < 0) {
-                setOptimizedAlternativeToThis(() -> frames.get(0).getResult());
-            }
-            //unknown mathematical complexity in each frame so optimize if possible
-            float frameDelta = deltaVal - frameIndex;
-            var lastFrame = frames.get(frameIndex);
-            var nextFrame = frames.get(frameIndex + 1);
 
-            setOptimizedAlternativeToThis(() -> Mth.lerp(frameDelta, lastFrame.getResult(), nextFrame.getResult()));
+        if (delta.isConstant()) {
+            float deltaRaw = delta.getResult();
+            int deltaFloor = Mth.floor(deltaRaw);
+
+            if(deltaFloor >= frameEnd){
+                setOptimizedAlternativeToThis(frameArray[frameEnd]);
+            }else if(deltaFloor <= 0){
+                setOptimizedAlternativeToThis(frameArray[0]);
+            }else {
+//@formatter:off
+                int baseFrameTime =     Mth.clamp(deltaFloor,       0, frameEnd);
+                int beforeFrameTime =   Mth.clamp((deltaFloor - 1), 0, frameEnd);
+                int nextFrameTime =     Mth.clamp((deltaFloor + 1), 0, frameEnd);
+                int afterFrameTime =    Mth.clamp((deltaFloor + 2), 0, frameEnd);
+
+                MathComponent baseFrame =   frameArray[baseFrameTime];
+                MathComponent beforeFrame = frameArray[beforeFrameTime];
+                MathComponent nextFrame =   frameArray[nextFrameTime];
+                MathComponent afterFrame =  frameArray[afterFrameTime];
+//@formatter:on
+                float individualFrameDelta = Mth.frac(deltaRaw);
+                setOptimizedAlternativeToThis(() -> Mth.catmullrom(individualFrameDelta,
+                        beforeFrame.getResult(),
+                        baseFrame.getResult(),
+                        nextFrame.getResult(),
+                        afterFrame.getResult()));
+            }
         }
 
         setSupplierAndOptimize(supplier, parsedArgs);

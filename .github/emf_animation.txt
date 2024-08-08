@@ -157,6 +157,9 @@
 @   is_swinging_right_arm   - If the biped entity is swinging it's right arm
 @   is_swinging_left_arm    - If the biped entity is swinging it's left arm
 @   is_first_person_hand    - If the model part rendering is the first person player hand
+@   is_using_item           - If the entity is currently using an item, e.g. player right clicking with a bucket. can be paired with is_swinging_right_arm & is_swinging_left_arm to know which arm.
+@   is_holding_item_right   - If an item is held in the entities right hand slot
+@   is_holding_item_left    - If an item is held in the entities left hand slot
 #
 # Operators
 #   +, -, *, /, %
@@ -199,8 +202,8 @@
 @   catch(x, c, id)                             - Returns x if x is not NaN or has an Error, otherwise returns c. id is optional, if it is added the catch function will print the reason c was used to the game log with this id
 #
 @ EMF interpolation functions
-@   keyframe(k, a, b, c,...)                    - Interpolates between values based on the current frame 'k' and the keyframes 'a' is 'k=0', 'b' is 'k=1', 'c' is 'k=2' etc.
-@   keyframeloop(k, a, b, c,...)                - Interpolates between values based on the current frame 'k' and the keyframes 'a' is 'k=0', 'b' is 'k=1', 'c' is 'k=2' etc. but loops the animation back to frame 'a' when 'k' is greater than the number of keyframes
+@   keyframe(k, a, b, c,...)                    - Smoothly interpolates between values based on the current frame 'k' and the keyframes. 'a' is 'k=0', 'b' is 'k=1', 'c' is 'k=2' etc.
+@   keyframeloop(k, a, b, c,...)                - Smoothly interpolates between values based on the current frame 'k' and the keyframes. 'a' is 'k=0', 'b' is 'k=1', 'c' is 'k=2' etc. but loops the animation back to frame 'a' when 'k' is greater than the number of keyframes
 @   catmullrom(k, x, y, z, w)                   - Interpolates between x and y using the catmull-rom spline function with control points z and w
 @   hermite(k, x, y, z, w)                      - Interpolates between x and y using the hermite spline function with control points z and w
 @   cubicbezier(k, x, y, z, w)                  - Interpolates between x and y using the cubic bezier spline function with control points z and w
