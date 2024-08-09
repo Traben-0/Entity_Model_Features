@@ -18,6 +18,7 @@
   "entity_model_features.config.function_explanation.ceil": "ceil(x)\nRound x up to the nearest whole number",
   "entity_model_features.config.function_explanation.clamp": "clamp(x, min, max)\nLimits a number to be between min and max values",
   "entity_model_features.config.function_explanation.cos": "cos(x)\nGet the cosine of x",
+  "entity_model_features.config.function_explanation.nbt": "nbt(x,y)\nBoolean function that returns true if the entity has the NBT tag x matching the query y.\nx is equivalent to what comes after 'nbt.<n>.' in the NBT random property.\ny is equivalent to what comes after the '=' in the NBT random property.\ne.g. 'nbt.1.SleepingX=exists:true' in the NBT property will be 'nbt(SleepingX,exists:true) in the animation function'.",
   "entity_model_features.config.function_explanation.cubicbezier": "cubicbezier(k, x, y, z, w)\nInterpolates between x and y using the cubic bezier spline function with control points z and w",
   "entity_model_features.config.function_explanation.degdiff": "degdiff(x, y)\nReturns the shortest angular degree difference between two degree values x and y",
   "entity_model_features.config.function_explanation.easeinback": "easeinback(k, x, y)\nInterpolates between x and y using the ease in back function\n\nexamples here: https://easings.net/",

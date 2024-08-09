@@ -72,6 +72,7 @@ public final class MethodRegistry {
 
         //emf methods
 
+        registerAndWrapMethodFactory("nbt", NBTMethod::new);
         registerAndWrapMethodFactory("keyframe", KeyframeMethod::new);
         registerAndWrapMethodFactory("keyframeloop", KeyframeloopMethod::new);
         registerSimpleMethodFactory("wrapdeg", Mth::wrapDegrees);
