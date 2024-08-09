@@ -10,7 +10,9 @@
 - added `is_using_item` true when any item is being used, usually you can detect which arm via `is_swinging_right_arm` and `is_swinging_left_arm` but this is not reliable for all item usages
 - added `is_holding_item_right` and `is_holding_item_left` to detect if the entity is holding an item in the right or left hand, may not work for all entities that hold items, only tested with players
 - added vex charging to `is_aggressive` variable
-
+- fixed variation for special secondary or backup models, like `outer_armor.jem`. or old directory modded models.
+- signs and boats now have optional override models, based on how vanilla separates every sign and boat variant into its own models, these are only identifiable by enabling model creation logging and seeing what they are called there, and if absent will fallback to the optifine defaults.
+- improved the file name and location displays in the config list of all models
 
 [2.1.2]
 - fixed the player shadows not animating in first person with iris with custom player models

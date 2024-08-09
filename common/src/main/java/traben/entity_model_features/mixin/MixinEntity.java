@@ -215,7 +215,7 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public Vec3 emf$getVelocity() {
-        return getDeltaMovement();
+        return getDeltaMovement();//todo breaks on server apparently
     }
 
     @Override

@@ -7,7 +7,17 @@ import java.util.Objects;
 public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMobNameForFileAndEMFMapId> {
 
     String namespace = "minecraft";
+
+    public void setFileName(final String fileName) {
+        this.fileName = fileName;
+    }
+
     private String fileName;
+
+    public void setMapId(final String mapId) {
+        this.mapId = mapId;
+    }
+
     private String mapId;
     private String secondaryFileName = null;
     private String secondaryNamespace = null;
@@ -66,6 +76,28 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
         return null;
     }
 
+    public void pushCurrentToSecondaryAndAssertNewPrimary(String namespace, String fileName) {
+        this.secondaryFileName = this.fileName;
+        this.secondaryNamespace = this.namespace;
+        this.fileName = fileName;
+        this.namespace = namespace;
+//        this.mapId = mapId;
+    }
+
+    public void setSecondaryFileName(String namespace, String fileName) {
+        this.secondaryFileName = fileName;
+        this.secondaryNamespace = namespace;
+    }
+
+    public void setMapIdAndSecondaryFileName(String both) {
+        setMapIdAndSecondaryFileName(both, both);
+    }
+
+    public void setMapIdAndSecondaryFileName(String mapId, String fileName) {
+        this.mapId = mapId;
+        setSecondaryFileName(namespace, fileName);
+    }
+
 
     public String getNamespace() {
         return namespace;
@@ -93,10 +125,7 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
         }
     }
 
-//    public void pushOverrideFileName(final String tryFirst) {
-//        this.secondaryFileName = fileName;
-//        fileName = tryFirst;
-//    }
+
 
     private void assertNamespaceAndCreateDeprecatedModdedFileName(final String namespace, final String fileName) {
         this.namespace = namespace;

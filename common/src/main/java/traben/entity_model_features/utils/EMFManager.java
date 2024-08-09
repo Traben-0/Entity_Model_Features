@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.unimi.dsi.fastutil.objects.*;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.MutableTriple;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFVersionDifferenceManager;
@@ -335,12 +336,15 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                         if (!currentSpecifiedModelLoading.isBlank()) {
                             switch (currentSpecifiedModelLoading) {
-                                case "sign", "hanging_sign" ->
-                                        mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading);
+                                case "sign", "hanging_sign" -> {
+                                    mobNameForFileAndMap.setFileName(originalLayerName);
+                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName(currentSpecifiedModelLoading);
+                                }
                                 default -> {
                                     if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
                                         EMFUtils.log("EMF unknown modifiable block entity model identified during loading: " + currentSpecifiedModelLoading + ".jem");
-                                    mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading);
+                                    mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading);
+                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName(currentSpecifiedModelLoading,originalLayerName);
                                 }
                             }
                         } else if (originalLayerName.contains("/") && layer.getLayer().equals("main")) {
@@ -351,15 +355,15 @@ public class EMFManager {//singleton for data holding and resetting needs
 //                            } else
                             if (originalLayerName.startsWith("chest_boat/")) {
                                 if (originalLayerName.startsWith("chest_boat/bamboo")) {
-                                    mobNameForFileAndMap.setBoth("chest_raft");
+                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName("chest_raft");
                                 } else {
-                                    mobNameForFileAndMap.setBoth("chest_boat");
+                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName("chest_boat");
                                 }
                             } else if (originalLayerName.startsWith("boat/")) {
                                 if (originalLayerName.startsWith("boat/bamboo")) {
-                                    mobNameForFileAndMap.setBoth("raft");
+                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName("raft");
                                 } else {
-                                    mobNameForFileAndMap.setBoth("boat");
+                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName("boat");
                                 }
                             }
                         }
@@ -383,6 +387,9 @@ public class EMFManager {//singleton for data holding and resetting needs
             mobNameForFileAndMap.finishAndPrepSecondaries();
 
             cache_LayersByModelName.put(mobNameForFileAndMap, layer);
+            if (mobNameForFileAndMap.getSecondaryModel() != null){
+                cache_LayersByModelName.put(mobNameForFileAndMap.getSecondaryModel(), layer);
+            }
 
             if (printing) EMFUtils.log(" > EMF try to find a model for: " + mobNameForFileAndMap);
 
@@ -406,8 +413,9 @@ public class EMFManager {//singleton for data holding and resetting needs
             EMFJemData jemDataFirst = getJemData(jemName, mobNameForFileAndMap);
 
             //pack result for secondary check
-            MutablePair<EMFJemData,CemDirectoryApplier> jemDataAndDirectory =
-                    MutablePair.of(jemDataFirst, hasVariantsAndCanApplyThisDirectoryFirst);
+            MutableTriple<EMFJemData,CemDirectoryApplier,OptifineMobNameForFileAndEMFMapId> finalModelDataAfterAlternateFileNameChecks =
+                    MutableTriple.of(jemDataFirst, hasVariantsAndCanApplyThisDirectoryFirst,mobNameForFileAndMap);
+
 
             //try with secondary model
             // secondary model is either a deprecated format or it is the normal model and an override model was pushed as the first
@@ -420,35 +428,38 @@ public class EMFManager {//singleton for data holding and resetting needs
                 if (hasVariantsAndCanApplyThisDirectorySecondary == null) {
                     hasVariantsAndCanApplyThisDirectorySecondary = getResourceCemDirectoryApplierOrNull(secondaryFileMap.getNamespace(), secondaryFileMap + "2.jem", secondaryFileMap.getfileName());
                 }
-                EMFJemData jemDataSecondary = getJemData(jemName, secondaryFileMap);
+                EMFJemData jemDataSecondary = getJemData(secondaryFileMap + ".jem", secondaryFileMap);
 
                 boolean isFirstModelInValid = jemDataFirst == null && hasVariantsAndCanApplyThisDirectoryFirst == null;
 
                 if (isFirstModelInValid) {
                     //just use second if first is invalid
-                    jemDataAndDirectory.setLeft(jemDataSecondary);
-                    jemDataAndDirectory.setRight(hasVariantsAndCanApplyThisDirectorySecondary);
+                    finalModelDataAfterAlternateFileNameChecks.setLeft(jemDataSecondary);
+                    finalModelDataAfterAlternateFileNameChecks.setMiddle(hasVariantsAndCanApplyThisDirectorySecondary);
+                    finalModelDataAfterAlternateFileNameChecks.setRight(secondaryFileMap);
                 }else  if (jemDataFirst != null && jemDataSecondary != null
                         && jemDataFirst.packName != null && jemDataSecondary.packName != null) {
                     //both valid jems and can extract pack names
                     String highestPackName = ETFUtils2.returnNameOfHighestPackFromTheseTwo(jemDataFirst.packName, jemDataSecondary.packName);
                     //if the secondary model is in a higher resourcepack then use it first
                     if (!jemDataFirst.packName.equals(highestPackName)) {
-                        jemDataAndDirectory.setLeft(jemDataSecondary);
-                        jemDataAndDirectory.setRight(hasVariantsAndCanApplyThisDirectorySecondary);
+                        finalModelDataAfterAlternateFileNameChecks.setLeft(jemDataSecondary);
+                        finalModelDataAfterAlternateFileNameChecks.setMiddle(hasVariantsAndCanApplyThisDirectorySecondary);
+                        finalModelDataAfterAlternateFileNameChecks.setRight(secondaryFileMap);
                     }
                 }
             }
 
-            EMFJemData jemData = jemDataAndDirectory.getLeft();
-            CemDirectoryApplier hasVariantsAndCanApplyThisDirectory = jemDataAndDirectory.getRight();
+            EMFJemData jemData = finalModelDataAfterAlternateFileNameChecks.getLeft();
+            CemDirectoryApplier hasVariantsAndCanApplyThisDirectory = finalModelDataAfterAlternateFileNameChecks.getMiddle();
+            OptifineMobNameForFileAndEMFMapId finalMapData = finalModelDataAfterAlternateFileNameChecks.getRight();
 
             if (jemData != null || hasVariantsAndCanApplyThisDirectory != null) {
-                //we do indeed need custom models
+                //we do have custom models
 
                 //abort with message if we have variant models and no base model and the setting to require this like OptiFine is set
                 if(jemData == null && EMF.config().getConfig().variationRequiresDefaultModel){
-                    EMFUtils.logWarn("The model [" + mobNameForFileAndMap.getfileName() +"] has variation but does not have a default 'base' model, this is not allowed in the OptiFine format.\nYou may disable this requirement in EMF in the 'model > options' settings. Though it is usually best to preserve OptiFine compatibility.\nYou can get a default model by exporting it in the EMF settings via 'models > allmodels > *model* > export'");
+                    EMFUtils.logWarn("The model [" + finalMapData.getfileName() +"] has variation but does not have a default 'base' model, this is not allowed in the OptiFine format.\nYou may disable this requirement in EMF in the 'model > options' settings. Though it is usually best to preserve OptiFine compatibility.\nYou can get a default model by exporting it in the EMF settings via 'models > allmodels > *model* > export'");
                 }else {
 
                     //specification for the optifine map
@@ -460,7 +471,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         }
                     });
 
-                    EMFModelPartRoot emfRoot = new EMFModelPartRoot(mobNameForFileAndMap, hasVariantsAndCanApplyThisDirectory, root, optifinePartNames, new HashMap<>());
+                    EMFModelPartRoot emfRoot = new EMFModelPartRoot(finalMapData, hasVariantsAndCanApplyThisDirectory, root, optifinePartNames, new HashMap<>());
                     if (jemData != null) {
                         emfRoot.addVariantOfJem(jemData, 1);
                         emfRoot.setVariantStateTo(1);
@@ -489,7 +500,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 }
             }
 
-            if (printing) EMFUtils.logWarn(" > Vanilla model used for: " + mobNameForFileAndMap);
+            if (printing) EMFUtils.logWarn(" > Vanilla model used for: " + mobNameForFileAndMap);//original name
             ((IEMFModelNameContainer) root).emf$insertKnownMappings(mobNameForFileAndMap);
             return root;
         } catch (Exception e) {

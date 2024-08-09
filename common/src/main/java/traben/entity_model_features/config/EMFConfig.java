@@ -158,6 +158,7 @@ public class EMFConfig extends TConfig {
     private TConfigEntryCategory getModelSettings() {
         TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.models");
         category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.models_text", 200, TConfigEntryText.TextAlignment.LEFT));
+
         EMFManager.getInstance().cache_LayersByModelName.keySet().stream().sorted().forEach(mapData -> {
             var layer = EMFManager.getInstance().cache_LayersByModelName.get(mapData);
             if (layer != null) {
@@ -170,6 +171,7 @@ public class EMFConfig extends TConfig {
                     model.setWidgetBackgroundToFullWidth();
                     model.setRenderFeature(new ModelRootRenderer(layer));
                     category.add(model);
+                    var second = mapData.getSecondaryModel();
 
                     model.add(new TConfigEntryBoolean("entity_model_features.config.models.enabled", "entity_model_features.config.models.enabled.tooltip",
                                     () -> !modelsNamesDisabled.contains(fileName),
@@ -185,15 +187,19 @@ public class EMFConfig extends TConfig {
                             new TConfigEntryCategory("entity_model_features.config.models.part_names").addAll(
                                     getmappings(mapData.getMapId())
                             ),
-                            getExport(mapData, layer)
+                            getExport(mapData, layer),
+                            new TConfigEntryCategory("entity_model_features.config.models.file_names").addAll(
+                                    TConfigEntryText.fromLongOrMultilineTranslation(
+                                            "<Folders>\nassets/" + mapData.getNamespace() + "/emf/cem/\n"+
+                                                    "assets/" + mapData.getNamespace() + "/optifine/cem/\n\n"+
+                                                    "<possible model names, checked in order>\n"+
+                                                    mapData.getfileName() + ".jem" + (
+                                                            second == null ? "" : ("\n"+second.getfileName() + ".jem\n")
+                                                    )
+                                            ,
+                                            600, TConfigEntryText.TextAlignment.CENTER)
+                            )
                     );
-                    model.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
-                            "assets/" + mapData.getNamespace() + "/optifine/cem/" + mapData.getfileName() + ".jem\n" +
-                                    //"assets/"+mapData.getNamespace()+"/optifine/cem/"+  mapData.getfileName()+"/"+mapData.getfileName()+".jem\n" +
-                                    "assets/" + mapData.getNamespace() + "/emf/cem/" + mapData.getfileName() + ".jem\n" //+
-                            //"assets/"+mapData.getNamespace()+"/emf/cem/"+       mapData.getfileName()+"/"+mapData.getfileName()+".jem\n"
-                            ,
-                            100, TConfigEntryText.TextAlignment.LEFT));
                 }
             }
         });

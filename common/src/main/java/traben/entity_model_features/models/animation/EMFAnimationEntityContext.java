@@ -283,10 +283,13 @@ public final class EMFAnimationEntityContext {
             EMFUtils.chat(vanillaMessage);
             int count = 1;
             for (OptifineMobNameForFileAndEMFMapId data : EMFManager.getInstance().modelsAnnounced) {
+                var second = data.getSecondaryModel();
                 StringBuilder model = new StringBuilder();
                 model.append("\n§Non-Custom Model #").append(count).append("§r")
                         .append(entryAndValue("possible .jem name", data.getDisplayFileName()));
-
+                if(second != null){
+                    model.append(entryAndValue("possible secondary .jem name", second.getDisplayFileName()));
+                }
                 Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(data.getMapId(), null);
                 if (!map.isEmpty()) {
                     EMFUtils.chat(model + "\n§6 - part names:§r printed in game log only.");
