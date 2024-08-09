@@ -1,7 +1,9 @@
 
 
 - fixed issues when used with the Sodium 0.6 betas
+- added a setting to control whether EMF requires a 'base' model for model variation like OptiFine *(e.g. `pig2.jem` requires a `pig.jem` to work)*. This setting is now enabled by default to promote backwards compatibility and prevent confusion.
 - tweaked the `keyframe()` & `keyframeloop()` animation functions to use catmulrom spline interpolation for smooth transitions between keyframes, factoring in the previous and upcoming frames
+- fixed villager clothing and profession textures failing to render when a texture override is set in the model
 - fixed an issue with `chest_large.jem` due to how it has to be split into 2 half models in game, this removes the log spam about the missing left/right half and also somewhat fixes animations referring to the opposite side of the chest, you are still highly recommended to keep the left and right half animations separate. A config option has been enabled to toggle this fix in case of modded chest model conflicts.
 - fixed `slime_outer` models removing translucency when using texture overrides
 - fixed `is_swinging_right_arm` and `is_swinging_left_arm`

@@ -100,7 +100,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     public void doVariantCheck() {
-        if(this.variantTester == null) {
+        if(this.variantTester == null || EMFAnimationEntityContext.getEMFEntity() == null) {
             this.setVariantStateTo(1);
             return;
         }

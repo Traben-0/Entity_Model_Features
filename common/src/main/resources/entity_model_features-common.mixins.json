@@ -43,6 +43,7 @@
     "rendering.MixinSlimeOverlayFeatureRenderer",
     "rendering.MixinStrayOverlayFeatureRenderer",
     "rendering.MixinTropicalFishPatternFeatureRenderer",
+    "rendering.MixinVillagerModel",
     "rendering.MixinWolfCollarFeatureRenderer",
     "rendering.MixinWolfEntityModel",
     "rendering.arrows.MixinArrowRenderer",

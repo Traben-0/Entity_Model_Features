@@ -247,7 +247,9 @@
   "entity_model_features.config.ebe_warn.2": "This happens because a resource-pack is loading a custom model for that block entity",
   "entity_model_features.config.ebe_warn.3": "Currently disabling these options: ",
   "entity_model_features.config.ebe_warn.4": "This can be changed in EMF's model settings",
-  "entity_model_features.config.double_chest_fix": "Add double chest fake parts",
+  "entity_model_features.config.variation_base": "Require base models for variation",
+  "entity_model_features.config.variation_base.tooltip": "OptiFine requires a 'base' model for variation. This means 'pig2.jem' will not variate without a 'pig.jem'.\nEMF does not require this, but will enforce it by default as it is best to preserve OptiFine compatibility where possible.\nYou can easily get a default model by exporting it in the EMF settings via 'models > allmodels > *model* > export'.\nOr just disable this setting.",
+  "entity_model_features.config.double_chest_fix": "Fix double chest model log errors",
   "entity_model_features.config.double_chest_fix.tooltip": "Because the double chest model, 'chest_large.jem', has to be split into 2 half models in the code\nthere can be excessive log spam about the missing left/right half.\nThis option fixes that if enabled and also somewhat fixes animations referring to the opposite side of the chest.\nYou are still highly recommended to keep the left and right half animations separate.\nThis is an option because other mods affecting chest models may potentially have an issue with this.",
   "entity_model_features.config.iris_shadow_skip": "Skip animating Iris shadow pass",
   "entity_model_features.config.iris_shadow_skip.tooltip": "This will make it so the entity model doesn't animate twice\neach frame for both the render and the iris shadow pass\nthis should always be ON and is only here in case of\nfuture breaking iris api changes"

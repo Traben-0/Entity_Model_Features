@@ -8,6 +8,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
 import net.minecraft.util.FastColor;
+import net.minecraft.world.entity.npc.Villager;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -15,6 +16,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.accessor.CuboidAccessor;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFManager;
@@ -198,7 +200,14 @@ public class EMFModelPartCustom extends EMFModelPart {
     @Override
     void renderWithTextureOverride(final PoseStack matrices, final VertexConsumer vertices, final int light, final int overlay,#if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif ) {
         //do not render if this is a custom part and are rendering a feature overlay
-        if (textureOverride != null && lastTextureOverride == EMFManager.getInstance().entityRenderCount) return;
+        if (textureOverride != null && lastTextureOverride == EMFManager.getInstance().entityRenderCount){
+            //allow villager clothing to render here without override
+            //todo perhaps this needs to be looked at better, an exception just for villagers cant be right
+            if(EMFAnimationEntityContext.getEMFEntity() instanceof Villager){
+                super.renderLikeETF(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+            }
+            return;
+        }
 
         //otherwise render as normal
         super.renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif );

@@ -3,7 +3,6 @@ package traben.entity_model_features.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.unimi.dsi.fastutil.objects.*;
-import net.minecraft.client.renderer.blockentity.ChestRenderer;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
@@ -447,40 +446,46 @@ public class EMFManager {//singleton for data holding and resetting needs
             if (jemData != null || hasVariantsAndCanApplyThisDirectory != null) {
                 //we do indeed need custom models
 
-                //specification for the optifine map
-                // only used for tadpole head parts currently as optifine actually uses the root as the body
-                Set<String> optifinePartNames = new HashSet<>();
-                optifinePartNameMap.forEach((optifine, vanilla) -> {
-                    if (!optifine.equals("EMPTY")) {
-                        optifinePartNames.add(vanilla);
-                    }
-                });
+                //abort with message if we have variant models and no base model and the setting to require this like OptiFine is set
+                if(jemData == null && EMF.config().getConfig().variationRequiresDefaultModel){
+                    EMFUtils.logWarn("The model [" + mobNameForFileAndMap.getfileName() +"] has variation but does not have a default 'base' model, this is not allowed in the OptiFine format.\nYou may disable this requirement in EMF in the 'model > options' settings. Though it is usually best to preserve OptiFine compatibility.\nYou can get a default model by exporting it in the EMF settings via 'models > allmodels > *model* > export'");
+                }else {
 
-                EMFModelPartRoot emfRoot = new EMFModelPartRoot(mobNameForFileAndMap, hasVariantsAndCanApplyThisDirectory, root, optifinePartNames, new HashMap<>());
-                if (jemData != null) {
-                    emfRoot.addVariantOfJem(jemData, 1);
-                    emfRoot.setVariantStateTo(1);
-                    setupAnimationsFromJemToModel(jemData, emfRoot, 1);
-                    emfRoot.containsCustomModel = true;
-                    if (hasVariantsAndCanApplyThisDirectory != null) {
+                    //specification for the optifine map
+                    // only used for tadpole head parts currently as optifine actually uses the root as the body
+                    Set<String> optifinePartNames = new HashSet<>();
+                    optifinePartNameMap.forEach((optifine, vanilla) -> {
+                        if (!optifine.equals("EMPTY")) {
+                            optifinePartNames.add(vanilla);
+                        }
+                    });
+
+                    EMFModelPartRoot emfRoot = new EMFModelPartRoot(mobNameForFileAndMap, hasVariantsAndCanApplyThisDirectory, root, optifinePartNames, new HashMap<>());
+                    if (jemData != null) {
+                        emfRoot.addVariantOfJem(jemData, 1);
+                        emfRoot.setVariantStateTo(1);
+                        setupAnimationsFromJemToModel(jemData, emfRoot, 1);
+                        emfRoot.containsCustomModel = true;
+                        if (hasVariantsAndCanApplyThisDirectory != null) {
+                            emfRoot.discoverAndInitVariants();
+                        }
+                    } else {
+                        emfRoot.setVariant1ToVanilla0();
                         emfRoot.discoverAndInitVariants();
                     }
-                } else {
-                    emfRoot.setVariant1ToVanilla0();
-                    emfRoot.discoverAndInitVariants();
-                }
 
-                if (emfRoot.containsCustomModel) {
-                    lastCreatedRootModelPart = emfRoot;
+                    if (emfRoot.containsCustomModel) {
+                        lastCreatedRootModelPart = emfRoot;
 
-                    // set EBE config if required
-                    if (IS_EBE_INSTALLED) {
-                        if (currentBlockEntityTypeLoading != null && EBETypes.containsKey(currentBlockEntityTypeLoading)) {
-                            EBE_JEMS_FOUND.add(EBETypes.get(currentBlockEntityTypeLoading));
+                        // set EBE config if required
+                        if (IS_EBE_INSTALLED) {
+                            if (currentBlockEntityTypeLoading != null && EBETypes.containsKey(currentBlockEntityTypeLoading)) {
+                                EBE_JEMS_FOUND.add(EBETypes.get(currentBlockEntityTypeLoading));
+                            }
                         }
-                    }
 
-                    return emfRoot;
+                        return emfRoot;
+                    }
                 }
             }
 

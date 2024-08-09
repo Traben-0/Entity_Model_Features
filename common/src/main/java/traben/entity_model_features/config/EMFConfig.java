@@ -15,7 +15,6 @@ import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
 import traben.entity_texture_features.ETFApi;
-import traben.entity_texture_features.ETFVersionDifferenceManager;
 import traben.entity_texture_features.config.ETFConfig;
 import traben.tconfig.TConfig;
 import traben.tconfig.gui.TConfigScreenList;
@@ -27,7 +26,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -69,6 +67,8 @@ public class EMFConfig extends TConfig {
 
     public boolean doubleChestAnimFix = true;
 
+    public boolean variationRequiresDefaultModel = true;
+
     @Override
     public TConfigEntryCategory getGUIOptions() {
         return new TConfigEntryCategory.Empty().add(
@@ -81,7 +81,9 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
                                         () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.double_chest_fix", "entity_model_features.config.double_chest_fix.tooltip",
-                                        () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true)
+                                        () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true),
+                                new TConfigEntryBoolean("entity_model_features.config.variation_base", "entity_model_features.config.variation_base.tooltip",
+                                        () -> variationRequiresDefaultModel, value -> variationRequiresDefaultModel = value, true)
                         ),
                         new TConfigEntryCategory("entity_model_features.config.player_settings").add(
                                 new TConfigEntryBoolean("entity_model_features.config.prevent_hand", "entity_model_features.config.prevent_hand.tooltip",
