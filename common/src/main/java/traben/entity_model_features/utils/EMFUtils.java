@@ -12,7 +12,6 @@ import traben.entity_model_features.models.jem_objects.EMFPartData;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.client.Minecraft;
@@ -146,18 +145,18 @@ public class EMFUtils {
 
 
     @Nullable
-    public static EMFPartData readModelPart(String pathOfJpm, String filePath) {
-        //String folderOfModel = new File(mobModelIDInfo.getfileName()).getParent();
-        //assume
-        pathOfJpm = Objects.requireNonNullElse(filePath, "optifine/cem/") + pathOfJpm;
+    public static EMFPartData readModelPart(String pathOfJpm, EMFDirectoryHandler directoryContext) {
+
         if (!pathOfJpm.endsWith(".jpm")) {
             pathOfJpm = pathOfJpm + ".jpm";
         }
+
         try {
-            Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(EMFUtils.res(pathOfJpm));
+            var location = directoryContext.getRelativeFilePossiblyEMFOverridden(pathOfJpm);
+            Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(location);
             if (res.isEmpty()) {
                 if (EMF.config().getConfig().logModelCreationData)
-                    log("jpm failed " + pathOfJpm + " does not exist", false);
+                    log("jpm failed " + location + " does not exist", false);
                 return null;
             }
             Resource jpmResource = res.get();
@@ -174,7 +173,7 @@ public class EMFUtils {
             return jpm;
             //}
         } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData) log("jpm failed " + e, false);
+            if (EMF.config().getConfig().logModelCreationData) log("jpm ["+pathOfJpm+"] failed " + e, false);
         }
         return null;
     }

@@ -2,6 +2,7 @@ package traben.entity_model_features.models.jem_objects;
 
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
@@ -19,9 +20,7 @@ public class EMFJemData {
     public int[] textureSize = null;
     public double shadow_size = 1.0;
     public LinkedList<EMFPartData> models = new LinkedList<>();
-    private String fileName = "none";
-    private String filePath = "";
-    public String packName = null;
+    public EMFDirectoryHandler directoryContext = null;
     private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
     private ResourceLocation customTexture = null;
 
@@ -29,13 +28,6 @@ public class EMFJemData {
         return allTopLevelAnimationsByVanillaPartName;
     }
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public String getFilePath() {
-        return filePath;
-    }
 
     public OptifineMobNameForFileAndEMFMapId getMobModelIDInfo() {
         return mobModelIDInfo;
@@ -58,7 +50,7 @@ public class EMFJemData {
 
                 //if no folder parenting assume it is relative to model
                 if (!textureTest.contains("/") || textureTest.startsWith("./")) {
-                    textureTest = filePath + textureTest;
+                    textureTest = directoryContext.getRelativeDirectoryLocationNoValidation(textureTest);
                 } else if (textureTest.startsWith("~/")) {
                     textureTest = "optifine/" + textureTest;
                 }
@@ -75,36 +67,22 @@ public class EMFJemData {
                     return possibleTexture;
                 }
             } else {
-                EMFUtils.logWarn("Invalid texture identifier: " + textureTest + " for " + fileName);
+                EMFUtils.logWarn("Invalid texture identifier: " + textureTest + " for " + directoryContext.getFileNameWithType());
 
             }
         }
         return MissingTextureAtlasSprite.getLocation();
     }
 
-    private String workingDirectory() {
-        String[] directorySplit = fileName.split("/");
-        if (directorySplit.length > 1) {
-            String lastDirectoryComponentOfFileName = directorySplit[directorySplit.length - 1];
-            return fileName.replaceAll(lastDirectoryComponentOfFileName + "$", "");
-        }
-        return "optifine/cem/";
-    }
 
-
-
-    public void prepare(String fileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo, String packName) {
-        this.packName = packName;
+    public void prepare(EMFDirectoryHandler directoryContext, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+        this.directoryContext = directoryContext;
+        this.mobModelIDInfo = mobModelIDInfo;
 
         if (textureSize != null && textureSize.length != 2) {
             textureSize = new int[]{64, 32};
-            EMFUtils.logWarn("No textureSize provided for: " + fileName + ". Defaulting to 64x32 texture size for model.");
+            EMFUtils.logWarn("No textureSize provided for: " + directoryContext.getFileNameWithType() + ". Defaulting to 64x32 texture size for model.");
         }
-
-        this.mobModelIDInfo = mobModelIDInfo;
-        this.fileName = fileName;
-
-        filePath = workingDirectory();
 
         LinkedList<EMFPartData> originalModelsForReadingOnly = new LinkedList<>(models);
 

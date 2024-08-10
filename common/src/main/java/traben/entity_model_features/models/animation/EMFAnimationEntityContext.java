@@ -251,10 +251,10 @@ public final class EMFAnimationEntityContext {
                 StringBuilder model = new StringBuilder();
                 model.append("§eModel #").append(count).append("§r")
                         .append(entryAndValue("name", debugRoot.modelName.getfileName() + ".jem"));
-                if (debugRoot.variantDirectoryApplier != null) {
+                if (debugRoot.directoryContext != null) {
                     model.append(entryAndValue("directory",
-                            debugRoot.variantDirectoryApplier
-                                    .getThisDirectoryOfFilename(debugRoot.modelName.getNamespace(), debugRoot.modelName.getfileName())));
+                            debugRoot.directoryContext
+                                    .getRelativeDirectoryLocationNoValidation(debugRoot.modelName.getfileName())));
                 }
 
                 if (debugRoot.textureOverride != null) {
@@ -649,6 +649,7 @@ public final class EMFAnimationEntityContext {
 
 
 
+    @SuppressWarnings("IfCanBeSwitch")//only in java 21
     public static boolean isAggressive() {
         if (IEMFEntity == null) return false;
 

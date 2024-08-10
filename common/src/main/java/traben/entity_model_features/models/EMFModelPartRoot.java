@@ -9,7 +9,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
@@ -17,6 +16,7 @@ import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
+import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
@@ -25,7 +25,6 @@ import traben.entity_texture_features.features.property_reading.PropertiesRandom
 import traben.entity_texture_features.utils.EntityIntLRU;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 import static traben.entity_model_features.utils.EMFManager.getJemDataWithDirectory;
 
@@ -41,7 +40,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public final @NotNull EntityIntLRU entitySuffixMap = new EntityIntLRU();
     private final Map<String, EMFModelPartVanilla> allVanillaParts;
     private final Int2ObjectOpenHashMap<ModelPart> vanillaFormatModelPartOfEachState = new Int2ObjectOpenHashMap<>();
-    public EMFManager.CemDirectoryApplier variantDirectoryApplier;
+    public EMFDirectoryHandler directoryContext;
     public ETFApi.ETFVariantSuffixProvider variantTester = null;
     public boolean containsCustomModel = false;
     private long lastMobCountAnimatedOn = 0;
@@ -49,7 +48,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     //construct vanilla root
     public EMFModelPartRoot(OptifineMobNameForFileAndEMFMapId mobNameForFileAndMap,
-                            EMFManager.CemDirectoryApplier variantDirectoryApplier,
+                            EMFDirectoryHandler directoryContext,
                             ModelPart vanillaRoot,
                             Collection<String> optifinePartNames,
                             Map<String, EMFModelPartVanilla> mapForCreatedParts) {
@@ -59,7 +58,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         allVanillaParts.putIfAbsent(name, this);
 
         this.modelName = mobNameForFileAndMap;
-        this.variantDirectoryApplier = variantDirectoryApplier;
+        this.directoryContext = directoryContext;
 
         this.vanillaRoot = vanillaRoot;
 
@@ -197,9 +196,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     public void discoverAndInitVariants() {
+        boolean printing = EMF.config().getConfig().logModelCreationData;
+
         //get random properties and init variants
-        String thisDirectoryFileName = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getNamespace(), modelName.getfileName());
-        ResourceLocation propertyID = EMFUtils.res(thisDirectoryFileName + ".properties");
+        String thisDirectoryFileName =  directoryContext.getRelativeDirectoryLocationNoValidation(directoryContext.rawFileName);
+        ResourceLocation propertyID = directoryContext.getRelativeFilePossiblyEMFOverridden(directoryContext.rawFileName + ".properties");
+
+        if(printing)EMFUtils.log(" > checking properties file: " + propertyID + " for: " + thisDirectoryFileName + ".jem");
+
         if (Minecraft.getInstance().getResourceManager().getResource(propertyID).isPresent()) {
             variantTester = ETFApi.getVariantSupplierOrNull(propertyID, EMFUtils.res(thisDirectoryFileName + ".jem"), "models");
 
@@ -221,11 +225,21 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     //init all variants
                     for (int variant : allModelVariants) {
                         setVariantStateTo(1);
+                        //String jemNameVariant = directoryContext.getRelativeFilePossiblyEMFOverridden( directoryContext.rawFileName + variant + ".jem");
+                        EMFDirectoryHandler variantDirectoryContext = EMFDirectoryHandler.getDirectoryManagerOrNull(EMF.config().getConfig().logModelCreationData, directoryContext.namespace, directoryContext.rawFileName,  variant + ".jem");
+                        boolean canUseVariant = directoryContext.validForThisBase(variantDirectoryContext);//null checks
 
-                        String jemNameVariant = variantDirectoryApplier.getThisDirectoryOfFilename(modelName.getNamespace(), modelName.getfileName() + variant + ".jem");
-                        if (EMF.config().getConfig().logModelCreationData)
-                            EMFUtils.log(" > incorporating variant jem file: " + jemNameVariant);
-                        EMFJemData jemDataVariant = getJemDataWithDirectory(jemNameVariant, modelName);
+                        if (printing)
+                            EMFUtils.log(" > incorporating variant jem file: " + directoryContext.namespace + ":"+ directoryContext.rawFileName + variant + ".jem");
+
+                        EMFJemData jemDataVariant;
+                        if (canUseVariant) {
+                            assert variantDirectoryContext != null;
+                            jemDataVariant = getJemDataWithDirectory(variantDirectoryContext, modelName);
+                        } else {
+                            jemDataVariant = null;
+                        }
+
                         if (jemDataVariant != null) {
                             addVariantOfJem(jemDataVariant, variant);
                             setVariantStateTo(variant);
@@ -235,24 +249,24 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                             //make this variant map to 1
                             allKnownStateVariants.put(variant, allKnownStateVariants.get(1));
                             if (EMF.config().getConfig().logModelCreationData)
-                                EMFUtils.log(" > invalid jem variant file: " + jemNameVariant);
+                                EMFUtils.log(" > invalid jem variant file: " + directoryContext.namespace + ":"+ directoryContext.rawFileName + variant + ".jem");
                         }
 
                     }
                     //receiveOneTimeRunnable(this::registerModelRunnable);
                 } else {
-                    if (EMF.config().getConfig().logModelCreationData)
+                    if (printing)
                         EMFUtils.logWarn("properties with only 1 variant found: " + propertyID + ".");
                     //variantTester = null;
                     //variantDirectoryApplier = null;
                 }
             } else {
                 EMFUtils.logWarn("null properties found for: " + propertyID);
-                variantDirectoryApplier = null;
+                directoryContext = null;
             }
         } else {
             EMFUtils.logWarn("no properties or variants found for found for: " + thisDirectoryFileName + ".jem");
-            variantDirectoryApplier = null;
+            directoryContext = null;
         }
     }
 
