@@ -372,6 +372,11 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         return textureOverride;
     }
 
+    public void resetVanillaPartsToDefaults(){
+        this.resetState();
+        allVanillaParts.values().forEach(EMFModelPartWithState::resetState);
+    }
+
 
     @Override
     public String toString() {

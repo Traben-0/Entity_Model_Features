@@ -108,6 +108,10 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         tryAnimate = newState.animation();
     }
 
+    protected void resetState(){
+        setFromState(allKnownStateVariants.get(currentModelVariant));
+    }
+
 
     public void setVariantStateTo(int newVariant) {
         if (currentModelVariant != newVariant) {

@@ -28,7 +28,6 @@ public class MixinHeldItemFeatureRenderer {
     private void emf$setHand(final LivingEntity entity, final ItemStack stack, final ItemDisplayContext transformationMode, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource vertexConsumers, final int light, final CallbackInfo ci) {
         EMFAnimationEntityContext.setInHand = true;
         emf$attachment = arm == HumanoidArm.RIGHT ? EMFAttachments.right_handheld_item : EMFAttachments.left_handheld_item;
-
     }
 
     @Inject(
@@ -36,7 +35,7 @@ public class MixinHeldItemFeatureRenderer {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V",
                     shift = At.Shift.AFTER)
     )
-    private void mixin(final LivingEntity entity, final ItemStack stack, final ItemDisplayContext transformationMode, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource vertexConsumers, final int light, final CallbackInfo ci) {
+    private void emf$transforms(final LivingEntity entity, final ItemStack stack, final ItemDisplayContext transformationMode, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource vertexConsumers, final int light, final CallbackInfo ci) {
         if (emf$attachment != null) {
             var entry = emf$attachment.getAndNullify();
             if (entry != null) {

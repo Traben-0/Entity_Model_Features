@@ -27,7 +27,6 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
-import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -41,7 +40,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     @Unique
     private M emf$heldModelToForce = null;
     @Unique
-    private EMFEntity emf$heldEntity = null;
+    private EMFAnimationEntityContext.IterationContext emf$heldIteration = null;
 
     @SuppressWarnings("unused")
     protected MixinLivingEntityRenderer(EntityRendererProvider.Context ctx) {
@@ -118,14 +117,15 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
     private void emf$grabEntity(T livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, CallbackInfo ci) {
-        emf$heldEntity = EMFAnimationEntityContext.getEMFEntity();
+        emf$heldIteration = EMFAnimationEntityContext.getIterationContext();
     }
 
     @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
     private void emf$eachFeatureLoop(T livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, CallbackInfo ci) {
-        if (EMFAnimationEntityContext.getEMFEntity() != emf$heldEntity)
-            EMFAnimationEntityContext.setCurrentEntityNoIteration(emf$heldEntity);
+        if (EMFManager.getInstance().entityRenderCount != emf$heldIteration.entityRenderCount()) {
+            EMFAnimationEntityContext.setIterationContext(emf$heldIteration);
+        }
     }
 
 }

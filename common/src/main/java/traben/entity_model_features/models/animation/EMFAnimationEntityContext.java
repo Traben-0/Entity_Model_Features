@@ -206,6 +206,7 @@ public final class EMFAnimationEntityContext {
         newEntity(entityIn);
 
         if (entityIn != null) {
+
             //perform variant checking for this entity types models
             //this is the only way to keep it generic and also before the entity is rendered and affect al its models
             Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(entityIn.emf$getTypeString());
@@ -216,7 +217,12 @@ public final class EMFAnimationEntityContext {
                     roots.forEach(EMFModelPartRoot::doVariantCheck);
                 }
 
+                if(entityIn instanceof Player player && EMF.config().getConfig().resetPlayerModelEachRender){
+                    roots.forEach(EMFModelPartRoot::resetVanillaPartsToDefaults);
+                }
             }
+
+
 
             //if this entity requires a debug print do it now after models have variated
             if (EMF.config().getConfig().debugOnRightClick
@@ -1035,5 +1041,47 @@ public final class EMFAnimationEntityContext {
         EMFAnimationEntityContext.shadowZ = shadowZ;
     }
 
+    public static IterationContext getIterationContext() {
+        return new IterationContext(
+                EMFManager.getInstance().entityRenderCount,
+                IEMFEntity,
+                layerFactory,
+                lodFrameSkipping,
+                shadowSize,
+                shadowOpacity,
+                leashX,
+                leashY,
+                leashZ,
+                shadowX,
+                shadowZ
+        );
+    }
 
+    public static void setIterationContext(IterationContext context) {
+        EMFManager.getInstance().entityRenderCount = context.entityRenderCount;
+        IEMFEntity = context.IEMFEntity;
+        layerFactory = context.layerFactory;
+        lodFrameSkipping = context.lodFrameSkipping;
+        shadowSize = context.shadowSize;
+        shadowOpacity = context.shadowOpacity;
+        leashX = context.leashX;
+        leashY = context.leashY;
+        leashZ = context.leashZ;
+        shadowX = context.shadowX;
+        shadowZ = context.shadowZ;
+    }
+
+    public record IterationContext(
+      long entityRenderCount,
+      @Nullable EMFEntity IEMFEntity,
+      Function<ResourceLocation, RenderType> layerFactory,
+      Boolean lodFrameSkipping,
+      float shadowSize,
+      float shadowOpacity,
+      float leashX,
+      float leashY,
+      float leashZ,
+      float shadowX,
+      float shadowZ
+    ){}
 }

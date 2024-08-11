@@ -69,6 +69,8 @@ public class EMFConfig extends TConfig {
 
     public boolean variationRequiresDefaultModel = true;
 
+    public boolean resetPlayerModelEachRender = true;
+
     @Override
     public TConfigEntryCategory getGUIOptions() {
         return new TConfigEntryCategory.Empty().add(
@@ -89,7 +91,9 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryBoolean("entity_model_features.config.prevent_hand", "entity_model_features.config.prevent_hand.tooltip",
                                         () -> preventFirstPersonHandAnimating, value -> preventFirstPersonHandAnimating = value, false),
                                 new TConfigEntryBoolean("entity_model_features.config.only_client", "entity_model_features.config.only_client.tooltip",
-                                        () -> onlyClientPlayerModel, value -> onlyClientPlayerModel = value, false)
+                                        () -> onlyClientPlayerModel, value -> onlyClientPlayerModel = value, false),
+                                new TConfigEntryBoolean("entity_model_features.config.reset_player", "entity_model_features.config.reset_player.tooltip",
+                                        () -> resetPlayerModelEachRender, value -> resetPlayerModelEachRender = value, false)
                         ),
                         new TConfigEntryCategory("entity_model_features.config.performance").add(
                                 new TConfigEntryEnumSlider<>("entity_model_features.config.update", "entity_model_features.config.update.tooltip",

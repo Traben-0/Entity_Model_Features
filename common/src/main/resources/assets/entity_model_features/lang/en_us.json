@@ -242,6 +242,8 @@
   "entity_model_features.config.variable_explanation.optifine_parts": "OptiFine part names:",
   "entity_model_features.config.variable_explanation.unknown_parts": "Un mapped part names:",
   "entity_model_features.config.prevent_hand": "Prevent first person hand animations",
+  "entity_model_features.config.reset_player": "Reset player model every render",
+  "entity_model_features.config.reset_player.tooltip": "This makes EMF reset all the vanilla part transforms of player models well before every render.\nOnly applies if custom models are present for the player.\nThis is not the typical behaviour however with how many mods alter player animations\nthis setting vastly reduces the difficulty of player animation compatibility between mods and animation packs.\nE.G. player emote mods.\nThis compatibility still requires work on the pack makers end.",
   "entity_model_features.config.models.file_names": "File names & Locations",
   "entity_model_features.config.prevent_hand.tooltip": "If enabled this will forcibly prevent all custom EMF animations from playing on the first person hand model",
   "entity_model_features.config.models_text": "These are all the models modifiable via EMF\nThese screens will only show / export information about these models unmodified state\nIf you want to see the current state of a model you will have to look at the model in game",

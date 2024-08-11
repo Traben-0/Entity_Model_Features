@@ -1,6 +1,12 @@
 
 
 - fixed issues when used with the Sodium 0.6 betas
+- Added a setting to make EMF reset all the vanilla part transforms of player models well before every render.
+  - Only applies if custom models are present for the player.
+  - This is not the typical behaviour however with how many mods alter player animations
+  - this setting vastly reduces the difficulty of player animation compatibility between mods and animation packs.
+  - E.G. player emote mods.
+  - This compatibility still requires work on the pack makers end.
 - added a setting to control whether EMF requires a 'base' model for model variation like OptiFine *(e.g. `pig2.jem` requires a `pig.jem` to work)*. This setting is now enabled by default to promote backwards compatibility and prevent confusion.
 - tweaked the `keyframe()` & `keyframeloop()` animation functions to use catmulrom spline interpolation for smooth transitions between keyframes, factoring in the previous and upcoming frames
 - fixed villager clothing and profession textures failing to render when a texture override is set in the model
@@ -13,6 +19,7 @@
 - fixed variation for special secondary or backup models, like `outer_armor.jem`. or old directory modded models.
 - signs and boats now have optional override models, based on how vanilla separates every sign and boat variant into its own models, these are only identifiable by enabling model creation logging and seeing what they are called there, and if absent will fallback to the optifine defaults.
 - improved the file name and location displays in the config list of all models
+- fixed an issue with some entity animation values getting reset during entity feature layer rendering and not being restored correctly
 
 [2.1.2]
 - fixed the player shadows not animating in first person with iris with custom player models

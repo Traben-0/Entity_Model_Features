@@ -6,13 +6,11 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.SpriteCoordinateExpander;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETF;
-import traben.entity_texture_features.features.ETFManager;
 import traben.entity_texture_features.features.ETFRenderContext;
 import traben.entity_texture_features.features.texture_handlers.ETFTexture;
 import traben.entity_texture_features.utils.ETFUtils2;
@@ -22,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -376,6 +376,8 @@ public abstract class EMFModelPart extends ModelPart {
         }
         return mapOfAll;
     }
+
+
 
 
     public static class Animator implements Runnable {
