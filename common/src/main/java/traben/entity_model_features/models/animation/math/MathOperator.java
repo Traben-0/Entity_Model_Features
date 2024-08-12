@@ -1,6 +1,6 @@
 package traben.entity_model_features.models.animation.math;
 
-import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 public enum MathOperator implements MathComponent {
@@ -118,6 +118,7 @@ public enum MathOperator implements MathComponent {
     }
 
     public float execute(MathComponent first, MathComponent second) {
+        EMFUtils.logError("math action execute() incorrectly called [" + this + "].");
         return Float.NaN;
     }
 

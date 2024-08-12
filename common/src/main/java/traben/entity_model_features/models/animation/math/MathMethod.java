@@ -62,24 +62,15 @@ public abstract class MathMethod extends MathValue implements MathComponent {
     }
 
     private static MathMethod of(String methodNameIn, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
-
-        String methodName;
         boolean booleanInvert = methodNameIn.startsWith("!");
-        if (booleanInvert) {
-            methodName = methodNameIn.substring(1);
-        } else {
-            methodName = methodNameIn;
-        }
-
-        //first lets split the args into a list
-        List<String> argsList = getArgsList(args);
+        String methodName = booleanInvert ? methodNameIn.substring(1) : methodNameIn;
 
         if (!MethodRegistry.getInstance().containsMethod(methodName)) {
             throw new EMFMathException("ERROR: Unknown method [" + methodName + "], rejecting animation expression for [" + calculationInstance.animKey + "].");
         }
 
+        List<String> argsList = getArgsList(args);
         MathMethod method = MethodRegistry.getInstance().getMethodFactory(methodName).getMethod(argsList, isNegative, calculationInstance);
-
         if (booleanInvert) {
             method.invertSupplierBoolean();
         }
@@ -89,30 +80,20 @@ public abstract class MathMethod extends MathValue implements MathComponent {
     @NotNull
     private static List<String> getArgsList(final String args) {
         List<String> argsList = new ArrayList<>();
-
         int openBracketCount = 0;
         StringBuilder builder = new StringBuilder();
-        for (char ch :
-                args.toCharArray()) {
-            switch (ch) {
-                case '(' -> {
-                    openBracketCount++;
-                    builder.append(ch);
-                }
-                case ')' -> {
-                    openBracketCount--;
-                    builder.append(ch);
-                }
-                case ',' -> {
-                    if (openBracketCount == 0) {
-                        argsList.add(builder.toString());
-                        builder = new StringBuilder();
-                    } else {
-                        builder.append(ch);
-                    }
-                }
-                default -> builder.append(ch);
+
+        for (char ch : args.toCharArray()) {
+            if (ch == '(') {
+                openBracketCount++;
+            } else if (ch == ')') {
+                openBracketCount--;
+            } else if (ch == ',' && openBracketCount == 0) {
+                argsList.add(builder.toString());
+                builder.setLength(0);
+                continue;
             }
+            builder.append(ch);
         }
         if (!builder.isEmpty()) {
             argsList.add(builder.toString());
@@ -168,19 +149,12 @@ public abstract class MathMethod extends MathValue implements MathComponent {
         //check if method only contains constants, if so precalculate the result and replace this with a constant
         if (!canOptimizeForConstantArgs()) return;
 
-        boolean foundNonConstant = false;
-        for (MathComponent comp :
-                allComponents) {
-            if (!comp.isConstant()) {
-                foundNonConstant = true;
-                break;
-            }
-        }
+        boolean foundNonConstant = allComponents.stream().anyMatch(comp -> !comp.isConstant());
         if (!foundNonConstant) {
-            //precalculate expression that only contains constants
             float constantResult = supplier.get();
-            if (!Float.isNaN(constantResult))
+            if (!Float.isNaN(constantResult)) {
                 optimizedAlternativeToThis = new MathConstant(constantResult, isNegative);
+            }
         }
     }
 

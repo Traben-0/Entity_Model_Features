@@ -1,5 +1,6 @@
 package traben.entity_model_features.models.animation.math.methods.optifine;
 
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.models.animation.math.MathComponent;
@@ -22,7 +23,7 @@ public class PrintMethod extends MathMethod {
 
         setSupplierAndOptimize(() -> {
             float xVal = x.getResult();
-            if (getPrintCount() % (int) n.getResult() == 0) {
+            if (getPrintCount() % (int) n.getResult() == 0 && !EMFManager.getInstance().isAnimationValidationPhase) {
                 EMFUtils.log("print: [" + id + "] = " + xVal);
             }
             return xVal;

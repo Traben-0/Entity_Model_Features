@@ -1,4 +1,4 @@
-package traben.entity_model_features.utils;
+package traben.entity_model_features;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -7,17 +7,19 @@ import net.minecraft.server.packs.PackResources;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutableTriple;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.EMF;
-import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.EBEConfigModifier;
-import traben.entity_model_features.models.EMFModelPart;
-import traben.entity_model_features.models.EMFModelPartRoot;
+import traben.entity_model_features.models.EMFModelMappings;
+import traben.entity_model_features.models.EMFModel_ID;
+import traben.entity_model_features.models.parts.EMFModelPart;
+import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModelNameContainer;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
+import traben.entity_model_features.utils.EMFDirectoryHandler;
+import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.utils.EntityIntLRU;
 
 import java.io.BufferedReader;
@@ -57,13 +59,13 @@ public class EMFManager {//singleton for data holding and resetting needs
     public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
-    public final ObjectSet<OptifineMobNameForFileAndEMFMapId> modelsAnnounced = new ObjectOpenHashSet<>();
+    public final ObjectSet<EMFModel_ID> modelsAnnounced = new ObjectOpenHashSet<>();
 
     public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
     public final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
-    public final Object2ObjectOpenHashMap<OptifineMobNameForFileAndEMFMapId, ModelLayerLocation> cache_LayersByModelName = new Object2ObjectOpenHashMap<>();
+    public final Object2ObjectOpenHashMap<EMFModel_ID, ModelLayerLocation> cache_LayersByModelName = new Object2ObjectOpenHashMap<>();
     private final Object2IntOpenHashMap<ModelLayerLocation> amountOfLayerAttempts = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
@@ -115,63 +117,26 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public static void resetInstance() {
         EMFUtils.log("[EMF (Entity Model Features)]: Clearing data for reload.", false, true);
-        EMFOptiFinePartNameMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
+        EMFModelMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
         self = new EMFManager();
     }
 
-//    @Nullable
-//    public static EMFJemData getJemData(String jemFileName, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
-//
-//        //try emf folder
-//        EMFJemData emfJemData = getJemDataWithDirectory(mobModelIDInfo.getNamespace() + ":emf/cem/" + jemFileName, mobModelIDInfo);
-//        if (emfJemData != null) return emfJemData;
-//        emfJemData = getJemDataWithDirectory(mobModelIDInfo.getNamespace() + ":emf/cem/" + mobModelIDInfo + "/" + jemFileName, mobModelIDInfo);
-//        if (emfJemData != null) return emfJemData;
-//
-//        //try read optifine jems
-//        emfJemData = getJemDataWithDirectory(mobModelIDInfo.getNamespace() + ":optifine/cem/" + jemFileName, mobModelIDInfo);
-//        if (emfJemData != null) return emfJemData;
-//        emfJemData = getJemDataWithDirectory(mobModelIDInfo.getNamespace() + ":optifine/cem/" + mobModelIDInfo + "/" + jemFileName, mobModelIDInfo);
-//        return emfJemData;
-//
-//    }
-
-//    @Nullable
-//    public static CemDirectoryApplier getResourceCemDirectoryApplierOrNull(String namespace, String inCemPathResource, String rawMobName) {
-//        ResourceManager resources = Minecraft.getInstance().getResourceManager();
-//        //try emf folder
-//        if (resources.getResource(EMFUtils.res(namespace, "emf/cem/" + inCemPathResource)).isPresent())
-//            return CemDirectoryApplier.getEMF();
-//        if (resources.getResource(EMFUtils.res(namespace, "emf/cem/" + rawMobName + "/" + inCemPathResource)).isPresent())
-//            return CemDirectoryApplier.getEMF_Mob(rawMobName);
-//        if (resources.getResource(EMFUtils.res(namespace, "optifine/cem/" + inCemPathResource)).isPresent())
-//            return CemDirectoryApplier.getCEM();
-//        if (resources.getResource(EMFUtils.res(namespace, "optifine/cem/" + rawMobName + "/" + inCemPathResource)).isPresent())
-//            return CemDirectoryApplier.getCem_Mob(rawMobName);
-//        return null;
-//    }
-
     @Nullable
-    public static EMFJemData getJemDataWithDirectory(EMFDirectoryHandler jemDirectory, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+    public static EMFJemData getJemDataWithDirectory(EMFDirectoryHandler jemDirectory, EMFModel_ID mobModelIDInfo) {
         String pathOfJem = jemDirectory.getFinalFileLocation();
         if (EMFManager.getInstance().cache_JemDataByFileName.containsKey(pathOfJem)) {
             return EMFManager.getInstance().cache_JemDataByFileName.get(pathOfJem);
         }
+        final boolean print = EMF.config().getConfig().logModelCreationData;
         try {
             Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(EMFUtils.res(pathOfJem));
             if (res.isEmpty()) {
-                if (EMF.config().getConfig().logModelCreationData)
-                    EMFUtils.log(pathOfJem + ", .jem read failed " + pathOfJem + " does not exist", false);
+                if (print) EMFUtils.log(pathOfJem + ", .jem read failed " + pathOfJem + " does not exist", false);
                 return null;
             }
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log(pathOfJem + ", .jem read success " + pathOfJem + " exists", false);
+            if (print) EMFUtils.log(pathOfJem + ", .jem read success " + pathOfJem + " exists", false);
             Resource jemResource = res.get();
-            //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            //System.out.println("jem exists "+ jemFile.exists());
-            //if (jemFile.exists()) {
-            //FileReader fileReader = new FileReader(jemFile);
             BufferedReader reader = new BufferedReader(new InputStreamReader(jemResource.open()));
 
             EMFJemData jem = gson.fromJson(reader, EMFJemData.class);
@@ -180,10 +145,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             if (mobModelIDInfo.areBothSame())
                 EMFManager.getInstance().cache_JemDataByFileName.put(pathOfJem, jem);
             return jem;
-            //}
         } catch (ResourceLocationException | FileNotFoundException e) {
-            if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log(pathOfJem + ", .jem failed to load: " + e, false);
+            if (print) EMFUtils.log(pathOfJem + ", .jem failed to load: " + e, false);
         } catch (Exception e) {
             EMFUtils.log(pathOfJem + ", .jem failed to load: " + e, false);
             //noinspection CallToPrintStackTrace
@@ -194,28 +157,28 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public static EMFModelPart getModelFromHierarchichalId(String hierarchId, Map<String, EMFModelPart> map) {
         if (hierarchId == null || hierarchId.isBlank()) return null;
-        if (!hierarchId.contains(":")) {
-            EMFModelPart part = map.get(hierarchId);
-            if (part == null)
-                return map.get("EMF_" + hierarchId);
-            return part;
-        }
-        for (Map.Entry<String, EMFModelPart> entry :
-                map.entrySet()) {
-            if (entry.getKey().equals(hierarchId) || entry.getKey().equals("EMF_" + hierarchId)
-                    || (entry.getKey().endsWith(":" + hierarchId)) || (entry.getKey().endsWith(":EMF_" + hierarchId)))
+
+        EMFModelPart part = map.get(hierarchId);
+        if (part == null) part = map.get("EMF_" + hierarchId);
+        if (part != null) return part;
+
+        //must search for heirarchical declaration
+        for (Map.Entry<String, EMFModelPart> entry : map.entrySet()) {
+            String key = entry.getKey();
+            if (key.endsWith(":" + hierarchId) || key.endsWith(":EMF_" + hierarchId)) {
                 return entry.getValue();
-            boolean anyMissing = false;
-            String last = "";
-            for (String str :
-                    hierarchId.split(":")) {
-                last = str;
-                if (!(entry.getKey().contains(str) || entry.getKey().contains("EMF_" + str))) {
-                    anyMissing = true;
+            }
+            boolean allPartsMatch = true;
+            String[] parts = hierarchId.split(":");
+            for (String partStr : parts) {
+                if (!key.contains(partStr) && !key.contains("EMF_" + partStr)) {
+                    allPartsMatch = false;
                     break;
                 }
             }
-            if (!anyMissing && entry.getKey().endsWith(last)) return entry.getValue();
+            if (allPartsMatch && key.endsWith(parts[parts.length - 1])) {
+                return entry.getValue();
+            }
         }
         //all possible occurances should be accounted for above must be null
         //EMFUtils.logWarn("NULL animation hierachy id result of: " + hierarchId + "\n in " + map);
@@ -227,7 +190,6 @@ public class EMFManager {//singleton for data holding and resetting needs
         if (IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMF.config().getConfig().allowEBEModConfigModify) {
             try {
                 EBEConfigModifier.modifyEBEConfig(EBE_JEMS_FOUND);
-
             } catch (Exception | Error e) {
                 EMFUtils.logWarn("EBE config modification issue: " + e);
             }
@@ -247,17 +209,12 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
 
         String originalLayerName = layer.getModel().getPath();
-        OptifineMobNameForFileAndEMFMapId mobNameForFileAndMap = new OptifineMobNameForFileAndEMFMapId(
+        EMFModel_ID mobNameForFileAndMap = new EMFModel_ID(
                 currentSpecifiedModelLoading.isBlank() ? originalLayerName : currentSpecifiedModelLoading);
 
-
         try {
-
-
             EMFManager.lastCreatedRootModelPart = null;
-
             boolean printing = (EMF.config().getConfig().logModelCreationData);
-
 
             if (!"main".equals(layer.getLayer())) {
                 mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName() + "_" + layer.getLayer());
@@ -271,81 +228,52 @@ public class EMFManager {//singleton for data holding and resetting needs
                 mobNameForFileAndMap.namespace = layer.getModel().getNamespace();
             } else {
                 //vanilla model
-                if (mobNameForFileAndMap.getfileName().contains("pufferfish"))
-                    mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName().replace("pufferfish", "puffer_fish"));
-
-
                 switch (originalLayerName) {
-                    case "tropical_fish_large" -> mobNameForFileAndMap.setBoth("tropical_fish_b");
-                    case "tropical_fish_small" -> mobNameForFileAndMap.setBoth("tropical_fish_a");
-                    case "tropical_fish_large_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_b");
-                    case "tropical_fish_small_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_a");
-                    case "leash_knot" -> mobNameForFileAndMap.setBoth("lead_knot");
-                    case "trader_llama" -> traderLlamaHappened = true;
-                    case "llama" -> traderLlamaHappened = false;
-                    case "llama_decor" ->
-                            mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
-                    case "ender_dragon" -> mobNameForFileAndMap.setBoth("dragon");
-                    case "dragon_skull" -> mobNameForFileAndMap.setBoth("head_dragon");
-                    case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
-                    case "skeleton_skull" -> mobNameForFileAndMap.setBoth("head_skeleton");
-                    case "wither_skeleton_skull" -> mobNameForFileAndMap.setBoth("head_wither_skeleton");
-                    case "zombie_head" -> mobNameForFileAndMap.setBoth("head_zombie");
-                    case "creeper_head" -> mobNameForFileAndMap.setBoth("head_creeper");
-                    case "piglin_head" -> mobNameForFileAndMap.setBoth("head_piglin");
-                    case "creeper_armor" -> mobNameForFileAndMap.setBoth("creeper_charge");
-                    case "sheep_fur" -> mobNameForFileAndMap.setBoth("sheep_wool");
-                    case "bed_head" -> mobNameForFileAndMap.setBoth("bed", "bed_head");
                     case "bed_foot" -> mobNameForFileAndMap.setBoth("bed", "bed_foot");
-                    case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit", "conduit_cage");
-                    case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit", "conduit_eye");
-                    case "conduit_shell" -> mobNameForFileAndMap.setBoth("conduit", "conduit_shell");
-                    case "conduit_wind" -> mobNameForFileAndMap.setBoth("conduit", "conduit_wind");
-                    case "decorated_pot_base" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_base");
-                    case "decorated_pot_sides" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_sides");
+                    case "bed_head" -> mobNameForFileAndMap.setBoth("bed", "bed_head");
                     case "book" -> {
                         if (currentSpecifiedModelLoading.equals("enchanting_book")) {
                             mobNameForFileAndMap.setBoth("enchanting_book", "book");
-                        } else/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/ {
+                        } else {/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/
                             mobNameForFileAndMap.setBoth("lectern_book", "book");
                         }
                     }
                     case "chest" -> mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading, "chest");
-                    case "double_chest_left" -> {
-                        mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading + "_large", "double_chest_left");
-                        if (EMF.config().getConfig().doubleChestAnimFix) {
-                            if(printing) EMFUtils.log("injecting empty right side parts into 'double chest left' for animation purposes");
-                            //inject empty parts that will never render so that the opposite parts may attach and animate as user expects
-                            Map<String, ModelPart> newChildren = new HashMap<>(root.children);//mutable
-                            newChildren.putIfAbsent("lid_right", new ModelPart(List.of(), Map.of()));
-                            newChildren.putIfAbsent("base_right", new ModelPart(List.of(), Map.of()));
-                            newChildren.putIfAbsent("knob_right", new ModelPart(List.of(), Map.of()));
-                            root.children = newChildren;//mutable
-                        }
-                    }
-                    case "double_chest_right" -> {
-                        mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading + "_large", "double_chest_right");
-                        if (EMF.config().getConfig().doubleChestAnimFix) {
-                            if (printing) EMFUtils.log("injecting empty left side parts into 'double chest right' for animation purposes");
-                            //inject empty parts that will never render so that the opposite parts may attach and animate as user expects
-                            Map<String, ModelPart> newChildren = new HashMap<>(root.children);//mutable
-                            newChildren.putIfAbsent("lid_left", new ModelPart(List.of(), Map.of()));
-                            newChildren.putIfAbsent("base_left", new ModelPart(List.of(), Map.of()));
-                            newChildren.putIfAbsent("knob_left", new ModelPart(List.of(), Map.of()));
-                            root.children = newChildren;//mutable
-                        }
-                    }
+                    case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit", "conduit_cage");
+                    case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit", "conduit_eye");
+                    case "conduit_shell" -> mobNameForFileAndMap.setBoth("conduit", "conduit_shell");
+                    case "conduit_wind" -> mobNameForFileAndMap.setBoth("conduit", "conduit_wind");
+                    case "creeper_armor" -> mobNameForFileAndMap.setBoth("creeper_charge");
+                    case "creeper_head" -> mobNameForFileAndMap.setBoth("head_creeper");
+                    case "decorated_pot_base" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_base");
+                    case "decorated_pot_sides" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_sides");
+                    case "double_chest_left" -> getDoubleChest(root, mobNameForFileAndMap, false, printing);
+                    case "double_chest_right" -> getDoubleChest(root, mobNameForFileAndMap, true, printing);
+                    case "dragon_skull" -> mobNameForFileAndMap.setBoth("head_dragon");
+                    case "ender_dragon" -> mobNameForFileAndMap.setBoth("dragon");
+                    case "leash_knot" -> mobNameForFileAndMap.setBoth("lead_knot");
+                    case "llama" -> traderLlamaHappened = false;
+                    case "llama_decor" -> mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
+                    case "piglin_head" -> mobNameForFileAndMap.setBoth("head_piglin");
+                    case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
+                    case "pufferfish_big" -> mobNameForFileAndMap.setBoth("puffer_fish_big");
+                    case "pufferfish_medium" -> mobNameForFileAndMap.setBoth("puffer_fish_medium");
+                    case "pufferfish_small" -> mobNameForFileAndMap.setBoth("puffer_fish_small");
                     case "shulker" -> {
                         if (currentSpecifiedModelLoading.equals("shulker_box")) {
                             mobNameForFileAndMap.setBoth("shulker_box");
-                        } else {
-                            mobNameForFileAndMap.setBoth("shulker");
                         }
                     }
-
+                    case "skeleton_skull" -> mobNameForFileAndMap.setBoth("head_skeleton");
+                    case "sheep_fur" -> mobNameForFileAndMap.setBoth("sheep_wool");
+                    case "trader_llama" -> traderLlamaHappened = true;
+                    case "tropical_fish_large" -> mobNameForFileAndMap.setBoth("tropical_fish_b");
+                    case "tropical_fish_large_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_b");
+                    case "tropical_fish_small" -> mobNameForFileAndMap.setBoth("tropical_fish_a");
+                    case "tropical_fish_small_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_a");
+                    case "wither_skeleton_skull" -> mobNameForFileAndMap.setBoth("head_wither_skeleton");
+                    case "zombie_head" -> mobNameForFileAndMap.setBoth("head_zombie");
                     default -> {
-
-
                         if (!currentSpecifiedModelLoading.isBlank()) {
                             switch (currentSpecifiedModelLoading) {
                                 case "sign", "hanging_sign" -> {
@@ -360,23 +288,10 @@ public class EMFManager {//singleton for data holding and resetting needs
                                 }
                             }
                         } else if (originalLayerName.contains("/") && layer.getLayer().equals("main")) {
-//                            if (switchKey.startsWith("hanging_sign/")) {
-//                                mobNameForFileAndMap.setBoth("hanging_sign");
-//                            } else if (switchKey.startsWith("sign/")) {
-//                                mobNameForFileAndMap.setBoth("sign");
-//                            } else
                             if (originalLayerName.startsWith("chest_boat/")) {
-                                if (originalLayerName.startsWith("chest_boat/bamboo")) {
-                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName("chest_raft");
-                                } else {
-                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName("chest_boat");
-                                }
+                                mobNameForFileAndMap.setMapIdAndSecondaryFileName(originalLayerName.startsWith("chest_boat/bamboo") ? "chest_raft" : "chest_boat");
                             } else if (originalLayerName.startsWith("boat/")) {
-                                if (originalLayerName.startsWith("boat/bamboo")) {
-                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName("raft");
-                                } else {
-                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName("boat");
-                                }
+                                mobNameForFileAndMap.setMapIdAndSecondaryFileName(originalLayerName.startsWith("boat/bamboo") ? "raft" : "boat");
                             }
                         }
                     }
@@ -403,74 +318,36 @@ public class EMFManager {//singleton for data holding and resetting needs
                 cache_LayersByModelName.put(mobNameForFileAndMap.getSecondaryModel(), layer);
             }
 
-            if (printing) EMFUtils.log(" > EMF try to find a model for: " + mobNameForFileAndMap);
-
-
-            //if (EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap).isEmpty()) {
             //construct simple map for modded or unknown entities
-            Map<String, String> optifinePartNameMap = EMFOptiFinePartNameMappings.getMapOf(mobNameForFileAndMap.getMapId(), root);
-            //}
-
-
-
-
+            Map<String, String> optifinePartNameMap = EMFModelMappings.getMapOf(mobNameForFileAndMap.getMapId(), root);
 
             if (printing) EMFUtils.log(" >> EMF trying to find model: " + mobNameForFileAndMap.getNamespace() + ":optifine/cem/" + mobNameForFileAndMap + ".jem");
 
-            EMFDirectoryHandler baseModelDir =
-                    EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), ".jem");
-            EMFDirectoryHandler propertiesOrSecondDir =
-                    EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), ".properties");
-            if (propertiesOrSecondDir == null) propertiesOrSecondDir =
-                    EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), "2.jem");
-
-            //discard the variation context if they are in a lower pack to the base model and not in matching sub folder locations
-            if(baseModelDir != null && !baseModelDir.validForThisBase(propertiesOrSecondDir)) propertiesOrSecondDir = null;
-
-            EMFJemData jemDataFirst = baseModelDir == null ? null : getJemDataWithDirectory(baseModelDir, mobNameForFileAndMap);
-
-
-            //pack result for secondary check
-            var finalModelDataAfterAlternateFileNameChecks =
-                    MutableTriple.of(jemDataFirst, ImmutablePair.of(baseModelDir,propertiesOrSecondDir),mobNameForFileAndMap);
-
+            var modelDataAndContext = getJemAndContext(printing, mobNameForFileAndMap);
 
             //try with secondary model
-            // secondary model is either a deprecated format or it is the normal model and an override model was pushed as the first
-            if ( mobNameForFileAndMap.getSecondaryModel() != null) {
-                var secondaryFileMap = mobNameForFileAndMap.getSecondaryModel();
-                if (printing)
-                    EMFUtils.log(" >> EMF trying to find secondary model: " + secondaryFileMap.getNamespace() + ":optifine/cem/" + secondaryFileMap + ".jem");
+            var secondaryFileMap = mobNameForFileAndMap.getSecondaryModel();
+            if (secondaryFileMap != null) {
+                if (printing) EMFUtils.log(" >> EMF trying to find secondary model: " + secondaryFileMap.getNamespace() + ":optifine/cem/" + secondaryFileMap + ".jem");
 
-                EMFDirectoryHandler baseModelDir2 =
-                        EMFDirectoryHandler.getDirectoryManagerOrNull(printing, secondaryFileMap.getNamespace(), secondaryFileMap.getfileName(), ".jem");
-                EMFDirectoryHandler propertiesOrSecondDir2 =
-                        EMFDirectoryHandler.getDirectoryManagerOrNull(printing, secondaryFileMap.getNamespace(), secondaryFileMap.getfileName(), ".properties");
-                if (propertiesOrSecondDir2 == null) propertiesOrSecondDir2 =
-                        EMFDirectoryHandler.getDirectoryManagerOrNull(printing, secondaryFileMap.getNamespace(), secondaryFileMap.getfileName(), "2.jem");
+                var secondaryModelDataAndContext = getJemAndContext(printing, secondaryFileMap);
 
-                //discard the variation context if they are in a lower pack to the base model and not in matching sub folder locations
-                if(baseModelDir2 != null && !baseModelDir2.validForThisBase(propertiesOrSecondDir2)) propertiesOrSecondDir2 = null;
+                var jemDataFirst = modelDataAndContext.getLeft();
+                var jemData2 = secondaryModelDataAndContext.getLeft();
 
-                EMFJemData jemData2 = baseModelDir2 == null ? null : getJemDataWithDirectory(baseModelDir2, secondaryFileMap);
-
-
-                boolean isFirstModelInValid = jemDataFirst == null && propertiesOrSecondDir == null;
-
+                boolean isFirstModelInValid = jemDataFirst == null && modelDataAndContext.getMiddle().getRight() == null;
                 if (isFirstModelInValid ||
                         (jemDataFirst != null && jemData2 != null && jemData2.directoryContext.packIndex() > jemDataFirst.directoryContext.packIndex())) {
-                    //just use second if first is invalid
-                    //or
-                    //if the secondary model is in a higher resource pack
-                    finalModelDataAfterAlternateFileNameChecks.setLeft(jemData2);
-                    finalModelDataAfterAlternateFileNameChecks.setMiddle(ImmutablePair.of(baseModelDir2,propertiesOrSecondDir2));
-                    finalModelDataAfterAlternateFileNameChecks.setRight(secondaryFileMap);
+                    //just use second if first is invalid or if the secondary model is in a higher resource pack
+                    modelDataAndContext.setLeft(jemData2);
+                    modelDataAndContext.setMiddle(secondaryModelDataAndContext.getMiddle());
+                    modelDataAndContext.setRight(secondaryFileMap);
                 }
             }
 
-            EMFJemData jemData = finalModelDataAfterAlternateFileNameChecks.getLeft();
-            var directoryContextBaseAndVariant = finalModelDataAfterAlternateFileNameChecks.getMiddle();
-            OptifineMobNameForFileAndEMFMapId finalMapData = finalModelDataAfterAlternateFileNameChecks.getRight();
+            EMFJemData jemData = modelDataAndContext.getLeft();
+            var directoryContextBaseAndVariant = modelDataAndContext.getMiddle();
+            EMFModel_ID finalMapData = modelDataAndContext.getRight();
 
             boolean hasVariants = directoryContextBaseAndVariant.getRight() != null;
 
@@ -481,7 +358,6 @@ public class EMFManager {//singleton for data holding and resetting needs
                 if(jemData == null && EMF.config().getConfig().variationRequiresDefaultModel){
                     EMFUtils.logWarn("The model [" + finalMapData.getfileName() +"] has variation but does not have a default 'base' model, this is not allowed in the OptiFine format.\nYou may disable this requirement in EMF in the 'model > options' settings. Though it is usually best to preserve OptiFine compatibility.\nYou can get a default model by exporting it in the EMF settings via 'models > allmodels > *model* > export'");
                 }else {
-
                     //specification for the optifine map
                     // only used for tadpole head parts currently as optifine actually uses the root as the body
                     Set<String> optifinePartNames = new HashSet<>();
@@ -515,7 +391,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                             }
                         }
                         if (printing) EMFUtils.logWarn(" > EMF model used for: " + mobNameForFileAndMap);
-                        return emfRoot;
+                        return emfRoot;//tada
                     }
                 }
             }
@@ -530,15 +406,44 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
     }
 
+    private MutableTriple<EMFJemData, ImmutablePair<EMFDirectoryHandler, EMFDirectoryHandler>, EMFModel_ID> getJemAndContext(boolean printing, EMFModel_ID mobNameForFileAndMap){
+        EMFDirectoryHandler baseModelDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), ".jem");
+        EMFDirectoryHandler propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), ".properties");
+        if (propertiesOrSecondDir == null)
+            propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), "2.jem");
+
+        //discard the variation context if they are in a lower pack to the base model and not in matching sub folder locations
+        if(baseModelDir != null && !baseModelDir.validForThisBase(propertiesOrSecondDir)) propertiesOrSecondDir = null;
+
+        EMFJemData jemDataFirst = baseModelDir == null ? null : getJemDataWithDirectory(baseModelDir, mobNameForFileAndMap);
+
+        //pack result
+        return MutableTriple.of(jemDataFirst, ImmutablePair.of(baseModelDir,propertiesOrSecondDir),mobNameForFileAndMap);
+    }
+
+    private void getDoubleChest(ModelPart root, EMFModel_ID mobNameForFileAndMap, boolean isRight, boolean printing) {
+        String thisSide = isRight ? "right" : "left";
+        String otherSide = isRight ? "left" : "right";
+
+        mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading + "_large", "double_chest_" + thisSide);
+        if (EMF.config().getConfig().doubleChestAnimFix) {
+            if (printing) EMFUtils.log("injecting empty " + otherSide + " side parts into 'double chest' for animation purposes");
+            Map<String, ModelPart> newChildren = new HashMap<>(root.children);
+            newChildren.putIfAbsent("lid_" + otherSide, new ModelPart(List.of(), Map.of()));
+            newChildren.putIfAbsent("base_" + otherSide, new ModelPart(List.of(), Map.of()));
+            newChildren.putIfAbsent("knob_" + otherSide, new ModelPart(List.of(), Map.of()));
+            root.children = newChildren; // mutable
+        }
+    }
+
     public void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {
 
         boolean printing = EMF.config().getConfig().logModelCreationData;
 
         Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
         allPartsBySingleAndFullHeirachicalId.put("root", emfRootPart);
-        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFOptiFinePartNameMappings.getMapOf(emfRootPart.modelName.getMapId(), null)));
+        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFModelMappings.getMapOf(emfRootPart.modelName.getMapId(), null)));
 
-        //Object2ObjectLinkedOpenHashMap<String, Object2ObjectLinkedOpenHashMap<String, EMFAnimation>> emfAnimationsByPartName = new Object2ObjectLinkedOpenHashMap<>();
         Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
 
 
@@ -550,8 +455,10 @@ public class EMFManager {//singleton for data holding and resetting needs
             anims.forEach((animKey, animationExpression) -> {
                 if (EMF.config().getConfig().logModelCreationData)
                     EMFUtils.log("parsing animation value: [" + animKey + "]");
-                String modelId = animKey.split("\\.")[0];
-                String modelVariable = animKey.split("\\.")[1];
+
+                String[] animKeyParts = animKey.split("\\.");
+                String modelId = animKeyParts[0];
+                String modelVariable = animKeyParts[1];
 
                 EMFModelOrRenderVariable thisVariable = EMFModelOrRenderVariable.get(modelVariable);
                 if (thisVariable == null) thisVariable = EMFModelOrRenderVariable.getRenderVariable(animKey);
@@ -563,7 +470,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         thisVariable,
                         animKey,
                         animationExpression,
-                        jemData.directoryContext.getFileNameWithType()//, variableSuppliers
+                        jemData.directoryContext.getFileNameWithType()
                 );
 
                 if (emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVar()) {
@@ -579,16 +486,11 @@ public class EMFManager {//singleton for data holding and resetting needs
                 } else {
                     emfAnimations.put(animKey, newAnimation);
                 }
-
-
             });
-
             //emfAnimationsByPartName.put(part, thisPartAnims);
         });
+
         isAnimationValidationPhase = true;
-//        emfAnimationsByPartName.forEach((part, animMap) -> {
-
-
         Iterator<EMFAnimation> animMapIterate = emfAnimations.values().iterator();
         while (animMapIterate.hasNext()) {
             EMFAnimation anim = animMapIterate.next();
@@ -604,33 +506,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                 animMapIterate.remove();
             }
         }
-
-        //});
         isAnimationValidationPhase = false;
 
         emfRootPart.receiveAnimations(variantNum, emfAnimations.values()); //emfAnimationsByPartName);
     }
-
-
-//    public interface CemDirectoryApplier {
-//        static CemDirectoryApplier getEMF() {
-//            return (namespace, fileName) -> namespace + ":emf/cem/" + fileName;
-//        }
-//
-//        static CemDirectoryApplier getEMF_Mob(String mobname) {
-//            return (namespace, fileName) -> namespace + ":emf/cem/" + mobname + "/" + fileName;
-//        }
-//
-//        static CemDirectoryApplier getCEM() {
-//            return (namespace, fileName) -> namespace + ":optifine/cem/" + fileName;
-//        }
-//
-//        static CemDirectoryApplier getCem_Mob(String mobName) {
-//            return (namespace, fileName) -> namespace + ":optifine/cem/" + mobName + "/" + fileName;
-//        }
-//
-//        String getThisDirectoryOfFilename(String namespace, String fileName);
-//    }
-
-
 }

@@ -7,7 +7,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.utils.EMFUtils;
 
-import java.util.ArrayList;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -171,18 +171,12 @@ public class MathExpressionParser {
         while (charIterator.hasNext()) {
             char ch2 = charIterator.nextChar();
             if (ch2 == '(') {
-                bracketContents.append(ch2);
                 nesting++;
             } else if (ch2 == ')') {
-                if (nesting == 0) {
-                    break;
-                } else {
-                    bracketContents.append(ch2);
-                    nesting--;
-                }
-            } else {
-                bracketContents.append(ch2);
+                if (nesting == 0) break;
+                nesting--;
             }
+            bracketContents.append(ch2);
         }
         return bracketContents.toString();
     }
@@ -222,16 +216,10 @@ public class MathExpressionParser {
 
     private void readMethodOrBrackets(final RollingReader rollingReader, final CharListIterator charIterator) throws EMFMathException {
         String functionName = rollingReader.read();
-
         String bracketContents = readBracketContents(charIterator);
-
         if (functionName.isEmpty() || "!".equals(functionName) || "-".equals(functionName)) {
             //just nested brackets
-            components.add(MathExpressionParser.getOptimizedExpression(
-                    bracketContents,
-                    getNegativeNext() || "-".equals(functionName),
-                    this.calculationInstance,
-                    "!".equals(functionName)));
+            components.add(MathExpressionParser.getOptimizedExpression(bracketContents, getNegativeNext() || "-".equals(functionName), this.calculationInstance, "!".equals(functionName)));
         } else {
             //method
             components.add(MathMethod.getOptimizedExpression(functionName, bracketContents, getNegativeNext(), this.calculationInstance));
@@ -240,19 +228,17 @@ public class MathExpressionParser {
 
     @SuppressWarnings("RedundantThrows")
     private void readVariableOrConstant(final RollingReader rollingReader) throws EMFMathException {
-        if (!rollingReader.isEmpty()) {
-            //discover rolling read value
-            String read = rollingReader.read();
-            try {
-                //assume it is a number
-                var asNumber = Float.parseFloat(read);
-                components.add(new MathConstant(asNumber, getNegativeNext()));
-            } catch (NumberFormatException ignored) {
-                //otherwise it must be a text variable
-                components.add(MathVariable.getOptimizedVariable(read, getNegativeNext(), this.calculationInstance));
-            }
-            //throws an additional exception if not a number or variable and not empty
+        if (rollingReader.isEmpty()) return;
+
+        String read = rollingReader.read();
+        try {
+            //assume it is a number
+            components.add(new MathConstant(Float.parseFloat(read), getNegativeNext()));
+        } catch (NumberFormatException ignored) {
+            //otherwise it must be a text variable
+            components.add(MathVariable.getOptimizedVariable(read, getNegativeNext(), this.calculationInstance));
         }
+        //throws an additional exception if not a number or variable and not empty
     }
 
     protected void validateAndOptimize() {
@@ -306,7 +292,7 @@ public class MathExpressionParser {
                     //save optimized version of valid expression
                     optimizedComponent = optimised.getLast();
                     if (optimizedComponent instanceof MathValue value && this.isNegative) {
-                        optimizedComponent = value.getNegative();
+                        optimizedComponent = value.makeNegative();
                     }
                 }
                 return result;
@@ -324,35 +310,28 @@ public class MathExpressionParser {
 
     private CalculationList optimiseTheseActionsIntoBinaryComponents(List<MathOperator> actionsForThisPass, CalculationList componentsOptimized) {
 
-        List<MathOperator> containedActions = new ArrayList<>();
-        for (MathOperator forThisPass : actionsForThisPass) {
-            if (componentsOptimized.contains(forThisPass)) {
-                containedActions.add(forThisPass);
-            }
+        List<MathOperator> containedActions = actionsForThisPass.stream()
+                .filter(componentsOptimized::contains)
+                .toList();
+
+        if (containedActions.isEmpty()) {
+            return componentsOptimized;
         }
 
-        if (!containedActions.isEmpty()) {
-            CalculationList newComponents = new CalculationList();
-            Iterator<MathComponent> compIterator = componentsOptimized.iterator();
-
-            while (compIterator.hasNext()) {
-                MathComponent component = compIterator.next();
-                if (component instanceof MathOperator action) {
-                    if (containedActions.contains(action)) {
-                        MathComponent last = newComponents.getLast();
-                        MathComponent next = compIterator.next();
-                        newComponents.remove(newComponents.size() - 1);
-                        newComponents.add(MathBinaryExpressionComponent.getOptimizedExpression(last, action, next));
-                    } else {
-                        newComponents.add(component);
-                    }
-                } else {
-                    newComponents.add(component);
-                }
+        CalculationList newComponents = new CalculationList();
+        Iterator<MathComponent> compIterator = componentsOptimized.iterator();
+        while (compIterator.hasNext()) {
+            MathComponent component = compIterator.next();
+            if (component instanceof MathOperator action && containedActions.contains(action)) {
+                MathComponent last = newComponents.getLast();
+                MathComponent next = compIterator.next();
+                newComponents.remove(newComponents.size() - 1);
+                newComponents.add(MathBinaryExpressionComponent.getOptimizedExpression(last, action, next));
+            } else {
+                newComponents.add(component);
             }
-            return newComponents;
         }
-        return componentsOptimized;
+        return newComponents;
     }
 
     @Override
@@ -408,8 +387,5 @@ public class MathExpressionParser {
             return super.get(size - 1);
         }
 
-//        public void removeLast() {
-//            super.remove(size - 1);
-//        }
     }
 }

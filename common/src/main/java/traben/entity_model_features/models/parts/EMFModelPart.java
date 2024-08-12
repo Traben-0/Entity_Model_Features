@@ -1,4 +1,4 @@
-package traben.entity_model_features.models;
+package traben.entity_model_features.models.parts;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
@@ -6,9 +6,13 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.SpriteCoordinateExpander;
+import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
+import traben.entity_model_features.EMF;
+import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
-import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETF;
 import traben.entity_texture_features.features.ETFRenderContext;
@@ -20,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -50,6 +53,54 @@ public abstract class EMFModelPart extends ModelPart {
         // this should not cause issues as emf does not allow these model parts to pass through sodium's unique renderer
         this.cubes = new ObjectArrayList<>(cuboids);
         this.children = new Object2ObjectOpenHashMap<>(children);
+    }
+
+    @Override
+    public void render(final PoseStack matrices, final VertexConsumer vertices, final int light, final int overlay,#if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
+        //normal render
+        if (EMF.config().getConfig().renderModeChoice == EMFConfig.RenderModeChoice.NORMAL) {
+            renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+            return;
+        }
+
+        //debug choice chosen
+        //check if only render debug when hovered
+        if (EMF.config().getConfig().onlyDebugRenderOnHover && !EMFAnimationEntityContext.isClientHovered()){
+            renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+            return;
+        }
+
+        //else render debug
+        switch (EMF.config().getConfig().renderModeChoice) {
+            case GREEN -> renderDebugTinted(matrices, vertices, light, overlay, #if MC >= MC_21 k #else green, alpha #endif);
+            case LINES -> renderBoxes(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()));
+            case LINES_AND_TEXTURE -> {
+                renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif );
+                renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()), 1f);
+            }
+            case LINES_AND_TEXTURE_FLASH -> {
+                renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif );
+                float flash =  (Mth.sin(System.currentTimeMillis() / 1000f) + 1) / 2f;
+                renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()), flash);
+            }
+            case NONE -> {
+            }
+        }
+    }
+
+    private void renderDebugTinted(final PoseStack matrices, final VertexConsumer vertices, final int light, final int overlay, #if MC >= MC_21 final int k #else float green, float alpha #endif) {
+        float flash = Math.abs(Mth.sin(System.currentTimeMillis() / 1000f));
+        #if MC >= MC_21
+        var col = FastColor.ARGB32.color(
+                (int) (255 * flash),
+                FastColor.ARGB32.green(k),
+                (int) (255 * flash),
+                FastColor.ARGB32.alpha(k)
+        );
+        renderWithTextureOverride(matrices, vertices, light, overlay, col);
+        #else
+        renderWithTextureOverride(matrices, vertices, light, overlay, flash, green, flash, alpha);
+        #endif
     }
 
     void renderWithTextureOverride(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
@@ -226,7 +277,8 @@ public abstract class EMFModelPart extends ModelPart {
                 if (!this.skipDraw) {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
-                        LevelRenderer.renderLineBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
+                        var col = debugBoxColor();
+                        LevelRenderer.renderLineBox(matrices, vertices, box, col[0], col[1], col[2], 1.0F);
                     }
                 }
                 for (ModelPart modelPart : children.values()) {
@@ -238,6 +290,8 @@ public abstract class EMFModelPart extends ModelPart {
         }
     }
 
+    protected abstract float[] debugBoxColor();
+
     public void renderBoxesNoChildren(PoseStack matrices, VertexConsumer vertices, float alpha) {
         if (this.visible) {
             if (!cubes.isEmpty() || !children.isEmpty()) {
@@ -246,7 +300,8 @@ public abstract class EMFModelPart extends ModelPart {
                 if (!this.skipDraw) {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
-                        LevelRenderer.renderLineBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, alpha);
+                        var col = debugBoxColor();
+                        LevelRenderer.renderLineBox(matrices, vertices, box, col[0], col[1], col[2], alpha);
                     }
                 }
                 matrices.popPose();
@@ -334,41 +389,38 @@ public abstract class EMFModelPart extends ModelPart {
             root.setVariantStateTo(variantNum);
 
         Object2ReferenceOpenHashMap<String, EMFModelPart> mapOfAll = new Object2ReferenceOpenHashMap<>();
-        //Map<String, ModelPart> children = this.children;
 
-        for (ModelPart part :
-                children.values()) {
-            if (part instanceof EMFModelPart part3) {
-                String thisKey;
-                boolean addThis;
-                if (part instanceof EMFModelPartCustom partc) {
-                    thisKey = partc.id;
+        for (ModelPart part : children.values()) {
+            if (part instanceof EMFModelPart emfPart) {
+                String thisKey = "NULL_KEY_NAME";
+                boolean addThis = false;
+
+                if (part instanceof EMFModelPartCustom partCustom) {
+                    thisKey = partCustom.id;
                     addThis = true;
-                } else if (part instanceof EMFModelPartVanilla partv) {
-                    thisKey = partv.name;
-                    addThis = partv.isOptiFinePartSpecified;
-                } else {
-                    thisKey = "NULL_KEY_NAME";
-                    addThis = false;
+                } else if (part instanceof EMFModelPartVanilla partVanilla) {
+                    thisKey = partVanilla.name;
+                    addThis = partVanilla.isOptiFinePartSpecified;
                 }
-                for (Map.Entry<String, String> entry :
-                        optifinePartNameMap.entrySet()) {
+
+                for (Map.Entry<String, String> entry : optifinePartNameMap.entrySet()) {
                     if (entry.getValue().equals(thisKey)) {
                         thisKey = entry.getKey();
                         break;
                     }
                 }
+
                 if (addThis) {
                     //put if absent so the first part with that id is the one referenced
-                    mapOfAll.putIfAbsent(thisKey, part3);
+                    mapOfAll.putIfAbsent(thisKey, emfPart);
                     if (prefixableParents.isBlank()) {
-                        mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(thisKey, variantNum, optifinePartNameMap));
+                        mapOfAll.putAll(emfPart.getAllChildPartsAsAnimationMap(thisKey, variantNum, optifinePartNameMap));
                     } else {
-                        mapOfAll.putIfAbsent(prefixableParents + ':' + thisKey, part3);
-                        mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(prefixableParents + ':' + thisKey, variantNum, optifinePartNameMap));
+                        mapOfAll.putIfAbsent(prefixableParents + ':' + thisKey, emfPart);
+                        mapOfAll.putAll(emfPart.getAllChildPartsAsAnimationMap(prefixableParents + ':' + thisKey, variantNum, optifinePartNameMap));
                     }
                 } else {
-                    mapOfAll.putAll(part3.getAllChildPartsAsAnimationMap(prefixableParents, variantNum, optifinePartNameMap));
+                    mapOfAll.putAll(emfPart.getAllChildPartsAsAnimationMap(prefixableParents, variantNum, optifinePartNameMap));
                 }
 
             }

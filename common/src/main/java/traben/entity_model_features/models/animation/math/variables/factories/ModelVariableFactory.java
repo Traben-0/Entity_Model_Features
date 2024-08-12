@@ -10,10 +10,6 @@ import static traben.entity_model_features.models.animation.math.MathValue.FALSE
 public class ModelVariableFactory extends UniqueVariableFactory {
     @Override
     public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
-//        EMFAnimation variableCalculator = calculationInstance.emfAnimationVariables.get(variableKey);
-//        if (variableCalculator != null) {
-//            return variableCalculator::getLastResultOnly;
-//        }
         if (variableKey.startsWith("varb")) {
             return () -> EMFAnimationEntityContext.getEntityVariable(variableKey, FALSE);
         } else {

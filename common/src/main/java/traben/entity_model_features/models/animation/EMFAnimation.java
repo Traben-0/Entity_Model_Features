@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.NotNull;
-import traben.entity_model_features.models.EMFModelPart;
+import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.animation.math.MathComponent;
 import traben.entity_model_features.models.animation.math.MathExpressionParser;
 import traben.entity_model_features.models.animation.math.MathValue;

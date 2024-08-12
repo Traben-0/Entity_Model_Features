@@ -7,7 +7,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import traben.entity_model_features.EMF;
-import traben.entity_model_features.models.EMFModelPartRoot;
+import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 
 import java.io.BufferedReader;
@@ -146,11 +147,9 @@ public class EMFUtils {
 
     @Nullable
     public static EMFPartData readModelPart(String pathOfJpm, EMFDirectoryHandler directoryContext) {
-
         if (!pathOfJpm.endsWith(".jpm")) {
-            pathOfJpm = pathOfJpm + ".jpm";
+            pathOfJpm += ".jpm";
         }
-
         try {
             var location = directoryContext.getRelativeFilePossiblyEMFOverridden(pathOfJpm);
             Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(location);
@@ -160,18 +159,10 @@ public class EMFUtils {
                 return null;
             }
             Resource jpmResource = res.get();
-            //File jemFile = new File(pathOfJem);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            //System.out.println("jem exists "+ jemFile.exists());
-            //if (jemFile.exists()) {
-            //FileReader fileReader = new FileReader(jemFile);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(jpmResource.open()));
-
-            EMFPartData jpm = gson.fromJson(reader, EMFPartData.class);
-            reader.close();
-            //jpm.prepare();
-            return jpm;
-            //}
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(jpmResource.open()))) {
+                return gson.fromJson(reader, EMFPartData.class);
+            }
         } catch (Exception e) {
             if (EMF.config().getConfig().logModelCreationData) log("jpm ["+pathOfJpm+"] failed " + e, false);
         }
@@ -180,9 +171,8 @@ public class EMFUtils {
 
 
     public static String getIdUnique(Set<String> known, String desired) {
-        //if (desired.isBlank()) desired = "EMF_#";
         while (known.contains(desired) || desired.isBlank()) {
-            desired = desired + "#";
+            desired += "#";
         }
         return desired;
     }

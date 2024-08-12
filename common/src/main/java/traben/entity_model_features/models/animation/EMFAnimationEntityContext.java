@@ -26,13 +26,18 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.mixin.accessor.EntityRenderDispatcherAccessor;
 import traben.entity_model_features.mixin.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
-import traben.entity_model_features.models.EMFModelPartRoot;
+import traben.entity_model_features.models.EMFModelMappings;
+import traben.entity_model_features.models.EMFModel_ID;
+import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.utils.*;
 import traben.entity_texture_features.ETF;
 
@@ -288,7 +293,7 @@ public final class EMFAnimationEntityContext {
 
             EMFUtils.chat(vanillaMessage);
             int count = 1;
-            for (OptifineMobNameForFileAndEMFMapId data : EMFManager.getInstance().modelsAnnounced) {
+            for (EMFModel_ID data : EMFManager.getInstance().modelsAnnounced) {
                 var second = data.getSecondaryModel();
                 StringBuilder model = new StringBuilder();
                 model.append("\n§Non-Custom Model #").append(count).append("§r")
@@ -296,7 +301,7 @@ public final class EMFAnimationEntityContext {
                 if(second != null){
                     model.append(entryAndValue("possible secondary .jem name", second.getDisplayFileName()));
                 }
-                Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(data.getMapId(), null);
+                Map<String, String> map = EMFModelMappings.getMapOf(data.getMapId(), null);
                 if (!map.isEmpty()) {
                     EMFUtils.chat(model + "\n§6 - part names:§r printed in game log only.");
                     StringBuilder parts = new StringBuilder();
@@ -710,6 +715,26 @@ public final class EMFAnimationEntityContext {
         return Minecraft.getInstance().screen != null
                 && !((EntityRenderDispatcherAccessor) Minecraft.getInstance().getEntityRenderDispatcher()).isShouldRenderShadow();
 
+    }
+
+    public static boolean isClientHovered() {
+        if (IEMFEntity == null) return false;
+        var mc = Minecraft.getInstance();
+
+        //block entity looked at
+        if (IEMFEntity.etf$isBlockEntity()){
+            Entity entity = mc.getCameraEntity();
+            if (entity != null) {
+                var block = entity.pick(20.0, 0.0F, false);
+                if (block.getType() == HitResult.Type.BLOCK) {
+                    return ((BlockHitResult)block).getBlockPos().equals(IEMFEntity.etf$getBlockPos());
+                }
+            }
+            return false;
+        }
+
+        //entity looked at
+        return mc.crosshairPickEntity != null && mc.crosshairPickEntity.equals(IEMFEntity);
     }
 
     public static boolean isInLava() {

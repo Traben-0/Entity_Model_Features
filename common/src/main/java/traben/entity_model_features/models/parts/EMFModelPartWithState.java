@@ -1,4 +1,4 @@
-package traben.entity_model_features.models;
+package traben.entity_model_features.models.parts;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -15,6 +15,7 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.resources.ResourceLocation;
 
 public abstract class EMFModelPartWithState extends EMFModelPart {
+
     public final Int2ObjectOpenHashMap<EMFModelState> allKnownStateVariants = new Int2ObjectOpenHashMap<>() {
         @Override
         public EMFModelState get(final int k) {
@@ -25,7 +26,6 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
             return super.get(k);
         }
     };
-
     public int currentModelVariant = 0;
     Map<String, ModelPart> vanillaChildren = new HashMap<>();
     Runnable startOfRenderRunnable = null;
@@ -44,21 +44,17 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         });
     }
 
-
     @Override
     public void render(PoseStack matrices, VertexConsumer vertices, int light, int overlay,#if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
-
         if (startOfRenderRunnable != null) {
             startOfRenderRunnable.run();
         }
-
         if (tryAnimate != null && !EMFAnimationEntityContext.isEntityAnimPaused()) {
             tryAnimate.run();
         }
-        renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+        super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
 
     }
-
 
     EMFModelState getCurrentState() {
         return new EMFModelState(
@@ -95,8 +91,8 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     void setFromState(EMFModelState newState) {
         setInitialPose(newState.defaultTransform());
         loadPose(getInitialPose());
-        cubes = newState.cuboids();
 
+        cubes = newState.cuboids();
         children = newState.variantChildren();
 
         xScale = newState.xScale();
@@ -111,7 +107,6 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     protected void resetState(){
         setFromState(allKnownStateVariants.get(currentModelVariant));
     }
-
 
     public void setVariantStateTo(int newVariant) {
         if (currentModelVariant != newVariant) {
@@ -138,7 +133,6 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
             ResourceLocation texture,
             Animator animation
     ) {
-
         public static EMFModelState copy(EMFModelState copyFrom) {
             PartPose trans = copyFrom.defaultTransform();
             Animator animator = new Animator();
@@ -156,7 +150,5 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
                     animator
             );
         }
-
     }
-
 }

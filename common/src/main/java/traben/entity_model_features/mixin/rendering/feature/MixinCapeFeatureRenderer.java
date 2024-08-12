@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin.rendering;
+package traben.entity_model_features.mixin.rendering.feature;
 
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -23,15 +23,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFVersionDifferenceManager;
-import traben.entity_model_features.models.EMFModelPartRoot;
-import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.models.parts.EMFModelPartRoot;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 #if MC >= MC_20_2
 import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 #endif
 
 

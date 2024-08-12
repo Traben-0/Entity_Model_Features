@@ -1,12 +1,12 @@
 package traben.entity_model_features.models.animation.math.variables.factories;
 
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.models.EMFModelPart;
+import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.MathConstant;
 import traben.entity_model_features.models.animation.math.MathValue;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
-import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 public class ModelPartVariableFactory extends UniqueVariableFactory {

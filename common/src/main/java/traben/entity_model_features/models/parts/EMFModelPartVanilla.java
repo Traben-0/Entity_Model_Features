@@ -1,4 +1,4 @@
-package traben.entity_model_features.models;
+package traben.entity_model_features.models.parts;
 
 
 import net.fabricmc.api.EnvType;
@@ -14,13 +14,9 @@ import java.util.*;
 @Environment(value = EnvType.CLIENT)
 public class EMFModelPartVanilla extends EMFModelPartWithState {
 
-
     final String name;
-    //construct single vanilla
     final boolean isOptiFinePartSpecified;
-
     final Set<Integer> hideInTheseStates = new HashSet<>();
-
 
     public EMFModelPartVanilla(String name,
                                ModelPart vanillaPart,
@@ -30,15 +26,12 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         super(new ArrayList<>(), new HashMap<>());
         this.name = name;
 
-        if (EMF.config().getConfig().logModelCreationData)
-            EMFUtils.log(" > EMF vanilla part made: " + name);
+        if (EMF.config().getConfig().logModelCreationData) EMFUtils.log(" > EMF vanilla part made: " + name);
 
         isOptiFinePartSpecified = optifinePartNames.contains(name);
 
+        setFromState(getStateOf(vanillaPart));
 
-        EMFModelState state = getStateOf(vanillaPart);
-        setFromState(state);
-        //Map<String, ModelPart> children = this.children;
         for (Map.Entry<String, ModelPart> child :
                 vanillaPart.children.entrySet()) {
 
@@ -51,6 +44,10 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     }
 
+    @Override
+    protected float[] debugBoxColor() {
+        return new float[]{0, 1f, 0};
+    }
 
     @Override
     public void render(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
@@ -58,7 +55,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         if (!hideInTheseStates.contains(currentModelVariant))
             super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
     }
-
 
     public void setHideInTheseStates(int variant) {
         hideInTheseStates.add(variant);
@@ -68,10 +64,8 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         });
     }
 
-
     public void receiveRootAnimationRunnable(int variant, Runnable run) {
         allKnownStateVariants.get(variant).animation().setAnimation(run);
-
     }
 
     @Override
@@ -83,5 +77,4 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     public String toStringShort() {
         return "[vanilla part " + name + "]";
     }
-
 }
