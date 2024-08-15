@@ -30,6 +30,12 @@ configurations {
     developmentForge.extendsFrom common
 }
 
+if(rootProject.mc_build as int > 5){
+    configurations.configureEach {
+        resolutionStrategy.force("net.sf.jopt-simple:jopt-simple:5.0.4")
+    }
+}
+
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
     // Remove the next line if you don't want to depend on the API

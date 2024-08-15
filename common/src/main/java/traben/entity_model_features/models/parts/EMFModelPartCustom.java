@@ -5,11 +5,13 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.npc.Villager;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.accessor.CuboidAccessor;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.EMFManager;
@@ -154,9 +156,9 @@ public class EMFModelPartCustom extends EMFModelPart {
         if (textureOverride != null && lastTextureOverride == EMFManager.getInstance().entityRenderCount){
             //allow villager clothing to render here without override
             //todo perhaps this needs to be looked at better, an exception just for villagers cant be right
-//            if(EMFAnimationEntityContext.getEMFEntity() instanceof Villager){
-//                super.renderLikeETF(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
-//            }
+            if(EMFAnimationEntityContext.getEMFEntity() instanceof Villager){
+                super.renderLikeETF(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+            }
             return;
         }
 

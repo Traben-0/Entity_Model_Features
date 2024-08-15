@@ -278,7 +278,7 @@ public abstract class EMFModelPart extends ModelPart {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
                         var col = debugBoxColor();
-                        LevelRenderer.renderLineBox(matrices, vertices, box, col[0], col[1], col[2], 1.0F);
+                        LevelRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
                     }
                 }
                 for (ModelPart modelPart : children.values()) {
@@ -301,7 +301,7 @@ public abstract class EMFModelPart extends ModelPart {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
                         var col = debugBoxColor();
-                        LevelRenderer.renderLineBox(matrices, vertices, box, col[0], col[1], col[2], alpha);
+                        LevelRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
                     }
                 }
                 matrices.popPose();

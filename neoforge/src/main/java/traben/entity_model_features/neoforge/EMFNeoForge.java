@@ -1,6 +1,8 @@
 package traben.entity_model_features.neoforge;
 
 
+import net.minecraft.client.gui.screens.Screen;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
@@ -26,14 +28,17 @@ public class EMFNeoForge {
 
             try {
                 ModLoadingContext.get().registerExtensionPoint(
-                          #if MC >= MC_20_6
+                        #if MC >= MC_21
                         IConfigScreenFactory.class,
-                        ()-> EMF::getConfigScreen);
+                        ()-> (arg, arg2) -> EMF.getConfigScreen(arg2)
+                        #elif MC >= MC_20_6
+                        IConfigScreenFactory.class,
+                        ()-> EMF::getConfigScreen
                         #else
                         ConfigScreenHandler.ConfigScreenFactory.class,
-                        ()-> new ConfigScreenHandler.ConfigScreenFactory(EMF::getConfigScreen));
+                        ()-> new ConfigScreenHandler.ConfigScreenFactory(EMF::getConfigScreen)
                         #endif
-
+                );
             } catch (NoClassDefFoundError e) {
                 EMFUtils.logError("[Entity Model Features]: Mod config screen broken, download latest forge version");
             }
