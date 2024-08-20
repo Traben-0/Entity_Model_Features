@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin.rendering;
+package traben.entity_model_features.mixin.rendering.model;
 
 import net.minecraft.client.model.VillagerModel;
 import net.minecraft.client.renderer.RenderType;

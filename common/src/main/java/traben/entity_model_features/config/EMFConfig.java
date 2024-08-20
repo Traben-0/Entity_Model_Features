@@ -10,10 +10,10 @@ import org.joml.Quaternionf;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
 import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
 import traben.entity_model_features.models.animation.math.variables.factories.UniqueVariableFactory;
-import traben.entity_model_features.utils.EMFManager;
-import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
+import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.utils.EMFUtils;
-import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
+import traben.entity_model_features.models.EMFModel_ID;
 import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.config.ETFConfig;
 import traben.tconfig.TConfig;
@@ -46,30 +46,21 @@ public class EMFConfig extends TConfig {
     public ModelPrintMode modelExportMode = ModelPrintMode.NONE;
     public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
-
     public ETFConfig.String2EnumNullMap<RenderModeChoice> entityRenderModeOverrides = new ETFConfig.String2EnumNullMap<>();
     public ETFConfig.String2EnumNullMap<PhysicsModCompatChoice> entityPhysicsModPatchOverrides = new ETFConfig.String2EnumNullMap<>();
     public ETFConfig.String2EnumNullMap<VanillaModelRenderMode> entityVanillaHologramOverrides = new ETFConfig.String2EnumNullMap<>();
     public ObjectOpenHashSet<String> modelsNamesDisabled = new ObjectOpenHashSet<>();
-
     public boolean allowEBEModConfigModify = true;
-
     public int animationLODDistance = 20;
-
     public boolean retainDetailOnLowFps = true;
-
     public boolean retainDetailOnLargerMobs = true;
     public boolean animationFrameSkipDuringIrisShadowPass = true;
-
     public boolean preventFirstPersonHandAnimating = false;
-
     public boolean onlyClientPlayerModel = false;
-
     public boolean doubleChestAnimFix = true;
-
     public boolean variationRequiresDefaultModel = true;
-
     public boolean resetPlayerModelEachRender = true;
+    public boolean onlyDebugRenderOnHover = false;
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -116,6 +107,8 @@ public class EMFConfig extends TConfig {
                         new TConfigEntryCategory("entity_model_features.config.debug", "entity_model_features.config.debug.tooltip").add(
                                 new TConfigEntryEnumSlider<>("entity_model_features.config.render", "entity_model_features.config.render.tooltip",
                                         () -> renderModeChoice, value -> renderModeChoice = value, RenderModeChoice.NORMAL),
+                                new TConfigEntryBoolean("entity_model_features.config.debug_hover", "entity_model_features.config.debug_hover.tooltip",
+                                        () -> onlyDebugRenderOnHover, value -> onlyDebugRenderOnHover = value, false),
                                 new TConfigEntryBoolean("entity_model_features.config.log_models", "entity_model_features.config.log_models.tooltip",
                                         () -> logModelCreationData, value -> logModelCreationData = value, false),
                                 new TConfigEntryBoolean("entity_model_features.config.debug_right_click", "entity_model_features.config.debug_right_click.tooltip",
@@ -215,7 +208,7 @@ public class EMFConfig extends TConfig {
     }
 
     @NotNull
-    private TConfigEntry getExport(final OptifineMobNameForFileAndEMFMapId key, ModelLayerLocation layer) {
+    private TConfigEntry getExport(final EMFModel_ID key, ModelLayerLocation layer) {
         TConfigEntry export;
         try {
             Objects.requireNonNull(key.getMapId());
@@ -224,7 +217,7 @@ public class EMFConfig extends TConfig {
                 var old = modelExportMode;
                 modelExportMode = ModelPrintMode.ALL_LOG_AND_JEM;
                 try {
-                    EMFOptiFinePartNameMappings.getMapOf(key.getMapId(),
+                    EMFModelMappings.getMapOf(key.getMapId(),
                             Minecraft.getInstance().getEntityModels().roots.get(layer).bakeRoot(),
                             false);
                 } catch (Exception e) {
@@ -246,16 +239,16 @@ public class EMFConfig extends TConfig {
     private Collection<TConfigEntry> getmappings(String mapKey) {
         var list = new ArrayList<TConfigEntry>();
         Map<String, String> map;
-        if (EMFOptiFinePartNameMappings.OPTIFINE_MODEL_MAP_CACHE.containsKey(mapKey)) {
+        if (EMFModelMappings.OPTIFINE_MODEL_MAP_CACHE.containsKey(mapKey)) {
             list.add(new TConfigEntryText("entity_model_features.config.variable_explanation.optifine_parts"));
             //noinspection NoTranslation
             list.add(new TConfigEntryText("\\/"));
-            map = EMFOptiFinePartNameMappings.OPTIFINE_MODEL_MAP_CACHE.get(mapKey);
+            map = EMFModelMappings.OPTIFINE_MODEL_MAP_CACHE.get(mapKey);
         } else {
             list.add(new TConfigEntryText("entity_model_features.config.variable_explanation.unknown_parts"));
             //noinspection NoTranslation
             list.add(new TConfigEntryText("\\/"));
-            map = EMFOptiFinePartNameMappings.UNKNOWN_MODEL_MAP_CACHE.get(mapKey);
+            map = EMFModelMappings.UNKNOWN_MODEL_MAP_CACHE.get(mapKey);
         }
         if (map == null) {
             return List.of();

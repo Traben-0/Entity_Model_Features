@@ -5,28 +5,16 @@ import java.util.function.Supplier;
 
 public abstract class MathValue implements MathComponent {
 
-
     public static final float TRUE = Float.POSITIVE_INFINITY;
-
-    //    MathValue(boolean isNegative ){
-//        this.isNegative = isNegative;
-//        this.calculationInstance = calculationInstance;
-//        if (calculationInstance == null)
-//            throw new EMFMathException("calculationInstance cannot be null if declared");//todo check if still needed
-//    }
     public static final float FALSE = Float.NEGATIVE_INFINITY;
-    //    final EMFAnimation calculationInstance;
     boolean isNegative;
-
 
     MathValue(boolean isNegative) {
         this.isNegative = isNegative;
-//        this.calculationInstance = null;
     }
 
     MathValue() {
         this.isNegative = false;
-//        this.calculationInstance = null;
     }
 
     /**
@@ -88,7 +76,7 @@ public abstract class MathValue implements MathComponent {
         return isNegative ? -getResultSupplier().get() : getResultSupplier().get();
     }
 
-    public MathValue getNegative() {
+    public MathValue makeNegative() {
         isNegative = !isNegative;
         return this;
     }

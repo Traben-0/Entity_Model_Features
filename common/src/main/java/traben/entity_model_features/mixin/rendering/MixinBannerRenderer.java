@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.EMFManager;
 
 @Mixin(BannerRenderer.class)
 public abstract class MixinBannerRenderer {

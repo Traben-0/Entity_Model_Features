@@ -7,7 +7,6 @@ import traben.entity_model_features.models.animation.math.MathMethod;
 import traben.entity_model_features.models.animation.math.MathValue;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import net.minecraft.util.Tuple;
 
@@ -30,34 +29,23 @@ public class IfMethod extends MathMethod {
                 setOptimizedAlternativeToThis(MathValue.toBoolean(bool.getResult()) ? tru : fals);
             }
 
-            setSupplierAndOptimize(() -> {
-                float condition = bool.getResult();
-                if (MathValue.toBoolean(condition)) {
-                    return tru.getResult();
-                } else {
-                    return fals.getResult();
-                }
-            }, parsedArgs);
+            setSupplierAndOptimize(() -> MathValue.toBoolean(bool.getResult()) ? tru.getResult() : fals.getResult()
+            , parsedArgs);
         } else {
 
             List<Tuple<MathComponent, MathComponent>> ifSets = new ArrayList<>();
             var lastElse = parsedArgs.get(parsedArgs.size() - 1);
 
-            var iterator = parsedArgs.iterator();
-            while (iterator.hasNext()) {
-                var next = iterator.next();
-                if (iterator.hasNext()) {
-                    if (!next.isConstant()) {
-                        //test is valid boolean won't throw exception
-                        //noinspection ResultOfMethodCallIgnored
-                        MathValue.toBoolean(next.getResult());
+            for (int i = 0; i < parsedArgs.size() - 1; i += 2) {
+                MathComponent condition = parsedArgs.get(i);
+                MathComponent result = parsedArgs.get(i + 1);
 
-                        ifSets.add(new Tuple<>(next, iterator.next()));
-                    } else if (MathValue.toBoolean(next.getResult())) {
-                        //if next is a true constant then end here
-                        lastElse = iterator.next();
-                        break;
-                    }//if next is a false constant then skip entirely
+                if (!condition.isConstant()) {
+                    MathValue.toBoolean(condition.getResult()); // Validate boolean
+                    ifSets.add(new Tuple<>(condition, result));
+                } else if (MathValue.toBoolean(condition.getResult())) {
+                    lastElse = result;
+                    break;
                 }
             }
             if (ifSets.isEmpty()) {//due to all conditions being false constants

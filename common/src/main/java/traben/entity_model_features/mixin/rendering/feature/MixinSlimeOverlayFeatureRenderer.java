@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin.rendering;
+package traben.entity_model_features.mixin.rendering.feature;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -40,8 +40,8 @@ public class MixinSlimeOverlayFeatureRenderer<T extends LivingEntity> {
     }
 
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void emf$setAngles(PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci, Minecraft minecraftClient, boolean bl, VertexConsumer vertexConsumer) {
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Lnet/minecraft/world/entity/Entity;FFFFF)V", shift = At.Shift.AFTER))
+    private void emf$setAngles(PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, T livingEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
         if (emf$heldModelToForce != null) {
             if (!emf$heldModelToForce.equals(model)) {
                 boolean replace = EMF.config().getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getKey(livingEntity.getType()).getNamespace());
@@ -52,7 +52,6 @@ public class MixinSlimeOverlayFeatureRenderer<T extends LivingEntity> {
             }
             emf$heldModelToForce = null;
         }
-        //EMFManager.getInstance().preRenderEMFActions("slime_outer", livingEntity, vertexConsumerProvider, f, g, j, k, l);
     }
 
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",

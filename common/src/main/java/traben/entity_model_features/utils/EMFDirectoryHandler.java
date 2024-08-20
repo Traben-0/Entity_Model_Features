@@ -7,6 +7,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.EMFManager;
 
 import java.util.List;
 
@@ -14,24 +15,12 @@ import static traben.entity_model_features.utils.EMFDirectoryHandler.EMFDirector
 
 public class EMFDirectoryHandler {
 
-    private final boolean isSubFolder;
-
     public final String namespace;
-
-    public String getFileNameWithType() {
-        return rawFileName + suffixAndFileType;
-    }
-
     public final String rawFileName;
-
+    private final boolean isSubFolder;
     private final int packIndex;
     private final EMFDirectory actualDirectory;
     private final String suffixAndFileType;
-
-    public String getRelativeDirectoryLocationNoValidation(String fileName){
-        return actualDirectory.getAsDirectory(namespace, rawFileName).replaceFirst(rawFileName+"$", fileName);
-    }
-
     private EMFDirectoryHandler(String namespace, String modelFileName, String suffixAndFileType, boolean printing) {
         this.namespace = namespace;
         this.rawFileName = modelFileName;
@@ -48,7 +37,7 @@ public class EMFDirectoryHandler {
         var optifineSubDirResource = getResourceOrNull(resources, OPTIFINE_SUB, printing);
 
 
-        if(emfDirResource == null && emfSubDirResource == null && optifineDirResource == null && optifineSubDirResource == null){
+        if (emfDirResource == null && emfSubDirResource == null && optifineDirResource == null && optifineSubDirResource == null) {
             actualDirectory = null;
             packIndex = -1;
             isSubFolder = false;
@@ -70,7 +59,8 @@ public class EMFDirectoryHandler {
         int emfHighest = Math.max(emfDirIndex, emfSubDirIndex);
         int optifineHighest = Math.max(optifineDirIndex, optifineSubDirIndex);
 
-        if (printing) EMFUtils.log(" >>>> pack order indices: " + emfDirIndex + ", " + emfSubDirIndex + ", " + optifineDirIndex + ", " + optifineSubDirIndex);
+        if (printing)
+            EMFUtils.log(" >>>> pack order indices: " + emfDirIndex + ", " + emfSubDirIndex + ", " + optifineDirIndex + ", " + optifineSubDirIndex);
 
         //prioritise emf if same pack priority
         if (emfHighest >= optifineHighest) {
@@ -96,19 +86,44 @@ public class EMFDirectoryHandler {
                 isSubFolder = true;
             }
         }
-        if (printing) EMFUtils.log(" >> Final valid directory after checking: " + actualDirectory.getAsDirectory(namespace, modelFileName) + suffixAndFileType);
+        if (printing)
+            EMFUtils.log(" >> Final valid directory after checking: " + actualDirectory.getAsDirectory(namespace, modelFileName) + suffixAndFileType);
     }
 
-    public int packIndex(){
+    public static @Nullable EMFDirectoryHandler getDirectoryManagerOrNull(boolean printing, @NotNull String namespace, @NotNull String modelFileName, @NotNull String suffixAndFileType) {
+        try {
+            EMFDirectoryHandler directoryManager = new EMFDirectoryHandler(namespace, modelFileName, suffixAndFileType, printing);
+            if (directoryManager.foundModel()) {
+                return directoryManager;
+            }
+        } catch (Exception e) {
+            if (printing)
+                EMFUtils.log(" >> Exception when searching for: " + OPTIFINE.getAsDirectory(namespace, modelFileName) + suffixAndFileType + ". " + e.getMessage());
+        }
+        if (printing)
+            EMFUtils.log(" >> Failed to find any files for: " + OPTIFINE.getAsDirectory(namespace, modelFileName) + suffixAndFileType);
+
+        return null;
+    }
+
+    public String getFileNameWithType() {
+        return rawFileName + suffixAndFileType;
+    }
+
+    public String getRelativeDirectoryLocationNoValidation(String fileName) {
+        return actualDirectory.getAsDirectory(namespace, rawFileName).replaceFirst(rawFileName + "$", fileName);
+    }
+
+    public int packIndex() {
         return packIndex;
     }
 
-    public boolean validForThisBase(EMFDirectoryHandler propertiesOrSecond){
+    public boolean validForThisBase(EMFDirectoryHandler propertiesOrSecond) {
         if (propertiesOrSecond == null) return false;
         return isSubFolder == propertiesOrSecond.isSubFolder && packIndex <= propertiesOrSecond.packIndex;
     }
 
-    boolean foundModel(){
+    boolean foundModel() {
         return actualDirectory != null && packIndex != -1;
     }
 
@@ -127,26 +142,12 @@ public class EMFDirectoryHandler {
         return pack == null ? -1 : packOrder.indexOf(pack);
     }
 
-    public static @Nullable EMFDirectoryHandler getDirectoryManagerOrNull(boolean printing, @NotNull String namespace, @NotNull String modelFileName, @NotNull String suffixAndFileType) {
-        try {
-            EMFDirectoryHandler directoryManager = new EMFDirectoryHandler(namespace, modelFileName, suffixAndFileType, printing);
-            if (directoryManager.foundModel()) {
-                return directoryManager;
-            }
-        }catch (Exception e){
-            if (printing) EMFUtils.log(" >> Exception when searching for: " + OPTIFINE.getAsDirectory(namespace, modelFileName) + suffixAndFileType +". "+e.getMessage());
-        }
-        if (printing) EMFUtils.log(" >> Failed to find any files for: " + OPTIFINE.getAsDirectory(namespace, modelFileName) + suffixAndFileType);
-
-        return null;
-    }
-
-    public String getFinalFileLocation(){
+    public String getFinalFileLocation() {
         //should not be null if ever called but, expect null to be safe
         return actualDirectory.getAsDirectory(namespace, rawFileName) + suffixAndFileType;
     }
 
-    public ResourceLocation getRelativeFilePossiblyEMFOverridden(String jpmOrVariantFileNameWithSuffixAndFileType){
+    public ResourceLocation getRelativeFilePossiblyEMFOverridden(String jpmOrVariantFileNameWithSuffixAndFileType) {
         var over = actualDirectory.override();
         var fall = actualDirectory.fallback();
 
@@ -154,17 +155,17 @@ public class EMFDirectoryHandler {
         var second = fall == null ? actualDirectory : fall;
 
         //return emf dir if file exists
-        var sameDir = EMFUtils.res(first.getAsDirectory(namespace, rawFileName).replaceFirst(rawFileName+"$", jpmOrVariantFileNameWithSuffixAndFileType));
+        var sameDir = EMFUtils.res(first.getAsDirectory(namespace, rawFileName).replaceFirst(rawFileName + "$", jpmOrVariantFileNameWithSuffixAndFileType));
         if (Minecraft.getInstance().getResourceManager().getResource(sameDir).isPresent()) {
             return sameDir;
         }
         //else return optifine
-        return EMFUtils.res(second.getAsDirectory(namespace, rawFileName).replaceFirst(rawFileName+"$", jpmOrVariantFileNameWithSuffixAndFileType));
+        return EMFUtils.res(second.getAsDirectory(namespace, rawFileName).replaceFirst(rawFileName + "$", jpmOrVariantFileNameWithSuffixAndFileType));
     }
 
     @Override
     public String toString() {
-        return "EMF model, ID = " + OPTIFINE.getAsDirectory(namespace, rawFileName)+
+        return "EMF model, ID = " + OPTIFINE.getAsDirectory(namespace, rawFileName) +
                 ", actual = " + actualDirectory.getAsDirectory(namespace, rawFileName);
     }
 
@@ -196,7 +197,7 @@ public class EMFDirectoryHandler {
 
         public abstract String getAsDirectory(String namespace, String fileName);
 
-        public @Nullable EMFDirectory fallback(){
+        public @Nullable EMFDirectory fallback() {
             return switch (this) {
                 case EMF -> OPTIFINE;
                 case EMF_SUB -> OPTIFINE_SUB;
@@ -204,7 +205,7 @@ public class EMFDirectoryHandler {
             };
         }
 
-        public @Nullable EMFDirectory override(){
+        public @Nullable EMFDirectory override() {
             return switch (this) {
                 case OPTIFINE -> EMF;
                 case OPTIFINE_SUB -> EMF_SUB;

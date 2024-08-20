@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin.rendering;
+package traben.entity_model_features.mixin.rendering.feature;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.DrownedModel;

@@ -1,12 +1,12 @@
-package traben.entity_model_features.utils;
+package traben.entity_model_features.models;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
-public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMobNameForFileAndEMFMapId> {
+public class EMFModel_ID implements Comparable<EMFModel_ID> {
 
-    String namespace = "minecraft";
+    public String namespace = "minecraft";
 
     public void setFileName(final String fileName) {
         this.fileName = fileName;
@@ -14,19 +14,19 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
 
     private String fileName;
 
-    public void setMapId(final String mapId) {
-        this.mapId = mapId;
-    }
+//    public void setMapId(final String mapId) {
+//        this.mapId = mapId;
+//    }
 
     private String mapId;
     private String secondaryFileName = null;
     private String secondaryNamespace = null;
 
-    public OptifineMobNameForFileAndEMFMapId(String both) {
+    public EMFModel_ID(String both) {
         this(both, null);
     }
 
-    private OptifineMobNameForFileAndEMFMapId(String both, String mapId) {
+    private EMFModel_ID(String both, String mapId) {
         this.fileName = both;
         this.mapId = mapId;
     }
@@ -35,7 +35,7 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OptifineMobNameForFileAndEMFMapId that = (OptifineMobNameForFileAndEMFMapId) o;
+        EMFModel_ID that = (EMFModel_ID) o;
         return fileName.equals(that.fileName) && Objects.equals(mapId, that.mapId);
     }
 
@@ -67,22 +67,22 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
         return this.fileName;
     }
 
-    public @Nullable OptifineMobNameForFileAndEMFMapId getSecondaryModel() {
+    public @Nullable EMFModel_ID getSecondaryModel() {
         if (secondaryFileName != null) {
-            var second = new OptifineMobNameForFileAndEMFMapId(secondaryFileName, getMapId());
+            var second = new EMFModel_ID(secondaryFileName, getMapId());
             second.namespace = secondaryNamespace == null ? namespace : secondaryNamespace;
             return second;
         }
         return null;
     }
 
-    public void pushCurrentToSecondaryAndAssertNewPrimary(String namespace, String fileName) {
-        this.secondaryFileName = this.fileName;
-        this.secondaryNamespace = this.namespace;
-        this.fileName = fileName;
-        this.namespace = namespace;
-//        this.mapId = mapId;
-    }
+//    public void pushCurrentToSecondaryAndAssertNewPrimary(String namespace, String fileName) {
+//        this.secondaryFileName = this.fileName;
+//        this.secondaryNamespace = this.namespace;
+//        this.fileName = fileName;
+//        this.namespace = namespace;
+////        this.mapId = mapId;
+//    }
 
     public void setSecondaryFileName(String namespace, String fileName) {
         this.secondaryFileName = fileName;
@@ -142,7 +142,7 @@ public class OptifineMobNameForFileAndEMFMapId implements Comparable<OptifineMob
 
 
     @Override
-    public int compareTo(@NotNull final OptifineMobNameForFileAndEMFMapId o) {
+    public int compareTo(@NotNull final EMFModel_ID o) {
         return this.getfileName().compareTo(o.getfileName());
     }
 

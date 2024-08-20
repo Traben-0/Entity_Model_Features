@@ -2,6 +2,7 @@ package traben.entity_model_features.models.animation.math.variables;
 
 import com.demonwav.mcdev.annotations.Translatable;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import net.minecraft.util.Mth;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.MathComponent;
@@ -9,7 +10,7 @@ import traben.entity_model_features.models.animation.math.MathConstant;
 import traben.entity_model_features.models.animation.math.MathValue;
 import traben.entity_model_features.models.animation.math.MathVariable;
 import traben.entity_model_features.models.animation.math.variables.factories.*;
-import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
@@ -41,8 +42,8 @@ public final class VariableRegistry {
     private VariableRegistry() {
 
         //these constants are better hardcoded
-        singletonVariables.put("pi", new MathConstant(3.1415927F));
-        singletonVariables.put("-pi", new MathConstant(-3.1415927F));
+        singletonVariables.put("pi", new MathConstant(Mth.PI));
+        singletonVariables.put("-pi", new MathConstant(-Mth.PI));
         singletonVariableExplanationTranslationKeys.put("pi", emfTranslationKey("pi"));
         singletonVariables.put("e", new MathConstant((float) Math.E));
         singletonVariables.put("-e", new MathConstant((float) -Math.E));
@@ -99,6 +100,8 @@ public final class VariableRegistry {
 
 
         //simple booleans
+        registerSimpleBoolVariable("is_hovered", EMFAnimationEntityContext::isClientHovered);
+        registerSimpleBoolVariable("is_paused", () -> Minecraft.getInstance().isPaused());
         registerSimpleBoolVariable("is_first_person_hand", () -> EMFAnimationEntityContext.isFirstPersonHand);
         registerSimpleBoolVariable("is_right_handed", () -> {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return false;

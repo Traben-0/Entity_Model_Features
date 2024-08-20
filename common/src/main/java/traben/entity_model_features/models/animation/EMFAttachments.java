@@ -10,7 +10,6 @@ public enum EMFAttachments {
     left_handheld_item,
     right_handheld_item;
 
-
     private PoseStack.Pose stackEntry = null;
 
     public static void closeBoth(){

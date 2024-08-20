@@ -10,7 +10,7 @@ import traben.entity_model_features.models.animation.math.methods.simple.BiFunct
 import traben.entity_model_features.models.animation.math.methods.simple.FunctionMethods;
 import traben.entity_model_features.models.animation.math.methods.simple.MultiFunctionMethods;
 import traben.entity_model_features.models.animation.math.methods.simple.TriFunctionMethods;
-import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.EMFManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -47,8 +47,8 @@ public final class MethodRegistry {
         registerSimpleMethodFactory("round", (v) -> (float) Math.round(v));
         registerSimpleMethodFactory("log", (v) -> v < 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : (float) Math.log(v));
         registerSimpleMethodFactory("exp", (v) -> (float) Math.exp(v));
-        registerSimpleMethodFactory("torad", (v) -> (float) Math.toRadians(v));
-        registerSimpleMethodFactory("todeg", (v) -> (float) Math.toDegrees(v));
+        registerSimpleMethodFactory("torad", (v) -> v * Mth.DEG_TO_RAD);
+        registerSimpleMethodFactory("todeg", (v) -> v * Mth.RAD_TO_DEG);
         registerSimpleMethodFactory("frac", Mth::frac);
         registerSimpleMethodFactory("signum", Math::signum);
         registerSimpleMethodFactory("sqrt", (v) -> v < 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : Mth.sqrt(v));

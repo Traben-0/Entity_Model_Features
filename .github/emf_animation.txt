@@ -160,6 +160,8 @@
 @   is_using_item           - If the entity is currently using an item, e.g. player right clicking with a bucket. can be paired with is_swinging_right_arm & is_swinging_left_arm to know which arm.
 @   is_holding_item_right   - If an item is held in the entities right hand slot
 @   is_holding_item_left    - If an item is held in the entities left hand slot
+@   is_paused               - If the game is paused
+@   is_hovered              - If the entity is being looked at and within normal reach of the player
 #
 # Operators
 #   +, -, *, /, %
@@ -250,6 +252,7 @@
 #   in(x, val1, val2, ...)                      - Check if a value equals one of several values
 @   ifb(cond, val, [cond2, val2, ...], val_else)- Select a value based one or more conditions, returns a boolean
 @   randomb(seed)                               - Random boolean true|false. Providing a seed will always return the same result. The seed is optional
+@   nbt(key,test)                                    - it works exactly like the nbt random property such that `models.1.SaddleItem=exits:false` will be `nbt(SaddleItem,exists:false)`
 #
 @ Note about booleans in EMF:
 @ Unlike OptiFine, EMF internally uses Float.NEGATIVE_INFINITY for false, and Float.POSITIVE_INFINITY for true.

@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin.rendering;
+package traben.entity_model_features.mixin.rendering.feature;
 
 
 import net.minecraft.client.model.WolfModel;
@@ -9,15 +9,16 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.WolfCollarLayer;
 import net.minecraft.world.entity.animal.Wolf;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMF;
-import traben.entity_model_features.models.EMFModelPartRoot;
+import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
-import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.IEMFWolfCollarHolder;
 
@@ -72,7 +73,7 @@ public abstract class MixinWolfCollarFeatureRenderer extends RenderLayer<Wolf, W
 //    }
 
     @Override
-    public WolfModel<Wolf> getParentModel() {
+    public @NotNull WolfModel<Wolf> getParentModel() {
         var base = super.getParentModel();
         if (base instanceof IEMFWolfCollarHolder<?> holder && holder.emf$hasCollarModel()) {
             //noinspection unchecked

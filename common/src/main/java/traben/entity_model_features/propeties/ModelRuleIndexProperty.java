@@ -1,7 +1,7 @@
 package traben.entity_model_features.propeties;
 
 import org.jetbrains.annotations.NotNull;
-import traben.entity_model_features.utils.EMFManager;
+import traben.entity_model_features.EMFManager;
 import traben.entity_texture_features.features.property_reading.properties.RandomProperty;
 import traben.entity_texture_features.features.property_reading.properties.generic_properties.SimpleIntegerArrayProperty;
 import traben.entity_texture_features.utils.ETFEntity;

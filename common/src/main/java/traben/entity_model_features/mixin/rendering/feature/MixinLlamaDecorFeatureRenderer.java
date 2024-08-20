@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin.rendering;
+package traben.entity_model_features.mixin.rendering.feature;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.LlamaModel;
@@ -38,8 +38,8 @@ public class MixinLlamaDecorFeatureRenderer {
     }
 
     @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/animal/horse/Llama;FFFFFF)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/LlamaModel;setupAnim(Lnet/minecraft/world/entity/animal/horse/AbstractChestedHorse;FFFFF)V", shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void emf$setAngles(PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, Llama llamaEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci, DyeColor dyeColor, ResourceLocation identifier) {
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/LlamaModel;setupAnim(Lnet/minecraft/world/entity/animal/horse/AbstractChestedHorse;FFFFF)V", shift = At.Shift.AFTER))
+    private void emf$setAngles(PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, Llama llamaEntity, float f, float g, float h, float j, float k, float l, CallbackInfo ci) {
         if (emf$heldModelToForce != null) {
             //((LivingEntityRendererAccessor)this).setModel(heldModelToForce);
             if (!emf$heldModelToForce.equals(model)) {

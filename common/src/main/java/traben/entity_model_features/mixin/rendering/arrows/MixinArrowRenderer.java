@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.EMFModelPartRoot;
+import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.utils.IEMFCustomModelHolder;
 import traben.entity_model_features.utils.EMFUtils;
 

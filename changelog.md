@@ -1,5 +1,7 @@
 
 
+[2.2]
+- fixed forge 1.21 & 1.20.6 compat
 - fixed issues when used with the Sodium 0.6 betas
 - Added a setting to make EMF reset all the vanilla part transforms of player models well before every render.
   - Only applies if custom models are present for the player.
@@ -7,6 +9,10 @@
   - this setting vastly reduces the difficulty of player animation compatibility between mods and animation packs.
   - E.G. player emote mods.
   - This compatibility still requires work on the pack makers end.
+- added the `nbt(key,test)` boolean animation function it works exactly like the nbt random property such that `models.1.SaddleItem=exits:false` will be `nbt(SaddleItem,exists:false)`
+- added boolean animation variable `is_paused` true when the game is paused
+- added boolean animation variable `is_hovered` true when the client is looking at the entity or block entity position
+- added an option in model debug settings to only render models in debug mode when the mob is hovered over
 - added a setting to control whether EMF requires a 'base' model for model variation like OptiFine *(e.g. `pig2.jem` requires a `pig.jem` to work)*. This setting is now enabled by default to promote backwards compatibility and prevent confusion.
 - tweaked the `keyframe()` & `keyframeloop()` animation functions to use catmulrom spline interpolation for smooth transitions between keyframes, factoring in the previous and upcoming frames
 - fixed villager clothing and profession textures failing to render when a texture override is set in the model
@@ -15,10 +21,13 @@
 - fixed `is_swinging_right_arm` and `is_swinging_left_arm`
 - added `is_using_item` true when any item is being used, usually you can detect which arm via `is_swinging_right_arm` and `is_swinging_left_arm` but this is not reliable for all item usages
 - added `is_holding_item_right` and `is_holding_item_left` to detect if the entity is holding an item in the right or left hand, may not work for all entities that hold items, only tested with players
-- added vex charging to `is_aggressive` variable
+- added vex charging to `is_aggressive` variable and also made it potentially more consistent with modded mobs
 - fixed variation for special secondary or backup models, like `outer_armor.jem`. or old directory modded models.
+- fixed the print animation methods accidentally printing during pre-validation
 - signs and boats now have optional override models, based on how vanilla separates every sign and boat variant into its own models, these are only identifiable by enabling model creation logging and seeing what they are called there, and if absent will fallback to the optifine defaults.
 - improved the file name and location displays in the config list of all models
+- added the emf 16x logo to the config gui to replace the full logo
+- improvements to texture overrides, emf now strips redundant texture declarations to improve runtime efficiency *(e.g. ignores `pig.png` declared in `pig.jem` as its redundant)*
 - fixed an issue with some entity animation values getting reset during entity feature layer rendering and not being restored correctly
 
 [2.1.2]

@@ -9,7 +9,6 @@ import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.propeties.*;
-import traben.entity_model_features.utils.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETF;
 import traben.entity_texture_features.ETFApi;
@@ -154,8 +153,7 @@ public class EMF {
                 "making those animations fresh since 1862!",
                 "Trabee got the flu!"
         };
-        int rand = new Random().nextInt(quips.length);
-        return quips[rand];
+        return quips[new Random().nextInt(quips.length)];
     }
 
 }

@@ -3,9 +3,9 @@ package traben.entity_model_features.models.jem_objects;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
-import traben.entity_model_features.utils.EMFOptiFinePartNameMappings;
+import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.utils.EMFUtils;
-import traben.entity_model_features.utils.OptifineMobNameForFileAndEMFMapId;
+import traben.entity_model_features.models.EMFModel_ID;
 
 import java.util.*;
 import net.minecraft.client.Minecraft;
@@ -21,15 +21,14 @@ public class EMFJemData {
     public double shadow_size = 1.0;
     public LinkedList<EMFPartData> models = new LinkedList<>();
     public EMFDirectoryHandler directoryContext = null;
-    private OptifineMobNameForFileAndEMFMapId mobModelIDInfo = null;
+    private EMFModel_ID mobModelIDInfo = null;
     private ResourceLocation customTexture = null;
 
     public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
         return allTopLevelAnimationsByVanillaPartName;
     }
 
-
-    public OptifineMobNameForFileAndEMFMapId getMobModelIDInfo() {
+    public EMFModel_ID getMobModelIDInfo() {
         return mobModelIDInfo;
     }
 
@@ -43,11 +42,9 @@ public class EMFJemData {
 
         String textureTest = textureIn.trim();
         if (!textureTest.isBlank()) {
-
+            if (!textureTest.endsWith(".png")) textureTest += ".png";
 
             if (!textureTest.contains(":")) {
-                if (!textureTest.endsWith(".png")) textureTest = textureTest + ".png";
-
                 //if no folder parenting assume it is relative to model
                 if (!textureTest.contains("/") || textureTest.startsWith("./")) {
                     textureTest = directoryContext.getRelativeDirectoryLocationNoValidation(textureTest);
@@ -55,6 +52,16 @@ public class EMFJemData {
                     textureTest = "optifine/" + textureTest;
                 }
             }
+
+            //test if redundant texture to reduce texture overrides during render
+            if("minecraft".equals(directoryContext.namespace)
+                    && textureTest.replaceFirst("minecraft:", "")
+                        .equals(EMFModelMappings.DEFAULT_TEXTURE_MAPPINGS.get(directoryContext.rawFileName))){
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("Removing redundant texture: " + textureTest + " declared in " + directoryContext.getFileNameWithType());
+                return null;
+            }
+
             if (
                 #if MC >= MC_21
                     ResourceLocation.tryParse(textureTest) != null
@@ -68,14 +75,13 @@ public class EMFJemData {
                 }
             } else {
                 EMFUtils.logWarn("Invalid texture identifier: " + textureTest + " for " + directoryContext.getFileNameWithType());
-
             }
         }
         return MissingTextureAtlasSprite.getLocation();
     }
 
 
-    public void prepare(EMFDirectoryHandler directoryContext, OptifineMobNameForFileAndEMFMapId mobModelIDInfo) {
+    public void prepare(EMFDirectoryHandler directoryContext, EMFModel_ID mobModelIDInfo) {
         this.directoryContext = directoryContext;
         this.mobModelIDInfo = mobModelIDInfo;
 
@@ -89,28 +95,24 @@ public class EMFJemData {
         customTexture = validateJemTexture(texture);
 
         String mapId = mobModelIDInfo.getMapId();
-        Map<String, String> map = EMFOptiFinePartNameMappings.getMapOf(mapId, null);
+        Map<String, String> map = EMFModelMappings.getMapOf(mapId, null);
 
 
         //change all part values to their vanilla counterparts
-        for (EMFPartData partData :
-                models) {
-            if (partData.part != null) {
-                if (map.containsKey(partData.part)) {
-                    partData.part = map.get(partData.part);
-                }
+        for (EMFPartData partData : models) {
+            if (partData.part != null && map.containsKey(partData.part)) {
+                partData.part = map.get(partData.part);
             }
         }
 
-        for (EMFPartData model :
-                models) {
+        for (EMFPartData model : models) {
             model.prepare(textureSize, this, customTexture);
         }
 
         ///prep animations
         SortedMap<String, EMFPartData> alphabeticalOrderedParts = new TreeMap<>(Comparator.naturalOrder());
-        if (EMF.config().getConfig().logModelCreationData)
-            EMFUtils.log("originalModelsForReadingOnly #= " + originalModelsForReadingOnly.size());
+        if (EMF.config().getConfig().logModelCreationData) EMFUtils.log("originalModelsForReadingOnly #= " + originalModelsForReadingOnly.size());
+
         for (EMFPartData partData :
                 originalModelsForReadingOnly) {
             //if two parts both with id of EMF_body the later will get renamed to copy first come first server approach that optifine seems to have
@@ -119,13 +121,11 @@ public class EMFJemData {
             alphabeticalOrderedParts.put(partData.id, partData);
         }
 
-        if (EMF.config().getConfig().logModelCreationData)
-            EMFUtils.log("alphabeticalOrderedParts = " + alphabeticalOrderedParts);
-        for (EMFPartData part :
-                alphabeticalOrderedParts.values()) {
+        if (EMF.config().getConfig().logModelCreationData) EMFUtils.log("alphabeticalOrderedParts = " + alphabeticalOrderedParts);
+
+        for (EMFPartData part : alphabeticalOrderedParts.values()) {
             if (part.animations != null) {
-                for (LinkedHashMap<String, String> animation
-                        : part.animations) {
+                for (LinkedHashMap<String, String> animation : part.animations) {
                     LinkedHashMap<String, String> thisPartsAnimations = new LinkedHashMap<>();
                     animation.forEach((key, anim) -> {
                         key = key.trim().replaceAll("\\s", "");
@@ -136,11 +136,9 @@ public class EMFJemData {
                             thisPartsAnimations.put(key, anim);
                     });
                     if (!thisPartsAnimations.isEmpty()) {
-                        if (allTopLevelAnimationsByVanillaPartName.containsKey(part.part)) {
-                            allTopLevelAnimationsByVanillaPartName.get(part.part).putAll(thisPartsAnimations);
-                        } else {
-                            allTopLevelAnimationsByVanillaPartName.put(part.part, thisPartsAnimations);
-                        }
+                        allTopLevelAnimationsByVanillaPartName
+                                .computeIfAbsent(part.part, k -> new LinkedHashMap<>())
+                                .putAll(thisPartsAnimations);
                     }
                 }
             }
@@ -148,16 +146,10 @@ public class EMFJemData {
 
         //place in a simple animation to set the shadow size
         if (shadow_size != 1.0) {
-            if (shadow_size < 0) shadow_size = 0;
-
-            String rootPart = "root";
-            LinkedHashMap<String, String> shadowAnimation = new LinkedHashMap<>();
-            shadowAnimation.put("render.shadow_size", String.valueOf(shadow_size));
-            if (allTopLevelAnimationsByVanillaPartName.containsKey(rootPart)) {
-                allTopLevelAnimationsByVanillaPartName.get(rootPart).putAll(shadowAnimation);
-            } else {
-                allTopLevelAnimationsByVanillaPartName.put(rootPart, shadowAnimation);
-            }
+            shadow_size = Math.max(shadow_size, 0);
+            allTopLevelAnimationsByVanillaPartName
+                    .computeIfAbsent("root", k -> new LinkedHashMap<>())
+                    .put("render.shadow_size", String.valueOf(shadow_size));
         }
 
         ///finished animations preprocess
@@ -174,11 +166,4 @@ public class EMFJemData {
                 '}';
     }
 
-    @SuppressWarnings("unused")
-    public static class EMFJemPrinter {//todo use and assign values
-        public String texture = "";
-        public int[] textureSize = {16, 16};
-        public double shadow_size = 1.0;
-        public LinkedList<EMFPartData.EMFPartPrinter> models = new LinkedList<>();
-    }
 }

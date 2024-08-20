@@ -2,7 +2,7 @@ package traben.entity_model_features.models.animation.math.variables;
 
 import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.models.EMFModelPart;
+import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.MathValue;
 
