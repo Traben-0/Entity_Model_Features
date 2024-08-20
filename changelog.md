@@ -1,5 +1,7 @@
 
 
+check all are updated in docs
+
 - fixed issues when used with the Sodium 0.6 betas
 - Added a setting to make EMF reset all the vanilla part transforms of player models well before every render.
   - Only applies if custom models are present for the player.
@@ -7,6 +9,7 @@
   - this setting vastly reduces the difficulty of player animation compatibility between mods and animation packs.
   - E.G. player emote mods.
   - This compatibility still requires work on the pack makers end.
+- added the `nbt(x,y)` boolean animation function it works exactly like the nbt random property such that `models.1.SaddleItem=exits:false` will be `nbt(SaddleItem,exists:false)`
 - added boolean animation variable `is_paused` true when the game is paused
 - added boolean animation variable `is_hovered` true when the client is looking at the entity or block entity position
 - added an option in model debug settings to only render models in debug mode when the mob is hovered over

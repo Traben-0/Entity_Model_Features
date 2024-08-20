@@ -27,19 +27,23 @@ public class MixinBlockEntityWithoutLevelRenderer {
     private void emf$setRenderFactory(final ItemStack itemStack, final ItemDisplayContext itemDisplayContext, final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final int j, final CallbackInfo ci) {
         EMFAnimationEntityContext.setLayerFactory(RenderType::entityCutoutNoCullZOffset);
         EMFManager.getInstance().entityRenderCount++;
-        //placeholder entity for inventory rendered skull blocks to trigger ETF vertex consumer actions
-        //which won't run with a null entity
         ETFRenderContext.setCurrentEntity((ETFEntity) Minecraft.getInstance().player);
     }
 
     @Inject(method = "renderByItem",
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/model/TridentModel;renderType(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/RenderType;",
+                    target = "Lnet/minecraft/client/model/TridentModel;renderType(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/RenderType;"))
+    private void emf$setTrident(final CallbackInfo ci) {
+        EMFManager.getInstance().entityRenderCount++;
+        ETFRenderContext.setCurrentEntity((ETFEntity) Minecraft.getInstance().player);
+    }
+
+    @Inject(method = "renderByItem",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/model/ShieldModel;renderType(Lnet/minecraft/resources/ResourceLocation;)Lnet/minecraft/client/renderer/RenderType;",
                     shift = At.Shift.BEFORE))
     private void emf$setTrident(final ItemStack itemStack, final ItemDisplayContext itemDisplayContext, final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final int j, final CallbackInfo ci) {
         EMFManager.getInstance().entityRenderCount++;
-        //placeholder entity for inventory rendered skull blocks to trigger ETF vertex consumer actions
-        //which won't run with a null entity
         ETFRenderContext.setCurrentEntity((ETFEntity) Minecraft.getInstance().player);
     }
 

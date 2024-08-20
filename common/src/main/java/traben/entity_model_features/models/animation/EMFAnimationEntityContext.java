@@ -189,7 +189,7 @@ public final class EMFAnimationEntityContext {
             lodResult = lodTimer - 1;
         }
         lodEntityTimers.put(IEMFEntity.etf$getUuid(), lodResult);
-        lodFrameSkipping = lodResult > 0;
+        lodFrameSkipping = (Boolean) (lodResult > 0);
         return lodFrameSkipping;
     }
 
@@ -679,13 +679,17 @@ public final class EMFAnimationEntityContext {
         if (IEMFEntity instanceof final SpellcasterIllager caster) {
             return caster.isCastingSpell();
         }
-        if (IEMFEntity instanceof final NeutralMob angry) {
-            return angry.isAngry();
-        }
         if (IEMFEntity instanceof final Vex vex) {
             return vex.isCharging();
         }
 
+        //these ones can fallback just incase the specific method doesn't sync for clients for modded mobs
+        if (IEMFEntity instanceof final NeutralMob angry && angry.isAngry()) {
+            return true;
+        }
+        if (IEMFEntity instanceof Targeting targets && targets.getTarget() != null) {
+            return true;
+        }
         return IEMFEntity instanceof Mob mob && mob.isAggressive();
     }
 
