@@ -7,8 +7,10 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.npc.Villager;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.accessor.CuboidAccessor;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
@@ -389,6 +391,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
         @Override
         public void compile(final PoseStack.Pose pose, final VertexConsumer vertexConsumer, final int i, final int j, final float f, final float g, final float h, final float k) {
+            //copy of vanilla compile() required to be overridden in sodium 0.6
             Matrix4f matrix4f = pose.pose();
             Matrix3f matrix3f = pose.normal();
 
@@ -398,7 +401,6 @@ public class EMFModelPartCustom extends EMFModelPart {
                 float m = vector3f.y();
                 float n = vector3f.z();
                 Vertex[] var19 = polygon.vertices;
-
 
                 for (Vertex vertex : var19) {
                     float o = vertex.pos.x() / 16.0F;

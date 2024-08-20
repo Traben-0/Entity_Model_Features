@@ -28,7 +28,7 @@ public class EMFForge {
             try {
                 ModLoadingContext.get().registerExtensionPoint(
                         ConfigScreenHandler.ConfigScreenFactory.class,
-                        () -> new ConfigScreenHandler.ConfigScreenFactory(#if MC >= MC_20_6 (Function<Screen, Screen>) #endif EMF::getConfigScreen));
+                        () -> new ConfigScreenHandler.ConfigScreenFactory(#if MC >= MC_20_4 (Function<Screen, Screen>) #endif EMF::getConfigScreen));
             } catch (NoClassDefFoundError e) {
                 EMFUtils.logError("[Entity Model Features]: Mod config screen broken, download latest forge version");
             }
