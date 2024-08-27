@@ -193,16 +193,19 @@ public class EMFConfig extends TConfig {
                             getExport(mapData, layer),
                             new TConfigEntryCategory("entity_model_features.config.models.file_names").addAll(
                                     TConfigEntryText.fromLongOrMultilineTranslation(
-                                            "<Folders>\nassets/" + mapData.getNamespace() + "/emf/cem/\n"+
-                                                    "assets/" + mapData.getNamespace() + "/optifine/cem/\n\n"+
-                                                    "<possible model names, checked in order>\n"+
+                                            "<Folders>\nassets/" + mapData.getNamespace() + "/emf/cem/\n" +
+                                                    "assets/" + mapData.getNamespace() + "/optifine/cem/\n\n" +
+                                                    "<possible model names, checked in order>\n" +
                                                     mapData.getfileName() + ".jem" + (
-                                                            second == null ? "" : ("\n"+second.getfileName() + ".jem\n")
-                                                    )
+                                                    second == null ? "" : ("\n" + second.getfileName() + ".jem\n")
+                                            )
                                             ,
                                             600, TConfigEntryText.TextAlignment.CENTER)
                             )
+                    ).addAll(TConfigEntryText.fromLongOrMultilineTranslation(
+                                "entity_model_features.config.models.explain", 100, TConfigEntryText.TextAlignment.LEFT)
                     );
+
                 }
             }
         });
@@ -457,6 +460,8 @@ public class EMFConfig extends TConfig {
                 matrixStack.scale(-1.0F, -1.0F, 1.0F);
                 matrixStack.translate(0.0F, -1.501F, 0.0F);
                 var buffer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines());
+                //who knows what mods might do smdh
+                //noinspection ConstantValue
                 if (buffer != null) {
                     renderBoxes(matrixStack, buffer, root);
                 }

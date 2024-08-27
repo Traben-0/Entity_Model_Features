@@ -5,7 +5,9 @@
 - reworked the player_cape.jem implementation to be more mod compatible, e.g. `wavey capes` mod can now correctly overwrite it & essentials works with it now
 - swapped subfolder load priority for models. `optifine/cem/skeleton/skeleton.jem` now loads before `optifine/cem/skeleton.jem` matching optifine behaviour
 - added an OptiFine compat setting to require submodel folders to have variants, e.g. `optifine/cem/skeleton/skeleton.jem` will not load without a `optifine/cem/skeleton/skeleton2.jem` or a valid .properties file.
-
+- model exports no longer print rotation float values as doubles
+- model exports now also log all box values for exported and non-exported parts
+- 
 
 [2.2]
 - fixed forge 1.21 & 1.20.6 compat

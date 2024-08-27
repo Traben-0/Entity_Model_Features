@@ -1193,58 +1193,7 @@ public class EMFModelMappings {
                     //allow nested child parts named root to be found first otherwise apply the root part as the root
                     ModelPart vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? originalModel : searchPart;
 
-                    if (vanillaModelPart != null) {
-                        //invert x and y's
-                        partPrinter.translate = new float[]{
-                                vanillaModelPart.x,
-                                -24 + vanillaModelPart.y,
-                                -vanillaModelPart.z};
-                        //these are inherited
-//                            partPrinter.rotate = new float[]{
-//                                    (float) Math.toDegrees(vanillaModelPart.pitch),
-//                                    (float) Math.toDegrees(vanillaModelPart.yaw),
-//                                    -(float) Math.toDegrees(vanillaModelPart.roll)};
-                        partPrinter.scale = vanillaModelPart.xScale;
-                        //get part size incase empty, though cuboids often have better ideas about this
-                        partPrinter.textureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
-                        textureSize = partPrinter.textureSize;
-                        //List<ModelPart.Cuboid> cuboids = vanillaModelPart.cuboids;
-                        for (ModelPart.Cube cube :
-                                vanillaModelPart.cubes) {
-                            EMFBoxPrinter boxPrinter = new EMFBoxPrinter();
-                            boxPrinter.coordinates = new float[]{
-                                    cube.minX,
-                                    cube.minY,
-                                    cube.minZ,
-                                    cube.maxX - cube.minX,
-                                    cube.maxY - cube.minY,
-                                    cube.maxZ - cube.minZ};
-                            //can be different from part
-                            partPrinter.textureSize = ((IEMFCuboidDataSupplier) cube).emf$getTextureXY();
-                            boxPrinter.textureOffset = ((IEMFCuboidDataSupplier) cube).emf$getTextureUV();
-                            var adds = ((IEMFCuboidDataSupplier) cube).emf$getSizeAdd();
-                            if (adds != null) {
-                                if (adds[0] == adds[1] && adds[0] == adds[2]) {
-                                    boxPrinter.sizeAdd = adds[0];
-                                } else {
-                                    boxPrinter.sizeAddX = adds[0];
-                                    boxPrinter.sizeAddY = adds[1];
-                                    boxPrinter.sizeAddZ = adds[2];
-                                }
-                            }
-
-                            //invert x and y
-                            boxPrinter.coordinates[0] = -boxPrinter.coordinates[0] - boxPrinter.coordinates[3] - partPrinter.translate[0];
-                            boxPrinter.coordinates[1] = -boxPrinter.coordinates[1] - boxPrinter.coordinates[4] - partPrinter.translate[1];
-
-                            boxPrinter.coordinates[2] = boxPrinter.coordinates[2] - partPrinter.translate[2];
-
-                            //add to array
-                            partPrinter.boxes = Arrays.copyOf(partPrinter.boxes, partPrinter.boxes.length + 1);
-                            partPrinter.boxes[partPrinter.boxes.length - 1] = boxPrinter;
-                        }
-
-                    }
+                    textureSize = initPartPrinterAndCaptureTextureSizeIfNeeded(vanillaModelPart, partPrinter, textureSize);
                     jemPrinter.models.add(partPrinter);
 
                 }
@@ -1276,6 +1225,77 @@ public class EMFModelMappings {
         return mobMap;
     }
 
+    private static int[] initPartPrinterAndCaptureTextureSizeIfNeeded(final ModelPart vanillaModelPart, final EMFPartPrinter partPrinter, int[] textureSize) {
+        if (vanillaModelPart != null) {
+            //invert x and y's
+            partPrinter.translate = new float[]{
+                    vanillaModelPart.x,
+                    -24 + vanillaModelPart.y,
+                    -vanillaModelPart.z};
+            //these are inherited
+//            if(!isPart) {
+//                            partPrinter.rotate = new float[]{
+//                                    vanillaModelPart.xRot * Mth.RAD_TO_DEG,
+//                                    vanillaModelPart.yRot * Mth.RAD_TO_DEG,
+//                                    -vanillaModelPart.zRot * Mth.RAD_TO_DEG};
+//            }
+            partPrinter.scale = vanillaModelPart.xScale;
+            //get part size incase empty, though cuboids often have better ideas about this
+            partPrinter.textureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
+            textureSize = partPrinter.textureSize;
+            //List<ModelPart.Cuboid> cuboids = vanillaModelPart.cuboids;
+            for (ModelPart.Cube cube :
+                    vanillaModelPart.cubes) {
+                EMFBoxPrinter boxPrinter = new EMFBoxPrinter();
+                boxPrinter.coordinates = new float[]{
+                        cube.minX,
+                        cube.minY,
+                        cube.minZ,
+                        cube.maxX - cube.minX,
+                        cube.maxY - cube.minY,
+                        cube.maxZ - cube.minZ};
+                //can be different from part
+                partPrinter.textureSize = ((IEMFCuboidDataSupplier) cube).emf$getTextureXY();
+                boxPrinter.textureOffset = ((IEMFCuboidDataSupplier) cube).emf$getTextureUV();
+                var adds = ((IEMFCuboidDataSupplier) cube).emf$getSizeAdd();
+                if (adds != null) {
+                    if (adds[0] == adds[1] && adds[0] == adds[2]) {
+                        boxPrinter.sizeAdd = adds[0];
+                    } else {
+                        boxPrinter.sizeAddX = adds[0];
+                        boxPrinter.sizeAddY = adds[1];
+                        boxPrinter.sizeAddZ = adds[2];
+                    }
+                }
+
+                //invert x and y
+                boxPrinter.coordinates[0] = -boxPrinter.coordinates[0] - boxPrinter.coordinates[3] - partPrinter.translate[0];
+                boxPrinter.coordinates[1] = -boxPrinter.coordinates[1] - boxPrinter.coordinates[4] - partPrinter.translate[1];
+
+                boxPrinter.coordinates[2] = boxPrinter.coordinates[2] - partPrinter.translate[2];
+
+                //add to array
+                partPrinter.boxes = Arrays.copyOf(partPrinter.boxes, partPrinter.boxes.length + 1);
+                partPrinter.boxes[partPrinter.boxes.length - 1] = boxPrinter;
+            }
+//            if (!isRoot) partPrinter.submodels = getNonSpecifiedChildren(vanillaModelPart, mobMap);
+        }
+        return textureSize;
+    }
+
+//    private static LinkedList<EMFPartPrinter> getNonSpecifiedChildren(ModelPart vanillaModelPart, Map<String, String> mobMap) {
+//        LinkedList<EMFPartPrinter> submodels = new LinkedList<>();
+//        for (Map.Entry<String, ModelPart> childEntry : vanillaModelPart.children.entrySet()) {
+//            if(!mobMap.containsValue(childEntry.getKey())) {
+//                var printer = new EMFPartPrinter();
+//                printer.id = childEntry.getKey();
+//                initPartPrinterAndCaptureTextureSizeIfNeeded(mobMap, childEntry.getValue(), printer, null,false, false);
+//                submodels.add(printer);
+//            }
+//        }
+//        return submodels;
+//    }
+
 
     private static @Nullable ModelPart getChildByName(String name, @NotNull ModelPart part) {
         if (part.hasChild(name)) return part.getChild(name);
@@ -1296,11 +1316,58 @@ public class EMFModelMappings {
         //add this part and its children names
         newMap.put(partName, partName);
         if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
+            StringBuilder cubes = new StringBuilder( originalModel.cubes.isEmpty() ? "[No boxes]" : "[boxes]");
+            int i = 0;
+            for (ModelPart.Cube cube :
+                    originalModel.cubes) {
+                    i++;
+                    EMFBoxPrinter boxPrinter = new EMFBoxPrinter();
+                    boxPrinter.coordinates = new float[]{
+                            cube.minX,
+                            cube.minY,
+                            cube.minZ,
+                            cube.maxX - cube.minX,
+                            cube.maxY - cube.minY,
+                            cube.maxZ - cube.minZ};
+                    boxPrinter.textureOffset = ((IEMFCuboidDataSupplier) cube).emf$getTextureUV();
+                    var adds = ((IEMFCuboidDataSupplier) cube).emf$getSizeAdd();
+                    if (adds != null) {
+                        if (adds[0] == adds[1] && adds[0] == adds[2]) {
+                            boxPrinter.sizeAdd = adds[0];
+                        } else {
+                            boxPrinter.sizeAddX = adds[0];
+                            boxPrinter.sizeAddY = adds[1];
+                            boxPrinter.sizeAddZ = adds[2];
+                        }
+                    }
+
+                    //invert x and y
+                    boxPrinter.coordinates[0] = -boxPrinter.coordinates[0] - boxPrinter.coordinates[3] - originalModel.x;
+                    boxPrinter.coordinates[1] = -boxPrinter.coordinates[1] - boxPrinter.coordinates[4] - originalModel.y;
+
+                    boxPrinter.coordinates[2] = boxPrinter.coordinates[2] - originalModel.z;
+
+                    //now use printer to print final values
+                    cubes.   append("\n | |   |-[#").append(i).append("]")
+                            .append("\n | |   |-coordinates=").append(Arrays.toString(boxPrinter.coordinates))
+                            .append("\n | |   |-textureOffset=").append(Arrays.toString(boxPrinter.textureOffset));
+                    if(boxPrinter.sizeAddX == boxPrinter.sizeAddY && boxPrinter.sizeAddX == boxPrinter.sizeAddZ) {
+                        cubes.append("\n | |    \\-sizeAdd=").append(boxPrinter.sizeAdd);
+                    }else{
+                        cubes.   append("\n | |   |-sizeAddX=").append(boxPrinter.sizeAddX)
+                                .append("\n | |   |-sizeAddY=").append(boxPrinter.sizeAddY)
+                                .append("\n | |    \\-sizeAddZ=").append(boxPrinter.sizeAddZ);
+                    }
+            }
+
+
             detailsMap.put(partName,
                     " | | |-pivots=" + originalModel.x + ", " + originalModel.y + ", " + originalModel.z +
                             "\n | | |-rotations=" + (originalModel.xRot* Mth.RAD_TO_DEG) + ", " + (originalModel.yRot* Mth.RAD_TO_DEG) + ", " + (originalModel.zRot* Mth.RAD_TO_DEG) +
                             "\n | | |-scales=" + originalModel.xScale + ", " + originalModel.yScale + ", " + originalModel.zScale +
-                            "\n | |  \\visibles=" + originalModel.visible + ", " + originalModel.skipDraw + "\n"
+                            "\n | | |visible=" + originalModel.visible + ", _boxes=" + !originalModel.skipDraw +
+                            "\n | |  \\" + cubes +"\n"
+
             );
         }
     }
