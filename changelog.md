@@ -8,6 +8,7 @@
 - model exports no longer print rotation float values as doubles
 - model exports now also log all box values for exported and non-exported parts
 - fixed texture overrides not applying to `attach=true` or vanilla parts
+- fixed animations breaking when the same part transform or variable is declared / updated more than once over all the animation entries
 
 [2.2]
 - fixed forge 1.21 & 1.20.6 compat

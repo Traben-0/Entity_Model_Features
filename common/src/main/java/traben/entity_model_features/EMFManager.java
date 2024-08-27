@@ -456,46 +456,54 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         if (printing) {
             EMFUtils.log(" > finalAnimationsForModel =");
-            jemData.getAllTopLevelAnimationsByVanillaPartName().forEach((part, anims) -> anims.forEach((key, expression) -> EMFUtils.log(" >> " + key + " = " + expression)));
-        }
-        jemData.getAllTopLevelAnimationsByVanillaPartName().forEach((part, anims) -> {
-            anims.forEach((animKey, animationExpression) -> {
-                if (EMF.config().getConfig().logModelCreationData)
-                    EMFUtils.log("parsing animation value: [" + animKey + "]");
-
-                String[] animKeyParts = animKey.split("\\.");
-                String modelId = animKeyParts[0];
-                String modelVariable = animKeyParts[1];
-
-                EMFModelOrRenderVariable thisVariable = EMFModelOrRenderVariable.get(modelVariable);
-                if (thisVariable == null) thisVariable = EMFModelOrRenderVariable.getRenderVariable(animKey);
-
-                EMFModelPart thisPart = "render".equals(modelId) ? null : getModelFromHierarchichalId(modelId, allPartsBySingleAndFullHeirachicalId);
-
-                EMFAnimation newAnimation = new EMFAnimation(
-                        thisPart,
-                        thisVariable,
-                        animKey,
-                        animationExpression,
-                        jemData.directoryContext.getFileNameWithType()
-                );
-
-                if (emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVar()) {
-                    //this is a secondary variable modification
-                    String key = animKey + '#';
-                    while (emfAnimations.containsKey(key)) {
-                        key += '#';
+            for (List<LinkedHashMap<String, String>> animList : jemData.getAllTopLevelAnimationsByVanillaPartName().values()) {
+                for (LinkedHashMap<String, String> animMap : animList) {
+                    for (Map.Entry<String, String> entry : animMap.entrySet()) {
+                        EMFUtils.log(" >> " + entry.getKey() + " = " + entry.getValue());
                     }
-                    // add it in the animation list but alter the key name
-                    emfAnimations.put(key, newAnimation);
-                    //set this variable to instead set the value of the true variable source
-                    //newAnimation.setTrueVariableSource(emfAnimations.get(animKey));
-                } else {
-                    emfAnimations.put(animKey, newAnimation);
                 }
-            });
-            //emfAnimationsByPartName.put(part, thisPartAnims);
-        });
+
+            }
+        }
+        for (List<LinkedHashMap<String, String>> animList : jemData.getAllTopLevelAnimationsByVanillaPartName().values()) {
+            for (LinkedHashMap<String, String> animMap : animList) {
+                for (Map.Entry<String, String> animationLine : animMap.entrySet()) {
+                    String animKey = animationLine.getKey();
+
+                    if (EMF.config().getConfig().logModelCreationData)
+                        EMFUtils.log("parsing animation value: [" + animKey + "]");
+
+                    String[] animKeyParts = animKey.split("\\.");
+                    String modelId = animKeyParts[0];
+                    String modelVariable = animKeyParts[1];
+
+                    EMFModelOrRenderVariable thisVariable = EMFModelOrRenderVariable.get(modelVariable);
+                    if (thisVariable == null) thisVariable = EMFModelOrRenderVariable.getRenderVariable(animKey);
+
+                    EMFModelPart thisPart = "render".equals(modelId) ? null : getModelFromHierarchichalId(modelId, allPartsBySingleAndFullHeirachicalId);
+
+                    EMFAnimation newAnimation = new EMFAnimation(
+                            thisPart,
+                            thisVariable,
+                            animKey,
+                            animationLine.getValue(),
+                            jemData.directoryContext.getFileNameWithType()
+                    );
+
+                    if (emfAnimations.containsKey(animKey)) {
+                        //this is a secondary variable modification
+                        String key = animKey + '#';
+                        while (emfAnimations.containsKey(key)) {
+                            key += '#';
+                        }
+                        // add it in the animation list but alter the key name
+                        emfAnimations.put(key, newAnimation);
+                    } else {
+                        emfAnimations.put(animKey, newAnimation);
+                    }
+                }
+            }
+        }
 
         isAnimationValidationPhase = true;
         Iterator<EMFAnimation> animMapIterate = emfAnimations.values().iterator();
