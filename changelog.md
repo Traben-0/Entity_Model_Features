@@ -2,7 +2,7 @@
 - now requires ETF 6.2.1 or newer
 - is_hover now respects the players current block interaction range for block entities
 - id variable now matches OptiFine's value exactly
-- 
+- reworked the player_cape.jem implementation to be more mod compatible, e.g. `wavey capes` mod can now correctly overwrite it & essentials works with it now
 - 
 
 [2.2]
