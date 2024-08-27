@@ -3,7 +3,9 @@
 - is_hover now respects the players current block interaction range for block entities
 - id variable now matches OptiFine's value exactly
 - reworked the player_cape.jem implementation to be more mod compatible, e.g. `wavey capes` mod can now correctly overwrite it & essentials works with it now
-- 
+- swapped subfolder load priority for models. `optifine/cem/skeleton/skeleton.jem` now loads before `optifine/cem/skeleton.jem` matching optifine behaviour
+- added an OptiFine compat setting to require submodel folders to have variants, e.g. `optifine/cem/skeleton/skeleton.jem` will not load without a `optifine/cem/skeleton/skeleton2.jem` or a valid .properties file.
+
 
 [2.2]
 - fixed forge 1.21 & 1.20.6 compat

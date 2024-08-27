@@ -221,12 +221,16 @@ public class EMFManager {//singleton for data holding and resetting needs
                 originalLayerName = originalLayerName + "_" + layer.getLayer();
             }
 
+            boolean modded;
+
             //add simple modded layer checks
             if (!"minecraft".equals(layer.getModel().getNamespace())) {
+                modded = true;
                 //mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + originalLayerName).toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
                 mobNameForFileAndMap.setBoth(originalLayerName.toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
                 mobNameForFileAndMap.namespace = layer.getModel().getNamespace();
             } else {
+                modded = false;
                 //vanilla model
                 switch (originalLayerName) {
                     case "bed_foot" -> mobNameForFileAndMap.setBoth("bed", "bed_foot");
@@ -375,6 +379,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                         emfRoot.containsCustomModel = true;
                         if (hasVariants) {
                             emfRoot.discoverAndInitVariants();
+                        }else if (!modded && jemData.directoryContext.isSubFolder && EMF.config().getConfig().enforceOptifineSubFoldersVariantOnly){
+                            EMFUtils.logError("Error loading ["+jemData.directoryContext.getFinalFileLocation()+"] as it is in a subfolder but does not have any variants. This is not allowed in the OptiFine format. You may disable this requirement in EMF's settings at 'model > OptiFine settings'. Though it is usually best to preserve OptiFine compatibility.");
+                            throw new Exception("Subfolder without variants, OptiFine compat enabled");
                         }
                     } else {
                         emfRoot.setVariant1ToVanilla0();

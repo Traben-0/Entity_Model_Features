@@ -17,7 +17,7 @@ public class EMFDirectoryHandler {
 
     public final String namespace;
     public final String rawFileName;
-    private final boolean isSubFolder;
+    public final boolean isSubFolder;
     private final int packIndex;
     private final EMFDirectory actualDirectory;
     private final String suffixAndFileType;
@@ -64,26 +64,26 @@ public class EMFDirectoryHandler {
 
         //prioritise emf if same pack priority
         if (emfHighest >= optifineHighest) {
-            //prioritise the regular directory before subfolders if same pack priority
-            if (emfDirIndex >= emfSubDirIndex) {
-                actualDirectory = EMF;
-                packIndex = emfDirIndex;
-                isSubFolder = false;
-            } else {
+            //prioritise the subfolders directory first if same pack priority
+            if (emfDirIndex <= emfSubDirIndex) {
                 actualDirectory = EMF_SUB;
                 packIndex = emfSubDirIndex;
                 isSubFolder = true;
+            } else {
+                actualDirectory = EMF;
+                packIndex = emfDirIndex;
+                isSubFolder = false;
             }
         } else {
-            //prioritise the regular directory before subfolders if same pack priority
-            if (optifineDirIndex >= optifineSubDirIndex) {
-                actualDirectory = OPTIFINE;
-                packIndex = optifineDirIndex;
-                isSubFolder = false;
-            } else {
+            //prioritise the subfolders directory first if same pack priority
+            if (optifineDirIndex <= optifineSubDirIndex) {
                 actualDirectory = OPTIFINE_SUB;
                 packIndex = optifineSubDirIndex;
                 isSubFolder = true;
+            } else {
+                actualDirectory = OPTIFINE;
+                packIndex = optifineDirIndex;
+                isSubFolder = false;
             }
         }
         if (printing)
