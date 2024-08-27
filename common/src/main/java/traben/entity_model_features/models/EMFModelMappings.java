@@ -3,6 +3,7 @@ package traben.entity_model_features.models;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.util.Mth;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -1297,7 +1298,7 @@ public class EMFModelMappings {
         if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
             detailsMap.put(partName,
                     " | | |-pivots=" + originalModel.x + ", " + originalModel.y + ", " + originalModel.z +
-                            "\n | | |-rotations=" + Math.toDegrees(originalModel.xRot) + ", " + Math.toDegrees(originalModel.yRot) + ", " + Math.toDegrees(originalModel.zRot) +
+                            "\n | | |-rotations=" + (originalModel.xRot* Mth.RAD_TO_DEG) + ", " + (originalModel.yRot* Mth.RAD_TO_DEG) + ", " + (originalModel.zRot* Mth.RAD_TO_DEG) +
                             "\n | | |-scales=" + originalModel.xScale + ", " + originalModel.yScale + ", " + originalModel.zScale +
                             "\n | |  \\visibles=" + originalModel.visible + ", " + originalModel.skipDraw + "\n"
             );

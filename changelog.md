@@ -1,4 +1,9 @@
 
+- now requires ETF 6.2.1 or newer
+- is_hover now respects the players current block interaction range for block entities
+- id variable now matches OptiFine's value exactly
+- 
+- 
 
 [2.2]
 - fixed forge 1.21 & 1.20.6 compat

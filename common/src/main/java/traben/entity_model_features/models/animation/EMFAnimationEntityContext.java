@@ -539,7 +539,7 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getId() {
-        return IEMFEntity == null ? 0 : IEMFEntity.etf$getUuid().hashCode();
+        return IEMFEntity == null ? 0 : IEMFEntity.etf$getOptifineId();
     }
 
     public static float getHurtTime() {
@@ -727,11 +727,15 @@ public final class EMFAnimationEntityContext {
 
         //block entity looked at
         if (IEMFEntity.etf$isBlockEntity()){
-            Entity entity = mc.getCameraEntity();
-            if (entity != null) {
-                var block = entity.pick(20.0, 0.0F, false);
-                if (block.getType() == HitResult.Type.BLOCK) {
-                    return ((BlockHitResult)block).getBlockPos().equals(IEMFEntity.etf$getBlockPos());
+            var player = Minecraft.getInstance().player;
+            if(player != null
+                    && IEMFEntity.etf$distanceTo(player) <= player.blockInteractionRange() + 1) {
+                Entity entity = mc.getCameraEntity();
+                if (entity != null) {
+                    var block = entity.pick(20.0, 0.0F, false);
+                    if (block.getType() == HitResult.Type.BLOCK) {
+                        return ((BlockHitResult) block).getBlockPos().equals(IEMFEntity.etf$getBlockPos());
+                    }
                 }
             }
             return false;
