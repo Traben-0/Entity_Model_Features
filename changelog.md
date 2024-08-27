@@ -7,7 +7,7 @@
 - added an OptiFine compat setting to require submodel folders to have variants, e.g. `optifine/cem/skeleton/skeleton.jem` will not load without a `optifine/cem/skeleton/skeleton2.jem` or a valid .properties file.
 - model exports no longer print rotation float values as doubles
 - model exports now also log all box values for exported and non-exported parts
-- 
+- fixed texture overrides not applying to `attach=true` or vanilla parts
 
 [2.2]
 - fixed forge 1.21 & 1.20.6 compat
