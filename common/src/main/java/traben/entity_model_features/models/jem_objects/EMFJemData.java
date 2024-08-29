@@ -106,7 +106,7 @@ public class EMFJemData {
         }
 
         for (EMFPartData model : models) {
-            model.prepare(textureSize, this, customTexture);
+            model.prepare(textureSize, this);
         }
 
         ///prep animations
