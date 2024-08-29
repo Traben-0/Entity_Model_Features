@@ -131,8 +131,10 @@ public class EMFJemData {
                     animation.forEach((key, anim) -> {
                         key = key.trim().replaceAll("\\s", "");
                         anim = anim.trim().replaceAll("\\s", "");
-                        if (key.startsWith("this.")) key = key.replaceFirst("this", part.id);
-                        if (anim.contains("this.")) anim = anim.replaceAll("this", part.id);
+                        //replace "this"
+                        if (key.contains("this")) key = key.replaceFirst("(?<=\\W|^)this(?=\\W)", part.id);
+                        if (anim.contains("this")) anim = anim.replaceAll("(?<=\\W|^)this(?=\\W)", part.id);
+
                         if (!key.isBlank() && !anim.isBlank())
                             thisPartsAnimations.put(key, anim);
                     });

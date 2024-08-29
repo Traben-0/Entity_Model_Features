@@ -11,6 +11,7 @@
 - fixed texture overrides not applying to `attach=true` or vanilla parts
 - fixed animations breaking when the same part transform or variable is declared / updated more than once over all the animation entries
 - added tickdelta to the death time variable *(fixes jittering in packs like skeleton death physics)*
+- fixed not all instances of `this` being correctly resolved in animation math
 
 [2.2]
 - fixed forge 1.21 & 1.20.6 compat
