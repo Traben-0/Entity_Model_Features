@@ -505,7 +505,7 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getDeathTime() {
-        return IEMFEntity instanceof LivingEntity alive ? alive.deathTime : 0;
+        return IEMFEntity instanceof LivingEntity alive ? (alive.deathTime > 0 ? alive.deathTime + getTickDelta() : 0) : 0;
     }
 
     public static float getAngerTime() {
@@ -571,6 +571,7 @@ public final class EMFAnimationEntityContext {
         }
         return IEMFEntity.etf$getBlockPos().getY() - pos.getY();
     }
+
 
     public static float getFluidDepthUp() {
         if (IEMFEntity == null
