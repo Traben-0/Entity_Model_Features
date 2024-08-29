@@ -5,6 +5,7 @@ import traben.entity_model_features.utils.EMFUtils;
 public class MathConstant extends MathValue implements MathComponent {
 
     public static final MathConstant ZERO_CONST = new MathConstant(0);
+    public static final MathConstant FALSE_CONST = new MathConstant(FALSE);
     private final float hardCodedValue;
 
     public MathConstant(float number, boolean isNegative) {

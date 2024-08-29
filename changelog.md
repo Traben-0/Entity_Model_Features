@@ -12,6 +12,8 @@
 - fixed animations breaking when the same part transform or variable is declared / updated more than once over all the animation entries
 - added tickdelta to the death time variable *(fixes jittering in packs like skeleton death physics)*
 - fixed not all instances of `this` being correctly resolved in animation math
+- added spelling correction warnings for frequently misspelled variables like `is_aggressive`
+- variables not being found now log as errors rather than warnings and will now correctly default to false for unknown booleans
 
 [2.2]
 - fixed forge 1.21 & 1.20.6 compat
