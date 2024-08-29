@@ -166,6 +166,13 @@ public final class VariableRegistry {
         registerContextVariable(new RenderVariableFactory());
         registerContextVariable(new GlobalVariableFactory());
 
+
+        //just some handy log warnings for some spelling errors I've seen people make that can be tricky to debug
+        registerSimpleSpellingErrorWarning(new String[]{
+                "is_agressive","is_aggressive",
+                "is_aggresive","is_aggressive",
+                "is_agresive","is_aggressive",
+                "is_riden","is_ridden"});
     }
 
     private static String emfTranslationKey(String key) {
@@ -211,6 +218,23 @@ public final class VariableRegistry {
         singletonVariableExplanationTranslationKeys.put(variableName, explanationTranslationKey);
     }
 
+    private void registerSimpleSpellingErrorWarning(String[] warns){
+        if (warns.length % 2 != 0) {
+            throw new IllegalArgumentException("registerSimpleSpellingErrorWarning must have an even number of elements");
+        }
+
+        for (int i = 0; i < warns.length; i= i + 2) {
+            String variableName = warns[i];
+            String correction = warns[i+1];
+
+            singletonVariables.put(variableName, new MathVariable(variableName, false, ()-> {
+                EMFUtils.logError("Math spelling error: [" + variableName + "]. You probably meant: [" + correction + "].");
+                return Float.NaN;
+            }));
+        }
+
+    }
+
     private void registerSimpleBoolVariable(String variableName, BooleanSupplier boolGetter) {
         registerSimpleBoolVariable(variableName, emfTranslationKey(variableName), boolGetter);
     }
@@ -250,10 +274,10 @@ public final class VariableRegistry {
                 }
             }
             //unknown variable, return zero constant
-            EMFUtils.logWarn("Variable [" + variableName + "] not found in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
+            EMFUtils.logError("Variable [" + variableName + "] not found in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
         } catch (Exception e) {
-            EMFUtils.logWarn("Error finding variable: [" + variableName + "] in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
+            EMFUtils.logError("Error finding variable: [" + variableName + "] in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
         }
-        return MathConstant.ZERO_CONST;
+        return variableName.startsWith("is_") ? MathConstant.FALSE_CONST : MathConstant.ZERO_CONST;
     }
 }

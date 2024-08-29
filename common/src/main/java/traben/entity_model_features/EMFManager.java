@@ -221,12 +221,16 @@ public class EMFManager {//singleton for data holding and resetting needs
                 originalLayerName = originalLayerName + "_" + layer.getLayer();
             }
 
+            boolean modded;
+
             //add simple modded layer checks
             if (!"minecraft".equals(layer.getModel().getNamespace())) {
+                modded = true;
                 //mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + originalLayerName).toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
                 mobNameForFileAndMap.setBoth(originalLayerName.toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
                 mobNameForFileAndMap.namespace = layer.getModel().getNamespace();
             } else {
+                modded = false;
                 //vanilla model
                 switch (originalLayerName) {
                     case "bed_foot" -> mobNameForFileAndMap.setBoth("bed", "bed_foot");
@@ -375,6 +379,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                         emfRoot.containsCustomModel = true;
                         if (hasVariants) {
                             emfRoot.discoverAndInitVariants();
+                        }else if (!modded && jemData.directoryContext.isSubFolder && EMF.config().getConfig().enforceOptifineSubFoldersVariantOnly){
+                            EMFUtils.logError("Error loading ["+jemData.directoryContext.getFinalFileLocation()+"] as it is in a subfolder but does not have any variants. This is not allowed in the OptiFine format. You may disable this requirement in EMF's settings at 'model > OptiFine settings'. Though it is usually best to preserve OptiFine compatibility.");
+                            throw new Exception("Subfolder without variants, OptiFine compat enabled");
                         }
                     } else {
                         emfRoot.setVariant1ToVanilla0();
@@ -449,46 +456,54 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         if (printing) {
             EMFUtils.log(" > finalAnimationsForModel =");
-            jemData.getAllTopLevelAnimationsByVanillaPartName().forEach((part, anims) -> anims.forEach((key, expression) -> EMFUtils.log(" >> " + key + " = " + expression)));
-        }
-        jemData.getAllTopLevelAnimationsByVanillaPartName().forEach((part, anims) -> {
-            anims.forEach((animKey, animationExpression) -> {
-                if (EMF.config().getConfig().logModelCreationData)
-                    EMFUtils.log("parsing animation value: [" + animKey + "]");
-
-                String[] animKeyParts = animKey.split("\\.");
-                String modelId = animKeyParts[0];
-                String modelVariable = animKeyParts[1];
-
-                EMFModelOrRenderVariable thisVariable = EMFModelOrRenderVariable.get(modelVariable);
-                if (thisVariable == null) thisVariable = EMFModelOrRenderVariable.getRenderVariable(animKey);
-
-                EMFModelPart thisPart = "render".equals(modelId) ? null : getModelFromHierarchichalId(modelId, allPartsBySingleAndFullHeirachicalId);
-
-                EMFAnimation newAnimation = new EMFAnimation(
-                        thisPart,
-                        thisVariable,
-                        animKey,
-                        animationExpression,
-                        jemData.directoryContext.getFileNameWithType()
-                );
-
-                if (emfAnimations.containsKey(animKey) && emfAnimations.get(animKey).isVar()) {
-                    //this is a secondary variable modification
-                    String key = animKey + '#';
-                    while (emfAnimations.containsKey(key)) {
-                        key += '#';
+            for (List<LinkedHashMap<String, String>> animList : jemData.getAllTopLevelAnimationsByVanillaPartName().values()) {
+                for (LinkedHashMap<String, String> animMap : animList) {
+                    for (Map.Entry<String, String> entry : animMap.entrySet()) {
+                        EMFUtils.log(" >> " + entry.getKey() + " = " + entry.getValue());
                     }
-                    // add it in the animation list but alter the key name
-                    emfAnimations.put(key, newAnimation);
-                    //set this variable to instead set the value of the true variable source
-                    //newAnimation.setTrueVariableSource(emfAnimations.get(animKey));
-                } else {
-                    emfAnimations.put(animKey, newAnimation);
                 }
-            });
-            //emfAnimationsByPartName.put(part, thisPartAnims);
-        });
+
+            }
+        }
+        for (List<LinkedHashMap<String, String>> animList : jemData.getAllTopLevelAnimationsByVanillaPartName().values()) {
+            for (LinkedHashMap<String, String> animMap : animList) {
+                for (Map.Entry<String, String> animationLine : animMap.entrySet()) {
+                    String animKey = animationLine.getKey();
+
+                    if (EMF.config().getConfig().logModelCreationData)
+                        EMFUtils.log("parsing animation value: [" + animKey + "]");
+
+                    String[] animKeyParts = animKey.split("\\.");
+                    String modelId = animKeyParts[0];
+                    String modelVariable = animKeyParts[1];
+
+                    EMFModelOrRenderVariable thisVariable = EMFModelOrRenderVariable.get(modelVariable);
+                    if (thisVariable == null) thisVariable = EMFModelOrRenderVariable.getRenderVariable(animKey);
+
+                    EMFModelPart thisPart = "render".equals(modelId) ? null : getModelFromHierarchichalId(modelId, allPartsBySingleAndFullHeirachicalId);
+
+                    EMFAnimation newAnimation = new EMFAnimation(
+                            thisPart,
+                            thisVariable,
+                            animKey,
+                            animationLine.getValue(),
+                            jemData.directoryContext.getFileNameWithType()
+                    );
+
+                    if (emfAnimations.containsKey(animKey)) {
+                        //this is a secondary variable modification
+                        String key = animKey + '#';
+                        while (emfAnimations.containsKey(key)) {
+                            key += '#';
+                        }
+                        // add it in the animation list but alter the key name
+                        emfAnimations.put(key, newAnimation);
+                    } else {
+                        emfAnimations.put(animKey, newAnimation);
+                    }
+                }
+            }
+        }
 
         isAnimationValidationPhase = true;
         Iterator<EMFAnimation> animMapIterate = emfAnimations.values().iterator();

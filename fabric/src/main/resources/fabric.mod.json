@@ -38,11 +38,12 @@
   "depends": {
     "fabricloader": ">=0.14",
     "minecraft": "${compatible_mc_fabric}",
-    "entity_texture_features": ">=6.1.3"
+    "entity_texture_features": ">=6.2.1"
   },
   "breaks": {
     "optifabric": "*",
-    "cem": "*"
+    "cem": "*",
+    "entity_texture_features": "<6.2.1"
   },
   "custom": {
     "modmenu": {

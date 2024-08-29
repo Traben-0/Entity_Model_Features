@@ -505,7 +505,7 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getDeathTime() {
-        return IEMFEntity instanceof LivingEntity alive ? alive.deathTime : 0;
+        return IEMFEntity instanceof LivingEntity alive ? (alive.deathTime > 0 ? alive.deathTime + getTickDelta() : 0) : 0;
     }
 
     public static float getAngerTime() {
@@ -539,7 +539,7 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getId() {
-        return IEMFEntity == null ? 0 : IEMFEntity.etf$getUuid().hashCode();
+        return IEMFEntity == null ? 0 : IEMFEntity.etf$getOptifineId();
     }
 
     public static float getHurtTime() {
@@ -571,6 +571,7 @@ public final class EMFAnimationEntityContext {
         }
         return IEMFEntity.etf$getBlockPos().getY() - pos.getY();
     }
+
 
     public static float getFluidDepthUp() {
         if (IEMFEntity == null
@@ -727,11 +728,15 @@ public final class EMFAnimationEntityContext {
 
         //block entity looked at
         if (IEMFEntity.etf$isBlockEntity()){
-            Entity entity = mc.getCameraEntity();
-            if (entity != null) {
-                var block = entity.pick(20.0, 0.0F, false);
-                if (block.getType() == HitResult.Type.BLOCK) {
-                    return ((BlockHitResult)block).getBlockPos().equals(IEMFEntity.etf$getBlockPos());
+            var player = Minecraft.getInstance().player;
+            if(player != null
+                    && IEMFEntity.etf$distanceTo(player) <= #if MC > MC_20_4 player.blockInteractionRange() #else (player.isCreative() ? 5F : 4.5F) #endif + 1) {
+                Entity entity = mc.getCameraEntity();
+                if (entity != null) {
+                    var block = entity.pick(20.0, 0.0F, false);
+                    if (block.getType() == HitResult.Type.BLOCK) {
+                        return ((BlockHitResult) block).getBlockPos().equals(IEMFEntity.etf$getBlockPos());
+                    }
                 }
             }
             return false;

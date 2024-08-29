@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 @SuppressWarnings("CanBeFinal")
 public class EMFJemData {
 
-    private final LinkedHashMap<String, LinkedHashMap<String, String>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();
+    private final LinkedHashMap<String, List<LinkedHashMap<String, String>>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();
     public String texture = "";
     public int[] textureSize = null;
     public double shadow_size = 1.0;
@@ -24,7 +24,7 @@ public class EMFJemData {
     private EMFModel_ID mobModelIDInfo = null;
     private ResourceLocation customTexture = null;
 
-    public LinkedHashMap<String, LinkedHashMap<String, String>> getAllTopLevelAnimationsByVanillaPartName() {
+    public LinkedHashMap<String, List<LinkedHashMap<String, String>>> getAllTopLevelAnimationsByVanillaPartName() {
         return allTopLevelAnimationsByVanillaPartName;
     }
 
@@ -106,7 +106,7 @@ public class EMFJemData {
         }
 
         for (EMFPartData model : models) {
-            model.prepare(textureSize, this, customTexture);
+            model.prepare(textureSize, this);
         }
 
         ///prep animations
@@ -115,7 +115,7 @@ public class EMFJemData {
 
         for (EMFPartData partData :
                 originalModelsForReadingOnly) {
-            //if two parts both with id of EMF_body the later will get renamed to copy first come first server approach that optifine seems to have
+            //if two parts both with id of EMF_body the later will get renamed to copy first come first serve approach that optifine seems to have
             String newId = EMFUtils.getIdUnique(alphabeticalOrderedParts.keySet(), partData.id);
             if (!newId.equals(partData.id)) partData.id = newId;
             alphabeticalOrderedParts.put(partData.id, partData);
@@ -125,21 +125,27 @@ public class EMFJemData {
 
         for (EMFPartData part : alphabeticalOrderedParts.values()) {
             if (part.animations != null) {
+                var list = new LinkedList<LinkedHashMap<String, String>>();
                 for (LinkedHashMap<String, String> animation : part.animations) {
                     LinkedHashMap<String, String> thisPartsAnimations = new LinkedHashMap<>();
                     animation.forEach((key, anim) -> {
                         key = key.trim().replaceAll("\\s", "");
                         anim = anim.trim().replaceAll("\\s", "");
-                        if (key.startsWith("this.")) key = key.replaceFirst("this", part.id);
-                        if (anim.contains("this.")) anim = anim.replaceAll("this", part.id);
+                        //replace "this"
+                        if (key.contains("this")) key = key.replaceFirst("(?<=\\W|^)this(?=\\W)", part.id);
+                        if (anim.contains("this")) anim = anim.replaceAll("(?<=\\W|^)this(?=\\W)", part.id);
+
                         if (!key.isBlank() && !anim.isBlank())
                             thisPartsAnimations.put(key, anim);
                     });
                     if (!thisPartsAnimations.isEmpty()) {
-                        allTopLevelAnimationsByVanillaPartName
-                                .computeIfAbsent(part.part, k -> new LinkedHashMap<>())
-                                .putAll(thisPartsAnimations);
+                        list.add(thisPartsAnimations);
                     }
+                }
+                if (!list.isEmpty()) {
+                    allTopLevelAnimationsByVanillaPartName
+                            .computeIfAbsent(part.part, k -> new LinkedList<>())
+                            .addAll(list);
                 }
             }
         }
@@ -147,9 +153,11 @@ public class EMFJemData {
         //place in a simple animation to set the shadow size
         if (shadow_size != 1.0) {
             shadow_size = Math.max(shadow_size, 0);
+            var shadowAnim = new LinkedHashMap<String, String>();
+            shadowAnim.put("render.shadow_size", String.valueOf(shadow_size));
             allTopLevelAnimationsByVanillaPartName
-                    .computeIfAbsent("root", k -> new LinkedHashMap<>())
-                    .put("render.shadow_size", String.valueOf(shadow_size));
+                    .computeIfAbsent("root", k -> new LinkedList<>())
+                    .add(shadowAnim);
         }
 
         ///finished animations preprocess

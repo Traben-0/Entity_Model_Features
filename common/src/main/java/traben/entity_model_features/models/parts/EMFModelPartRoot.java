@@ -145,13 +145,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 newEmfParts.put(idUnique, new EMFModelPartCustom(part, variant, part.part, idUnique));
             }
         }
+        var rootTextureOverride = jemData.getCustomTexture();
         for (Map.Entry<String, EMFModelPartVanilla> vanillaEntry : allVanillaParts.entrySet()) {
             EMFModelPartVanilla thisPart = vanillaEntry.getValue();
             EMFModelState vanillaState = EMFModelState.copy(thisPart.allKnownStateVariants.get(0));
             thisPart.setFromState(vanillaState);
-            if (thisPart instanceof EMFModelPartRoot root && !root.cubes.isEmpty()) {
-                root.textureOverride = jemData.getCustomTexture();
-            }
+
+            thisPart.textureOverride = rootTextureOverride;
+
             Map<String, ModelPart> children = new HashMap<>(thisPart.vanillaChildren);
             for (Map.Entry<String, EMFModelPartCustom> newPartEntry : newEmfParts.entrySet()) {
                 EMFModelPartCustom newPart = newPartEntry.getValue();

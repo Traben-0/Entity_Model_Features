@@ -23,7 +23,7 @@
     "rendering.MixinBannerRenderer",
     "rendering.MixinBlockEntityRenderDispatcher",
     "rendering.MixinBlockEntityWithoutLevelRenderer",
-    "rendering.feature.MixinCapeFeatureRenderer",
+    "MixinCapeModels",
     "rendering.feature.MixinCatCollarFeatureRenderer",
     "rendering.feature.MixinCreeperChargeFeatureRenderer",
     "rendering.model.MixinDragonModel",

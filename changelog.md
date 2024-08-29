@@ -1,4 +1,19 @@
 
+- now requires ETF 6.2.1 or newer
+- fixed a model setup error that would break villager and warden, clothing and glowing textures with custom models that declared textures
+- is_hover now respects the players current block interaction range for block entities
+- id variable now matches OptiFine's value exactly
+- reworked the player_cape.jem implementation to be more mod compatible, e.g. `wavey capes` mod can now correctly overwrite it & essentials works with it now
+- swapped subfolder load priority for models. `optifine/cem/skeleton/skeleton.jem` now loads before `optifine/cem/skeleton.jem` matching optifine behaviour
+- added an OptiFine compat setting to require submodel folders to have variants, e.g. `optifine/cem/skeleton/skeleton.jem` will not load without a `optifine/cem/skeleton/skeleton2.jem` or a valid .properties file.
+- model exports no longer print rotation float values as doubles
+- model exports now also log all box values for exported and non-exported parts
+- fixed texture overrides not applying to `attach=true` or vanilla parts
+- fixed animations breaking when the same part transform or variable is declared / updated more than once over all the animation entries
+- added tickdelta to the death time variable *(fixes jittering in packs like skeleton death physics)*
+- fixed not all instances of `this` being correctly resolved in animation math
+- added spelling correction warnings for frequently misspelled variables like `is_aggressive`
+- variables not being found now log as errors rather than warnings and will now correctly default to false for unknown booleans
 
 [2.2]
 - fixed forge 1.21 & 1.20.6 compat

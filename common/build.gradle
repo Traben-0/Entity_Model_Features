@@ -13,8 +13,8 @@ dependencies {
     // Remove the next line if you don't want to depend on the API
     //modApi "dev.architectury:architectury:${rootProject.architectury_version}"
 
-    //modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version}")
-    modImplementation files("run/entity_texture_features_fabric_${rootProject.minecraft_version}-6.1.3.jar")
+    modImplementation ("maven.modrinth:entitytexturefeatures:${project.entitytexturefeatures_version}")
+//    modImplementation files("run/entity_texture_features_fabric_${rootProject.minecraft_version}-6.1.3.jar")
 
     modImplementation("maven.modrinth:physicsmod:dBxi3s11")
     modImplementation("maven.modrinth:ebe:${rootProject.ebe_version}")

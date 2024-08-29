@@ -61,6 +61,7 @@ public class EMFConfig extends TConfig {
     public boolean variationRequiresDefaultModel = true;
     public boolean resetPlayerModelEachRender = true;
     public boolean onlyDebugRenderOnHover = false;
+    public boolean enforceOptifineSubFoldersVariantOnly = true;
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -74,9 +75,7 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
                                         () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.double_chest_fix", "entity_model_features.config.double_chest_fix.tooltip",
-                                        () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true),
-                                new TConfigEntryBoolean("entity_model_features.config.variation_base", "entity_model_features.config.variation_base.tooltip",
-                                        () -> variationRequiresDefaultModel, value -> variationRequiresDefaultModel = value, true)
+                                        () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true)
                         ),
                         new TConfigEntryCategory("entity_model_features.config.player_settings").add(
                                 new TConfigEntryBoolean("entity_model_features.config.prevent_hand", "entity_model_features.config.prevent_hand.tooltip",
@@ -116,7 +115,14 @@ public class EMFConfig extends TConfig {
                         ), getModelSettings()
                         , getMathInfo()
                 )//, new TConfigEntryCategory("config.entity_features.general_settings.title")
-                , getEntitySettings()
+                , getEntitySettings(),
+                new TConfigEntryCategory("config.entity_features.optifine_settings","config.entity_texture_features.optifine.desc").add(
+                        new TConfigEntryBoolean("entity_model_features.config.variation_base", "entity_model_features.config.variation_base.tooltip",
+                                () -> variationRequiresDefaultModel, value -> variationRequiresDefaultModel = value, true),
+                        new TConfigEntryBoolean("entity_model_features.config.optifine_subfolders", "entity_model_features.config.optifine_subfolders.tooltip",
+                                () -> enforceOptifineSubFoldersVariantOnly, value -> enforceOptifineSubFoldersVariantOnly = value, true)
+
+                )
         );
     }
 
@@ -187,16 +193,19 @@ public class EMFConfig extends TConfig {
                             getExport(mapData, layer),
                             new TConfigEntryCategory("entity_model_features.config.models.file_names").addAll(
                                     TConfigEntryText.fromLongOrMultilineTranslation(
-                                            "<Folders>\nassets/" + mapData.getNamespace() + "/emf/cem/\n"+
-                                                    "assets/" + mapData.getNamespace() + "/optifine/cem/\n\n"+
-                                                    "<possible model names, checked in order>\n"+
+                                            "<Folders>\nassets/" + mapData.getNamespace() + "/emf/cem/\n" +
+                                                    "assets/" + mapData.getNamespace() + "/optifine/cem/\n\n" +
+                                                    "<possible model names, checked in order>\n" +
                                                     mapData.getfileName() + ".jem" + (
-                                                            second == null ? "" : ("\n"+second.getfileName() + ".jem\n")
-                                                    )
+                                                    second == null ? "" : ("\n" + second.getfileName() + ".jem\n")
+                                            )
                                             ,
                                             600, TConfigEntryText.TextAlignment.CENTER)
                             )
+                    ).addAll(TConfigEntryText.fromLongOrMultilineTranslation(
+                                "entity_model_features.config.models.explain", 100, TConfigEntryText.TextAlignment.LEFT)
                     );
+
                 }
             }
         });
@@ -451,6 +460,8 @@ public class EMFConfig extends TConfig {
                 matrixStack.scale(-1.0F, -1.0F, 1.0F);
                 matrixStack.translate(0.0F, -1.501F, 0.0F);
                 var buffer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines());
+                //who knows what mods might do smdh
+                //noinspection ConstantValue
                 if (buffer != null) {
                     renderBoxes(matrixStack, buffer, root);
                 }

@@ -115,7 +115,7 @@ public class EMFPartData {
         return list;
     }
 
-    public void prepare(int[] textureSize, EMFJemData jem, ResourceLocation jemTexture) {
+    public void prepare(int[] textureSize, EMFJemData jem){
         this.id = "EMF_" + (this.id.isBlank() ? hashCode() : this.id);
 
         //check if we need to load a .jpm into this object
@@ -124,11 +124,8 @@ public class EMFPartData {
                     .ifPresent(this::copyFrom);
         }
 
-
         if (this.textureSize == null || this.textureSize.length != 2) this.textureSize = textureSize;
         this.customTexture = jem.validateJemTexture(texture);
-
-        if (customTexture == null) customTexture = jemTexture;
 
         boolean invX = invertAxis.contains("x");
         boolean invY = invertAxis.contains("y");
@@ -152,14 +149,14 @@ public class EMFPartData {
 //        }
 
         if (submodel != null) {
-            submodel.prepare(this.textureSize, jem, null);
+            submodel.prepare(this.textureSize, jem);
             if (!submodels.contains(submodel)) {
                 submodels.add(submodel);
                 submodel = null;
             }
         }
         for (EMFPartData model : submodels) {
-            model.prepare(this.textureSize, jem, null);
+            model.prepare(this.textureSize, jem);
         }
     }
 
