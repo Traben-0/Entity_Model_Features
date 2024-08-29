@@ -730,7 +730,7 @@ public final class EMFAnimationEntityContext {
         if (IEMFEntity.etf$isBlockEntity()){
             var player = Minecraft.getInstance().player;
             if(player != null
-                    && IEMFEntity.etf$distanceTo(player) <= player.blockInteractionRange() + 1) {
+                    && IEMFEntity.etf$distanceTo(player) <= #if MC > MC_20_4 player.blockInteractionRange() #else (player.isCreative() ? 5F : 4.5F) #endif + 1) {
                 Entity entity = mc.getCameraEntity();
                 if (entity != null) {
                     var block = entity.pick(20.0, 0.0F, false);
