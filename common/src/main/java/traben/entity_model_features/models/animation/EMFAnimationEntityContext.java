@@ -76,6 +76,7 @@ public final class EMFAnimationEntityContext {
     private static Function<ResourceLocation, RenderType> layerFactory = null;
     private static Boolean lodFrameSkipping = null;
     private static boolean announceModels = false;
+    private static float frameCounter = 0;
 
     public static Object2ObjectOpenHashMap<UUID, ModelPart[]> entitiesPausedParts = new Object2ObjectOpenHashMap<>();
     public static ObjectSet<UUID> entitiesPaused = new ObjectOpenHashSet<>();
@@ -93,6 +94,19 @@ public final class EMFAnimationEntityContext {
 
     private EMFAnimationEntityContext() {
 
+    }
+
+    public static void incFrameCount(){
+        //not 100% certain if the shadow pass passes through this method, I highly doubt it but just in case
+        if(IrisShadowPassDetection.getInstance().inShadowPass()) return;
+
+        float inc = frameCounter + 1;
+        //reset counter after exceeding floating point precision cutoff
+        frameCounter = inc > 720719 ? 0 : inc;
+    }
+
+    public static float getFrameCounter(){
+        return frameCounter;
     }
 
     public static boolean isJumping() {
@@ -348,6 +362,11 @@ public final class EMFAnimationEntityContext {
 //    public static void setAge(final float age) {
 //        EMFAnimationEntityContext.age = age;
 //    }
+
+    public static void globalReset(){
+        reset();
+        frameCounter = 0;
+    }
 
     public static void reset() {
         isFirstPersonHand = false;
@@ -839,11 +858,16 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getFrameTime() {
-    #if MC >= MC_21
+        if (Minecraft.getInstance().isPaused()) return 0;
+        #if MC > MC_20_2
+        if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.tickRateManager().isFrozen()) return 0;
+        #endif
+
+        #if MC >= MC_21
         return ((MinecraftClientAccessor)Minecraft.getInstance()).getTimer().getGameTimeDeltaTicks() / 20;
-    #else
+        #else
         return Minecraft.getInstance().getDeltaFrameTime() / 20;
-    #endif
+        #endif
     }
 
     public static float getLimbAngle() {//limb_swing

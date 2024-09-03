@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.client.model.geom.ModelLayers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -62,6 +63,8 @@ public class EMFConfig extends TConfig {
     public boolean resetPlayerModelEachRender = true;
     public boolean onlyDebugRenderOnHover = false;
     public boolean enforceOptifineSubFoldersVariantOnly = true;
+    public boolean enforceOptiFineAnimSyntaxLimits = true;
+    public boolean enforceOptiFineFloorUVs = true;
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -120,7 +123,11 @@ public class EMFConfig extends TConfig {
                         new TConfigEntryBoolean("entity_model_features.config.variation_base", "entity_model_features.config.variation_base.tooltip",
                                 () -> variationRequiresDefaultModel, value -> variationRequiresDefaultModel = value, true),
                         new TConfigEntryBoolean("entity_model_features.config.optifine_subfolders", "entity_model_features.config.optifine_subfolders.tooltip",
-                                () -> enforceOptifineSubFoldersVariantOnly, value -> enforceOptifineSubFoldersVariantOnly = value, true)
+                                () -> enforceOptifineSubFoldersVariantOnly, value -> enforceOptifineSubFoldersVariantOnly = value, true),
+                        new TConfigEntryBoolean("entity_model_features.config.optifine_syntax", "entity_model_features.config.optifine_syntax.tooltip",
+                                () -> enforceOptiFineAnimSyntaxLimits, value -> enforceOptiFineAnimSyntaxLimits = value, true),
+                        new TConfigEntryBoolean("entity_model_features.config.optifine_floor", "entity_model_features.config.optifine_floor.tooltip",
+                                () -> enforceOptiFineFloorUVs, value -> enforceOptiFineFloorUVs = value, true)
 
                 )
         );
@@ -161,6 +168,8 @@ public class EMFConfig extends TConfig {
     private TConfigEntryCategory getModelSettings() {
         TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.models");
         category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.models_text", 200, TConfigEntryText.TextAlignment.LEFT));
+
+        EMFManager.getInstance().cache_LayersByModelName.put(new EMFModel_ID("wolf_collar"), ModelLayers.WOLF);
 
         EMFManager.getInstance().cache_LayersByModelName.keySet().stream().sorted().forEach(mapData -> {
             var layer = EMFManager.getInstance().cache_LayersByModelName.get(mapData);

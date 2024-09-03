@@ -1,4 +1,16 @@
 
+- added an optifine cem syntax limitation parity setting
+- added a parity setting to enforce custom UV value flooring in boxes like OptiFine does
+- added support for referencing `part` directly in animations such as `this` already does
+- added more detailed validation warnings to box uv co-ordinates as well as fleshing out validation error messages to inform users of the exact issue source
+- added `frame_counter` variable from the latest OptiFine
+- added `wolf_collar` to the model list
+- made `frame_time` match OptiFine's pausing and tick freeze behaviour
+- fixed modded block entity models incorrectly including the namespace in the model file name when it should not e.g. looking for `optifine/cem/mod:model.jem` instead of `mod:optifine/cem/model.jem`
+- fixed models with variants not resetting their initial state correctly on first load until at least 1 variation occurs naturally
+
+
+[2.2.2]
 - now requires ETF 6.2.1 or newer
 - fixed a model setup error that would break villager and warden, clothing and glowing textures with custom models that declared textures
 - is_hover now respects the players current block interaction range for block entities

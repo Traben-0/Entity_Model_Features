@@ -116,47 +116,51 @@ public class EMFPartData {
     }
 
     public void prepare(int[] textureSize, EMFJemData jem){
-        this.id = "EMF_" + (this.id.isBlank() ? hashCode() : this.id);
+        try {
+            this.id = "EMF_" + (this.id.isBlank() ? hashCode() : this.id);
 
-        //check if we need to load a .jpm into this object
-        if (!model.isEmpty()) {
-            Optional.ofNullable(EMFUtils.readModelPart(model, jem.directoryContext))
-                    .ifPresent(this::copyFrom);
-        }
+            //check if we need to load a .jpm into this object
+            if (!model.isEmpty()) {
+                Optional.ofNullable(EMFUtils.readModelPart(model, jem.directoryContext))
+                        .ifPresent(this::copyFrom);
+            }
 
-        if (this.textureSize == null || this.textureSize.length != 2) this.textureSize = textureSize;
-        this.customTexture = jem.validateJemTexture(texture);
+            if (this.textureSize == null || this.textureSize.length != 2) this.textureSize = textureSize;
+            this.customTexture = jem.validateJemTexture(texture);
 
-        boolean invX = invertAxis.contains("x");
-        boolean invY = invertAxis.contains("y");
-        boolean invZ = invertAxis.contains("z");
+            boolean invX = invertAxis.contains("x");
+            boolean invY = invertAxis.contains("y");
+            boolean invZ = invertAxis.contains("z");
 
-        translate[0] = invX ? -translate[0] : translate[0];
-        translate[1] = invY ? -translate[1] : translate[1];
-        translate[2] = invZ ? -translate[2] : translate[2];
+            translate[0] = invX ? -translate[0] : translate[0];
+            translate[1] = invY ? -translate[1] : translate[1];
+            translate[2] = invZ ? -translate[2] : translate[2];
 
-        rotate[0] = (invX ? -rotate[0] : rotate[0]) * Mth.DEG_TO_RAD;
-        rotate[1] = (invY ? -rotate[1] : rotate[1]) * Mth.DEG_TO_RAD;
-        rotate[2] = (invZ ? -rotate[2] : rotate[2]) * Mth.DEG_TO_RAD;
+            rotate[0] = (invX ? -rotate[0] : rotate[0]) * Mth.DEG_TO_RAD;
+            rotate[1] = (invY ? -rotate[1] : rotate[1]) * Mth.DEG_TO_RAD;
+            rotate[2] = (invZ ? -rotate[2] : rotate[2]) * Mth.DEG_TO_RAD;
 
-        for (EMFBoxData box : boxes) {
-            box.prepare(invX, invY, invZ);
-        }
+            for (EMFBoxData box : boxes) {
+                box.prepare(invX, invY, invZ);
+            }
 
 //todo
 //        for (EMFSpriteData sprite : sprites) {
 //            sprite.prepare();
 //        }
 
-        if (submodel != null) {
-            submodel.prepare(this.textureSize, jem);
-            if (!submodels.contains(submodel)) {
-                submodels.add(submodel);
-                submodel = null;
+            if (submodel != null) {
+                submodel.prepare(this.textureSize, jem);
+                if (!submodels.contains(submodel)) {
+                    submodels.add(submodel);
+                    submodel = null;
+                }
             }
-        }
-        for (EMFPartData model : submodels) {
-            model.prepare(this.textureSize, jem);
+            for (EMFPartData model : submodels) {
+                model.prepare(this.textureSize, jem);
+            }
+        }catch (Exception e){
+            throw new IllegalArgumentException("Error preparing part data, for part ["+id+"]: " + e.getMessage(), e);
         }
     }
 

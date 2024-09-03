@@ -1,5 +1,8 @@
 package traben.entity_model_features.models.jem_objects;
 
+import traben.entity_model_features.EMF;
+import traben.entity_model_features.utils.EMFUtils;
+
 import java.util.Arrays;
 
 @SuppressWarnings("CanBeFinal")
@@ -31,23 +34,68 @@ public class EMFBoxData {
     public float sizeAddZ = 0.0f;
 
     public void prepare(boolean invertX, boolean invertY, boolean invertZ) {
-        checkAndFixUVLegacyDirections();
+        try {
 
-        if (sizeAdd != 0.0f && sizeAddX == 0.0f && sizeAddY == 0.0f && sizeAddZ == 0.0f) {
-            sizeAddX = sizeAdd;
-            sizeAddY = sizeAdd;
-            sizeAddZ = sizeAdd;
+            if (sizeAdd != 0.0f && sizeAddX == 0.0f && sizeAddY == 0.0f && sizeAddZ == 0.0f) {
+                sizeAddX = sizeAdd;
+                sizeAddY = sizeAdd;
+                sizeAddZ = sizeAdd;
+            }
+
+            //then invert?
+            if (invertX) {
+                coordinates[0] = -coordinates[0] - coordinates[3];
+            }
+            if (invertY) {
+                coordinates[1] = -coordinates[1] - coordinates[4];
+            }
+            if (invertZ) {
+                coordinates[2] = -coordinates[2] - coordinates[5];
+            }
+
+            boolean offsetValid = textureOffset.length == 2;
+            if (!offsetValid && textureOffset.length != 0) {
+                throw new IllegalArgumentException("Invalid textureOffset data: " + Arrays.toString(textureOffset));
+            }
+
+            if (!offsetValid) {
+                checkAndFixUVLegacyDirections();
+
+                validateUV(uvDown, "uvDown");
+                validateUV(uvUp, "uvUp");
+                validateUV(uvNorth, "uvNorth");
+                validateUV(uvSouth, "uvSouth");
+                validateUV(uvWest, "uvWest");
+                validateUV(uvEast, "uvEast");
+            }
+        }catch (Exception e){
+            throw new IllegalArgumentException("Error preparing box data: " + e.getMessage(), e);
+        }
+    }
+
+    private void validateUV(float[] uv, String name) {
+        if (uv.length == 0) {
+            return;//empty is fine
+        }
+        if (uv.length != 4) {
+            throw new IllegalArgumentException("Invalid UV data for ["+name+"], must have 4 or 0 values: " + Arrays.toString(uv));
         }
 
-        //then invert?
-        if (invertX) {
-            coordinates[0] = -coordinates[0] - coordinates[3];
+        //first two should be integers
+        if(EMF.config().getConfig().enforceOptiFineFloorUVs ) {
+            uv[0] = (float) Math.floor(uv[0]);
+            uv[1] = (float) Math.floor(uv[1]);
+            uv[2] = (float) Math.floor(uv[2]);
+            uv[3] = (float) Math.floor(uv[3]);
+        } else if (uv[0] != Math.floor(uv[0]) || uv[1] != Math.floor(uv[1]) || uv[2] != Math.floor(uv[2]) || uv[3] != Math.floor(uv[3])) {
+            EMFUtils.logWarn("Possibly invalid UV data for [" + name + "], all values should be integers (whole numbers), because OptiFine floors them, EMF can be set to floor these values in the OptiFine parity settings: " + Arrays.toString(uv));
         }
-        if (invertY) {
-            coordinates[1] = -coordinates[1] - coordinates[4];
+
+        if (Math.floor(uv[2]) == 0) {
+            EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the third value should not floor to 0: " + Arrays.toString(uv));
         }
-        if (invertZ) {
-            coordinates[2] = -coordinates[2] - coordinates[5];
+        if (Math.floor(uv[3]) == 0) {
+            EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the fourth value should not floor to 0: " + Arrays.toString(uv));
         }
 
     }
