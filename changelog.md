@@ -1,10 +1,10 @@
 
-- added optifine cem syntax limitation parity setting
+- added an optifine cem syntax limitation parity setting
 - added support for referencing `part` directly in animations such as `this` already does
-- added more detailed validation checks to box uv co-ordinates to match OptiFine as well as fleshing out the error messages to inform users of the exact issue source
+- added more detailed validation warnings to box uv co-ordinates as well as fleshing out validation error messages to inform users of the exact issue source
 - added `frame_counter` variable from the latest OptiFine
 - made `frame_time` match OptiFine's pausing and tick freeze behaviour
-- fixed modded block models incorrectly including the namespace in the model file name when it should not e.g. looking for `optifine/cem/mod:model.jem` instead of `mod:optifine/cem/model.jem`
+- fixed modded block entity models incorrectly including the namespace in the model file name when it should not e.g. looking for `optifine/cem/mod:model.jem` instead of `mod:optifine/cem/model.jem`
 - fixed models with variants not resetting their initial state correctly on first load until at least 1 variation occurs naturally
 
 

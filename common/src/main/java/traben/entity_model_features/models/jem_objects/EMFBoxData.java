@@ -81,7 +81,7 @@ public class EMFBoxData {
         }
         //first two should be integers
         if (uv[0] != (int) uv[0] || uv[1] != (int) uv[1]) {
-            EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the first 2 values should be integers (whole numbers): " + Arrays.toString(uv));
+            EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the first 2 values should be integers (whole numbers), because OptiFine floors them: " + Arrays.toString(uv));
         }
         //second two should be 0 or abs() >=1
         if (uv[2] != 0 && Math.abs(uv[2]) < 1) {
