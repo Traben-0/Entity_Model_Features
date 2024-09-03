@@ -1,5 +1,7 @@
 package traben.entity_model_features.models.jem_objects;
 
+import traben.entity_model_features.utils.EMFUtils;
+
 import java.util.Arrays;
 
 @SuppressWarnings("CanBeFinal")
@@ -71,20 +73,23 @@ public class EMFBoxData {
     }
 
     private void validateUV(float[] uv, String name) {
+        if (uv.length == 0) {
+            return;//empty is fine
+        }
         if (uv.length != 4) {
-            throw new IllegalArgumentException("Invalid UV data for ["+name+"], must have 4 values: " + Arrays.toString(uv));
+            throw new IllegalArgumentException("Invalid UV data for ["+name+"], must have 4 or 0 values: " + Arrays.toString(uv));
         }
-        //first two must be integers
+        //first two should be integers
         if (uv[0] != (int) uv[0] || uv[1] != (int) uv[1]) {
-            throw new IllegalArgumentException("Invalid UV data for ["+name+"], the first 2 values must be integers (whole numbers): " + Arrays.toString(uv));
+            EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the first 2 values should be integers (whole numbers): " + Arrays.toString(uv));
         }
-        //second two must be 0 or abs() >=1
+        //second two should be 0 or abs() >=1
         if (uv[2] != 0 && Math.abs(uv[2]) < 1) {
-            throw new IllegalArgumentException("Invalid UV data for ["+name+"], the third value must be either 0, less than -1, or larger than 1: " + Arrays.toString(uv));
+            EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the third value should be either 0, less than -1, or larger than 1: " + Arrays.toString(uv));
         }
 
         if (uv[3] != 0 && Math.abs(uv[3]) < 1) {
-            throw new IllegalArgumentException("Invalid UV data for ["+name+"], the fourth value must be either 0, less than -1, or larger than 1: " + Arrays.toString(uv));
+            EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the fourth value should be either 0, less than -1, or larger than 1: " + Arrays.toString(uv));
         }
 
     }

@@ -855,11 +855,16 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getFrameTime() {
-    #if MC >= MC_21
+        if (Minecraft.getInstance().isPaused()) return 0;
+        #if MC > MC_20_2
+        if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.tickRateManager().isFrozen()) return 0;
+        #endif
+
+        #if MC >= MC_21
         return ((MinecraftClientAccessor)Minecraft.getInstance()).getTimer().getGameTimeDeltaTicks() / 20;
-    #else
+        #else
         return Minecraft.getInstance().getDeltaFrameTime() / 20;
-    #endif
+        #endif
     }
 
     public static float getLimbAngle() {//limb_swing
