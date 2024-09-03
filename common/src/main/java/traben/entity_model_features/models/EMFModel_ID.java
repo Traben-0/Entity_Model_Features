@@ -9,7 +9,17 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
     public String namespace = "minecraft";
 
     public void setFileName(final String fileName) {
-        this.fileName = fileName;
+        if (fileName.contains(":")) {
+            var split = fileName.split(":");
+            if (split.length == 2) {
+                this.namespace = split[0];
+                this.fileName = split[1];
+            }else{
+                this.fileName = fileName;
+            }
+        } else {
+            this.fileName = fileName;
+        }
     }
 
     private String fileName;
@@ -95,9 +105,17 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
 
     public void setMapIdAndSecondaryFileName(String mapId, String fileName) {
         this.mapId = mapId;
-        setSecondaryFileName(namespace, fileName);
+        if (fileName.contains(":")) {
+            var split = fileName.split(":");
+            if (split.length == 2) {
+                setSecondaryFileName(split[0], split[1]);
+            } else {
+                setSecondaryFileName(namespace, fileName);
+            }
+        } else {
+            setSecondaryFileName(namespace, fileName);
+        }
     }
-
 
     public String getNamespace() {
         return namespace;

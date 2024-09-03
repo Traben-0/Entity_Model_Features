@@ -387,6 +387,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                         emfRoot.setVariant1ToVanilla0();
                         emfRoot.discoverAndInitVariants();
                     }
+                    //reset any variant state weirdness
+                    emfRoot.setVariantStateTo(1);
 
                     if (emfRoot.containsCustomModel) {
                         lastCreatedRootModelPart = emfRoot;
