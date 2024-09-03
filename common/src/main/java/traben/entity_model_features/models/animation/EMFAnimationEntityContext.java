@@ -97,6 +97,9 @@ public final class EMFAnimationEntityContext {
     }
 
     public static void incFrameCount(){
+        //not 100% certain if the shadow pass passes through this method, I highly doubt it but just in case
+        if(IrisShadowPassDetection.getInstance().inShadowPass()) return;
+
         float inc = frameCounter + 1;
         //reset counter after exceeding floating point precision cutoff
         frameCounter = inc > 720719 ? 0 : inc;

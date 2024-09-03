@@ -1,5 +1,6 @@
 
 - added an optifine cem syntax limitation parity setting
+- added a parity setting to enforce custom UV value flooring in boxes like OptiFine does
 - added support for referencing `part` directly in animations such as `this` already does
 - added more detailed validation warnings to box uv co-ordinates as well as fleshing out validation error messages to inform users of the exact issue source
 - added `frame_counter` variable from the latest OptiFine
