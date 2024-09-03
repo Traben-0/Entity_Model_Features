@@ -62,6 +62,7 @@ public class EMFConfig extends TConfig {
     public boolean resetPlayerModelEachRender = true;
     public boolean onlyDebugRenderOnHover = false;
     public boolean enforceOptifineSubFoldersVariantOnly = true;
+    public boolean enforceOptiFineAnimSyntaxLimits = true;
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -120,7 +121,9 @@ public class EMFConfig extends TConfig {
                         new TConfigEntryBoolean("entity_model_features.config.variation_base", "entity_model_features.config.variation_base.tooltip",
                                 () -> variationRequiresDefaultModel, value -> variationRequiresDefaultModel = value, true),
                         new TConfigEntryBoolean("entity_model_features.config.optifine_subfolders", "entity_model_features.config.optifine_subfolders.tooltip",
-                                () -> enforceOptifineSubFoldersVariantOnly, value -> enforceOptifineSubFoldersVariantOnly = value, true)
+                                () -> enforceOptifineSubFoldersVariantOnly, value -> enforceOptifineSubFoldersVariantOnly = value, true),
+                        new TConfigEntryBoolean("entity_model_features.config.optifine_syntax", "entity_model_features.config.optifine_syntax.tooltip",
+                                () -> enforceOptiFineAnimSyntaxLimits, value -> enforceOptiFineAnimSyntaxLimits = value, true)
 
                 )
         );

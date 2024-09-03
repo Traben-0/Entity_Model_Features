@@ -1,4 +1,10 @@
 
+- added optifine cem syntax limitation parity setting
+- added support for referencing `part` directly in animations such as `this` already does
+- added more detailed validation checks to box uv co-ordinates to match OptiFine as well as fleshing out the error messages to inform users of the exact issue source
+
+
+[2.2.2]
 - now requires ETF 6.2.1 or newer
 - fixed a model setup error that would break villager and warden, clothing and glowing textures with custom models that declared textures
 - is_hover now respects the players current block interaction range for block entities

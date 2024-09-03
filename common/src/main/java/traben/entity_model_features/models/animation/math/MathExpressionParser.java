@@ -4,6 +4,7 @@ package traben.entity_model_features.models.animation.math;
 import it.unimi.dsi.fastutil.chars.CharArrayList;
 import it.unimi.dsi.fastutil.chars.CharListIterator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -233,8 +234,19 @@ public class MathExpressionParser {
         String read = rollingReader.read();
         try {
             //assume it is a number
-            components.add(new MathConstant(Float.parseFloat(read), getNegativeNext()));
+            var number = Float.parseFloat(read);
+            //valid number
+            if (read.startsWith(".") && EMF.config().getConfig().enforceOptiFineAnimSyntaxLimits){
+                //if it starts with a dot, reject this as incorrect formatting
+                throw new EMFMathException("ERROR: number [" + read + "] in expression [" + originalExpression + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "] is not valid in OptiFine. It must not start with '.' please add a zero");
+            }
+
+            components.add(new MathConstant(number, getNegativeNext()));
         } catch (NumberFormatException ignored) {
+            if (read.matches("^(\\d|_).*") && EMF.config().getConfig().enforceOptiFineAnimSyntaxLimits){
+                //if it starts with a digit or underscore, reject this as incorrect formatting
+                throw new EMFMathException("ERROR: variable [" + read + "] in expression [" + originalExpression + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "] is not valid in OptiFine. It must not start with '.' please add a zero");
+            }
             //otherwise it must be a text variable
             components.add(MathVariable.getOptimizedVariable(read, getNegativeNext(), this.calculationInstance));
         }

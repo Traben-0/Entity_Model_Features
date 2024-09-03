@@ -31,23 +31,60 @@ public class EMFBoxData {
     public float sizeAddZ = 0.0f;
 
     public void prepare(boolean invertX, boolean invertY, boolean invertZ) {
-        checkAndFixUVLegacyDirections();
+        try {
 
-        if (sizeAdd != 0.0f && sizeAddX == 0.0f && sizeAddY == 0.0f && sizeAddZ == 0.0f) {
-            sizeAddX = sizeAdd;
-            sizeAddY = sizeAdd;
-            sizeAddZ = sizeAdd;
+            if (sizeAdd != 0.0f && sizeAddX == 0.0f && sizeAddY == 0.0f && sizeAddZ == 0.0f) {
+                sizeAddX = sizeAdd;
+                sizeAddY = sizeAdd;
+                sizeAddZ = sizeAdd;
+            }
+
+            //then invert?
+            if (invertX) {
+                coordinates[0] = -coordinates[0] - coordinates[3];
+            }
+            if (invertY) {
+                coordinates[1] = -coordinates[1] - coordinates[4];
+            }
+            if (invertZ) {
+                coordinates[2] = -coordinates[2] - coordinates[5];
+            }
+
+            boolean offsetValid = textureOffset.length == 2;
+            if (!offsetValid && textureOffset.length != 0) {
+                throw new IllegalArgumentException("Invalid textureOffset data: " + Arrays.toString(textureOffset));
+            }
+
+            if (!offsetValid) {
+                checkAndFixUVLegacyDirections();
+
+                validateUV(uvDown, "uvDown");
+                validateUV(uvUp, "uvUp");
+                validateUV(uvNorth, "uvNorth");
+                validateUV(uvSouth, "uvSouth");
+                validateUV(uvWest, "uvWest");
+                validateUV(uvEast, "uvEast");
+            }
+        }catch (Exception e){
+            throw new IllegalArgumentException("Error preparing box data: " + e.getMessage(), e);
+        }
+    }
+
+    private void validateUV(float[] uv, String name) {
+        if (uv.length != 4) {
+            throw new IllegalArgumentException("Invalid UV data for ["+name+"], must have 4 values: " + Arrays.toString(uv));
+        }
+        //first two must be integers
+        if (uv[0] != (int) uv[0] || uv[1] != (int) uv[1]) {
+            throw new IllegalArgumentException("Invalid UV data for ["+name+"], the first 2 values must be integers (whole numbers): " + Arrays.toString(uv));
+        }
+        //second two must be 0 or abs() >=1
+        if (uv[2] != 0 && Math.abs(uv[2]) < 1) {
+            throw new IllegalArgumentException("Invalid UV data for ["+name+"], the third value must be either 0, less than -1, or larger than 1: " + Arrays.toString(uv));
         }
 
-        //then invert?
-        if (invertX) {
-            coordinates[0] = -coordinates[0] - coordinates[3];
-        }
-        if (invertY) {
-            coordinates[1] = -coordinates[1] - coordinates[4];
-        }
-        if (invertZ) {
-            coordinates[2] = -coordinates[2] - coordinates[5];
+        if (uv[3] != 0 && Math.abs(uv[3]) < 1) {
+            throw new IllegalArgumentException("Invalid UV data for ["+name+"], the fourth value must be either 0, less than -1, or larger than 1: " + Arrays.toString(uv));
         }
 
     }
