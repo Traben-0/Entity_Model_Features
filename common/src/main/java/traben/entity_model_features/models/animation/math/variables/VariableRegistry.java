@@ -97,6 +97,7 @@ public final class VariableRegistry {
             if (EMFAnimationEntityContext.getEMFEntity() == null) return 0;
             return EMFAnimationEntityContext.getEMFEntity().etf$distanceTo(Minecraft.getInstance().player);
         });
+        registerSimpleFloatVariable("frame_counter", EMFAnimationEntityContext::getFrameCounter);
 
 
         //simple booleans
@@ -172,7 +173,8 @@ public final class VariableRegistry {
                 "is_agressive","is_aggressive",
                 "is_aggresive","is_aggressive",
                 "is_agresive","is_aggressive",
-                "is_riden","is_ridden"});
+                "is_riden","is_ridden",
+                "frame_count","frame_counter",});
     }
 
     private static String emfTranslationKey(String key) {

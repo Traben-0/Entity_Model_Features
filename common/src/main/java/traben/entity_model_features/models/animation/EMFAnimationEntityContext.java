@@ -76,6 +76,7 @@ public final class EMFAnimationEntityContext {
     private static Function<ResourceLocation, RenderType> layerFactory = null;
     private static Boolean lodFrameSkipping = null;
     private static boolean announceModels = false;
+    private static float frameCounter = 0;
 
     public static Object2ObjectOpenHashMap<UUID, ModelPart[]> entitiesPausedParts = new Object2ObjectOpenHashMap<>();
     public static ObjectSet<UUID> entitiesPaused = new ObjectOpenHashSet<>();
@@ -93,6 +94,16 @@ public final class EMFAnimationEntityContext {
 
     private EMFAnimationEntityContext() {
 
+    }
+
+    public static void incFrameCount(){
+        float inc = frameCounter + 1;
+        //reset counter after exceeding floating point precision cutoff
+        frameCounter = inc > 720719 ? 0 : inc;
+    }
+
+    public static float getFrameCounter(){
+        return frameCounter;
     }
 
     public static boolean isJumping() {
@@ -348,6 +359,11 @@ public final class EMFAnimationEntityContext {
 //    public static void setAge(final float age) {
 //        EMFAnimationEntityContext.age = age;
 //    }
+
+    public static void globalReset(){
+        reset();
+        frameCounter = 0;
+    }
 
     public static void reset() {
         isFirstPersonHand = false;

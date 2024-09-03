@@ -174,6 +174,7 @@
   "entity_model_features.config.variable_explanation.is_crawling": "If the entity is crawling",
   "entity_model_features.config.variable_explanation.is_glowing": "If the entity has the Glowing effect",
   "entity_model_features.config.variable_explanation.is_hurt": "If the entity is taking damage",
+  "entity_model_features.config.variable_explanation.frame_counter": "The index of the current frame (0 to 720719, then resets to 0)",
   "entity_model_features.config.variable_explanation.is_in_ground": "If a trident is impaled in the ground",
   "entity_model_features.config.variable_explanation.is_in_gui": "If the entity is inside the GUI",
   "entity_model_features.config.variable_explanation.is_in_hand": "If the entity is being held in your hand",

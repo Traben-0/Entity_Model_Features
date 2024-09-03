@@ -2,6 +2,7 @@
 - added optifine cem syntax limitation parity setting
 - added support for referencing `part` directly in animations such as `this` already does
 - added more detailed validation checks to box uv co-ordinates to match OptiFine as well as fleshing out the error messages to inform users of the exact issue source
+- added `frame_counter` variable from the latest OptiFine
 
 
 [2.2.2]

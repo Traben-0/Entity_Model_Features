@@ -85,7 +85,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
     private EMFManager() {
-        EMFAnimationEntityContext.reset();
+        EMFAnimationEntityContext.globalReset();
         IS_PHYSICS_MOD_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("physicsmod");
 //        IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
         IS_EBE_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("enhancedblockentities");

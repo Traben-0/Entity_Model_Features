@@ -102,6 +102,7 @@
 #   player_pos_x, player_pos_y, player_pos_z - The client players current world position
 #   player_rot_x, player_rot_y               - The client players current world rotation. North is 0
 #   frame_time                               - The time in seconds since the last frame
+#   frame_counter                            - The index of the current frame (0 to 720719, then resets to 0)
 #   dimension                                - The current dimension. Overworld: 0, Nether: -1, End: 1
 #   rule_index                               - The index of the current matching random models rule. Defaults to 0
 #
