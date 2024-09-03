@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.client.model.geom.ModelLayers;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -167,6 +168,8 @@ public class EMFConfig extends TConfig {
     private TConfigEntryCategory getModelSettings() {
         TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.models");
         category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.models_text", 200, TConfigEntryText.TextAlignment.LEFT));
+
+        EMFManager.getInstance().cache_LayersByModelName.putIfAbsent(new EMFModel_ID("wolf_collar"), ModelLayers.WOLF);
 
         EMFManager.getInstance().cache_LayersByModelName.keySet().stream().sorted().forEach(mapData -> {
             var layer = EMFManager.getInstance().cache_LayersByModelName.get(mapData);
