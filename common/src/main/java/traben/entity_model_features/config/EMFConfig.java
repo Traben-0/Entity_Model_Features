@@ -169,7 +169,7 @@ public class EMFConfig extends TConfig {
         TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.models");
         category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.models_text", 200, TConfigEntryText.TextAlignment.LEFT));
 
-        EMFManager.getInstance().cache_LayersByModelName.putIfAbsent(new EMFModel_ID("wolf_collar"), ModelLayers.WOLF);
+        EMFManager.getInstance().cache_LayersByModelName.put(new EMFModel_ID("wolf_collar"), ModelLayers.WOLF);
 
         EMFManager.getInstance().cache_LayersByModelName.keySet().stream().sorted().forEach(mapData -> {
             var layer = EMFManager.getInstance().cache_LayersByModelName.get(mapData);
