@@ -1,4 +1,10 @@
 
+[2.2.4]
+- fixed `rot_y` giving an incorrect value for specifically the client player model
+- fixed the `part` keyword in animations not working correctly for OptiFine part names that differ from the vanilla ones
+- fixed texture overrides breaking at the .jem level for most models, due to a broken redundancy optimization
+
+[2.2.3]
 - added an optifine cem syntax limitation parity setting
 - added a parity setting to enforce custom UV value flooring in boxes like OptiFine does
 - added support for referencing `part` directly in animations such as `this` already does

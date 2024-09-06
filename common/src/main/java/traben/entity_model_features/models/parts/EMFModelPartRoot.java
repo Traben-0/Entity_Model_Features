@@ -146,6 +146,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             }
         }
         var rootTextureOverride = jemData.getCustomTexture();
+
         for (Map.Entry<String, EMFModelPartVanilla> vanillaEntry : allVanillaParts.entrySet()) {
             EMFModelPartVanilla thisPart = vanillaEntry.getValue();
             EMFModelState vanillaState = EMFModelState.copy(thisPart.allKnownStateVariants.get(0));
@@ -334,16 +335,18 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
      */
     public ResourceLocation getTopLevelJemTexture() {
         if (hasRemovedTopLevelJemTextureFromChildren)
-            return textureOverride;
-
+            return jemLevelOverride;
         hasRemovedTopLevelJemTextureFromChildren = true;
+        jemLevelOverride = textureOverride;
         if (textureOverride != null) {
             allVanillaParts.values().forEach((emf) -> {
                 if (emf.textureOverride.equals(textureOverride)) emf.textureOverride = null;
             });
         }
-        return textureOverride;
+        return jemLevelOverride;
     }
+
+    private ResourceLocation jemLevelOverride = null;
 
     public void resetVanillaPartsToDefaults(){
         this.resetState();

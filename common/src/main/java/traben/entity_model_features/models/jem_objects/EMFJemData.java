@@ -54,12 +54,15 @@ public class EMFJemData {
             }
 
             //test if redundant texture to reduce texture overrides during render
-            if("minecraft".equals(directoryContext.namespace)
-                    && textureTest.replaceFirst("minecraft:", "")
-                        .equals(EMFModelMappings.DEFAULT_TEXTURE_MAPPINGS.get(directoryContext.rawFileName))){
-                if (EMF.config().getConfig().logModelCreationData)
-                    EMFUtils.log("Removing redundant texture: " + textureTest + " declared in " + directoryContext.getFileNameWithType());
-                return null;
+            if("minecraft".equals(directoryContext.namespace) //is vanilla model
+                    && (!textureTest.contains(":") || textureTest.startsWith("minecraft:"))){//is vanilla texture
+                textureTest = textureTest.startsWith("minecraft:") ? textureTest: "minecraft:" + textureTest;
+
+                if (textureTest.equals(EMFModelMappings.DEFAULT_TEXTURE_MAPPINGS.get(directoryContext.rawFileName))) {
+                    if (EMF.config().getConfig().logModelCreationData)
+                        EMFUtils.log("Removing redundant texture: " + textureTest + " declared in " + directoryContext.getFileNameWithType());
+                    return null;
+                }
             }
 
             if (
@@ -102,6 +105,7 @@ public class EMFJemData {
             //change all part values to their vanilla counterparts
             for (EMFPartData partData : models) {
                 if (partData.part != null && map.containsKey(partData.part)) {
+                    partData.originalPart = partData.part;
                     partData.part = map.get(partData.part);
                 }
             }
@@ -137,9 +141,9 @@ public class EMFJemData {
                             //replace "this"
                             if (key.contains("this")) key = key.replaceFirst("(?<=\\W|^)this(?=\\W)", part.id);
                             if (anim.contains("this")) anim = anim.replaceAll("(?<=\\W|^)this(?=\\W)", part.id);
-
-                            if (key.contains("part")) key = key.replaceFirst("(?<=\\W|^)part(?=\\W)", part.part);
-                            if (anim.contains("part")) anim = anim.replaceAll("(?<=\\W|^)part(?=\\W)", part.part);
+                            //replace "part"
+                            if (key.contains("part")) key = key.replaceFirst("(?<=\\W|^)part(?=\\W)", Objects.requireNonNullElse(part.originalPart, part.part));
+                            if (anim.contains("part")) anim = anim.replaceAll("(?<=\\W|^)part(?=\\W)", Objects.requireNonNullElse(part.originalPart, part.part));
 
                             if (!key.isBlank() && !anim.isBlank())
                                 thisPartsAnimations.put(key, anim);

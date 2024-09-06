@@ -203,6 +203,8 @@ public final class EMFAnimationEntityContext {
             lodResult = lodTimer - 1;
         }
         lodEntityTimers.put(IEMFEntity.etf$getUuid(), lodResult);
+        //intellij requires it for certain versions :/
+        //noinspection RedundantCast
         lodFrameSkipping = (Boolean) (lodResult > 0);
         return lodFrameSkipping;
     }
@@ -483,9 +485,9 @@ public final class EMFAnimationEntityContext {
     public static float getEntityRY() {
         if (IEMFEntity == null) return 0;
         return (IEMFEntity instanceof LivingEntity alive) ?
-                (float) Math.toRadians(Mth.rotLerp(getTickDelta(), alive.yBodyRotO, alive.getVisualRotationYInDegrees())) :
+                (float) Math.toRadians(Mth.rotLerp(getTickDelta(), alive.yBodyRotO, alive.yBodyRot)) :
                 IEMFEntity instanceof Entity entity ?
-                        (float) Math.toRadians(Mth.rotLerp(getTickDelta(), entity.yRotO, entity.getYRot()))
+                        (float) Math.toRadians(Mth.rotLerp(getTickDelta(), entity.yRotO, entity.yRot))
                         : 0;
     }
 

@@ -91,10 +91,10 @@ public class EMFBoxData {
             EMFUtils.logWarn("Possibly invalid UV data for [" + name + "], all values should be integers (whole numbers), because OptiFine floors them, EMF can be set to floor these values in the OptiFine parity settings: " + Arrays.toString(uv));
         }
 
-        if (Math.floor(uv[2]) == 0) {
+        if (Math.floor(uv[2]) == Math.floor(uv[0])) {
             EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the third value should not floor to 0: " + Arrays.toString(uv));
         }
-        if (Math.floor(uv[3]) == 0) {
+        if (Math.floor(uv[3]) == Math.floor(uv[1])) {
             EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the fourth value should not floor to 0: " + Arrays.toString(uv));
         }
 

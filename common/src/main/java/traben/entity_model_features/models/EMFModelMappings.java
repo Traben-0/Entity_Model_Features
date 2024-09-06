@@ -50,10 +50,10 @@ public class EMFModelMappings {
     }
 
     private static String texture(String name){
-        return "textures/entity/"+ name +".png";
+        return "minecraft:textures/entity/"+ name +".png";
     }
     private static String texture(String folder,String name){
-        return "textures/entity/" + folder + "/" + name +".png";
+        return "minecraft:textures/entity/" + folder + "/" + name +".png";
     }
 
     private static Map.Entry<String,String> entry(String key, String value){
