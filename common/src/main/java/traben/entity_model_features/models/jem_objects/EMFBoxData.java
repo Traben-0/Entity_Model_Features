@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.jem_objects;
-
+#if MC < MC_21
 import traben.entity_model_features.EMF;
+#endif
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.Arrays;
@@ -81,6 +82,8 @@ public class EMFBoxData {
             throw new IllegalArgumentException("Invalid UV data for ["+name+"], must have 4 or 0 values: " + Arrays.toString(uv));
         }
 
+        //irrelevant past optifine 1.21
+        #if MC < MC_21
         //first two should be integers
         if(EMF.config().getConfig().enforceOptiFineFloorUVs ) {
             uv[0] = (float) Math.floor(uv[0]);
@@ -90,12 +93,13 @@ public class EMFBoxData {
         } else if (uv[0] != Math.floor(uv[0]) || uv[1] != Math.floor(uv[1]) || uv[2] != Math.floor(uv[2]) || uv[3] != Math.floor(uv[3])) {
             EMFUtils.logWarn("Possibly invalid UV data for [" + name + "], all values should be integers (whole numbers), because OptiFine floors them, EMF can be set to floor these values in the OptiFine parity settings: " + Arrays.toString(uv));
         }
+        #endif
 
-        if (Math.floor(uv[2]) == Math.floor(uv[0])) {
-            EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the third value should not floor to 0: " + Arrays.toString(uv));
+        if (uv[2] == uv[0]) {
+            EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the U width should not be 0, its behaviour is extremely inconsistent between hardware: " + Arrays.toString(uv));
         }
-        if (Math.floor(uv[3]) == Math.floor(uv[1])) {
-            EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the fourth value should not floor to 0: " + Arrays.toString(uv));
+        if (uv[3] == uv[1]) {
+            EMFUtils.logWarn("Possibly invalid UV data for ["+name+"], the V height should not be 0, its behaviour is extremely inconsistent between hardware: " + Arrays.toString(uv));
         }
 
     }

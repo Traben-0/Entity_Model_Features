@@ -72,6 +72,10 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
 
+    public Collection<EMFModelPartVanilla> getAllVanillaPartsEMF() {
+        return allVanillaParts.values();
+    }
+
     private void registerModelRunnableWithEntityTypeContext() {
         var entity = EMFAnimationEntityContext.getEMFEntity();
         if (entity != null) {

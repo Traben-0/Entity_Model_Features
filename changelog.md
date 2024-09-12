@@ -1,4 +1,10 @@
 
+[2.2.5]
+- fixed a crash when arrows render stuck inside a player with a custom model that replaced all their vanilla parts
+- fixed arrows stuck inside players not following with the custom animations of the custom player model
+- EMF now removes the `floor UVs` OptiFine parity setting in 1.21 and newer versions, as OptiFine now matches EMF's default behaviour. 
+- The warning for a cube having 0 UV width and height has been made more verbose, and will also be dependent on the `floor UVs` setting in earlier versions.
+
 [2.2.4]
 - fixed `rot_y` giving an incorrect value for specifically the client player model
 - fixed the `part` keyword in animations not working correctly for OptiFine part names that differ from the vanilla ones
