@@ -1,4 +1,15 @@
 
+[2.2.6]
+- fixed model textures prefixed with `./` & `~/` breaking from a recent change
+- expanded the EMF API:
+  - added `int getCurrentEMFVariantOfModel(EntityModel<?>)` returns the current variant of the model or -1 if the model is not a custom EMF model.
+  - added `boolean isModelAnimatedByEMF(EntityModel<?>)` returns true if the model has custom EMF animations.
+  - added `boolean isModelCustomizedByEMF(EntityModel<?>)` returns true if the model is a custom EMF model.
+  - added `boolean isModelPartCustomToEMF(ModelPart)` returns true if this model part is an extraneous part added by EMF, and does not represent any actual normal vanilla parts.
+  - added `boolean isModelPartAnimatedByEMF(ModelPart)` returns true if this model part itself is animated by EMF, e.g `"modePart.rx":"sin(age)"`.
+- fixed some per-entity model override settings from not applying correctly in game, such as modifying render mode per entity type.
+- moved the box face UV height/width are zero warnings to only appear when model creation logging is enabled, as it got far too spammy with the many packs that don't care about this.
+
 [2.2.5]
 - fixed a crash when arrows render stuck inside a player with a custom model that replaced all their vanilla parts
 - fixed arrows stuck inside players not following with the custom animations of the custom player model

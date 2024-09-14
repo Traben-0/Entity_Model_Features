@@ -69,7 +69,11 @@ public class EMFAnimation {
         }
 
         this.modelOrRenderVariableToChange = isVar() ? null : modelOrRenderVariableToChange;
+
         this.partToApplyTo = partToApplyTo;
+        if (partToApplyTo != null){
+            partToApplyTo.isSetByAnimation = true;
+        }
 
         this.defaultValue = animKeyIsBoolean ||
                 (modelOrRenderVariableToChange != null && modelOrRenderVariableToChange.isBoolean())

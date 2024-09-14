@@ -28,6 +28,7 @@ import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
 
 
@@ -82,11 +83,12 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
 
             EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
-                if (EMF.config().getConfig().vanillaModelHologramRenderMode_2 != EMFConfig.VanillaModelRenderMode.OFF) {
+                if (EMF.config().getConfig().getVanillaHologramModeFor((EMFEntity) livingEntity) != EMFConfig.VanillaModelRenderMode.OFF) {
                     root.tryRenderVanillaRootNormally(matrixStack, vertexConsumerProvider.getBuffer(RenderType.entityTranslucent(getTextureLocation(livingEntity))), i, OverlayTexture.NO_OVERLAY);
                 }
                 //simple attempt at a physics mod workaround
-                if (livingEntity.isDeadOrDying() && EMFManager.getInstance().IS_PHYSICS_MOD_INSTALLED && EMF.config().getConfig().attemptPhysicsModPatch_2 != EMFConfig.PhysicsModCompatChoice.OFF) {
+                if (livingEntity.isDeadOrDying() && EMFManager.getInstance().IS_PHYSICS_MOD_INSTALLED
+                        && EMF.config().getConfig().getPhysicsModModeFor((EMFEntity) livingEntity) != EMFConfig.PhysicsModCompatChoice.OFF) {
                     root.tryRenderVanillaFormatRoot(matrixStack, vertexConsumerProvider.getBuffer(RenderType.entityTranslucent(getTextureLocation(livingEntity))), i, OverlayTexture.NO_OVERLAY);
                     //the regular render will get cancelled anyway nothing further to do
                 }

@@ -40,7 +40,7 @@ public abstract class EMFModelPart extends ModelPart {
     //    protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
     protected long lastTextureOverride = -1L;
 
-
+    public boolean isSetByAnimation = false;
 
     public EMFModelPart(List<Cube> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
@@ -54,8 +54,10 @@ public abstract class EMFModelPart extends ModelPart {
 
     @Override
     public void render(final PoseStack matrices, final VertexConsumer vertices, final int light, final int overlay,#if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
+
+        var choice = EMF.config().getConfig().getRenderModeFor(EMFAnimationEntityContext.getEMFEntity());
         //normal render
-        if (EMF.config().getConfig().renderModeChoice == EMFConfig.RenderModeChoice.NORMAL) {
+        if (choice == EMFConfig.RenderModeChoice.NORMAL) {
             renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
             return;
         }
@@ -68,7 +70,7 @@ public abstract class EMFModelPart extends ModelPart {
         }
 
         //else render debug
-        switch (EMF.config().getConfig().renderModeChoice) {
+        switch (choice) {
             case GREEN -> renderDebugTinted(matrices, vertices, light, overlay, #if MC >= MC_21 k #else green, alpha #endif);
             case LINES -> renderBoxes(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()));
             case LINES_AND_TEXTURE -> {
@@ -434,6 +436,10 @@ public abstract class EMFModelPart extends ModelPart {
 
         Animator() {
 
+        }
+
+        public boolean hasAnimation() {
+            return animation != null;
         }
 
         public Runnable getAnimation() {

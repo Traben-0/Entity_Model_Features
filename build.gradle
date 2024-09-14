@@ -66,8 +66,9 @@ subprojects {
 
         implementation 'com.demonwav.mcdev:annotations:2.1.0'
 
-        annotationProcessor 'systems.manifold:manifold-preprocessor:2023.1.17'
-// forge compile error       annotationProcessor 'systems.manifold:manifold-preprocessor:2024.1.30'
+//        annotationProcessor 'systems.manifold:manifold-preprocessor:2023.1.17'
+// forge compile error
+ annotationProcessor 'systems.manifold:manifold-preprocessor:2024.1.32'
     }
 
     processResources {

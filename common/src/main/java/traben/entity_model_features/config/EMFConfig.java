@@ -5,7 +5,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
@@ -13,6 +16,7 @@ import traben.entity_model_features.models.animation.math.variables.VariableRegi
 import traben.entity_model_features.models.animation.math.variables.factories.UniqueVariableFactory;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.EMFModelMappings;
+import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.EMFModel_ID;
 import traben.entity_texture_features.ETFApi;
@@ -50,6 +54,39 @@ public class EMFConfig extends TConfig {
     public ETFConfig.String2EnumNullMap<RenderModeChoice> entityRenderModeOverrides = new ETFConfig.String2EnumNullMap<>();
     public ETFConfig.String2EnumNullMap<PhysicsModCompatChoice> entityPhysicsModPatchOverrides = new ETFConfig.String2EnumNullMap<>();
     public ETFConfig.String2EnumNullMap<VanillaModelRenderMode> entityVanillaHologramOverrides = new ETFConfig.String2EnumNullMap<>();
+
+    public RenderModeChoice getRenderModeFor(EMFEntity entity) {
+        String typeString = getTypeString(entity);
+        if (typeString == null) return renderModeChoice;
+        return Objects.requireNonNullElseGet(entityRenderModeOverrides.getNullable(typeString), () -> renderModeChoice);
+    }
+
+    public PhysicsModCompatChoice getPhysicsModModeFor(EMFEntity entity) {
+        String typeString = getTypeString(entity);
+        if (typeString == null) return attemptPhysicsModPatch_2;
+        return Objects.requireNonNullElseGet(entityPhysicsModPatchOverrides.getNullable(typeString), () -> attemptPhysicsModPatch_2);
+    }
+
+    public VanillaModelRenderMode getVanillaHologramModeFor(EMFEntity entity) {
+        String typeString = getTypeString(entity);
+        if (typeString == null) return vanillaModelHologramRenderMode_2;
+        return Objects.requireNonNullElseGet(entityVanillaHologramOverrides.getNullable(typeString), () -> vanillaModelHologramRenderMode_2);
+    }
+
+    private static @Nullable String getTypeString(final EMFEntity entity) {
+        if (entity instanceof BlockEntity block) {
+            return ETFApi.getBlockEntityTypeToTranslationKey(block.getType());
+        } else if (entity instanceof Entity realBoy) {
+            return realBoy.getType().getDescriptionId();
+        } else {
+            return null;
+        }
+    }
+
+    public boolean isModelDisabled(String modelName) {
+        return modelsNamesDisabled.contains(modelName);
+    }
+
     public ObjectOpenHashSet<String> modelsNamesDisabled = new ObjectOpenHashSet<>();
     public boolean allowEBEModConfigModify = true;
     public int animationLODDistance = 20;

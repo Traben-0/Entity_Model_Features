@@ -321,6 +321,15 @@ public class EMFManager {//singleton for data holding and resetting needs
             if (mobNameForFileAndMap.getSecondaryModel() != null){
                 cache_LayersByModelName.put(mobNameForFileAndMap.getSecondaryModel(), layer);
             }
+            ///jem name and secondaries are final and correct from here
+
+
+            if (printing) EMFUtils.log(" > checking if: [" + mobNameForFileAndMap +"], is allowed as a model name.");
+            if(EMF.config().getConfig().isModelDisabled(mobNameForFileAndMap.getMapId())) {
+                if (printing) EMFUtils.logWarn(" > Vanilla model used for: [" + mobNameForFileAndMap + "], because it is disabled in EMF's settings or via the API.");//original name
+                ((IEMFModelNameContainer) root).emf$insertKnownMappings(mobNameForFileAndMap);
+                return root;
+            }
 
             //construct simple map for modded or unknown entities
             Map<String, String> optifinePartNameMap = EMFModelMappings.getMapOf(mobNameForFileAndMap.getMapId(), root);

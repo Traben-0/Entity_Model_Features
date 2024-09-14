@@ -37,8 +37,23 @@ public class EMFJemData {
     }
 
     @Nullable
-    public ResourceLocation validateJemTexture(String textureIn) {// "textures/entity/trident.png"
+    public ResourceLocation validateJemTexture(String textureIn) {
+        return validateJemTexture(textureIn, false);
+    }
+
+    @Nullable
+    public ResourceLocation validateJemTexture(String textureIn, boolean canRemoveRedundancy) {
         if (textureIn == null || textureIn.isBlank()) return null;
+/*
+OptiFine spec
+
+# Textures can be specified as:
+#   "texture" - (no '/' in name), look in current folder
+#   "./folder/texture" - relative to current folder
+#   "~/folder/texture" - relative to folder "assets/minecraft/optifine/"
+#   "folder/texture" - relative to folder "assets/minecraft/"
+#   "mod:folder/texture - resolves as "assets/mod/folder/texture.png"
+*/
 
         String textureTest = textureIn.trim();
         if (!textureTest.isBlank()) {
@@ -46,17 +61,19 @@ public class EMFJemData {
 
             if (!textureTest.contains(":")) {
                 //if no folder parenting assume it is relative to model
-                if (!textureTest.contains("/") || textureTest.startsWith("./")) {
+                if (!textureTest.contains("/")) {
                     textureTest = directoryContext.getRelativeDirectoryLocationNoValidation(textureTest);
+                } else if (textureTest.startsWith("./")) {
+                    textureTest = directoryContext.getRelativeDirectoryLocationNoValidation(textureTest.replaceFirst("\\./", ""));
                 } else if (textureTest.startsWith("~/")) {
-                    textureTest = "optifine/" + textureTest;
-                }
-            }
+                    textureTest = "optifine/" + textureTest.replaceFirst("~/", "");
+                }//else it is a full path
+            }//else it is a full path
 
-            //test if redundant texture to reduce texture overrides during render
-            if("minecraft".equals(directoryContext.namespace) //is vanilla model
+            //test if it is a redundant texture to reduce texture overrides during rendering
+            if(canRemoveRedundancy && "minecraft".equals(directoryContext.namespace) //is vanilla model
                     && (!textureTest.contains(":") || textureTest.startsWith("minecraft:"))){//is vanilla texture
-                textureTest = textureTest.startsWith("minecraft:") ? textureTest: "minecraft:" + textureTest;
+                textureTest = textureTest.startsWith("minecraft:") ? textureTest : "minecraft:" + textureTest;
 
                 if (textureTest.equals(EMFModelMappings.DEFAULT_TEXTURE_MAPPINGS.get(directoryContext.rawFileName))) {
                     if (EMF.config().getConfig().logModelCreationData)
@@ -96,7 +113,7 @@ public class EMFJemData {
 
             LinkedList<EMFPartData> originalModelsForReadingOnly = new LinkedList<>(models);
 
-            customTexture = validateJemTexture(texture);
+            customTexture = validateJemTexture(texture, true);
 
             String mapId = mobModelIDInfo.getMapId();
             Map<String, String> map = EMFModelMappings.getMapOf(mapId, null);

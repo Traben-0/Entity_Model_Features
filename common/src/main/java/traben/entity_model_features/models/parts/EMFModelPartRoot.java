@@ -258,7 +258,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public void tryRenderVanillaRootNormally(PoseStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
         if (vanillaRoot != null) {
             matrixStack.pushPose();
-            if (EMF.config().getConfig().vanillaModelHologramRenderMode_2 == EMFConfig.VanillaModelRenderMode.OFFSET) {
+            if (EMF.config().getConfig().getVanillaHologramModeFor(EMFAnimationEntityContext.getEMFEntity()) == EMFConfig.VanillaModelRenderMode.OFFSET) {
                 matrixStack.translate(1, 0, 0);
             }
             vanillaRoot.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
@@ -267,7 +267,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     public void tryRenderVanillaFormatRoot(PoseStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
-        if (EMF.config().getConfig().attemptPhysicsModPatch_2 == EMFConfig.PhysicsModCompatChoice.VANILLA) {
+        if (EMF.config().getConfig().getPhysicsModModeFor(EMFAnimationEntityContext.getEMFEntity()) == EMFConfig.PhysicsModCompatChoice.VANILLA) {
             if (vanillaRoot != null) {
                 vanillaRoot.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
             }
@@ -277,6 +277,10 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 vanillaFormat.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
             }
         }
+    }
+
+    public boolean hasAnimation(){
+        return animationHolder.hasAnimation();
     }
 
     public ModelPart getVanillaFormatRoot() {
