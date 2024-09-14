@@ -3,6 +3,7 @@ package traben.entity_model_features.models.jem_objects;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -17,8 +18,8 @@ public class EMFPartData {
     public String texture = "";
     public int[] textureSize = null;
     public String invertAxis = "";
-    public float[] translate = {0, 0, 0};
-    public float[] rotate = {0, 0, 0};
+    public float[] translate = null;
+    public float[] rotate = null;
     public String mirrorTexture = "";
     public EMFBoxData[] boxes = {};
 //todo    public EMFSpriteData[] sprites = {};
@@ -28,6 +29,8 @@ public class EMFPartData {
     public String model = "";  //- Part model jemJsonObjects, from which to load the part model definition
     public String id = "";            //- Model ID, can be used to reference the model as parent
     public String part = null;//"!!!!!";     //- Entity part to which the part model is attached
+    @Nullable String originalPart = null;
+
     public boolean attach = false; //- True: attach to the entity part, False: replace it
     public float scale = 1.0f;
 
@@ -56,7 +59,7 @@ public class EMFPartData {
         result = 31 * result + Arrays.hashCode(rotate);
         result = 31 * result + Arrays.hashCode(boxes);
 //        result = 31 * result + Arrays.hashCode(sprites);
-        //result = 31 * result + Arrays.hashCode(animations);
+//        result = 31 * result + Arrays.hashCode(animations);
         return result;
     }
 
@@ -72,9 +75,9 @@ public class EMFPartData {
             this.texture = jpmModel.texture;
         if (invertAxis.isBlank())
             this.invertAxis = jpmModel.invertAxis;
-        if (translate[0] == 0 && translate[1] == 0 && translate[2] == 0)
+        if (translate==null)
             this.translate = jpmModel.translate;
-        if (rotate[0] == 0 && rotate[1] == 0 && rotate[2] == 0)
+        if (rotate==null)
             this.rotate = jpmModel.rotate;
         if (mirrorTexture.isBlank())
             this.mirrorTexture = jpmModel.mirrorTexture;
@@ -125,6 +128,9 @@ public class EMFPartData {
                         .ifPresent(this::copyFrom);
             }
 
+            if (translate == null) translate = new float[]{0, 0, 0};
+            if (rotate == null) rotate = new float[]{0, 0, 0};
+
             if (this.textureSize == null || this.textureSize.length != 2) this.textureSize = textureSize;
             this.customTexture = jem.validateJemTexture(texture);
 
@@ -166,7 +172,7 @@ public class EMFPartData {
 
     @Override
     public String toString() {
-        return "modelData{ id='" + id + "', part='" + part + "', submodels=" + submodels.size() + "', anims=" + (animations == null ? "0" : animations.size()) + '}';
+        return "modelData{ id='" + id + "', part='" + part +  "', rawpart='" + originalPart +  "', submodels=" + submodels.size() + "', anims=" + (animations == null ? "0" : animations.size()) + '}';
     }
 
 

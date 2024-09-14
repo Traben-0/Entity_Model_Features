@@ -72,6 +72,10 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
 
+    public Collection<EMFModelPartVanilla> getAllVanillaPartsEMF() {
+        return allVanillaParts.values();
+    }
+
     private void registerModelRunnableWithEntityTypeContext() {
         var entity = EMFAnimationEntityContext.getEMFEntity();
         if (entity != null) {
@@ -146,6 +150,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             }
         }
         var rootTextureOverride = jemData.getCustomTexture();
+
         for (Map.Entry<String, EMFModelPartVanilla> vanillaEntry : allVanillaParts.entrySet()) {
             EMFModelPartVanilla thisPart = vanillaEntry.getValue();
             EMFModelState vanillaState = EMFModelState.copy(thisPart.allKnownStateVariants.get(0));
@@ -253,7 +258,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public void tryRenderVanillaRootNormally(PoseStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
         if (vanillaRoot != null) {
             matrixStack.pushPose();
-            if (EMF.config().getConfig().vanillaModelHologramRenderMode_2 == EMFConfig.VanillaModelRenderMode.OFFSET) {
+            if (EMF.config().getConfig().getVanillaHologramModeFor(EMFAnimationEntityContext.getEMFEntity()) == EMFConfig.VanillaModelRenderMode.OFFSET) {
                 matrixStack.translate(1, 0, 0);
             }
             vanillaRoot.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
@@ -262,7 +267,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     public void tryRenderVanillaFormatRoot(PoseStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
-        if (EMF.config().getConfig().attemptPhysicsModPatch_2 == EMFConfig.PhysicsModCompatChoice.VANILLA) {
+        if (EMF.config().getConfig().getPhysicsModModeFor(EMFAnimationEntityContext.getEMFEntity()) == EMFConfig.PhysicsModCompatChoice.VANILLA) {
             if (vanillaRoot != null) {
                 vanillaRoot.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
             }
@@ -272,6 +277,10 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 vanillaFormat.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
             }
         }
+    }
+
+    public boolean hasAnimation(){
+        return animationHolder.hasAnimation();
     }
 
     public ModelPart getVanillaFormatRoot() {
@@ -334,16 +343,18 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
      */
     public ResourceLocation getTopLevelJemTexture() {
         if (hasRemovedTopLevelJemTextureFromChildren)
-            return textureOverride;
-
+            return jemLevelOverride;
         hasRemovedTopLevelJemTextureFromChildren = true;
+        jemLevelOverride = textureOverride;
         if (textureOverride != null) {
             allVanillaParts.values().forEach((emf) -> {
                 if (emf.textureOverride.equals(textureOverride)) emf.textureOverride = null;
             });
         }
-        return textureOverride;
+        return jemLevelOverride;
     }
+
+    private ResourceLocation jemLevelOverride = null;
 
     public void resetVanillaPartsToDefaults(){
         this.resetState();

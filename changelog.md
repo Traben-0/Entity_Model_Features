@@ -1,4 +1,27 @@
 
+[2.2.6]
+- fixed model textures prefixed with `./` & `~/` breaking from a recent change
+- expanded the EMF API:
+  - added `int getCurrentEMFVariantOfModel(EntityModel<?>)` returns the current variant of the model or -1 if the model is not a custom EMF model.
+  - added `boolean isModelAnimatedByEMF(EntityModel<?>)` returns true if the model has custom EMF animations.
+  - added `boolean isModelCustomizedByEMF(EntityModel<?>)` returns true if the model is a custom EMF model.
+  - added `boolean isModelPartCustomToEMF(ModelPart)` returns true if this model part is an extraneous part added by EMF, and does not represent any actual normal vanilla parts.
+  - added `boolean isModelPartAnimatedByEMF(ModelPart)` returns true if this model part itself is animated by EMF, e.g `"modePart.rx":"sin(age)"`.
+- fixed some per-entity model override settings from not applying correctly in game, such as modifying render mode per entity type.
+- moved the box face UV height/width are zero warnings to only appear when model creation logging is enabled, as it got far too spammy with the many packs that don't care about this.
+
+[2.2.5]
+- fixed a crash when arrows render stuck inside a player with a custom model that replaced all their vanilla parts
+- fixed arrows stuck inside players not following with the custom animations of the custom player model
+- EMF now removes the `floor UVs` OptiFine parity setting in 1.21 and newer versions, as OptiFine now matches EMF's default behaviour. 
+- The warning for a cube having 0 UV width and height has been made more verbose, and will also be dependent on the `floor UVs` setting in earlier versions.
+
+[2.2.4]
+- fixed `rot_y` giving an incorrect value for specifically the client player model
+- fixed the `part` keyword in animations not working correctly for OptiFine part names that differ from the vanilla ones
+- fixed texture overrides breaking at the .jem level for most models, due to a broken redundancy optimization
+
+[2.2.3]
 - added an optifine cem syntax limitation parity setting
 - added a parity setting to enforce custom UV value flooring in boxes like OptiFine does
 - added support for referencing `part` directly in animations such as `this` already does

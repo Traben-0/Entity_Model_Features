@@ -1,15 +1,19 @@
 package traben.entity_model_features;
 
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.MathValue;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
 import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
 import traben.entity_model_features.models.animation.math.variables.factories.UniqueVariableFactory;
+import traben.entity_model_features.models.parts.EMFModelPart;
+import traben.entity_model_features.models.parts.EMFModelPartCustom;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -24,7 +28,7 @@ import net.minecraft.util.valueproviders.SampledFloat;
  * This is the main entry point for modders to add their own custom math expressions and variables to the animation system.
  * This is a static class with static methods for registering custom math expressions and variables.
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
 public interface EMFAnimationApi {
 
 
@@ -275,6 +279,80 @@ public interface EMFAnimationApi {
         }
         EMFAnimationEntityContext.entitiesToForceVanillaModel.remove(entityOrBlockEntity.etf$getUuid());
         return true;
+    }
+
+
+    /**
+     * Get the current emf variant of the model.
+     * Returns -1 if the model is not an EMF model or is null.
+     * Returns 0 if the model is an EMF model but has no variants, or hasn't been set yet.
+     *
+     * @param model the model
+     * @return the int
+     */
+    static int getCurrentEMFVariantOfModel(EntityModel<?> model){
+        if (!isModelCustomizedByEMF(model)) {
+            return -1;
+        }
+        return ((IEMFModel) model).emf$getEMFRootModel().currentModelVariant;
+    }
+
+
+    /**
+     * Checks if the model has custom EMF animations.
+     * Returns false if the model is not an EMF model or is null.
+     *
+     * @param model the model
+     * @return the boolean
+     */
+    static boolean isModelAnimatedByEMF(EntityModel<?> model){
+        if (!isModelCustomizedByEMF(model)) {
+            return false;
+        }
+        return ((IEMFModel) model).emf$getEMFRootModel().hasAnimation();
+    }
+
+    /**
+     * Is this model a custom EMF model.
+     * Returns false if the model is null.
+     *
+     * @param model the model
+     * @return the boolean
+     */
+    static boolean isModelCustomizedByEMF(EntityModel<?> model){
+        if (model == null) {
+            return false;
+        }
+        return ((IEMFModel) model).emf$isEMFModel();
+    }
+
+    /**
+     * Is this model part is an extraneous part added by EMF, and does not represent any actual normal vanilla parts.
+     * Returns false if the modelPart is null.
+     *
+     * @param modelPart the model part
+     * @return the boolean
+     */
+    static boolean isModelPartCustomToEMF(ModelPart modelPart){
+        if (modelPart == null) {
+            return false;
+        }
+        return modelPart instanceof EMFModelPartCustom;
+    }
+
+    /**
+     * Is this model part animated by EMF.
+     * Returns false if the modelPart is null.
+     * Be warned this will not tell you if a parent part of the model is animated.
+     *
+     * @param modelPart the model part
+     * @return the boolean
+     */
+    static boolean isModelPartAnimatedByEMF(ModelPart modelPart){
+        if (modelPart == null) {
+            return false;
+        }
+        return modelPart instanceof EMFModelPart emf && emf.isSetByAnimation;
     }
 
     @Deprecated(since = "api v2")

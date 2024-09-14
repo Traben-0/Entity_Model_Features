@@ -29,7 +29,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     public int currentModelVariant = 0;
     Map<String, ModelPart> vanillaChildren = new HashMap<>();
     Runnable startOfRenderRunnable = null;
-    Animator tryAnimate = new Animator();
+    Animator animationHolder = new Animator();
 
     public EMFModelPartWithState(List<Cube> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
@@ -49,8 +49,8 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         if (startOfRenderRunnable != null) {
             startOfRenderRunnable.run();
         }
-        if (tryAnimate != null && !EMFAnimationEntityContext.isEntityAnimPaused()) {
-            tryAnimate.run();
+        if (animationHolder != null && !EMFAnimationEntityContext.isEntityAnimPaused()) {
+            animationHolder.run();
         }
         super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
 
@@ -63,7 +63,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
                 children,
                 xScale, yScale, zScale,
                 visible, skipDraw,
-                textureOverride, tryAnimate
+                textureOverride, animationHolder
         );
     }
 
@@ -75,7 +75,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
                     modelPart.children,
                     modelPart.xScale, modelPart.yScale, modelPart.zScale,
                     modelPart.visible, modelPart.skipDraw,
-                    emf.textureOverride, emf.tryAnimate
+                    emf.textureOverride, emf.animationHolder
             );
         }
         return new EMFModelState(
@@ -101,7 +101,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         visible = newState.visible();
         skipDraw = newState.hidden();
         textureOverride = newState.texture();
-        tryAnimate = newState.animation();
+        animationHolder = newState.animation();
     }
 
     protected void resetState(){

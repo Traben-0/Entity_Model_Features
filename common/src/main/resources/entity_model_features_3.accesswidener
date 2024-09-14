@@ -37,3 +37,5 @@ accessible method net/minecraft/resources/ResourceLocation isValidPath (Ljava/la
 
 extendable class net/minecraft/client/model/geom/ModelPart$Cube
 accessible field net/minecraft/client/model/geom/ModelPart$Cube polygons [Lnet/minecraft/client/model/geom/ModelPart$Polygon;
+
+accessible field net/minecraft/world/entity/Entity yRot F
