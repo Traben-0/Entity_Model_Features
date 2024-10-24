@@ -1,6 +1,15 @@
 package traben.entity_model_features.mixin.rendering.arrows;
 
 
+
+#if MC > MC_21
+import net.minecraft.client.renderer.entity.SpectralArrowRenderer;
+import org.spongepowered.asm.mixin.Mixin;
+@Mixin(SpectralArrowRenderer.class)
+public abstract class MixinSpectralArrowRenderer{}
+#else
+
+
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -42,3 +51,5 @@ public abstract class MixinSpectralArrowRenderer extends ArrowRenderer<Arrow> im
         emf$model = model;
     }
 }
+
+#endif

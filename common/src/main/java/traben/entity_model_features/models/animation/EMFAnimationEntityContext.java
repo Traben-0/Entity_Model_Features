@@ -10,6 +10,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -209,7 +211,24 @@ public final class EMFAnimationEntityContext {
         return lodFrameSkipping;
     }
 
-    public static void setCurrentEntityIteration(EMFEntity entityIn) {
+
+    #if MC > MC_21
+    private static EntityRenderState entityRenderState = null;
+
+    public static EntityRenderState getEntityRenderState() {
+        return entityRenderState;
+    }
+    #endif
+
+    public static void setCurrentEntityIteration(EMFEntity entityIn #if MC > MC_21 , EntityRenderState state #endif) {
+
+        #if MC > MC_21
+        entityRenderState = state;
+
+
+
+        #endif
+
         EMFAttachments.closeBoth();
         isFirstPersonHand = false;
         EMFManager.getInstance().entityRenderCount++;
@@ -252,8 +271,6 @@ public final class EMFAnimationEntityContext {
                 EMFManager.getInstance().entityForDebugPrint = null;
             }
         }
-
-
         lodFrameSkipping = null;
     }
 
@@ -345,17 +362,35 @@ public final class EMFAnimationEntityContext {
         return "\n§6 - " + entry + ":§r " + value;
     }
 
-    public static void setCurrentEntityNoIteration(EMFEntity entityIn) {
-        newEntity(entityIn);
-    }
+//todo check    public static void setCurrentEntityNoIteration(EMFEntity entityIn) {
+//        newEntity(entityIn);
+//    }
 
     private static void newEntity(EMFEntity entityIn) {
         IEMFEntity = entityIn;
 
+        #if MC > MC_21
+        if (entityRenderState instanceof LivingEntityRenderState livingEntityRenderState) {
+            limbAngle = livingEntityRenderState.walkAnimationPos;
+            limbDistance = livingEntityRenderState.walkAnimationSpeed;
+            headYaw = livingEntityRenderState.yRot;
+            if (headYaw >= 180 || headYaw < -180) {
+                headYaw = (Mth.wrapDegrees(headYaw));
+            }
+            headPitch = livingEntityRenderState.xRot;
+        }else{//block entity
+            limbAngle = Float.NaN;
+            limbDistance = Float.NaN;
+            headYaw = Float.NaN;
+            headPitch = Float.NaN;
+        }
+        #else
         limbAngle = Float.NaN;
         limbDistance = Float.NaN;
         headYaw = Float.NaN;
         headPitch = Float.NaN;
+        #endif
+
 //        age = Float.NaN;
 
         onShoulder = false;
@@ -398,7 +433,12 @@ public final class EMFAnimationEntityContext {
             } else {
                 return switch (layer) {
                     case TRANSLUCENT -> RenderType.entityTranslucent(identifier);
-                    case TRANSLUCENT_CULL -> RenderType.entityTranslucentCull(identifier);
+                    case TRANSLUCENT_CULL ->
+                            #if MC > MC_21
+                            RenderType.entityTranslucent(identifier);
+                            #else
+                            RenderType.entityTranslucentCull(identifier);
+                            #endif
                     case END -> RenderType.endGateway();
                     case OUTLINE -> RenderType.outline(identifier);
                 };
@@ -571,7 +611,13 @@ public final class EMFAnimationEntityContext {
         if (!(IEMFEntity instanceof Entity)) return 0;
         float y = getEntityY();
         BlockPos pos = IEMFEntity.etf$getBlockPos();
-        int worldBottom = IEMFEntity.etf$getWorld().getMinBuildHeight();
+        int worldBottom =
+                #if MC > MC_21
+                IEMFEntity.etf$getWorld().getMinY();
+                #else
+                IEMFEntity.etf$getWorld().getMinBuildHeight();
+                #endif
+
         //loop down until we hit a block that can be stood on
         while (!IEMFEntity.etf$getWorld().getBlockState(pos)
                 .entityCanStandOn(IEMFEntity.etf$getWorld(),pos, (Entity) IEMFEntity)
@@ -586,7 +632,12 @@ public final class EMFAnimationEntityContext {
                 || IEMFEntity.etf$getWorld().getFluidState(IEMFEntity.etf$getBlockPos()).isEmpty()) return 0;
 
         BlockPos pos = IEMFEntity.etf$getBlockPos();
-        int worldBottom = IEMFEntity.etf$getWorld().getMinBuildHeight();
+        int worldBottom =
+                #if MC > MC_21
+                IEMFEntity.etf$getWorld().getMinY();
+                #else
+                IEMFEntity.etf$getWorld().getMinBuildHeight();
+                #endif
         while (!IEMFEntity.etf$getWorld().getFluidState(pos).isEmpty() && pos.getY() > worldBottom) {
             pos = pos.below();
         }
@@ -599,7 +650,12 @@ public final class EMFAnimationEntityContext {
                 || IEMFEntity.etf$getWorld().getFluidState(IEMFEntity.etf$getBlockPos()).isEmpty()) return 0;
 
         BlockPos pos = IEMFEntity.etf$getBlockPos();
-        int worldTop = IEMFEntity.etf$getWorld().getMaxBuildHeight();
+        int worldTop =
+                #if MC > MC_21
+                IEMFEntity.etf$getWorld().getMaxY();
+                #else
+                IEMFEntity.etf$getWorld().getMaxBuildHeight();
+                #endif
         while (!IEMFEntity.etf$getWorld().getFluidState(pos).isEmpty() && pos.getY() < worldTop) {
             pos = pos.above();
         }
@@ -783,8 +839,8 @@ public final class EMFAnimationEntityContext {
         return onShoulder;
     }
 
-    public static void setCurrentEntityOnShoulder() {
-        onShoulder = true;
+    public static void setCurrentEntityOnShoulder(boolean onShoulder) {
+        EMFAnimationEntityContext.onShoulder = onShoulder;
     }
 
     public static boolean isRidden() {
@@ -866,7 +922,9 @@ public final class EMFAnimationEntityContext {
         #endif
 
         #if MC >= MC_21
-        return ((MinecraftClientAccessor)Minecraft.getInstance()).getTimer().getGameTimeDeltaTicks() / 20;
+        return ((MinecraftClientAccessor)Minecraft.getInstance())
+                #if MC > MC_21 .getDeltaTracker() #else .getTimer() #endif
+                .getGameTimeDeltaTicks() / 20;
         #else
         return Minecraft.getInstance().getDeltaFrameTime() / 20;
         #endif
@@ -993,7 +1051,9 @@ public final class EMFAnimationEntityContext {
 
     public static float getTickDelta() {
         return   #if MC >= MC_21
-        ((MinecraftClientAccessor) Minecraft.getInstance()).getTimer().getGameTimeDeltaPartialTick(true);
+        ((MinecraftClientAccessor) Minecraft.getInstance())
+                #if MC > MC_21 .getDeltaTracker() #else .getTimer() #endif
+                .getGameTimeDeltaPartialTick(true);
         #else
                 Minecraft.getInstance().isPaused() ? ((MinecraftClientAccessor) Minecraft.getInstance()).getPausePartialTick() : Minecraft.getInstance().getFrameTime();
         #endif
@@ -1114,6 +1174,9 @@ public final class EMFAnimationEntityContext {
                 leashZ,
                 shadowX,
                 shadowZ
+                #if MC > MC_21
+                ,entityRenderState
+                #endif
         );
     }
 
@@ -1129,19 +1192,25 @@ public final class EMFAnimationEntityContext {
         leashZ = context.leashZ;
         shadowX = context.shadowX;
         shadowZ = context.shadowZ;
+        #if MC > MC_21
+        entityRenderState = context.state;
+        #endif
     }
 
     public record IterationContext(
-      long entityRenderCount,
-      @Nullable EMFEntity IEMFEntity,
-      Function<ResourceLocation, RenderType> layerFactory,
-      Boolean lodFrameSkipping,
-      float shadowSize,
-      float shadowOpacity,
-      float leashX,
-      float leashY,
-      float leashZ,
-      float shadowX,
-      float shadowZ
+        long entityRenderCount,
+        @Nullable EMFEntity IEMFEntity,
+        Function<ResourceLocation, RenderType> layerFactory,
+        Boolean lodFrameSkipping,
+        float shadowSize,
+        float shadowOpacity,
+        float leashX,
+        float leashY,
+        float leashZ,
+        float shadowX,
+        float shadowZ
+        #if MC > MC_21
+        , EntityRenderState state
+        #endif
     ){}
 }

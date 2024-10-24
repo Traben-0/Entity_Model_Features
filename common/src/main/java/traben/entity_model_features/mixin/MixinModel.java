@@ -2,8 +2,8 @@ package traben.entity_model_features.mixin;
 
 
 import net.minecraft.client.model.Model;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,18 +18,34 @@ import traben.entity_model_features.EMFManager;
 
 import java.util.function.Function;
 
+
 @Mixin(Model.class)
 public class MixinModel implements IEMFModel {
     @Unique
     private EMFModelPartRoot emf$thisEMFModelRoot = null;
 
+
+    #if MC > MC_21
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
-    private void emf$discoverEMFModel(Function<?, ?> layerFactory, CallbackInfo ci) {
+    private void emf$discoverEMFModel(final ModelPart modelPart, final Function<?,?> function, final CallbackInfo ci) {
+        if (EMF.testForForgeLoadingError()) return;
+        if(modelPart instanceof EMFModelPartRoot root) {
+            emf$thisEMFModelRoot = root;
+        }
+//        emf$thisEMFModelRoot = EMFManager.lastCreatedRootModelPart;
+        EMFManager.lastCreatedRootModelPart = null;
+    }
+    #else
+    @Inject(method = "<init>",
+            at = @At(value = "TAIL"))
+    private void emf$discoverEMFModel(CallbackInfo ci) {
         if (EMF.testForForgeLoadingError()) return;
         emf$thisEMFModelRoot = EMFManager.lastCreatedRootModelPart;
         EMFManager.lastCreatedRootModelPart = null;
     }
+    #endif
+
 
     @Override
     public boolean emf$isEMFModel() {
@@ -44,7 +60,7 @@ public class MixinModel implements IEMFModel {
 
     @Inject(method = "renderType",
             at = @At(value = "HEAD"))
-    private void emf$discoverEMFModel(ResourceLocation texture, CallbackInfoReturnable<RenderType> cir) {
+    private void emf$discoverEMFModel(CallbackInfoReturnable<RenderType> cir) {
         EMFAnimationEntityContext.setLayerFactory(((Model) ((Object) this)).renderType);
     }
 }

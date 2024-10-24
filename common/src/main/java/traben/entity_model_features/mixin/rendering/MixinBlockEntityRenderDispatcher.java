@@ -8,6 +8,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFEntity;
+#if MC > MC_21
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+#endif
 
 @Mixin(BlockEntityRenderDispatcher.class)
 public class MixinBlockEntityRenderDispatcher {
@@ -16,7 +19,8 @@ public class MixinBlockEntityRenderDispatcher {
     @Inject(method = "tryRender",
             at = @At(value = "HEAD"))
     private static void emf$grabEntity2(BlockEntity blockEntity, Runnable runnable, CallbackInfo ci) {
-        EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntity) blockEntity);
+        EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntity) blockEntity
+                #if MC > MC_21 , new EntityRenderState() #endif);
     }
 
 }

@@ -11,7 +11,13 @@ import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 @Mixin(VillagerModel.class)
 public abstract class MixinVillagerModel {
 
-    @Inject(method = "setupAnim", at = @At(value = "HEAD"))
+    @Inject(method =
+        #if MC > MC_21
+            "setupAnim(Lnet/minecraft/client/renderer/entity/state/VillagerRenderState;)V"
+        #else
+            "setupAnim"
+        #endif
+            , at = @At(value = "HEAD"))
     private void emf$assertLayerFactory(final CallbackInfo ci) {
         EMFAnimationEntityContext.setLayerFactory(RenderType::entityCutoutNoCull);
     }

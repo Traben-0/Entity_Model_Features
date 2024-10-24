@@ -138,7 +138,11 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
             Animator animator = new Animator();
             animator.setAnimation(copyFrom.animation().getAnimation());
             return new EMFModelState(
+                    #if MC > MC_21
+                    PartPose.offsetAndRotation(trans.x(), trans.y(), trans.z(), trans.xRot(), trans.yRot(), trans.zRot()),
+                    #else
                     PartPose.offsetAndRotation(trans.x, trans.y, trans.z, trans.xRot, trans.yRot, trans.zRot),
+                    #endif
                     new ArrayList<>(copyFrom.cuboids()),
                     new HashMap<>(copyFrom.variantChildren()),
                     copyFrom.xScale(),

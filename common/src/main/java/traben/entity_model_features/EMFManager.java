@@ -208,7 +208,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             return root;
         }
 
-        String originalLayerName = layer.getModel().getPath();
+        String originalLayerName = layer. #if MC > MC_21 model() #else getModel() #endif .getPath();
         EMFModel_ID mobNameForFileAndMap = new EMFModel_ID(
                 currentSpecifiedModelLoading.isBlank() ? originalLayerName : currentSpecifiedModelLoading);
 
@@ -216,19 +216,19 @@ public class EMFManager {//singleton for data holding and resetting needs
             EMFManager.lastCreatedRootModelPart = null;
             boolean printing = (EMF.config().getConfig().logModelCreationData);
 
-            if (!"main".equals(layer.getLayer())) {
-                mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName() + "_" + layer.getLayer());
-                originalLayerName = originalLayerName + "_" + layer.getLayer();
+            if (!"main".equals(layer. #if MC > MC_21 layer() #else getLayer() #endif)) {
+                mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName() + "_" + layer. #if MC > MC_21 layer() #else getLayer() #endif);
+                originalLayerName = originalLayerName + "_" + layer. #if MC > MC_21 layer() #else getLayer() #endif;
             }
 
             boolean modded;
 
             //add simple modded layer checks
-            if (!"minecraft".equals(layer.getModel().getNamespace())) {
+            if (!"minecraft".equals(layer. #if MC > MC_21 model() #else getModel() #endif .getNamespace())) {
                 modded = true;
                 //mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + originalLayerName).toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
                 mobNameForFileAndMap.setBoth(originalLayerName.toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
-                mobNameForFileAndMap.namespace = layer.getModel().getNamespace();
+                mobNameForFileAndMap.namespace = layer. #if MC > MC_21 model() #else getModel() #endif .getNamespace();
             } else {
                 modded = false;
                 //vanilla model
@@ -291,7 +291,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                                     mobNameForFileAndMap.setMapIdAndSecondaryFileName(currentSpecifiedModelLoading,originalLayerName);
                                 }
                             }
-                        } else if (originalLayerName.contains("/") && layer.getLayer().equals("main")) {
+                        } else if (originalLayerName.contains("/") && layer. #if MC > MC_21 layer() #else getLayer() #endif .equals("main")) {
                             if (originalLayerName.startsWith("chest_boat/")) {
                                 mobNameForFileAndMap.setMapIdAndSecondaryFileName(originalLayerName.startsWith("chest_boat/bamboo") ? "chest_raft" : "chest_boat");
                             } else if (originalLayerName.startsWith("boat/")) {

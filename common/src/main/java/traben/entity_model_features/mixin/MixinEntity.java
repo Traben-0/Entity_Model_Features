@@ -76,7 +76,7 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Shadow private float xRot;
 
-    @Shadow private float yRot;
+    @Shadow #if MC > MC_21 public #else private #endif float yRot;
 
     @Shadow public int tickCount;
 

@@ -13,7 +13,7 @@ import traben.entity_model_features.utils.IEMFTextureSizeSupplier;
 public class MixinModelPartData {
     @Inject(method = "bake",
             at = @At(value = "RETURN"))
-    private void emf$injectAnnouncer(final int textureWidth, final int textureHeight, final CallbackInfoReturnable<ModelPart> cir) {
+    private void emf$injectAnnouncerData(final int textureWidth, final int textureHeight, final CallbackInfoReturnable<ModelPart> cir) {
         if (EMF.config().getConfig().modelExportMode.doesLog() && cir.getReturnValue() instanceof IEMFTextureSizeSupplier) {
             ((IEMFTextureSizeSupplier) cir.getReturnValue()).emf$setTextureSize(new int[]{textureWidth, textureHeight});
         }

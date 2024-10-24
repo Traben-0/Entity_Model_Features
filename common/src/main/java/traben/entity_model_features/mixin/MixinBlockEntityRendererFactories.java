@@ -53,6 +53,7 @@ public class MixinBlockEntityRendererFactories {
         else if (BlockEntityType.LECTERN.equals(type))
             EMFManager.getInstance().currentSpecifiedModelLoading = "lectern_book";
         #if MC >= MC_20_2
+        //todo did deprecation start in 1.21.2?
         else if (type.builtInRegistryHolder() != null && type.builtInRegistryHolder().unwrapKey().isPresent()) {
             ResourceLocation id = type.builtInRegistryHolder().unwrapKey().get().location();
         #else

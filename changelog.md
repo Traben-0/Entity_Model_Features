@@ -1,4 +1,13 @@
 
+
+player models 2nd layer changes
+arrow model change
+baby model changes
+removed force model override setting
+
+
+
+
 [2.2.6]
 - fixed model textures prefixed with `./` & `~/` breaking from a recent change
 - expanded the EMF API:

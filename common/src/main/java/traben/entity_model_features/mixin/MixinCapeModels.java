@@ -1,16 +1,19 @@
 package traben.entity_model_features.mixin;
 
 
+import net.minecraft.client.model.PlayerModel;
+import org.spongepowered.asm.mixin.Mixin;
+
+#if MC < MC_21_2
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.minecraft.client.model.PlayerModel;
+
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -24,14 +27,13 @@ import traben.entity_model_features.utils.EMFUtils;
 #if MC >= MC_20_2
 import net.minecraft.tags.ItemTags;
 #endif
-
+#endif
 
 @Mixin(value = PlayerModel.class, priority = 2000)//higher priority to allow other mods to cancel
 public abstract class MixinCapeModels {
 
-
-
-    @Unique
+#if MC < MC_21_2 // unneeded now
+  @Unique
     private ModelPart emf$capeModelPart = null;
 
     @Inject(method = "<init>", at = @At("TAIL"))
@@ -74,5 +76,8 @@ public abstract class MixinCapeModels {
             ci.cancel();
         }
     }
+#endif
+
+
 
 }
