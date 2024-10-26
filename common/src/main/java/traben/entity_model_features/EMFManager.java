@@ -242,6 +242,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                             mobNameForFileAndMap.setBoth("lectern_book", "book");
                         }
                     }
+                    case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndSecondaryFileName("creaking");
                     case "chest" -> mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading, "chest");
                     case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit", "conduit_cage");
                     case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit", "conduit_eye");
@@ -292,11 +293,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                                 }
                             }
                         } else if (originalLayerName.contains("/") && layer. #if MC > MC_21 layer() #else getLayer() #endif .equals("main")) {
-                            if (originalLayerName.startsWith("chest_boat/")) {
-                                mobNameForFileAndMap.setMapIdAndSecondaryFileName(originalLayerName.startsWith("chest_boat/bamboo") ? "chest_raft" : "chest_boat");
-                            } else if (originalLayerName.startsWith("boat/")) {
-                                mobNameForFileAndMap.setMapIdAndSecondaryFileName(originalLayerName.startsWith("boat/bamboo") ? "raft" : "boat");
-                            }
+                            handleBoats(originalLayerName, mobNameForFileAndMap);
                         }
                     }
                 }
@@ -368,7 +365,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 //we do have custom models
 
                 //abort with message if we have variant models and no base model and the setting to require this like OptiFine is set
-                if(jemData == null && EMF.config().getConfig().variationRequiresDefaultModel){
+                if(jemData == null && EMF.config().getConfig().enforceOptifineVariationRequiresDefaultModel){
                     EMFUtils.logWarn("The model [" + finalMapData.getfileName() +"] has variation but does not have a default 'base' model, this is not allowed in the OptiFine format.\nYou may disable this requirement in EMF in the 'model > options' settings. Though it is usually best to preserve OptiFine compatibility.\nYou can get a default model by exporting it in the EMF settings via 'models > allmodels > *model* > export'");
                 }else {
                     //specification for the optifine map
@@ -422,6 +419,21 @@ public class EMFManager {//singleton for data holding and resetting needs
             ((IEMFModelNameContainer) root).emf$insertKnownMappings(mobNameForFileAndMap);
             return root;
         }
+    }
+
+    private static void handleBoats(final String originalLayerName, final EMFModel_ID mobNameForFileAndMap) {
+        String jem;
+        if (originalLayerName.startsWith("chest_boat/")) {
+            jem = originalLayerName.startsWith("chest_boat/bamboo") ? "chest_raft" : "chest_boat";
+        } else if (originalLayerName.startsWith("boat/")) {
+            jem = originalLayerName.startsWith("boat/bamboo") ? "raft" : "boat";
+        } else {
+            return;
+        }
+
+        mobNameForFileAndMap.setMapIdAndSecondaryFileName(jem);
+        String type = mobNameForFileAndMap.getfileName().split("/")[1];
+        mobNameForFileAndMap.setFileName(type + "_" + jem);
     }
 
     private MutableTriple<EMFJemData, ImmutablePair<EMFDirectoryHandler, EMFDirectoryHandler>, EMFModel_ID> getJemAndContext(boolean printing, EMFModel_ID mobNameForFileAndMap){

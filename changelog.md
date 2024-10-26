@@ -1,12 +1,16 @@
 
 
-player models 2nd layer changes
-arrow model change
-baby model changes
-removed force model override setting
-
-
-
+[2.2.7]
+- updated to 1.21.2+
+- removed the setting that would attempt to revert emf models changed by other mods, as it had a lot of overhead with new changes
+- 1.21.2+ has a large amount of internal entity rendering changes many of these changes will affect models, see my discord for a write-up I have done on the changes to expect and their impacts
+- the `creaking_transient` entity variant will try and use `creaking_transient.jem` first and will use `creaking.jem` otherwise
+- different boat types now use the format <wood_type>_<boat_type>.jem e.g. `oak_boat.jem`, `oak_chest_boat.jem`, and the rafts `bamboo_raft.jem`, `bamboo_chest_raft.jem`
+this differs from EMF previously using their vanilla model id such as `boat/oak.jem`
+- `baby_inner_armor.jem` and `baby_outer_armor.jem` have been added as fallbacks for the baby armor models
+- `player_cape.jem` and `arrow.jem` have completely different implementations now, due to inclusion in vanilla rendering
+- `wind_charge` part names updated to reflect changes in OptiFine
+- the OptiFine limitation setting to always require a base model for variation has been set as disabled by default, as the limitation is inconsistent in OptiFine and has affected several packs working normally in OptiFine (the config name has changed so this will automatically update for you)
 
 [2.2.6]
 - fixed model textures prefixed with `./` & `~/` breaking from a recent change

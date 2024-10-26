@@ -32,7 +32,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -48,7 +47,7 @@ public class EMFConfig extends TConfig {
     public boolean debugOnRightClick = false;
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
     public VanillaModelRenderMode vanillaModelHologramRenderMode_2 = VanillaModelRenderMode.OFF;
-    @Deprecated(since = "2.2.7") public boolean attemptRevertingEntityModelsAlteredByAnotherMod = false;
+    @Deprecated(since = "2.2.7", forRemoval = true) public boolean attemptRevertingEntityModelsAlteredByAnotherMod = false;
     public ModelPrintMode modelExportMode = ModelPrintMode.NONE;
     public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
@@ -97,7 +96,8 @@ public class EMFConfig extends TConfig {
     public boolean preventFirstPersonHandAnimating = false;
     public boolean onlyClientPlayerModel = false;
     public boolean doubleChestAnimFix = true;
-    public boolean variationRequiresDefaultModel = true;
+    @Deprecated(since = "2.2.7", forRemoval = true) public boolean variationRequiresDefaultModel = false;
+    public boolean enforceOptifineVariationRequiresDefaultModel = false;
     public boolean resetPlayerModelEachRender = true;
     public boolean onlyDebugRenderOnHover = false;
     public boolean enforceOptifineSubFoldersVariantOnly = true;
@@ -161,7 +161,7 @@ public class EMFConfig extends TConfig {
                 , getEntitySettings(),
                 new TConfigEntryCategory("config.entity_features.optifine_settings","config.entity_texture_features.optifine.desc").add(
                         new TConfigEntryBoolean("entity_model_features.config.variation_base", "entity_model_features.config.variation_base.tooltip",
-                                () -> variationRequiresDefaultModel, value -> variationRequiresDefaultModel = value, true),
+                                () -> enforceOptifineVariationRequiresDefaultModel, value -> enforceOptifineVariationRequiresDefaultModel = value, true),
                         new TConfigEntryBoolean("entity_model_features.config.optifine_subfolders", "entity_model_features.config.optifine_subfolders.tooltip",
                                 () -> enforceOptifineSubFoldersVariantOnly, value -> enforceOptifineSubFoldersVariantOnly = value, true),
                         new TConfigEntryBoolean("entity_model_features.config.optifine_syntax", "entity_model_features.config.optifine_syntax.tooltip",

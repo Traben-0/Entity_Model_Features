@@ -64,6 +64,7 @@ public class EMFModelMappings {
         DEFAULT_TEXTURE_MAPPINGS = Map.ofEntries(
                 entry("allay", texture("allay","allay")),
                 entry("armor_stand", texture("armor_stand","wood")),
+                entry("armor_stand_small", texture("armor_stand","wood")),
                 entry("bat", texture("bat")),
                 entry("bell", texture("bell","bell_body")),
                 entry("blaze", texture("blaze")),
@@ -439,7 +440,7 @@ public class EMFModelMappings {
                 ));
         OptifineMapper.models("llama", "llama_decor", "trader_llama", "trader_llama_decor")
                 .parts(genericLlama);
-        OptifineMapper.models("armor_stand")
+        OptifineMapper.models("armor_stand", "armor_stand_small")
                 .parts(new HashMap<>(genericNonPlayerBiped) {{
                     putAll(Map.ofEntries(
                             partMapping("right", "right_body_stick"),
@@ -737,7 +738,7 @@ public class EMFModelMappings {
                         partMapping("neck"),
                         partMapping("root")
                 ));
-        OptifineMapper.models("salmon")
+        OptifineMapper.models("salmon", "salmon_large", "salmon_small")
                 .parts(Map.ofEntries(
                         partMapping("body_front"),
                         partMapping("body_back"),
@@ -1072,10 +1073,10 @@ public class EMFModelMappings {
 
         OptifineMapper.models("wind_charge")
                 .parts(Map.ofEntries(
-                        partMapping("core", "projectile"),//maybe "bone"???
+//                        partMapping("core", "projectile"),//maybe "bone"???
                         partMapping("wind"),
-                        partMapping("cube1", "cube_r1"),
-                        partMapping("cube2", "cube_r2"),
+//                        partMapping("cube1", "cube_r1"),
+//                        partMapping("cube2", "cube_r2"),
                         partMapping("charge", "wind_charge"),
                         partMapping("root")
                 ));
@@ -1097,6 +1098,9 @@ public class EMFModelMappings {
 
     public static Map<String, String> getMapOf(@NotNull String mobName, @Nullable ModelPart root, boolean exportOnlyFirstTime) {
 
+        if (mobName.matches(".*_baby($|_.*)") && !mobName.contains(":")){
+            mobName = mobName.replaceFirst("_baby","");
+        }
 
         Map<String, String> knownMap;
         if (mobName.endsWith("_inner_armor") || mobName.endsWith("_outer_armor")) {
