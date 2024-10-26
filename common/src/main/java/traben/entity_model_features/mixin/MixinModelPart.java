@@ -33,7 +33,7 @@ public class MixinModelPart implements IEMFModelNameContainer, IEMFTextureSizeSu
                 "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V",
             #endif
             at = @At(value = "HEAD"))
-    private void emf$injectAnnouncer2(final PoseStack poseStack, final VertexConsumer vertexConsumer, final int i, final int j, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif, final CallbackInfo ci) {
+    private void emf$injectAnnouncerPart(final PoseStack poseStack, final VertexConsumer vertexConsumer, final int i, final int j, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif, final CallbackInfo ci) {
         if (EMFAnimationEntityContext.doAnnounceModels() && emf$modelInfo != null) {
             EMFManager.getInstance().modelsAnnounced.add(emf$modelInfo);
         }

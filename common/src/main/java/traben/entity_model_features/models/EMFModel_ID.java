@@ -132,6 +132,14 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         } else if (!"minecraft".equals(namespace)) {
             //create old deprecated modded directory as secondary
             assertNamespaceAndCreateDeprecatedModdedFileName(namespace, fileName);
+        }else if (fileName.endsWith("_baby_inner_armor")){
+            //push the armor override jem name to the main filename
+            secondaryFileName = "baby_inner_armor";
+
+        }else if (fileName.endsWith("_baby_outer_armor")){
+            //push the armor override jem name to the main filename
+            secondaryFileName = "baby_outer_armor";
+
         }else if (fileName.endsWith("_inner_armor")){
             //push the armor override jem name to the main filename
             secondaryFileName = "inner_armor";

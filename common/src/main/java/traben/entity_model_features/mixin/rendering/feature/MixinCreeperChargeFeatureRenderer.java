@@ -21,7 +21,7 @@ public abstract class MixinCreeperChargeFeatureRenderer {
 
     @Shadow
     @Final
-    private CreeperModel<Creeper> model;
+    private #if MC > MC_21 CreeperModel #else CreeperModel<Creeper> #endif model;
 
     @Inject(
             method = "getTextureLocation",

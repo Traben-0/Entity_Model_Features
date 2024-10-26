@@ -364,18 +364,19 @@ public class EMFModelPartCustom extends EMFModelPart {
             Vector3f vector3f = new Vector3f();
 
             for (Polygon polygon : this.polygons) {
-                Vector3f vector3f2 = pose.transformNormal(polygon.normal, vector3f);
+                Vector3f vector3f2 = pose.transformNormal(polygon.normal #if MC > MC_21 () #endif, vector3f);
                 float f = vector3f2.x();
                 float g = vector3f2.y();
                 float h = vector3f2.z();
-                Vertex[] var16 = polygon.vertices;
+                Vertex[] var16 = polygon.vertices #if MC > MC_21 () #endif;
 
                 for (Vertex vertex : var16) {
-                    float l = vertex.pos.x() / 16.0F;
-                    float m = vertex.pos.y() / 16.0F;
-                    float n = vertex.pos.z() / 16.0F;
+                    float l = vertex.pos #if MC > MC_21 () #endif.x() / 16.0F;
+                    float m = vertex.pos #if MC > MC_21 () #endif.y() / 16.0F;
+                    float n = vertex.pos #if MC > MC_21 () #endif.z() / 16.0F;
                     Vector3f vector3f3 = matrix4f.transformPosition(l, m, n, vector3f);
-                    vertexConsumer.addVertex(vector3f3.x(), vector3f3.y(), vector3f3.z(), k, vertex.u, vertex.v, j, i, f, g, h);
+                    vertexConsumer.addVertex(vector3f3.x(), vector3f3.y(), vector3f3.z(), k,
+                            vertex.u #if MC > MC_21 () #endif, vertex.v #if MC > MC_21 () #endif, j, i, f, g, h);
                 }
             }
 

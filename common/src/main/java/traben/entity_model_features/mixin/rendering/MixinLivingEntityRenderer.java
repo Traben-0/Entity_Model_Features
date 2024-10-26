@@ -31,15 +31,25 @@ import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
 
+#if MC > MC_21
+import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+#endif
 
 @Mixin(LivingEntityRenderer.class)
-public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements RenderLayerParent<T, M> {
+#if MC > MC_21
+public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extends LivingEntityRenderState, M extends EntityModel<? super S>> extends EntityRenderer<T, S> implements RenderLayerParent<S, M> {
 
+    @Shadow
+    public abstract ResourceLocation getTextureLocation(final S livingEntityRenderState);
+
+
+#else
+public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements RenderLayerParent<T, M> {
+#endif
 
     @Shadow
     protected M model;
-    @Unique
-    private M emf$heldModelToForce = null;
+
     @Unique
     private EMFAnimationEntityContext.IterationContext emf$heldIteration = null;
 
@@ -48,15 +58,14 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         super(ctx);
     }
 
-    @Inject(method = "<init>",
-            at = @At(value = "TAIL"))
-    private void emf$saveEMFModel(EntityRendererProvider.Context ctx, EntityModel<T> model, float shadowRadius, CallbackInfo ci) {
-        if (this.model != null && ((IEMFModel) this.model).emf$isEMFModel()) {
-            emf$heldModelToForce = this.model;
-        }
-    }
 
-    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+
+    @Inject(method =
+            #if MC > MC_21
+            "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            #else
+            "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            #endif
             at = @At(value = "INVOKE",
                     #if MC >= MC_21
                     target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;III)V"
@@ -64,18 +73,27 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
                     target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V"
                     #endif
                     , shift = At.Shift.BEFORE))
-    private void emf$Animate(T livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, CallbackInfo ci) {
 
-        if (emf$heldModelToForce != null) {
-            if (!emf$heldModelToForce.equals(model) && !(livingEntity instanceof Pufferfish)) {
-                boolean replace = EMF.config().getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getKey(livingEntity.getType()).getNamespace());
-                EMFUtils.overrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
-                if (replace) {
-                    model = emf$heldModelToForce;
-                }
-            }
-            emf$heldModelToForce = null;
+#if MC > MC_21
+    private void emf$Animate(final S livingEntityRenderState, final PoseStack matrixStack, final MultiBufferSource vertexConsumerProvider, final int i, final CallbackInfo ci) {
+        if(!(EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity livingEntity)) {
+            return;
         }
+
+#else
+    private void emf$Animate(T livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, CallbackInfo ci) {
+#endif
+
+//        if (emf$heldModelToForce != null) {
+//            if (!emf$heldModelToForce.equals(model) && !(livingEntity instanceof Pufferfish)) {
+//                boolean replace = EMF.config().getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getKey(livingEntity.getType()).getNamespace());
+//                EMFUtils.overrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
+//                if (replace) {
+//                    model = emf$heldModelToForce;
+//                }
+//            }
+//            emf$heldModelToForce = null;
+//        }
 
 
         //EMFManager.getInstance().preRenderEMFActions(emf$ModelId,livingEntity, vertexConsumerProvider, o, n, l, k, m);
@@ -84,12 +102,14 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
                 if (EMF.config().getConfig().getVanillaHologramModeFor((EMFEntity) livingEntity) != EMFConfig.VanillaModelRenderMode.OFF) {
-                    root.tryRenderVanillaRootNormally(matrixStack, vertexConsumerProvider.getBuffer(RenderType.entityTranslucent(getTextureLocation(livingEntity))), i, OverlayTexture.NO_OVERLAY);
+                    root.tryRenderVanillaRootNormally(matrixStack, vertexConsumerProvider.getBuffer(
+                            RenderType.entityTranslucent(getTextureLocation(#if MC > MC_21 livingEntityRenderState #else livingEntity #endif))), i, OverlayTexture.NO_OVERLAY);
                 }
                 //simple attempt at a physics mod workaround
                 if (livingEntity.isDeadOrDying() && EMFManager.getInstance().IS_PHYSICS_MOD_INSTALLED
                         && EMF.config().getConfig().getPhysicsModModeFor((EMFEntity) livingEntity) != EMFConfig.PhysicsModCompatChoice.OFF) {
-                    root.tryRenderVanillaFormatRoot(matrixStack, vertexConsumerProvider.getBuffer(RenderType.entityTranslucent(getTextureLocation(livingEntity))), i, OverlayTexture.NO_OVERLAY);
+                    root.tryRenderVanillaFormatRoot(matrixStack, vertexConsumerProvider.getBuffer(
+                            RenderType.entityTranslucent(getTextureLocation(#if MC > MC_21 livingEntityRenderState #else livingEntity #endif))), i, OverlayTexture.NO_OVERLAY);
                     //the regular render will get cancelled anyway nothing further to do
                 }
             }
@@ -97,10 +117,18 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
     }
 
 
+
     @Redirect(
             method = "getRenderType",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;getTextureLocation(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/resources/ResourceLocation;"))
-    private ResourceLocation emf$getTextureRedirect(LivingEntityRenderer<?, ?> instance, Entity entity) {
+            at = @At(value = "INVOKE", target =
+                    #if MC > MC_21
+                    "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;getTextureLocation(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)Lnet/minecraft/resources/ResourceLocation;"            ))
+    private ResourceLocation emf$getTextureRedirect(final LivingEntityRenderer<?,?,?> instance, final S livingEntityRenderState) {
+                    #else
+                    "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;getTextureLocation(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/resources/ResourceLocation;"            ))
+    private ResourceLocation emf$getTextureRedirect(LivingEntityRenderer<?,?> instance, Entity entity) {
+                    #endif
+
 
         if (((IEMFModel) model).emf$isEMFModel()) {
             EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
@@ -112,19 +140,29 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         }
 
         //noinspection unchecked
-        return getTextureLocation((T) entity);
+        return getTextureLocation(#if MC > MC_21 livingEntityRenderState #else (T) entity #endif);
 
     }
 
-    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+    @Inject(method =
+            #if MC > MC_21
+            "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            #else
+            "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            #endif
             at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
-    private void emf$grabEntity(T livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, CallbackInfo ci) {
+    private void emf$grabEntity(CallbackInfo ci) {
         emf$heldIteration = EMFAnimationEntityContext.getIterationContext();
     }
 
-    @Inject(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+    @Inject(method =
+            #if MC > MC_21
+            "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            #else
+            "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            #endif
             at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
-    private void emf$eachFeatureLoop(T livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, CallbackInfo ci) {
+    private void emf$eachFeatureLoop(CallbackInfo ci) {
         if (EMFManager.getInstance().entityRenderCount != emf$heldIteration.entityRenderCount()) {
             EMFAnimationEntityContext.setIterationContext(emf$heldIteration);
         }

@@ -26,7 +26,7 @@ public class MixinModelPart$Cuboid implements IEMFCuboidDataSupplier {
 
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
-    private void emf$injectAnnouncer(final int u, final int v, final float x, final float y, final float z, final float sizeX, final float sizeY, final float sizeZ, final float extraX, final float extraY, final float extraZ, final boolean mirror, final float textureWidth, final float textureHeight, final Set<?> set, final CallbackInfo ci) {
+    private void emf$injectAnnouncerCube(final int u, final int v, final float x, final float y, final float z, final float sizeX, final float sizeY, final float sizeZ, final float extraX, final float extraY, final float extraZ, final boolean mirror, final float textureWidth, final float textureHeight, final Set<?> set, final CallbackInfo ci) {
         if (EMF.config().getConfig().modelExportMode.doesLog()) {
             emf$textureUV = new int[]{u, v};
             emf$sizeAdd = new float[]{extraX, extraY, extraZ};

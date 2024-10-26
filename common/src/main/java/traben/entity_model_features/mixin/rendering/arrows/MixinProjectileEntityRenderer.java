@@ -1,6 +1,17 @@
 package traben.entity_model_features.mixin.rendering.arrows;
 
 
+#if MC > MC_21
+import net.minecraft.client.renderer.entity.ArrowRenderer;
+import org.spongepowered.asm.mixin.Mixin;
+@Mixin(ArrowRenderer.class)
+public abstract class MixinProjectileEntityRenderer {
+
+}
+#else
+
+
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -44,3 +55,4 @@ public abstract class MixinProjectileEntityRenderer<T extends AbstractArrow> ext
     }
 
 }
+#endif

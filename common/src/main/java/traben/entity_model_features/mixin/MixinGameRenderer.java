@@ -1,6 +1,6 @@
 package traben.entity_model_features.mixin;
 
-import net.minecraft.client.Camera;
+
 import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,12 +17,11 @@ import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 @Mixin(GameRenderer.class)
 public class MixinGameRenderer {
 
-
     @Inject(method = "getFov",
             at = @At(value = "RETURN"))
-    private void emf$injectAnnouncer(final Camera camera, final float tickDelta, final boolean changingFov, final CallbackInfoReturnable<Double> cir) {
+    private void emf$captureFov(final CallbackInfoReturnable< #if MC > MC_21 Float #else Double #endif > cir) {
         if (EMF.config().getConfig().animationLODDistance != 0) {
-            EMFAnimationEntityContext.lastFOV = cir.getReturnValue();
+            EMFAnimationEntityContext.lastFOV = (double) cir.getReturnValue();
         }
     }
 

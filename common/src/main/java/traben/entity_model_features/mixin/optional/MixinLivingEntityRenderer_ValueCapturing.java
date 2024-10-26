@@ -13,6 +13,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 
+#if MC > MC_21
+@Mixin(value = LivingEntityRenderer.class, priority = 2000)
+public abstract class MixinLivingEntityRenderer_ValueCapturing{}
+#else
 
 @Mixin(value = LivingEntityRenderer.class, priority = 2000)
 public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements RenderLayerParent<T, M> {
@@ -69,3 +73,4 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing<T extends LivingE
 
 
 }
+#endif

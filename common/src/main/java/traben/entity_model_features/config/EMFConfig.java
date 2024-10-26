@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +32,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -47,7 +47,7 @@ public class EMFConfig extends TConfig {
     public boolean debugOnRightClick = false;
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
     public VanillaModelRenderMode vanillaModelHologramRenderMode_2 = VanillaModelRenderMode.OFF;
-    public boolean attemptRevertingEntityModelsAlteredByAnotherMod = true;
+    @Deprecated(since = "2.2.7", forRemoval = true) public boolean attemptRevertingEntityModelsAlteredByAnotherMod = false;
     public ModelPrintMode modelExportMode = ModelPrintMode.NONE;
     public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
@@ -96,7 +96,8 @@ public class EMFConfig extends TConfig {
     public boolean preventFirstPersonHandAnimating = false;
     public boolean onlyClientPlayerModel = false;
     public boolean doubleChestAnimFix = true;
-    public boolean variationRequiresDefaultModel = true;
+    @Deprecated(since = "2.2.7", forRemoval = true) public boolean variationRequiresDefaultModel = false;
+    public boolean enforceOptifineVariationRequiresDefaultModel = false;
     public boolean resetPlayerModelEachRender = true;
     public boolean onlyDebugRenderOnHover = false;
     public boolean enforceOptifineSubFoldersVariantOnly = true;
@@ -110,8 +111,8 @@ public class EMFConfig extends TConfig {
         return new TConfigEntryCategory.Empty().add(
                 new TConfigEntryCategory("config.entity_features.models_main").add(
                         new TConfigEntryCategory("entity_model_features.config.options", "entity_model_features.config.options.tooltip").add(
-                                new TConfigEntryBoolean("entity_model_features.config.force_models", "entity_model_features.config.force_models.tooltip",
-                                        () -> attemptRevertingEntityModelsAlteredByAnotherMod, value -> attemptRevertingEntityModelsAlteredByAnotherMod = value, true),
+//                                new TConfigEntryBoolean("entity_model_features.config.force_models", "entity_model_features.config.force_models.tooltip",
+//                                        () -> attemptRevertingEntityModelsAlteredByAnotherMod, value -> attemptRevertingEntityModelsAlteredByAnotherMod = value, true),
                                 new TConfigEntryEnumButton<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
                                         () -> attemptPhysicsModPatch_2, value -> attemptPhysicsModPatch_2 = value, PhysicsModCompatChoice.CUSTOM),
                                 new TConfigEntryBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
@@ -160,7 +161,7 @@ public class EMFConfig extends TConfig {
                 , getEntitySettings(),
                 new TConfigEntryCategory("config.entity_features.optifine_settings","config.entity_texture_features.optifine.desc").add(
                         new TConfigEntryBoolean("entity_model_features.config.variation_base", "entity_model_features.config.variation_base.tooltip",
-                                () -> variationRequiresDefaultModel, value -> variationRequiresDefaultModel = value, true),
+                                () -> enforceOptifineVariationRequiresDefaultModel, value -> enforceOptifineVariationRequiresDefaultModel = value, true),
                         new TConfigEntryBoolean("entity_model_features.config.optifine_subfolders", "entity_model_features.config.optifine_subfolders.tooltip",
                                 () -> enforceOptifineSubFoldersVariantOnly, value -> enforceOptifineSubFoldersVariantOnly = value, true),
                         new TConfigEntryBoolean("entity_model_features.config.optifine_syntax", "entity_model_features.config.optifine_syntax.tooltip",
@@ -526,7 +527,11 @@ public class EMFConfig extends TConfig {
                     if (!modelPart.skipDraw) {
                         for (ModelPart.Cube cuboid : modelPart.cubes) {
                             AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
+                            #if MC > MC_21
+                            ShapeRenderer.renderLineBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
+                            #else
                             LevelRenderer.renderLineBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
+                            #endif
                         }
                     }
                     for (ModelPart modelPartChildren : modelPart.children.values()) {

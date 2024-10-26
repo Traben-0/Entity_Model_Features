@@ -15,6 +15,7 @@ private void setupPreProcess(def index){
     MC_20_4 = 5
     MC_20_6 = 6
     MC_21   = 7
+    MC_21_2 = 8
     MC      = ${index}
     """
 
@@ -68,7 +69,7 @@ subprojects {
 
 //        annotationProcessor 'systems.manifold:manifold-preprocessor:2023.1.17'
 // forge compile error
- annotationProcessor 'systems.manifold:manifold-preprocessor:2024.1.32'
+ annotationProcessor 'systems.manifold:manifold-preprocessor:2024.1.35'
     }
 
     processResources {

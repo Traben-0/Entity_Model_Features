@@ -9,11 +9,13 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.StuckInBodyLayer;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -29,28 +31,67 @@ import java.util.List;
 import java.util.Random;
 
 @Mixin(StuckInBodyLayer.class)
-public abstract class MixinStuckArrowsFeatureRenderer<T extends LivingEntity, M extends PlayerModel<T>> extends RenderLayer<T, M> {
+public abstract class MixinStuckArrowsFeatureRenderer
+#if MC > MC_21
+<M extends PlayerModel> extends RenderLayer<PlayerRenderState, M>
+#else
+<T extends LivingEntity, M extends PlayerModel<T>> extends RenderLayer<T, M>
+#endif
 
+{
 
-    @Shadow protected abstract int numStuck(final T entity);
+    #if MC > MC_21
+    @Shadow
+    @Final
+    private StuckInBodyLayer.PlacementStyle placementStyle;
 
-    @Shadow protected abstract void renderStuckItem(final PoseStack poseStack, final MultiBufferSource buffer, final int packedLight, final Entity entity, final float x, final float y, final float z, final float partialTick);
-
-    public MixinStuckArrowsFeatureRenderer(final RenderLayerParent<T, M> renderer) {
-        super(renderer);
+    public MixinStuckArrowsFeatureRenderer(final RenderLayerParent<PlayerRenderState, M> renderLayerParent) {
+        super(renderLayerParent);
     }
 
-    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
+    @Shadow
+    private static float snapToFace(final float f) {
+        return 0;
+    }
+    @Shadow
+    protected abstract int numStuck(final PlayerRenderState playerRenderState);
+    @Shadow
+    protected abstract void renderStuckItem(final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final float f, final float g, final float h);
+
+    #else
+        public MixinStuckArrowsFeatureRenderer(final RenderLayerParent<T, M> renderer) {
+        super(renderer);
+    }
+    @Shadow protected abstract int numStuck(final T entity);
+    @Shadow protected abstract void renderStuckItem(final PoseStack poseStack, final MultiBufferSource buffer, final int packedLight, final Entity entity, final float x, final float y, final float z, final float partialTick);
+    #endif
+
+
+
+
+
+    @Inject(method =
+            #if MC > MC_21
+            "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V",
+            #else
+            "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
+            #endif
             at = @At(value = "HEAD"), cancellable = true)
-    private void emf$start(final PoseStack poseStack, final MultiBufferSource buffer, final int packedLight, final T livingEntity, final float limbSwing, final float limbSwingAmount, final float partialTicks, final float ageInTicks, final float netHeadYaw, final float headPitch, final CallbackInfo ci) {
+    private void emf$start(
+            #if MC > MC_21
+            final PoseStack poseStack, final MultiBufferSource buffer, final int packedLight, final PlayerRenderState playerRenderState, final float f2, final float g2, final CallbackInfo ci
+            #else
+            final PoseStack poseStack, final MultiBufferSource buffer, final int packedLight, final T livingEntity, final float limbSwing, final float limbSwingAmount, final float partialTicks, final float ageInTicks, final float netHeadYaw, final float headPitch, final CallbackInfo ci
+            #endif
+            ) {
         EMFAnimationEntityContext.is_in_ground_override = true;
         if(((IEMFModel)this.getParentModel()).emf$isEMFModel()){
             ci.cancel();
 
             var root = ((IEMFModel) this.getParentModel()).emf$getEMFRootModel();
 
-            int i = this.numStuck(livingEntity);
-            RandomSource randomSource = RandomSource.create(livingEntity.getId());
+            int i = this.numStuck(#if MC > MC_21 playerRenderState #else livingEntity #endif );
+            RandomSource randomSource = RandomSource.create( #if MC > MC_21 playerRenderState.id #else livingEntity.getId() #endif);
             if (i > 0) {
                 for(int j = 0; j < i; ++j) {
                     Random partRand = new Random(j);
@@ -69,6 +110,17 @@ public abstract class MixinStuckArrowsFeatureRenderer<T extends LivingEntity, M 
                     float g = randomSource.nextFloat();
                     float h = randomSource.nextFloat();
 
+                    #if MC > MC_21
+                    if (this.placementStyle == StuckInBodyLayer.PlacementStyle.ON_SURFACE) {
+                        int n = randomSource.nextInt(3);
+                        switch (n) {
+                            case 0 -> f = snapToFace(f);
+                            case 1 -> g = snapToFace(g);
+                            default -> h = snapToFace(h);
+                        }
+                    }
+                    #endif
+
                     if (!modelPart.getFirst().cubes.isEmpty()) {
                         ModelPart.Cube cube = modelPart.getFirst().getRandomCube(randomSource);
                         float k = Mth.lerp(f, cube.minX, cube.maxX) / 16.0F;
@@ -77,10 +129,17 @@ public abstract class MixinStuckArrowsFeatureRenderer<T extends LivingEntity, M 
                         poseStack.translate(k, l, m);
                     }
 
+
+
+
                     f = -1.0F * (f * 2.0F - 1.0F);
                     g = -1.0F * (g * 2.0F - 1.0F);
                     h = -1.0F * (h * 2.0F - 1.0F);
+                    #if MC > MC_21
+                    this.renderStuckItem(poseStack, buffer, packedLight, f, g, h);
+                    #else
                     this.renderStuckItem(poseStack, buffer, packedLight, livingEntity, f, g, h, partialTicks);
+                    #endif
                     poseStack.popPose();
                 }
             }
@@ -88,7 +147,12 @@ public abstract class MixinStuckArrowsFeatureRenderer<T extends LivingEntity, M 
         }
     }
 
-    @Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
+    @Inject(method =
+            #if MC > MC_21
+            "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V",
+            #else
+            "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
+            #endif
             at = @At(value = "RETURN"))
     private void emf$end(CallbackInfo ci) {
         EMFAnimationEntityContext.is_in_ground_override = false;

@@ -5,8 +5,7 @@ import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.client.renderer.SpriteCoordinateExpander;
-import net.minecraft.util.FastColor;
+import net.minecraft.client.renderer.*;
 import net.minecraft.util.Mth;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
@@ -20,13 +19,16 @@ import traben.entity_texture_features.features.texture_handlers.ETFTexture;
 import traben.entity_texture_features.utils.ETFUtils2;
 import traben.entity_texture_features.utils.ETFVertexConsumer;
 
+#if MC > MC_21
+import net.minecraft.util.ARGB;
+#else
+import net.minecraft.util.FastColor;
+#endif
+
 import java.util.*;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.AABB;
 
@@ -89,7 +91,15 @@ public abstract class EMFModelPart extends ModelPart {
 
     private void renderDebugTinted(final PoseStack matrices, final VertexConsumer vertices, final int light, final int overlay, #if MC >= MC_21 final int k #else float green, float alpha #endif) {
         float flash = Math.abs(Mth.sin(System.currentTimeMillis() / 1000f));
-        #if MC >= MC_21
+        #if MC > MC_21
+        var col = ARGB.color(
+                (int) (255 * flash),
+                ARGB.green(k),
+                (int) (255 * flash),
+                ARGB.alpha(k)
+        );
+        renderWithTextureOverride(matrices, vertices, light, overlay, col);
+        #elif MC == MC_21
         var col = FastColor.ARGB32.color(
                 (int) (255 * flash),
                 FastColor.ARGB32.green(k),
@@ -277,7 +287,11 @@ public abstract class EMFModelPart extends ModelPart {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
                         var col = debugBoxColor();
+                        #if MC > MC_21
+                        ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
+                        #else
                         LevelRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
+                        #endif
                     }
                 }
                 for (ModelPart modelPart : children.values()) {
@@ -300,7 +314,11 @@ public abstract class EMFModelPart extends ModelPart {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
                         var col = debugBoxColor();
+                        #if MC > MC_21
+                        ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
+                        #else
                         LevelRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
+                        #endif
                     }
                 }
                 matrices.popPose();

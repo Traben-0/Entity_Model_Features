@@ -1,13 +1,25 @@
 package traben.entity_model_features.mixin.rendering.model;
 
-import net.minecraft.client.renderer.entity.EnderDragonRenderer;
+
 import org.spongepowered.asm.mixin.Mixin;
+
+
+#if MC > MC_21
+
+import net.minecraft.client.model.dragon.EnderDragonModel;
+@Mixin(EnderDragonModel.class)
+public abstract class MixinDragonModel {}
+#else
+
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFManager;
 
+import net.minecraft.client.renderer.entity.EnderDragonRenderer;
 @Mixin(EnderDragonRenderer.DragonModel.class)
+
+
 public abstract class MixinDragonModel {
 
     @Inject(method = "renderToBuffer",
@@ -34,4 +46,4 @@ public abstract class MixinDragonModel {
         EMFManager.getInstance().entityRenderCount++;
     }
 
-}
+}#endif
