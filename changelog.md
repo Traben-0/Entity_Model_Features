@@ -2,7 +2,13 @@
 
 [2.2.7]
 - updated to 1.21.2+
-- 1.21.2+ has a large amount of internal entity rendering changes many of these changes will affect models, see my discord for a write-up I have done on the changes to expect and their impacts
+
+1.21.2+ has a large amount of internal entity rendering changes many of these changes will affect models, see my discord for a write-up I have done on the changes to expect and their impacts
+or this link 
+
+https://github.com/Traben-0/Entity_Model_Features/blob/master/.github/1.21.2%2B%20%20changes.md
+
+
 - removed the setting that would attempt to revert emf models changed by other mods, as it had a lot of overhead with new changes
 - the `creaking_transient` entity variant will try and use `creaking_transient.jem` first and will use `creaking.jem` otherwise
 - different boat types now use the format <wood_type>_<boat_type>.jem e.g. `oak_boat.jem`, `oak_chest_boat.jem`, and the rafts `bamboo_raft.jem`, `bamboo_chest_raft.jem`
