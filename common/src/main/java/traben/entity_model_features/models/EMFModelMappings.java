@@ -1051,8 +1051,10 @@ public class EMFModelMappings {
                 ));
         OptifineMapper.models("trident")
                 .parts(Map.ofEntries(partMapping("body", "pole")));
+        #if MC < MC_21_2
         OptifineMapper.models("spectral_arrow", "arrow")
                 .parts(Map.ofEntries(partMapping("body", "root")));
+        #endif
         OptifineMapper.models("shield")
                 .parts(Map.ofEntries(
                         partMapping("plate"),
