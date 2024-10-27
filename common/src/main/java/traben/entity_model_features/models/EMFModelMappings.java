@@ -1193,9 +1193,9 @@ public class EMFModelMappings {
                     EMFPartPrinter partPrinter = new EMFPartPrinter();
                     partPrinter.part = entry.getKey();
                     partPrinter.id = entry.getKey();
-                    ModelPart searchPart = getChildByName(entry.getValue(), originalModel);
+                    PartAndOffsets searchPart = getChildByName(entry.getValue(), originalModel,0,0,0);
                     //allow nested child parts named root to be found first otherwise apply the root part as the root
-                    ModelPart vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? originalModel : searchPart;
+                    PartAndOffsets vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? new PartAndOffsets(originalModel, 0,0,0) : searchPart;
 
                     textureSize = initPartPrinterAndCaptureTextureSizeIfNeeded(vanillaModelPart, partPrinter, textureSize);
                     jemPrinter.models.add(partPrinter);
@@ -1229,13 +1229,21 @@ public class EMFModelMappings {
         return mobMap;
     }
 
-    private static int[] initPartPrinterAndCaptureTextureSizeIfNeeded(final ModelPart vanillaModelPart, final EMFPartPrinter partPrinter, int[] textureSize) {
-        if (vanillaModelPart != null) {
+    private record PartAndOffsets(ModelPart part, float x, float y, float z) {
+    }
+
+    private static int[] initPartPrinterAndCaptureTextureSizeIfNeeded(final PartAndOffsets partAndOffsets, final EMFPartPrinter partPrinter, int[] textureSize) {
+        if (partAndOffsets != null && partAndOffsets.part != null) {
+
+            var vanillaModelPart = partAndOffsets.part;
+
+
             //invert x and y's
             partPrinter.translate = new float[]{
-                    vanillaModelPart.x,
-                    -24 + vanillaModelPart.y,
-                    -vanillaModelPart.z};
+                    -partAndOffsets.x + vanillaModelPart.x,
+                -24 -partAndOffsets.y + vanillaModelPart.y,
+                    partAndOffsets.z  -vanillaModelPart.z
+            };
             //these are inherited
 //            if(!isPart) {
 //                            partPrinter.rotate = new float[]{
@@ -1301,11 +1309,19 @@ public class EMFModelMappings {
 //    }
 
 
-    private static @Nullable ModelPart getChildByName(String name, @NotNull ModelPart part) {
-        if (part.hasChild(name)) return part.getChild(name);
+    private static @Nullable PartAndOffsets getChildByName(String name, @NotNull ModelPart part, float x, float y, float z) {
+        if (part.hasChild(name)) return new PartAndOffsets(part.getChild(name),
+                 x - part.x,
+                 y - part.y,
+                 z - part.z
+        );
         for (ModelPart childPart :
                 part.children.values()) {
-            ModelPart possibleReturn = getChildByName(name, childPart);
+            PartAndOffsets possibleReturn = getChildByName(name, childPart,
+                     x - part.x,
+                     y - part.y,
+                     z - part.z
+            );
             if (possibleReturn != null) return possibleReturn;
         }
         return null;
