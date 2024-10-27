@@ -913,8 +913,10 @@ public class EMFModelMappings {
                 ));
         OptifineMapper.models("player", "player_slim")
                 .parts(genericPlayerBiped);
+        #if MC < MC_21_2
         OptifineMapper.models("player_cape")
                 .parts(Map.ofEntries(partMapping("cloak")));
+        #endif
         OptifineMapper.models("boat")
                 .parts(Map.ofEntries(
                         partMapping("bottom"),//todo check
