@@ -3,6 +3,12 @@ package traben.entity_model_features.models;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.client.model.BabyModelTransform;
+import net.minecraft.client.model.CatModel;
+import net.minecraft.client.model.PigModel;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.geom.builders.MeshTransformer;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.Contract;
@@ -32,6 +38,8 @@ public class EMFModelMappings {
     public static final Map<String, Map<String, String>> UNKNOWN_MODEL_MAP_CACHE = new HashMap<>();
     public static final Map<String, Map<String, String>> OPTIFINE_MODEL_MAP_CACHE = new HashMap<>();
     public static Map<String, String> DEFAULT_TEXTURE_MAPPINGS;
+    public static Map<ModelLayerLocation, BabyModelTransform> BABY_MODEL_TRANSFORMERS = new HashMap<>();
+    public static Map<ModelLayerLocation, Float> MODEL_SCALERS = new HashMap<>();
 
     public static final Map<String, String> genericNonPlayerBiped = Map.ofEntries(
             partMapping("head"),
@@ -47,6 +55,41 @@ public class EMFModelMappings {
     static {
         initOptifineMappings();
         initDefaultTextureMappings();
+        initBabyModelTransformers();
+        initModelTransformers();
+    }
+
+    private static void initBabyModelTransformers(){
+        #if MC > MC_21
+        BABY_MODEL_TRANSFORMERS.put(ModelLayers.PIG_BABY, (BabyModelTransform) PigModel.BABY_TRANSFORMER);
+        BABY_MODEL_TRANSFORMERS.put(ModelLayers.CAT_BABY, (BabyModelTransform) CatModel.BABY_TRANSFORMER);
+        extend these
+        #endif
+    }
+
+    private static void initModelTransformers(){
+        #if MC > MC_21
+        MODEL_SCALERS.put(ModelLayers.CAT_BABY, 0.8F);
+        MODEL_SCALERS.put(ModelLayers.CAT, 0.8F);
+        MODEL_SCALERS.put(ModelLayers.CAT_BABY_COLLAR, 0.8F);
+        MODEL_SCALERS.put(ModelLayers.CAT_COLLAR, 0.8F);
+        MODEL_SCALERS.put(ModelLayers.ELDER_GUARDIAN, 2.35F);
+        MODEL_SCALERS.put(ModelLayers.GIANT, 6F);
+        MODEL_SCALERS.put(ModelLayers.GIANT_INNER_ARMOR, 6F);
+        MODEL_SCALERS.put(ModelLayers.GIANT_OUTER_ARMOR, 6F);
+        MODEL_SCALERS.put(ModelLayers.CAVE_SPIDER, 0.7F);
+        MODEL_SCALERS.put(ModelLayers.HUSK, 1.0625F);
+        MODEL_SCALERS.put(ModelLayers.HUSK_INNER_ARMOR, 1.0625F);
+        MODEL_SCALERS.put(ModelLayers.HUSK_OUTER_ARMOR, 1.0625F);
+        MODEL_SCALERS.put(ModelLayers.HUSK_BABY, 1.0625F);
+        MODEL_SCALERS.put(ModelLayers.HUSK_BABY_INNER_ARMOR, 1.0625F);
+        MODEL_SCALERS.put(ModelLayers.HUSK_BABY_OUTER_ARMOR, 1.0625F);
+        MODEL_SCALERS.put(ModelLayers.WITHER_SKELETON, 1.2F);
+        MODEL_SCALERS.put(ModelLayers.WITHER_SKELETON_INNER_ARMOR, 1.2F);
+        MODEL_SCALERS.put(ModelLayers.WITHER_SKELETON_OUTER_ARMOR, 1.2F);
+        float villagers = 0.9375F;
+        extend there
+        #endif
     }
 
     private static String texture(String name){

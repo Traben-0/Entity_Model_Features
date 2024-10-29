@@ -2,7 +2,12 @@ package traben.entity_model_features;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.client.model.BabyModelTransform;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.server.packs.PackResources;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutableTriple;
@@ -18,6 +23,7 @@ import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
+import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.utils.EntityIntLRU;
@@ -26,6 +32,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Minecraft;
@@ -199,6 +208,68 @@ public class EMFManager {//singleton for data holding and resetting needs
         EBE_JEMS_FOUND.clear();
     }
 
+    #if MC > MC_21
+    @Nullable
+    private static BiConsumer<ModelPart, Boolean> getBabyModelScalingTransformer(ModelLayerLocation layer) {
+        //get baby and other scaling transformers
+        BabyModelTransform babyModelTransform = EMFModelMappings.BABY_MODEL_TRANSFORMERS.get(layer);
+        if(babyModelTransform != null){
+            return (modelPart, printing) -> {
+                if (printing) EMFUtils.log(" > scaling model for baby: " + layer);
+                float f = babyModelTransform.scaleHead() ? 1.5F / babyModelTransform.babyHeadScale() : 1.0F;
+                float g = 1.0F / babyModelTransform.babyBodyScale();
+                Consumer<PoseStack> scalerHead =
+                        (PoseStack pose) -> {
+                            pose.translate(0.0F, babyModelTransform.babyYHeadOffset()/16, babyModelTransform.babyZHeadOffset()/16);
+                            pose.scale(f,f,f);
+                        };
+
+                Consumer<PoseStack> scalerBody =
+                        (PoseStack pose) ->{
+                            pose.translate(0.0F, babyModelTransform.bodyYOffset()/16, 0.0F);
+                            pose.scale(g,g,g);
+                        };
+
+                var headParts = babyModelTransform.headParts();
+
+                for (final Map.Entry<String, ModelPart> entry : modelPart.children.entrySet()) {
+                    String partName = entry.getKey();
+                    ModelPart part = entry.getValue();
+                    if(part instanceof EMFModelPartVanilla emfModelPart){
+                        emfModelPart.setLegacyScaler(headParts.contains(partName) ? scalerHead : scalerBody);
+                    }
+                }
+            };
+        }
+        return null;
+    }
+
+    @Nullable
+    private static BiConsumer<ModelPart, Boolean> getModelScalingTransformer(ModelLayerLocation layer) {
+        //get baby and other scaling transformers
+
+        Float scale = EMFModelMappings.MODEL_SCALERS.get(layer);
+        if(scale != null){
+            //copy of MeshTransformer scaling class
+            figure this translation out
+            float translateY = 0 ;// 24.016F * -(1.0F - scale) /16/2;// -(1.0F - scale) almost worked;
+            return (modelPart, printing) -> {
+                if (printing) EMFUtils.log(" > scaling model for: " + layer);
+                Consumer<PoseStack> scaler =
+                        (PoseStack pose) ->{
+                            pose.scale(scale,scale,scale);
+                            pose.translate(0.0F, translateY, 0.0F);
+                        };
+
+                if(modelPart instanceof EMFModelPartRoot emfModelPart){
+                    emfModelPart.setLegacyScaler(scaler);
+                }
+            };
+        }
+        return null;
+    }
+    #endif
+
     public ModelPart injectIntoModelRootGetter(ModelLayerLocation layer, ModelPart root) {
         int creationsOfLayer = amountOfLayerAttempts.put(layer, amountOfLayerAttempts.getInt(layer) + 1);
         if (creationsOfLayer > 500) {
@@ -211,6 +282,8 @@ public class EMFManager {//singleton for data holding and resetting needs
         String originalLayerName = layer. #if MC > MC_21 model() #else getModel() #endif .getPath();
         EMFModel_ID mobNameForFileAndMap = new EMFModel_ID(
                 currentSpecifiedModelLoading.isBlank() ? originalLayerName : currentSpecifiedModelLoading);
+
+
 
         try {
             EMFManager.lastCreatedRootModelPart = null;
@@ -231,6 +304,25 @@ public class EMFManager {//singleton for data holding and resetting needs
                 mobNameForFileAndMap.namespace = layer. #if MC > MC_21 model() #else getModel() #endif .getNamespace();
             } else {
                 modded = false;
+
+
+                #if MC > MC_21
+                if(EMF.config().getConfig().legacyModelScalingCompatibility) {
+                    var legacyModelScaler = getModelScalingTransformer(layer);
+                    if (legacyModelScaler != null) {
+                        mobNameForFileAndMap.setRootTransformer(legacyModelScaler);
+                    }
+                }
+                if (EMF.config().getConfig().legacyBabyModelScalingCompatibility) {
+                    var legacyBabyModelScaler = getBabyModelScalingTransformer(layer);
+                    if (legacyBabyModelScaler != null) {
+                        String adultName = mobNameForFileAndMap.getfileName().replaceFirst("_baby", "");
+                        mobNameForFileAndMap.addFallbackModel(mobNameForFileAndMap.namespace, adultName, legacyBabyModelScaler);
+                    }
+                }
+
+                #endif
+
                 //vanilla model
                 switch (originalLayerName) {
                     case "bed_foot" -> mobNameForFileAndMap.setBoth("bed", "bed_foot");
@@ -242,8 +334,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                             mobNameForFileAndMap.setBoth("lectern_book", "book");
                         }
                     }
-                    case "breeze_wind_charge" -> mobNameForFileAndMap.setMapIdAndSecondaryFileName("wind_charge");
-                    case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndSecondaryFileName("creaking");
+                    case "breeze_wind_charge" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("wind_charge");
+                    case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("creaking");
                     case "chest" -> mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading, "chest");
                     case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit", "conduit_cage");
                     case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit", "conduit_eye");
@@ -284,13 +376,13 @@ public class EMFManager {//singleton for data holding and resetting needs
                             switch (currentSpecifiedModelLoading) {
                                 case "sign", "hanging_sign" -> {
                                     mobNameForFileAndMap.setFileName(originalLayerName);
-                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName(currentSpecifiedModelLoading);
+                                    mobNameForFileAndMap.setMapIdAndAddFallbackModel(currentSpecifiedModelLoading);
                                 }
                                 default -> {
                                     if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
                                         EMFUtils.log("EMF unknown modifiable block entity model identified during loading: " + currentSpecifiedModelLoading + ".jem");
                                     mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading);
-                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName(currentSpecifiedModelLoading,originalLayerName);
+                                    mobNameForFileAndMap.setMapIdAndAddFallbackModel(currentSpecifiedModelLoading,originalLayerName);
                                 }
                             }
                         } else if (originalLayerName.contains("/") && layer. #if MC > MC_21 layer() #else getLayer() #endif .equals("main")) {
@@ -316,8 +408,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             mobNameForFileAndMap.finishAndPrepSecondaries();
 
             cache_LayersByModelName.put(mobNameForFileAndMap, layer);
-            if (mobNameForFileAndMap.getSecondaryModel() != null){
-                cache_LayersByModelName.put(mobNameForFileAndMap.getSecondaryModel(), layer);
+            if (mobNameForFileAndMap.getNextFallbackModel() != null){
+                cache_LayersByModelName.put(mobNameForFileAndMap.getNextFallbackModel(), layer);
             }
             ///jem name and secondaries are final and correct from here
 
@@ -337,22 +429,26 @@ public class EMFManager {//singleton for data holding and resetting needs
             var modelDataAndContext = getJemAndContext(printing, mobNameForFileAndMap);
 
             //try with secondary model
-            var secondaryFileMap = mobNameForFileAndMap.getSecondaryModel();
-            if (secondaryFileMap != null) {
-                if (printing) EMFUtils.log(" >> EMF trying to find secondary model: " + secondaryFileMap.getNamespace() + ":optifine/cem/" + secondaryFileMap + ".jem");
 
-                var secondaryModelDataAndContext = getJemAndContext(printing, secondaryFileMap);
+            var fallbackModelId = mobNameForFileAndMap;
+            while(fallbackModelId.hasFallbackModels()){
+                fallbackModelId = fallbackModelId.getNextFallbackModel();
+                if(fallbackModelId == null) throw new Exception("Fallback model is null");
 
-                var jemDataFirst = modelDataAndContext.getLeft();
-                var jemData2 = secondaryModelDataAndContext.getLeft();
+                if (printing) EMFUtils.log(" >> EMF trying to find fallback model: " + fallbackModelId.getNamespace() + ":optifine/cem/" + fallbackModelId + ".jem");
 
-                boolean isFirstModelInValid = jemDataFirst == null && modelDataAndContext.getMiddle().getRight() == null;
+                var fallbackModelDataAndContext = getJemAndContext(printing, fallbackModelId);
+
+                EMFJemData currentBestOrFirstModel = modelDataAndContext.getLeft();
+                EMFJemData fallBackModel = fallbackModelDataAndContext.getLeft();
+
+                boolean isFirstModelInValid = currentBestOrFirstModel == null && modelDataAndContext.getMiddle().getRight() == null;
                 if (isFirstModelInValid ||
-                        (jemDataFirst != null && jemData2 != null && jemData2.directoryContext.packIndex() > jemDataFirst.directoryContext.packIndex())) {
-                    //just use second if first is invalid or if the secondary model is in a higher resource pack
-                    modelDataAndContext.setLeft(jemData2);
-                    modelDataAndContext.setMiddle(secondaryModelDataAndContext.getMiddle());
-                    modelDataAndContext.setRight(secondaryFileMap);
+                        (currentBestOrFirstModel != null && fallBackModel != null && fallBackModel.directoryContext.packIndex() > currentBestOrFirstModel.directoryContext.packIndex())) {
+                    //just use fallback if first is invalid or if the fallback model is in a higher resource pack
+                    modelDataAndContext.setLeft(fallBackModel);
+                    modelDataAndContext.setMiddle(fallbackModelDataAndContext.getMiddle());
+                    modelDataAndContext.setRight(fallbackModelId);
                 }
             }
 
@@ -406,6 +502,10 @@ public class EMFManager {//singleton for data holding and resetting needs
                                 EBE_JEMS_FOUND.add(EBETypes.get(currentBlockEntityTypeLoading));
                             }
                         }
+                        //apply legacy transforms if they are needed
+                        finalMapData.transformFinalRootIfRequired(emfRoot, printing);
+
+                        //finished
                         if (printing) EMFUtils.logWarn(" > EMF model used for: " + mobNameForFileAndMap);
                         return emfRoot;//tada
                     }
@@ -432,7 +532,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             return;
         }
 
-        mobNameForFileAndMap.setMapIdAndSecondaryFileName(jem);
+        mobNameForFileAndMap.setMapIdAndAddFallbackModel(jem);
         String type = mobNameForFileAndMap.getfileName().split("/")[1];
         mobNameForFileAndMap.setFileName(type + "_" + jem);
     }

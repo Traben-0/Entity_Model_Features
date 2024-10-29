@@ -105,6 +105,8 @@ public class EMFConfig extends TConfig {
     #if MC < MC_21
     public boolean enforceOptiFineFloorUVs = true;
     #endif
+    public boolean legacyBabyModelScalingCompatibility = true;
+    public boolean legacyModelScalingCompatibility = true;
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -224,7 +226,7 @@ public class EMFConfig extends TConfig {
                     model.setWidgetBackgroundToFullWidth();
                     model.setRenderFeature(new ModelRootRenderer(layer));
                     category.add(model);
-                    var second = mapData.getSecondaryModel();
+                    var second = mapData.getNextFallbackModel();
 
                     model.add(new TConfigEntryBoolean("entity_model_features.config.models.enabled", "entity_model_features.config.models.enabled.tooltip",
                                     () -> !modelsNamesDisabled.contains(fileName),

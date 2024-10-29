@@ -327,7 +327,7 @@ public final class EMFAnimationEntityContext {
             EMFUtils.chat(vanillaMessage);
             int count = 1;
             for (EMFModel_ID data : EMFManager.getInstance().modelsAnnounced) {
-                var second = data.getSecondaryModel();
+                var second = data.getNextFallbackModel();
                 StringBuilder model = new StringBuilder();
                 model.append("\n§Non-Custom Model #").append(count).append("§r")
                         .append(entryAndValue("possible .jem name", data.getDisplayFileName()));

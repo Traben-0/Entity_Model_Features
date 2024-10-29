@@ -4,11 +4,14 @@ package traben.entity_model_features.models.parts;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 
 @Environment(value = EnvType.CLIENT)
@@ -17,6 +20,12 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     final String name;
     final boolean isOptiFinePartSpecified;
     final Set<Integer> hideInTheseStates = new HashSet<>();
+
+    public void setLegacyScaler(final Consumer<PoseStack> legacyScaler) {
+        this.legacyScaler = legacyScaler;
+    }
+
+    Consumer<PoseStack> legacyScaler = null;
 
     public EMFModelPartVanilla(String name,
                                ModelPart vanillaPart,
@@ -52,8 +61,17 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     @Override
     public void render(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
         //ignore non optifine specified parts when not vanilla variant
-        if (!hideInTheseStates.contains(currentModelVariant))
-            super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+        if (!hideInTheseStates.contains(currentModelVariant)){
+            if (legacyScaler == null) {
+                super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+            }else{
+                matrices.pushPose();
+                legacyScaler.accept(matrices);
+                super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+                matrices.popPose();
+            }
+
+        }
     }
 
     public void setHideInTheseStates(int variant) {
