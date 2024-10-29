@@ -242,6 +242,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                             mobNameForFileAndMap.setBoth("lectern_book", "book");
                         }
                     }
+                    case "breeze_wind_charge" -> mobNameForFileAndMap.setMapIdAndSecondaryFileName("wind_charge");
                     case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndSecondaryFileName("creaking");
                     case "chest" -> mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading, "chest");
                     case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit", "conduit_cage");
