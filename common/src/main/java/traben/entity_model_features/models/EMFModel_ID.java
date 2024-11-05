@@ -120,6 +120,10 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         fallBackModels.add(new FallbackModel(namespace, fileName, rootTransformer));
     }
 
+    public void addFallbackModel( String fileName, BiConsumer<ModelPart, Boolean> rootTransformer) {
+        addFallbackModel(namespace, fileName, rootTransformer);
+    }
+
     public void addFallbackModel(String namespace, String fileName) {
         addFallbackModel(namespace, fileName, rootTransformer);
     }

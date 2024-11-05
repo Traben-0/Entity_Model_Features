@@ -1,4 +1,23 @@
 
+- improved how EMF exports default models, they will now look much prettier in blockbench due to various semantic only changes
+- added legacy baby model support, enabled by default, when on it will use the adult model
+as a fallback for all absent baby models automatically rescaling it if possible.
+- added legacy model scaling support, disabled by default, when on it will scale models such as elder_guardians to how
+they were prior to 1.21.2. This does not currently position them correctly in game, and will only be developed further if OptiFine does similar.
+- updated model part names, see the emf models settings in game for the list of all model part names
+  - dragon - "neck1 - neck5" and "tail1 - tail12", replacing "spine"
+  - bogged - same as skeleton + "mushrooms" part
+  - bogged_outer - same as stray_outer
+  - armadillo - see in-game model settings screen for parts list
+  - end-crystal - "inner_glass" and "outer_glass" replacing "glass"
+  - arrow - "body"
+  - spectral_arrow - "body"
+  - bee_stinger - "body"
+  - player_cape - "cape"
+  - boat_water_patch - "bottom_no_water"
+  - salmon_large - falls back to "salmon" and gets scaled
+  - salmon_small - falls back to "salmon" and gets scaled
+  - breeze_wind_charge - same as "wind_charge"
 
 [2.2.7]
 - updated to 1.21.2+

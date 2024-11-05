@@ -5,12 +5,11 @@ import com.google.gson.GsonBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.model.BabyModelTransform;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.model.geom.builders.MeshTransformer;
 import net.minecraft.server.packs.PackResources;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutableTriple;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.EBEConfigModifier;
@@ -34,7 +33,6 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.UnaryOperator;
 
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Minecraft;
@@ -212,8 +210,9 @@ public class EMFManager {//singleton for data holding and resetting needs
     @Nullable
     private static BiConsumer<ModelPart, Boolean> getBabyModelScalingTransformer(ModelLayerLocation layer) {
         //get baby and other scaling transformers
-        BabyModelTransform babyModelTransform = EMFModelMappings.BABY_MODEL_TRANSFORMERS.get(layer);
-        if(babyModelTransform != null){
+        MeshTransformer modelTransform = EMFModelMappings.BABY_MODEL_TRANSFORMERS.get(layer);
+
+        if(modelTransform instanceof BabyModelTransform babyModelTransform){
             return (modelPart, printing) -> {
                 if (printing) EMFUtils.log(" > scaling model for baby: " + layer);
                 float f = babyModelTransform.scaleHead() ? 1.5F / babyModelTransform.babyHeadScale() : 1.0F;
@@ -240,6 +239,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                     }
                 }
             };
+        }else if (modelTransform instanceof EMFModelMappings.ScaleOnlyModelTransformer scaled){
+            return getModelRootScalingTransformer(layer, scaled.getScale());
         }
         return null;
     }
@@ -250,23 +251,47 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         Float scale = EMFModelMappings.MODEL_SCALERS.get(layer);
         if(scale != null){
-            //copy of MeshTransformer scaling class
-            figure this translation out
-            float translateY = 0 ;// 24.016F * -(1.0F - scale) /16/2;// -(1.0F - scale) almost worked;
-            return (modelPart, printing) -> {
-                if (printing) EMFUtils.log(" > scaling model for: " + layer);
-                Consumer<PoseStack> scaler =
-                        (PoseStack pose) ->{
-                            pose.scale(scale,scale,scale);
-                            pose.translate(0.0F, translateY, 0.0F);
-                        };
-
-                if(modelPart instanceof EMFModelPartRoot emfModelPart){
-                    emfModelPart.setLegacyScaler(scaler);
-                }
-            };
+            return getModelRootScalingTransformer(layer, scale);
         }
         return null;
+    }
+
+    private static @NotNull BiConsumer<ModelPart, Boolean> getModelRootScalingTransformer(final ModelLayerLocation layer, final Float scale) {
+        //float translateY = (float) -(1.501 * (1.0 - scale));
+        //-6.25F;// -6.3568f;// 24.016F * -(1.0F - scale) /16/2;// -(1.0F - scale) almost worked;  -1.501F
+
+        //-1 result is desired for elder guardian
+        //-0.07505F is desired for cat   -1.501F * scale / 16 is perfect
+        //-6.25 desired for giant
+//            -1f/1.35F *0.19999999999999996f / 2F
+        return (modelPart, printing) -> {
+            if (printing) EMFUtils.log(" > scaling model for: " + layer);
+            //AtomicInteger integer = new AtomicInteger(0);
+            Consumer<PoseStack> scaler =
+                    (PoseStack pose) -> {
+//                        float f = 0.015625f;
+//                        ShapeRenderer.renderLineBox(pose, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()),
+//                                new AABB(-f, -f, -f, f, f, f), 0F, 1.0F, 0F, 1.0F);
+
+//                            if(integer.incrementAndGet() % 4 == 0){
+//                                pose.translate(0.0F, 1.501, 0.0F);
+//                                pose.scale(scale,scale,scale);
+//                                pose.translate(0.0F, -translateY, 0.0F);
+//
+//                                ShapeRenderer.renderLineBox(pose, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()),
+//                                        new AABB(-f, -f, -f, f, f, f), 1.0F, 0F, 0F, 1.0F);
+//                            }else{
+                        pose.scale(scale, scale, scale);
+//                                ShapeRenderer.renderLineBox(pose, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()),
+//                                        new AABB(-f, -f, -f, f, f, f), 0F, 0F, 1.0F, 1.0F);
+//
+//                            }
+                    };
+
+            if (modelPart instanceof EMFModelPartRoot emfModelPart) {
+                emfModelPart.setLegacyScaler(scaler);
+            }
+        };
     }
     #endif
 
@@ -334,6 +359,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                             mobNameForFileAndMap.setBoth("lectern_book", "book");
                         }
                     }
+                    case "salmon_small", "salmon_large" -> mobNameForFileAndMap.addFallbackModel( "salmon",getModelScalingTransformer(layer));
                     case "breeze_wind_charge" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("wind_charge");
                     case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("creaking");
                     case "chest" -> mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading, "chest");
@@ -350,8 +376,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                     case "dragon_skull" -> mobNameForFileAndMap.setBoth("head_dragon");
                     case "ender_dragon" -> mobNameForFileAndMap.setBoth("dragon");
                     case "leash_knot" -> mobNameForFileAndMap.setBoth("lead_knot");
-                    case "llama" -> traderLlamaHappened = false;
+                    case "llama", "llama_baby" -> traderLlamaHappened = false;
                     case "llama_decor" -> mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
+                    case "llama_baby_decor" -> mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_baby_decor" : "llama_baby_decor");
                     case "piglin_head" -> mobNameForFileAndMap.setBoth("head_piglin");
                     case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
                     case "pufferfish_big" -> mobNameForFileAndMap.setBoth("puffer_fish_big");

@@ -105,8 +105,8 @@ public class EMFConfig extends TConfig {
     #if MC < MC_21
     public boolean enforceOptiFineFloorUVs = true;
     #endif
-    public boolean legacyBabyModelScalingCompatibility = true;
-    public boolean legacyModelScalingCompatibility = true;
+    public boolean legacyBabyModelScalingCompatibility = false;
+    public boolean legacyModelScalingCompatibility = false;
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -120,7 +120,11 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
                                         () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.double_chest_fix", "entity_model_features.config.double_chest_fix.tooltip",
-                                        () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true)
+                                        () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true),
+                                new TConfigEntryBoolean("entity_model_features.config.legacy_baby", "entity_model_features.config.legacy_baby.tooltip",
+                                        () -> legacyBabyModelScalingCompatibility, value -> legacyBabyModelScalingCompatibility = value, false),
+                                new TConfigEntryBoolean("entity_model_features.config.legacy_scale", "entity_model_features.config.legacy_scale.tooltip",
+                                        () -> legacyModelScalingCompatibility, value -> legacyModelScalingCompatibility = value, false)
                         ),
                         new TConfigEntryCategory("entity_model_features.config.player_settings").add(
                                 new TConfigEntryBoolean("entity_model_features.config.prevent_hand", "entity_model_features.config.prevent_hand.tooltip",
@@ -261,10 +265,10 @@ public class EMFConfig extends TConfig {
                 }
             }
         });
-        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
-                "entity_model_features.config.models.arrows", 200, TConfigEntryText.TextAlignment.LEFT));
-        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
-                "entity_model_features.config.models.cape", 200, TConfigEntryText.TextAlignment.LEFT));
+//        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
+//                "entity_model_features.config.models.arrows", 200, TConfigEntryText.TextAlignment.LEFT));
+//        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
+//                "entity_model_features.config.models.cape", 200, TConfigEntryText.TextAlignment.LEFT));
         return category;
     }
 
