@@ -3,7 +3,7 @@
 - added legacy baby model support, enabled by default, when on it will use the adult model
 as a fallback for all absent baby models automatically rescaling it if possible.
 - added legacy model scaling support, disabled by default, when on it will scale models such as elder_guardians to how
-they were prior to 1.21.2. This does not currently position them correctly in game, and will only be developed further if OptiFine does similar.
+they were prior to 1.21.2.
 - updated model part names, see the emf models settings in game for the list of all model part names
   - dragon - "neck1 - neck5" and "tail1 - tail12", replacing "spine"
   - bogged - same as skeleton + "mushrooms" part
@@ -18,6 +18,7 @@ they were prior to 1.21.2. This does not currently position them correctly in ga
   - salmon_large - falls back to "salmon" and gets scaled
   - salmon_small - falls back to "salmon" and gets scaled
   - breeze_wind_charge - same as "wind_charge"
+- added legacy model fallbacks `book`, `evocation_illager`, `evocation_fangs`, and `vindication_illager`
 
 [2.2.7]
 - updated to 1.21.2+

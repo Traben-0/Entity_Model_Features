@@ -72,6 +72,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
 
+
     public Collection<EMFModelPartVanilla> getAllVanillaPartsEMF() {
         return allVanillaParts.values();
     }

@@ -2,7 +2,6 @@ package traben.entity_model_features;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.model.BabyModelTransform;
 import net.minecraft.client.model.geom.builders.MeshTransformer;
@@ -32,7 +31,6 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Minecraft;
@@ -217,25 +215,12 @@ public class EMFManager {//singleton for data holding and resetting needs
                 if (printing) EMFUtils.log(" > scaling model for baby: " + layer);
                 float f = babyModelTransform.scaleHead() ? 1.5F / babyModelTransform.babyHeadScale() : 1.0F;
                 float g = 1.0F / babyModelTransform.babyBodyScale();
-                Consumer<PoseStack> scalerHead =
-                        (PoseStack pose) -> {
-                            pose.translate(0.0F, babyModelTransform.babyYHeadOffset()/16, babyModelTransform.babyZHeadOffset()/16);
-                            pose.scale(f,f,f);
-                        };
-
-                Consumer<PoseStack> scalerBody =
-                        (PoseStack pose) ->{
-                            pose.translate(0.0F, babyModelTransform.bodyYOffset()/16, 0.0F);
-                            pose.scale(g,g,g);
-                        };
-
                 var headParts = babyModelTransform.headParts();
-
                 for (final Map.Entry<String, ModelPart> entry : modelPart.children.entrySet()) {
                     String partName = entry.getKey();
                     ModelPart part = entry.getValue();
                     if(part instanceof EMFModelPartVanilla emfModelPart){
-                        emfModelPart.setLegacyScaler(headParts.contains(partName) ? scalerHead : scalerBody);
+                        emfModelPart.setLegacyScaleModifier(headParts.contains(partName) ? f : g);
                     }
                 }
             };
@@ -267,29 +252,29 @@ public class EMFManager {//singleton for data holding and resetting needs
         return (modelPart, printing) -> {
             if (printing) EMFUtils.log(" > scaling model for: " + layer);
             //AtomicInteger integer = new AtomicInteger(0);
-            Consumer<PoseStack> scaler =
-                    (PoseStack pose) -> {
-//                        float f = 0.015625f;
-//                        ShapeRenderer.renderLineBox(pose, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()),
-//                                new AABB(-f, -f, -f, f, f, f), 0F, 1.0F, 0F, 1.0F);
-
-//                            if(integer.incrementAndGet() % 4 == 0){
-//                                pose.translate(0.0F, 1.501, 0.0F);
-//                                pose.scale(scale,scale,scale);
-//                                pose.translate(0.0F, -translateY, 0.0F);
+//            Supplier<Float> scaler =
+//                    (PoseStack pose) -> {
+////                        float f = 0.015625f;
+////                        ShapeRenderer.renderLineBox(pose, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()),
+////                                new AABB(-f, -f, -f, f, f, f), 0F, 1.0F, 0F, 1.0F);
 //
-//                                ShapeRenderer.renderLineBox(pose, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()),
-//                                        new AABB(-f, -f, -f, f, f, f), 1.0F, 0F, 0F, 1.0F);
-//                            }else{
-                        pose.scale(scale, scale, scale);
-//                                ShapeRenderer.renderLineBox(pose, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()),
-//                                        new AABB(-f, -f, -f, f, f, f), 0F, 0F, 1.0F, 1.0F);
-//
-//                            }
-                    };
+////                            if(integer.incrementAndGet() % 4 == 0){
+////                                pose.translate(0.0F, 1.501, 0.0F);
+////                                pose.scale(scale,scale,scale);
+////                                pose.translate(0.0F, -translateY, 0.0F);
+////
+////                                ShapeRenderer.renderLineBox(pose, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()),
+////                                        new AABB(-f, -f, -f, f, f, f), 1.0F, 0F, 0F, 1.0F);
+////                            }else{
+//                        pose.scale(scale, scale, scale);
+////                                ShapeRenderer.renderLineBox(pose, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()),
+////                                        new AABB(-f, -f, -f, f, f, f), 0F, 0F, 1.0F, 1.0F);
+////
+////                            }
+//                    };
 
             if (modelPart instanceof EMFModelPartRoot emfModelPart) {
-                emfModelPart.setLegacyScaler(scaler);
+                emfModelPart.setLegacyScaleModifier(scale);
             }
         };
     }
@@ -350,6 +335,9 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                 //vanilla model
                 switch (originalLayerName) {
+                    case "evoker" -> mobNameForFileAndMap.addFallbackModel("evocation_illager");
+                    case "evoker_fangs" -> mobNameForFileAndMap.addFallbackModel("evocation_fangs");
+                    case "vindicator" -> mobNameForFileAndMap.addFallbackModel("vindication_illager");
                     case "bed_foot" -> mobNameForFileAndMap.setBoth("bed", "bed_foot");
                     case "bed_head" -> mobNameForFileAndMap.setBoth("bed", "bed_head");
                     case "book" -> {
@@ -358,8 +346,12 @@ public class EMFManager {//singleton for data holding and resetting needs
                         } else {/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/
                             mobNameForFileAndMap.setBoth("lectern_book", "book");
                         }
+                        mobNameForFileAndMap.addFallbackModel("book");
                     }
-                    case "salmon_small", "salmon_large" -> mobNameForFileAndMap.addFallbackModel( "salmon",getModelScalingTransformer(layer));
+                    case "salmon_small", "salmon_large" -> {
+                        mobNameForFileAndMap.setRootTransformer(null);
+                        mobNameForFileAndMap.addFallbackModel( "salmon",getModelScalingTransformer(layer));
+                    }
                     case "breeze_wind_charge" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("wind_charge");
                     case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("creaking");
                     case "chest" -> mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading, "chest");

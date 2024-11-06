@@ -4,14 +4,11 @@ package traben.entity_model_features.models.parts;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.EMFUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.UnaryOperator;
 
 
 @Environment(value = EnvType.CLIENT)
@@ -21,11 +18,30 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     final boolean isOptiFinePartSpecified;
     final Set<Integer> hideInTheseStates = new HashSet<>();
 
-    public void setLegacyScaler(final Consumer<PoseStack> legacyScaler) {
-        this.legacyScaler = legacyScaler;
+    public void setLegacyScaleModifier(final float legacyScaleModifier) {
+        this.legacyScaleModifier = legacyScaleModifier;
     }
 
-    Consumer<PoseStack> legacyScaler = null;
+    private float legacyScaleModifier = 1F;
+
+    @Override
+    public void translateAndRotate(final PoseStack poseStack) {
+        //wrap modify the values to allow usage of the vanilla method at the end
+        if (legacyScaleModifier == 1F) {
+            super.translateAndRotate(poseStack);
+        } else {
+            float[] scales = new float[]{xScale, yScale, zScale};
+            xScale *= legacyScaleModifier;
+            yScale *= legacyScaleModifier;
+            zScale *= legacyScaleModifier;
+            super.translateAndRotate(poseStack);
+            xScale = scales[0];
+            yScale = scales[1];
+            zScale = scales[2];
+        }
+    }
+
+
 
     public EMFModelPartVanilla(String name,
                                ModelPart vanillaPart,
@@ -53,6 +69,8 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     }
 
+
+
     @Override
     protected float[] debugBoxColor() {
         return new float[]{0, 1f, 0};
@@ -62,14 +80,14 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     public void render(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
         //ignore non optifine specified parts when not vanilla variant
         if (!hideInTheseStates.contains(currentModelVariant)){
-            if (legacyScaler == null) {
+//            if (legacyScaler == null) {
                 super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
-            }else{
-                matrices.pushPose();
-                legacyScaler.accept(matrices);
-                super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
-                matrices.popPose();
-            }
+//            }else{
+//                matrices.pushPose();
+//                legacyScaler.accept(matrices);
+//                super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+//                matrices.popPose();
+//            }
 
         }
     }

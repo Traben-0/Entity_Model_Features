@@ -105,8 +105,8 @@ public class EMFConfig extends TConfig {
     #if MC < MC_21
     public boolean enforceOptiFineFloorUVs = true;
     #endif
-    public boolean legacyBabyModelScalingCompatibility = false;
-    public boolean legacyModelScalingCompatibility = false;
+    public boolean legacyBabyModelScalingCompatibility = true;
+    public boolean legacyModelScalingCompatibility = true;
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
