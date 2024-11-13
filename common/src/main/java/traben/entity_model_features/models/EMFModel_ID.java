@@ -1,15 +1,11 @@
 package traben.entity_model_features.models;
 
-import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class EMFModel_ID implements Comparable<EMFModel_ID> {
 
@@ -17,25 +13,9 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
     private String fileName;
     private String mapId;
 
-    public void setRootTransformer(final BiConsumer<ModelPart, Boolean> rootTransformer) {
-        this.rootTransformer = rootTransformer;
-    }
-
-    private BiConsumer<ModelPart, Boolean> rootTransformer = null;
-
-    public void transformFinalRootIfRequired(ModelPart root, boolean printing) {
-        if (rootTransformer != null) {
-            rootTransformer.accept(root, printing);
-            if (printing) EMFUtils.log("Transformed resulting model for " + getDisplayFileName());
-        }
-    }
-
-//    private String secondaryFileName = null;
-//    private String secondaryNamespace = null;
-
     private final List<FallbackModel> fallBackModels;
 
-    private record FallbackModel(String namespace, String fileName, BiConsumer<ModelPart, Boolean> rootTransformer){}
+    private record FallbackModel(String namespace, String fileName){}
 
     public EMFModel_ID(String both) {
         this(both, null);
@@ -110,22 +90,13 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
 
             var second = new EMFModel_ID(next.fileName, getMapId(), fallBackModels.subList(1, fallBackModels.size()));
             second.namespace = next.namespace == null ? namespace : next.namespace;
-            second.setRootTransformer(next.rootTransformer);
             return second;
         }
         return null;
     }
 
-    public void addFallbackModel(String namespace, String fileName, BiConsumer<ModelPart, Boolean> rootTransformer) {
-        fallBackModels.add(new FallbackModel(namespace, fileName, rootTransformer));
-    }
-
-    public void addFallbackModel( String fileName, BiConsumer<ModelPart, Boolean> rootTransformer) {
-        addFallbackModel(namespace, fileName, rootTransformer);
-    }
-
     public void addFallbackModel(String namespace, String fileName) {
-        addFallbackModel(namespace, fileName, rootTransformer);
+        fallBackModels.add(new FallbackModel(namespace, fileName));
     }
 
     public void addFallbackModel(String fileName) {
@@ -154,7 +125,7 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         return namespace;
     }
 
-    public void finishAndPrepSecondaries() {
+    public void finishAndPrepAutomatedFallbacks() {
 
         //validate namespaces which may have been injected earlier by block entity factories
         if (getfileName().contains(":")) {
@@ -162,17 +133,27 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
             if (split.length == 2) {
                 assertNamespaceAndCreateDeprecatedModdedFileName(split[0], split[1]);
             }
-        } else if (!"minecraft".equals(namespace)) {
-            //create old deprecated modded directory as secondary
+        }
+
+        //create old deprecated modded directory as fallback
+        if (!"minecraft".equals(namespace)) {
             assertNamespaceAndCreateDeprecatedModdedFileName(namespace, fileName);
-        } else if (fileName.endsWith("_baby_inner_armor")) {
-            addFallbackModel("baby_inner_armor");
-        } else if (fileName.endsWith("_baby_outer_armor")) {
-            addFallbackModel("baby_outer_armor");
-        } else if (fileName.endsWith("_inner_armor")) {
-            addFallbackModel("inner_armor");
-        } else if (fileName.endsWith("_outer_armor")) {
-            addFallbackModel("outer_armor");
+        }
+
+        if(fileName.endsWith("_armor")) {
+            //armor fallbacks
+            if (fileName.endsWith("_baby_inner_armor")) {
+                addFallbackModel("baby_inner_armor");
+            } else if (fileName.endsWith("_baby_outer_armor")) {
+                addFallbackModel("baby_outer_armor");
+            }
+
+            //allow baby armor models to also fallback to the main ones
+            if (fileName.endsWith("_inner_armor")) {
+                addFallbackModel("inner_armor");
+            } else if (fileName.endsWith("_outer_armor")) {
+                addFallbackModel("outer_armor");
+            }
         }
     }
 

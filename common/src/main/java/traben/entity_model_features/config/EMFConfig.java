@@ -105,8 +105,7 @@ public class EMFConfig extends TConfig {
     #if MC < MC_21
     public boolean enforceOptiFineFloorUVs = true;
     #endif
-    public boolean legacyBabyModelScalingCompatibility = true;
-    public boolean legacyModelScalingCompatibility = true;
+
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -120,11 +119,7 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
                                         () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.double_chest_fix", "entity_model_features.config.double_chest_fix.tooltip",
-                                        () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true),
-                                new TConfigEntryBoolean("entity_model_features.config.legacy_baby", "entity_model_features.config.legacy_baby.tooltip",
-                                        () -> legacyBabyModelScalingCompatibility, value -> legacyBabyModelScalingCompatibility = value, false),
-                                new TConfigEntryBoolean("entity_model_features.config.legacy_scale", "entity_model_features.config.legacy_scale.tooltip",
-                                        () -> legacyModelScalingCompatibility, value -> legacyModelScalingCompatibility = value, false)
+                                        () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true)
                         ),
                         new TConfigEntryCategory("entity_model_features.config.player_settings").add(
                                 new TConfigEntryBoolean("entity_model_features.config.prevent_hand", "entity_model_features.config.prevent_hand.tooltip",
@@ -230,7 +225,14 @@ public class EMFConfig extends TConfig {
                     model.setWidgetBackgroundToFullWidth();
                     model.setRenderFeature(new ModelRootRenderer(layer));
                     category.add(model);
-                    var second = mapData.getNextFallbackModel();
+
+                    StringBuilder fallbacks = new StringBuilder();
+                    var fallbackData = mapData;
+                    while(fallbackData.hasFallbackModels()){
+                        fallbackData = fallbackData.getNextFallbackModel();
+                        if (fallbackData == null) break;
+                        fallbacks.append(fallbackData.getfileName()).append(".jem\n");
+                    }
 
                     model.add(new TConfigEntryBoolean("entity_model_features.config.models.enabled", "entity_model_features.config.models.enabled.tooltip",
                                     () -> !modelsNamesDisabled.contains(fileName),
@@ -251,10 +253,8 @@ public class EMFConfig extends TConfig {
                                     TConfigEntryText.fromLongOrMultilineTranslation(
                                             "<Folders>\nassets/" + mapData.getNamespace() + "/emf/cem/\n" +
                                                     "assets/" + mapData.getNamespace() + "/optifine/cem/\n\n" +
-                                                    "<possible model names, checked in order>\n" +
-                                                    mapData.getfileName() + ".jem" + (
-                                                    second == null ? "" : ("\n" + second.getfileName() + ".jem\n")
-                                            )
+                                                    "<possible model names>\n<checked from top down>\n" +
+                                                    mapData.getfileName() + ".jem\n" +  fallbacks
                                             ,
                                             600, TConfigEntryText.TextAlignment.CENTER)
                             )

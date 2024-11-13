@@ -3,11 +3,6 @@ package traben.entity_model_features.models;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.minecraft.client.model.*;
-import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.MeshTransformer;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.Contract;
@@ -38,26 +33,6 @@ public class EMFModelMappings {
     public static final Map<String, Map<String, String>> UNKNOWN_MODEL_MAP_CACHE = new HashMap<>();
     public static final Map<String, Map<String, String>> OPTIFINE_MODEL_MAP_CACHE = new HashMap<>();
     public static Map<String, String> DEFAULT_TEXTURE_MAPPINGS;
-    public static Map<ModelLayerLocation, MeshTransformer> BABY_MODEL_TRANSFORMERS = new HashMap<>();
-    public static Map<ModelLayerLocation, Float> MODEL_SCALERS = new HashMap<>();
-
-    public static class ScaleOnlyModelTransformer implements MeshTransformer {
-        private final float scale;
-
-        public ScaleOnlyModelTransformer(float scale) {
-            this.scale = scale;
-        }
-
-
-        @Override
-        public @NotNull MeshDefinition apply(final MeshDefinition meshDefinition) {
-            return meshDefinition;
-        }
-
-        public float getScale() {
-            return scale;
-        }
-    }
 
     public static final Map<String, String> genericNonPlayerBiped = Map.ofEntries(
             partMapping("head"),
@@ -69,106 +44,9 @@ public class EMFModelMappings {
             partMapping("right_leg")
     );
 
-
     static {
         initOptifineMappings();
         initDefaultTextureMappings();
-        initBabyModelTransformers();
-        initModelTransformers();
-    }
-
-    private static void initBabyModelTransformers(){
-        #if MC > MC_21
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.PIG_BABY, PigModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.PIG_BABY_SADDLE, PigModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.CAT_BABY, CatModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.CAT_BABY_COLLAR, CatModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.COW_BABY, CowModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.MOOSHROOM_BABY, CowModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ARMOR_STAND_SMALL, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ARMOR_STAND_SMALL_INNER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ARMOR_STAND_SMALL_OUTER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.AXOLOTL_BABY, new ScaleOnlyModelTransformer(0.5F));
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.BEE_BABY, new ScaleOnlyModelTransformer(0.5F));
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.CAMEL_BABY, CamelModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.CHICKEN_BABY, ChickenModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.DOLPHIN_BABY, new ScaleOnlyModelTransformer(0.5F));
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.DROWNED_BABY, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.DROWNED_BABY_INNER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.DROWNED_BABY_OUTER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.DROWNED_BABY_OUTER_LAYER, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ELYTRA_BABY, new ScaleOnlyModelTransformer(0.5F));
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.FOX_BABY, FoxModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.GLOW_SQUID_BABY, new ScaleOnlyModelTransformer(0.5F));
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.GOAT_BABY, GoatModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.HUSK_BABY, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.HUSK_BABY_INNER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.HUSK_BABY_OUTER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.LLAMA_BABY, LlamaModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.LLAMA_BABY_DECOR, LlamaModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.OCELOT_BABY, OcelotModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.PANDA_BABY, PandaModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.PIGLIN_BABY, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.PIGLIN_BABY_INNER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.PIGLIN_BABY_OUTER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.POLAR_BEAR_BABY, PolarBearModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.SHEEP_BABY, SheepModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.SHEEP_BABY_WOOL, SheepModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.SNIFFER_BABY, SnifferModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.SQUID_BABY, new ScaleOnlyModelTransformer(0.5F));
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.TRADER_LLAMA_BABY, LlamaModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.TURTLE_BABY, TurtleModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.WOLF_BABY, WolfModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.WOLF_BABY_ARMOR, WolfModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ZOMBIE_BABY, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ZOMBIE_BABY_INNER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ZOMBIE_BABY_OUTER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ZOMBIE_VILLAGER_BABY, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ZOMBIE_VILLAGER_BABY_INNER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ZOMBIE_VILLAGER_BABY_OUTER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ZOMBIFIED_PIGLIN_BABY, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ZOMBIFIED_PIGLIN_BABY_INNER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.ZOMBIFIED_PIGLIN_BABY_OUTER_ARMOR, HumanoidModel.BABY_TRANSFORMER);
-        BABY_MODEL_TRANSFORMERS.put(ModelLayers.RABBIT_BABY, new BabyModelTransform(true, 22.0F, 2.0F, 2.65F, 2.5F, 36.0F, Set.of("head", "left_ear", "right_ear", "nose")));
-
-        #endif
-    }
-
-    private static void initModelTransformers(){
-        #if MC > MC_21
-        MODEL_SCALERS.put(ModelLayers.CAT_BABY, 0.8F);
-        MODEL_SCALERS.put(ModelLayers.CAT, 0.8F);
-        MODEL_SCALERS.put(ModelLayers.CAT_BABY_COLLAR, 0.8F);
-        MODEL_SCALERS.put(ModelLayers.CAT_COLLAR, 0.8F);
-        MODEL_SCALERS.put(ModelLayers.ELDER_GUARDIAN, 2.35F);
-        MODEL_SCALERS.put(ModelLayers.GIANT, 6F);
-        MODEL_SCALERS.put(ModelLayers.GIANT_INNER_ARMOR, 6F);
-        MODEL_SCALERS.put(ModelLayers.GIANT_OUTER_ARMOR, 6F);
-        MODEL_SCALERS.put(ModelLayers.CAVE_SPIDER, 0.7F);
-        MODEL_SCALERS.put(ModelLayers.HUSK, 1.0625F);
-        MODEL_SCALERS.put(ModelLayers.HUSK_INNER_ARMOR, 1.0625F);
-        MODEL_SCALERS.put(ModelLayers.HUSK_OUTER_ARMOR, 1.0625F);
-        MODEL_SCALERS.put(ModelLayers.HUSK_BABY, 1.0625F);
-        MODEL_SCALERS.put(ModelLayers.HUSK_BABY_INNER_ARMOR, 1.0625F);
-        MODEL_SCALERS.put(ModelLayers.HUSK_BABY_OUTER_ARMOR, 1.0625F);
-        MODEL_SCALERS.put(ModelLayers.WITHER_SKELETON, 1.2F);
-        MODEL_SCALERS.put(ModelLayers.WITHER_SKELETON_INNER_ARMOR, 1.2F);
-        MODEL_SCALERS.put(ModelLayers.WITHER_SKELETON_OUTER_ARMOR, 1.2F);
-        MODEL_SCALERS.put(ModelLayers.SALMON_LARGE, 1.5F);
-        MODEL_SCALERS.put(ModelLayers.SALMON_SMALL, 0.5F);
-        MODEL_SCALERS.put(ModelLayers.GHAST, 4.5F);
-        MODEL_SCALERS.put(ModelLayers.RABBIT, 0.6F);
-
-        float villagers = 0.9375F;
-        MODEL_SCALERS.put(ModelLayers.WITCH, villagers);
-        MODEL_SCALERS.put(ModelLayers.EVOKER, villagers);
-        MODEL_SCALERS.put(ModelLayers.ILLUSIONER, villagers);
-        MODEL_SCALERS.put(ModelLayers.PILLAGER, villagers);
-        MODEL_SCALERS.put(ModelLayers.VINDICATOR, villagers);
-        MODEL_SCALERS.put(ModelLayers.VILLAGER, villagers);
-        MODEL_SCALERS.put(ModelLayers.WANDERING_TRADER, villagers);
-
-        #endif
     }
 
     private static String texture(String name){
@@ -511,7 +389,7 @@ public class EMFModelMappings {
                         partMapping("nose"),
                         partMapping("lower_beak")
                 ));
-        OptifineMapper.models("chest", "ender_chest", "trapped_chest")
+        OptifineMapper.models("chest", "ender_chest", "trapped_chest", "chest_left", "trapped_chest_left", "chest_right", "trapped_chest_right")
                 .parts(Map.ofEntries(
                         partMapping("lid"),
                         partMapping("base", "bottom"),
@@ -1055,7 +933,9 @@ public class EMFModelMappings {
                         partMapping("left"),
                         partMapping("paddle_left", "left_paddle"),
                         partMapping("paddle_right", "right_paddle"),
+                        #if MC < MC_21_2
                         partMapping("bottom_no_water", "water_patch"),//todo check
+                        #endif
 
                         partMapping("chest_base", "chest_bottom"),
                         partMapping("chest_lid"),
@@ -1138,9 +1018,12 @@ public class EMFModelMappings {
                 ));
         OptifineMapper.models("sign")
                 .parts(Map.ofEntries(
-                        partMapping("board", "root"),//todo check
-                        //getOptifineMapEntry("EMPTY","sign"),//todo check
+                        partMapping("board", "root"),
                         partMapping("stick")
+                ));
+        OptifineMapper.models("wall_sign")
+                .parts(Map.ofEntries(
+                        partMapping("board", "root")
                 ));
         OptifineMapper.models("trident")
                 .parts(Map.ofEntries(partMapping("body", "pole")));
@@ -1290,10 +1173,20 @@ public class EMFModelMappings {
                 new HashMap<>(genericNonPlayerBiped) {{
                     put("mushrooms","mushrooms");//todo
                 }});
-        OptifineMapper.models("spectral_arrow", "arrow", "bee_stinger")
-                .parts(Map.ofEntries(partMapping("body", "root")));//todo
+        OptifineMapper.models("spectral_arrow", "arrow")
+                .parts(Map.ofEntries(
+                        partMapping("back"),
+                        partMapping("cross_1"),
+                        partMapping("cross_2")
+                ));
+        OptifineMapper.models( "bee_stinger")
+                .parts(Map.ofEntries(
+                        partMapping("cross_1"),
+                        partMapping("cross_2")
+                ));
+
         OptifineMapper.models("boat_water_patch")
-                .parts(Map.ofEntries(partMapping("bottom_no_water", "water_patch")));//todo check
+                .parts(Map.ofEntries(partMapping("water_patch", "water_patch")));//todo check
 
         #endif
     }

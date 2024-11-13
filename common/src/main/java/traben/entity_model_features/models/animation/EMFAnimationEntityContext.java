@@ -600,7 +600,7 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getId() {
-        return IEMFEntity == null ? 0 : IEMFEntity.etf$getOptifineId();
+        return IEMFEntity == null ? 0 : Math.abs(IEMFEntity.etf$getOptifineId()) % 720720 ;
     }
 
     public static float getHurtTime() {

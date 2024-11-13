@@ -18,31 +18,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     final boolean isOptiFinePartSpecified;
     final Set<Integer> hideInTheseStates = new HashSet<>();
 
-    public void setLegacyScaleModifier(final float legacyScaleModifier) {
-        this.legacyScaleModifier = legacyScaleModifier;
-    }
-
-    private float legacyScaleModifier = 1F;
-
-    @Override
-    public void translateAndRotate(final PoseStack poseStack) {
-        //wrap modify the values to allow usage of the vanilla method at the end
-        if (legacyScaleModifier == 1F) {
-            super.translateAndRotate(poseStack);
-        } else {
-            float[] scales = new float[]{xScale, yScale, zScale};
-            xScale *= legacyScaleModifier;
-            yScale *= legacyScaleModifier;
-            zScale *= legacyScaleModifier;
-            super.translateAndRotate(poseStack);
-            xScale = scales[0];
-            yScale = scales[1];
-            zScale = scales[2];
-        }
-    }
-
-
-
     public EMFModelPartVanilla(String name,
                                ModelPart vanillaPart,
                                Collection<String> optifinePartNames,
