@@ -20,6 +20,7 @@ import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.EMFModel_ID;
+import traben.entity_model_features.utils.IEMFUnmodifiedLayerRootGetter;
 import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.config.ETFConfig;
 import traben.tconfig.TConfig;
@@ -272,13 +273,18 @@ public class EMFConfig extends TConfig {
         TConfigEntry export;
         try {
             Objects.requireNonNull(key.getMapId());
-            Objects.requireNonNull(Minecraft.getInstance().getEntityModels().roots.get(layer));
+//            Objects.requireNonNull(((IEMFUnmodifiedLayerRootGetter)Minecraft.getInstance().getEntityModels())
+//                    .emf$getUnmodifiedRoots().get(layer));
             export = new TConfigEntryCustomButton("entity_model_features.config.models.export", "entity_model_features.config.models.export.tooltip", (button) -> {
                 var old = modelExportMode;
                 modelExportMode = ModelPrintMode.ALL_LOG_AND_JEM;
                 try {
-                    EMFModelMappings.getMapOf(key.getMapId(),
-                            Minecraft.getInstance().getEntityModels().roots.get(layer).bakeRoot(),
+                    EMFModelMappings.getMapOf(key,
+                            Objects.requireNonNullElseGet(
+                                    ((IEMFUnmodifiedLayerRootGetter)Minecraft.getInstance().getEntityModels())
+                                            .emf$getUnmodifiedRoots().get(layer),
+                                    () -> Minecraft.getInstance().getEntityModels().roots.get(layer)
+                            ).bakeRoot(),
                             false);
                 } catch (Exception e) {
                     //noinspection CallToPrintStackTrace

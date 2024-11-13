@@ -26,6 +26,7 @@ public class EMF {
     public static final String MOD_ID = "entity_model_features";
     public static boolean forgeHadLoadingError = false;
     public static boolean testedForge = !EMFVersionDifferenceManager.isForge();
+    public static boolean tempDisableModelModifications = false;
 
     private static TConfigHandler<EMFConfig> configHandler = null;
 

@@ -44,6 +44,11 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     }
 
+    public ModelPart[] getAllEMFCustomChildren() {
+        return children.values().stream()
+                .filter(part -> part instanceof EMFModelPartCustom)
+                .toArray(ModelPart[]::new);
+    }
 
 
     @Override

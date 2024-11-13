@@ -128,7 +128,7 @@
 # slime_outer              body
 # sniffer                  body, back_left_leg, back_right_leg, middle_left_leg, middle_right_leg, front_left_leg, front_right_leg, head, left_ear, right_ear, nose, lower_beak
 # snow_golem               body, body_bottom, head, right_hand, left_hand
-# spectral_arrow           body, back, cross_1, cross_2
+# spectral_arrow           body, back, cross_1, cross_2 <fallback to arrow>
 # spider                   body, head, neck, leg1 ... leg4, leg5, leg6, leg7, leg8
 # squid                    body, tentacle1 ... tentacle8
 # stray                    body, head, headwear, left_arm, right_arm, left_leg, right_leg
@@ -200,7 +200,6 @@
 # sheep_baby               <fallback to sheep>
 # sheep_baby_wool          <fallback to sheep_wool>
 # skeleton_horse_baby      <fallback to skeleton_horse>
-# sniffer_baby             <fallback to sniffer>
 # squid_baby               <fallback to squid>
 # trader_llama_baby        <fallback to trader_llama>
 # trader_llama_baby_decor  <fallback to trader_llama_decor>

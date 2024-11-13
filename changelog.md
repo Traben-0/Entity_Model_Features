@@ -9,11 +9,12 @@
   - bogged - same as skeleton + "mushrooms" part
   - bogged_outer - same as stray_outer
   - armadillo - see in-game model settings screen for parts list
-  - end-crystal - "inner_glass" and "outer_glass" replacing "glass"
+  - end_crystal - "inner_glass" and "outer_glass" replacing "glass"
   - arrow - "back, cross_1, cross_2"
   - spectral_arrow - "back, cross_1, cross_2"
   - bee_stinger - "cross_1, cross_2"
   - player_cape - "cape"
+  - player_ears - "left_ear" and "right_ear"
   - player_slim - will now fallback to player.jem if not present
   - salmon_large - falls back to "salmon"
   - salmon_small - falls back to "salmon"

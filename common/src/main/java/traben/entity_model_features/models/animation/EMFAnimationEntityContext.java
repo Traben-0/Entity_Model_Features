@@ -334,7 +334,7 @@ public final class EMFAnimationEntityContext {
                 if(second != null){
                     model.append(entryAndValue("possible secondary .jem name", second.getDisplayFileName()));
                 }
-                Map<String, String> map = EMFModelMappings.getMapOf(data.getMapId(), null);
+                Map<String, String> map = EMFModelMappings.getMapOf(data, null);
                 if (!map.isEmpty()) {
                     EMFUtils.chat(model + "\n§6 - part names:§r printed in game log only.");
                     StringBuilder parts = new StringBuilder();

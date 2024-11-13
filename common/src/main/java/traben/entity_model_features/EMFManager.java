@@ -236,6 +236,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             }
 
             boolean modded;
+            boolean isBaby = false;
 
             //add simple modded layer checks
             if (!"minecraft".equals(layer. #if MC > MC_21 model() #else getModel() #endif .getNamespace())) {
@@ -246,13 +247,25 @@ public class EMFManager {//singleton for data holding and resetting needs
             } else {
                 modded = false;
 
+                //wolf_baby_collar
 
                 #if MC > MC_21
                 if (mobNameForFileAndMap.getfileName().matches(".*_baby($|_\\w*)")) {
                     String adultName = mobNameForFileAndMap.getfileName().replaceFirst("_baby", "");
-                    mobNameForFileAndMap.addFallbackModel(adultName);//legacyBabyModelScaler);
+                    mobNameForFileAndMap.addFallbackModel(adultName);
+                    isBaby = true;
                 }
+                //wolf_baby_collar, wolf_collar
                 #endif
+                if (mobNameForFileAndMap.getfileName().matches(".*_collar($|_\\w*)")) {
+                    String baseName = mobNameForFileAndMap.getfileName().replaceFirst("_collar", "");
+                    mobNameForFileAndMap.addFallbackModel(baseName);
+                    //wolf_baby_collar, wolf_collar, wolf_baby
+                    if (isBaby) {
+                        mobNameForFileAndMap.addFallbackModel(baseName.replaceFirst("_baby", ""));
+                    }
+                    //wolf_baby_collar, wolf_collar, wolf_baby, wolf
+                }
 
                 //vanilla model
                 switch (originalLayerName) {
@@ -297,6 +310,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                     case "piglin_head" -> mobNameForFileAndMap.setBoth("head_piglin");
                     case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
                     case "player_slim" -> mobNameForFileAndMap.addFallbackModel("player");
+                    case "spectral_arrow" -> mobNameForFileAndMap.addFallbackModel("arrow");
                     case "boat_water_patch" -> {
                         if (currentSpecifiedModelLoading.startsWith("emf$boat$")) {
                             String type = currentSpecifiedModelLoading.substring(9);
@@ -382,8 +396,11 @@ public class EMFManager {//singleton for data holding and resetting needs
             mobNameForFileAndMap.finishAndPrepAutomatedFallbacks();
 
             //cache the layers for the model
-            cache_LayersByModelName.put(mobNameForFileAndMap, layer);
-            mobNameForFileAndMap.forEachFallback((fallBack) -> cache_LayersByModelName.putIfAbsent(fallBack, layer));
+//            if(!isBaby) {
+                cache_LayersByModelName.put(mobNameForFileAndMap, layer);
+                mobNameForFileAndMap.forEachFallback((fallBack) -> cache_LayersByModelName.put(fallBack, layer));
+//            }
+
 
             ///jem name and fallbacks are final and correct from here
 
@@ -397,7 +414,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             }
 
             //construct simple map for modded or unknown entities
-            Map<String, String> optifinePartNameMap = EMFModelMappings.getMapOf(mobNameForFileAndMap.getMapId(), root);
+            Map<String, String> optifinePartNameMap = EMFModelMappings.getMapOf(mobNameForFileAndMap, root);
 
             if (printing)
                 EMFUtils.log(" >> EMF trying to find model: " + mobNameForFileAndMap.getNamespace() + ":optifine/cem/" + mobNameForFileAndMap + ".jem");
@@ -533,7 +550,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
         allPartsBySingleAndFullHeirachicalId.put("root", emfRootPart);
-        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFModelMappings.getMapOf(emfRootPart.modelName.getMapId(), null)));
+        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFModelMappings.getMapOf(emfRootPart.modelName, null)));
 
         Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
 

@@ -35,6 +35,8 @@ public class EMFBoxData {
     //emf only
     public float sizeAddZ = 0.0f;
 
+    public float[] sizesAdd = {};
+
     public void prepare(boolean invertX, boolean invertY, boolean invertZ) {
         try {
 
@@ -42,6 +44,11 @@ public class EMFBoxData {
                 sizeAddX = sizeAdd;
                 sizeAddY = sizeAdd;
                 sizeAddZ = sizeAdd;
+            }
+            if (sizesAdd.length == 3) {
+                sizeAddX = sizesAdd[0];
+                sizeAddY = sizesAdd[1];
+                sizeAddZ = sizesAdd[2];
             }
 
             //then invert?

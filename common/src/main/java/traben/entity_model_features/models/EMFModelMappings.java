@@ -3,12 +3,14 @@ package traben.entity_model_features.models;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
 
@@ -26,6 +28,7 @@ import traben.entity_model_features.models.jem_objects.export.EMFPartPrinter;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.IEMFCuboidDataSupplier;
 import traben.entity_model_features.utils.IEMFTextureSizeSupplier;
+import traben.entity_model_features.utils.IEMFUnmodifiedLayerRootGetter;
 
 public class EMFModelMappings {
 
@@ -1157,12 +1160,13 @@ public class EMFModelMappings {
         return new MutablePair<>(optifineName, vanillaName);
     }
 
-    public static Map<String, String> getMapOf(String mobName, @Nullable ModelPart root) {
-        return getMapOf(mobName, root, true);
+    public static Map<String, String> getMapOf(EMFModel_ID mobId, @Nullable ModelPart root) {
+        return getMapOf(mobId, root, true);
     }
 
-    public static Map<String, String> getMapOf(@NotNull String mobName, @Nullable ModelPart root, boolean exportOnlyFirstTime) {
+    public static Map<String, String> getMapOf(@NotNull EMFModel_ID mobId, @Nullable ModelPart root, boolean exportOnlyFirstTime) {
 
+        String mobName = mobId.getMapId();
         if (mobName.matches(".*_baby($|_.*)") && !mobName.contains(":")){
             mobName = mobName.replaceFirst("_baby","");
         }
@@ -1174,26 +1178,27 @@ public class EMFModelMappings {
             knownMap = getKnownMap(mobName);
         }
         if (knownMap == null) {
-            return root == null ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null, exportOnlyFirstTime);
+            return root == null ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, exportOnlyFirstTime);
         }
         //trigger the export of the known model if we are exporting all
         if (EMF.config().getConfig().modelExportMode.doesAll()) {
-            exportKnown(mobName, root, knownMap, exportOnlyFirstTime);
+            exportKnown(mobId, root, knownMap, exportOnlyFirstTime);
         }
 
         return knownMap;
     }
 
-    private static void exportKnown(final String mobName, final @Nullable ModelPart root, final Map<String, String> knownMap, boolean exportOnlyFirstTime) {
+    private static void exportKnown(final EMFModel_ID mobId, final @Nullable ModelPart root, final Map<String, String> knownMap, boolean exportOnlyFirstTime) {
+        String mobName = mobId.getfileName();
         EMFUtils.log("Exporting/logging  model for " + mobName + " that has known OptiFine part names:");
-        exploreProvidedEntityModelAndExportIfNeeded(root, mobName, knownMap, exportOnlyFirstTime);
+        exploreProvidedEntityModelAndExportIfNeeded(root, mobId, knownMap, exportOnlyFirstTime);
         //also print out the model with its actual values in case a mod has added something
         EMFUtils.log("Additionally exporting/logging model for " + mobName + " again as though it did not have known OptiFine part names:\nThis might highlight some vanilla, or mod added, parts that are not usually exposed by OptiFine");
 
         var old = EMF.config().getConfig().modelExportMode;
         EMF.config().getConfig().modelExportMode = EMFConfig.ModelPrintMode.ALL_LOG_ONLY;
         try {
-            exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null, exportOnlyFirstTime);
+            exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, exportOnlyFirstTime);
         } catch (Exception e) {
             EMFUtils.logError("Error while exporting model for " + mobName + " again as though it did not have known OptiFine part names:");
             //noinspection CallToPrintStackTrace
@@ -1211,9 +1216,22 @@ public class EMFModelMappings {
 
     //
     //this would make a usable mapping of the given model but with no part name changing as it would not be optifine customized
-    public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, String mobName, @Nullable Map<String, String> mobMap, boolean exportOnlyFirstTime) {
-        if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName) && exportOnlyFirstTime)
-            return UNKNOWN_MODEL_MAP_CACHE.get(mobName);
+    public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, EMFModel_ID mobId, @Nullable Map<String, String> mobMap, boolean exportOnlyFirstTime) {
+        String id = mobId.getDisplayFileName();
+        if (UNKNOWN_MODEL_MAP_CACHE.containsKey(id) && exportOnlyFirstTime)
+            return UNKNOWN_MODEL_MAP_CACHE.get(id);
+
+        //find unmodified model
+        var layer = EMFManager.getInstance().cache_LayersByModelName.get(mobId);
+        if(layer != null){
+            var unModifiedModel = ((IEMFUnmodifiedLayerRootGetter) Minecraft.getInstance().getEntityModels())
+                    .emf$getUnmodifiedRoots().get(layer);
+            if (unModifiedModel != null) {
+                originalModel = unModifiedModel.bakeRoot();
+            }
+        }
+
+
 
         if (originalModel == null) {
             EMFUtils.logError("model part was null and not already mapped in exploreProvidedEntityModel() EMF");
@@ -1228,12 +1246,12 @@ public class EMFModelMappings {
             mapThisAndChildren("root", originalModel, mobMap, detailsMap);
         }
         //cache result;
-        UNKNOWN_MODEL_MAP_CACHE.put(mobName, mobMap);
+        UNKNOWN_MODEL_MAP_CACHE.put(id, mobMap);
         if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
             StringBuilder mapString = new StringBuilder();
 
-            String namespace = mobName.contains(":") ? mobName.split(":")[0] : "minecraft";
-            String fileName = mobName.contains(":") ? mobName.split(":")[1] : mobName;
+            String namespace = mobId.namespace;
+            String fileName = mobId.getfileName();
 
             mapString.append(" |-[assets/").append(namespace).append("/optifine/cem/").append(fileName).append(".jem]\n");
             mobMap.forEach((key, entry) -> {
@@ -1243,13 +1261,13 @@ public class EMFModelMappings {
             mapString.append("  \\-\\{{end of model}}");
 
             if (known) {
-                EMFUtils.log("OptiFine specified model detected, Mapping now...\n" + mapString);
+                EMFUtils.log("Known model detected, Mapping now...\n" + mapString);
             } else {
-                EMFUtils.log("Unknown possibly modded model detected, Mapping now...\n" + mapString);
+                EMFUtils.log("Unknown (possibly modded) model detected, Mapping now...\n" + mapString);
             }
 
             if (EMF.config().getConfig().modelExportMode.doesJems()) {
-                EMFUtils.log("creating example .jem file for " + mobName);
+                EMFUtils.log("creating example .jem file for " + fileName);
                 EMFJemPrinter jemPrinter = new EMFJemPrinter();
                 int[] textureSize = null;
                 for (Map.Entry<String, String> entry :
