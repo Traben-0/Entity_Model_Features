@@ -21,6 +21,9 @@
     "accessor.CuboidAccessor",
     "accessor.EntityRenderDispatcherAccessor",
     "accessor.MinecraftClientAccessor",
+    "exporting.MixinBabyModelTransform",
+    "exporting.MixinEntityModelSet",
+    "exporting.MixinMeshTransformer",
     "rendering.MixinBannerRenderer",
     "rendering.MixinBlockEntityRenderDispatcher",
     "rendering.MixinBlockEntityWithoutLevelRenderer",
@@ -39,6 +42,7 @@
     "rendering.feature.MixinHeadFeatureRenderer",
     "rendering.feature.MixinHeldItemFeatureRenderer",
     "rendering.feature.MixinSlimeOverlayFeatureRenderer",
+    "rendering.model.MixinArmadilloModel",
     "rendering.model.MixinDragonModel",
     "rendering.model.MixinVillagerModel",
     "rendering.model.MixinWolfEntityModel"

@@ -44,6 +44,13 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
 
     }
 
+    public ModelPart[] getAllEMFCustomChildren() {
+        return children.values().stream()
+                .filter(part -> part instanceof EMFModelPartCustom)
+                .toArray(ModelPart[]::new);
+    }
+
+
     @Override
     protected float[] debugBoxColor() {
         return new float[]{0, 1f, 0};
@@ -52,8 +59,17 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     @Override
     public void render(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
         //ignore non optifine specified parts when not vanilla variant
-        if (!hideInTheseStates.contains(currentModelVariant))
-            super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+        if (!hideInTheseStates.contains(currentModelVariant)){
+//            if (legacyScaler == null) {
+                super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+//            }else{
+//                matrices.pushPose();
+//                legacyScaler.accept(matrices);
+//                super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
+//                matrices.popPose();
+//            }
+
+        }
     }
 
     public void setHideInTheseStates(int variant) {

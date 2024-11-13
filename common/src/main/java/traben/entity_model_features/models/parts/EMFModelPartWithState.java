@@ -61,7 +61,9 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
                 getInitialPose(),
                 cubes,
                 children,
+                #if MC < MC_21_2
                 xScale, yScale, zScale,
+                #endif
                 visible, skipDraw,
                 textureOverride, animationHolder
         );
@@ -73,7 +75,9 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
                     modelPart.getInitialPose(),
                     modelPart.cubes,
                     modelPart.children,
+                    #if MC < MC_21_2
                     modelPart.xScale, modelPart.yScale, modelPart.zScale,
+                    #endif
                     modelPart.visible, modelPart.skipDraw,
                     emf.textureOverride, emf.animationHolder
             );
@@ -82,7 +86,9 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
                 modelPart.getInitialPose(),
                 modelPart.cubes,
                 new HashMap<>(),
+                #if MC < MC_21_2
                 modelPart.xScale, modelPart.yScale, modelPart.zScale,
+                #endif
                 modelPart.visible, modelPart.skipDraw,
                 null, new Animator()
         );
@@ -95,9 +101,12 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         cubes = newState.cuboids();
         children = newState.variantChildren();
 
+        #if MC < MC_21_2
         xScale = newState.xScale();
         yScale = newState.yScale();
         zScale = newState.zScale();
+        #endif
+
         visible = newState.visible();
         skipDraw = newState.hidden();
         textureOverride = newState.texture();
@@ -120,34 +129,53 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         }
     }
 
-    public record EMFModelState(
-            PartPose defaultTransform,
-            // ModelTransform currentTransform,
-            List<Cube> cuboids,
-            Map<String, ModelPart> variantChildren,
-            float xScale,
-            float yScale,
-            float zScale,
-            boolean visible,
-            boolean hidden,
-            ResourceLocation texture,
-            Animator animation
-    ) {
+    public record
+            #if MC < MC_21_2
+            EMFModelState(
+                PartPose defaultTransform,
+                // ModelTransform currentTransform,
+                List<Cube> cuboids,
+                Map<String, ModelPart> variantChildren,
+                float xScale,
+                float yScale,
+                float zScale,
+                boolean visible,
+                boolean hidden,
+                ResourceLocation texture,
+                Animator animation
+            )
+            #else
+            EMFModelState(
+                PartPose defaultTransform,
+                // ModelTransform currentTransform,
+                List<Cube> cuboids,
+                Map<String, ModelPart> variantChildren,
+                boolean visible,
+                boolean hidden,
+                ResourceLocation texture,
+                Animator animation
+            )
+            #endif
+
+     {
         public static EMFModelState copy(EMFModelState copyFrom) {
             PartPose trans = copyFrom.defaultTransform();
             Animator animator = new Animator();
             animator.setAnimation(copyFrom.animation().getAnimation());
             return new EMFModelState(
                     #if MC > MC_21
-                    PartPose.offsetAndRotation(trans.x(), trans.y(), trans.z(), trans.xRot(), trans.yRot(), trans.zRot()),
+                    new PartPose(trans.x(), trans.y(), trans.z(), trans.xRot(), trans.yRot(), trans.zRot(), trans.xScale(), trans.yScale(), trans.zScale()),
                     #else
                     PartPose.offsetAndRotation(trans.x, trans.y, trans.z, trans.xRot, trans.yRot, trans.zRot),
                     #endif
                     new ArrayList<>(copyFrom.cuboids()),
                     new HashMap<>(copyFrom.variantChildren()),
+                    #if MC < MC_21_2
                     copyFrom.xScale(),
                     copyFrom.yScale(),
                     copyFrom.zScale(),
+                    #endif
+
                     copyFrom.visible(),
                     copyFrom.hidden(),
                     copyFrom.texture(),

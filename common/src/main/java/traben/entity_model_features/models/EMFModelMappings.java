@@ -3,12 +3,14 @@ package traben.entity_model_features.models;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.EMFVersionDifferenceManager;
 import traben.entity_model_features.config.EMFConfig;
 
@@ -26,6 +28,7 @@ import traben.entity_model_features.models.jem_objects.export.EMFPartPrinter;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.IEMFCuboidDataSupplier;
 import traben.entity_model_features.utils.IEMFTextureSizeSupplier;
+import traben.entity_model_features.utils.IEMFUnmodifiedLayerRootGetter;
 
 public class EMFModelMappings {
 
@@ -42,7 +45,6 @@ public class EMFModelMappings {
             partMapping("left_leg"),
             partMapping("right_leg")
     );
-
 
     static {
         initOptifineMappings();
@@ -178,11 +180,13 @@ public class EMFModelMappings {
                   partMapping("back_left_leg", "left_hind_leg"),
                   partMapping("back_right_leg", "right_hind_leg"),
                   partMapping("front_left_leg", "left_front_leg"),
-                  partMapping("front_right_leg", "right_front_leg"),
-                  partMapping("child_back_left_leg", "left_hind_baby_leg"),
+                  partMapping("front_right_leg", "right_front_leg")
+                  #if MC < MC_21_2
+                  ,partMapping("child_back_left_leg", "left_hind_baby_leg"),
                   partMapping("child_back_right_leg", "right_hind_baby_leg"),
                   partMapping("child_front_left_leg", "left_front_baby_leg"),
                   partMapping("child_front_right_leg", "right_front_baby_leg")
+                  #endif
           );
         var genericPlayerBiped = Map.ofEntries(
                 partMapping("head"),
@@ -242,8 +246,7 @@ public class EMFModelMappings {
                         partMapping("arms"),
                         partMapping("right_leg"),
                         partMapping("left_leg"),
-                        partMapping("nose"),
-                        partMapping("root")));
+                        partMapping("nose")));
         OptifineMapper.models("iron_golem")
                 .parts(Map.ofEntries(
                         partMapping("head"),
@@ -251,8 +254,7 @@ public class EMFModelMappings {
                         partMapping("left_arm"),
                         partMapping("right_arm"),
                         partMapping("left_leg"),
-                        partMapping("right_leg"),
-                        partMapping("root")));
+                        partMapping("right_leg")));
         OptifineMapper.models("spider", "cave_spider")
                 .parts(Map.ofEntries(
                         partMapping("head"),
@@ -265,15 +267,12 @@ public class EMFModelMappings {
                         partMapping("leg5", "right_middle_front_leg"),
                         partMapping("leg6", "left_middle_front_leg"),
                         partMapping("leg7", "right_front_leg"),
-                        partMapping("leg8", "left_front_leg"),
-                        partMapping("root")));
+                        partMapping("leg8", "left_front_leg")));
         OptifineMapper.models("sheep", "cow", "mooshroom", "panda", "pig", "pig_saddle", "polar_bear", "sheep_wool")
                 .parts(genericQuadraped);
-        OptifineMapper.models("creeper", "creeper_charge").parts(
-                new HashMap<>(genericQuadraped) {{
-                    put("root", "root");
-                }});
-        OptifineMapper.models("inner_armor","outer_armor","zombie", "husk", "drowned", "drowned_outer", "enderman", "giant", "skeleton", "stray", "stray_outer", "wither_skeleton", "zombie_pigman")
+        OptifineMapper.models("creeper", "creeper_charge")
+                .parts(genericQuadraped);
+        OptifineMapper.models("inner_armor","outer_armor","zombie", "husk", "drowned", "drowned_outer", "enderman", "giant", "skeleton", "stray", "stray_outer", "wither_skeleton", "zombie_pigman", "bogged_outer")
                 .parts(genericNonPlayerBiped);
         OptifineMapper.models("piglin", "piglin_brute", "zombified_piglin")
                 .parts(genericPiglinBiped);
@@ -284,8 +283,7 @@ public class EMFModelMappings {
                                 partMapping("left_arm"),
                                 partMapping("right_arm"),
                                 partMapping("left_wing"),
-                                partMapping("right_wing"),
-                                partMapping("root")
+                                partMapping("right_wing")
                         ));
         OptifineMapper.models("squid", "glow_squid")
                 .parts(Map.ofEntries(
@@ -297,8 +295,7 @@ public class EMFModelMappings {
                         partMapping("tentacle5", "tentacle4"),
                         partMapping("tentacle6", "tentacle5"),
                         partMapping("tentacle7", "tentacle6"),
-                        partMapping("tentacle8", "tentacle7"),
-                        partMapping("root")
+                        partMapping("tentacle8", "tentacle7")
                 ));
         OptifineMapper.models("ghast")
                 .parts(Map.ofEntries(
@@ -311,8 +308,7 @@ public class EMFModelMappings {
                         partMapping("tentacle6", "tentacle5"),
                         partMapping("tentacle7", "tentacle6"),
                         partMapping("tentacle8", "tentacle7"),
-                        partMapping("tentacle9", "tentacle8"),
-                        partMapping("root")
+                        partMapping("tentacle9", "tentacle8")
                 ));
         OptifineMapper.models("wolf", "wolf_collar", "wolf_armor")
                 .parts(Map.ofEntries(
@@ -327,31 +323,26 @@ public class EMFModelMappings {
                 ));
         OptifineMapper.models("shulker_bullet")
                 .parts(Map.ofEntries(
-                        partMapping("bullet", "main"),
-                        partMapping("root")
+                        partMapping("bullet", "main")
                 ));
         OptifineMapper.models("llama_spit")
                 .parts(Map.ofEntries(
-                        partMapping("body", "main"),
-                        partMapping("root")
+                        partMapping("body", "main")
                 ));
         OptifineMapper.models("wither_skull", "head_zombie", "head_wither_skeleton", "head_skeleton", "head_player", "head_creeper")
                 .parts(Map.ofEntries(
-                                partMapping("head"),
-                                partMapping("root")
+                                partMapping("head")
                 ));
         OptifineMapper.models("head_piglin")
                 .parts(Map.ofEntries(
                         partMapping("head"),
                         partMapping("left_ear"),
-                        partMapping("right_ear"),
-                        partMapping("root")
+                        partMapping("right_ear")
                 ));
         OptifineMapper.models("head_dragon")
                 .parts(Map.ofEntries(
                         partMapping("head"),
-                        partMapping("jaw"),
-                        partMapping("root")
+                        partMapping("jaw")
                 ));
         OptifineMapper.models("camel")
                 .parts(Map.ofEntries(
@@ -367,12 +358,10 @@ public class EMFModelMappings {
                         partMapping("front_right_leg", "right_front_leg"),
                         partMapping("saddle"),
                         partMapping("reins"),
-                        partMapping("bridle"),
-                        partMapping("root")
+                        partMapping("bridle")
                 ));
         OptifineMapper.models("sniffer")
                 .parts(Map.ofEntries(
-                        partMapping("root"),
                         partMapping("bone"),
                         partMapping("body"),
                         partMapping("front_right_leg", "right_front_leg"),
@@ -387,7 +376,7 @@ public class EMFModelMappings {
                         partMapping("nose"),
                         partMapping("lower_beak")
                 ));
-        OptifineMapper.models("chest", "ender_chest", "trapped_chest")
+        OptifineMapper.models("chest", "ender_chest", "trapped_chest", "chest_left", "trapped_chest_left", "chest_right", "trapped_chest_right")
                 .parts(Map.ofEntries(
                         partMapping("lid"),
                         partMapping("base", "bottom"),
@@ -435,8 +424,7 @@ public class EMFModelMappings {
                         partMapping("left_arm"),
                         partMapping("right_arm"),
                         partMapping("left_leg"),
-                        partMapping("right_leg"),
-                        partMapping("root")
+                        partMapping("right_leg")
                 ));
         OptifineMapper.models("llama", "llama_decor", "trader_llama", "trader_llama_decor")
                 .parts(genericLlama);
@@ -471,8 +459,7 @@ public class EMFModelMappings {
                         partMapping("outer_right_wing", "right_wing_tip"),
                         partMapping("outer_left_wing", "left_wing_tip"),
                         //feet added to new bat
-                        partMapping("feet"),
-                        partMapping("root")
+                        partMapping("feet")
                 ));
         OptifineMapper.models("bee")
                 .parts(Map.ofEntries(
@@ -501,8 +488,7 @@ public class EMFModelMappings {
                         partMapping("stick9", "part8"),
                         partMapping("stick10", "part9"),
                         partMapping("stick11", "part10"),
-                        partMapping("stick12", "part11"),
-                        partMapping("root")
+                        partMapping("stick12", "part11")
                 ));
         OptifineMapper.models("cat", "cat_collar", "ocelot")
                 .parts(Map.ofEntries(
@@ -534,8 +520,7 @@ public class EMFModelMappings {
                         partMapping("tail", "tail_fin"),
                         partMapping("fin_right", "right_fin"),
                         partMapping("fin_left", "left_fin"),
-                        partMapping("fin_back", "top_fin"),
-                        partMapping("root")
+                        partMapping("fin_back", "top_fin")
                 ));
         OptifineMapper.models("dolphin")
                 .parts(Map.ofEntries(
@@ -545,8 +530,7 @@ public class EMFModelMappings {
                         partMapping("head"),
                         partMapping("right_fin"),
                         partMapping("left_fin"),
-                        partMapping("back_fin"),
-                        partMapping("root")
+                        partMapping("back_fin")
                 ));
         OptifineMapper.models("elder_guardian", "guardian")
                 .parts(Map.ofEntries(
@@ -568,23 +552,20 @@ public class EMFModelMappings {
                         partMapping("spine9", "spike8"),
                         partMapping("spine10", "spike9"),
                         partMapping("spine11", "spike10"),
-                        partMapping("spine12", "spike11"),
-                        partMapping("root")
+                        partMapping("spine12", "spike11")
                 ));
         OptifineMapper.models("endermite")
                 .parts(Map.ofEntries(
                         partMapping("body1", "segment0"),
                         partMapping("body2", "segment1"),
                         partMapping("body3", "segment2"),
-                        partMapping("body4", "segment3"),
-                        partMapping("root")
+                        partMapping("body4", "segment3")
                 ));
         OptifineMapper.models("evoker_fangs")
                 .parts(Map.ofEntries(
                         partMapping("base"),
                         partMapping("upper_jaw"),
-                        partMapping("lower_jaw"),
-                        partMapping("root")
+                        partMapping("lower_jaw")
                 ));
         OptifineMapper.models("fox")
                 .parts(Map.ofEntries(
@@ -606,8 +587,7 @@ public class EMFModelMappings {
                         partMapping("left_arm"),
                         partMapping("right_arm"),
                         partMapping("tongue"),
-                        partMapping("eyes"),
-                        partMapping("root")
+                        partMapping("eyes")
                 ));
         OptifineMapper.models("goat")
                 .parts(Map.ofEntries(
@@ -643,8 +623,7 @@ public class EMFModelMappings {
                         partMapping("segment5", "cube4"),
                         partMapping("segment6", "cube5"),
                         partMapping("segment7", "cube6"),
-                        partMapping("segment8", "cube7"),
-                        partMapping("root")
+                        partMapping("segment8", "cube7")
                 ));
         OptifineMapper.models("phantom")
                 .parts(Map.ofEntries(
@@ -655,8 +634,7 @@ public class EMFModelMappings {
                         partMapping("left_wing", "left_wing_base"),
                         partMapping("right_wing", "right_wing_base"),
                         partMapping("left_wing_tip"),
-                        partMapping("right_wing_tip"),
-                        partMapping("root")
+                        partMapping("right_wing_tip")
                 ));
         OptifineMapper.models("parrot")
                 .parts(Map.ofEntries(
@@ -666,8 +644,7 @@ public class EMFModelMappings {
                         partMapping("left_wing"),
                         partMapping("right_wing"),
                         partMapping("left_leg"),
-                        partMapping("right_leg"),
-                        partMapping("root")
+                        partMapping("right_leg")
                 ));
         OptifineMapper.models("puffer_fish_big")
                 .parts(Map.ofEntries(
@@ -683,8 +660,7 @@ public class EMFModelMappings {
                         partMapping("spikes_middle_bottom", "bottom_middle_fin"),
                         partMapping("spikes_back_bottom", "bottom_back_fin"),
                         partMapping("spikes_back_right", "right_back_fin"),
-                        partMapping("spikes_back_left", "left_back_fin"),
-                        partMapping("root")
+                        partMapping("spikes_back_left", "left_back_fin")
                 ));
         OptifineMapper.models("puffer_fish_medium")
                 .parts(Map.ofEntries(
@@ -698,8 +674,7 @@ public class EMFModelMappings {
                         partMapping("spikes_front_bottom", "bottom_front_fin"),
                         partMapping("spikes_back_bottom", "bottom_back_fin"),
                         partMapping("spikes_back_right", "right_back_fin"),
-                        partMapping("spikes_back_left", "left_back_fin"),
-                        partMapping("root")
+                        partMapping("spikes_back_left", "left_back_fin")
                 ));
         OptifineMapper.models("puffer_fish_small")
                 .parts(Map.ofEntries(
@@ -708,8 +683,7 @@ public class EMFModelMappings {
                         partMapping("fin_left", "left_fin"),
                         partMapping("eye_right", "right_eye"),
                         partMapping("eye_left", "left_eye"),
-                        partMapping("tail", "back_fin"),
-                        partMapping("root")
+                        partMapping("tail", "back_fin")
                 ));
         OptifineMapper.models("rabbit")
                 .parts(Map.ofEntries(
@@ -735,8 +709,7 @@ public class EMFModelMappings {
                         partMapping("leg3", "right_front_leg"),
                         partMapping("leg4", "left_front_leg"),
                         partMapping("jaw", "mouth"),
-                        partMapping("neck"),
-                        partMapping("root")
+                        partMapping("neck")
                 ));
         OptifineMapper.models("salmon", "salmon_large", "salmon_small")
                 .parts(Map.ofEntries(
@@ -747,8 +720,7 @@ public class EMFModelMappings {
                         partMapping("fin_back_2", "top_back_fin"),
                         partMapping("tail", "back_fin"),
                         partMapping("fin_right", "right_fin"),
-                        partMapping("fin_left", "left_fin"),
-                        partMapping("root")
+                        partMapping("fin_left", "left_fin")
                 ));
         OptifineMapper.models("shulker")
                 .parts(Map.ofEntries(
@@ -772,16 +744,14 @@ public class EMFModelMappings {
                         partMapping("body7", "segment6"),
                         partMapping("wing1", "layer0"),
                         partMapping("wing2", "layer1"),
-                        partMapping("wing3", "layer2"),
-                        partMapping("root")
+                        partMapping("wing3", "layer2")
                 ));
         OptifineMapper.models("slime")
                 .parts(Map.ofEntries(
                         partMapping("body", "cube"),
                         partMapping("left_eye"),
                         partMapping("right_eye"),
-                        partMapping("mouth"),
-                        partMapping("root")
+                        partMapping("mouth")
                 ));
         OptifineMapper.models("slime_outer")
                 .parts(Map.ofEntries(
@@ -793,8 +763,7 @@ public class EMFModelMappings {
                         partMapping("body_bottom", "lower_body"),
                         partMapping("head"),
                         partMapping("left_hand", "left_arm"),
-                        partMapping("right_hand", "right_arm"),
-                        partMapping("root")
+                        partMapping("right_hand", "right_arm")
                 ));
         OptifineMapper.models("strider", "strider_saddle")
                 .parts(Map.ofEntries(
@@ -806,8 +775,7 @@ public class EMFModelMappings {
                         partMapping("hair_right_bottom", "right_bottom_bristle"),
                         partMapping("hair_left_top", "left_top_bristle"),
                         partMapping("hair_left_middle", "left_middle_bristle"),
-                        partMapping("hair_left_bottom", "left_bottom_bristle"),
-                        partMapping("root")
+                        partMapping("hair_left_bottom", "left_bottom_bristle")
                 ));
         OptifineMapper.models("tadpole")
                 .parts(Map.ofEntries(
@@ -821,8 +789,7 @@ public class EMFModelMappings {
                         partMapping("tail"),
                         partMapping("fin_right", "right_fin"),
                         partMapping("fin_left", "left_fin"),
-                        partMapping("fin_top", "top_fin"),
-                        partMapping("root")
+                        partMapping("fin_top", "top_fin")
                 ));
         OptifineMapper.models("tropical_fish_b", "tropical_fish_pattern_b")
                 .parts(Map.ofEntries(
@@ -831,8 +798,7 @@ public class EMFModelMappings {
                         partMapping("fin_right", "right_fin"),
                         partMapping("fin_left", "left_fin"),
                         partMapping("fin_top", "top_fin"),
-                        partMapping("fin_bottom", "bottom_fin"),
-                        partMapping("root")
+                        partMapping("fin_bottom", "bottom_fin")
                 ));
         OptifineMapper.models("turtle")
                 .parts(Map.ofEntries(
@@ -856,8 +822,7 @@ public class EMFModelMappings {
                         partMapping("left_tendril"),
                         partMapping("right_tendril"),
                         partMapping("left_ribcage"),
-                        partMapping("right_ribcage"),
-                        partMapping("root")
+                        partMapping("right_ribcage")
                 ));
         OptifineMapper.models("witch")
                 .parts(Map.ofEntries(
@@ -870,8 +835,7 @@ public class EMFModelMappings {
                         partMapping("right_leg"),
                         partMapping("left_leg"),
                         partMapping("nose"),
-                        partMapping("mole"),
-                        partMapping("root")
+                        partMapping("mole")
                 ));
         OptifineMapper.models("wither", "wither_armor")
                 .parts(Map.ofEntries(
@@ -880,41 +844,12 @@ public class EMFModelMappings {
                         partMapping("body3", "tail"),
                         partMapping("head1", "center_head"),
                         partMapping("head2", "right_head"),
-                        partMapping("head3", "left_head"),
-                        partMapping("root")
+                        partMapping("head3", "left_head")
                 ));
-        OptifineMapper.models("dragon")
-                .parts(Map.ofEntries(
-                        partMapping("head"),
-                        partMapping("jaw", "jaw"),
-                        partMapping("spine", "neck"),
-                        partMapping("body", "body"),
 
-                        partMapping("left_wing"),
-                        partMapping("left_wing_tip", "left_wing_tip"),
-                        partMapping("right_wing"),
-                        partMapping("right_wing_tip", "right_wing_tip"),
-
-                        partMapping("front_left_leg", "left_front_leg"),
-                        partMapping("front_left_shin", "left_front_leg_tip"),
-                        partMapping("front_left_foot", "left_front_foot"),
-
-                        partMapping("back_left_leg", "left_hind_leg"),
-                        partMapping("back_left_shin", "left_hind_leg_tip"),
-                        partMapping("back_left_foot", "left_hind_foot"),
-
-                        partMapping("front_right_leg", "right_front_leg"),
-                        partMapping("front_right_shin", "right_front_leg_tip"),
-                        partMapping("front_right_foot", "right_front_foot"),
-
-                        partMapping("back_right_leg", "right_hind_leg"),
-                        partMapping("back_right_shin", "right_hind_leg_tip"),
-                        partMapping("back_right_foot", "right_hind_foot")
-                ));
         OptifineMapper.models("player", "player_slim")
                 .parts(genericPlayerBiped);
-        OptifineMapper.models("player_cape")
-                .parts(Map.ofEntries(partMapping("cloak")));
+
         OptifineMapper.models("boat")
                 .parts(Map.ofEntries(
                         partMapping("bottom"),//todo check
@@ -923,8 +858,10 @@ public class EMFModelMappings {
                         partMapping("right"),
                         partMapping("left"),
                         partMapping("paddle_left", "left_paddle"),
-                        partMapping("paddle_right", "right_paddle"),
-                        partMapping("bottom_no_water", "water_patch")//todo check
+                        partMapping("paddle_right", "right_paddle")
+                        #if MC < MC_21_2
+                        , partMapping("bottom_no_water", "water_patch")//todo check
+                        #endif
                 ));
         OptifineMapper.models("banner")
                 .parts(Map.ofEntries(
@@ -957,7 +894,9 @@ public class EMFModelMappings {
                         partMapping("left"),
                         partMapping("paddle_left", "left_paddle"),
                         partMapping("paddle_right", "right_paddle"),
+                        #if MC < MC_21_2
                         partMapping("bottom_no_water", "water_patch"),//todo check
+                        #endif
 
                         partMapping("chest_base", "chest_bottom"),
                         partMapping("chest_lid"),
@@ -986,8 +925,7 @@ public class EMFModelMappings {
                                 partMapping("back"),
                                 partMapping("front"),
                                 partMapping("right"),
-                                partMapping("left"),
-                                partMapping("root")
+                                partMapping("left")
                         ));
         OptifineMapper.models("conduit_cage")
                 .parts(Map.ofEntries(partMapping("cage", "shell")));
@@ -1018,15 +956,9 @@ public class EMFModelMappings {
                         partMapping("pages_right", "left_pages"),
                         partMapping("flipping_page_right", "flip_page1"),
                         partMapping("flipping_page_left", "flip_page2"),
-                        partMapping("book_spine", "seam"),
-                        partMapping("root")
+                        partMapping("book_spine", "seam")
                 ));
-        OptifineMapper.models("end_crystal")
-                .parts(Map.ofEntries(
-                        partMapping("cube"),
-                        partMapping("glass"),
-                        partMapping("base")
-                ));
+
         OptifineMapper.models("hanging_sign")
                 .parts(Map.ofEntries(
                         partMapping("board"),
@@ -1040,24 +972,29 @@ public class EMFModelMappings {
                 ));
         OptifineMapper.models("lead_knot")
                 .parts(Map.ofEntries(
-                        partMapping("knot"),
-                        partMapping("root")
+                        partMapping("knot")
+                ));
+        OptifineMapper.models("spin_attack")
+                .parts(Map.ofEntries(
+                        partMapping("box1", "box0"),
+                        partMapping("box2", "box1")
                 ));
         OptifineMapper.models("sign")
                 .parts(Map.ofEntries(
-                        partMapping("board", "root"),//todo check
-                        //getOptifineMapEntry("EMPTY","sign"),//todo check
+                        partMapping("board", "root"),
                         partMapping("stick")
+                ));
+        OptifineMapper.models("wall_sign")
+                .parts(Map.ofEntries(
+                        partMapping("board", "root")
                 ));
         OptifineMapper.models("trident")
                 .parts(Map.ofEntries(partMapping("body", "pole")));
-        OptifineMapper.models("spectral_arrow", "arrow")
-                .parts(Map.ofEntries(partMapping("body", "root")));
+
         OptifineMapper.models("shield")
                 .parts(Map.ofEntries(
                         partMapping("plate"),
-                        partMapping("handle"),
-                        partMapping("root")
+                        partMapping("handle")
                 ));
         OptifineMapper.models("breeze", "breeze_eyes", "breeze_wind")
                 .parts(Map.ofEntries(
@@ -1067,19 +1004,150 @@ public class EMFModelMappings {
                         partMapping("wind_body"),
                         partMapping("wind_middle", "wind_mid"),
                         partMapping("wind_bottom"),
-                        partMapping("wind_top"),
-                        partMapping("root")
+                        partMapping("wind_top")
                 ));
 
-        OptifineMapper.models("wind_charge")
+        OptifineMapper.models("wind_charge","breeze_wind_charge")
                 .parts(Map.ofEntries(
 //                        partMapping("core", "projectile"),//maybe "bone"???
                         partMapping("wind"),
 //                        partMapping("cube1", "cube_r1"),
 //                        partMapping("cube2", "cube_r2"),
-                        partMapping("charge", "wind_charge"),
-                        partMapping("root")
+                        partMapping("charge", "wind_charge")
                 ));
+
+        #if MC < MC_21_2
+        OptifineMapper.models("player_cape")
+                .parts(Map.ofEntries(partMapping("cloak")));
+        OptifineMapper.models("spectral_arrow", "arrow")
+                .parts(Map.ofEntries(partMapping("body", "root")));
+        OptifineMapper.models("dragon")
+                .parts(Map.ofEntries(
+                        partMapping("head"),
+                        partMapping("jaw", "jaw"),
+                        partMapping("spine", "neck"),
+                        partMapping("body", "body"),
+
+                        partMapping("left_wing"),
+                        partMapping("left_wing_tip", "left_wing_tip"),
+                        partMapping("right_wing"),
+                        partMapping("right_wing_tip", "right_wing_tip"),
+
+                        partMapping("front_left_leg", "left_front_leg"),
+                        partMapping("front_left_shin", "left_front_leg_tip"),
+                        partMapping("front_left_foot", "left_front_foot"),
+
+                        partMapping("back_left_leg", "left_hind_leg"),
+                        partMapping("back_left_shin", "left_hind_leg_tip"),
+                        partMapping("back_left_foot", "left_hind_foot"),
+
+                        partMapping("front_right_leg", "right_front_leg"),
+                        partMapping("front_right_shin", "right_front_leg_tip"),
+                        partMapping("front_right_foot", "right_front_foot"),
+
+                        partMapping("back_right_leg", "right_hind_leg"),
+                        partMapping("back_right_shin", "right_hind_leg_tip"),
+                        partMapping("back_right_foot", "right_hind_foot")
+                ));
+        OptifineMapper.models("end_crystal")
+                .parts(Map.ofEntries(
+                        partMapping("cube"),
+                        partMapping("glass"),
+                        partMapping("base")
+                ));
+        #else
+        OptifineMapper.models("player_cape")
+                .parts(Map.ofEntries(partMapping("cape")));
+        OptifineMapper.models("player_ears")
+                .parts(Map.ofEntries(partMapping("left_ear"), partMapping("right_ear")));
+        OptifineMapper.models("dragon")
+                .parts(Map.ofEntries(
+                        partMapping("head"),
+                        partMapping("jaw", "jaw"),
+                        partMapping("body", "body"),
+
+                        partMapping("neck1", "neck0"),
+                        partMapping("neck2", "neck1"),
+                        partMapping("neck3", "neck2"),
+                        partMapping("neck4", "neck3"),
+                        partMapping("neck5", "neck4"),
+
+                        partMapping("tail1", "tail0"),
+                        partMapping("tail2", "tail1"),
+                        partMapping("tail3", "tail2"),
+                        partMapping("tail4", "tail3"),
+                        partMapping("tail5", "tail4"),
+                        partMapping("tail6", "tail5"),
+                        partMapping("tail7", "tail6"),
+                        partMapping("tail8", "tail7"),
+                        partMapping("tail9", "tail8"),
+                        partMapping("tail10", "tail9"),
+                        partMapping("tail11", "tail10"),
+                        partMapping("tail12", "tail11"),
+
+                        partMapping("left_wing"),
+                        partMapping("left_wing_tip", "left_wing_tip"),
+                        partMapping("right_wing"),
+                        partMapping("right_wing_tip", "right_wing_tip"),
+
+                        partMapping("front_left_leg", "left_front_leg"),
+                        partMapping("front_left_shin", "left_front_leg_tip"),
+                        partMapping("front_left_foot", "left_front_foot"),
+
+                        partMapping("back_left_leg", "left_hind_leg"),
+                        partMapping("back_left_shin", "left_hind_leg_tip"),
+                        partMapping("back_left_foot", "left_hind_foot"),
+
+                        partMapping("front_right_leg", "right_front_leg"),
+                        partMapping("front_right_shin", "right_front_leg_tip"),
+                        partMapping("front_right_foot", "right_front_foot"),
+
+                        partMapping("back_right_leg", "right_hind_leg"),
+                        partMapping("back_right_shin", "right_hind_leg_tip"),
+                        partMapping("back_right_foot", "right_hind_foot")
+                ));
+        OptifineMapper.models("end_crystal")
+                .parts(Map.ofEntries(
+                        partMapping("cube"),
+                        partMapping("inner_glass"),
+                        partMapping("outer_glass"),
+                        partMapping("base")
+                ));
+        OptifineMapper.models("armadillo")
+                .parts(Map.ofEntries(
+                        partMapping("body"),
+                        partMapping("head"),
+                        partMapping("left_ear"),
+                        partMapping("right_ear"),
+                        partMapping("left_ear_cube"),
+                        partMapping("right_ear_cube"),
+                        partMapping("back_left_leg","left_hind_leg"),
+                        partMapping("back_right_leg","right_hind_leg"),
+                        partMapping("front_left_leg","left_front_leg"),
+                        partMapping("front_right_leg","right_front_leg"),
+                        partMapping("cube"),
+                        partMapping("tail")
+                ));
+        OptifineMapper.models("bogged").parts(
+                new HashMap<>(genericNonPlayerBiped) {{
+                    put("mushrooms","mushrooms");//todo
+                }});
+        OptifineMapper.models("spectral_arrow", "arrow")
+                .parts(Map.ofEntries(
+                        partMapping("back"),
+                        partMapping("cross_1"),
+                        partMapping("cross_2")
+                ));
+        OptifineMapper.models( "bee_stinger")
+                .parts(Map.ofEntries(
+                        partMapping("cross_1"),
+                        partMapping("cross_2")
+                ));
+
+        OptifineMapper.models("boat_water_patch")
+                .parts(Map.ofEntries(partMapping("water_patch", "water_patch")));//todo check
+
+        #endif
     }
 
     @Contract(value = "_ -> new", pure = true)
@@ -1092,12 +1160,13 @@ public class EMFModelMappings {
         return new MutablePair<>(optifineName, vanillaName);
     }
 
-    public static Map<String, String> getMapOf(String mobName, @Nullable ModelPart root) {
-        return getMapOf(mobName, root, true);
+    public static Map<String, String> getMapOf(EMFModel_ID mobId, @Nullable ModelPart root) {
+        return getMapOf(mobId, root, true);
     }
 
-    public static Map<String, String> getMapOf(@NotNull String mobName, @Nullable ModelPart root, boolean exportOnlyFirstTime) {
+    public static Map<String, String> getMapOf(@NotNull EMFModel_ID mobId, @Nullable ModelPart root, boolean exportOnlyFirstTime) {
 
+        String mobName = mobId.getMapId();
         if (mobName.matches(".*_baby($|_.*)") && !mobName.contains(":")){
             mobName = mobName.replaceFirst("_baby","");
         }
@@ -1109,26 +1178,27 @@ public class EMFModelMappings {
             knownMap = getKnownMap(mobName);
         }
         if (knownMap == null) {
-            return root == null ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null, exportOnlyFirstTime);
+            return root == null ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, exportOnlyFirstTime);
         }
         //trigger the export of the known model if we are exporting all
         if (EMF.config().getConfig().modelExportMode.doesAll()) {
-            exportKnown(mobName, root, knownMap, exportOnlyFirstTime);
+            exportKnown(mobId, root, knownMap, exportOnlyFirstTime);
         }
 
         return knownMap;
     }
 
-    private static void exportKnown(final String mobName, final @Nullable ModelPart root, final Map<String, String> knownMap, boolean exportOnlyFirstTime) {
+    private static void exportKnown(final EMFModel_ID mobId, final @Nullable ModelPart root, final Map<String, String> knownMap, boolean exportOnlyFirstTime) {
+        String mobName = mobId.getfileName();
         EMFUtils.log("Exporting/logging  model for " + mobName + " that has known OptiFine part names:");
-        exploreProvidedEntityModelAndExportIfNeeded(root, mobName, knownMap, exportOnlyFirstTime);
+        exploreProvidedEntityModelAndExportIfNeeded(root, mobId, knownMap, exportOnlyFirstTime);
         //also print out the model with its actual values in case a mod has added something
         EMFUtils.log("Additionally exporting/logging model for " + mobName + " again as though it did not have known OptiFine part names:\nThis might highlight some vanilla, or mod added, parts that are not usually exposed by OptiFine");
 
         var old = EMF.config().getConfig().modelExportMode;
         EMF.config().getConfig().modelExportMode = EMFConfig.ModelPrintMode.ALL_LOG_ONLY;
         try {
-            exploreProvidedEntityModelAndExportIfNeeded(root, mobName, null, exportOnlyFirstTime);
+            exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, exportOnlyFirstTime);
         } catch (Exception e) {
             EMFUtils.logError("Error while exporting model for " + mobName + " again as though it did not have known OptiFine part names:");
             //noinspection CallToPrintStackTrace
@@ -1146,9 +1216,22 @@ public class EMFModelMappings {
 
     //
     //this would make a usable mapping of the given model but with no part name changing as it would not be optifine customized
-    public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, String mobName, @Nullable Map<String, String> mobMap, boolean exportOnlyFirstTime) {
-        if (UNKNOWN_MODEL_MAP_CACHE.containsKey(mobName) && exportOnlyFirstTime)
-            return UNKNOWN_MODEL_MAP_CACHE.get(mobName);
+    public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, EMFModel_ID mobId, @Nullable Map<String, String> mobMap, boolean exportOnlyFirstTime) {
+        String id = mobId.getDisplayFileName();
+        if (UNKNOWN_MODEL_MAP_CACHE.containsKey(id) && exportOnlyFirstTime)
+            return UNKNOWN_MODEL_MAP_CACHE.get(id);
+
+        //find unmodified model
+        var layer = EMFManager.getInstance().cache_LayersByModelName.get(mobId);
+        if(layer != null){
+            var unModifiedModel = ((IEMFUnmodifiedLayerRootGetter) Minecraft.getInstance().getEntityModels())
+                    .emf$getUnmodifiedRoots().get(layer);
+            if (unModifiedModel != null) {
+                originalModel = unModifiedModel.bakeRoot();
+            }
+        }
+
+
 
         if (originalModel == null) {
             EMFUtils.logError("model part was null and not already mapped in exploreProvidedEntityModel() EMF");
@@ -1163,12 +1246,12 @@ public class EMFModelMappings {
             mapThisAndChildren("root", originalModel, mobMap, detailsMap);
         }
         //cache result;
-        UNKNOWN_MODEL_MAP_CACHE.put(mobName, mobMap);
+        UNKNOWN_MODEL_MAP_CACHE.put(id, mobMap);
         if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
             StringBuilder mapString = new StringBuilder();
 
-            String namespace = mobName.contains(":") ? mobName.split(":")[0] : "minecraft";
-            String fileName = mobName.contains(":") ? mobName.split(":")[1] : mobName;
+            String namespace = mobId.namespace;
+            String fileName = mobId.getfileName();
 
             mapString.append(" |-[assets/").append(namespace).append("/optifine/cem/").append(fileName).append(".jem]\n");
             mobMap.forEach((key, entry) -> {
@@ -1178,13 +1261,13 @@ public class EMFModelMappings {
             mapString.append("  \\-\\{{end of model}}");
 
             if (known) {
-                EMFUtils.log("OptiFine specified model detected, Mapping now...\n" + mapString);
+                EMFUtils.log("Known model detected, Mapping now...\n" + mapString);
             } else {
-                EMFUtils.log("Unknown possibly modded model detected, Mapping now...\n" + mapString);
+                EMFUtils.log("Unknown (possibly modded) model detected, Mapping now...\n" + mapString);
             }
 
             if (EMF.config().getConfig().modelExportMode.doesJems()) {
-                EMFUtils.log("creating example .jem file for " + mobName);
+                EMFUtils.log("creating example .jem file for " + fileName);
                 EMFJemPrinter jemPrinter = new EMFJemPrinter();
                 int[] textureSize = null;
                 for (Map.Entry<String, String> entry :
@@ -1193,9 +1276,9 @@ public class EMFModelMappings {
                     EMFPartPrinter partPrinter = new EMFPartPrinter();
                     partPrinter.part = entry.getKey();
                     partPrinter.id = entry.getKey();
-                    ModelPart searchPart = getChildByName(entry.getValue(), originalModel);
+                    PartAndOffsets searchPart = getChildByName(entry.getValue(), originalModel,0,0,0);
                     //allow nested child parts named root to be found first otherwise apply the root part as the root
-                    ModelPart vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? originalModel : searchPart;
+                    PartAndOffsets vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? new PartAndOffsets(originalModel, 0,0,0) : searchPart;
 
                     textureSize = initPartPrinterAndCaptureTextureSizeIfNeeded(vanillaModelPart, partPrinter, textureSize);
                     jemPrinter.models.add(partPrinter);
@@ -1206,36 +1289,50 @@ public class EMFModelMappings {
                 }
                 jemPrinter.textureSize = textureSize;
 
-                String path = EMFVersionDifferenceManager.getConfigDirectory().toFile().getParent()
-                        + "/emf/export/" + "assets/" + namespace + "/optifine/cem/" + fileName + ".jem";
-                File outFile = new File(path);
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-                if (!outFile.getParentFile().exists()) {
-                    //noinspection ResultOfMethodCallIgnored
-                    outFile.getParentFile().mkdirs();
-                }
-                try {
-                    FileWriter fileWriter = new FileWriter(outFile);
-                    fileWriter.write(gson.toJson(jemPrinter));
-                    fileWriter.close();
-
-                    EMFUtils.log(".jem file creation succeeded for [" + path + "]");
-                } catch (IOException e) {
-                    EMFUtils.log(".jem file creation failed for [" + path + "]");
-                }
+                printModel(namespace, fileName, jemPrinter);
+                mobId.forEachFallback((fallback) -> printModel(fallback.namespace, fallback.getfileName(), jemPrinter));
             }
         }
         return mobMap;
     }
 
-    private static int[] initPartPrinterAndCaptureTextureSizeIfNeeded(final ModelPart vanillaModelPart, final EMFPartPrinter partPrinter, int[] textureSize) {
-        if (vanillaModelPart != null) {
+    private static void printModel(final String namespace, final String fileName, final EMFJemPrinter jemPrinter) {
+        String path = EMFVersionDifferenceManager.getConfigDirectory().toFile().getParent()
+                + "/emf/export/" + "assets/" + namespace + "/optifine/cem/" + fileName + ".jem";
+        File outFile = new File(path);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        if (!outFile.getParentFile().exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            outFile.getParentFile().mkdirs();
+        }
+        try {
+            FileWriter fileWriter = new FileWriter(outFile);
+            fileWriter.write(gson.toJson(jemPrinter));
+            fileWriter.close();
+
+            EMFUtils.log(".jem file creation succeeded for [" + path + "]");
+        } catch (IOException e) {
+            EMFUtils.log(".jem file creation failed for [" + path + "]");
+        }
+    }
+
+    private record PartAndOffsets(ModelPart part, float x, float y, float z) {
+    }
+
+    private static int[] initPartPrinterAndCaptureTextureSizeIfNeeded(final PartAndOffsets partAndOffsets, final EMFPartPrinter partPrinter, int[] textureSize) {
+        if (partAndOffsets != null && partAndOffsets.part != null) {
+
+            var vanillaModelPart = partAndOffsets.part;
+
+
             //invert x and y's
             partPrinter.translate = new float[]{
-                    vanillaModelPart.x,
-                    -24 + vanillaModelPart.y,
-                    -vanillaModelPart.z};
+                    -partAndOffsets.x + vanillaModelPart.x,
+                -24 -partAndOffsets.y + vanillaModelPart.y,
+                    partAndOffsets.z  -vanillaModelPart.z
+            };
             //these are inherited
 //            if(!isPart) {
 //                            partPrinter.rotate = new float[]{
@@ -1301,11 +1398,19 @@ public class EMFModelMappings {
 //    }
 
 
-    private static @Nullable ModelPart getChildByName(String name, @NotNull ModelPart part) {
-        if (part.hasChild(name)) return part.getChild(name);
+    private static @Nullable PartAndOffsets getChildByName(String name, @NotNull ModelPart part, float x, float y, float z) {
+        if (part.hasChild(name)) return new PartAndOffsets(part.getChild(name),
+                 x - part.x,
+                 y - part.y,
+                 z - part.z
+        );
         for (ModelPart childPart :
                 part.children.values()) {
-            ModelPart possibleReturn = getChildByName(name, childPart);
+            PartAndOffsets possibleReturn = getChildByName(name, childPart,
+                     x - part.x,
+                     y - part.y,
+                     z - part.z
+            );
             if (possibleReturn != null) return possibleReturn;
         }
         return null;

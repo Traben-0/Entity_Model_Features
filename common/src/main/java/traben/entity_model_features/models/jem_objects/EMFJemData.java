@@ -115,8 +115,8 @@ OptiFine spec
 
             customTexture = validateJemTexture(texture, true);
 
-            String mapId = mobModelIDInfo.getMapId();
-            Map<String, String> map = EMFModelMappings.getMapOf(mapId, null);
+//            String mapId = mobModelIDInfo.getMapId();
+            Map<String, String> map = EMFModelMappings.getMapOf(mobModelIDInfo, null);
 
 
             //change all part values to their vanilla counterparts

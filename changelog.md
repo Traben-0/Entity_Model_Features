@@ -1,8 +1,45 @@
 
+[2.3.0]
+- the remaining 1.21.3 changes should be fairly "stable" now and are unlikely to have significant changes going forwards, likely only semantic ones as OptiFine develops
+- improved how EMF exports default models, they will now look much prettier in blockbench due to various semantic only changes
+- fixed baby and other model scaling issues in previous 1.21.3 builds, baby models with certain custom animations, using the old offsets, are still broken and need pack makers to update their packs
+- updated model & part names, see the `emf > models > all models` settings in game for the most detailed and accurate list of all model & part names
+  - dragon - "neck1 - neck5" and "tail1 - tail12", replacing "spine"
+  - bogged - same as skeleton + "mushrooms" part
+  - bogged_outer - same as stray_outer
+  - armadillo - see in-game model settings screen for parts list
+  - end_crystal - "inner_glass" and "outer_glass" replacing "glass"
+  - arrow - "back, cross_1, cross_2"
+  - spectral_arrow - "back, cross_1, cross_2"
+  - bee_stinger - "cross_1, cross_2"
+  - player_cape - "cape"
+  - player_ears - "left_ear" and "right_ear"
+  - player_slim - will now fallback to player.jem if not present
+  - salmon_large - falls back to "salmon"
+  - salmon_small - falls back to "salmon"
+  - breeze_wind_charge - same as "wind_charge"
+  - boat models now use the naming convention <wood_type>_<boat_type> e.g. "oak_boat" and "oak_chest_boat" and fallback to the old model names e.g. "boat" and "chest_boat"
+  - raft and boat models no longer contain the "water_patch" part themselves, this is now a separate model
+  - water_patch - "water_patch" also supports boat type variants e.g. "oak_water_patch"
+  - minecraft models now all fallback to the default minecart model
+  - chest_large - has been split into "chest_left" and "chest_right" models, same for trapped_chests. EMF will retain legacy support for the old model name for the time being
+  - wall_sign - falls back to the "sign" model and doesn't have the "stick" part
+  - sign, wall_sign, and hanging_sign - all support wood types in the model name e.g. "oak_sign" and "oak_wall_sign" that will fall back to the generic model
+  - there may be several more minor changes, see the in-game `emf > models > all models` settings screen for the most accurate and complete list
+- added legacy model fallbacks `book`, `evocation_illager`, `evocation_fangs`, and `vindication_illager`
+- many other minor tweaks and fixes
+
+[2.2.8]
 
 [2.2.7]
 - updated to 1.21.2+
-- 1.21.2+ has a large amount of internal entity rendering changes many of these changes will affect models, see my discord for a write-up I have done on the changes to expect and their impacts
+
+1.21.2+ has a large amount of internal entity rendering changes many of these changes will affect models, see my discord for a write-up I have done on the changes to expect and their impacts
+or this link 
+
+https://github.com/Traben-0/Entity_Model_Features/blob/master/.github/1.21.2%2B%20%20changes.md
+
+
 - removed the setting that would attempt to revert emf models changed by other mods, as it had a lot of overhead with new changes
 - the `creaking_transient` entity variant will try and use `creaking_transient.jem` first and will use `creaking.jem` otherwise
 - different boat types now use the format <wood_type>_<boat_type>.jem e.g. `oak_boat.jem`, `oak_chest_boat.jem`, and the rafts `bamboo_raft.jem`, `bamboo_chest_raft.jem`

@@ -20,6 +20,7 @@ import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.EMFModel_ID;
+import traben.entity_model_features.utils.IEMFUnmodifiedLayerRootGetter;
 import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.config.ETFConfig;
 import traben.tconfig.TConfig;
@@ -105,6 +106,7 @@ public class EMFConfig extends TConfig {
     #if MC < MC_21
     public boolean enforceOptiFineFloorUVs = true;
     #endif
+
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -224,7 +226,9 @@ public class EMFConfig extends TConfig {
                     model.setWidgetBackgroundToFullWidth();
                     model.setRenderFeature(new ModelRootRenderer(layer));
                     category.add(model);
-                    var second = mapData.getSecondaryModel();
+
+                    StringBuilder fallbacks = new StringBuilder();
+                    mapData.forEachFallback((fallBackData)-> fallbacks.append(fallBackData.getfileName()).append(".jem\n"));
 
                     model.add(new TConfigEntryBoolean("entity_model_features.config.models.enabled", "entity_model_features.config.models.enabled.tooltip",
                                     () -> !modelsNamesDisabled.contains(fileName),
@@ -245,10 +249,8 @@ public class EMFConfig extends TConfig {
                                     TConfigEntryText.fromLongOrMultilineTranslation(
                                             "<Folders>\nassets/" + mapData.getNamespace() + "/emf/cem/\n" +
                                                     "assets/" + mapData.getNamespace() + "/optifine/cem/\n\n" +
-                                                    "<possible model names, checked in order>\n" +
-                                                    mapData.getfileName() + ".jem" + (
-                                                    second == null ? "" : ("\n" + second.getfileName() + ".jem\n")
-                                            )
+                                                    "<possible model names>\n<checked from top down>\n" +
+                                                    mapData.getfileName() + ".jem\n" +  fallbacks
                                             ,
                                             600, TConfigEntryText.TextAlignment.CENTER)
                             )
@@ -259,10 +261,10 @@ public class EMFConfig extends TConfig {
                 }
             }
         });
-        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
-                "entity_model_features.config.models.arrows", 200, TConfigEntryText.TextAlignment.LEFT));
-        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
-                "entity_model_features.config.models.cape", 200, TConfigEntryText.TextAlignment.LEFT));
+//        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
+//                "entity_model_features.config.models.arrows", 200, TConfigEntryText.TextAlignment.LEFT));
+//        category.addAll(TConfigEntryText.fromLongOrMultilineTranslation(
+//                "entity_model_features.config.models.cape", 200, TConfigEntryText.TextAlignment.LEFT));
         return category;
     }
 
@@ -271,13 +273,18 @@ public class EMFConfig extends TConfig {
         TConfigEntry export;
         try {
             Objects.requireNonNull(key.getMapId());
-            Objects.requireNonNull(Minecraft.getInstance().getEntityModels().roots.get(layer));
+//            Objects.requireNonNull(((IEMFUnmodifiedLayerRootGetter)Minecraft.getInstance().getEntityModels())
+//                    .emf$getUnmodifiedRoots().get(layer));
             export = new TConfigEntryCustomButton("entity_model_features.config.models.export", "entity_model_features.config.models.export.tooltip", (button) -> {
                 var old = modelExportMode;
                 modelExportMode = ModelPrintMode.ALL_LOG_AND_JEM;
                 try {
-                    EMFModelMappings.getMapOf(key.getMapId(),
-                            Minecraft.getInstance().getEntityModels().roots.get(layer).bakeRoot(),
+                    EMFModelMappings.getMapOf(key,
+                            Objects.requireNonNullElseGet(
+                                    ((IEMFUnmodifiedLayerRootGetter)Minecraft.getInstance().getEntityModels())
+                                            .emf$getUnmodifiedRoots().get(layer),
+                                    () -> Minecraft.getInstance().getEntityModels().roots.get(layer)
+                            ).bakeRoot(),
                             false);
                 } catch (Exception e) {
                     //noinspection CallToPrintStackTrace

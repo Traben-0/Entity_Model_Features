@@ -74,9 +74,10 @@
       "uvEast": [<u1>, <v1>, <u2>, <v2>],                               - UV for face east, alias "uvRight"
       "coordinates": [<x>, <y>, <z>, <width>, <height>, <depth>],       - Box position and dimensions
       "sizeAdd": <size_add>                                             - Size increment (added to all dimensions) can be used for asymmetric scaling
-@     "sizeAddX": <size_add_x>                                          - Size increment (added to the X dimension) can be used for asymmetric scaling
-@     "sizeAddY": <size_add_y>                                          - Size increment (added to the Y dimension) can be used for asymmetric scaling
-@     "sizeAddZ": <size_add_z>                                          - Size increment (added to the Z dimension) can be used for asymmetric scaling
+      "sizesAdd": [size_add_x, size_add_y, size_add_z]                                              - Size increments (added to all dimensions) can be used for asymmetric scaling
+@deprecated     "sizeAddX": <size_add_x>                                          - Size increment (added to the X dimension) can be used for asymmetric scaling
+@deprecated      "sizeAddY": <size_add_y>                                          - Size increment (added to the Y dimension) can be used for asymmetric scaling
+@deprecated      "sizeAddZ": <size_add_z>                                          - Size increment (added to the Z dimension) can be used for asymmetric scaling
     },
     ...
   ],

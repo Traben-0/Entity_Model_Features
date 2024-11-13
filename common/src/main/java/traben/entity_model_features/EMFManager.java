@@ -66,22 +66,18 @@ public class EMFManager {//singleton for data holding and resetting needs
     }};
     public final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
     public final Object2ObjectOpenHashMap<EMFModel_ID, ModelLayerLocation> cache_LayersByModelName = new Object2ObjectOpenHashMap<>();
+    public final Set<String> EBE_JEMS_FOUND_LAST = new HashSet<>();
     private final Object2IntOpenHashMap<ModelLayerLocation> amountOfLayerAttempts = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
     private final Set<String> EBE_JEMS_FOUND = new HashSet<>();
-    public final Set<String> EBE_JEMS_FOUND_LAST = new HashSet<>();
+    private final ArrayList<String> KNOWN_RESOURCEPACK_ORDER;
     public UUID entityForDebugPrint = null;
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
     public String currentSpecifiedModelLoading = "";
     public BlockEntityType<?> currentBlockEntityTypeLoading = null;
     private boolean traderLlamaHappened = false;
-
-    public boolean wasEBEModified() {
-        return !EBE_JEMS_FOUND_LAST.isEmpty();
-    }
-
 
 
     private EMFManager() {
@@ -101,19 +97,6 @@ public class EMFManager {//singleton for data holding and resetting needs
         if (self == null) self = new EMFManager();
         return self;
     }
-
-    public ArrayList<String> getResourcePackList() {
-        if (KNOWN_RESOURCEPACK_ORDER.isEmpty()) {
-            var list = Minecraft.getInstance().getResourceManager().listPacks().toList();
-            for (final PackResources pack : list) {
-                this.KNOWN_RESOURCEPACK_ORDER.add(pack.packId());
-            }
-        }
-        return KNOWN_RESOURCEPACK_ORDER;
-    }
-
-    private final ArrayList<String> KNOWN_RESOURCEPACK_ORDER;
-
 
     public static void resetInstance() {
         EMFUtils.log("[EMF (Entity Model Features)]: Clearing data for reload.", false, true);
@@ -185,6 +168,34 @@ public class EMFManager {//singleton for data holding and resetting needs
         return null;
     }
 
+    private static void handleBoats(final String originalLayerName, final EMFModel_ID mobNameForFileAndMap) {
+        String jem;
+        if (originalLayerName.startsWith("chest_boat/")) {
+            jem = originalLayerName.startsWith("chest_boat/bamboo") ? "chest_raft" : "chest_boat";
+        } else if (originalLayerName.startsWith("boat/")) {
+            jem = originalLayerName.startsWith("boat/bamboo") ? "raft" : "boat";
+        } else {
+            return;
+        }
+
+        mobNameForFileAndMap.setMapIdAndAddFallbackModel(jem);
+        String type = mobNameForFileAndMap.getfileName().split("/")[1];
+        mobNameForFileAndMap.setFileName(type + "_" + jem);
+    }
+
+    public boolean wasEBEModified() {
+        return !EBE_JEMS_FOUND_LAST.isEmpty();
+    }
+
+    public ArrayList<String> getResourcePackList() {
+        if (KNOWN_RESOURCEPACK_ORDER.isEmpty()) {
+            var list = Minecraft.getInstance().getResourceManager().listPacks().toList();
+            for (final PackResources pack : list) {
+                this.KNOWN_RESOURCEPACK_ORDER.add(pack.packId());
+            }
+        }
+        return KNOWN_RESOURCEPACK_ORDER;
+    }
 
     public void modifyEBEIfRequired() {
         if (IS_EBE_INSTALLED && !EBE_JEMS_FOUND.isEmpty() && EMF.config().getConfig().allowEBEModConfigModify) {
@@ -210,18 +221,22 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         String originalLayerName = layer. #if MC > MC_21 model() #else getModel() #endif .getPath();
         EMFModel_ID mobNameForFileAndMap = new EMFModel_ID(
-                currentSpecifiedModelLoading.isBlank() ? originalLayerName : currentSpecifiedModelLoading);
+                currentSpecifiedModelLoading.isBlank()
+                        || currentSpecifiedModelLoading.startsWith("emf$") //key to not override
+                        ? originalLayerName : currentSpecifiedModelLoading);
+
 
         try {
             EMFManager.lastCreatedRootModelPart = null;
             boolean printing = (EMF.config().getConfig().logModelCreationData);
 
-            if (!"main".equals(layer. #if MC > MC_21 layer() #else getLayer() #endif)) {
-                mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName() + "_" + layer. #if MC > MC_21 layer() #else getLayer() #endif);
-                originalLayerName = originalLayerName + "_" + layer. #if MC > MC_21 layer() #else getLayer() #endif;
+            if (!"main".equals(layer. #if MC > MC_21 layer() #else getLayer() #endif )) {
+                mobNameForFileAndMap.setBoth(mobNameForFileAndMap.getfileName() + "_" + layer. #if MC > MC_21 layer() #else getLayer() #endif );
+                originalLayerName = originalLayerName + "_" + layer. #if MC > MC_21 layer() #else getLayer() #endif ;
             }
 
             boolean modded;
+            boolean isBaby = false;
 
             //add simple modded layer checks
             if (!"minecraft".equals(layer. #if MC > MC_21 model() #else getModel() #endif .getNamespace())) {
@@ -231,36 +246,80 @@ public class EMFManager {//singleton for data holding and resetting needs
                 mobNameForFileAndMap.namespace = layer. #if MC > MC_21 model() #else getModel() #endif .getNamespace();
             } else {
                 modded = false;
+
+                //wolf_baby_collar
+
+                #if MC > MC_21
+                if (mobNameForFileAndMap.getfileName().matches(".*_baby($|_\\w*)")) {
+                    String adultName = mobNameForFileAndMap.getfileName().replaceFirst("_baby", "");
+                    mobNameForFileAndMap.addFallbackModel(adultName);
+                    isBaby = true;
+                }
+                //wolf_baby_collar, wolf_collar
+                #endif
+                if (mobNameForFileAndMap.getfileName().matches(".*_collar($|_\\w*)")) {
+                    String baseName = mobNameForFileAndMap.getfileName().replaceFirst("_collar", "");
+                    mobNameForFileAndMap.addFallbackModel(baseName);
+                    //wolf_baby_collar, wolf_collar, wolf_baby
+                    if (isBaby) {
+                        mobNameForFileAndMap.addFallbackModel(baseName.replaceFirst("_baby", ""));
+                    }
+                    //wolf_baby_collar, wolf_collar, wolf_baby, wolf
+                }
+
                 //vanilla model
                 switch (originalLayerName) {
-                    case "bed_foot" -> mobNameForFileAndMap.setBoth("bed", "bed_foot");
-                    case "bed_head" -> mobNameForFileAndMap.setBoth("bed", "bed_head");
+                    case "evoker" -> mobNameForFileAndMap.addFallbackModel("evocation_illager");
+                    case "evoker_fangs" -> mobNameForFileAndMap.addFallbackModel("evocation_fangs");
+                    case "vindicator" -> mobNameForFileAndMap.addFallbackModel("vindication_illager");
+                    case "bed_foot" -> mobNameForFileAndMap.setBoth("bed_foot").addFallbackModel("bed");
+                    case "bed_head" -> mobNameForFileAndMap.setBoth("bed_head").addFallbackModel("bed");
                     case "book" -> {
                         if (currentSpecifiedModelLoading.equals("enchanting_book")) {
-                            mobNameForFileAndMap.setBoth("enchanting_book", "book");
+                            mobNameForFileAndMap.setBoth("enchanting_book", "book").addFallbackModel("book");
                         } else {/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/
-                            mobNameForFileAndMap.setBoth("lectern_book", "book");
+                            mobNameForFileAndMap.setBoth("lectern_book", "book").addFallbackModel("book");
                         }
                     }
-                    case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndSecondaryFileName("creaking");
+                    case "salmon_small", "salmon_large" -> mobNameForFileAndMap.addFallbackModel("salmon");
+                    case "breeze_wind_charge" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("wind_charge");
+                    case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("creaking");
                     case "chest" -> mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading, "chest");
-                    case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit", "conduit_cage");
-                    case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit", "conduit_eye");
-                    case "conduit_shell" -> mobNameForFileAndMap.setBoth("conduit", "conduit_shell");
-                    case "conduit_wind" -> mobNameForFileAndMap.setBoth("conduit", "conduit_wind");
+                    case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit_cage").addFallbackModel("conduit");
+                    case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit_eye").addFallbackModel("conduit");
+                    case "conduit_shell" -> mobNameForFileAndMap.setBoth("conduit_shell").addFallbackModel("conduit");
+                    case "conduit_wind" -> mobNameForFileAndMap.setBoth("conduit_wind").addFallbackModel("conduit");
                     case "creeper_armor" -> mobNameForFileAndMap.setBoth("creeper_charge");
                     case "creeper_head" -> mobNameForFileAndMap.setBoth("head_creeper");
-                    case "decorated_pot_base" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_base");
-                    case "decorated_pot_sides" -> mobNameForFileAndMap.setBoth("decorated_pot", "decorated_pot_sides");
+                    case "decorated_pot_base" ->
+                            mobNameForFileAndMap.setBoth("decorated_pot_base").addFallbackModel("decorated_pot");
+                    case "decorated_pot_sides" ->
+                            mobNameForFileAndMap.setBoth("decorated_pot_sides").addFallbackModel("decorated_pot");
                     case "double_chest_left" -> getDoubleChest(root, mobNameForFileAndMap, false, printing);
                     case "double_chest_right" -> getDoubleChest(root, mobNameForFileAndMap, true, printing);
                     case "dragon_skull" -> mobNameForFileAndMap.setBoth("head_dragon");
                     case "ender_dragon" -> mobNameForFileAndMap.setBoth("dragon");
                     case "leash_knot" -> mobNameForFileAndMap.setBoth("lead_knot");
-                    case "llama" -> traderLlamaHappened = false;
-                    case "llama_decor" -> mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
+                    case "llama", "llama_baby" -> traderLlamaHappened = false;
+                    case "llama_decor" ->
+                            mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
+                    case "llama_baby_decor" ->
+                            mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_baby_decor" : "llama_baby_decor");
+                    case "chest_minecart", "command_block_minecart", "spawner_minecart", "tnt_minecart",
+                         "furnace_minecart", "hopper_minecart" -> mobNameForFileAndMap.setBoth("minecart");
                     case "piglin_head" -> mobNameForFileAndMap.setBoth("head_piglin");
                     case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
+                    case "player_slim" -> mobNameForFileAndMap.addFallbackModel("player");
+                    case "spectral_arrow" -> mobNameForFileAndMap.addFallbackModel("arrow");
+                    case "boat_water_patch" -> {
+                        if (currentSpecifiedModelLoading.startsWith("emf$boat$")) {
+                            String type = currentSpecifiedModelLoading.substring(9);
+                            mobNameForFileAndMap.setBoth(type + "_boat_patch", "boat_patch").addFallbackModel("boat_patch");
+                            currentSpecifiedModelLoading = "";
+                        } else {
+                            mobNameForFileAndMap.setBoth("boat_patch");
+                        }
+                    }
                     case "pufferfish_big" -> mobNameForFileAndMap.setBoth("puffer_fish_big");
                     case "pufferfish_medium" -> mobNameForFileAndMap.setBoth("puffer_fish_medium");
                     case "pufferfish_small" -> mobNameForFileAndMap.setBoth("puffer_fish_small");
@@ -270,8 +329,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                         }
                     }
                     case "skeleton_skull" -> mobNameForFileAndMap.setBoth("head_skeleton");
-                    case "sheep_fur" -> mobNameForFileAndMap.setBoth("sheep_wool");
-                    case "trader_llama" -> traderLlamaHappened = true;
+                    case "sheep_fur" -> mobNameForFileAndMap.setBoth("sheep_wool");//old vanilla name
+                    case "trader_llama", "trader_llama_baby" -> traderLlamaHappened = true;
                     case "tropical_fish_large" -> mobNameForFileAndMap.setBoth("tropical_fish_b");
                     case "tropical_fish_large_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_b");
                     case "tropical_fish_small" -> mobNameForFileAndMap.setBoth("tropical_fish_a");
@@ -282,14 +341,36 @@ public class EMFManager {//singleton for data holding and resetting needs
                         if (!currentSpecifiedModelLoading.isBlank()) {
                             switch (currentSpecifiedModelLoading) {
                                 case "sign", "hanging_sign" -> {
-                                    mobNameForFileAndMap.setFileName(originalLayerName);
-                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName(currentSpecifiedModelLoading);
+                                    //   sign/standing/oak.jem
+                                    //   sign/wall/oak.jem
+                                    //   hanging_sign/oak.jem
+                                    // to oak_sign oak_wall_sign oak_hanging_sign
+
+                                    String sign = originalLayerName.replace("sign/standing/", "")
+                                            .replace("sign/wall/", "")
+                                            .replace("hanging_sign/", "");
+
+                                    if (originalLayerName.startsWith("sign/standing/")) {
+                                        sign += "_sign";
+                                        mobNameForFileAndMap.setFileName(sign)
+                                                .setMapIdAndAddFallbackModel("sign");
+                                    } else if (originalLayerName.startsWith("sign/wall/")) {
+                                        sign += "_wall_sign";
+                                        mobNameForFileAndMap.setFileName(sign)
+                                                .setMapIdAndAddFallbackModel("wall_sign")
+                                                .setMapIdAndAddFallbackModel("sign");
+                                    } else {
+                                        sign += "_hanging_sign";
+                                        mobNameForFileAndMap.setFileName(sign)
+                                                .setMapIdAndAddFallbackModel("hanging_sign");
+                                    }
                                 }
                                 default -> {
+
                                     if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
                                         EMFUtils.log("EMF unknown modifiable block entity model identified during loading: " + currentSpecifiedModelLoading + ".jem");
-                                    mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading);
-                                    mobNameForFileAndMap.setMapIdAndSecondaryFileName(currentSpecifiedModelLoading,originalLayerName);
+                                    mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading)
+                                            .setMapIdAndAddFallbackModel(currentSpecifiedModelLoading, originalLayerName);
                                 }
                             }
                         } else if (originalLayerName.contains("/") && layer. #if MC > MC_21 layer() #else getLayer() #endif .equals("main")) {
@@ -312,48 +393,55 @@ public class EMFManager {//singleton for data holding and resetting needs
             }
 
             ///jem name is final and correct from here
-            mobNameForFileAndMap.finishAndPrepSecondaries();
+            mobNameForFileAndMap.finishAndPrepAutomatedFallbacks();
 
-            cache_LayersByModelName.put(mobNameForFileAndMap, layer);
-            if (mobNameForFileAndMap.getSecondaryModel() != null){
-                cache_LayersByModelName.put(mobNameForFileAndMap.getSecondaryModel(), layer);
-            }
-            ///jem name and secondaries are final and correct from here
+            //cache the layers for the model
+//            if(!isBaby) {
+                cache_LayersByModelName.put(mobNameForFileAndMap, layer);
+                mobNameForFileAndMap.forEachFallback((fallBack) -> cache_LayersByModelName.put(fallBack, layer));
+//            }
 
 
-            if (printing) EMFUtils.log(" > checking if: [" + mobNameForFileAndMap +"], is allowed as a model name.");
-            if(EMF.config().getConfig().isModelDisabled(mobNameForFileAndMap.getMapId())) {
-                if (printing) EMFUtils.logWarn(" > Vanilla model used for: [" + mobNameForFileAndMap + "], because it is disabled in EMF's settings or via the API.");//original name
+            ///jem name and fallbacks are final and correct from here
+
+
+            if (printing) EMFUtils.log(" > checking if: [" + mobNameForFileAndMap + "], is allowed as a model name.");
+            if (EMF.config().getConfig().isModelDisabled(mobNameForFileAndMap.getMapId())) {
+                if (printing)
+                    EMFUtils.logWarn(" > Vanilla model used for: [" + mobNameForFileAndMap + "], because it is disabled in EMF's settings or via the API.");//original name
                 ((IEMFModelNameContainer) root).emf$insertKnownMappings(mobNameForFileAndMap);
                 return root;
             }
 
             //construct simple map for modded or unknown entities
-            Map<String, String> optifinePartNameMap = EMFModelMappings.getMapOf(mobNameForFileAndMap.getMapId(), root);
+            Map<String, String> optifinePartNameMap = EMFModelMappings.getMapOf(mobNameForFileAndMap, root);
 
-            if (printing) EMFUtils.log(" >> EMF trying to find model: " + mobNameForFileAndMap.getNamespace() + ":optifine/cem/" + mobNameForFileAndMap + ".jem");
+            if (printing)
+                EMFUtils.log(" >> EMF trying to find model: " + mobNameForFileAndMap.getNamespace() + ":optifine/cem/" + mobNameForFileAndMap + ".jem");
 
             var modelDataAndContext = getJemAndContext(printing, mobNameForFileAndMap);
 
             //try with secondary model
-            var secondaryFileMap = mobNameForFileAndMap.getSecondaryModel();
-            if (secondaryFileMap != null) {
-                if (printing) EMFUtils.log(" >> EMF trying to find secondary model: " + secondaryFileMap.getNamespace() + ":optifine/cem/" + secondaryFileMap + ".jem");
 
-                var secondaryModelDataAndContext = getJemAndContext(printing, secondaryFileMap);
+//
+            mobNameForFileAndMap.forEachFallback((fallbackModelId) -> {
+                if (printing)
+                    EMFUtils.log(" >> EMF trying to find fallback model: " + fallbackModelId.getNamespace() + ":optifine/cem/" + fallbackModelId + ".jem");
 
-                var jemDataFirst = modelDataAndContext.getLeft();
-                var jemData2 = secondaryModelDataAndContext.getLeft();
+                var fallbackModelDataAndContext = getJemAndContext(printing, fallbackModelId);
 
-                boolean isFirstModelInValid = jemDataFirst == null && modelDataAndContext.getMiddle().getRight() == null;
+                EMFJemData currentBestOrFirstModel = modelDataAndContext.getLeft();
+                EMFJemData fallBackModel = fallbackModelDataAndContext.getLeft();
+
+                boolean isFirstModelInValid = currentBestOrFirstModel == null && modelDataAndContext.getMiddle().getRight() == null;
                 if (isFirstModelInValid ||
-                        (jemDataFirst != null && jemData2 != null && jemData2.directoryContext.packIndex() > jemDataFirst.directoryContext.packIndex())) {
-                    //just use second if first is invalid or if the secondary model is in a higher resource pack
-                    modelDataAndContext.setLeft(jemData2);
-                    modelDataAndContext.setMiddle(secondaryModelDataAndContext.getMiddle());
-                    modelDataAndContext.setRight(secondaryFileMap);
+                        (currentBestOrFirstModel != null && fallBackModel != null && fallBackModel.directoryContext.packIndex() > currentBestOrFirstModel.directoryContext.packIndex())) {
+                    //just use fallback if first is invalid or if the fallback model is in a higher resource pack
+                    modelDataAndContext.setLeft(fallBackModel);
+                    modelDataAndContext.setMiddle(fallbackModelDataAndContext.getMiddle());
+                    modelDataAndContext.setRight(fallbackModelId);
                 }
-            }
+            });
 
             EMFJemData jemData = modelDataAndContext.getLeft();
             var directoryContextBaseAndVariant = modelDataAndContext.getMiddle();
@@ -365,9 +453,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                 //we do have custom models
 
                 //abort with message if we have variant models and no base model and the setting to require this like OptiFine is set
-                if(jemData == null && EMF.config().getConfig().enforceOptifineVariationRequiresDefaultModel){
-                    EMFUtils.logWarn("The model [" + finalMapData.getfileName() +"] has variation but does not have a default 'base' model, this is not allowed in the OptiFine format.\nYou may disable this requirement in EMF in the 'model > options' settings. Though it is usually best to preserve OptiFine compatibility.\nYou can get a default model by exporting it in the EMF settings via 'models > allmodels > *model* > export'");
-                }else {
+                if (jemData == null && EMF.config().getConfig().enforceOptifineVariationRequiresDefaultModel) {
+                    EMFUtils.logWarn("The model [" + finalMapData.getfileName() + "] has variation but does not have a default 'base' model, this is not allowed in the OptiFine format.\nYou may disable this requirement in EMF in the 'model > options' settings. Though it is usually best to preserve OptiFine compatibility.\nYou can get a default model by exporting it in the EMF settings via 'models > allmodels > *model* > export'");
+                } else {
                     //specification for the optifine map
                     // only used for tadpole head parts currently as optifine actually uses the root as the body
                     Set<String> optifinePartNames = new HashSet<>();
@@ -377,7 +465,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         }
                     });
 
-                    EMFModelPartRoot emfRoot = new EMFModelPartRoot(finalMapData, Objects.requireNonNullElseGet(directoryContextBaseAndVariant.getLeft(),directoryContextBaseAndVariant::getRight), root, optifinePartNames, new HashMap<>());
+                    EMFModelPartRoot emfRoot = new EMFModelPartRoot(finalMapData, Objects.requireNonNullElseGet(directoryContextBaseAndVariant.getLeft(), directoryContextBaseAndVariant::getRight), root, optifinePartNames, new HashMap<>());
                     if (jemData != null) {
                         emfRoot.addVariantOfJem(jemData, 1);
                         emfRoot.setVariantStateTo(1);
@@ -385,8 +473,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                         emfRoot.containsCustomModel = true;
                         if (hasVariants) {
                             emfRoot.discoverAndInitVariants();
-                        }else if (!modded && jemData.directoryContext.isSubFolder && EMF.config().getConfig().enforceOptifineSubFoldersVariantOnly){
-                            EMFUtils.logError("Error loading ["+jemData.directoryContext.getFinalFileLocation()+"] as it is in a subfolder but does not have any variants. This is not allowed in the OptiFine format. You may disable this requirement in EMF's settings at 'model > OptiFine settings'. Though it is usually best to preserve OptiFine compatibility.");
+                        } else if (!modded && jemData.directoryContext.isSubFolder && EMF.config().getConfig().enforceOptifineSubFoldersVariantOnly) {
+                            EMFUtils.logError("Error loading [" + jemData.directoryContext.getFinalFileLocation() + "] as it is in a subfolder but does not have any variants. This is not allowed in the OptiFine format. You may disable this requirement in EMF's settings at 'model > OptiFine settings'. Though it is usually best to preserve OptiFine compatibility.");
                             throw new Exception("Subfolder without variants, OptiFine compat enabled");
                         }
                     } else {
@@ -405,6 +493,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                                 EBE_JEMS_FOUND.add(EBETypes.get(currentBlockEntityTypeLoading));
                             }
                         }
+
+                        //finished
                         if (printing) EMFUtils.logWarn(" > EMF model used for: " + mobNameForFileAndMap);
                         return emfRoot;//tada
                     }
@@ -421,34 +511,19 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
     }
 
-    private static void handleBoats(final String originalLayerName, final EMFModel_ID mobNameForFileAndMap) {
-        String jem;
-        if (originalLayerName.startsWith("chest_boat/")) {
-            jem = originalLayerName.startsWith("chest_boat/bamboo") ? "chest_raft" : "chest_boat";
-        } else if (originalLayerName.startsWith("boat/")) {
-            jem = originalLayerName.startsWith("boat/bamboo") ? "raft" : "boat";
-        } else {
-            return;
-        }
-
-        mobNameForFileAndMap.setMapIdAndSecondaryFileName(jem);
-        String type = mobNameForFileAndMap.getfileName().split("/")[1];
-        mobNameForFileAndMap.setFileName(type + "_" + jem);
-    }
-
-    private MutableTriple<EMFJemData, ImmutablePair<EMFDirectoryHandler, EMFDirectoryHandler>, EMFModel_ID> getJemAndContext(boolean printing, EMFModel_ID mobNameForFileAndMap){
+    private MutableTriple<EMFJemData, ImmutablePair<EMFDirectoryHandler, EMFDirectoryHandler>, EMFModel_ID> getJemAndContext(boolean printing, EMFModel_ID mobNameForFileAndMap) {
         EMFDirectoryHandler baseModelDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), ".jem");
         EMFDirectoryHandler propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), ".properties");
         if (propertiesOrSecondDir == null)
             propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), "2.jem");
 
         //discard the variation context if they are in a lower pack to the base model and not in matching sub folder locations
-        if(baseModelDir != null && !baseModelDir.validForThisBase(propertiesOrSecondDir)) propertiesOrSecondDir = null;
+        if (baseModelDir != null && !baseModelDir.validForThisBase(propertiesOrSecondDir)) propertiesOrSecondDir = null;
 
         EMFJemData jemDataFirst = baseModelDir == null ? null : getJemDataWithDirectory(baseModelDir, mobNameForFileAndMap);
 
         //pack result
-        return MutableTriple.of(jemDataFirst, ImmutablePair.of(baseModelDir,propertiesOrSecondDir),mobNameForFileAndMap);
+        return MutableTriple.of(jemDataFirst, ImmutablePair.of(baseModelDir, propertiesOrSecondDir), mobNameForFileAndMap);
     }
 
     private void getDoubleChest(ModelPart root, EMFModel_ID mobNameForFileAndMap, boolean isRight, boolean printing) {
@@ -457,13 +532,16 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading + "_large", "double_chest_" + thisSide);
         if (EMF.config().getConfig().doubleChestAnimFix) {
-            if (printing) EMFUtils.log("injecting empty " + otherSide + " side parts into 'double chest' for animation purposes");
+            if (printing)
+                EMFUtils.log("injecting empty " + otherSide + " side parts into 'double chest' for animation purposes");
             Map<String, ModelPart> newChildren = new HashMap<>(root.children);
             newChildren.putIfAbsent("lid_" + otherSide, new ModelPart(List.of(), Map.of()));
             newChildren.putIfAbsent("base_" + otherSide, new ModelPart(List.of(), Map.of()));
             newChildren.putIfAbsent("knob_" + otherSide, new ModelPart(List.of(), Map.of()));
             root.children = newChildren; // mutable
         }
+        mobNameForFileAndMap.addFallbackModel(mobNameForFileAndMap.namespace, mobNameForFileAndMap.getfileName());
+        mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading + "_" + thisSide);
     }
 
     public void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {
@@ -472,7 +550,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
         allPartsBySingleAndFullHeirachicalId.put("root", emfRootPart);
-        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFModelMappings.getMapOf(emfRootPart.modelName.getMapId(), null)));
+        allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFModelMappings.getMapOf(emfRootPart.modelName, null)));
 
         Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
 

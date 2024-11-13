@@ -327,14 +327,14 @@ public final class EMFAnimationEntityContext {
             EMFUtils.chat(vanillaMessage);
             int count = 1;
             for (EMFModel_ID data : EMFManager.getInstance().modelsAnnounced) {
-                var second = data.getSecondaryModel();
+                var second = data.getNextFallbackModel();
                 StringBuilder model = new StringBuilder();
                 model.append("\n§Non-Custom Model #").append(count).append("§r")
                         .append(entryAndValue("possible .jem name", data.getDisplayFileName()));
                 if(second != null){
                     model.append(entryAndValue("possible secondary .jem name", second.getDisplayFileName()));
                 }
-                Map<String, String> map = EMFModelMappings.getMapOf(data.getMapId(), null);
+                Map<String, String> map = EMFModelMappings.getMapOf(data, null);
                 if (!map.isEmpty()) {
                     EMFUtils.chat(model + "\n§6 - part names:§r printed in game log only.");
                     StringBuilder parts = new StringBuilder();
@@ -600,7 +600,7 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getId() {
-        return IEMFEntity == null ? 0 : IEMFEntity.etf$getOptifineId();
+        return IEMFEntity == null ? 0 : Math.abs(IEMFEntity.etf$getOptifineId()) % 720720 ;
     }
 
     public static float getHurtTime() {
