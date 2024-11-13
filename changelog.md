@@ -14,6 +14,7 @@
   - spectral_arrow - "back, cross_1, cross_2"
   - bee_stinger - "cross_1, cross_2"
   - player_cape - "cape"
+  - player_slim - will now fallback to player.jem if not present
   - salmon_large - falls back to "salmon"
   - salmon_small - falls back to "salmon"
   - breeze_wind_charge - same as "wind_charge"

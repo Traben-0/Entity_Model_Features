@@ -227,12 +227,7 @@ public class EMFConfig extends TConfig {
                     category.add(model);
 
                     StringBuilder fallbacks = new StringBuilder();
-                    var fallbackData = mapData;
-                    while(fallbackData.hasFallbackModels()){
-                        fallbackData = fallbackData.getNextFallbackModel();
-                        if (fallbackData == null) break;
-                        fallbacks.append(fallbackData.getfileName()).append(".jem\n");
-                    }
+                    mapData.forEachFallback((fallBackData)-> fallbacks.append(fallBackData.getfileName()).append(".jem\n"));
 
                     model.add(new TConfigEntryBoolean("entity_model_features.config.models.enabled", "entity_model_features.config.models.enabled.tooltip",
                                     () -> !modelsNamesDisabled.contains(fileName),

@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class EMFModel_ID implements Comparable<EMFModel_ID> {
 
@@ -30,7 +31,7 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         this.fallBackModels = fallBackModels;
     }
 
-    public void setFileName(final String fileName) {
+    public EMFModel_ID setFileName(final String fileName) {
         if (fileName.contains(":")) {
             var split = fileName.split(":");
             if (split.length == 2) {
@@ -42,6 +43,7 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         } else {
             this.fileName = fileName;
         }
+        return this;
     }
 
     @Override
@@ -62,18 +64,20 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         return fileName;
     }
 
-    public void setBoth(String both) {
+    public EMFModel_ID setBoth(String both) {
         this.fileName = both;
         this.mapId = null;
+        return this;
     }
 
     public boolean areBothSame() {
         return mapId == null || fileName.equals(mapId);
     }
 
-    public void setBoth(String fileName, String mapId) {
+    public EMFModel_ID setBoth(String fileName, String mapId) {
         this.fileName = fileName;
         this.mapId = mapId;
+        return this;
     }
 
     public String getfileName() {
@@ -84,8 +88,18 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         return !fallBackModels.isEmpty();
     }
 
+    public void forEachFallback(Consumer<EMFModel_ID> action){
+        var fallbackModel = this;
+        while (fallbackModel.hasFallbackModels()) {
+            fallbackModel = fallbackModel.getNextFallbackModel();
+            if (fallbackModel == null) return;
+            action.accept(fallbackModel);
+        }
+    }
+
     public @Nullable EMFModel_ID getNextFallbackModel() {
         if (hasFallbackModels()) {
+            //noinspection SequencedCollectionMethodCanBeUsed
             var next = fallBackModels.get(0);
 
             var second = new EMFModel_ID(next.fileName, getMapId(), fallBackModels.subList(1, fallBackModels.size()));
@@ -95,19 +109,21 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         return null;
     }
 
-    public void addFallbackModel(String namespace, String fileName) {
+    public EMFModel_ID addFallbackModel(String namespace, String fileName) {
         fallBackModels.add(new FallbackModel(namespace, fileName));
+        return this;
     }
 
-    public void addFallbackModel(String fileName) {
-        addFallbackModel(namespace, fileName);
+    @SuppressWarnings("UnusedReturnValue")
+    public EMFModel_ID addFallbackModel(String fileName) {
+        return addFallbackModel(namespace, fileName);
     }
 
-    public void setMapIdAndAddFallbackModel(String both) {
-        setMapIdAndAddFallbackModel(both, both);
+    public EMFModel_ID setMapIdAndAddFallbackModel(String both) {
+        return setMapIdAndAddFallbackModel(both, both);
     }
 
-    public void setMapIdAndAddFallbackModel(String mapId, String fileName) {
+    public EMFModel_ID setMapIdAndAddFallbackModel(String mapId, String fileName) {
         this.mapId = mapId;
         if (fileName.contains(":")) {
             var split = fileName.split(":");
@@ -119,6 +135,7 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         } else {
             addFallbackModel(fileName);
         }
+        return this;
     }
 
     public String getNamespace() {
