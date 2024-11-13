@@ -1289,27 +1289,33 @@ public class EMFModelMappings {
                 }
                 jemPrinter.textureSize = textureSize;
 
-                String path = EMFVersionDifferenceManager.getConfigDirectory().toFile().getParent()
-                        + "/emf/export/" + "assets/" + namespace + "/optifine/cem/" + fileName + ".jem";
-                File outFile = new File(path);
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-                if (!outFile.getParentFile().exists()) {
-                    //noinspection ResultOfMethodCallIgnored
-                    outFile.getParentFile().mkdirs();
-                }
-                try {
-                    FileWriter fileWriter = new FileWriter(outFile);
-                    fileWriter.write(gson.toJson(jemPrinter));
-                    fileWriter.close();
-
-                    EMFUtils.log(".jem file creation succeeded for [" + path + "]");
-                } catch (IOException e) {
-                    EMFUtils.log(".jem file creation failed for [" + path + "]");
-                }
+                printModel(namespace, fileName, jemPrinter);
+                mobId.forEachFallback((fallback) -> printModel(fallback.namespace, fallback.getfileName(), jemPrinter));
             }
         }
         return mobMap;
+    }
+
+    private static void printModel(final String namespace, final String fileName, final EMFJemPrinter jemPrinter) {
+        String path = EMFVersionDifferenceManager.getConfigDirectory().toFile().getParent()
+                + "/emf/export/" + "assets/" + namespace + "/optifine/cem/" + fileName + ".jem";
+        File outFile = new File(path);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        if (!outFile.getParentFile().exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            outFile.getParentFile().mkdirs();
+        }
+        try {
+            FileWriter fileWriter = new FileWriter(outFile);
+            fileWriter.write(gson.toJson(jemPrinter));
+            fileWriter.close();
+
+            EMFUtils.log(".jem file creation succeeded for [" + path + "]");
+        } catch (IOException e) {
+            EMFUtils.log(".jem file creation failed for [" + path + "]");
+        }
     }
 
     private record PartAndOffsets(ModelPart part, float x, float y, float z) {

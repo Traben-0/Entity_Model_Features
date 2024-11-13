@@ -1,6 +1,5 @@
 
-
-
+[2.3.0]
 - the remaining 1.21.3 changes should be fairly "stable" now and are unlikely to have significant changes going forwards, likely only semantic ones as OptiFine develops
 - improved how EMF exports default models, they will now look much prettier in blockbench due to various semantic only changes
 - fixed baby and other model scaling issues in previous 1.21.3 builds, baby models with certain custom animations, using the old offsets, are still broken and need pack makers to update their packs
@@ -28,6 +27,9 @@
   - sign, wall_sign, and hanging_sign - all support wood types in the model name e.g. "oak_sign" and "oak_wall_sign" that will fall back to the generic model
   - there may be several more minor changes, see the in-game `emf > models > all models` settings screen for the most accurate and complete list
 - added legacy model fallbacks `book`, `evocation_illager`, `evocation_fangs`, and `vindication_illager`
+- many other minor tweaks and fixes
+
+[2.2.8]
 
 [2.2.7]
 - updated to 1.21.2+

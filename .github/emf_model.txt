@@ -5,6 +5,8 @@
 @ Adapted from the original OptiFine spec:
 @ https://github.com/sp614x/optifine/blob/master/OptiFineDoc/doc/cem_model.txt
 @
+@ See "all_emf_models.txt" for a simple complete list of all supported / exportable vanilla model names
+@
 @ Lines starting with @ are EMF only features
 # whereas lines starting with # are OptiFine & EMF features
 ######################################################################

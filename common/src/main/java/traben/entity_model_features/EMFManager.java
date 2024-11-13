@@ -540,7 +540,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             newChildren.putIfAbsent("knob_" + otherSide, new ModelPart(List.of(), Map.of()));
             root.children = newChildren; // mutable
         }
-        mobNameForFileAndMap.addFallbackModel(mobNameForFileAndMap.namespace, mobNameForFileAndMap.getDisplayFileName());
+        mobNameForFileAndMap.addFallbackModel(mobNameForFileAndMap.namespace, mobNameForFileAndMap.getfileName());
         mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading + "_" + thisSide);
     }
 
