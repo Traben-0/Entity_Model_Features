@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.utils.IEMFUnmodifiedLayerRootGetter;
 
@@ -17,12 +18,32 @@ import java.util.Map;
 
 @Mixin(value = EntityModelSet.class, priority = 1001)
 public class MixinEntityModelSet implements IEMFUnmodifiedLayerRootGetter {
-    #if MC > MC_21
+    #if MC > MC_21_2
     @Unique
     private Map<ModelLayerLocation, LayerDefinition> emf$unmodifiedRoots = ImmutableMap.of();
 
-    @Inject(method = "onResourceManagerReload",
-            at = @At(value = "TAIL"))
+    @Inject(method = "vanilla", at = @At(value = "RETURN"))
+    private static void emf$unModifiedRoots(final CallbackInfoReturnable<EntityModelSet> cir) {
+        EMF.tempDisableModelModifications = true;
+        ((IEMFUnmodifiedLayerRootGetter)cir.getReturnValue()).emf$setUnmodifiedRoots(ImmutableMap.copyOf(LayerDefinitions.createRoots())) ;
+        EMF.tempDisableModelModifications = false;
+    }
+
+    @Override
+    public Map<ModelLayerLocation, LayerDefinition> emf$getUnmodifiedRoots() {
+        return emf$unmodifiedRoots;
+    }
+
+    @Override
+    public void emf$setUnmodifiedRoots(final Map<ModelLayerLocation, LayerDefinition> roots) {
+        emf$unmodifiedRoots = roots;
+    }
+
+    #elif MC > MC_21
+    @Unique
+    private Map<ModelLayerLocation, LayerDefinition> emf$unmodifiedRoots = ImmutableMap.of();
+
+    @Inject(method = "onResourceManagerReload", at = @At(value = "TAIL"))
     private void emf$unModifiedRoots(final CallbackInfo ci) {
         EMF.tempDisableModelModifications = true;
         this.emf$unmodifiedRoots = ImmutableMap.copyOf(LayerDefinitions.createRoots());

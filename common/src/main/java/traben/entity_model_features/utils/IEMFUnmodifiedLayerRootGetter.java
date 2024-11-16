@@ -7,4 +7,8 @@ import java.util.Map;
 
 public interface IEMFUnmodifiedLayerRootGetter {
     Map<ModelLayerLocation, LayerDefinition> emf$getUnmodifiedRoots();
+
+    #if MC > MC_21_2
+    void emf$setUnmodifiedRoots(Map<ModelLayerLocation, LayerDefinition> roots);
+    #endif
 }

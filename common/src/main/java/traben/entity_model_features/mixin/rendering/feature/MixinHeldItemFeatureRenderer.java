@@ -13,8 +13,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.EMFAttachments;
+#if MC > MC_21_2
+import net.minecraft.client.model.ArmedModel;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 
-#if MC > MC_21
+#elif MC > MC_21
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.resources.model.BakedModel;
 #else
@@ -22,7 +27,9 @@ import net.minecraft.world.entity.LivingEntity;
 #endif
 
 @Mixin(ItemInHandLayer.class)
-public class #if MC > MC_21 MixinHeldItemFeatureRenderer<S extends LivingEntityRenderState> #else MixinHeldItemFeatureRenderer #endif {
+public class #if MC > MC_21_2  MixinHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityModel<S> & ArmedModel>
+        #elif MC > MC_21 MixinHeldItemFeatureRenderer<S extends LivingEntityRenderState>
+        #else MixinHeldItemFeatureRenderer #endif {
 
     @Unique
     private EMFAttachments emf$attachment = null;
@@ -31,12 +38,14 @@ public class #if MC > MC_21 MixinHeldItemFeatureRenderer<S extends LivingEntityR
 
     @Inject(method = "renderArmWithItem",
             at = @At(value = "HEAD"))
-    private void emf$setHand(#if MC > MC_21
+    private void emf$setHand(
+            #if MC > MC_21_2
+            final S armedEntityRenderState, final ItemStackRenderState itemStackRenderState, final HumanoidArm arm, final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final CallbackInfo ci
+            #elif MC > MC_21
             final S livingEntityRenderState, final BakedModel bakedModel, final ItemStack itemStack, final ItemDisplayContext itemDisplayContext, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource multiBufferSource, final int i, final CallbackInfo ci
-        #else
+            #else
             final LivingEntity entity, final ItemStack stack, final ItemDisplayContext transformationMode, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource vertexConsumers, final int light, final CallbackInfo ci
-
-        #endif) {
+            #endif ) {
         EMFAnimationEntityContext.setInHand = true;
         emf$attachment = arm == HumanoidArm.RIGHT ? EMFAttachments.right_handheld_item : EMFAttachments.left_handheld_item;
     }
@@ -46,12 +55,14 @@ public class #if MC > MC_21 MixinHeldItemFeatureRenderer<S extends LivingEntityR
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V",
                     shift = At.Shift.AFTER)
     )
-    private void emf$transforms(#if MC > MC_21
+    private void emf$transforms(
+            #if MC > MC_21_2
+            final S armedEntityRenderState, final ItemStackRenderState itemStackRenderState, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource multiBufferSource, final int i, final CallbackInfo ci
+            #elif MC > MC_21
             final S livingEntityRenderState, final BakedModel bakedModel, final ItemStack itemStack, final ItemDisplayContext itemDisplayContext, final HumanoidArm humanoidArm, final PoseStack matrices, final MultiBufferSource multiBufferSource, final int i, final CallbackInfo ci
-        #else
+            #else
             final LivingEntity entity, final ItemStack stack, final ItemDisplayContext transformationMode, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource vertexConsumers, final int light, final CallbackInfo ci
-
-        #endif) {
+            #endif) {
         if (emf$attachment != null) {
             var entry = emf$attachment.getAndNullify();
             if (entry != null) {
@@ -64,12 +75,13 @@ public class #if MC > MC_21 MixinHeldItemFeatureRenderer<S extends LivingEntityR
     @Inject(method = "renderArmWithItem",
             at = @At(value = "TAIL"))
     private void emf$unsetHand(
-        #if MC > MC_21
+            #if MC > MC_21_2
+            final S armedEntityRenderState, final ItemStackRenderState itemStackRenderState, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource multiBufferSource, final int i, final CallbackInfo ci
+            #elif MC > MC_21
             final S livingEntityRenderState, final BakedModel bakedModel, final ItemStack itemStack, final ItemDisplayContext itemDisplayContext, final HumanoidArm humanoidArm, final PoseStack matrices, final MultiBufferSource multiBufferSource, final int i, final CallbackInfo ci
-        #else
+            #else
             final LivingEntity entity, final ItemStack stack, final ItemDisplayContext transformationMode, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource vertexConsumers, final int light, final CallbackInfo ci
-
-        #endif ) {
+            #endif ) {
         EMFAnimationEntityContext.setInHand = false;
         emf$attachment = null;
         if (emf$needsPop) {
@@ -79,7 +91,9 @@ public class #if MC > MC_21 MixinHeldItemFeatureRenderer<S extends LivingEntityR
     }
 
     @Inject(method =
-#if MC > MC_21
+#if MC > MC_21_2
+            "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/ArmedEntityRenderState;FF)V",
+#elif MC > MC_21
             "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;FF)V",
 #else
             "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",

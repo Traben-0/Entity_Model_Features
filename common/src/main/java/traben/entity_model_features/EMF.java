@@ -152,9 +152,11 @@ public class EMF {
                 "PI = " + ((float) Math.PI) + " and you can't convince me otherwise.",
                 "90 =" + ((float) Math.toRadians(90)) + "!",
                 "making those animations fresh since 1862!",
-                "Trabee got the flu!"
+                "Trabee got the flu!",
+                "is this 'EPF' in the room with us now?"
         };
         return quips[new Random().nextInt(quips.length)];
     }
+
 
 }

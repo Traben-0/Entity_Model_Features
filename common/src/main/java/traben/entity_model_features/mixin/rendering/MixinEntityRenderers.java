@@ -16,9 +16,12 @@ public class MixinEntityRenderers {
     #if MC > MC_21
     @Inject(method = "method_32174", at = @At(value = "HEAD"))
     private static void emf$locateTransient(final ImmutableMap.Builder<?,?> builder, final EntityRendererProvider.Context context, final EntityType<?> entityType, final EntityRendererProvider<?> entityRendererProvider, final CallbackInfo ci) {
+        #if MC == MC_21_2
         if(entityType.equals(EntityType.CREAKING_TRANSIENT)) {
             EMFManager.getInstance().currentSpecifiedModelLoading = "creaking_transient";
-        }else if(entityType.equals(EntityType.BREEZE_WIND_CHARGE)) {
+        }else
+        #endif
+        if(entityType.equals(EntityType.BREEZE_WIND_CHARGE)) {
             EMFManager.getInstance().currentSpecifiedModelLoading = "breeze_wind_charge";
         }else if (entityType.is(EntityTypeTags.BOAT)) {
             //entity.minecraft.dark_oak_boat
