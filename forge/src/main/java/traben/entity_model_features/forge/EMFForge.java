@@ -34,9 +34,6 @@ public class EMFForge {
             }
 
             EMF.init();
-        } else {
-
-            throw new UnsupportedOperationException("Attempting to load a clientside only mod [EMF] on the server, refusing");
         }
     }
 }
