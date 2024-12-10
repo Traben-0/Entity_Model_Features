@@ -40,7 +40,7 @@
   "entity_model_features.config.function_explanation.easeinoutbounce": "easeinoutbounce(k, x, y)\nІнтерполює між x і y за допомогою функції Ease in Out Bounce\n\nПриклади: https://easings.net/",
   "entity_model_features.config.function_explanation.easeinoutcirc": "easeinoutcirc(k, x, y)\nІнтерполює між x і y за допомогою функції Ease in Out Circ\n\nПриклади: https://easings.net/",
   "entity_model_features.config.function_explanation.easeinoutcubic": "easeinoutcubic(k, x, y)\nІнтерполює між x і y за допомогою функції Ease in Out Cubic\n\nПриклади: https://easings.net/",
-  "entity_model_features.config.function_explanation.easeinoutelastic": "easeinoutelastic(k, x, y)\nInterpolates between x and y using the ease in and ease out elastic function\n\nПриклади: https://easings.net/",
+  "entity_model_features.config.function_explanation.easeinoutelastic": "easeinoutelastic(k, x, y)\nІнтерполює між x і y за допомогою еластичної функції Ease in й Ease Out\\n\nПриклади: https://easings.net/",
   "entity_model_features.config.function_explanation.easeinoutexpo": "easeinoutexpo(k, x, y)\nІнтерполює між x і y за допомогою функції Ease in Out Expo\n\nПриклади://easings.net/",
   "entity_model_features.config.function_explanation.easeinoutquad": "easeinoutquad(k, x, y)\nІнтерполює між x і y за допомогою функції Ease in Out Quad\n\nПриклади: https://easings.net/",
   "entity_model_features.config.function_explanation.easeinoutquart": "easeinoutquart(k, x, y)\nІнтерполює між x і y за допомогою функції Ease in Out Quart\n\nПриклади: https://easings.net/",
