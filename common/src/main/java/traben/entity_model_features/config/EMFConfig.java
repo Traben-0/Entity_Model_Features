@@ -106,7 +106,7 @@ public class EMFConfig extends TConfig {
     #if MC < MC_21
     public boolean enforceOptiFineFloorUVs = true;
     #endif
-
+    public boolean showReloadErrorToast = true;
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -156,7 +156,18 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryBoolean("entity_model_features.config.log_models", "entity_model_features.config.log_models.tooltip",
                                         () -> logModelCreationData, value -> logModelCreationData = value, false),
                                 new TConfigEntryBoolean("entity_model_features.config.debug_right_click", "entity_model_features.config.debug_right_click.tooltip",
-                                        () -> debugOnRightClick, value -> debugOnRightClick = value, false)
+                                        () -> debugOnRightClick, value -> debugOnRightClick = value, false),
+                                new TConfigEntryCustomButton(
+                                        "entity_model_features.config.load_warn.title",
+                                        "entity_model_features.config.load_warn.tooltip",
+                                        (button) -> reprintLoadingErrors(false)),
+                                new TConfigEntryCustomButton(
+                                        "entity_model_features.config.load_warn.title2",
+                                        "entity_model_features.config.load_warn.tooltip",
+                                        (button) -> reprintLoadingErrors(true)
+                                        ),
+                                new TConfigEntryBoolean("entity_model_features.config.show_reload_error_toast", "entity_model_features.config.show_reload_error_toast.tooltip",
+                                        () -> showReloadErrorToast, value -> showReloadErrorToast = value, true)
                         ), getModelSettings()
                         , getMathInfo()
                 )//, new TConfigEntryCategory("config.entity_features.general_settings.title")
@@ -174,6 +185,18 @@ public class EMFConfig extends TConfig {
 
                 )
         );
+    }
+
+    private static void reprintLoadingErrors(boolean stacktrace) {
+        EMFUtils.logError("~~//BEGIN: EMF MASS PRINT OF LOADING ERRORS\\\\~~\nNot all errors here will be helpful as they may be missing surrounding log context.\nThis is best used to know what you might need to be searching for in your log\nor to give the dev debugging info.");
+        int i = 1;
+        for (Exception loadingException : EMFManager.getInstance().loadingExceptions) {
+            System.out.println("----------//Exception #" + i + "\\\\---------- \n" + loadingException.getMessage());
+            if (stacktrace) //noinspection CallToPrintStackTrace
+                loadingException.printStackTrace();
+            i++;
+        }
+        EMFUtils.logError("~~\\\\END: EMF MASS PRINT OF LOADING ERRORS//~~");
     }
 
     private TConfigEntryCategory getMathInfo() {

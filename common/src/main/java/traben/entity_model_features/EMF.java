@@ -80,6 +80,11 @@ public class EMF {
                 return Component.translatable("entity_model_features.config.ebe_warn.4").getString();
             }
         });
+        ETFConfigWarnings.registerConfigWarning(new ETFConfigWarning.Simple(
+                "emf_load",
+                () -> !EMFManager.getInstance().loadingExceptions.isEmpty(),
+                "entity_model_features.config.load_warn.1",
+                "entity_model_features.config.load_warn.2", null));
 
 
         //register EMF physics mod hook
@@ -152,9 +157,11 @@ public class EMF {
                 "PI = " + ((float) Math.PI) + " and you can't convince me otherwise.",
                 "90 =" + ((float) Math.toRadians(90)) + "!",
                 "making those animations fresh since 1862!",
-                "Trabee got the flu!"
+                "Trabee got the flu!",
+                "is this 'EPF' in the room with us now?"
         };
         return quips[new Random().nextInt(quips.length)];
     }
+
 
 }

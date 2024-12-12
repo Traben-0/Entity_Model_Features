@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.chars.CharArrayList;
 import it.unimi.dsi.fastutil.chars.CharListIterator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.EMFException;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -256,12 +257,14 @@ public class MathExpressionParser {
     protected void validateAndOptimize() {
         if (caughtExceptionString != null) {
             EMFUtils.logWarn(caughtExceptionString);
+            new EMFMathException(caughtExceptionString).record();
             return;
         }
 
         //if the expression is not valid, then return NaN
         if (Float.isNaN(this.validateCalculationAndOptimize())) {
             EMFUtils.logWarn("result was NaN, expression not valid: " + originalExpression);
+            new EMFMathException("result was NaN, expression not valid: " + originalExpression).record();
         }
     }
 
@@ -313,7 +316,9 @@ public class MathExpressionParser {
                 EMFUtils.logError("\texpression was [" + originalExpression + "].");
             }
         } catch (Exception e) {
-            EMFUtils.logError("EMF animation ERROR: expression error in [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "] caused by [" + e + "].");
+            String message = "EMF animation ERROR: expression error in [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "] caused by [" + e + "].";
+            EMFUtils.logError(message);
+            new EMFException(message).record();
         }
 
         //if the expression is not valid, then return NaN

@@ -1,4 +1,11 @@
 
+[2.3.1]
+- updated Forge and NeoForge to 1.21.4
+- added a toast message when the reload encountered EMF errors (can be disabled in config)
+- added config options to re-log many exceptions encountered during EMF loading, even some not normally logged due to config settings
+- fixed `spectral_arrow` model breaking in 1.21.3
+
+
 [2.3.0]
 - the remaining 1.21.3 changes should be fairly "stable" now and are unlikely to have significant changes going forwards, likely only semantic ones as OptiFine develops
 - improved how EMF exports default models, they will now look much prettier in blockbench due to various semantic only changes

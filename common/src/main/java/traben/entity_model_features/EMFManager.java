@@ -3,6 +3,9 @@ package traben.entity_model_features;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.components.toasts.ToastManager;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackResources;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutableTriple;
@@ -79,6 +82,11 @@ public class EMFManager {//singleton for data holding and resetting needs
     public BlockEntityType<?> currentBlockEntityTypeLoading = null;
     private boolean traderLlamaHappened = false;
 
+    public final List<Exception> loadingExceptions = new ArrayList<>();
+
+    public void receiveException(Exception exception) {
+        loadingExceptions.add(exception);
+    }
 
     private EMFManager() {
         EMFAnimationEntityContext.globalReset();
@@ -134,6 +142,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             EMFUtils.log(pathOfJem + ", .jem failed to load: " + e, false);
             //noinspection CallToPrintStackTrace
             e.printStackTrace();
+            EMFException.recordException(e);
         }
         return null;
     }
@@ -203,6 +212,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 EBEConfigModifier.modifyEBEConfig(EBE_JEMS_FOUND);
             } catch (Exception | Error e) {
                 EMFUtils.logWarn("EBE config modification issue: " + e);
+                if (e instanceof Exception f) EMFException.recordException(f);
             }
         }
         EBE_JEMS_FOUND_LAST.clear();
@@ -310,7 +320,13 @@ public class EMFManager {//singleton for data holding and resetting needs
                     case "piglin_head" -> mobNameForFileAndMap.setBoth("head_piglin");
                     case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
                     case "player_slim" -> mobNameForFileAndMap.addFallbackModel("player");
-                    case "spectral_arrow" -> mobNameForFileAndMap.addFallbackModel("arrow");
+                    case "arrow" ->{
+                        if (currentSpecifiedModelLoading.equals("spectral_arrow")){
+                            mobNameForFileAndMap.setBoth("spectral_arrow");
+                            mobNameForFileAndMap.addFallbackModel("arrow");
+                        }
+
+                    }
                     case "boat_water_patch" -> {
                         if (currentSpecifiedModelLoading.startsWith("emf$boat$")) {
                             String type = currentSpecifiedModelLoading.substring(9);
@@ -507,7 +523,19 @@ public class EMFManager {//singleton for data holding and resetting needs
         } catch (Exception e) {
             EMFUtils.logWarn("default model returned for " + layer + " due to exception: " + e);
             ((IEMFModelNameContainer) root).emf$insertKnownMappings(mobNameForFileAndMap);
+            EMFException.recordException(e);
             return root;
+        }
+    }
+
+    public void reloadEnd(){
+        if (EMF.config().getConfig().showReloadErrorToast && !loadingExceptions.isEmpty()){
+            try {
+                ToastManager toastManager = Minecraft.getInstance().getToastManager();
+                SystemToast.add(toastManager, SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
+                        Component.translatable("entity_model_features.config.load_warn.1"),
+                        Component.translatable("entity_model_features.config.load_warn.3"));
+            }catch (Exception ignored){}
         }
     }
 
