@@ -85,6 +85,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     public final List<Exception> loadingExceptions = new ArrayList<>();
 
     public void receiveException(Exception exception) {
+        if (exception == null || exception.getMessage() == null) return;
         loadingExceptions.add(exception);
     }
 
@@ -418,7 +419,14 @@ public class EMFManager {//singleton for data holding and resetting needs
 //            }
 
 
-            ///jem name and fallbacks are final and correct from here
+            ///jem name and fallbacks are final and correct from here and there are no blank fallbacks
+            if (mobNameForFileAndMap.getfileName().isBlank()){
+                if(mobNameForFileAndMap.hasFallbackModels()){
+                    mobNameForFileAndMap = mobNameForFileAndMap.getNextFallbackModel();
+                }else{
+                    throw new EMFException("Model name is blank, for input layer: "+ layer);
+                }
+            }
 
 
             if (printing) EMFUtils.log(" > checking if: [" + mobNameForFileAndMap + "], is allowed as a model name.");

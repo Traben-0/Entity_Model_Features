@@ -52,6 +52,12 @@ public class MixinBlockEntityRendererFactories {
             EMFManager.getInstance().currentSpecifiedModelLoading = "enchanting_book";
         else if (BlockEntityType.LECTERN.equals(type))
             EMFManager.getInstance().currentSpecifiedModelLoading = "lectern_book";
+        else if (BlockEntityType.CHEST.equals(type))
+            EMFManager.getInstance().currentSpecifiedModelLoading = "chest";
+        else if (BlockEntityType.ENDER_CHEST.equals(type))
+            EMFManager.getInstance().currentSpecifiedModelLoading = "ender_chest";
+        else if (BlockEntityType.TRAPPED_CHEST.equals(type))
+            EMFManager.getInstance().currentSpecifiedModelLoading = "trapped_chest";
         #if MC >= MC_20_2
         //todo did deprecation start in 1.21.2?
         else if (type.builtInRegistryHolder() != null && type.builtInRegistryHolder().unwrapKey().isPresent()) {

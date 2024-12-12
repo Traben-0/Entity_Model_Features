@@ -172,6 +172,8 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
                 addFallbackModel("outer_armor");
             }
         }
+        //just to be safe
+        fallBackModels.removeIf(next -> next.fileName.isBlank());
     }
 
 
