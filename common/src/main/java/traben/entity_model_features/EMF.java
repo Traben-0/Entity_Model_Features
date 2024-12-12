@@ -80,6 +80,11 @@ public class EMF {
                 return Component.translatable("entity_model_features.config.ebe_warn.4").getString();
             }
         });
+        ETFConfigWarnings.registerConfigWarning(new ETFConfigWarning.Simple(
+                "emf_load",
+                () -> !EMFManager.getInstance().loadingExceptions.isEmpty(),
+                "entity_model_features.config.load_warn.1",
+                "entity_model_features.config.load_warn.2", null));
 
 
         //register EMF physics mod hook

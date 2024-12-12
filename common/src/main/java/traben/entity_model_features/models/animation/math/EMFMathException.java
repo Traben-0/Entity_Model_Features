@@ -1,15 +1,9 @@
 package traben.entity_model_features.models.animation.math;
 
-public class EMFMathException extends Exception {
+import traben.entity_model_features.EMFException;
 
-    final String errorMsg;
-
+public class EMFMathException extends EMFException {
     public EMFMathException(String s) {
-        errorMsg = s;
-    }
-
-    @Override
-    public String toString() {
-        return errorMsg;
+        super(s);
     }
 }

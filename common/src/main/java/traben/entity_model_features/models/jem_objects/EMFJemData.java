@@ -2,6 +2,7 @@ package traben.entity_model_features.models.jem_objects;
 
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.EMFException;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.utils.EMFUtils;
@@ -187,8 +188,9 @@ OptiFine spec
                         .add(shadowAnim);
             }
         } catch (Exception e) {
-            EMFUtils.logError("Error validating jem data, for model ["+mobModelIDInfo.getDisplayFileName()+"]: " + e.getMessage());
-            throw new RuntimeException("Error validating jem data, for model ["+mobModelIDInfo.getDisplayFileName()+"]: " + e.getMessage(), e);
+            String message = "Error preparing jem data, for model [" + mobModelIDInfo.getDisplayFileName() + "]: " + e.getMessage();
+            EMFUtils.logError(message);
+            throw EMFException.recordException(new RuntimeException(message));
         }
         ///finished animations preprocess
     }

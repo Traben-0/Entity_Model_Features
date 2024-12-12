@@ -21,7 +21,9 @@ public class MixinEntityRenderers {
             EMFManager.getInstance().currentSpecifiedModelLoading = "creaking_transient";
         }else
         #endif
-        if(entityType.equals(EntityType.BREEZE_WIND_CHARGE)) {
+        if(entityType.equals(EntityType.SPECTRAL_ARROW)) {
+            EMFManager.getInstance().currentSpecifiedModelLoading = "spectral_arrow";
+        }else if(entityType.equals(EntityType.BREEZE_WIND_CHARGE)) {
             EMFManager.getInstance().currentSpecifiedModelLoading = "breeze_wind_charge";
         }else if (entityType.is(EntityTypeTags.BOAT)) {
             //entity.minecraft.dark_oak_boat

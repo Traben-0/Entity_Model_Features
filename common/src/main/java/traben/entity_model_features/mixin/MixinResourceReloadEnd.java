@@ -29,6 +29,7 @@ public abstract class MixinResourceReloadEnd {
     private void emf$reloadFinish(final CallbackInfo ci) {
         if (EMF.testForForgeLoadingError()) return;
         EMFManager.getInstance().modifyEBEIfRequired();
+        EMFManager.getInstance().reloadEnd();
     }
 }
 
