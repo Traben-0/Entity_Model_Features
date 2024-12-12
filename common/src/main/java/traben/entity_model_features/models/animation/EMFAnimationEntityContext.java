@@ -104,7 +104,7 @@ public final class EMFAnimationEntityContext {
 
         float inc = frameCounter + 1;
         //reset counter after exceeding floating point precision cutoff
-        frameCounter = inc > 720719 ? 0 : inc;
+        frameCounter = inc > 27719 ? 0 : inc;
     }
 
     public static float getFrameCounter(){
@@ -537,7 +537,7 @@ public final class EMFAnimationEntityContext {
         } else {
             //limit value upper limit to preserve floating point precision
             long upTimeInTicks = IEMFEntity.etf$getWorld().getGameTime(); // (System.currentTimeMillis() - START_TIME)/50;
-            return constrainedFloat(upTimeInTicks, 24000) + getTickDelta();
+            return constrainedFloat(upTimeInTicks, 27720) + getTickDelta();
         }
     }
 
@@ -555,7 +555,7 @@ public final class EMFAnimationEntityContext {
             return 0 + getTickDelta();
         } else {
             //limit value upper limit to preserve floating point precision
-            return (float) (IEMFEntity.etf$getWorld().getDayTime() / 24000L);
+            return (float) (IEMFEntity.etf$getWorld().getDayTime() / 27720L);
         }
     }
 
@@ -600,7 +600,7 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getId() {
-        return IEMFEntity == null ? 0 : Math.abs(IEMFEntity.etf$getOptifineId()) % 720720 ;
+        return IEMFEntity == null ? 0 : Math.abs(IEMFEntity.etf$getOptifineId()) % 27720 ;
     }
 
     public static float getHurtTime() {
@@ -886,7 +886,7 @@ public final class EMFAnimationEntityContext {
         if (IEMFEntity == null) {
             return 0 + getTickDelta();
         }else {
-            return constrainedFloat(IEMFEntity.emf$age(), 24000) + getTickDelta();
+            return constrainedFloat(IEMFEntity.emf$age(), 27720) + getTickDelta();
         }
 //        return age;
     }
@@ -896,7 +896,7 @@ public final class EMFAnimationEntityContext {
     }
 
     private static float constrainedFloat(float value) {
-        return constrainedFloat(value, 24000);
+        return constrainedFloat(value, 27720);
     }
 
     private static float constrainedFloat(long value, int constraint) {
@@ -904,7 +904,7 @@ public final class EMFAnimationEntityContext {
     }
 
     private static float constrainedFloat(long value) {
-        return constrainedFloat(value, 24000);
+        return constrainedFloat(value, 27720);
     }
 
     private static float constrainedFloat(int value, int constraint) {
@@ -912,7 +912,7 @@ public final class EMFAnimationEntityContext {
     }
 
     private static float constrainedFloat(int value) {
-        return constrainedFloat(value, 24000);
+        return constrainedFloat(value, 27720);
     }
 
     public static float getFrameTime() {

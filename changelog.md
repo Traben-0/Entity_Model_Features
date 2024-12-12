@@ -4,7 +4,7 @@
 - added a toast message when the reload encountered EMF errors (can be disabled in config)
 - added config options to re-log many exceptions encountered during EMF loading, even some not normally logged due to config settings
 - fixed `spectral_arrow` model breaking in 1.21.3
-
+- limited `time`, `frame_counter`, `id`, and a few other variables to 27720
 
 [2.3.0]
 - the remaining 1.21.3 changes should be fairly "stable" now and are unlikely to have significant changes going forwards, likely only semantic ones as OptiFine develops
