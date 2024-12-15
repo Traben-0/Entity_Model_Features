@@ -402,17 +402,17 @@ public class EMFConfig extends TConfig {
 
 
     public enum ModelPrintMode {
-        NONE(CommonComponents.OPTION_OFF),
+        NONE("options.off"),
         @SuppressWarnings("unused")
-        LOG_ONLY(Component.translatable("entity_model_features.config.print_mode.log")),
-        LOG_AND_JEM(Component.translatable("entity_model_features.config.print_mode.log_jem")),
+        LOG_ONLY("entity_model_features.config.print_mode.log"),
+        LOG_AND_JEM("entity_model_features.config.print_mode.log_jem"),
         @SuppressWarnings("unused")
-        ALL_LOG_ONLY(Component.translatable("entity_model_features.config.print_mode.all_log")),
-        ALL_LOG_AND_JEM(Component.translatable("entity_model_features.config.print_mode.all_log_jem"));
+        ALL_LOG_ONLY("entity_model_features.config.print_mode.all_log"),
+        ALL_LOG_AND_JEM("entity_model_features.config.print_mode.all_log_jem");
 
-        private final Component text;
+        private final String text;
 
-        ModelPrintMode(Component text) {
+        ModelPrintMode(String text) {
             this.text = text;
         }
 
@@ -430,63 +430,63 @@ public class EMFConfig extends TConfig {
 
         @Override
         public String toString() {
-            return text.getString();
+            return Component.translatable(text).getString();
         }
     }
 
     public enum VanillaModelRenderMode {
-        OFF(CommonComponents.OPTION_OFF),
+        OFF("options.off"),
         @SuppressWarnings("unused")
-        NORMAL(Component.translatable("entity_model_features.config.vanilla_render.normal")),
-        OFFSET(Component.translatable("entity_model_features.config.vanilla_render.offset"));
+        NORMAL("entity_model_features.config.vanilla_render.normal"),
+        OFFSET("entity_model_features.config.vanilla_render.offset");
 
-        private final Component text;
+        private final String text;
 
-        VanillaModelRenderMode(Component text) {
+        VanillaModelRenderMode(String text) {
             this.text = text;
         }
 
         @Override
         public String toString() {
-            return text.getString();
+            return Component.translatable(text).getString();
         }
     }
 
     public enum PhysicsModCompatChoice {
-        OFF(CommonComponents.OPTION_OFF),
-        VANILLA(Component.translatable("entity_model_features.config.physics.1")),
-        CUSTOM(Component.translatable("entity_model_features.config.physics.2"));
+        OFF("options.off"),
+        VANILLA("entity_model_features.config.physics.1"),
+        CUSTOM("entity_model_features.config.physics.2");
 
-        private final Component text;
+        private final String text;
 
-        PhysicsModCompatChoice(Component text) {
+        PhysicsModCompatChoice(String text) {
             this.text = text;
         }
 
         @Override
         public String toString() {
-            return text.getString();
+            return Component.translatable(text).getString();
         }
     }
 
     public enum RenderModeChoice {
-        NORMAL(Component.translatable("entity_model_features.config.render.normal")),
-        GREEN(Component.translatable("entity_model_features.config.render.green")),
-        LINES_AND_TEXTURE(Component.translatable("entity_model_features.config.render.lines_texture")),
-        LINES_AND_TEXTURE_FLASH(Component.translatable("entity_model_features.config.render.lines_texture_flash")),
-        LINES(Component.translatable("entity_model_features.config.render.lines")),
-        NONE(Component.translatable("entity_model_features.config.render.none"));
+        NORMAL("entity_model_features.config.render.normal"),
+        GREEN("entity_model_features.config.render.green"),
+        LINES_AND_TEXTURE("entity_model_features.config.render.lines_texture"),
+        LINES_AND_TEXTURE_FLASH("entity_model_features.config.render.lines_texture_flash"),
+        LINES("entity_model_features.config.render.lines"),
+        NONE("entity_model_features.config.render.none");
 
         private final String text;
 
 
-        RenderModeChoice(Component text) {
-            this.text = text.getString();
+        RenderModeChoice(String text) {
+            this.text = text;
         }
 
         @Override
         public String toString() {
-            return text;
+            return Component.translatable(text).getString();
         }
     }
 
