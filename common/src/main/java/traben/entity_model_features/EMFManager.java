@@ -322,7 +322,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                     case "llama_baby_decor" ->
                             mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_baby_decor" : "llama_baby_decor");
                     case "chest_minecart", "command_block_minecart", "spawner_minecart", "tnt_minecart",
-                         "furnace_minecart", "hopper_minecart" -> mobNameForFileAndMap.setBoth("minecart");
+                         "furnace_minecart", "hopper_minecart" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("minecart");
                     case "piglin_head" -> mobNameForFileAndMap.setBoth("head_piglin");
                     case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
                     case "player_slim" -> mobNameForFileAndMap.addFallbackModel("player");

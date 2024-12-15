@@ -4,7 +4,7 @@
 - removed unimportant exceptions from triggering the load error warning toast
 - math functions that allow string inputs can now use `\` to escape the `,`, `(`, `)`, & `\` characters, such as when needing a `,` in one of the inputs for `nbt()`. e.g. `nbt(Test,text="this\, that")`
 - fixed whitespace characters in functions that allow string inputs
-
+- fixed all minecart variants only using the `minecart` model in 1.21.2+, they now correctly use it as a fallback only
 
 [2.3.1]
 - updated Forge and NeoForge to 1.21.4
