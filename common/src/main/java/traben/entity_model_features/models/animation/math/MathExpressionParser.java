@@ -39,7 +39,7 @@ public class MathExpressionParser {
         wasInvertedBooleanExpression = invertBoolean;
 
         expressionString = expressionString.trim();
-        expressionString = expressionString.replaceAll("\\s*", "");
+//        expressionString = expressionString.replaceAll("\\s*", "");
         originalExpression = expressionString;
 
         components = new CalculationList();
@@ -52,6 +52,10 @@ public class MathExpressionParser {
             Character firstBooleanChar = null;
             while (charIterator.hasNext()) {
                 char currentChar = charIterator.nextChar();
+
+                //ignore whitespace
+                if (Character.isWhitespace(currentChar)) continue;
+
                 MathOperator asAction = MathOperator.getAction(currentChar);
 
                 //process the char after a boolean character. i.e.   !, =, &, |, <, > could turn into !=, ==, &&, ||, <=, >=

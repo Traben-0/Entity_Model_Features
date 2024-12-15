@@ -62,6 +62,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
+
     public final ObjectSet<EMFModel_ID> modelsAnnounced = new ObjectOpenHashSet<>();
 
     public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
@@ -85,7 +86,10 @@ public class EMFManager {//singleton for data holding and resetting needs
     public final List<Exception> loadingExceptions = new ArrayList<>();
 
     public void receiveException(Exception exception) {
-        if (exception == null || exception.getMessage() == null) return;
+        if (exception == null
+                || exception.getMessage() == null
+                || exception.getMessage().trim().equals("null")
+        ) return;
         loadingExceptions.add(exception);
     }
 
@@ -98,7 +102,6 @@ public class EMFManager {//singleton for data holding and resetting needs
         lastModelRuleOfEntity.defaultReturnValue(0);
         lastModelSuffixOfEntity = new EntityIntLRU();
         lastModelSuffixOfEntity.defaultReturnValue(0);
-
         KNOWN_RESOURCEPACK_ORDER = new ArrayList<>();
     }
 
@@ -295,7 +298,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                     case "salmon_small", "salmon_large" -> mobNameForFileAndMap.addFallbackModel("salmon");
                     case "breeze_wind_charge" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("wind_charge");
                     case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("creaking");
-                    case "chest" -> mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading, "chest");
+                    case "chest" -> mobNameForFileAndMap.setBoth(
+                            currentSpecifiedModelLoading != null && !currentSpecifiedModelLoading.isBlank()
+                            ? currentSpecifiedModelLoading : "chest", "chest");
                     case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit_cage").addFallbackModel("conduit");
                     case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit_eye").addFallbackModel("conduit");
                     case "conduit_shell" -> mobNameForFileAndMap.setBoth("conduit_shell").addFallbackModel("conduit");
@@ -412,6 +417,17 @@ public class EMFManager {//singleton for data holding and resetting needs
             ///jem name is final and correct from here
             mobNameForFileAndMap.finishAndPrepAutomatedFallbacks();
 
+            ///jem name and fallbacks are final and correct from here and there are no blank fallbacks
+            if (mobNameForFileAndMap.getfileName().isBlank()){
+                if(mobNameForFileAndMap.hasFallbackModels()){
+                    mobNameForFileAndMap = mobNameForFileAndMap.getNextFallbackModel();
+                } else if(!originalLayerName.isBlank()){
+                    mobNameForFileAndMap.setFileName(originalLayerName);
+                } else {
+                    throw new EMFException("Model name is blank, for input layer: "+ layer);
+                }
+            }
+
             //cache the layers for the model
 //            if(!isBaby) {
                 cache_LayersByModelName.put(mobNameForFileAndMap, layer);
@@ -419,14 +435,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 //            }
 
 
-            ///jem name and fallbacks are final and correct from here and there are no blank fallbacks
-            if (mobNameForFileAndMap.getfileName().isBlank()){
-                if(mobNameForFileAndMap.hasFallbackModels()){
-                    mobNameForFileAndMap = mobNameForFileAndMap.getNextFallbackModel();
-                }else{
-                    throw new EMFException("Model name is blank, for input layer: "+ layer);
-                }
-            }
+
 
 
             if (printing) EMFUtils.log(" > checking if: [" + mobNameForFileAndMap + "], is allowed as a model name.");

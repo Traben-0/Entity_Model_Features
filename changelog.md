@@ -1,4 +1,11 @@
 
+[???]
+- reduced log spam for certain loading errors
+- removed unimportant exceptions from triggering the load error warning toast
+- math functions that allow string inputs can now use `\` to escape the `,`, `(`, `)`, & `\` characters, such as when needing a `,` in one of the inputs for `nbt()`. e.g. `nbt(Test,text="this\, that")`
+- fixed whitespace characters in functions that allow string inputs
+
+
 [2.3.1]
 - updated Forge and NeoForge to 1.21.4
 - added a toast message when the reload encountered EMF errors (can be disabled in config)

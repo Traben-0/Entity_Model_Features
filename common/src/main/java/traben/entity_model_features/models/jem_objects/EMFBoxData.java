@@ -103,7 +103,7 @@ public class EMFBoxData {
         }
         #endif
 
-        if (EMF.config().getConfig().allowEBEModConfigModify) {
+        if (EMF.config().getConfig().logModelCreationData) {
             if (uv[2] == uv[0]) {
                 EMFUtils.logWarn("Possibly invalid UV data for [" + name + "], the U width should not be 0, its behaviour is extremely inconsistent between hardware: " + Arrays.toString(uv));
             }

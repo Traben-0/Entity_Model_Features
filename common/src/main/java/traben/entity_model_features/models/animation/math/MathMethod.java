@@ -5,6 +5,7 @@ import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -83,20 +84,30 @@ public abstract class MathMethod extends MathValue implements MathComponent {
         int openBracketCount = 0;
         StringBuilder builder = new StringBuilder();
 
-        for (char ch : args.toCharArray()) {
+        Iterator<Character> charIterator = args.chars().mapToObj(c -> (char) c).iterator();
+        char lastChar = '\0';
+
+        while (charIterator.hasNext()) {
+            char ch = charIterator.next();
+            if (lastChar == '\\') {
+                builder.append(ch);
+                lastChar = '\0'; // reset lastChar to avoid double escaping
+                continue;
+            }
             if (ch == '(') {
                 openBracketCount++;
             } else if (ch == ')') {
                 openBracketCount--;
             } else if (ch == ',' && openBracketCount == 0) {
-                argsList.add(builder.toString());
+                argsList.add(builder.toString().trim());
                 builder.setLength(0);
                 continue;
             }
             builder.append(ch);
+            lastChar = ch;
         }
         if (!builder.isEmpty()) {
-            argsList.add(builder.toString());
+            argsList.add(builder.toString().trim());
         }
         return argsList;
     }
