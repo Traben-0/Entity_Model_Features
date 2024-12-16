@@ -36,7 +36,6 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.AABB;
@@ -103,6 +102,7 @@ public class EMFConfig extends TConfig {
     public boolean onlyDebugRenderOnHover = false;
     public boolean enforceOptifineSubFoldersVariantOnly = true;
     public boolean enforceOptiFineAnimSyntaxLimits = true;
+    public boolean allowOptifineFallbackProperties = true;
     #if MC < MC_21
     public boolean enforceOptiFineFloorUVs = true;
     #endif
@@ -178,7 +178,9 @@ public class EMFConfig extends TConfig {
                         new TConfigEntryBoolean("entity_model_features.config.optifine_subfolders", "entity_model_features.config.optifine_subfolders.tooltip",
                                 () -> enforceOptifineSubFoldersVariantOnly, value -> enforceOptifineSubFoldersVariantOnly = value, true),
                         new TConfigEntryBoolean("entity_model_features.config.optifine_syntax", "entity_model_features.config.optifine_syntax.tooltip",
-                                () -> enforceOptiFineAnimSyntaxLimits, value -> enforceOptiFineAnimSyntaxLimits = value, true)
+                                () -> enforceOptiFineAnimSyntaxLimits, value -> enforceOptiFineAnimSyntaxLimits = value, true),
+                        new TConfigEntryBoolean("entity_model_features.config.optifine_fallback_properties", "entity_model_features.config.optifine_fallback_properties.tooltip",
+                                () -> allowOptifineFallbackProperties, value -> allowOptifineFallbackProperties = value, true)
 
                         #if MC < MC_21 , new TConfigEntryBoolean("entity_model_features.config.optifine_floor", "entity_model_features.config.optifine_floor.tooltip",
                                 () -> enforceOptiFineFloorUVs, value -> enforceOptiFineFloorUVs = value, true)#endif

@@ -1,14 +1,17 @@
 
 [???]
-- reduced log spam for certain loading errors
-- removed unimportant exceptions from triggering the load error warning toast
+- added `helmet`, `chestplate`, `leggings`, and `boots` partial armor model support. e.g. `helmet.jem`, each piece can be varied separately e.g. `helmet.properties`
+- added fallback properties support to match OptiFine behaviour. e.g. `drowned_outer.jem` will vary with `drowned.properties` if `drowned_outer.properties` doesn't exist. (The latter is only possible via EMF as OptiFine will only use `drowned.properties`)
+- reduced log spam for certain loading warnings
+- prevented some unimportant exceptions from triggering the load error warning toast
 - math functions that allow string inputs can now use `\` to escape the `,`, `(`, `)`, & `\` characters, such as when needing a `,` in one of the inputs for `nbt()`. e.g. `nbt(Test,text="this\, that")`
 - fixed whitespace characters in functions that allow string inputs
 - fixed all minecart variants only using the `minecart` model in 1.21.2+, they now correctly use it as a fallback only
 - fixed boat and minecart variant animation parameters
 - fixed layer models not rendering in 1.21.2+
-- fixed some config translation timings
-- fixed `move_forward` & `move_strafing` breaking for others in multiplayer
+- fixed an issue with chest models in 1.21.2+
+- fixed some config translation logic
+- fixed `move_forward` & `move_strafing` breaking for other entities in multiplayer
 
 [2.3.1]
 - updated Forge and NeoForge to 1.21.4

@@ -234,7 +234,11 @@ public class EMFManager {//singleton for data holding and resetting needs
             return root;
         }
 
+
         String originalLayerName = layer. #if MC > MC_21 model() #else getModel() #endif .getPath();
+
+        final String originalLayerBase =  originalLayerName.replaceFirst("_baby$","");
+
         EMFModel_ID mobNameForFileAndMap = new EMFModel_ID(
                 currentSpecifiedModelLoading.isBlank()
                         || currentSpecifiedModelLoading.startsWith("emf$") //key to not override
@@ -453,7 +457,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             if (printing)
                 EMFUtils.log(" >> EMF trying to find model: " + mobNameForFileAndMap.getNamespace() + ":optifine/cem/" + mobNameForFileAndMap + ".jem");
 
-            var modelDataAndContext = getJemAndContext(printing, mobNameForFileAndMap);
+            var modelDataAndContext = getJemAndContext(printing, mobNameForFileAndMap, originalLayerBase);
 
             //try with secondary model
 
@@ -462,7 +466,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 if (printing)
                     EMFUtils.log(" >> EMF trying to find fallback model: " + fallbackModelId.getNamespace() + ":optifine/cem/" + fallbackModelId + ".jem");
 
-                var fallbackModelDataAndContext = getJemAndContext(printing, fallbackModelId);
+                var fallbackModelDataAndContext = getJemAndContext(printing, fallbackModelId, originalLayerBase);
 
                 EMFJemData currentBestOrFirstModel = modelDataAndContext.getLeft();
                 EMFJemData fallBackModel = fallbackModelDataAndContext.getLeft();
@@ -506,14 +510,14 @@ public class EMFManager {//singleton for data holding and resetting needs
                         setupAnimationsFromJemToModel(jemData, emfRoot, 1);
                         emfRoot.containsCustomModel = true;
                         if (hasVariants) {
-                            emfRoot.discoverAndInitVariants();
+                            emfRoot.discoverAndInitVariants(originalLayerBase);
                         } else if (!modded && jemData.directoryContext.isSubFolder && EMF.config().getConfig().enforceOptifineSubFoldersVariantOnly) {
                             EMFUtils.logError("Error loading [" + jemData.directoryContext.getFinalFileLocation() + "] as it is in a subfolder but does not have any variants. This is not allowed in the OptiFine format. You may disable this requirement in EMF's settings at 'model > OptiFine settings'. Though it is usually best to preserve OptiFine compatibility.");
                             throw new Exception("Subfolder without variants, OptiFine compat enabled");
                         }
                     } else {
                         emfRoot.setVariant1ToVanilla0();
-                        emfRoot.discoverAndInitVariants();
+                        emfRoot.discoverAndInitVariants(originalLayerBase);
                     }
                     //reset any variant state weirdness
                     emfRoot.setVariantStateTo(1);
@@ -567,11 +571,29 @@ public class EMFManager {//singleton for data holding and resetting needs
         return armorParts;
     }
 
-    private MutableTriple<EMFJemData, ImmutablePair<EMFDirectoryHandler, EMFDirectoryHandler>, EMFModel_ID> getJemAndContext(boolean printing, EMFModel_ID mobNameForFileAndMap) {
-        EMFDirectoryHandler baseModelDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), ".jem");
-        EMFDirectoryHandler propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), ".properties");
+    private MutableTriple<EMFJemData, ImmutablePair<EMFDirectoryHandler, EMFDirectoryHandler>, EMFModel_ID> getJemAndContext(boolean printing, EMFModel_ID mobNameForFileAndMap, String possibleBasePropertiesName) {
+        EMFDirectoryHandler baseModelDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing,
+                mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), ".jem");
+        EMFDirectoryHandler propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing,
+                mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), ".properties");
+
+        //try fallback properties
+        if(!possibleBasePropertiesName.equals(mobNameForFileAndMap.getfileName())){
+            if (propertiesOrSecondDir == null && EMF.config().getConfig().allowOptifineFallbackProperties){
+                if(printing) EMFUtils.log(" > trying fallback / base .properties file: [" + possibleBasePropertiesName + ".properties]");
+                propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(),
+                        possibleBasePropertiesName, ".properties");
+            } else {
+                if(printing) EMFUtils.logWarn("The .properties file ["+mobNameForFileAndMap.getfileName()+
+                        ".properties] is different from the possible base properties file name that OptiFine might require ["
+                        +possibleBasePropertiesName+".properties]. Be aware this might not work with OptiFine. (Ignore this if it's an EMF only model)");
+            }
+        }
+
+        //try detect non properties variant
         if (propertiesOrSecondDir == null)
-            propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), "2.jem");
+            propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(),
+                    mobNameForFileAndMap.getfileName(), "2.jem");
 
         //discard the variation context if they are in a lower pack to the base model and not in matching sub folder locations
         if (baseModelDir != null && !baseModelDir.validForThisBase(propertiesOrSecondDir)) propertiesOrSecondDir = null;
