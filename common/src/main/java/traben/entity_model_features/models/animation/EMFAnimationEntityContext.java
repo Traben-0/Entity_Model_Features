@@ -25,6 +25,8 @@ import net.minecraft.world.entity.animal.camel.Camel;
 import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.vehicle.AbstractBoat;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
@@ -968,10 +970,10 @@ public final class EMFAnimationEntityContext {
             if (n > 1.0F) {
                 n = 1.0F;
             }
-        } else if (IEMFEntity instanceof Minecart) {
+        } else if (IEMFEntity instanceof AbstractMinecart) {
             n = 1;
             o = -(getEntityX() + getEntityZ());
-        } else if (IEMFEntity instanceof Boat boat) {
+        } else if (IEMFEntity instanceof AbstractBoat boat) {
             n = 1;
             //o = boat.interpolatePaddlePhase(0, tickDelta);//1);
             o = Math.max(boat.getRowingTime(1, getTickDelta()), boat.getRowingTime(0, getTickDelta()));
