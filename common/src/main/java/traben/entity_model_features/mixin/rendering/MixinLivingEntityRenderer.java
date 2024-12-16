@@ -166,6 +166,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
         if (EMFManager.getInstance().entityRenderCount != emf$heldIteration.entityRenderCount()) {
             EMFAnimationEntityContext.setIterationContext(emf$heldIteration);
         }
+        //todo needed for stray bogged drowned outer layers in 1.21.2+
+        //check its needed for 1.21.1
+        EMFManager.getInstance().entityRenderCount++;
     }
 
 }
