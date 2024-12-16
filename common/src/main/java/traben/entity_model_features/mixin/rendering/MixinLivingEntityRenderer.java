@@ -163,7 +163,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, M extend
             #endif
             at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
     private void emf$eachFeatureLoop(CallbackInfo ci) {
-        if (EMFManager.getInstance().entityRenderCount != emf$heldIteration.entityRenderCount()) {
+        if (emf$heldIteration != null && EMFManager.getInstance().entityRenderCount != emf$heldIteration.entityRenderCount()) {
             EMFAnimationEntityContext.setIterationContext(emf$heldIteration);
         }
         //todo needed for stray bogged drowned outer layers in 1.21.2+
