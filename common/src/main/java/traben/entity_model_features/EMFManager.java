@@ -225,7 +225,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         EBE_JEMS_FOUND.clear();
     }
 
-    public ModelPart injectIntoModelRootGetter(ModelLayerLocation layer, ModelPart root) {
+    public ModelPart injectIntoModelRootGetter(final ModelLayerLocation layer, final ModelPart root) {
         int creationsOfLayer = amountOfLayerAttempts.put(layer, amountOfLayerAttempts.getInt(layer) + 1);
         if (creationsOfLayer > 500) {
             if (creationsOfLayer == 501) {

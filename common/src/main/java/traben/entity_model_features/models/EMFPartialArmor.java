@@ -33,7 +33,7 @@ public class EMFPartialArmor {
     public ModelPart leggingsModel_baby = null;
     public ModelPart bootsModel_baby = null;
 
-    EMFPartialArmor() {
+    public EMFPartialArmor() {
         try {
             var outer = LayerDefinition.create(HumanoidArmorModel.createBodyLayer(new CubeDeformation(1.0F)), 64, 32).bakeRoot();
             var inner = LayerDefinition.create(HumanoidArmorModel.createBodyLayer(new CubeDeformation(0.5F)), 64, 32).bakeRoot();
