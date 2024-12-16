@@ -2,6 +2,7 @@ package traben.entity_model_features.mixin;
 
 
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
@@ -93,6 +94,15 @@ public abstract class MixinEntity implements EMFEntity {
     @Shadow public abstract boolean isInWaterRainOrBubble();
 
     @Shadow public abstract Vec3 getDeltaMovement();
+
+    @Shadow
+    public abstract boolean equals(final Object object);
+
+    @Shadow
+    public abstract Vec3 oldPosition();
+
+    @Shadow
+    public abstract Vec3 position();
 
     @Inject(method = "getLeashOffset()Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"))
     private void emf$leashwither(CallbackInfoReturnable<Vec3> cir) {
@@ -215,7 +225,11 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public Vec3 emf$getVelocity() {
-        return getDeltaMovement();//todo breaks on server apparently
+        //noinspection EqualsBetweenInconvertibleTypes
+        if (equals(Minecraft.getInstance().player)) {
+            return getDeltaMovement();//ez get
+        }
+        return position().subtract(oldPosition());
     }
 
     @Override
