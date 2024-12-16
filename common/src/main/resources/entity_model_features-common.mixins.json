@@ -41,6 +41,7 @@
     "rendering.feature.MixinEyesFeatureRenderer",
     "rendering.feature.MixinHeadFeatureRenderer",
     "rendering.feature.MixinHeldItemFeatureRenderer",
+    "rendering.feature.MixinHumanoidArmorLayer",
     "rendering.feature.MixinSlimeOverlayFeatureRenderer",
     "rendering.model.MixinArmadilloModel",
     "rendering.model.MixinDragonModel",

@@ -272,7 +272,9 @@ public class EMFModelMappings {
                 .parts(genericQuadraped);
         OptifineMapper.models("creeper", "creeper_charge")
                 .parts(genericQuadraped);
-        OptifineMapper.models("inner_armor","outer_armor","zombie", "husk", "drowned", "drowned_outer", "enderman", "giant", "skeleton", "stray", "stray_outer", "wither_skeleton", "zombie_pigman", "bogged_outer")
+        OptifineMapper.models("inner_armor","outer_armor","zombie", "husk", "drowned", "drowned_outer",
+                        "enderman", "giant", "skeleton", "stray", "stray_outer", "wither_skeleton", "zombie_pigman", "bogged_outer",
+                        "helmet", "helmet_baby", "chestplate", "chestplate_baby", "leggings", "leggings_baby", "boots", "boots_baby")
                 .parts(genericNonPlayerBiped);
         OptifineMapper.models("piglin", "piglin_brute", "zombified_piglin")
                 .parts(genericPiglinBiped);

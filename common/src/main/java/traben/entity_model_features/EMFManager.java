@@ -14,6 +14,7 @@ import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.EBEConfigModifier;
 import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.models.EMFModel_ID;
+import traben.entity_model_features.models.EMFPartialArmor;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModelNameContainer;
@@ -554,6 +555,16 @@ public class EMFManager {//singleton for data holding and resetting needs
                         Component.translatable("entity_model_features.config.load_warn.3"));
             }catch (Exception ignored){}
         }
+    }
+
+    private EMFPartialArmor armorParts = null;
+
+    public @Nullable EMFPartialArmor getArmorParts(){
+        //inits with first armor layer
+        if (armorParts == null){
+            armorParts = new EMFPartialArmor();
+        }
+        return armorParts;
     }
 
     private MutableTriple<EMFJemData, ImmutablePair<EMFDirectoryHandler, EMFDirectoryHandler>, EMFModel_ID> getJemAndContext(boolean printing, EMFModel_ID mobNameForFileAndMap) {
