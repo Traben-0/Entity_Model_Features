@@ -1017,6 +1017,10 @@ public class EMFModelMappings {
 //                        partMapping("cube2", "cube_r2"),
                         partMapping("charge", "wind_charge")
                 ));
+        OptifineMapper.models("bogged").parts(
+                new HashMap<>(genericNonPlayerBiped) {{
+                    put("mushrooms","mushrooms");
+                }});
 
         #if MC < MC_21_2
         OptifineMapper.models("player_cape")
@@ -1130,10 +1134,7 @@ public class EMFModelMappings {
                         partMapping("cube"),
                         partMapping("tail")
                 ));
-        OptifineMapper.models("bogged").parts(
-                new HashMap<>(genericNonPlayerBiped) {{
-                    put("mushrooms","mushrooms");//todo
-                }});
+
         OptifineMapper.models("spectral_arrow", "arrow")
                 .parts(Map.ofEntries(
                         partMapping("back"),
