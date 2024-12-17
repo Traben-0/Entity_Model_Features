@@ -2,7 +2,9 @@ package traben.entity_model_features.mixin.rendering.model;
 
 
 import net.minecraft.client.model.WolfModel;
+#if MC > MC_21
 import net.minecraft.client.renderer.entity.state.WolfRenderState;
+#endif
 import net.minecraft.world.entity.animal.Wolf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

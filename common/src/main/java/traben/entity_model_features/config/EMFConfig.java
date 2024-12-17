@@ -5,7 +5,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.model.geom.ModelLayers;
+#if MC > MC_21
 import net.minecraft.client.renderer.ShapeRenderer;
+#else
+import net.minecraft.client.renderer.LevelRenderer;
+#endif
+
+
+
+
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +55,6 @@ public class EMFConfig extends TConfig {
     public boolean debugOnRightClick = false;
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
     public VanillaModelRenderMode vanillaModelHologramRenderMode_2 = VanillaModelRenderMode.OFF;
-    @Deprecated(since = "2.2.7", forRemoval = true) public boolean attemptRevertingEntityModelsAlteredByAnotherMod = false;
     public ModelPrintMode modelExportMode = ModelPrintMode.NONE;
     public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
@@ -96,7 +103,6 @@ public class EMFConfig extends TConfig {
     public boolean preventFirstPersonHandAnimating = false;
     public boolean onlyClientPlayerModel = false;
     public boolean doubleChestAnimFix = true;
-    @Deprecated(since = "2.2.7", forRemoval = true) public boolean variationRequiresDefaultModel = false;
     public boolean enforceOptifineVariationRequiresDefaultModel = false;
     public boolean resetPlayerModelEachRender = true;
     public boolean onlyDebugRenderOnHover = false;

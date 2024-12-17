@@ -87,6 +87,7 @@ public class MixinHumanoidArmorLayer<S extends HumanoidRenderState, A extends Hu
 }
 
 #else
+import org.spongepowered.asm.mixin.Mixin;
 import traben.entity_model_features.EMFException;
 @Mixin(EMFException.class)
 public class MixinHumanoidArmorLayer {}

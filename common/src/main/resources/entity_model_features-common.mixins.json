@@ -43,6 +43,7 @@
     "rendering.feature.MixinHeldItemFeatureRenderer",
     "rendering.feature.MixinHumanoidArmorLayer",
     "rendering.feature.MixinSlimeOverlayFeatureRenderer",
+    "rendering.feature.MixinWolfCollarFeatureRenderer",
     "rendering.model.MixinArmadilloModel",
     "rendering.model.MixinDragonModel",
     "rendering.model.MixinVillagerModel",

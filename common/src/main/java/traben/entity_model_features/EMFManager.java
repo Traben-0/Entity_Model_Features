@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.gui.components.toasts.SystemToast;
-import net.minecraft.client.gui.components.toasts.ToastManager;
+
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackResources;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -553,8 +553,9 @@ public class EMFManager {//singleton for data holding and resetting needs
     public void reloadEnd(){
         if (EMF.config().getConfig().showReloadErrorToast && !loadingExceptions.isEmpty()){
             try {
-                ToastManager toastManager = Minecraft.getInstance().getToastManager();
-                SystemToast.add(toastManager, SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
+                var toastManager = Minecraft.getInstance() #if MC > MC_21 .getToastManager(); #else .getToasts(); #endif
+                SystemToast.add(toastManager,
+                        #if MC > MC_20_2 SystemToast.SystemToastId.PERIODIC_NOTIFICATION #else SystemToast.SystemToastIds.PERIODIC_NOTIFICATION #endif,
                         Component.translatable("entity_model_features.config.load_warn.1"),
                         Component.translatable("entity_model_features.config.load_warn.3"));
             }catch (Exception ignored){}

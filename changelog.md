@@ -1,5 +1,5 @@
 
-[???]
+[2.4.0]
 - added `helmet`, `chestplate`, `leggings`, and `boots` partial armor model support. e.g. `helmet.jem`, each piece can be varied separately e.g. `helmet.properties`
 - added fallback properties support to match OptiFine behaviour. e.g. `drowned_outer.jem` will vary with `drowned.properties` if `drowned_outer.properties` doesn't exist. (The latter is only possible via EMF as OptiFine will only use `drowned.properties`)
 - reduced log spam for certain loading warnings

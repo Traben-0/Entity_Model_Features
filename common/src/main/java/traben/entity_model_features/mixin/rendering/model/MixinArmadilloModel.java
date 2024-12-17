@@ -1,13 +1,14 @@
 package traben.entity_model_features.mixin.rendering.model;
 
-import org.spongepowered.asm.mixin.Final;
+
 import org.spongepowered.asm.mixin.Mixin;
+
+#if MC > MC_21
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-#if MC > MC_21
 import net.minecraft.client.renderer.entity.state.ArmadilloRenderState;
 import net.minecraft.client.model.ArmadilloModel;
 import net.minecraft.client.model.EntityModel;
@@ -39,6 +40,7 @@ public abstract class MixinArmadilloModel extends EntityModel<ArmadilloRenderSta
 
 }
 #else
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 @Mixin(value = LivingEntityRenderer.class, priority = 2000)
 public abstract class MixinArmadilloModel{}
 #endif

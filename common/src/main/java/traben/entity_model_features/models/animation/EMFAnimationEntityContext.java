@@ -10,8 +10,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+#if MC > MC_21
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.world.entity.vehicle.AbstractBoat;
+#endif
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -25,10 +28,8 @@ import net.minecraft.world.entity.animal.camel.Camel;
 import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.entity.vehicle.AbstractBoat;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.entity.vehicle.Boat;
-import net.minecraft.world.entity.vehicle.Minecart;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -973,7 +974,7 @@ public final class EMFAnimationEntityContext {
         } else if (IEMFEntity instanceof AbstractMinecart) {
             n = 1;
             o = -(getEntityX() + getEntityZ());
-        } else if (IEMFEntity instanceof AbstractBoat boat) {
+        } else if (IEMFEntity instanceof #if MC > MC_21 AbstractBoat #else Boat #endif  boat) {
             n = 1;
             //o = boat.interpolatePaddlePhase(0, tickDelta);//1);
             o = Math.max(boat.getRowingTime(1, getTickDelta()), boat.getRowingTime(0, getTickDelta()));
@@ -1198,21 +1199,34 @@ public final class EMFAnimationEntityContext {
         entityRenderState = context.state;
         #endif
     }
-
+    #if MC > MC_21
+        public record IterationContext(
+            long entityRenderCount,
+            @Nullable EMFEntity IEMFEntity,
+            Function<ResourceLocation, RenderType> layerFactory,
+            Boolean lodFrameSkipping,
+            float shadowSize,
+            float shadowOpacity,
+            float leashX,
+            float leashY,
+            float leashZ,
+            float shadowX,
+            float shadowZ,
+            EntityRenderState state
+        ){}
+        #else
     public record IterationContext(
-        long entityRenderCount,
-        @Nullable EMFEntity IEMFEntity,
-        Function<ResourceLocation, RenderType> layerFactory,
-        Boolean lodFrameSkipping,
-        float shadowSize,
-        float shadowOpacity,
-        float leashX,
-        float leashY,
-        float leashZ,
-        float shadowX,
-        float shadowZ
-        #if MC > MC_21
-        , EntityRenderState state
-        #endif
+            long entityRenderCount,
+            @Nullable EMFEntity IEMFEntity,
+            Function<ResourceLocation, RenderType> layerFactory,
+            Boolean lodFrameSkipping,
+            float shadowSize,
+            float shadowOpacity,
+            float leashX,
+            float leashY,
+            float leashZ,
+            float shadowX,
+            float shadowZ
     ){}
+    #endif
 }

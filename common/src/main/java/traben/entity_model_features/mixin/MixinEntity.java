@@ -2,6 +2,7 @@ package traben.entity_model_features.mixin;
 
 
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -98,11 +99,23 @@ public abstract class MixinEntity implements EMFEntity {
     @Shadow
     public abstract boolean equals(final Object object);
 
+    #if MC > MC_21
     @Shadow
     public abstract Vec3 oldPosition();
+    #endif
 
     @Shadow
     public abstract Vec3 position();
+
+
+    @Shadow
+    public double xOld;
+
+    @Shadow
+    public double yOld;
+
+    @Shadow
+    public double zOld;
 
     @Inject(method = "getLeashOffset()Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"))
     private void emf$leashwither(CallbackInfoReturnable<Vec3> cir) {
@@ -229,7 +242,13 @@ public abstract class MixinEntity implements EMFEntity {
         if (equals(Minecraft.getInstance().player)) {
             return getDeltaMovement();//ez get
         }
-        return position().subtract(oldPosition());
+        return position().subtract(
+                #if MC > MC_21
+                oldPosition()
+                #else
+                    new Vec3(xOld,yOld,zOld)
+                #endif
+        );
     }
 
     @Override

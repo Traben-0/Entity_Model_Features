@@ -2,11 +2,11 @@ package traben.entity_model_features.mixin.exporting;
 
 
 import org.spongepowered.asm.mixin.Mixin;
+#if MC > MC_21
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.EMF;
-#if MC > MC_21
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.MeshTransformer;
 
@@ -22,8 +22,9 @@ public interface MixinMeshTransformer {
     }
 }
 #else
-import net.minecraft.client.model.geom.EntityModelSet;
 
-@Mixin(value = EntityModelSet.class, priority = 1001)
-public class MixinBabyModelTransform {}
+import traben.entity_model_features.EMFException;
+
+@Mixin(EMFException.class)
+public class MixinMeshTransformer {}
 #endif
