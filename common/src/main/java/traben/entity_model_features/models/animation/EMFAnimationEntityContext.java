@@ -29,7 +29,6 @@ import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -260,7 +259,7 @@ public final class EMFAnimationEntityContext {
                     roots.forEach(EMFModelPartRoot::doVariantCheck);
                 }
 
-                if(entityIn instanceof Player player && EMF.config().getConfig().resetPlayerModelEachRender){
+                if(entityIn instanceof Player player && EMF.config().getConfig().resetPlayerModelEachRender_v2){
                     roots.forEach(EMFModelPartRoot::resetVanillaPartsToDefaults);
                 }
             }

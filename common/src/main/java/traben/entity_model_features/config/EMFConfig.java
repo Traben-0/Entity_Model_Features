@@ -105,7 +105,8 @@ public class EMFConfig extends TConfig {
     public boolean doubleChestAnimFix = true;
     @Deprecated(since = "2.4.1", forRemoval = true) public boolean enforceOptifineVariationRequiresDefaultModel = false;
     public boolean enforceOptifineVariationRequiresDefaultModel_v2 = false;
-    public boolean resetPlayerModelEachRender = true;
+    @Deprecated(since = "2.4.1", forRemoval = true) public boolean resetPlayerModelEachRender = true;
+    public boolean resetPlayerModelEachRender_v2 = true;
     public boolean onlyDebugRenderOnHover = false;
     public boolean enforceOptifineSubFoldersVariantOnly = true;
     public boolean enforceOptiFineAnimSyntaxLimits = true;
@@ -135,7 +136,7 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryBoolean("entity_model_features.config.only_client", "entity_model_features.config.only_client.tooltip",
                                         () -> onlyClientPlayerModel, value -> onlyClientPlayerModel = value, false),
                                 new TConfigEntryBoolean("entity_model_features.config.reset_player", "entity_model_features.config.reset_player.tooltip",
-                                        () -> resetPlayerModelEachRender, value -> resetPlayerModelEachRender = value, true)
+                                        () -> resetPlayerModelEachRender_v2, value -> resetPlayerModelEachRender_v2 = value, true)
                         ),
                         new TConfigEntryCategory("entity_model_features.config.performance").add(
                                 new TConfigEntryEnumSlider<>("entity_model_features.config.update", "entity_model_features.config.update.tooltip",
