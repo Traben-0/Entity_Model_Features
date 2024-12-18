@@ -1,6 +1,6 @@
 
 [2.4.1]
-- fixed a setting not being set correctly when settings are reset to default
+- fixed 2 settings being reset incorrectly when settings are reset to default via the GUI
 
 [2.4.0]
 - added `helmet`, `chestplate`, `leggings`, and `boots` partial armor model support. e.g. `helmet.jem`, each piece can be varied separately e.g. `helmet.properties` (1.21.2+ ONLY!, for now)
