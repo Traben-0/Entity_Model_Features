@@ -491,7 +491,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 //we do have custom models
 
                 //abort with message if we have variant models and no base model and the setting to require this like OptiFine is set
-                if (jemData == null && EMF.config().getConfig().enforceOptifineVariationRequiresDefaultModel) {
+                if (jemData == null && EMF.config().getConfig().enforceOptifineVariationRequiresDefaultModel_v2) {
                     EMFUtils.logWarn("The model [" + finalMapData.getfileName() + "] has variation but does not have a default 'base' model, this is not allowed in the OptiFine format.\nYou may disable this requirement in EMF in the 'model > options' settings. Though it is usually best to preserve OptiFine compatibility.\nYou can get a default model by exporting it in the EMF settings via 'models > allmodels > *model* > export'");
                 } else {
                     //specification for the optifine map
@@ -569,6 +569,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         if (armorParts == null){
             armorParts = new EMFPartialArmor();
         }
+
         return armorParts;
     }
 

@@ -103,7 +103,8 @@ public class EMFConfig extends TConfig {
     public boolean preventFirstPersonHandAnimating = false;
     public boolean onlyClientPlayerModel = false;
     public boolean doubleChestAnimFix = true;
-    public boolean enforceOptifineVariationRequiresDefaultModel = false;
+    @Deprecated(since = "2.4.1", forRemoval = true) public boolean enforceOptifineVariationRequiresDefaultModel = false;
+    public boolean enforceOptifineVariationRequiresDefaultModel_v2 = false;
     public boolean resetPlayerModelEachRender = true;
     public boolean onlyDebugRenderOnHover = false;
     public boolean enforceOptifineSubFoldersVariantOnly = true;
@@ -180,7 +181,7 @@ public class EMFConfig extends TConfig {
                 , getEntitySettings(),
                 new TConfigEntryCategory("config.entity_features.optifine_settings","config.entity_texture_features.optifine.desc").add(
                         new TConfigEntryBoolean("entity_model_features.config.variation_base", "entity_model_features.config.variation_base.tooltip",
-                                () -> enforceOptifineVariationRequiresDefaultModel, value -> enforceOptifineVariationRequiresDefaultModel = value, true),
+                                () -> enforceOptifineVariationRequiresDefaultModel_v2, value -> enforceOptifineVariationRequiresDefaultModel_v2 = value, false),
                         new TConfigEntryBoolean("entity_model_features.config.optifine_subfolders", "entity_model_features.config.optifine_subfolders.tooltip",
                                 () -> enforceOptifineSubFoldersVariantOnly, value -> enforceOptifineSubFoldersVariantOnly = value, true),
                         new TConfigEntryBoolean("entity_model_features.config.optifine_syntax", "entity_model_features.config.optifine_syntax.tooltip",
