@@ -5,7 +5,12 @@ import net.minecraft.client.model.WolfModel;
 #if MC > MC_21
 import net.minecraft.client.renderer.entity.state.WolfRenderState;
 #endif
+
+#if MC>=MC_21_5
+import net.minecraft.world.entity.animal.wolf.Wolf;
+#else
 import net.minecraft.world.entity.animal.Wolf;
+#endif
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;

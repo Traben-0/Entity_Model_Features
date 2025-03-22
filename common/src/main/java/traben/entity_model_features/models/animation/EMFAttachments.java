@@ -26,8 +26,14 @@ public enum EMFAttachments {
     public void setAttachment(PoseStack entry, float x, float y, float z) {
         entry.pushPose();
         entry.translate(x / 16, y / 16, z / 16);
-        var save = entry.last();
-        this.stackEntry = new PoseStack.Pose(new Matrix4f(save.pose()), new Matrix3f(save.normal()));//save;
+        var copyOnly = entry.last();
+        #if MC>=MC_21_5
+        this.stackEntry = new PoseStack.Pose();
+        stackEntry.set(copyOnly);
+        #else
+        this.stackEntry = new PoseStack.Pose(new Matrix4f(copyOnly.pose()), new Matrix3f(copyOnly.normal()));
+        #endif
+
         entry.popPose();
     }
 

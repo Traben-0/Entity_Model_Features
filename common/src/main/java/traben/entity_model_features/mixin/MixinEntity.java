@@ -92,7 +92,10 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Shadow public abstract List<Entity> getPassengers();
 
+    #if MC>=MC_21_5
+    #else
     @Shadow public abstract boolean isInWaterRainOrBubble();
+    #endif
 
     @Shadow public abstract Vec3 getDeltaMovement();
 
@@ -116,6 +119,8 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Shadow
     public double zOld;
+
+    @Shadow public abstract boolean isInWaterOrRain();
 
     @Inject(method = "getLeashOffset()Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"))
     private void emf$leashwither(CallbackInfoReturnable<Vec3> cir) {
@@ -223,7 +228,11 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public boolean emf$isWet() {
+        #if MC>=MC_21_5
+        return isInWaterOrRain();
+        #else
         return isInWaterRainOrBubble();
+        #endif
     }
 
     @Override

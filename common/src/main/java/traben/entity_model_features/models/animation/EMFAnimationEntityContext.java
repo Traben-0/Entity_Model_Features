@@ -10,6 +10,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+#if MC>=MC_21_5
+import net.minecraft.world.entity.animal.wolf.Wolf;
+#else
+import net.minecraft.world.entity.animal.Wolf;
+#endif
+
 #if MC > MC_21
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
@@ -23,7 +29,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.animal.Parrot;
-import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.animal.camel.Camel;
 import net.minecraft.world.entity.monster.*;
 import net.minecraft.world.entity.player.Player;

@@ -22,24 +22,41 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(EntityRenderDispatcher.class)
 public abstract class MixinEntityRenderDispatcher {
 
-
     @Shadow
     public abstract double distanceToSqr(double x, double y, double z);
 
-    @Inject(method =
-        #if MC > MC_21
-            "render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V",
-            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V"),locals = LocalCapture.CAPTURE_FAILHARD)
-    private <E extends Entity> void emf$grabEntity(final E entity, final double d, final double e, final double f, final float g, final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final EntityRenderer<? super E, ?> entityRenderer, final CallbackInfo ci, final EntityRenderState entityRenderState, final Vec3 vec3, final double h, final double j, final double k) {
+    //todo @Local is deperately needed here, also refactor emf context into a form of render state
+
+    #if MC>MC_21
+    @Inject(method ="render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V",
+            at = @At(value = "INVOKE", target =
+                    #if MC>=MC_21_5
+                    "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;render(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;DDDLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V"
+                    #else
+                    "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V"
+                    #endif
+            ),locals = LocalCapture.CAPTURE_FAILHARD)
+    private
+    #if MC>=MC_21_5
+    <E extends Entity, S extends EntityRenderState>
+    #else
+    <E extends Entity>
+    #endif
+    void emf$grabEntity(
+            #if MC>=MC_21_5
+            final E entity, final double d, final double e, final double f, final float g, final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final EntityRenderer<? super E, S> entityRenderer, final CallbackInfo ci, final EntityRenderState entityRenderState
+            #else
+            final E entity, final double d, final double e, final double f, final float g, final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final EntityRenderer<? super E, ?> entityRenderer, final CallbackInfo ci, final EntityRenderState entityRenderState, final Vec3 vec3, final double h, final double j, final double k
+            #endif
+    ) {
         EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntity) entity, entityRenderState);
     }
-        #else
-            "render",
-            at = @At(value = "HEAD"))
+    #else
+    @Inject(method ="render", at = @At(value = "HEAD"))
     private <E extends Entity> void emf$grabEntity(E entity, double x, double y, double z, float yaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci) {
         EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntity) entity);
     }
-        #endif
+    #endif
 
 
     @Inject(method =
@@ -61,22 +78,35 @@ public abstract class MixinEntityRenderDispatcher {
         }
     }
 
-    @Inject(method =
-            #if MC > MC_21
-            "render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V",
+    private static final String SHADOW_RENDER_ETF =
+            #if MC>=MC_21_5
+            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FLnet/minecraft/world/level/LevelReader;F)V"
+            #elif MC > MC_21
+            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FFLnet/minecraft/world/level/LevelReader;F)V"
             #else
-            "render",
-            #endif
-            at = @At(value = "INVOKE",
-                    target =
-                            #if MC > MC_21
-                            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FFLnet/minecraft/world/level/LevelReader;F)V"
-                            #else
-                            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;FFLnet/minecraft/world/level/LevelReader;F)V"
-                            #endif
-                    , shift = At.Shift.BEFORE))
-    private <E extends Entity> void emf$modifyShadowTranslate(
-            #if MC > MC_21
+            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;FFLnet/minecraft/world/level/LevelReader;F)V"
+            #endif ;
+
+    private static final String RENDER_ETF =
+            #if MC>=MC_21_5
+            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;render(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;DDDLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V"
+            #elif MC > MC_21
+            "render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V"
+            #else
+            "render"
+            #endif ;
+
+    @Inject(method = RENDER_ETF, at = @At(value = "INVOKE", target = SHADOW_RENDER_ETF, shift = At.Shift.BEFORE))
+    private
+    #if MC>=MC_21_5
+    <S extends EntityRenderState>
+    #else
+    <E extends Entity>
+    #endif
+    void emf$modifyShadowTranslate(
+            #if MC>=MC_21_5
+            S entityRenderState, double d, double e, double f, PoseStack matrices, MultiBufferSource multiBufferSource, int i, EntityRenderer<?, S> entityRenderer, final CallbackInfo ci
+            #elif MC > MC_21
             final E entity, final double d, final double e, final double f, final float g, final PoseStack matrices, final MultiBufferSource multiBufferSource, final int i, final EntityRenderer<? super E, ?> entityRenderer, final CallbackInfo ci
             #else
             E entity, double x, double y, double z, float yaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci
@@ -87,22 +117,17 @@ public abstract class MixinEntityRenderDispatcher {
         }
     }
 
-    @Inject(method =
-            #if MC > MC_21
-            "render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V",
-            #else
-            "render",
-            #endif
-            at = @At(value = "INVOKE",
-                    target =
-                            #if MC > MC_21
-                            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FFLnet/minecraft/world/level/LevelReader;F)V"
-                            #else
-                            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;FFLnet/minecraft/world/level/LevelReader;F)V"
-                            #endif
-                    , shift = At.Shift.AFTER))
-    private <E extends Entity> void emf$undoModifyShadowTranslate(
-            #if MC > MC_21
+    @Inject(method = RENDER_ETF, at = @At(value = "INVOKE", target = SHADOW_RENDER_ETF, shift = At.Shift.AFTER))
+    private
+    #if MC>=MC_21_5
+    <S extends EntityRenderState>
+    #else
+    <E extends Entity>
+    #endif
+    void emf$undoModifyShadowTranslate(
+            #if MC>=MC_21_5
+            S entityRenderState, double d, double e, double f, PoseStack matrices, MultiBufferSource multiBufferSource, int i, EntityRenderer<?, S> entityRenderer, final CallbackInfo ci
+            #elif MC > MC_21
             final E entity, final double d, final double e, final double f, final float g, final PoseStack matrices, final MultiBufferSource multiBufferSource, final int i, final EntityRenderer<? super E, ?> entityRenderer, final CallbackInfo ci
             #else
             E entity, double x, double y, double z, float yaw, float tickDelta, PoseStack matrices, MultiBufferSource vertexConsumers, int light, CallbackInfo ci
@@ -113,22 +138,7 @@ public abstract class MixinEntityRenderDispatcher {
         }
     }
 
-    @ModifyArg(
-            method =
-                    #if MC > MC_21
-                    "render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V",
-                    #else
-                    "render",
-                    #endif
-            at = @At(value = "INVOKE",
-                    target =
-                            #if MC > MC_21
-                            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FFLnet/minecraft/world/level/LevelReader;F)V"
-                            #else
-                            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;FFLnet/minecraft/world/level/LevelReader;F)V"
-                            #endif
-            ), index = 3
-    )
+    @ModifyArg(method = RENDER_ETF, at = @At(value = "INVOKE", target = SHADOW_RENDER_ETF), index = 3)
     private float emf$modifyShadowOpacity(float opacity) {
         if (!Float.isNaN(EMFAnimationEntityContext.getShadowOpacity())) {
             double g = this.distanceToSqr(EMFAnimationEntityContext.getEntityX(), EMFAnimationEntityContext.getEntityY(), EMFAnimationEntityContext.getEntityZ());
@@ -137,22 +147,8 @@ public abstract class MixinEntityRenderDispatcher {
         return opacity;
     }
 
-    @ModifyArg(
-            method =
-                    #if MC > MC_21
-                    "render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V",
-                    #else
-                    "render",
-                    #endif
-            at = @At(value = "INVOKE",
-                    target =
-                            #if MC > MC_21
-                            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FFLnet/minecraft/world/level/LevelReader;F)V"
-                            #else
-                            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;FFLnet/minecraft/world/level/LevelReader;F)V"
-                            #endif
-            ), index = 6
-    )
+    @ModifyArg(method = RENDER_ETF, at = @At(value = "INVOKE", target = SHADOW_RENDER_ETF),
+            index = #if MC>=MC_21_5 5 #else 6 #endif)
     private float emf$modifyShadowSize(float size) {
         if (!Float.isNaN(EMFAnimationEntityContext.getShadowSize())) {
             return Math.min(size * EMFAnimationEntityContext.getShadowSize(), 32.0F);

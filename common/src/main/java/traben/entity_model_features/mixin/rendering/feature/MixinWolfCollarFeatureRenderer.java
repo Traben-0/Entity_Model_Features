@@ -10,8 +10,9 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.WolfCollarLayer;
 #if MC > MC_21
 import net.minecraft.client.renderer.entity.state.WolfRenderState;
-#endif
+#else
 import net.minecraft.world.entity.animal.Wolf;
+#endif
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
