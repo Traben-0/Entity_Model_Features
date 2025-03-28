@@ -2,6 +2,8 @@ package traben.entity_model_features.models;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.EMFException;
+import traben.entity_texture_features.utils.ETFUtils2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,14 +33,15 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         this.fallBackModels = fallBackModels;
     }
 
-    public EMFModel_ID setFileName(final String fileName) {
+    public EMFModel_ID setFileName(final String fileName) throws EMFException {
         if (fileName.contains(":")) {
             var split = fileName.split(":");
             if (split.length == 2) {
                 this.namespace = split[0];
                 this.fileName = split[1];
             } else {
-                this.fileName = fileName;
+                ETFUtils2.logError("Invalid file name: " + fileName);
+                throw new EMFException("Invalid model file name: " + fileName);
             }
         } else {
             this.fileName = fileName;
@@ -109,21 +112,44 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         return null;
     }
 
-    public EMFModel_ID addFallbackModel(String namespace, String fileName) {
+    public EMFModel_ID addFallbackModel(String namespace, String fileName) throws EMFException {
+        if (fileName.contains(":")) {
+            var split = fileName.split(":");
+            if (split.length == 2) {
+                namespace = split[0];
+                fileName = split[1];
+            } else {
+                throw new EMFException("Invalid fallback model file name: " + fileName);
+            }
+        }
         fallBackModels.add(new FallbackModel(namespace, fileName));
         return this;
     }
 
+    public void propagateFallbacksWithoutPrefix(String prefix) {
+        var list = new ArrayList<>(fallBackModels);
+        if (fileName.startsWith(prefix)) {
+            var newFileName = fileName.substring(prefix.length());
+            fallBackModels.add(new FallbackModel(namespace, newFileName));
+        }
+        for (FallbackModel fallbackModel : list) {
+            if (fallbackModel.fileName.startsWith(prefix)) {
+                var newFileName = fallbackModel.fileName.substring(prefix.length());
+                fallBackModels.add(new FallbackModel(fallbackModel.namespace, newFileName));
+            }
+        }
+    }
+
     @SuppressWarnings("UnusedReturnValue")
-    public EMFModel_ID addFallbackModel(String fileName) {
+    public EMFModel_ID addFallbackModel(String fileName) throws EMFException {
         return addFallbackModel(namespace, fileName);
     }
 
-    public EMFModel_ID setMapIdAndAddFallbackModel(String both) {
+    public EMFModel_ID setMapIdAndAddFallbackModel(String both) throws EMFException {
         return setMapIdAndAddFallbackModel(both, both);
     }
 
-    public EMFModel_ID setMapIdAndAddFallbackModel(String mapId, String fileName) {
+    public EMFModel_ID setMapIdAndAddFallbackModel(String mapId, String fileName) throws EMFException {
         this.mapId = mapId;
         if (fileName.contains(":")) {
             var split = fileName.split(":");
@@ -142,7 +168,7 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         return namespace;
     }
 
-    public void finishAndPrepAutomatedFallbacks() {
+    public void finishAndPrepAutomatedFallbacks() throws EMFException {
 
         //validate namespaces which may have been injected earlier by block entity factories
         if (getfileName().contains(":")) {
@@ -177,7 +203,7 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
     }
 
 
-    private void assertNamespaceAndCreateDeprecatedModdedFileName(final String namespace, final String fileName) {
+    private void assertNamespaceAndCreateDeprecatedModdedFileName(final String namespace, final String fileName) throws EMFException {
         this.namespace = namespace;
         this.fileName = fileName;
         //recreate old modded directory method for back compatibility

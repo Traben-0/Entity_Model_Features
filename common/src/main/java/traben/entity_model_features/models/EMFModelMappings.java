@@ -76,9 +76,7 @@ public class EMFModelMappings {
                 entry("camel", texture("camel","camel")),
                 entry("cat_collar", texture("cat","cat_collar")),
                 entry("cave_spider", texture("spider","cave_spider")),
-                entry("chicken", texture("chicken")),
                 entry("cod", texture("fish","cod")),
-                entry("cow", texture("cow", "cow")),
                 entry("creeper", texture("creeper","creeper")),
                 entry("creeper_charge", texture("creeper", "creeper_armor")),
                 entry("donkey", texture("horse","donkey")),
@@ -116,7 +114,6 @@ public class EMFModelMappings {
                 entry("puffer_fish_big", texture("fish", "pufferfish")),
                 entry("puffer_fish_medium", texture("fish", "pufferfish")),
                 entry("puffer_fish_small", texture("fish", "pufferfish")),
-                entry("pig", texture("pig","pig")),
                 entry("pig_saddle", texture("pig","pig_saddle")),
                 entry("piglin", texture("piglin", "piglin")),
                 entry("piglin_brute", texture("piglin", "piglin_brute")),
@@ -156,7 +153,23 @@ public class EMFModelMappings {
                 entry("zombie_horse", texture(" horse","horse_zombie")),
 //                "zombie_pigman", texture(),
                 entry("zombie_villager", texture("zombie_villager", "zombie_villager")),
-                entry("zombified_piglin", texture("piglin", "zombified_piglin"))
+                entry("zombified_piglin", texture("piglin", "zombified_piglin")),
+
+                #if MC >= MC_21_5
+                entry("cow", texture("cow", "temperate_cow")),
+                entry("warm_cow", texture("cow", "warm_cow")),
+                entry("cold_cow", texture("cow", "cold_cow")),
+                entry("pig", texture("pig","temperate_pig")),
+                entry("warm_pig", texture("pig","warm_pig")),
+                entry("cold_pig", texture("pig","cold_pig")),
+                entry("chicken", texture("chicken", "temperate_chicken")),
+                entry("warm_chicken", texture("chicken", "warm_chicken")),
+                entry("cold_chicken", texture("chicken", "cold_chicken"))
+                #else
+                entry("cow", texture("cow", "cow")),
+                entry("pig", texture("pig","pig")),
+                entry("chicken", texture("chicken"))
+                #endif
         );
     }
 
@@ -268,8 +281,17 @@ public class EMFModelMappings {
                         partMapping("leg6", "left_middle_front_leg"),
                         partMapping("leg7", "right_front_leg"),
                         partMapping("leg8", "left_front_leg")));
-        OptifineMapper.models("sheep", "cow", "mooshroom", "panda", "pig", "pig_saddle", "polar_bear", "sheep_wool")
+        OptifineMapper.models("sheep", "cow", "warm_cow", "mooshroom", "panda", "pig", "cold_pig", "warm_pig", "pig_saddle", "polar_bear", "sheep_wool")
                 .parts(genericQuadraped);
+
+
+        OptifineMapper.models("cold_cow")
+                .parts( new HashMap<>(genericQuadraped) {{
+                    putAll(Map.ofEntries(
+                            partMapping("right_horn"),
+                            partMapping("left_horn")));
+                }});
+
         OptifineMapper.models("creeper", "creeper_charge")
                 .parts(genericQuadraped);
         OptifineMapper.models("inner_armor","outer_armor","zombie", "husk", "drowned", "drowned_outer",
@@ -503,7 +525,7 @@ public class EMFModelMappings {
                         partMapping("front_left_leg", "left_front_leg"),
                         partMapping("front_right_leg", "right_front_leg")
                 ));
-        OptifineMapper.models("chicken")
+        OptifineMapper.models("chicken", "warm_chicken", "cold_chicken")
                 .parts(Map.ofEntries(
                         partMapping("head"),
                         partMapping("body"),

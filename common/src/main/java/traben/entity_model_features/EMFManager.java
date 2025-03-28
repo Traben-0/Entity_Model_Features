@@ -182,7 +182,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         return null;
     }
 
-    private static void handleBoats(final String originalLayerName, final EMFModel_ID mobNameForFileAndMap) {
+    private static void handleBoats(final String originalLayerName, final EMFModel_ID mobNameForFileAndMap) throws EMFException {
         String jem;
         if (originalLayerName.startsWith("chest_boat/")) {
             jem = originalLayerName.startsWith("chest_boat/bamboo") ? "chest_raft" : "chest_boat";
@@ -285,6 +285,14 @@ public class EMFManager {//singleton for data holding and resetting needs
                     }
                     //wolf_baby_collar, wolf_collar, wolf_baby, wolf
                 }
+
+                #if MC >= MC_21_5
+                if (mobNameForFileAndMap.getfileName().startsWith("warm_")) {
+                    mobNameForFileAndMap.propagateFallbacksWithoutPrefix("warm_");
+                } else if (mobNameForFileAndMap.getfileName().startsWith("cold_")) {
+                    mobNameForFileAndMap.propagateFallbacksWithoutPrefix("cold_");
+                }
+                #endif
 
                 //vanilla model
                 switch (originalLayerName) {
@@ -606,7 +614,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         return MutableTriple.of(jemDataFirst, ImmutablePair.of(baseModelDir, propertiesOrSecondDir), mobNameForFileAndMap);
     }
 
-    private void getDoubleChest(ModelPart root, EMFModel_ID mobNameForFileAndMap, boolean isRight, boolean printing) {
+    private void getDoubleChest(ModelPart root, EMFModel_ID mobNameForFileAndMap, boolean isRight, boolean printing) throws EMFException {
         String thisSide = isRight ? "right" : "left";
         String otherSide = isRight ? "left" : "right";
 

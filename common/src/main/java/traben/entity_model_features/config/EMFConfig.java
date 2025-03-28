@@ -56,10 +56,10 @@ public class EMFConfig extends TConfig {
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
     public VanillaModelRenderMode vanillaModelHologramRenderMode_2 = VanillaModelRenderMode.OFF;
     public ModelPrintMode modelExportMode = ModelPrintMode.NONE;
-    public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
+//    public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
     public ETFConfig.String2EnumNullMap<RenderModeChoice> entityRenderModeOverrides = new ETFConfig.String2EnumNullMap<>();
-    public ETFConfig.String2EnumNullMap<PhysicsModCompatChoice> entityPhysicsModPatchOverrides = new ETFConfig.String2EnumNullMap<>();
+//    public ETFConfig.String2EnumNullMap<PhysicsModCompatChoice> entityPhysicsModPatchOverrides = new ETFConfig.String2EnumNullMap<>();
     public ETFConfig.String2EnumNullMap<VanillaModelRenderMode> entityVanillaHologramOverrides = new ETFConfig.String2EnumNullMap<>();
 
     public RenderModeChoice getRenderModeFor(EMFEntity entity) {
@@ -68,11 +68,11 @@ public class EMFConfig extends TConfig {
         return Objects.requireNonNullElseGet(entityRenderModeOverrides.getNullable(typeString), () -> renderModeChoice);
     }
 
-    public PhysicsModCompatChoice getPhysicsModModeFor(EMFEntity entity) {
-        String typeString = getTypeString(entity);
-        if (typeString == null) return attemptPhysicsModPatch_2;
-        return Objects.requireNonNullElseGet(entityPhysicsModPatchOverrides.getNullable(typeString), () -> attemptPhysicsModPatch_2);
-    }
+//    public PhysicsModCompatChoice getPhysicsModModeFor(EMFEntity entity) {
+//        String typeString = getTypeString(entity);
+//        if (typeString == null) return attemptPhysicsModPatch_2;
+//        return Objects.requireNonNullElseGet(entityPhysicsModPatchOverrides.getNullable(typeString), () -> attemptPhysicsModPatch_2);
+//    }
 
     public VanillaModelRenderMode getVanillaHologramModeFor(EMFEntity entity) {
         String typeString = getTypeString(entity);
@@ -123,8 +123,8 @@ public class EMFConfig extends TConfig {
                         new TConfigEntryCategory("entity_model_features.config.options", "entity_model_features.config.options.tooltip").add(
 //                                new TConfigEntryBoolean("entity_model_features.config.force_models", "entity_model_features.config.force_models.tooltip",
 //                                        () -> attemptRevertingEntityModelsAlteredByAnotherMod, value -> attemptRevertingEntityModelsAlteredByAnotherMod = value, true),
-                                new TConfigEntryEnumButton<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
-                                        () -> attemptPhysicsModPatch_2, value -> attemptPhysicsModPatch_2 = value, PhysicsModCompatChoice.CUSTOM),
+//                                new TConfigEntryEnumButton<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
+//                                        () -> attemptPhysicsModPatch_2, value -> attemptPhysicsModPatch_2 = value, PhysicsModCompatChoice.CUSTOM),
                                 new TConfigEntryBoolean("entity_model_features.config.ebe_config_modify", "entity_model_features.config.ebe_config_modify.tooltip",
                                         () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.double_chest_fix", "entity_model_features.config.double_chest_fix.tooltip",
@@ -397,11 +397,11 @@ public class EMFConfig extends TConfig {
                 new TConfigEntryEnumButton<>("entity_model_features.config.vanilla_render", "entity_model_features.config.vanilla_render.tooltip",
                         () -> this.entityVanillaHologramOverrides.getNullable(translationKey),
                         (layer) -> this.entityVanillaHologramOverrides.putNullable(translationKey, layer),
-                        null, VanillaModelRenderMode.class),
-                new TConfigEntryEnumButton<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
-                        () -> this.entityPhysicsModPatchOverrides.getNullable(translationKey),
-                        (layer) -> this.entityPhysicsModPatchOverrides.putNullable(translationKey, layer),
-                        null, PhysicsModCompatChoice.class)
+                        null, VanillaModelRenderMode.class)//,
+//                new TConfigEntryEnumButton<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
+//                        () -> this.entityPhysicsModPatchOverrides.getNullable(translationKey),
+//                        (layer) -> this.entityPhysicsModPatchOverrides.putNullable(translationKey, layer),
+//                        null, PhysicsModCompatChoice.class)
         );
     }
 
@@ -461,23 +461,23 @@ public class EMFConfig extends TConfig {
             return Component.translatable(text).getString();
         }
     }
-
-    public enum PhysicsModCompatChoice {
-        OFF("options.off"),
-        VANILLA("entity_model_features.config.physics.1"),
-        CUSTOM("entity_model_features.config.physics.2");
-
-        private final String text;
-
-        PhysicsModCompatChoice(String text) {
-            this.text = text;
-        }
-
-        @Override
-        public String toString() {
-            return Component.translatable(text).getString();
-        }
-    }
+//todo remove fully after physics mod implementation
+//    public enum PhysicsModCompatChoice {
+//        OFF("options.off"),
+//        VANILLA("entity_model_features.config.physics.1"),
+//        CUSTOM("entity_model_features.config.physics.2");
+//
+//        private final String text;
+//
+//        PhysicsModCompatChoice(String text) {
+//            this.text = text;
+//        }
+//
+//        @Override
+//        public String toString() {
+//            return Component.translatable(text).getString();
+//        }
+//    }
 
     public enum RenderModeChoice {
         NORMAL("entity_model_features.config.render.normal"),

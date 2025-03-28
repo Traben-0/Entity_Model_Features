@@ -1,4 +1,12 @@
 
+[2.4.3] bug fix and update
+- updated to 1.21.5
+- added `warm_` and `cold_` model variants for the new pigs, chickens, and cows, they will attempt to fallback to the old model if the new one is not present
+- `cold_cow.jem` also has `right_horn` and `left_horn` parts, all other model differences for the 3 mobs are done via cubes only, not new parts
+- fixed `ResourceLocationException` log spam when attempting to find modded chest models
+- removed all code for the partial physics mod compat option as official physics mod compatibility is coming soon to the physics mod :)
+- added a fallback model list to the right click debug log options
+
 [2.4.1]
 - fixed 2 settings being reset incorrectly when settings are reset to default via the GUI
 

@@ -128,10 +128,14 @@ public class EMFDirectoryHandler {
     }
 
     private Resource getResourceOrNull(ResourceManager resources, EMFDirectoryHandler.EMFDirectory directory, boolean printing) {
-        var loc = EMFUtils.res(directory.getAsDirectory(namespace, rawFileName) + suffixAndFileType);
-        var res = resources.getResource(loc);
-        if (printing) EMFUtils.log(" >>> Checking directory: " + loc + ", exists = " + res.isPresent());
-        return res.orElse(null);
+        try {
+            var loc = EMFUtils.res(directory.getAsDirectory(namespace, rawFileName) + suffixAndFileType);
+            var res = resources.getResource(loc);
+            if (printing) EMFUtils.log(" >>> Checking directory: " + loc + ", exists = " + res.isPresent());
+            return res.orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private String getPackId(@Nullable Resource resource) {

@@ -303,6 +303,11 @@ public final class EMFAnimationEntityContext {
                 StringBuilder model = new StringBuilder();
                 model.append("§eModel #").append(count).append("§r")
                         .append(entryAndValue("name", debugRoot.modelName.getfileName() + ".jem"));
+                if (debugRoot.modelName.hasFallbackModels()){
+                    model.append("§eFallback Models:§r");
+                    debugRoot.modelName.forEachFallback((modelId) ->
+                            model.append("\n§6 - §r").append(modelId.getfileName()));
+                }
                 if (debugRoot.directoryContext != null) {
                     model.append(entryAndValue("directory",
                             debugRoot.directoryContext
@@ -335,12 +340,13 @@ public final class EMFAnimationEntityContext {
             EMFUtils.chat(vanillaMessage);
             int count = 1;
             for (EMFModel_ID data : EMFManager.getInstance().modelsAnnounced) {
-                var second = data.getNextFallbackModel();
                 StringBuilder model = new StringBuilder();
-                model.append("\n§Non-Custom Model #").append(count).append("§r")
+                model.append("\n§eNon-Custom Model #").append(count).append("§r")
                         .append(entryAndValue("possible .jem name", data.getDisplayFileName()));
-                if(second != null){
-                    model.append(entryAndValue("possible secondary .jem name", second.getDisplayFileName()));
+                if (data.hasFallbackModels()){
+                    model.append("§eFallback Models:§r");
+                    data.forEachFallback((modelId) ->
+                            model.append("\n§6 - §r").append(modelId.getfileName()));
                 }
                 Map<String, String> map = EMFModelMappings.getMapOf(data, null);
                 if (!map.isEmpty()) {

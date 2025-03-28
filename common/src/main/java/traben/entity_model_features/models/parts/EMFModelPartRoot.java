@@ -280,18 +280,18 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         }
     }
 
-    public void tryRenderVanillaFormatRoot(PoseStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
-        if (EMF.config().getConfig().getPhysicsModModeFor(EMFAnimationEntityContext.getEMFEntity()) == EMFConfig.PhysicsModCompatChoice.VANILLA) {
-            if (vanillaRoot != null) {
-                vanillaRoot.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
-            }
-        } else {
-            ModelPart vanillaFormat = getVanillaFormatRoot();
-            if (vanillaFormat != null) {
-                vanillaFormat.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
-            }
-        }
-    }
+//    public void tryRenderVanillaFormatRoot(PoseStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
+//        if (EMF.config().getConfig().getPhysicsModModeFor(EMFAnimationEntityContext.getEMFEntity()) == EMFConfig.PhysicsModCompatChoice.VANILLA) {
+//            if (vanillaRoot != null) {
+//                vanillaRoot.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
+//            }
+//        } else {
+//            ModelPart vanillaFormat = getVanillaFormatRoot();
+//            if (vanillaFormat != null) {
+//                vanillaFormat.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
+//            }
+//        }
+//    }
 
     public boolean hasAnimation(){
         return animationHolder.hasAnimation();
