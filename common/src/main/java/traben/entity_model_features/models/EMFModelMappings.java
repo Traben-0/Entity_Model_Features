@@ -411,12 +411,22 @@ public class EMFModelMappings {
                         partMapping("lid_left", "lid"),
                         partMapping("base_left", "bottom"),
                         partMapping("knob_left", "lock")
+                        #if MC>=MC_21_2 ,
+                        partMapping("lid"),
+                        partMapping("base", "bottom"),
+                        partMapping("knob", "lock")
+                        #endif
                 ));
         OptifineMapper.models("double_chest_left", "trapped_double_chest_left", "ender_double_chest_left")
                 .parts(Map.ofEntries(
                         partMapping("lid_right", "lid"),
                         partMapping("base_right", "bottom"),
                         partMapping("knob_right", "lock")
+                        #if MC>=MC_21_2 ,
+                        partMapping("lid"),
+                        partMapping("base", "bottom"),
+                        partMapping("knob", "lock")
+                        #endif
                 ));
         OptifineMapper.models("horse", "horse_armor", "skeleton_horse", "zombie_horse")
                 .parts(genericHorse);

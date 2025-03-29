@@ -132,7 +132,7 @@ public abstract class MathMethod extends MathValue implements MathComponent {
 
     protected void setSupplierAndOptimize(ResultSupplier supplier) {
         this.supplier = supplier;
-        setOptimizedIfPossible(supplier, List.of());
+        // setOptimizedIfPossible(supplier, List.of());
     }
 
     protected void setSupplierAndOptimize(ResultSupplier supplier, MathComponent arg) {
@@ -158,7 +158,7 @@ public abstract class MathMethod extends MathValue implements MathComponent {
 
     protected void setOptimizedIfPossible(ResultSupplier supplier, List<MathComponent> allComponents) {
         //check if method only contains constants, if so precalculate the result and replace this with a constant
-        if (!canOptimizeForConstantArgs()) return;
+        if (!canOptimizeForConstantArgs() || allComponents.isEmpty()) return;
 
         boolean foundNonConstant = allComponents.stream().anyMatch(comp -> !comp.isConstant());
         if (!foundNonConstant) {
