@@ -277,5 +277,5 @@
   "entity_model_features.config.double_chest_fix": "Corregir errores de registro del modelo de cofre doble",
   "entity_model_features.config.double_chest_fix.tooltip": "Debido a que el modelo de cofre doble, 'chest_large.jem', debe dividirse en 2 mitades en el código,\npodría haber un exceso de mensajes de registro sobre la mitad izquierda/derecha faltante.\nEsta opción lo arregla si está habilitada y también soluciona parcialmente las animaciones que hacen referencia al lado opuesto del cofre.\nAún se recomienda encarecidamente mantener las animaciones de las mitades izquierda y derecha separadas.",
   "entity_model_features.config.iris_shadow_skip": "Omitir animación de la sombra Iris",
-  "entity_model_features.config.iris_shadow_skip.tooltip": "Esto hará que el modelo de la entidad no se anime dos veces\en cada fotograma tanto para el renderizado como para la pasada de sombra Iris\nesto siempre debe estar ACTIVADO y solo está aquí en caso de\nfuturas modificaciones de la API de Iris"
+  "entity_model_features.config.iris_shadow_skip.tooltip": "Esto hará que el modelo de la entidad no se anime dos veces\nen cada fotograma tanto para el renderizado como para la pasada de sombra Iris\nesto siempre debe estar ACTIVADO y solo está aquí en caso de\nfuturas modificaciones de la API de Iris"
 }
