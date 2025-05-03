@@ -47,7 +47,7 @@
   "entity_model_features.config.function_explanation.easeinoutback": "easeinoutback(k, x, y)\nInterpola entre x e y usando la función ease in + out back\n\nEjemplos: https://easings.net/",
   "entity_model_features.config.function_explanation.easeinoutbounce": "easeinoutbounce(k, x, y)\nInterpola entre x e y usando la función ease in + out bounce\n\nEjemplos: https://easings.net/",
   "entity_model_features.config.function_explanation.easeinoutcirc": "easeinoutcirc(k, x, y)\nInterpola entre x e y usando la función ease in + out circ\n\nEjemplos: https://easings.net/",
-  "entity_model_features.config.function_explanation.easeinoutcubic": "easeinoutcubic(k, x, y)\nInterpola entre x e y usando la función ease in + out cubic\n\nEjemplos: https://easings.net/"
+  "entity_model_features.config.function_explanation.easeinoutcubic": "easeinoutcubic(k, x, y)\nInterpola entre x e y usando la función ease in + out cubic\n\nEjemplos: https://easings.net/",
   "entity_model_features.config.function_explanation.easeinoutelastic": "easeinoutelastic(k, x, y)\nInterpola entre x e y usando la función de suavizado elástico de entrada y salida\n\nEjemplos acá: https://easings.net/",
   "entity_model_features.config.function_explanation.easeinoutexpo": "easeinoutexpo(k, x, y)\nInterpola entre x e y usando la función exponencial de entrada y salida\n\nEjemplos acá: https://easings.net/",
   "entity_model_features.config.function_explanation.easeinoutquad": "easeinoutquad(k, x, y)\nInterpola entre x e y usando la función cuadrática de entrada y salida\n\nEjemplos acá: https://easings.net/",
@@ -97,7 +97,7 @@
   "entity_model_features.config.function_explanation.ifb": "if(cond, val, [cond2, val2, ...], val_else)\nSelecciona un valor en base a una o más condiciones\nSolo devuelve valores booleanos",
   "entity_model_features.config.function_explanation.randomb": "random(seed)\nValor booleano aleatorio verdadero/falso. Si se le da una semilla, siempre devuelve el mismo resultado. La semilla es opcional",
   "entity_model_features.config.function_explanation.catch": "catch(x, c, id)\nDevuelve x, pero si x es NaN o causa un error de animación, devuelve c en su lugar.\nid es opcional; si se incluye, la función catch imprimirá el motivo por el que se usó c en el registro del juego con ese id\nPensada para depurar animaciones. Si algo puede causar esto, en realidad deberías corregirlo.",
-  "entity_model_features.config.function_explanation.todeg": "todeg(rad)\nConvierte radianes a grados"
+  "entity_model_features.config.function_explanation.todeg": "todeg(rad)\nConvierte radianes a grados",
   "entity_model_features.config.function_explanation.torad": "torad(deg)\nConvierte grados a radianes",
   "entity_model_features.config.function_explanation.wrapdeg": "wrapdeg(x)\nEnvuelve el valor en grados x al rango de -180 a 180",
   "entity_model_features.config.function_explanation.wraprad": "wraprad(x)\nEnvuelve el valor en radianes x al rango de -pi a pi",
@@ -147,7 +147,7 @@
   "entity_model_features.config.texture_override_mode.tooltip": "Controla cómo EMF maneja la renderización de submodelos con texturas personalizadas\nPor ejemplo, si un creeper tiene una textura diferente solo para la cabeza\nSe puede hacer con el código de EMF o usando un truco del mod Iris\nMi código funciona, pero no soy experto en buffers de renderizado y puede dar problemas\nEl método de Iris es más simple y estable, pero no es un uso intencionado del mod\nSi no tenés Iris, va a usar automáticamente el método EMF\nDejalo en la opción por defecto salvo que estés depurando",
   "entity_model_features.config.tools": "Herramientas",
   "entity_model_features.config.tools.tooltip": "Herramientas opcionales para crear o identificar modelos personalizados",
-  "entity_model_features.config.update": "Frecuencia de actualización del modelo"
+  "entity_model_features.config.update": "Frecuencia de actualización del modelo",
   "entity_model_features.config.update.tooltip": "Define con qué frecuencia se actualizará el modelo de los mobs\npor cambios como salud y edad\nNunca = nunca se actualiza\nLento = 3-5 segundos\nPromedio = alrededor de 1 segundo\nRápido = menos de un segundo\nInstantáneo = instantáneo (posible lag con cientos de mobs)",
   "entity_model_features.config.vanilla_render": "Modo de visualización del modelo original",
   "entity_model_features.config.vanilla_render.normal": "normal",
@@ -197,7 +197,7 @@
   "entity_model_features.config.variable_explanation.is_on_ground": "Si la entidad está tocando el suelo",
   "entity_model_features.config.variable_explanation.is_on_head": "Si la entidad está puesta sobre la cabeza de otra entidad",
   "entity_model_features.config.variable_explanation.is_on_shoulder": "Si un loro está sentado sobre tu hombro",
-  "entity_model_features.config.variable_explanation.is_ridden": "Si la entidad está siendo montada por otra entidad"
+  "entity_model_features.config.variable_explanation.is_ridden": "Si la entidad está siendo montada por otra entidad",
   "entity_model_features.config.variable_explanation.is_riding": "Si la entidad está montando otra entidad",
   "entity_model_features.config.variable_explanation.is_sitting": "Si un gato/lobo/loro está sentado",
   "entity_model_features.config.variable_explanation.is_sneaking": "Si un gato/ocelote está agachado",
@@ -247,7 +247,7 @@
   "entity_model_features.config.only_client": "Solo modificar el modelo de tu jugador",
   "entity_model_features.config.only_client.tooltip": "Si se activa, esto solo aplicará modelos personalizados al jugador propio\nignorando a los demás en modo multijugador",
   "entity_model_features.config.math": "Detalles de la matemática de la animación",
-  "entity_model_features.config.math.explain": "Esta sección proporciona detalles sobre las funciones matemáticas y las variables disponibles para usar en las animaciones de modelos personalizados de EMF.\nIncluyendo cualquier cosa agregada a EMF desde otro mod usando su API.\nCada función y variable proporcionará más detalles al hacer clic en ella."
+  "entity_model_features.config.math.explain": "Esta sección proporciona detalles sobre las funciones matemáticas y las variables disponibles para usar en las animaciones de modelos personalizados de EMF.\nIncluyendo cualquier cosa agregada a EMF desde otro mod usando su API.\nCada función y variable proporcionará más detalles al hacer clic en ella.",
   "entity_model_features.config.variables.explain": "Una lista de todas las variables matemáticas actualmente registradas para usar en animaciones de modelos de entidad personalizadas en EMF.\nCada variable proporcionará más detalles al hacer clic sobre ella.",
   "entity_model_features.config.functions.explain": "Una lista de todas las funciones matemáticas actualmente registradas para usar en animaciones de modelos de entidad personalizadas en EMF.\nCada función proporcionará más detalles al hacer clic sobre ella.",
   "entity_model_features.title": "Características del Modelo de Entidad",
