@@ -16,14 +16,14 @@ import net.minecraft.resources.ResourceLocation;
 @SuppressWarnings("CanBeFinal")
 public class EMFJemData {
 
-    private final LinkedHashMap<String, List<LinkedHashMap<String, String>>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();
+    private transient final LinkedHashMap<String, List<LinkedHashMap<String, String>>> allTopLevelAnimationsByVanillaPartName = new LinkedHashMap<>();
     public String texture = "";
     public int[] textureSize = null;
     public double shadow_size = 1.0;
     public LinkedList<EMFPartData> models = new LinkedList<>();
-    public EMFDirectoryHandler directoryContext = null;
-    private EMFModel_ID mobModelIDInfo = null;
-    private ResourceLocation customTexture = null;
+    public transient EMFDirectoryHandler directoryContext = null;
+    private transient EMFModel_ID mobModelIDInfo = null;
+    private transient ResourceLocation customTexture = null;
 
     public LinkedHashMap<String, List<LinkedHashMap<String, String>>> getAllTopLevelAnimationsByVanillaPartName() {
         return allTopLevelAnimationsByVanillaPartName;
@@ -44,7 +44,29 @@ public class EMFJemData {
 
     @Nullable
     public ResourceLocation validateJemTexture(String textureIn, boolean canRemoveRedundancy) {
-        if (textureIn == null || textureIn.isBlank()) return null;
+        ResourceLocation res = validateResourcePathAndExists(textureIn, "png");
+
+        if (canRemoveRedundancy && res != null) {
+            String textureTest = res.toString();
+            //test if it is a redundant texture to reduce texture overrides during rendering
+            if("minecraft".equals(directoryContext.namespace) //is vanilla model
+                    && (!textureTest.contains(":") || textureTest.startsWith("minecraft:"))){//is vanilla texture
+                textureTest = textureTest.startsWith("minecraft:") ? textureTest : "minecraft:" + textureTest;
+
+                if (textureTest.equals(EMFModelMappings.DEFAULT_TEXTURE_MAPPINGS.get(directoryContext.rawFileName))) {
+                    if (EMF.config().getConfig().logModelCreationData)
+                        EMFUtils.log("Removing redundant texture: " + textureTest + " declared in " + directoryContext.getFileNameWithType());
+                    return null;
+                }
+            }
+        }
+
+        return res == null ? MissingTextureAtlasSprite.getLocation() : res;
+    }
+
+    @Nullable
+    public ResourceLocation validateResourcePathAndExists(String pathIn, @Nullable String fileTypeExtension) {
+        if (pathIn == null || pathIn.isBlank()) return null;
 /*
 OptiFine spec
 
@@ -56,49 +78,37 @@ OptiFine spec
 #   "mod:folder/texture - resolves as "assets/mod/folder/texture.png"
 */
 
-        String textureTest = textureIn.trim();
-        if (!textureTest.isBlank()) {
-            if (!textureTest.endsWith(".png")) textureTest += ".png";
+        String pathTest = pathIn.trim();
+        if (!pathTest.isBlank()) {
+            if (fileTypeExtension != null && !pathTest.endsWith('.' + fileTypeExtension)) pathTest += '.' + fileTypeExtension;
 
-            if (!textureTest.contains(":")) {
+            if (!pathTest.contains(":")) {
                 //if no folder parenting assume it is relative to model
-                if (!textureTest.contains("/")) {
-                    textureTest = directoryContext.getRelativeDirectoryLocationNoValidation(textureTest);
-                } else if (textureTest.startsWith("./")) {
-                    textureTest = directoryContext.getRelativeDirectoryLocationNoValidation(textureTest.replaceFirst("\\./", ""));
-                } else if (textureTest.startsWith("~/")) {
-                    textureTest = "optifine/" + textureTest.replaceFirst("~/", "");
+                if (!pathTest.contains("/")) {
+                    pathTest = directoryContext.getRelativeDirectoryLocationNoValidation(pathTest);
+                } else if (pathTest.startsWith("./")) {
+                    pathTest = directoryContext.getRelativeDirectoryLocationNoValidation(pathTest.replaceFirst("\\./", ""));
+                } else if (pathTest.startsWith("~/")) {
+                    pathTest = "optifine/" + pathTest.replaceFirst("~/", "");
                 }//else it is a full path
             }//else it is a full path
 
-            //test if it is a redundant texture to reduce texture overrides during rendering
-            if(canRemoveRedundancy && "minecraft".equals(directoryContext.namespace) //is vanilla model
-                    && (!textureTest.contains(":") || textureTest.startsWith("minecraft:"))){//is vanilla texture
-                textureTest = textureTest.startsWith("minecraft:") ? textureTest : "minecraft:" + textureTest;
-
-                if (textureTest.equals(EMFModelMappings.DEFAULT_TEXTURE_MAPPINGS.get(directoryContext.rawFileName))) {
-                    if (EMF.config().getConfig().logModelCreationData)
-                        EMFUtils.log("Removing redundant texture: " + textureTest + " declared in " + directoryContext.getFileNameWithType());
-                    return null;
-                }
-            }
-
             if (
                 #if MC >= MC_21
-                    ResourceLocation.tryParse(textureTest) != null
+                    ResourceLocation.tryParse(pathTest) != null
                 #else
-                    ResourceLocation.isValidResourceLocation(textureTest)
+                    ResourceLocation.isValidResourceLocation(pathTest)
                 #endif
             ) {
-                ResourceLocation possibleTexture = EMFUtils.res(textureTest);
-                if (Minecraft.getInstance().getResourceManager().getResource(possibleTexture).isPresent()) {
-                    return possibleTexture;
+                ResourceLocation possibleResource = EMFUtils.res(pathTest);
+                if (Minecraft.getInstance().getResourceManager().getResource(possibleResource).isPresent()) {
+                    return possibleResource;
                 }
             } else {
-                EMFUtils.logWarn("Invalid texture identifier: " + textureTest + " for " + directoryContext.getFileNameWithType());
+                EMFUtils.logWarn("Invalid resource identifier: " + pathTest + " for " + directoryContext.getFileNameWithType());
             }
         }
-        return MissingTextureAtlasSprite.getLocation();
+        return null;
     }
 
 

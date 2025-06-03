@@ -146,12 +146,8 @@ public class EMFUtils {
 
 
     @Nullable
-    public static EMFPartData readModelPart(String pathOfJpm, EMFDirectoryHandler directoryContext) {
-        if (!pathOfJpm.endsWith(".jpm")) {
-            pathOfJpm += ".jpm";
-        }
+    public static EMFPartData readModelPart(ResourceLocation location) {
         try {
-            var location = directoryContext.getRelativeFilePossiblyEMFOverridden(pathOfJpm);
             Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(location);
             if (res.isEmpty()) {
                 if (EMF.config().getConfig().logModelCreationData)
@@ -164,7 +160,7 @@ public class EMFUtils {
                 return gson.fromJson(reader, EMFPartData.class);
             }
         } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData) log("jpm ["+pathOfJpm+"] failed " + e, false);
+            if (EMF.config().getConfig().logModelCreationData) log("jpm ["+location.toString()+"] failed " + e, false);
         }
         return null;
     }

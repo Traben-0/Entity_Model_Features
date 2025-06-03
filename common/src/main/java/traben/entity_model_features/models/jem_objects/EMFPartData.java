@@ -29,15 +29,17 @@ public class EMFPartData {
     public String model = "";  //- Part model jemJsonObjects, from which to load the part model definition
     public String id = "";            //- Model ID, can be used to reference the model as parent
     public String part = null;//"!!!!!";     //- Entity part to which the part model is attached
-    @Nullable String originalPart = null;
 
     public boolean attach = false; //- True: attach to the entity part, False: replace it
     public float scale = 1.0f;
 
-    public Object2ObjectOpenHashMap<String, float[]> attachments = new Object2ObjectOpenHashMap<>();
+    @Nullable transient String originalPart = null;
 
-    public LinkedList<LinkedHashMap<String, String>> animations = null;
-    private ResourceLocation customTexture = null;
+    public transient Object2ObjectOpenHashMap<String, float[]> attachments = new Object2ObjectOpenHashMap<>();
+
+    public transient LinkedList<LinkedHashMap<String, String>> animations = null;
+
+    private transient ResourceLocation customTexture = null;
 
     public ResourceLocation getCustomTexture() {
         return customTexture;
@@ -124,8 +126,11 @@ public class EMFPartData {
 
             //check if we need to load a .jpm into this object
             if (!model.isEmpty()) {
-                Optional.ofNullable(EMFUtils.readModelPart(model, jem.directoryContext))
-                        .ifPresent(this::copyFrom);
+                ResourceLocation res = jem.validateResourcePathAndExists(model, "jpm");
+                if (res  != null) {
+                    Optional.ofNullable(EMFUtils.readModelPart(res))
+                            .ifPresent(this::copyFrom);
+                }
             }
 
             if (translate == null) translate = new float[]{0, 0, 0};

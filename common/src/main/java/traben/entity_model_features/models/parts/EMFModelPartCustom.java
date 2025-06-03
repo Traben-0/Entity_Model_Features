@@ -59,6 +59,8 @@ public class EMFModelPartCustom extends EMFModelPart {
         yRot = emfPartData.rotate[1];
         zRot = emfPartData.rotate[2];
 
+        objData = emfPartData.objData;
+
         this.setInitialPose(this.storePose());
 
         if (EMF.config().getConfig().logModelCreationData)

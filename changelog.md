@@ -1,4 +1,13 @@
 
+
+
+
+- fixed relative paths for jpms
+- 
+
+
+
+
 [2.4.3] bug fix and update
 - updated to 1.21.5
 - added `warm_` and `cold_` model variants for the new pigs, chickens, and cows, they will attempt to fallback to the old model if the new one is not present
