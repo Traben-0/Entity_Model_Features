@@ -3,6 +3,7 @@
 
 
 - fixed relative paths for jpms
+- fixed a 1.21.5 crash with attachments in models
 - 
 
 

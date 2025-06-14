@@ -28,8 +28,7 @@ public enum EMFAttachments {
         entry.translate(x / 16, y / 16, z / 16);
         var copyOnly = entry.last();
         #if MC>=MC_21_5
-        this.stackEntry = new PoseStack.Pose();
-        stackEntry.set(copyOnly);
+        this.stackEntry = copyOnly.copy();
         #else
         this.stackEntry = new PoseStack.Pose(new Matrix4f(copyOnly.pose()), new Matrix3f(copyOnly.normal()));
         #endif

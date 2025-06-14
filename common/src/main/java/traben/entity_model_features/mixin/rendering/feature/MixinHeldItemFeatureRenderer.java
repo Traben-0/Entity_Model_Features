@@ -67,13 +67,13 @@ public class #if MC > MC_21_2  MixinHeldItemFeatureRenderer<S extends ArmedEntit
             var entry = emf$attachment.getAndNullify();
             if (entry != null) {
                 emf$needsPop = true;
-                matrices
+
                 #if MC>=MC_21_5
-                .poses
+                matrices.pushPose();
+                matrices.last().set(entry);
                 #else
-                .poseStack
+                matrices.poseStack.addLast(entry);
                 #endif
-                        .addLast(entry);
             }
         }
     }
