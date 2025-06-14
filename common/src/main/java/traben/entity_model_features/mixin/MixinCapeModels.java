@@ -22,6 +22,7 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
 
 #if MC >= MC_20_2
@@ -59,8 +60,9 @@ public abstract class MixinCapeModels {
             poseStack.popPose();
             poseStack.pushPose();
 
-            Player player = (Player) EMFAnimationEntityContext.getEMFEntity();
-            if (player == null) return;
+            EMFEntity emfEntity = EMFAnimationEntityContext.getEMFEntity();
+            if (!(emfEntity instanceof Player)) return;
+            Player player = (Player) emfEntity;
 
             //if chestplate move cape back
             if (#if MC >= MC_20_6 player.getItemBySlot(EquipmentSlot.CHEST).is(ItemTags.CHEST_ARMOR)#else !player.getItemBySlot(EquipmentSlot.CHEST).isEmpty() #endif ){
@@ -77,7 +79,5 @@ public abstract class MixinCapeModels {
         }
     }
 #endif
-
-
 
 }

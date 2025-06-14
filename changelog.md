@@ -4,7 +4,7 @@
 
 - fixed relative paths for jpms
 - fixed a 1.21.5 crash with attachments in models
-- 
+- fixed a crash where an entity was incorrectly assumed to be a Player
 
 
 
