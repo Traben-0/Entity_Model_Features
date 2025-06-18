@@ -538,13 +538,19 @@ public class EMFConfig extends TConfig {
                 Quaternionf quaternionf = (new Quaternionf()).rotateZ(3.1415927F).rotateY(g2 * 8);
                 Quaternionf quaternionf2 = (new Quaternionf()).rotateX(-(g * 20.0F * 0.017453292F) * 2);
                 quaternionf.mul(quaternionf2);
-                context.pose().pushPose();
-                context.pose().translate(x, y, 150.0);
-                float scaling = (float) ((double) screen.height * 0.3);
-                context.pose(). #if MC >= MC_20_6 mulPose #else mulPoseMatrix #endif ((new Matrix4f()).scaling(scaling, scaling, -scaling));
-                context.pose().mulPose(quaternionf);
-                Lighting.setupForEntityInInventory();
+
+                #if MC>=MC_21_6
+                PoseStack matrixStack = new PoseStack();
+                #else
                 PoseStack matrixStack = context.pose();
+                Lighting.setupForEntityInInventory();
+                #endif
+
+                matrixStack.pushPose();
+                matrixStack.translate(x, y, 150.0);
+                float scaling = (float) ((double) screen.height * 0.3);
+                matrixStack. #if MC >= MC_20_6 mulPose #else mulPoseMatrix #endif ((new Matrix4f()).scaling(scaling, scaling, -scaling));
+                matrixStack.mulPose(quaternionf);
 
                 matrixStack.pushPose();
                 matrixStack.scale(-1.0F, -1.0F, 1.0F);

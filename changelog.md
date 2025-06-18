@@ -1,12 +1,11 @@
 
 
-
-
+[2.4.4]
+- added 1.21.6
 - fixed relative paths for jpms
-- fixed a 1.21.5 crash with attachments in models
+- fixed a 1.21.5+ crash with attachments in models
 - fixed a crash where an entity was incorrectly assumed to be a Player
-
-
+- added support for `wolf_baby_collar.jem`
 
 
 [2.4.3] bug fix and update

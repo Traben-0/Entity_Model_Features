@@ -24,11 +24,14 @@ public class MixinWolfEntityModel<T extends Wolf> implements #if MC > MC_21 IEMF
 
     @Unique
     #if MC > MC_21 WolfModel #else WolfModel<T> #endif emf$collarModel = null;
+    @Unique
+    #if MC > MC_21 WolfModel #else WolfModel<T> #endif emf$collarModelBaby = null;
 
 #if MC > MC_21
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/WolfRenderState;)V", at = @At(value = "HEAD"))
     private void smf$setAngles(final WolfRenderState wolfRenderState, final CallbackInfo ci) {
-        if (emf$hasCollarModel()) emf$collarModel.setupAnim(wolfRenderState);
+        if (emf$hasCollarModel(false)) emf$collarModel.setupAnim(wolfRenderState);
+        if (emf$hasCollarModel(true)) emf$collarModelBaby.setupAnim(wolfRenderState);
     }
 #else
     @Inject(method = "setupAnim(Lnet/minecraft/world/entity/animal/Wolf;FFFFF)V", at = @At(value = "HEAD"))
@@ -43,13 +46,18 @@ public class MixinWolfEntityModel<T extends Wolf> implements #if MC > MC_21 IEMF
 #endif
 
     @Override
-    public #if MC > MC_21 WolfModel #else WolfModel<T> #endif emf$getCollarModel() {
+    public #if MC > MC_21 WolfModel #else WolfModel<T> #endif emf$getCollarModel(boolean baby) {
+        #if MC >= MC_21_2
+        return baby ? emf$collarModelBaby : emf$collarModel;
+        #else
         return emf$collarModel;
+        #endif
     }
 
     @Override
-    public void emf$setCollarModel(#if MC > MC_21 WolfModel #else WolfModel<T> #endif model) {
-        emf$collarModel = model;
+    public void emf$setCollarModel(#if MC > MC_21 WolfModel #else WolfModel<T> #endif model, boolean baby) {
+        if (baby) emf$collarModelBaby = model;
+        else emf$collarModel = model;
     }
 
 

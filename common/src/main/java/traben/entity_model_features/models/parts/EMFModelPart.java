@@ -56,36 +56,45 @@ public abstract class EMFModelPart extends ModelPart {
 
     @Override
     public void render(final PoseStack matrices, final VertexConsumer vertices, final int light, final int overlay,#if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
-
-        var choice = EMF.config().getConfig().getRenderModeFor(EMFAnimationEntityContext.getEMFEntity());
-        //normal render
-        if (choice == EMFConfig.RenderModeChoice.NORMAL) {
-            renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
-            return;
-        }
-
-        //debug choice chosen
-        //check if only render debug when hovered
-        if (EMF.config().getConfig().onlyDebugRenderOnHover && !EMFAnimationEntityContext.isClientHovered()){
-            renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
-            return;
-        }
-
-        //else render debug
-        switch (choice) {
-            case GREEN -> renderDebugTinted(matrices, vertices, light, overlay, #if MC >= MC_21 k #else green, alpha #endif);
-            case LINES -> renderBoxes(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()));
-            case LINES_AND_TEXTURE -> {
+//        if (true) {
+//            super.render(matrices, vertices, light, overlay, k);
+//            return;
+//        }
+        try {
+            var choice = EMF.config().getConfig().getRenderModeFor(EMFAnimationEntityContext.getEMFEntity());
+            //normal render
+            if (choice == EMFConfig.RenderModeChoice.NORMAL) {
                 renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif );
-                renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()), 1f);
+                return;
             }
-            case LINES_AND_TEXTURE_FLASH -> {
+
+            //debug choice chosen
+            //check if only render debug when hovered
+            if (EMF.config().getConfig().onlyDebugRenderOnHover && !EMFAnimationEntityContext.isClientHovered()) {
                 renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif );
-                float flash =  (Mth.sin(System.currentTimeMillis() / 1000f) + 1) / 2f;
-                renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()), flash);
+                return;
             }
-            case NONE -> {
+
+            //else render debug
+            switch (choice) {
+                case GREEN ->
+                        renderDebugTinted(matrices, vertices, light, overlay, #if MC >= MC_21 k #else green, alpha #endif );
+                case LINES ->
+                        renderBoxes(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()));
+                case LINES_AND_TEXTURE -> {
+                    renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif );
+                    renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()), 1f);
+                }
+                case LINES_AND_TEXTURE_FLASH -> {
+                    renderWithTextureOverride(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif );
+                    float flash = (Mth.sin(System.currentTimeMillis() / 1000f) + 1) / 2f;
+                    renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()), flash);
+                }
+                case NONE -> {
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -179,7 +188,6 @@ public abstract class EMFModelPart extends ModelPart {
 
     //required for sodium 0.5.4+
     void renderLikeVanilla(PoseStack matrices, VertexConsumer vertices, int light, int overlay, #if MC >= MC_21 final int k #else float red, float green, float blue, float alpha #endif) {
-
         if (this.visible) {
             if (!cubes.isEmpty() || !children.isEmpty()) {
                 matrices.pushPose();

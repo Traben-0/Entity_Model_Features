@@ -1,4 +1,4 @@
-package traben.entity_model_features.mixin.rendering;
+package traben.entity_model_features.fabric.mixin;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

@@ -35,9 +35,9 @@ public class EMFPartData {
 
     @Nullable transient String originalPart = null;
 
-    public transient Object2ObjectOpenHashMap<String, float[]> attachments = new Object2ObjectOpenHashMap<>();
+    public Object2ObjectOpenHashMap<String, float[]> attachments = new Object2ObjectOpenHashMap<>();
 
-    public transient LinkedList<LinkedHashMap<String, String>> animations = null;
+    public LinkedList<LinkedHashMap<String, String>> animations = null;
 
     private transient ResourceLocation customTexture = null;
 

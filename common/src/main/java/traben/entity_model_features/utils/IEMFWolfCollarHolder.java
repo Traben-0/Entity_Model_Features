@@ -9,13 +9,13 @@ import net.minecraft.world.entity.animal.Wolf;
 
 public interface #if MC > MC_21 IEMFWolfCollarHolder #else IEMFWolfCollarHolder<T extends Wolf> #endif{
 
-    default boolean emf$hasCollarModel() {
-        return emf$getCollarModel() != null;
+    default boolean emf$hasCollarModel(boolean baby) {
+        return emf$getCollarModel(baby) != null;
     }
 
-    #if MC > MC_21 WolfModel #else WolfModel<T> #endif emf$getCollarModel();
+    #if MC > MC_21 WolfModel #else WolfModel<T> #endif emf$getCollarModel(boolean baby);
 
-    void emf$setCollarModel(#if MC > MC_21 WolfModel #else WolfModel<T> #endif model);
+    void emf$setCollarModel(#if MC > MC_21 WolfModel #else WolfModel<T> #endif model, boolean baby);
 
 
 }

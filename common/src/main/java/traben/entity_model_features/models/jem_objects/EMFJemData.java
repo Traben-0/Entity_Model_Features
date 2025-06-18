@@ -44,6 +44,8 @@ public class EMFJemData {
 
     @Nullable
     public ResourceLocation validateJemTexture(String textureIn, boolean canRemoveRedundancy) {
+        if (textureIn == null || textureIn.isBlank()) return null;
+
         ResourceLocation res = validateResourcePathAndExists(textureIn, "png");
 
         if (canRemoveRedundancy && res != null) {

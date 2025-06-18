@@ -29,7 +29,6 @@
     "rendering.MixinBlockEntityWithoutLevelRenderer",
     "rendering.MixinDragonRenderer",
     "rendering.MixinEntityRenderDispatcher",
-    "rendering.MixinEntityRenderers",
     "rendering.MixinItemFrameEntityRenderer",
     "rendering.MixinLivingEntityRenderer",
     "rendering.MixinPlayerEntityRenderer",

@@ -122,7 +122,11 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Shadow public abstract boolean isInWaterOrRain();
 
+    #if MC >= MC_21_6
+    @Inject(method = "getRopeHoldPosition", at = @At("RETURN"))
+    #else
     @Inject(method = "getLeashOffset()Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"))
+    #endif
     private void emf$leashwither(CallbackInfoReturnable<Vec3> cir) {
         //return new Vec3d(0.0, (double)this.getStandingEyeHeight(), (double)(this.getWidth() * 0.4F));
         if (EMFAnimationEntityContext.getLeashX() != 0 || EMFAnimationEntityContext.getLeashY() != 0 || EMFAnimationEntityContext.getLeashZ() != 0) {
