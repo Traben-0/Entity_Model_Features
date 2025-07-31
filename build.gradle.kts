@@ -110,7 +110,7 @@ dependencies {
     val etf = "entity_texture_features-${properties["etf_version"]}-${project.name}"
     // if you are cloning the EMF repo, you will also want to clone and build the ETF repo next to it
     // otherwise you can copy the things I do below for other external mods and go find all the ETF version ids on Modrinth
-    modImplementation(files(File(rootDir.parent, "Entity_Texture_Features/versions/${project.name}/build/libs/$etf.jar")))
+    modImplementation(files(File(rootDir.parent, "Entity_Texture_Features/jars/$etf.jar")))
 
 //    modImpl("maven.modrinth:ebe:",
 //        12104 to "YokFoILZ",
@@ -220,4 +220,16 @@ tasks.processResources {
     filesMatching("entity_model_features_*.accesswidener") {
         if (this.name != accessWidener) this.exclude()
     }
+}
+
+tasks.register<Copy>("copyArtifacts") {
+    from(layout.buildDirectory.dir("libs").get())
+    into("${rootDir}\\jars")
+    mustRunAfter(tasks.build)
+    delete(layout.buildDirectory.dir("libs").get())
+}
+
+
+tasks.build {
+    finalizedBy("copyArtifacts")
 }
