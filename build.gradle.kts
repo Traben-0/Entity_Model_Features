@@ -107,9 +107,9 @@ dependencies {
         else -> neoforge
     }
 
-    val etf = "entity_texture_features-${properties["etf_version"]}-${project.name}"
     // if you are cloning the EMF repo, you will also want to clone and build the ETF repo next to it
     // otherwise you can copy the things I do below for other external mods and go find all the ETF version ids on Modrinth
+    val etf = "entity_texture_features-${properties["etf_version"]}-${project.name}"
     modImplementation(files(File(rootDir.parent, "Entity_Texture_Features/jars/$etf.jar")))
 
 //    modImpl("maven.modrinth:ebe:",

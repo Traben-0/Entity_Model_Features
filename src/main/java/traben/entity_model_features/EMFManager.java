@@ -228,9 +228,9 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public ModelPart injectIntoModelRootGetter(final ModelLayerLocation layer, final ModelPart root) {
         int creationsOfLayer = amountOfLayerAttempts.put(layer, amountOfLayerAttempts.getInt(layer) + 1);
-        if (creationsOfLayer > 500) {
-            if (creationsOfLayer == 501) {
-                EMFUtils.logWarn("model attempted creation more than 500 times {" + layer.toString() + "]. EMF is now ignoring this model.");
+        if (creationsOfLayer > 64) {
+            if (creationsOfLayer == 65) {
+                EMFUtils.logError("model attempted creation more than 64 times {" + layer.toString() + "]. EMF is now ignoring this model. Please inform the mod maker that this is not how entity models are meant to be utilised. They should ALWAYS be stored and reused.");
             }
             return root;
         }

@@ -186,14 +186,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         String thisDirectoryFileName =  directoryContext.getRelativeDirectoryLocationNoValidation(directoryContext.rawFileName);
         ResourceLocation propertyID = directoryContext.getRelativeFilePossiblyEMFOverridden(directoryContext.rawFileName + ".properties");
 
-        if(printing)EMFUtils.log(" > checking properties file: " + propertyID + " for: " + thisDirectoryFileName + ".jem");
+        if(printing) EMFUtils.log(" > checking properties file: " + propertyID + " for: " + thisDirectoryFileName + ".jem");
 
         boolean exists = Minecraft.getInstance().getResourceManager().getResource(propertyID).isPresent();
 
         //try fallback properties
         if (!exists && EMF.config().getConfig().allowOptifineFallbackProperties){
             ResourceLocation fallbackPropertiesID = directoryContext.getRelativeFilePossiblyEMFOverridden(fallbackPropertiesName + ".properties");
-            if(printing)EMFUtils.log(" > checking fallback .properties file: " + fallbackPropertiesID + " for: " + thisDirectoryFileName + ".jem");
+            if(printing) EMFUtils.log(" > checking fallback .properties file: " + fallbackPropertiesID + " for: " + thisDirectoryFileName + ".jem");
             exists = Minecraft.getInstance().getResourceManager().getResource(fallbackPropertiesID).isPresent();
             if(exists){
                 propertyID = fallbackPropertiesID;
@@ -201,7 +201,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         }
 
         if (exists) {
-            if(printing)EMFUtils.log(" > found properties file: " + propertyID + " for: " + thisDirectoryFileName + ".jem");
+            if(printing) EMFUtils.log(" > found properties file: " + propertyID + " for: " + thisDirectoryFileName + ".jem");
             variantTester = ETFApi.getVariantSupplierOrNull(propertyID, EMFUtils.res(thisDirectoryFileName + ".jem"), "models");
 
             if (variantTester instanceof PropertiesRandomProvider propertiesRandomProvider) {
@@ -226,8 +226,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                         EMFDirectoryHandler variantDirectoryContext = EMFDirectoryHandler.getDirectoryManagerOrNull(EMF.config().getConfig().logModelCreationData, directoryContext.namespace, directoryContext.rawFileName,  variant + ".jem");
                         boolean canUseVariant = directoryContext.validForThisBase(variantDirectoryContext);//null checks
 
-                        if (printing)
-                            EMFUtils.log(" > incorporating variant jem file: " + directoryContext.namespace + ":"+ directoryContext.rawFileName + variant + ".jem");
+                        if (printing) EMFUtils.log(" > incorporating variant jem file: " + directoryContext.namespace + ":"+ directoryContext.rawFileName + variant + ".jem");
 
                         //noinspection DataFlowIssue
                         EMFJemData jemDataVariant = canUseVariant ? getJemDataWithDirectory(variantDirectoryContext, modelName) : null;
@@ -240,21 +239,19 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                         } else {
                             //make this variant map to 1
                             allKnownStateVariants.put(variant, allKnownStateVariants.get(1));
-                            if (EMF.config().getConfig().logModelCreationData)
-                                EMFUtils.log(" > invalid jem variant file: " + directoryContext.namespace + ":"+ directoryContext.rawFileName + variant + ".jem");
+                            if (printing) EMFUtils.log(" > invalid jem variant file: " + directoryContext.namespace + ":"+ directoryContext.rawFileName + variant + ".jem");
                         }
 
                     }
                 } else {
-                    if (printing)
-                        EMFUtils.logWarn("properties with only 1 variant found: " + propertyID + ".");
+                    if (printing) EMFUtils.logWarn("properties with only 1 variant found: " + propertyID + ".");
                 }
             } else {
-                EMFUtils.logWarn("null properties found for: " + propertyID);
+                if (printing) EMFUtils.logWarn("null properties found for: " + propertyID);
                 directoryContext = null;
             }
         } else {
-            EMFUtils.logWarn("no properties or variants found for found for: [" + thisDirectoryFileName + ".jem]");
+            if (printing) EMFUtils.logWarn("no properties or variants found for found for: [" + thisDirectoryFileName + ".jem]");
             directoryContext = null;
         }
     }

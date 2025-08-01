@@ -1,5 +1,7 @@
 
 
+- fixed some model creation log messages still showing regardless of the setting for it being enabled
+- reduced the threshold for ignoring spam model creation from other mods *(that incorrectly use entity models)* from 500 attempts to 64
 
 [3.0.0]
 - fixed entities in gui in 1.21.6+
