@@ -58,7 +58,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
-@SuppressWarnings({ "SameParameterValue", "unused"})
+@SuppressWarnings({"SameParameterValue", "unused", "UnnecessaryUnicodeEscape"})
 @Deprecated // todo move most func into EMFRenderState where appropriate
 public final class EMFAnimationEntityContext {
 
@@ -258,7 +258,7 @@ public final class EMFAnimationEntityContext {
         newEntity(state);
 
         if (state != null) {
-
+            //todo 1.21.9 most likely breaks this when done here
             //perform variant checking for this entity types models
             //this is the only way to keep it generic and also before the entity is rendered and affect al its models
             Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(state.typeString());
@@ -289,15 +289,15 @@ public final class EMFAnimationEntityContext {
     public static void anounceModels(EMFEntityRenderState assertEntity) {
         String type = assertEntity.typeString();
         Set<EMFModelPartRoot> debugRoots = EMFManager.getInstance().rootPartsPerEntityTypeForDebug.get(type);
-        EMFUtils.chat("§e-----------EMF Debug Printout-------------§r");
+        EMFUtils.chat("\u00A7e-----------EMF Debug Printout-------------\u00A7r");
         if (debugRoots == null) {
             EMFUtils.chat(
-                    "\n§c§oThe EMF debug printout did not find any custom models registered to the following entity:\n §3§l§u" + type
+                    "\n\u00A7c\u00A7oThe EMF debug printout did not find any custom models registered to the following entity:\n \u00A73\u00A7l\u00A7u" + type
             );
         } else {
-            String message = "\n§2§oThe EMF debug printout found the following custom models for the entity:\n §3§l§u" +
+            String message = "\n\u00A72\u00A7oThe EMF debug printout found the following custom models for the entity:\n \u00A73\u00A7l\u00A7u" +
                     type +
-                    "§r\n§2§oThis first model is usually the primary model for the entity.";
+                    "\u00A7r\n\u00A72\u00A7oThis first model is usually the primary model for the entity.";
 
             EMFUtils.chat(message);
 
@@ -305,12 +305,12 @@ public final class EMFAnimationEntityContext {
             for (EMFModelPartRoot debugRoot :
                     debugRoots) {
                 StringBuilder model = new StringBuilder();
-                model.append("§eModel #").append(count).append("§r")
+                model.append("\u00A7eModel #").append(count).append("\u00A7r")
                         .append(entryAndValue("name", debugRoot.modelName.getfileName() + ".jem"));
                 if (debugRoot.modelName.hasFallbackModels()){
-                    model.append("§eFallback Models:§r");
+                    model.append("\u00A7eFallback Models:\u00A7r");
                     debugRoot.modelName.forEachFallback((modelId) ->
-                            model.append("\n§6 - §r").append(modelId.getfileName()));
+                            model.append("\n\u00A76 - \u00A7r").append(modelId.getfileName()));
                 }
                 if (debugRoot.directoryContext != null) {
                     model.append(entryAndValue("directory",
@@ -327,7 +327,7 @@ public final class EMFAnimationEntityContext {
                     model.append(entryAndValue("model_variants", set.toString()))
                             .append(entryAndValue("current_variant", String.valueOf(debugRoot.currentModelVariant)));
                 }
-                EMFUtils.chat(model + "\n§6 - parts:§r printed in game log only.");
+                EMFUtils.chat(model + "\n\u00A76 - parts:\u00A7r printed in game log only.");
 
                 EMFUtils.log("\n - parts: " + debugRoot.simplePrintChildren(0));
 
@@ -335,26 +335,26 @@ public final class EMFAnimationEntityContext {
             }
         }
 
-        EMFUtils.chat("\n§e----------------------------------------§r");
+        EMFUtils.chat("\n\u00A7e----------------------------------------\u00A7r");
         if (!EMFManager.getInstance().modelsAnnounced.isEmpty()) {
-            String vanillaMessage = "\n§2§oThe EMF debug printout found the following non-custom models for the entity:\n §3§l§u" +
+            String vanillaMessage = "\n\u00A72\u00A7oThe EMF debug printout found the following non-custom models for the entity:\n \u00A73\u00A7l\u00A7u" +
                     type +
-                    "§r\n§2§oThis first model is usually the primary model for the entity.";
+                    "\u00A7r\n\u00A72\u00A7oThis first model is usually the primary model for the entity.";
 
             EMFUtils.chat(vanillaMessage);
             int count = 1;
             for (EMFModel_ID data : EMFManager.getInstance().modelsAnnounced) {
                 StringBuilder model = new StringBuilder();
-                model.append("\n§eNon-Custom Model #").append(count).append("§r")
+                model.append("\n\u00A7eNon-Custom Model #").append(count).append("\u00A7r")
                         .append(entryAndValue("possible .jem name", data.getDisplayFileName()));
                 if (data.hasFallbackModels()){
-                    model.append("§eFallback Models:§r");
+                    model.append("\u00A7eFallback Models:\u00A7r");
                     data.forEachFallback((modelId) ->
-                            model.append("\n§6 - §r").append(modelId.getfileName()));
+                            model.append("\n\u00A76 - \u00A7r").append(modelId.getfileName()));
                 }
                 Map<String, String> map = EMFModelMappings.getMapOf(data, null);
                 if (!map.isEmpty()) {
-                    EMFUtils.chat(model + "\n§6 - part names:§r printed in game log only.");
+                    EMFUtils.chat(model + "\n\u00A76 - part names:\u00A7r printed in game log only.");
                     StringBuilder parts = new StringBuilder();
                     parts.append("\n - part names: ");
                     map.forEach((k, v) -> parts.append("\n   | - [").append(k).append(']'));
@@ -365,7 +365,7 @@ public final class EMFAnimationEntityContext {
                     EMFUtils.log(" - part names: could not be found. use the 'printout unknown models' setting instead.");
                 }
             }
-            EMFUtils.chat("\n§e----------------------------------------§r");
+            EMFUtils.chat("\n\u00A7e----------------------------------------\u00A7r");
             EMFManager.getInstance().modelsAnnounced.clear();
         }
 
@@ -377,7 +377,7 @@ public final class EMFAnimationEntityContext {
     }
 
     private static String entryAndValue(String entry, String value) {
-        return "\n§6 - " + entry + ":§r " + value;
+        return "\n\u00A76 - " + entry + ":\u00A7r " + value;
     }
 
 //todo check    public static void setCurrentEntityNoIteration(EMFEntity entityIn) {

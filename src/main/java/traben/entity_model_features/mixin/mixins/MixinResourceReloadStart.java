@@ -14,6 +14,8 @@ public abstract class MixinResourceReloadStart {
     @Inject(
             //#if MC >=12100
             method = "reloadResourcePacks(ZLnet/minecraft/client/Minecraft$GameLoadCookie;)Ljava/util/concurrent/CompletableFuture;",
+            //#elseif !FABRIC && MC >= 12002 && MC <= 12004
+            //$$ method = "reloadResourcePacks(ZLnet/minecraft/client/Minecraft$GameLoadCookie;)Ljava/util/concurrent/CompletableFuture;",
             //#else
             //$$ method = "reloadResourcePacks(Z)Ljava/util/concurrent/CompletableFuture;",
             //#endif

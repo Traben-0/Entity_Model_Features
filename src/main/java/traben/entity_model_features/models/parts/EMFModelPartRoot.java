@@ -43,13 +43,13 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     private long lastMobCountAnimatedOn = 0;
     private boolean hasRemovedTopLevelJemTextureFromChildren = false;
 
-    //construct vanilla root
+    // construct vanilla root
     public EMFModelPartRoot(EMFModel_ID mobNameForFileAndMap,
                             EMFDirectoryHandler directoryContext,
                             ModelPart vanillaRoot,
                             Collection<String> optifinePartNames,
                             Map<String, EMFModelPartVanilla> mapForCreatedParts) {
-        //create vanilla root model object
+        // create vanilla root model object
         super("root", vanillaRoot, optifinePartNames, mapForCreatedParts);
         allVanillaParts = mapForCreatedParts;
         allVanillaParts.putIfAbsent(name, this);
@@ -59,7 +59,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
         this.vanillaRoot = vanillaRoot;
 
-        //init the first time runnable into all vanilla children
+        // init the first time runnable into all vanilla children
         receiveOneTimeRunnable(this::registerModelRunnableWithEntityTypeContext);
     }
 
@@ -68,26 +68,24 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         return new float[]{1f, 0, 0};
     }
 
-
-
     public Collection<EMFModelPartVanilla> getAllVanillaPartsEMF() {
         return allVanillaParts.values();
     }
 
     private void registerModelRunnableWithEntityTypeContext() {
-        var entity = EMFAnimationEntityContext.getEMFEntity();
-        if (entity != null) {
-            String type = entity.emf$getTypeString();
+        var entity = EMFAnimationEntityContext.getEmfState();
+        if (entity != null) { // await a valid entity
+            String type = entity.typeString();
             var config = EMF.config().getConfig();
 
-            //register models to entity type for debug print
+            // register models to entity type for debug print
             if (config.debugOnRightClick) {
                 EMFManager.getInstance().rootPartsPerEntityTypeForDebug
                         .computeIfAbsent(type, k -> new ObjectLinkedOpenHashSet<>())
                         .add(this);
             }
 
-            //register variant runnable
+            // register variant runnable
             EMFManager.getInstance().rootPartsPerEntityTypeForVariation
                     .computeIfAbsent(type, k -> new HashSet<>())
                     .add(this);
@@ -95,24 +93,26 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             if (variantTester != null && config.logModelCreationData) {
                 EMFUtils.log("Registered new variating model for: " + type);
             }
+
+            // now set the runnable to null so it only runs once
+            this.receiveOneTimeRunnable(null);
         }
-        //now set the runnable to null so it only runs once
-        this.receiveOneTimeRunnable(null);
     }
 
     public void doVariantCheck() {
-        if(this.variantTester == null || EMFAnimationEntityContext.getEMFEntity() == null) {
+        var emfState = EMFAnimationEntityContext.getEmfState();
+        if(this.variantTester == null || emfState == null) {
             this.setVariantStateTo(1);
             return;
         }
 
-        UUID id = EMFAnimationEntityContext.getEMFEntity().etf$getUuid();
+        UUID id = emfState.uuid();
         int finalSuffix = entitySuffixMap.getInt(id);
 
         if (finalSuffix != -1) {
             checkIfShouldExpireEntity(id);
         } else {
-            finalSuffix = Math.max(1, variantTester.getSuffixForETFEntity(EMFAnimationEntityContext.getEmfState()));
+            finalSuffix = Math.max(1, variantTester.getSuffixForETFEntity(emfState));
             entitySuffixMap.put(id, finalSuffix);
         }
         EMFManager.getInstance().lastModelSuffixOfEntity.put(id, finalSuffix);

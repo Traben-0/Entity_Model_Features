@@ -26,7 +26,7 @@ public class EMFInit implements ClientModInitializer {
 //$$                 ModLoadingContext.get().registerExtensionPoint(
 //$$                         ConfigScreenHandler.ConfigScreenFactory.class,
 //$$                         () -> new ConfigScreenHandler.ConfigScreenFactory(
-                        //#if MC >= 12004
+                        //#if MC >= 12004 || MC == 12001
                         //$$ (Function<Screen, Screen>)
                         //#endif
 //$$                         ETF::getConfigScreen
