@@ -121,7 +121,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
 
 
     @ModifyExpressionValue(method = "getRenderType", at = @At(value = "INVOKE",
-            //#if MC >= 12100
+            //#if MC >= 12102
             target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;getTextureLocation(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)Lnet/minecraft/resources/ResourceLocation;"
             //#else
             //$$ target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;getTextureLocation(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/resources/ResourceLocation;"
