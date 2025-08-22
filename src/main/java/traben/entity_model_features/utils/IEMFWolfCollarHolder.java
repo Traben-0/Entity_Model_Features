@@ -15,8 +15,8 @@ public interface
 //#endif
 {
 
-    default boolean emf$hasCollarModel(boolean baby) {
-        return emf$getCollarModel(baby) != null;
+    default boolean emf$hasCollarModel() {
+        return emf$getCollarModel() != null;
     }
 
     //#if MC >= 12102
@@ -24,7 +24,7 @@ public interface
     //#else
     //$$ WolfModel<T>
     //#endif
-        emf$getCollarModel(boolean baby);
+        emf$getCollarModel();
 
     void emf$setCollarModel(
             //#if MC >= 12102
@@ -32,7 +32,7 @@ public interface
             //#else
             //$$ WolfModel<T>
             //#endif
-            model, boolean baby);
+            model);
 
 
 }

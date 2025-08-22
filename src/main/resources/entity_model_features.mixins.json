@@ -19,6 +19,7 @@
     "MixinPlayerEntity",
     "MixinResourceReloadEnd",
     "MixinResourceReloadStart",
+    "accessor.AgeableMobRendererAccessor",
     "accessor.CuboidAccessor",
     "accessor.EntityRenderDispatcherAccessor",
     "accessor.MinecraftClientAccessor",

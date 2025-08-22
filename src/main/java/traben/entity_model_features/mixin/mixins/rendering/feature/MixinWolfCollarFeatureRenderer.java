@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.mixin.mixins.accessor.AgeableMobRendererAccessor;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
@@ -35,7 +36,7 @@ public abstract class MixinWolfCollarFeatureRenderer extends RenderLayer<
 //#if MC >= 12102
 WolfRenderState, WolfModel
 //#else
-//$$     Wolf, WolfModel<Wolf>
+//$$ Wolf, WolfModel<Wolf>
 //#endif
 > {
 
@@ -44,18 +45,7 @@ WolfRenderState, WolfModel
     @Unique
     private static final ModelLayerLocation emf$collar_layer_baby = new ModelLayerLocation(EMFUtils.res("minecraft", "wolf_baby"), "collar");
 
-
-
-    //#if MC >= 12102
-    public MixinWolfCollarFeatureRenderer(final RenderLayerParent<WolfRenderState, WolfModel> renderLayerParent) {
-        super(renderLayerParent);
-    }
-    //#else
-    //$$ @SuppressWarnings("unused")
-    //$$ public MixinWolfCollarFeatureRenderer(RenderLayerParent<Wolf, WolfModel<Wolf>> context) {
-    //$$     super(context);
-    //$$ }
-    //#endif
+    public MixinWolfCollarFeatureRenderer() { super(null); }
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void setEmf$Model(RenderLayerParent<?, ?> featureRendererContext, CallbackInfo ci) {
@@ -86,7 +76,7 @@ WolfRenderState, WolfModel
                             //#else
                             //$$ WolfModel<>
                             //#endif
-                            (collarModel), false);
+                            (collarModel));
                 }
             } catch (Exception ignored) {
             }
@@ -101,15 +91,15 @@ WolfRenderState, WolfModel
 
 
         //separate the collar model, if it has a custom jem model or the base wolf has a custom jem model
-        if (featureRendererContext instanceof AgeableMobRenderer<?, ?, ?> wolfRenderer
-                && collarModelBaby instanceof EMFModelPartRoot
+        if (collarModelBaby instanceof EMFModelPartRoot
                 || // base model is custom
                 EMFManager.getInstance().injectIntoModelRootGetter(new ModelLayerLocation(EMFUtils.res("minecraft", "wolf_baby"), "main"),
                     LayerDefinition.create(WolfModel.createMeshDefinition(CubeDeformation.NONE), 64, 32).bakeRoot()
                     ) instanceof EMFModelPart) {
             try {
                 // store in primary model
-                if (featureRendererContext.getModel() instanceof
+                if (featureRendererContext instanceof AgeableMobRendererAccessor ageModelsAccessor
+                        && ageModelsAccessor.getBabyModel() instanceof
                         //#if MC >= 12102
                         IEMFWolfCollarHolder
                                 //#else
@@ -122,15 +112,12 @@ WolfRenderState, WolfModel
                             //#else
                             //$$ WolfModel<>
                             //#endif
-                            (collarModel), true);
+                            (collarModelBaby));
                 }
             } catch (Exception ignored) {}
         }
 
         //#endif
-
-
-
     }
 
     @Override
@@ -141,8 +128,7 @@ WolfRenderState, WolfModel
         //$$ WolfModel<Wolf>
         //#endif
     getParentModel() {
-        var base = super.getParentModel();
-        boolean baby = EMFAnimationEntityContext.isChild();
+        var base = super.getParentModel(); // already either adult or baby model
 
         if (base instanceof
                 //#if MC >= 12102
@@ -151,7 +137,7 @@ WolfRenderState, WolfModel
                         //$$ IEMFWolfCollarHolder<?>
                         //#endif
                         holder
-                && holder.emf$hasCollarModel(baby)) {
+                && holder.emf$hasCollarModel()) {
             //noinspection unchecked
             var model = (
                     //#if MC >= 12102
@@ -159,7 +145,7 @@ WolfRenderState, WolfModel
                     //#else
                     //$$ WolfModel<Wolf>
                     //#endif
-                    ) holder.emf$getCollarModel(baby);
+                    ) holder.emf$getCollarModel();
 
             //#if MC < 12102
             //$$ model.attackTime = base.attackTime;

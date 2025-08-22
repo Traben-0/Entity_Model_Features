@@ -15,6 +15,7 @@
 - large restructure of the source code
 - fixed animation execution ordering when loading animations via jpm files
 - fixed part name resolving issue (e.g. `mouth.ty` resolved to `classic_mouth.ty`)
+- fixed `baby_wolf_collar.jem`
 
 
 [2.4.4]

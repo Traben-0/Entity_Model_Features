@@ -27,7 +27,6 @@ IEMFWolfCollarHolder
 //#endif
 {
 
-
     @Unique
             //#if MC >= 12102
             WolfModel
@@ -35,29 +34,21 @@ IEMFWolfCollarHolder
             //$$ WolfModel<T>
             //#endif
             emf$collarModel = null;
-    @Unique
-            //#if MC >= 12102
-            WolfModel
-            //#else
-            //$$ WolfModel<T>
-            //#endif
-            emf$collarModelBaby = null;
 
 //#if MC >= 12102
     @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/WolfRenderState;)V", at = @At(value = "HEAD"))
     private void smf$setAngles(final WolfRenderState wolfRenderState, final CallbackInfo ci) {
-        if (emf$hasCollarModel(false)) emf$collarModel.setupAnim(wolfRenderState);
-        if (emf$hasCollarModel(true)) emf$collarModelBaby.setupAnim(wolfRenderState);
+        if (emf$hasCollarModel()) emf$collarModel.setupAnim(wolfRenderState);
     }
 //#else
 //$$     @Inject(method = "setupAnim(Lnet/minecraft/world/entity/animal/Wolf;FFFFF)V", at = @At(value = "HEAD"))
 //$$     private void smf$setAngles(T wolfEntity, float f, float g, float h, float i, float j, CallbackInfo ci) {
-//$$        if (emf$hasCollarModel(false)) emf$collarModel.setupAnim(wolfEntity, f, g, h, i, j);
+//$$        if (emf$hasCollarModel()) emf$collarModel.setupAnim(wolfEntity, f, g, h, i, j);
 //$$     }
 //$$
 //$$     @Inject(method = "prepareMobModel(Lnet/minecraft/world/entity/animal/Wolf;FFF)V", at = @At(value = "HEAD"))
 //$$     private void smf$animateModel(T wolfEntity, float f, float g, float h, CallbackInfo ci) {
-//$$         if (emf$hasCollarModel(false)) emf$collarModel.prepareMobModel(wolfEntity, f, g, h);
+//$$         if (emf$hasCollarModel()) emf$collarModel.prepareMobModel(wolfEntity, f, g, h);
 //$$     }
 //#endif
 
@@ -68,12 +59,8 @@ IEMFWolfCollarHolder
         //#else
         //$$ WolfModel<T>
         //#endif
-    emf$getCollarModel(boolean baby) {
-        //#if MC >= 12102
-        return baby ? emf$collarModelBaby : emf$collarModel;
-        //#else
-        //$$ return emf$collarModel;
-        //#endif
+    emf$getCollarModel() {
+        return emf$collarModel;
     }
 
     @Override
@@ -83,9 +70,8 @@ IEMFWolfCollarHolder
                     //#else
                     //$$ WolfModel<T>
                     //#endif
-                    model, boolean baby) {
-        if (baby) emf$collarModelBaby = model;
-        else emf$collarModel = model;
+                    model) {
+        emf$collarModel = model;
     }
 
 
