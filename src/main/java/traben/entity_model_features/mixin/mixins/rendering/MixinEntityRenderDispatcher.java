@@ -61,10 +61,17 @@ public abstract class MixinEntityRenderDispatcher {
             //#else
             //$$ "render",
             //#endif
-            at = @At(value = "RETURN"))
+
+            // state not in scope
+            //#if MC >=12102 && MC<=12104
+            //$$ at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V")
+            //#else
+            at = @At(value = "RETURN")
+            //#endif
+    )
     //#if MC >=12102
     private <S extends net.minecraft.client.renderer.entity.state.EntityRenderState> void emf$endOfRender(
-            final CallbackInfo ci, @SuppressWarnings("LocalMayBeArgsOnly") @Local S state
+            final CallbackInfo ci, @SuppressWarnings("LocalMayBeArgsOnly") @Local S state // not an arg on 1.21.2-4, also not in RETURN scope
     ) {
         // todo likely extremely broken in 1.21.9
         if (EMFAnimationEntityContext.doAnnounceModels()) {
