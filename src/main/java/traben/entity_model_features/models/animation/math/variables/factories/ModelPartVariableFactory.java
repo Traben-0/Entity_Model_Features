@@ -24,7 +24,7 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
             return null;
         }
         EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
-        EMFModelPart part = EMFManager.getModelFromHierarchichalId(partName, calculationInstance.temp_allPartsBySingleAndFullHeirachicalId);
+        EMFModelPart part = EMFManager.getModelFromHierarchicalId(partName, calculationInstance.temp_allPartsBySingleAndFullHeirachicalId);
         if (partVariable != null && part != null) {
             return () -> partVariable.getValue(part);
         }

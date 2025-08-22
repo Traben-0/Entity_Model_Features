@@ -153,28 +153,26 @@ public class EMFManager {//singleton for data holding and resetting needs
         return null;
     }
 
-    public static EMFModelPart getModelFromHierarchichalId(String hierarchId, Map<String, EMFModelPart> map) {
+    public static EMFModelPart getModelFromHierarchicalId(String hierarchId, Map<String, EMFModelPart> map) {
         if (hierarchId == null || hierarchId.isBlank()) return null;
 
         EMFModelPart part = map.get(hierarchId);
         if (part == null) part = map.get("EMF_" + hierarchId);
         if (part != null) return part;
 
-        //must search for heirarchical declaration
+        //must search for hierarchical declaration
         for (Map.Entry<String, EMFModelPart> entry : map.entrySet()) {
             String key = entry.getKey();
             if (key.endsWith(":" + hierarchId) || key.endsWith(":EMF_" + hierarchId)) {
                 return entry.getValue();
             }
-            boolean allPartsMatch = true;
             String[] parts = hierarchId.split(":");
-            for (String partStr : parts) {
-                if (!key.contains(partStr) && !key.contains("EMF_" + partStr)) {
-                    allPartsMatch = false;
-                    break;
-                }
-            }
-            if (allPartsMatch && key.endsWith(parts[parts.length - 1])) {
+            boolean allPartsMatch = Arrays.stream(parts)
+                    .allMatch(partStr -> key.contains(partStr) || key.contains("EMF_" + partStr));
+
+            String last = parts[parts.length - 1];
+            if (allPartsMatch
+                    && (key.equals(last) || key.endsWith(":" + last) || key.endsWith(":EMF_" + last))) {
                 return entry.getValue();
             }
         }
@@ -695,7 +693,6 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
 
-
         if (printing) {
             EMFUtils.log(" > finalAnimationsForModel =");
             for (List<LinkedHashMap<String, String>> animList : jemData.getAllTopLevelAnimationsByVanillaPartName().values()) {
@@ -707,6 +704,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             }
         }
+
         for (List<LinkedHashMap<String, String>> animList : jemData.getAllTopLevelAnimationsByVanillaPartName().values()) {
             for (LinkedHashMap<String, String> animMap : animList) {
                 for (Map.Entry<String, String> animationLine : animMap.entrySet()) {
@@ -722,7 +720,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                     EMFModelOrRenderVariable thisVariable = EMFModelOrRenderVariable.get(modelVariable);
                     if (thisVariable == null) thisVariable = EMFModelOrRenderVariable.getRenderVariable(animKey);
 
-                    EMFModelPart thisPart = "render".equals(modelId) ? null : getModelFromHierarchichalId(modelId, allPartsBySingleAndFullHeirachicalId);
+                    EMFModelPart thisPart = "render".equals(modelId) ? null : getModelFromHierarchicalId(modelId, allPartsBySingleAndFullHeirachicalId);
 
                     EMFAnimation newAnimation = new EMFAnimation(
                             thisPart,
