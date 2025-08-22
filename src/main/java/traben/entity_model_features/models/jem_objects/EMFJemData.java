@@ -1,5 +1,6 @@
 package traben.entity_model_features.models.jem_objects;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFException;
@@ -9,6 +10,8 @@ import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.EMFModel_ID;
 
 import java.util.*;
+import java.util.regex.Pattern;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -69,16 +72,15 @@ public class EMFJemData {
     @Nullable
     public ResourceLocation validateResourcePathAndExists(String pathIn, @Nullable String fileTypeExtension) {
         if (pathIn == null || pathIn.isBlank()) return null;
-/*
-OptiFine spec
 
-# Textures can be specified as:
-#   "texture" - (no '/' in name), look in current folder
-#   "./folder/texture" - relative to current folder
-#   "~/folder/texture" - relative to folder "assets/minecraft/optifine/"
-#   "folder/texture" - relative to folder "assets/minecraft/"
-#   "mod:folder/texture - resolves as "assets/mod/folder/texture.png"
-*/
+        /* OptiFine spec
+        # Textures can be specified as:
+        #   "texture" - (no '/' in name), look in current folder
+        #   "./folder/texture" - relative to current folder
+        #   "~/folder/texture" - relative to folder "assets/minecraft/optifine/"
+        #   "folder/texture" - relative to folder "assets/minecraft/"
+        #   "mod:folder/texture - resolves as "assets/mod/folder/texture.png"
+        */
 
         String pathTest = pathIn.trim();
         if (!pathTest.isBlank()) {
@@ -97,7 +99,7 @@ OptiFine spec
 
             if (
                 //#if MC >= 12100
-                    ResourceLocation.tryParse(pathTest) != null
+                ResourceLocation.tryParse(pathTest) != null
                 //#else
                 //$$     ResourceLocation.isValidResourceLocation(pathTest)
                 //#endif
@@ -119,20 +121,16 @@ OptiFine spec
             this.directoryContext = directoryContext;
             this.mobModelIDInfo = mobModelIDInfo;
 
-            if (textureSize != null && textureSize.length != 2) {
+            if (textureSize == null || textureSize.length != 2) {
                 textureSize = new int[]{64, 32};
                 EMFUtils.logWarn("No textureSize provided for: " + directoryContext.getFileNameWithType() + ". Defaulting to 64x32 texture size for model.");
             }
 
-            LinkedList<EMFPartData> originalModelsForReadingOnly = new LinkedList<>(models);
-
             customTexture = validateJemTexture(texture, true);
 
-//            String mapId = mobModelIDInfo.getMapId();
             Map<String, String> map = EMFModelMappings.getMapOf(mobModelIDInfo, null);
 
-
-            //change all part values to their vanilla counterparts
+            // change all part values to their vanilla counterparts
             for (EMFPartData partData : models) {
                 if (partData.part != null && map.containsKey(partData.part)) {
                     partData.originalPart = partData.part;
@@ -144,53 +142,47 @@ OptiFine spec
                 model.prepare(textureSize, this);
             }
 
-            ///prep animations
-            SortedMap<String, EMFPartData> alphabeticalOrderedParts = new TreeMap<>(Comparator.naturalOrder());
             if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("originalModelsForReadingOnly #= " + originalModelsForReadingOnly.size());
+                EMFUtils.log("originalModels #= " + models.size());
 
-            for (EMFPartData partData :
-                    originalModelsForReadingOnly) {
-                //if two parts both with id of EMF_body the later will get renamed to copy first come first serve approach that optifine seems to have
-                String newId = EMFUtils.getIdUnique(alphabeticalOrderedParts.keySet(), partData.id);
+            /// prep animations
+            LinkedHashMap<String, EMFPartData> orderedParts = new LinkedHashMap<>();
+            for (EMFPartData partData : models) {
+                // if two parts both with id of EMF_body the later will get renamed to copy first come first serve approach that optifine seems to have
+                String newId = EMFUtils.getIdUnique(orderedParts.keySet(), partData.id);
                 if (!newId.equals(partData.id)) partData.id = newId;
-                alphabeticalOrderedParts.put(partData.id, partData);
+                orderedParts.put(partData.id, partData);
             }
 
             if (EMF.config().getConfig().logModelCreationData)
-                EMFUtils.log("alphabeticalOrderedParts = " + alphabeticalOrderedParts);
+                EMFUtils.log("orderedParts = " + orderedParts);
 
-            for (EMFPartData part : alphabeticalOrderedParts.values()) {
-                if (part.animations != null) {
-                    var list = new LinkedList<LinkedHashMap<String, String>>();
-                    for (LinkedHashMap<String, String> animation : part.animations) {
-                        LinkedHashMap<String, String> thisPartsAnimations = new LinkedHashMap<>();
-                        animation.forEach((key, anim) -> {
-                            key = key.trim().replaceAll("\\s", "");
-                            anim = anim.trim().replaceAll("\\s", "");
-                            //replace "this"
-                            if (key.contains("this")) key = key.replaceFirst("(?<=\\W|^)this(?=\\W)", part.id);
-                            if (anim.contains("this")) anim = anim.replaceAll("(?<=\\W|^)this(?=\\W)", part.id);
-                            //replace "part"
-                            if (key.contains("part")) key = key.replaceFirst("(?<=\\W|^)part(?=\\W)", Objects.requireNonNullElse(part.originalPart, part.part));
-                            if (anim.contains("part")) anim = anim.replaceAll("(?<=\\W|^)part(?=\\W)", Objects.requireNonNullElse(part.originalPart, part.part));
+            for (EMFPartData part : orderedParts.values()) {
+                if (part.animations == null) continue;
 
-                            if (!key.isBlank() && !anim.isBlank())
-                                thisPartsAnimations.put(key, anim);
-                        });
-                        if (!thisPartsAnimations.isEmpty()) {
-                            list.add(thisPartsAnimations);
+                var animationsList = new LinkedList<LinkedHashMap<String, String>>();
+                for (var animation : part.animations) {
+                    var processedAnimations = new LinkedHashMap<String, String>();
+                    animation.forEach((key, anim) -> {
+                        key = processAnimAndKeyString(part, key);
+                        anim = processAnimAndKeyString(part, anim);
+
+                        if (!key.isBlank() && !anim.isBlank()) {
+                            processedAnimations.put(key, anim);
                         }
+                    });
+                    if (!processedAnimations.isEmpty()) {
+                        animationsList.add(processedAnimations);
                     }
-                    if (!list.isEmpty()) {
-                        allTopLevelAnimationsByVanillaPartName
-                                .computeIfAbsent(part.part, k -> new LinkedList<>())
-                                .addAll(list);
-                    }
+                }
+                if (!animationsList.isEmpty()) {
+                    allTopLevelAnimationsByVanillaPartName
+                            .computeIfAbsent(part.part, k -> new LinkedList<>())
+                            .addAll(animationsList);
                 }
             }
 
-            //place in a simple animation to set the shadow size
+            // place in a simple animation to set the shadow size
             if (shadow_size != 1.0) {
                 shadow_size = Math.max(shadow_size, 0);
                 var shadowAnim = new LinkedHashMap<String, String>();
@@ -205,6 +197,17 @@ OptiFine spec
             throw EMFException.recordException(new RuntimeException(message));
         }
         ///finished animations preprocess
+    }
+
+    private static final Pattern WHITESPACE = Pattern.compile("\\s");
+    private static final Pattern THIS = Pattern.compile("(?<=\\W|^)this(?=\\W)");
+    private static final Pattern PART = Pattern.compile("(?<=\\W|^)part(?=\\W)");
+
+    private static @NotNull String processAnimAndKeyString(final EMFPartData part, final String anim) {
+        String result = WHITESPACE.matcher(anim.trim()).replaceAll("");
+        result = THIS.matcher(result).replaceAll(part.id);
+        result = PART.matcher(result).replaceAll(Objects.requireNonNullElse(part.originalPart, part.part));
+        return result;
     }
 
 

@@ -13,6 +13,7 @@
 - fixed some models not variating correctly until a resource reload
 - first release for 1.20 in a while
 - large restructure of the source code
+- fixed animation execution ordering when loading animations via jpm files
 
 
 [2.4.4]
