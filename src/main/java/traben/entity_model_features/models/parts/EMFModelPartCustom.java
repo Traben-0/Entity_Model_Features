@@ -106,7 +106,8 @@ public class EMFModelPartCustom extends EMFModelPart {
                                 box.coordinates[3], box.coordinates[4], box.coordinates[5],
                                 box.sizeAddX, box.sizeAddY, box.sizeAddZ,
                                 emfPartData.textureSize[0], emfPartData.textureSize[1],
-                                emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));
+                                // it seems optifine ignores these flags on custom uv's which does make some sense
+                                false, false); // emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));
                     }
                     emfCuboids.add(cube);
                 }
