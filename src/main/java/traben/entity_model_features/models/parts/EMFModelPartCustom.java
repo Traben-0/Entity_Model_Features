@@ -90,14 +90,13 @@ public class EMFModelPartCustom extends EMFModelPart {
                 for (EMFBoxData box : emfPartData.boxes) {
                     Cube cube;
                     if (box.textureOffset.length == 2) {
-                        //System.out.println("non custom uv box ignoring for now");
                         cube = new EMFCube(emfPartData,
                                 box.textureOffset[0], box.textureOffset[1],
                                 box.coordinates[0], box.coordinates[1], box.coordinates[2],
                                 box.coordinates[3], box.coordinates[4], box.coordinates[5],
                                 box.sizeAddX, box.sizeAddY, box.sizeAddZ,
                                 emfPartData.textureSize[0], emfPartData.textureSize[1],
-                                emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));//selfModelData.invertAxis);
+                                emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));
                     } else {
                         //create a custom uv cuboid
                         cube = new EMFCube(emfPartData,
@@ -107,7 +106,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                                 box.coordinates[3], box.coordinates[4], box.coordinates[5],
                                 box.sizeAddX, box.sizeAddY, box.sizeAddZ,
                                 emfPartData.textureSize[0], emfPartData.textureSize[1],
-                                emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));//selfModelData.invertAxis);
+                                emfPartData.mirrorTexture.contains("u"), emfPartData.mirrorTexture.contains("v"));
                     }
                     emfCuboids.add(cube);
                 }

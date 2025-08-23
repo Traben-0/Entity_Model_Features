@@ -16,6 +16,8 @@
 - fixed animation execution ordering when loading animations via jpm files
 - fixed part name resolving issue (e.g. `mouth.ty` resolved to `classic_mouth.ty`)
 - fixed `baby_wolf_collar.jem`
+- removed the fallback behaviour of the new cow, chicken, and pig models from their `cold_` and `warm_` variants they will not fall back to the base model any more
+- added `temperate_cow.jem` as an optional override to `cow.jem` on 1.21.5+ to allow pack makers an easier time managing the different versions models, also applies to pigs and chickens
 
 
 [2.4.4]

@@ -126,18 +126,25 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         return this;
     }
 
-    public void propagateFallbacksWithoutPrefix(String prefix) {
-        var list = new ArrayList<>(fallBackModels);
-        if (fileName.startsWith(prefix)) {
-            var newFileName = fileName.substring(prefix.length());
-            fallBackModels.add(new FallbackModel(namespace, newFileName));
-        }
-        for (FallbackModel fallbackModel : list) {
-            if (fallbackModel.fileName.startsWith(prefix)) {
-                var newFileName = fallbackModel.fileName.substring(prefix.length());
-                fallBackModels.add(new FallbackModel(fallbackModel.namespace, newFileName));
-            }
-        }
+//    public void propagateFallbacksWithoutPrefix(String prefix) {
+//        var list = new ArrayList<>(fallBackModels);
+//        if (fileName.startsWith(prefix)) {
+//            var newFileName = fileName.substring(prefix.length());
+//            fallBackModels.add(new FallbackModel(namespace, newFileName));
+//        }
+//        for (FallbackModel fallbackModel : list) {
+//            if (fallbackModel.fileName.startsWith(prefix)) {
+//                var newFileName = fallbackModel.fileName.substring(prefix.length());
+//                fallBackModels.add(new FallbackModel(fallbackModel.namespace, newFileName));
+//            }
+//        }
+//    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public EMFModel_ID pushNewMainModelAddingOldAsFallback(String fileName) throws EMFException {
+        addFallbackModel(this.fileName);
+        this.fileName = fileName;
+        return this;
     }
 
     @SuppressWarnings("UnusedReturnValue")

@@ -321,16 +321,14 @@ public class EMFManager {//singleton for data holding and resetting needs
                     //wolf_baby_collar, wolf_collar, wolf_baby, wolf
                 }
 
-                //#if MC >= 12105
-                if (mobNameForFileAndMap.getfileName().startsWith("warm_")) {
-                    mobNameForFileAndMap.propagateFallbacksWithoutPrefix("warm_");
-                } else if (mobNameForFileAndMap.getfileName().startsWith("cold_")) {
-                    mobNameForFileAndMap.propagateFallbacksWithoutPrefix("cold_");
-                }
-                //#endif
 
                 //vanilla model
                 switch (originalLayerName) {
+                    //#if MC >= 12105
+                    case "cow" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_cow");
+                    case "chicken" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_chicken");
+                    case "pig" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_pig");
+                    //#endif
                     case "evoker" -> mobNameForFileAndMap.addFallbackModel("evocation_illager");
                     case "evoker_fangs" -> mobNameForFileAndMap.addFallbackModel("evocation_fangs");
                     case "vindicator" -> mobNameForFileAndMap.addFallbackModel("vindication_illager");
