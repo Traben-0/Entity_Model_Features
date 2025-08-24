@@ -209,7 +209,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     if (rule == null) {
                         EMFManager.getInstance().lastModelRuleOfEntity.removeInt(entity.uuid());
                     } else {
-                        EMFManager.getInstance().lastModelRuleOfEntity.put(entity.uuid(), rule.RULE_NUMBER);
+                        EMFManager.getInstance().lastModelRuleOfEntity.put(entity.uuid(), rule.ruleNumber);
                     }
                 });
             }
