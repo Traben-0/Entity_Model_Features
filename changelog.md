@@ -5,6 +5,7 @@
 - fixed optifine part name mappings breaking with some override / fallback models
 - fixed properties reading incorrectly with some fallback and override models
 - fixed the debug right click chat printout fallback models display
+- bumped the api version
 
 [3.0.0]
 - fixed entities in gui in 1.21.6+
