@@ -308,7 +308,7 @@ public final class EMFAnimationEntityContext {
                 model.append("\u00A7eModel #").append(count).append("\u00A7r")
                         .append(entryAndValue("name", debugRoot.modelName.getfileName() + ".jem"));
                 if (debugRoot.modelName.hasFallbackModels()){
-                    model.append("\u00A7eFallback Models:\u00A7r");
+                    model.append("\n\u00A7eFallback Models:\u00A7r");
                     debugRoot.modelName.forEachFallback((modelId) ->
                             model.append("\n\u00A76 - \u00A7r").append(modelId.getfileName()));
                 }

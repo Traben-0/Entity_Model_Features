@@ -31,8 +31,6 @@ import net.minecraft.util.valueproviders.SampledFloat;
 @SuppressWarnings({"unused", "BooleanMethodIsAlwaysInverted"})
 public interface EMFAnimationApi {
 
-
-
     /**
      * Gets the current version of the EMF API.
      * Future versions of the api will endeavor to maintain backwards compatibility,
@@ -42,7 +40,7 @@ public interface EMFAnimationApi {
      */
     @SuppressWarnings("SameReturnValue")
     static int getApiVersion() {
-        return 4;
+        return 5;
     }
 
     /**

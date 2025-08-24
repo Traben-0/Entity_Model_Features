@@ -242,7 +242,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         //#endif
                 .getPath();
 
-        final String originalLayerBase =  originalLayerName.replaceFirst("_baby$","");
+        String originalLayerBase =  originalLayerName.replaceFirst("_baby$","");
 
         EMFModel_ID mobNameForFileAndMap = new EMFModel_ID(
                 currentSpecifiedModelLoading.isBlank()
@@ -328,6 +328,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                     case "cow" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_cow");
                     case "chicken" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_chicken");
                     case "pig" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_pig");
+                    case "cow_baby" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_cow_baby");
+                    case "chicken_baby" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_chicken_baby");
+                    case "pig_baby" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_pig_baby");
                     //#endif
                     case "evoker" -> mobNameForFileAndMap.addFallbackModel("evocation_illager");
                     case "evoker_fangs" -> mobNameForFileAndMap.addFallbackModel("evocation_fangs");
@@ -636,18 +639,18 @@ public class EMFManager {//singleton for data holding and resetting needs
         EMFDirectoryHandler propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing,
                 mobNameForFileAndMap.getNamespace(), mobNameForFileAndMap.getfileName(), ".properties");
 
-        //try fallback properties
-        if(!possibleBasePropertiesName.equals(mobNameForFileAndMap.getfileName())){
-            if (propertiesOrSecondDir == null && EMF.config().getConfig().allowOptifineFallbackProperties){
-                if(printing) EMFUtils.log(" > trying fallback / base .properties file: [" + possibleBasePropertiesName + ".properties]");
-                propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(),
-                        possibleBasePropertiesName, ".properties");
-            } else {
-                if(printing) EMFUtils.logWarn("The .properties file ["+mobNameForFileAndMap.getfileName()+
-                        ".properties] is different from the possible base properties file name that OptiFine might require ["
-                        +possibleBasePropertiesName+".properties]. Be aware this might not work with OptiFine. (Ignore this if it's an EMF only model)");
-            }
-        }
+        // try fallback properties
+//        if(!possibleBasePropertiesName.equals(mobNameForFileAndMap.getfileName())){
+//            if (propertiesOrSecondDir == null && EMF.config().getConfig().allowOptifineFallbackProperties){
+//                if(printing) EMFUtils.log(" > trying fallback / base .properties file: [" + possibleBasePropertiesName + ".properties]");
+//                propertiesOrSecondDir = EMFDirectoryHandler.getDirectoryManagerOrNull(printing, mobNameForFileAndMap.getNamespace(),
+//                        possibleBasePropertiesName, ".properties");
+//            } else {
+//                if(printing) EMFUtils.logWarn("The .properties file ["+mobNameForFileAndMap.getfileName()+
+//                        ".properties] is different from the possible base properties file name that OptiFine might require ["
+//                        +possibleBasePropertiesName+".properties]. Be aware this might not work with OptiFine. (Ignore this if it's an EMF only model)");
+//            }
+//        }
 
         //try detect non properties variant
         if (propertiesOrSecondDir == null)

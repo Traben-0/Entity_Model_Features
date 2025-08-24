@@ -1,6 +1,10 @@
 
 
-
+[3.0.1]
+- fixed the temperate_cow/pig/chicken override models in 1.21.5+ not working correctly
+- fixed optifine part name mappings breaking with some override / fallback models
+- fixed properties reading incorrectly with some fallback and override models
+- fixed the debug right click chat printout fallback models display
 
 [3.0.0]
 - fixed entities in gui in 1.21.6+

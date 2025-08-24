@@ -13,21 +13,21 @@ import java.util.function.Consumer;
 public class EMFModel_ID implements Comparable<EMFModel_ID> {
 
     public String namespace = "minecraft";
-    private String fileName;
-    private String mapId;
+    private @NotNull String fileName;
+    private @NotNull String mapId;
 
     private final List<FallbackModel> fallBackModels;
 
     private record FallbackModel(String namespace, String fileName){}
 
     public EMFModel_ID(String both) {
-        this(both, null);
+        this(both, both);
     }
-    public EMFModel_ID(String both,String mapId) {
+    public EMFModel_ID(String both, String mapId) {
         this(both, mapId, new ArrayList<>());
     }
 
-    private EMFModel_ID(String both, String mapId, List<FallbackModel> fallBackModels) {
+    private EMFModel_ID(@NotNull String both, @NotNull String mapId, List<FallbackModel> fallBackModels) {
         this.fileName = both;
         this.mapId = mapId;
         this.fallBackModels = fallBackModels;
@@ -69,12 +69,12 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
 
     public EMFModel_ID setBoth(String both) {
         this.fileName = both;
-        this.mapId = null;
+        this.mapId = both;
         return this;
     }
 
     public boolean areBothSame() {
-        return mapId == null || fileName.equals(mapId);
+        return fileName.equals(mapId);
     }
 
     public EMFModel_ID setBoth(String fileName, String mapId) {
@@ -105,7 +105,7 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
             //noinspection SequencedCollectionMethodCanBeUsed
             var next = fallBackModels.get(0);
 
-            var second = new EMFModel_ID(next.fileName, getMapId(), fallBackModels.subList(1, fallBackModels.size()));
+            var second = new EMFModel_ID(next.fileName, mapId, fallBackModels.subList(1, fallBackModels.size()));
             second.namespace = next.namespace == null ? namespace : next.namespace;
             return second;
         }
@@ -113,6 +113,10 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
     }
 
     public EMFModel_ID addFallbackModel(String namespace, String fileName) throws EMFException {
+        return addFallbackModel(namespace, fileName, false);
+    }
+
+    public EMFModel_ID addFallbackModel(String namespace, String fileName, boolean first) throws EMFException {
         if (fileName.contains(":")) {
             var split = fileName.split(":");
             if (split.length == 2) {
@@ -122,7 +126,12 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
                 throw new EMFException("Invalid fallback model file name: " + fileName);
             }
         }
-        fallBackModels.add(new FallbackModel(namespace, fileName));
+        if (first) {
+            //noinspection SequencedCollectionMethodCanBeUsed
+            fallBackModels.add(0, new FallbackModel(namespace, fileName));
+        } else {
+            fallBackModels.add(new FallbackModel(namespace, fileName));
+        }
         return this;
     }
 
@@ -142,7 +151,7 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
 
     @SuppressWarnings("UnusedReturnValue")
     public EMFModel_ID pushNewMainModelAddingOldAsFallback(String fileName) throws EMFException {
-        addFallbackModel(this.fileName);
+        addFallbackModel(namespace, this.fileName, true);
         this.fileName = fileName;
         return this;
     }
@@ -156,7 +165,7 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
         return setMapIdAndAddFallbackModel(both, both);
     }
 
-    public EMFModel_ID setMapIdAndAddFallbackModel(String mapId, String fileName) throws EMFException {
+    public EMFModel_ID setMapIdAndAddFallbackModel(@NotNull String mapId, String fileName) throws EMFException {
         this.mapId = mapId;
         if (fileName.contains(":")) {
             var split = fileName.split(":");
@@ -218,8 +227,10 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
     }
 
     public String getMapId() {
-        String namespace = getNamespace().equals("minecraft") ? "" : getNamespace() + ":";
-        return namespace + (mapId == null ? fileName : mapId);
+        if (getNamespace().equals("minecraft")) {
+            return mapId;
+        }
+        return getNamespace() + ":" + mapId;
     }
 
 
