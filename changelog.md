@@ -4,7 +4,7 @@
 
 [3.0.0]
 - fixed entities in gui in 1.21.6+
-- fixed a few crashes
+- fixed many crashes
 - added optifine format part mappings for new models `sheep_wool_undercoat`, `sheep_baby_wool_undercoat`, `(all the horse types)_saddle`
 - fixed the 1.21.2+ optifine chest models being split in 2 not working correctly with emf
 - now using the EBE config api to correctly disable EBE blocks when an EMF model for it is loaded
