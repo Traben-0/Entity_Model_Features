@@ -3,6 +3,8 @@ package traben.entity_model_features.mixin.mixins.rendering;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -46,9 +48,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
 
     @Shadow
     protected M model;
-
-    @Unique
-    private EMFAnimationEntityContext.IterationContext emf$heldIteration = null;
 
     @SuppressWarnings("unused")
     protected MixinLivingEntityRenderer(EntityRendererProvider.Context ctx) {
@@ -149,8 +148,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
             //$$ "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             //#endif
             at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
-    private void emf$grabEntity(CallbackInfo ci) {
-        emf$heldIteration = EMFAnimationEntityContext.getIterationContext();
+    private void emf$grabEntity(CallbackInfo ci, @Share("iteration") LocalRef<EMFAnimationEntityContext.IterationContext> emf$heldIteration) {
+        emf$heldIteration.set(EMFAnimationEntityContext.getIterationContext());
     }
 
     @Inject(method =
@@ -160,9 +159,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
             //$$ "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             //#endif
             at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
-    private void emf$eachFeatureLoop(CallbackInfo ci) {
-        if (emf$heldIteration != null && EMFManager.getInstance().entityRenderCount != emf$heldIteration.entityRenderCount()) {
-            EMFAnimationEntityContext.setIterationContext(emf$heldIteration);
+    private void emf$eachFeatureLoop(CallbackInfo ci, @Share("iteration") LocalRef<EMFAnimationEntityContext.IterationContext> emf$heldIteration) {
+        if (emf$heldIteration.get() != null && EMFManager.getInstance().entityRenderCount != emf$heldIteration.get().entityRenderCount()) {
+            EMFAnimationEntityContext.setIterationContext(emf$heldIteration.get());
         }
         //todo needed for stray bogged drowned outer layers in 1.21.2+
         //check its needed for 1.21.1

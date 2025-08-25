@@ -1,4 +1,7 @@
 
+[3.0.2]
+- jpm files will now print loading exceptions to the log even without the logging option enabled
+- 
 
 [3.0.1]
 - fixed the temperate_cow/pig/chicken override models in 1.21.5+ not working correctly

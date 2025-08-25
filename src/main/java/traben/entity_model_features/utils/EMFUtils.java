@@ -160,7 +160,8 @@ public class EMFUtils {
                 return gson.fromJson(reader, EMFPartData.class);
             }
         } catch (Exception e) {
-            if (EMF.config().getConfig().logModelCreationData) log("jpm ["+location.toString()+"] failed " + e, false);
+            log("jpm ["+location.toString()+"] failed " + e, false);
+            if (EMF.config().getConfig().logModelCreationData) e.printStackTrace();
         }
         return null;
     }
