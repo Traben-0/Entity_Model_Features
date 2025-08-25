@@ -1,0 +1,17 @@
+{
+  "entity_model_features.title": "Entity Model Features",
+  "entity_model_features.config.general": "Allgemein",
+  "entity_model_features.config.general.tooltip": "Allgemeine Einstellungen",
+  "entity_model_features.config.substitute_vanilla": "Ersetze fehlende Modellteile",
+  "entity_model_features.config.substitute_vanilla.tooltip": "EMF wird versuchen, fehlende Teile in der .jem-\nModelldatei mit einem Vanilla Gegenstück zu ersetzen",
+  "entity_model_features.config.optimizations": "Optimierung",
+  "entity_model_features.config.optimizations.tooltip": "Einstellungen zur Optimierung von Animationen",
+  "entity_model_features.config.debug": "Debug",
+  "entity_model_features.config.debug.tooltip": "Debug Einstellungen; können dabei helfen, einige Dinge herauszufinden",
+  "entity_model_features.config.green_render": "Grüne benutzerdefinierte Modelle",
+  "entity_model_features.config.green_render.tooltip": "Färbt CEM Mobs grün, um sie von Vanilla Modellen\nunterscheiden zu können und um prüfen zu können,\nob sie richtig geladen werden",
+  "entity_model_features.config.log_models": "Informationen zur Modellerstellung protokollieren",
+  "entity_model_features.config.log_models.tooltip": "Debugdaten zur Modellerstellung werden im Log protokolliert",
+  "entity_model_features.config.log_math": "Animationsberechnungen protokollieren",
+  "entity_model_features.config.log_math.tooltip": "Mathematische Debugdaten von Animationen werden im Log protokolliert\nACHTUNG: VERURSACHT STARKE LAGS!"
+}

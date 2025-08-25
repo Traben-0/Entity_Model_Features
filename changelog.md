@@ -1,4 +1,33 @@
 
+[3.0.2]
+- jpm files will now print loading exceptions to the log even without the logging option enabled
+- 
+
+[3.0.1]
+- fixed the temperate_cow/pig/chicken override models in 1.21.5+ not working correctly
+- fixed optifine part name mappings breaking with some override / fallback models
+- fixed properties reading incorrectly with some fallback and override models
+- fixed the debug right click chat printout fallback models display
+- bumped the api version
+
+[3.0.0]
+- fixed entities in gui in 1.21.6+
+- fixed many crashes
+- added optifine format part mappings for new models `sheep_wool_undercoat`, `sheep_baby_wool_undercoat`, `(all the horse types)_saddle`
+- fixed the 1.21.2+ optifine chest models being split in 2 not working correctly with emf
+- now using the EBE config api to correctly disable EBE blocks when an EMF model for it is loaded
+- fixed some model creation log messages still showing regardless of the setting for it being enabled
+- reduced the threshold for ignoring spam model creation from other mods *(that incorrectly use entity models)* from 500 attempts to 64
+- fixed some models not variating correctly until a resource reload
+- first release for 1.20 in a while
+- large restructure of the source code
+- fixed animation execution ordering when loading animations via jpm files
+- fixed part name resolving issue (e.g. `mouth.ty` resolved to `classic_mouth.ty`)
+- fixed `baby_wolf_collar.jem`
+- removed the fallback behaviour of the new cow, chicken, and pig models from their `cold_` and `warm_` variants they will not fall back to the base model any more
+- added `temperate_cow.jem` as an optional override to `cow.jem` on 1.21.5+ to allow pack makers an easier time managing the different versions models, also applies to pigs and chickens
+- bones that use custom per-face UV's now properly ignore the `mirrorTexture` field like optifine
+
 
 [2.4.4]
 - added 1.21.6

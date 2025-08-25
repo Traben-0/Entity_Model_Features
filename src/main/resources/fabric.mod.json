@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "id": "entity_model_features",
+  "version": "${version}",
+  "name": "Entity Model Features",
+  "description": "This is an expansion of the ETF mod, it adds support for OptiFine format Custom Entity Model (CEM) resource packs.\nWhile still allowing you to disable this to use a different model mod :)",
+  "authors": [
+    {
+      "name": "Traben",
+      "contact": {
+        "homepage": "https://www.curseforge.com/members/traben_0/projects",
+        "discord": "https://discord.gg/rURmwrzUcz"
+      }
+    }
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/entity-model-features",
+    "sources": "https://github.com/Traben-0/Entity_Model_Features",
+    "issues": "https://github.com/Traben-0/Entity_Model_Features/issues",
+    "discord": "https://discord.gg/rURmwrzUcz"
+  },
+  "license": "LGPL-3.0",
+  "icon": "icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "traben.entity_model_features.EMFInit"
+    ],
+    "modmenu": [
+      "traben.entity_model_features.config.EMFModMenu"
+    ],
+    "ebe_v1": [
+      "traben.entity_model_features.mod_compat.EBEConfigModifier"
+    ]
+  },
+  "mixins": [
+    "entity_model_features.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": "*",
+    "entity_texture_features": ">=7.0.0"
+  },
+  "breaks": {
+    "optifabric": "*",
+    "cem": "*",
+    "entity_texture_features": "<7.0.0"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.website": "https://www.curseforge.com/members/traben_0/projects",
+        "modmenu.discord": "https://discord.gg/rURmwrzUcz"
+      }
+    }
+  }
+}
