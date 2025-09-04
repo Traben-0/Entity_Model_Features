@@ -1,7 +1,11 @@
 
 [3.0.2]
 - jpm files will now print loading exceptions to the log even without the logging option enabled
-- 
+- fixed texture overrides in fallback models not always applying
+- improved export files
+- added happy Ghast part mappings to match OptiFines Ghast
+- fixed trident OptiFine part mappings
+- readded culling to texture overrides on arrows and some block entities
 
 [3.0.1]
 - fixed the temperate_cow/pig/chicken override models in 1.21.5+ not working correctly

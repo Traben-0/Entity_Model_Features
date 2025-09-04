@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 //#if MC>=12105
 import net.minecraft.world.entity.animal.wolf.Wolf;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 //#if MC >=12102
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.vehicle.AbstractBoat;
 //#else
 //$$ import net.minecraft.world.entity.vehicle.Boat;
@@ -141,6 +143,10 @@ public final class EMFAnimationEntityContext {
     }
 
     public static void setLayerFactory(Function<ResourceLocation, RenderType> layerFactory) {
+        if (emfEntity() instanceof Arrow) {
+            return;
+        }
+
         EMFAnimationEntityContext.layerFactory = layerFactory;
     }
 
@@ -245,7 +251,6 @@ public final class EMFAnimationEntityContext {
         isFirstPersonHand = false;
         EMFManager.getInstance().entityRenderCount++;
         layerFactory = null;
-
 
         shadowSize = Float.NaN;
         shadowOpacity = Float.NaN;
@@ -396,7 +401,7 @@ public final class EMFAnimationEntityContext {
                 headYaw = (Mth.wrapDegrees(headYaw));
             }
             headPitch = livingEntityRenderState.xRot;
-        }else{//block entity
+        }else{ //block entity
             limbAngle = Float.NaN;
             limbDistance = Float.NaN;
             headYaw = Float.NaN;
@@ -409,7 +414,11 @@ public final class EMFAnimationEntityContext {
         //$$ headPitch = Float.NaN;
         //#endif
 
-//        age = Float.NaN;
+        if (state.entity() instanceof Arrow) {
+            layerFactory = RenderType::entityCutout;
+        } else if (state.isBlockEntity()) {
+            layerFactory = RenderType::entitySolid;
+        }
 
         onShoulder = false;
     }
