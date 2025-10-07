@@ -2,11 +2,8 @@ package traben.entity_model_features.mixin.mixins.rendering.feature;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -14,11 +11,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.EMFAttachments;
+
+//#if MC>=12109
+import traben.entity_model_features.models.IEMFModel;
+import com.llamalad7.mixinextras.injector.ModifyReceiver;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+//#endif
+
 //#if MC >= 12104
 import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
 
 //#elseif MC >= 12102
 //$$ import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
@@ -55,6 +58,18 @@ MixinHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityM
         EMFAnimationEntityContext.setInHand = true;
         emf$attachment = arm == HumanoidArm.RIGHT ? EMFAttachments.right_handheld_item : EMFAttachments.left_handheld_item;
     }
+
+    //#if MC>=12109
+    @ModifyReceiver(method = RENDER_ARM, at = @At(value = "INVOKE", target ="Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V"))
+    private ArmedModel injectAnimation(final ArmedModel instance, final EntityRenderState entityRenderState, final HumanoidArm humanoidArm, final PoseStack poseStack) {
+        if (instance instanceof IEMFModel emf && emf.emf$isEMFModel()) {
+            // 1.21.9 pre computes the animation so we need to trigger it here
+            emf.emf$getEMFRootModel().triggerManualAnimation();
+        }
+        return instance;
+    }
+    //#endif
+
 
     @Inject(
             method = RENDER_ARM,

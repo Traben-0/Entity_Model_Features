@@ -296,6 +296,10 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         return animationHolder.hasAnimation();
     }
 
+    public void triggerManualAnimation() {
+        if (hasAnimation()) animationHolder.run();
+    }
+
     public ModelPart getVanillaFormatRoot() {
         if (!vanillaFormatModelPartOfEachState.containsKey(currentModelVariant)) {
             vanillaFormatModelPartOfEachState.put(currentModelVariant, getVanillaModelPartsOfCurrentState());

@@ -3,6 +3,7 @@ package traben.entity_model_features.models.parts;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -29,7 +30,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     public int currentModelVariant = 0;
     Map<String, ModelPart> vanillaChildren = new HashMap<>();
     Runnable startOfRenderRunnable = null;
-    Animator animationHolder = new Animator();
+    @NotNull Animator animationHolder = new Animator();
 
     public EMFModelPartWithState(List<Cube> cuboids, Map<String, ModelPart> children) {
         super(cuboids, children);
