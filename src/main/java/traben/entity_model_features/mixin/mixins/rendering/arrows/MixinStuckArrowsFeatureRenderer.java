@@ -9,9 +9,13 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.StuckInBodyLayer;
-//#if MC >= 12102
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import org.spongepowered.asm.mixin.Final;
+
+//#if MC >= 12109
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+//#elseif MC >= 12102
+//$$ import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 //#endif
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -34,12 +38,13 @@ import java.util.Random;
 
 @Mixin(StuckInBodyLayer.class)
 public abstract class MixinStuckArrowsFeatureRenderer
-//#if MC >= 12102
-<M extends PlayerModel> extends RenderLayer<PlayerRenderState, M>
-//#else
-//$$ <T extends LivingEntity, M extends PlayerModel<T>> extends RenderLayer<T, M>
-//#endif
-
+    //#if MC >= 12109
+    <M extends PlayerModel> extends RenderLayer<AvatarRenderState, M>
+    //#elseif MC >= 12102
+    //$$ <M extends PlayerModel> extends RenderLayer<PlayerRenderState, M>
+    //#else
+    //$$ <T extends LivingEntity, M extends PlayerModel<T>> extends RenderLayer<T, M>
+    //#endif
 {
 
     //#if MC >= 12102
@@ -47,18 +52,19 @@ public abstract class MixinStuckArrowsFeatureRenderer
     @Final
     private StuckInBodyLayer.PlacementStyle placementStyle;
 
-    public MixinStuckArrowsFeatureRenderer(final RenderLayerParent<PlayerRenderState, M> renderLayerParent) {
-        super(renderLayerParent);
-    }
+    public MixinStuckArrowsFeatureRenderer() {super(null);}
 
     @Shadow
     private static float snapToFace(final float f) {
         return 0;
     }
-    @Shadow
-    protected abstract int numStuck(final PlayerRenderState playerRenderState);
-    @Shadow
-    protected abstract void renderStuckItem(final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final float f, final float g, final float h);
+        //#if MC >= 12109
+        @Shadow protected abstract int numStuck(final AvatarRenderState playerRenderState);
+        @Shadow protected abstract void submitStuckItem(final PoseStack par1, final SubmitNodeCollector par2, final int par3, final float par4, final float par5, final float par6, final int par7);
+        //#else
+        //$$ @Shadow protected abstract int numStuck(final PlayerRenderState playerRenderState);
+        //$$ @Shadow protected abstract void renderStuckItem(final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final float f, final float g, final float h);
+        //#endif
 
     //#else
     //$$ public MixinStuckArrowsFeatureRenderer(final RenderLayerParent<T, M> renderer) {
@@ -69,23 +75,25 @@ public abstract class MixinStuckArrowsFeatureRenderer
     //#endif
 
 
+    //#if MC >= 12109
+    private static final String RENDER_METHOD = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V";
+    //#elseif MC >= 12102
+    //$$ private static final String RENDER_METHOD = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V";
+    //#else
+    //$$ private static final String RENDER_METHOD = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V";
+    //#endif
 
 
-
-    @Inject(method =
-            //#if MC >= 12102
-            "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V",
-            //#else
-            //$$ "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
-            //#endif
-            at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = RENDER_METHOD, at = @At(value = "HEAD"), cancellable = true)
     private void emf$start(
-            //#if MC >= 12102
-            final PoseStack poseStack, final MultiBufferSource buffer, final int packedLight, final PlayerRenderState playerRenderState, final float f2, final float g2, final CallbackInfo ci
+            //#if MC >= 12109
+            final PoseStack poseStack, final SubmitNodeCollector submitNodeCollector, final int packedLight, final AvatarRenderState playerRenderState, final float f2, final float g2, final CallbackInfo ci
+            //#elseif MC >= 12102
+            //$$ final PoseStack poseStack, final MultiBufferSource buffer, final int packedLight, final PlayerRenderState playerRenderState, final float f2, final float g2, final CallbackInfo ci
             //#else
             //$$ final PoseStack poseStack, final MultiBufferSource buffer, final int packedLight, final T livingEntity, final float limbSwing, final float limbSwingAmount, final float partialTicks, final float ageInTicks, final float netHeadYaw, final float headPitch, final CallbackInfo ci
             //#endif
-            ) {
+    ) {
         EMFAnimationEntityContext.is_in_ground_override = true;
         if(((IEMFModel)this.getParentModel()).emf$isEMFModel()){
             ci.cancel();
@@ -149,8 +157,10 @@ public abstract class MixinStuckArrowsFeatureRenderer
                     f = -1.0F * (f * 2.0F - 1.0F);
                     g = -1.0F * (g * 2.0F - 1.0F);
                     h = -1.0F * (h * 2.0F - 1.0F);
-                    //#if MC >= 12102
-                    this.renderStuckItem(poseStack, buffer, packedLight, f, g, h);
+                    //#if MC >= 12109
+                    this.submitStuckItem(poseStack, submitNodeCollector, packedLight, f, g, h, playerRenderState.outlineColor);
+                    //#elseif MC >= 12102
+                    //$$ this.renderStuckItem(poseStack, buffer, packedLight, f, g, h);
                     //#else
                     //$$ this.renderStuckItem(poseStack, buffer, packedLight, livingEntity, f, g, h, partialTicks);
                     //#endif
@@ -161,13 +171,7 @@ public abstract class MixinStuckArrowsFeatureRenderer
         }
     }
 
-    @Inject(method =
-            //#if MC >= 12102
-            "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/PlayerRenderState;FF)V",
-            //#else
-            //$$ "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V",
-            //#endif
-            at = @At(value = "RETURN"))
+    @Inject(method = RENDER_METHOD, at = @At(value = "RETURN"))
     private void emf$end(CallbackInfo ci) {
         EMFAnimationEntityContext.is_in_ground_override = false;
     }

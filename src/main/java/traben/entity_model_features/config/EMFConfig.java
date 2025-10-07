@@ -581,8 +581,10 @@ public class EMFConfig extends TConfig {
                     if (!modelPart.skipDraw) {
                         for (ModelPart.Cube cuboid : modelPart.cubes) {
                             AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
-                            //#if MC >= 12102
-                            ShapeRenderer.renderLineBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
+                            //#if MC >= 12109
+                            ShapeRenderer.renderLineBox(matrices.last(), vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
+                            //#elseif MC >= 12102
+                            //$$ ShapeRenderer.renderLineBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
                             //#else
                             //$$ LevelRenderer.renderLineBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
                             //#endif

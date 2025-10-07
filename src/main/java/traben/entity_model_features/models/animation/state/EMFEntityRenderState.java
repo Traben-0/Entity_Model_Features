@@ -1,9 +1,13 @@
 package traben.entity_model_features.models.animation.state;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
+
+import java.util.function.Function;
 
 public interface EMFEntityRenderState extends ETFEntityRenderState {
 
@@ -44,4 +48,7 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     String typeString(); // nullable
 
     Object2FloatOpenHashMap<String> variableMap(); // nullable
+
+    Function<ResourceLocation, RenderType> layerFactory();
+    void setLayerFactory(Function<ResourceLocation, RenderType> layerFactory);
 }

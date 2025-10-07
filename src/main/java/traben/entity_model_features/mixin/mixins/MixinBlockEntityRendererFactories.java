@@ -32,7 +32,7 @@ public class MixinBlockEntityRendererFactories {
     private static final List<String> emf$renderers = new ArrayList<>();
 
     @Inject(method = "createEntityRenderers", at = @At(value = "RETURN"))
-    private static void emf$clearMarker(final BlockEntityRendererProvider.Context args, final CallbackInfoReturnable<Map<BlockEntityType<?>, BlockEntityRenderer<?>>> cir) {
+    private static void emf$clearMarker(final BlockEntityRendererProvider.Context args, final CallbackInfoReturnable<Map<BlockEntityType<?>, BlockEntityRenderer>> cir) {
         if (EMF.testForForgeLoadingError()) return;
         EMFManager.getInstance().currentSpecifiedModelLoading = "";
         EMFManager.getInstance().currentBlockEntityTypeLoading = null;

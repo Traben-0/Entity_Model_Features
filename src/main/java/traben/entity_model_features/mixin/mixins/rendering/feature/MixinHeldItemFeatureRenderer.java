@@ -43,7 +43,13 @@ MixinHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityM
     @Unique
     private boolean emf$needsPop = false;
 
-    @Inject(method = "renderArmWithItem",
+    //#if MC >= 12109
+    private static final String RENDER_ARM = "submitArmWithItem";
+    //#else
+    //$$ private static final String RENDER_ARM = "renderArmWithItem";
+    //#endif
+
+    @Inject(method = RENDER_ARM,
             at = @At(value = "HEAD"))
     private void emf$setHand(final CallbackInfo ci, @Local HumanoidArm arm) {
         EMFAnimationEntityContext.setInHand = true;
@@ -51,19 +57,16 @@ MixinHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityM
     }
 
     @Inject(
-            method = "renderArmWithItem",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V",
+            method = RENDER_ARM,
+            at = @At(value = "INVOKE", target =
+                    //#if MC >= 12109
+                    "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V",
+                    //#else
+                    //$$ "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V",
+                    //#endif
                     shift = At.Shift.AFTER)
     )
-    private void emf$transforms(
-            //#if MC >= 12104
-            final S armedEntityRenderState, final ItemStackRenderState itemStackRenderState, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource multiBufferSource, final int i, final CallbackInfo ci
-            //#elseif MC >= 12102
-            //$$ final S livingEntityRenderState, final BakedModel bakedModel, final ItemStack itemStack, final ItemDisplayContext itemDisplayContext, final HumanoidArm humanoidArm, final PoseStack matrices, final MultiBufferSource multiBufferSource, final int i, final CallbackInfo ci
-            //#else
-            //$$ final LivingEntity entity, final ItemStack stack, final ItemDisplayContext transformationMode, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource vertexConsumers, final int light, final CallbackInfo ci
-            //#endif
-    ) {
+    private void emf$transforms(final CallbackInfo ci, @Local(argsOnly = true) PoseStack matrices) {
         if (emf$attachment != null) {
             var entry = emf$attachment.getAndNullify();
             if (entry != null) {
@@ -79,17 +82,9 @@ MixinHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityM
         }
     }
 
-    @Inject(method = "renderArmWithItem",
+    @Inject(method = RENDER_ARM,
             at = @At(value = "TAIL"))
-    private void emf$unsetHand(
-            //#if MC >= 12104
-            final S armedEntityRenderState, final ItemStackRenderState itemStackRenderState, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource multiBufferSource, final int i, final CallbackInfo ci
-            //#elseif MC >= 12102
-            //$$ final S livingEntityRenderState, final BakedModel bakedModel, final ItemStack itemStack, final ItemDisplayContext itemDisplayContext, final HumanoidArm humanoidArm, final PoseStack matrices, final MultiBufferSource multiBufferSource, final int i, final CallbackInfo ci
-            //#else
-            //$$ final LivingEntity entity, final ItemStack stack, final ItemDisplayContext transformationMode, final HumanoidArm arm, final PoseStack matrices, final MultiBufferSource vertexConsumers, final int light, final CallbackInfo ci
-            //#endif
-            ) {
+    private void emf$unsetHand(final CallbackInfo ci, @Local(argsOnly = true) PoseStack matrices) {
         EMFAnimationEntityContext.setInHand = false;
         emf$attachment = null;
         if (emf$needsPop) {
@@ -99,8 +94,10 @@ MixinHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityM
     }
 
     @Inject(method =
-//#if MC >= 12104
-             "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/ArmedEntityRenderState;FF)V",
+//#if MC >= 12109
+                "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/ArmedEntityRenderState;FF)V",
+//#elseif MC >= 12104
+//$$            "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/ArmedEntityRenderState;FF)V",
 //#elseif MC >= 12102
 //$$             "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;FF)V",
 //#else

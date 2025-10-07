@@ -1,7 +1,5 @@
 package traben.entity_model_features.models;
 
-
-import com.fasterxml.jackson.core.JsonFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -323,7 +321,11 @@ public class EMFModelMappings {
                 .parts(genericQuadraped);
         OptifineMapper.models("inner_armor","outer_armor","zombie", "husk", "drowned", "drowned_outer",
                         "enderman", "giant", "skeleton", "stray", "stray_outer", "wither_skeleton", "zombie_pigman", "bogged_outer",
-                        "helmet", "helmet_baby", "chestplate", "chestplate_baby", "leggings", "leggings_baby", "boots", "boots_baby")
+                        "helmet", "helmet_baby", "chestplate", "chestplate_baby", "leggings", "leggings_baby", "boots", "boots_baby"
+                        //#if MC >= 12109
+                        , "helmet", "chestplate", "leggings", "boots"
+                        //#endif
+                )
                 .parts(genericNonPlayerBiped);
         OptifineMapper.models("piglin", "piglin_brute", "zombified_piglin")
                 .parts(genericPiglinBiped);
@@ -632,7 +634,7 @@ public class EMFModelMappings {
                 ));
         OptifineMapper.models("elder_guardian", "guardian")
                 .parts(Map.ofEntries(
-                        //# guardian                 body, eye, spine1 ... spine12, tail1 ... tail3
+                        // guardian                 body, eye, spine1 ... spine12, tail1 ... tail3
                         partMapping("tail1", "tail0"),
                         partMapping("tail2", "tail1"),
                         partMapping("tail3", "tail2"),

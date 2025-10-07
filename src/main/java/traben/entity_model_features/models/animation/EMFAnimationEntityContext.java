@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 //#if MC>=12105
 import net.minecraft.world.entity.animal.wolf.Wolf;
@@ -17,10 +16,10 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 //$$ import net.minecraft.world.entity.animal.Wolf;
 //#endif
 
+import net.minecraft.world.entity.projectile.Arrow;
 //#if MC >=12102
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
-import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.entity.vehicle.AbstractBoat;
 //#else
 //$$ import net.minecraft.world.entity.vehicle.Boat;
@@ -45,7 +44,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
-import traben.entity_model_features.mixin.mixins.accessor.EntityRenderDispatcherAccessor;
+import traben.entity_model_features.mixin.mixins.accessor.Mixin_GuiEntityTester;
 import traben.entity_model_features.mixin.mixins.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
 import traben.entity_model_features.models.EMFModelMappings;
@@ -72,6 +71,7 @@ public final class EMFAnimationEntityContext {
     public static boolean isFirstPersonHand = false;
     public static boolean setInItemFrame = false;
     public static boolean setIsOnHead = false;
+    public static boolean setIsInGui = false;
     public static double lastFOV = 70;
     public static boolean is_in_ground_override = false;
     public static ObjectSet<UUID> entitiesToForceVanillaModel = new ObjectOpenHashSet<>();
@@ -145,6 +145,11 @@ public final class EMFAnimationEntityContext {
     public static void setLayerFactory(Function<ResourceLocation, RenderType> layerFactory) {
         if (emfEntity() instanceof Arrow) {
             return;
+        }
+
+        var state = getEmfState();
+        if (state != null && state.layerFactory() == null) {
+            state.setLayerFactory(layerFactory);
         }
 
         EMFAnimationEntityContext.layerFactory = layerFactory;
@@ -246,7 +251,8 @@ public final class EMFAnimationEntityContext {
     }
     //#endif
 
-    public static void setCurrentEntityIteration(EMFEntityRenderState state) {
+    public static void setCurrentEntityIteration(@Nullable EMFEntityRenderState state) {
+
         EMFAttachments.closeBoth();
         isFirstPersonHand = false;
         EMFManager.getInstance().entityRenderCount++;
@@ -263,7 +269,6 @@ public final class EMFAnimationEntityContext {
         newEntity(state);
 
         if (state != null) {
-            //todo 1.21.9 most likely breaks this when done here
             //perform variant checking for this entity types models
             //this is the only way to keep it generic and also before the entity is rendered and affect al its models
             Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(state.typeString());
@@ -389,7 +394,7 @@ public final class EMFAnimationEntityContext {
 //        newEntity(entityIn);
 //    }
 
-    private static void newEntity(EMFEntityRenderState state) {
+    private static void newEntity(@Nullable EMFEntityRenderState state) {
         emfState = state;
 
         //#if MC >= 12102
@@ -414,10 +419,13 @@ public final class EMFAnimationEntityContext {
         //$$ headPitch = Float.NaN;
         //#endif
 
-        if (state.entity() instanceof Arrow) {
-            layerFactory = RenderType::entityCutout;
-        } else if (state.isBlockEntity()) {
-            layerFactory = RenderType::entitySolid;
+        if (state != null) {
+            if (state.entity() instanceof Arrow) {
+                layerFactory = RenderType::entityCutout;
+            } else if (state.isBlockEntity()) {
+                layerFactory = RenderType::entitySolid;
+            }
+            if (state.layerFactory() == null) state.setLayerFactory(layerFactory);
         }
 
         onShoulder = false;
@@ -819,12 +827,16 @@ public final class EMFAnimationEntityContext {
         return is_in_ground_override || emfEntity() instanceof Projectile proj && proj.isInWall();
     }
 
+
     public static boolean isInGui() {
         //basing this almost solely on the fact that the inventory screen sets the shadow render flag to false during its render,
         // I assume other gui renderers will follow suit, I'm not sure if other things affect it, it doesn't seem tied to the option setting
-        return Minecraft.getInstance().screen != null
-                && !((EntityRenderDispatcherAccessor) Minecraft.getInstance().getEntityRenderDispatcher()).isShouldRenderShadow();
-
+        return
+            //#if MC >= 12106
+            setIsInGui;
+            //#else
+            //$$ Minecraft.getInstance().screen != null && !((Mixin_GuiEntityTester) Minecraft.getInstance().getEntityRenderDispatcher()).isShouldRenderShadow();
+            //#endif
     }
 
     public static boolean isClientHovered() {
@@ -1075,7 +1087,14 @@ public final class EMFAnimationEntityContext {
             }
 
             float m = Mth.lerp(getTickDelta(), livingEntity.xRotO, livingEntity.getXRot());
-            if (LivingEntityRenderer.isEntityUpsideDown(livingEntity)) {
+            if (
+                    //#if MC >= 12109
+                    // duplicate check of now non-static method
+                    livingEntity.getCustomName() != null && LivingEntityRenderer.isUpsideDownName(livingEntity.getCustomName().getString() )
+                    //#else
+                    //$$ LivingEntityRenderer.isEntityUpsideDown(livingEntity)
+                    //#endif
+            ) {
                 m *= -1.0F;
                 k *= -1.0F;
             }

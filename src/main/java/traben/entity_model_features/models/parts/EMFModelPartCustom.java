@@ -400,19 +400,28 @@ public class EMFModelPartCustom extends EMFModelPart {
                         ;
 
                 for (Vertex vertex : var16) {
-                    float l = vertex.pos
-                            //#if MC > 12100
-                                    ()
+                    float l = vertex
+                            //#if MC < 12109
+                            //$$ .pos
+                                //#if MC > 12100
+                                //$$ ()
+                                //#endif
                             //#endif
                             .x() / 16.0F;
-                    float m = vertex.pos
-                            //#if MC > 12100
-                                    ()
+                    float m = vertex
+                            //#if MC < 12109
+                            //$$ .pos
+                                //#if MC > 12100
+                                //$$ ()
+                                //#endif
                             //#endif
                             .y() / 16.0F;
-                    float n = vertex.pos
-                            //#if MC > 12100
-                                    ()
+                    float n = vertex
+                            //#if MC < 12109
+                            //$$ .pos
+                                //#if MC > 12100
+                                //$$ ()
+                                //#endif
                             //#endif
                             .z() / 16.0F;
                     Vector3f vector3f3 = matrix4f.transformPosition(l, m, n, vector3f);

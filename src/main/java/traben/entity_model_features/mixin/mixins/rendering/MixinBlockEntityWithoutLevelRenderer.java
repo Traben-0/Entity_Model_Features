@@ -31,11 +31,22 @@ public class MixinBlockEntityWithoutLevelRenderer {
     @Nullable
     private SpecialModelRenderer<?> specialRenderer;
 
-    @Inject(method = "render",
+    //#if MC >= 12109
+    private static final String RENDER = "submit";
+    //#else
+    //$$ private static final String RENDER = "render";
+    //#endif
+
+    @Inject(method = RENDER,
             at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;render(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIZ)V",
+                    target =
+                            //#if MC >= 12109
+                            "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V",
+                            //#else
+                            //$$ "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;render(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIZ)V",
+                            //#endif
                     shift = At.Shift.BEFORE))
-    private void emf$setRenderFactory(final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final int j, final CallbackInfo ci) {
+    private void emf$setRenderFactory(CallbackInfo ci) {
         if (specialRenderer instanceof SkullSpecialRenderer) {
             EMFAnimationEntityContext.setLayerFactory(RenderType::entityCutoutNoCullZOffset);
         }
@@ -45,7 +56,7 @@ public class MixinBlockEntityWithoutLevelRenderer {
     }
 
 
-    @Inject(method = "render", at = @At(value = "RETURN"))
+    @Inject(method = RENDER, at = @At(value = "RETURN"))
     private void emf$reset(final CallbackInfo ci) {
         EMFAnimationEntityContext.reset();
     }
