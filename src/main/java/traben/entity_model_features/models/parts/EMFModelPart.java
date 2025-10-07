@@ -427,8 +427,10 @@ public abstract class EMFModelPart extends ModelPart {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
                         var col = debugBoxColor();
-                        //#if MC >=12102
-                        ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
+                        //#if MC >=12109
+                        ShapeRenderer.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
+                        //#elseif MC >=12102
+                        //$$ ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
                         //#else
                         //$$ LevelRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
                         //#endif
@@ -454,8 +456,10 @@ public abstract class EMFModelPart extends ModelPart {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
                         var col = debugBoxColor();
-                        //#if MC >=12102
-                        ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
+                        //#if MC >=12109
+                        ShapeRenderer.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
+                        //#elseif MC >=12102
+                        //$$ ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
                         //#else
                         //$$ LevelRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
                         //#endif

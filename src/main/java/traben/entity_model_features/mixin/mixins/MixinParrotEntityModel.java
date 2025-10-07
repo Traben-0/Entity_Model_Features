@@ -16,36 +16,43 @@ import traben.entity_model_features.utils.EMFEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.ParrotOnShoulderLayer;
 import net.minecraft.client.renderer.entity.state.ParrotRenderState;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Parrot;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;
 import net.minecraft.client.Minecraft;
+import traben.entity_texture_features.features.state.ETFEntityRenderState;
 import traben.entity_texture_features.features.state.HoldsETFRenderState;
 
 @Mixin(ParrotOnShoulderLayer.class)
 public class MixinParrotEntityModel {
 
+    //#if MC < 12109
+    //$$ @Shadow
+    //$$ @Final
+    //$$ private ParrotRenderState parrotState;
+    //#endif
 
-    @Shadow
-    @Final
-    private ParrotRenderState parrotState;
+    //#if MC >= 12109
+    private static final String RENDER_METHOD = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V";
+    //#else
+    //$$ private static final String RENDER_METHOD = "renderOnShoulder";
+    //#endif
 
-    @Inject(method = "renderOnShoulder", at = @At("HEAD"))
-    private void emf$parrot1(final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final PlayerRenderState playerRenderState, final Parrot.Variant variant, final float f, final float g, final boolean bl, final CallbackInfo ci) {
+    @Inject(method = RENDER_METHOD, at = @At("HEAD"))
+    private void emf$parrot1(final CallbackInfo ci) {
         try{
             var entity = (EMFEntity) EntityType.PARROT.create(Minecraft.getInstance().level, EntitySpawnReason.COMMAND);
             if (entity != null)
-                EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState) ((HoldsETFRenderState) parrotState).etf$getState());
+                EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState) ETFEntityRenderState.forEntity(entity));
         }catch (Exception ignored){
         }
         EMFAnimationEntityContext.setCurrentEntityOnShoulder(true);
     }
 
-    @Inject(method = "renderOnShoulder", at = @At("TAIL"))
-    private void emf$parrot2(final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final PlayerRenderState playerRenderState, final Parrot.Variant variant, final float f, final float g, final boolean bl, final CallbackInfo ci) {
+    @Inject(method = RENDER_METHOD, at = @At("TAIL"))
+    private void emf$parrot2(final CallbackInfo ci) {
         EMFAnimationEntityContext.setCurrentEntityOnShoulder(false);
     }
 }

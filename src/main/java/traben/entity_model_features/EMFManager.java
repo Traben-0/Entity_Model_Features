@@ -15,6 +15,7 @@ import traben.entity_model_features.mod_compat.EBEConfigModifier;
 import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.models.EMFModel_ID;
 import traben.entity_model_features.models.EMFPartialArmor;
+import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModelNameContainer;
@@ -42,6 +43,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 
 
 public class EMFManager {//singleton for data holding and resetting needs
+
 
 
     private static final Map<BlockEntityType<?>, String> EBETypes = Map.of(
@@ -84,6 +86,9 @@ public class EMFManager {//singleton for data holding and resetting needs
     public String currentSpecifiedModelLoading = "";
     public BlockEntityType<?> currentBlockEntityTypeLoading = null;
     private boolean traderLlamaHappened = false;
+    //#if MC >= 12109
+    public EMFEntityRenderState awaitingState = null;
+    //#endif
 
     public final List<Exception> loadingExceptions = new ArrayList<>();
 
@@ -301,6 +306,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             } else {
                 modded = false;
 
+                boolean skipSwitch = false;
+
                 //wolf_baby_collar
 
                 //#if MC >= 12102
@@ -321,137 +328,161 @@ public class EMFManager {//singleton for data holding and resetting needs
                     //wolf_baby_collar, wolf_collar, wolf_baby, wolf
                 }
 
+                //#if MC>=12109
+                if (originalLayerName.endsWith("_helmet")) {
+                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("helmet"); skipSwitch = true;
+                } else if (originalLayerName.endsWith("_chestplate")) {
+                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("chestplate"); skipSwitch = true;
+                } else if (originalLayerName.endsWith("_leggings")) {
+                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("leggings"); skipSwitch = true;
+                } else if (originalLayerName.endsWith("_boots")) {
+                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("boots"); skipSwitch = true;
+                }
+                //#endif
 
-                //vanilla model
-                switch (originalLayerName) {
-                    //#if MC >= 12105
-                    case "cow" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_cow");
-                    case "chicken" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_chicken");
-                    case "pig" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_pig");
-                    case "cow_baby" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_cow_baby");
-                    case "chicken_baby" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_chicken_baby");
-                    case "pig_baby" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_pig_baby");
-                    //#endif
-                    case "evoker" -> mobNameForFileAndMap.addFallbackModel("evocation_illager");
-                    case "evoker_fangs" -> mobNameForFileAndMap.addFallbackModel("evocation_fangs");
-                    case "vindicator" -> mobNameForFileAndMap.addFallbackModel("vindication_illager");
-                    case "bed_foot" -> mobNameForFileAndMap.setBoth("bed_foot").addFallbackModel("bed");
-                    case "bed_head" -> mobNameForFileAndMap.setBoth("bed_head").addFallbackModel("bed");
-                    case "book" -> {
-                        if (currentSpecifiedModelLoading.equals("enchanting_book")) {
-                            mobNameForFileAndMap.setBoth("enchanting_book", "book").addFallbackModel("book");
-                        } else {/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/
-                            mobNameForFileAndMap.setBoth("lectern_book", "book").addFallbackModel("book");
+                if (!skipSwitch) {
+                    //vanilla model
+                    switch (originalLayerName) {
+                        //#if MC>=12109
+                        case "villager_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager");
+                        case "villager_no_hat_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager_baby").addFallbackModel("villager");
+                        case "zombie_villager_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager");
+                        case "zombie_villager_no_hat_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager_baby").addFallbackModel("zombie_villager");
+                        //#endif
+                        //#if MC >= 12105
+                        case "cow" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_cow");
+                        case "chicken" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_chicken");
+                        case "pig" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_pig");
+                        case "cow_baby" ->
+                                mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_cow_baby");
+                        case "chicken_baby" ->
+                                mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_chicken_baby");
+                        case "pig_baby" ->
+                                mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_pig_baby");
+                        //#endif
+                        case "evoker" -> mobNameForFileAndMap.addFallbackModel("evocation_illager");
+                        case "evoker_fangs" -> mobNameForFileAndMap.addFallbackModel("evocation_fangs");
+                        case "vindicator" -> mobNameForFileAndMap.addFallbackModel("vindication_illager");
+                        case "bed_foot" -> mobNameForFileAndMap.setBoth("bed_foot").addFallbackModel("bed");
+                        case "bed_head" -> mobNameForFileAndMap.setBoth("bed_head").addFallbackModel("bed");
+                        case "book" -> {
+                            if (currentSpecifiedModelLoading.equals("enchanting_book")) {
+                                mobNameForFileAndMap.setBoth("enchanting_book", "book").addFallbackModel("book");
+                            } else {/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/
+                                mobNameForFileAndMap.setBoth("lectern_book", "book").addFallbackModel("book");
+                            }
                         }
-                    }
-                    case "salmon_small", "salmon_large" -> mobNameForFileAndMap.addFallbackModel("salmon");
-                    case "breeze_wind_charge" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("wind_charge");
-                    case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("creaking");
-                    case "chest" -> mobNameForFileAndMap.setBoth(
-                            currentSpecifiedModelLoading != null && !currentSpecifiedModelLoading.isBlank()
-                            ? currentSpecifiedModelLoading : "chest", "chest");
-                    case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit_cage").addFallbackModel("conduit");
-                    case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit_eye").addFallbackModel("conduit");
-                    case "conduit_shell" -> mobNameForFileAndMap.setBoth("conduit_shell").addFallbackModel("conduit");
-                    case "conduit_wind" -> mobNameForFileAndMap.setBoth("conduit_wind").addFallbackModel("conduit");
-                    case "creeper_armor" -> mobNameForFileAndMap.setBoth("creeper_charge");
-                    case "creeper_head" -> mobNameForFileAndMap.setBoth("head_creeper");
-                    case "decorated_pot_base" ->
-                            mobNameForFileAndMap.setBoth("decorated_pot_base").addFallbackModel("decorated_pot");
-                    case "decorated_pot_sides" ->
-                            mobNameForFileAndMap.setBoth("decorated_pot_sides").addFallbackModel("decorated_pot");
-                    case "double_chest_left" -> getDoubleChest(root, mobNameForFileAndMap, false, printing);
-                    case "double_chest_right" -> getDoubleChest(root, mobNameForFileAndMap, true, printing);
-                    case "dragon_skull" -> mobNameForFileAndMap.setBoth("head_dragon");
-                    case "ender_dragon" -> mobNameForFileAndMap.setBoth("dragon");
-                    case "leash_knot" -> mobNameForFileAndMap.setBoth("lead_knot");
-                    case "llama", "llama_baby" -> traderLlamaHappened = false;
-                    case "llama_decor" ->
-                            mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
-                    case "llama_baby_decor" ->
-                            mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_baby_decor" : "llama_baby_decor");
-                    case "chest_minecart", "command_block_minecart", "spawner_minecart", "tnt_minecart",
-                         "furnace_minecart", "hopper_minecart" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("minecart");
-                    case "piglin_head" -> mobNameForFileAndMap.setBoth("head_piglin");
-                    case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
-                    case "player_slim" -> mobNameForFileAndMap.addFallbackModel("player");
-                    case "arrow" ->{
-                        if (currentSpecifiedModelLoading.equals("spectral_arrow")){
-                            mobNameForFileAndMap.setBoth("spectral_arrow");
-                            mobNameForFileAndMap.addFallbackModel("arrow");
-                        }
+                        case "salmon_small", "salmon_large" -> mobNameForFileAndMap.addFallbackModel("salmon");
+                        case "breeze_wind_charge" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("wind_charge");
+                        case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("creaking");
+                        case "chest" -> mobNameForFileAndMap.setBoth(
+                                currentSpecifiedModelLoading != null && !currentSpecifiedModelLoading.isBlank()
+                                        ? currentSpecifiedModelLoading : "chest", "chest");
+                        case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit_cage").addFallbackModel("conduit");
+                        case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit_eye").addFallbackModel("conduit");
+                        case "conduit_shell" ->
+                                mobNameForFileAndMap.setBoth("conduit_shell").addFallbackModel("conduit");
+                        case "conduit_wind" -> mobNameForFileAndMap.setBoth("conduit_wind").addFallbackModel("conduit");
+                        case "creeper_armor" -> mobNameForFileAndMap.setBoth("creeper_charge");
+                        case "creeper_head" -> mobNameForFileAndMap.setBoth("head_creeper");
+                        case "decorated_pot_base" ->
+                                mobNameForFileAndMap.setBoth("decorated_pot_base").addFallbackModel("decorated_pot");
+                        case "decorated_pot_sides" ->
+                                mobNameForFileAndMap.setBoth("decorated_pot_sides").addFallbackModel("decorated_pot");
+                        case "double_chest_left" -> getDoubleChest(root, mobNameForFileAndMap, false, printing);
+                        case "double_chest_right" -> getDoubleChest(root, mobNameForFileAndMap, true, printing);
+                        case "dragon_skull" -> mobNameForFileAndMap.setBoth("head_dragon");
+                        case "ender_dragon" -> mobNameForFileAndMap.setBoth("dragon");
+                        case "leash_knot" -> mobNameForFileAndMap.setBoth("lead_knot");
+                        case "llama", "llama_baby" -> traderLlamaHappened = false;
+                        case "llama_decor" ->
+                                mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
+                        case "llama_baby_decor" ->
+                                mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_baby_decor" : "llama_baby_decor");
+                        case "chest_minecart", "command_block_minecart", "spawner_minecart", "tnt_minecart",
+                             "furnace_minecart", "hopper_minecart" ->
+                                mobNameForFileAndMap.setMapIdAndAddFallbackModel("minecart");
+                        case "piglin_head" -> mobNameForFileAndMap.setBoth("head_piglin");
+                        case "player_head" -> mobNameForFileAndMap.setBoth("head_player");
+                        case "player_slim" -> mobNameForFileAndMap.addFallbackModel("player");
+                        case "arrow" -> {
+                            if (currentSpecifiedModelLoading.equals("spectral_arrow")) {
+                                mobNameForFileAndMap.setBoth("spectral_arrow");
+                                mobNameForFileAndMap.addFallbackModel("arrow");
+                            }
 
-                    }
-                    case "boat_water_patch" -> {
-                        if (currentSpecifiedModelLoading.startsWith("emf$boat$")) {
-                            String type = currentSpecifiedModelLoading.substring(9);
-                            mobNameForFileAndMap.setBoth(type + "_boat_patch", "boat_patch").addFallbackModel("boat_patch");
-                            currentSpecifiedModelLoading = "";
-                        } else {
-                            mobNameForFileAndMap.setBoth("boat_patch");
                         }
-                    }
-                    case "pufferfish_big" -> mobNameForFileAndMap.setBoth("puffer_fish_big");
-                    case "pufferfish_medium" -> mobNameForFileAndMap.setBoth("puffer_fish_medium");
-                    case "pufferfish_small" -> mobNameForFileAndMap.setBoth("puffer_fish_small");
-                    case "shulker" -> {
-                        if (currentSpecifiedModelLoading.equals("shulker_box")) {
-                            mobNameForFileAndMap.setBoth("shulker_box");
+                        case "boat_water_patch" -> {
+                            if (currentSpecifiedModelLoading.startsWith("emf$boat$")) {
+                                String type = currentSpecifiedModelLoading.substring(9);
+                                mobNameForFileAndMap.setBoth(type + "_boat_patch", "boat_patch").addFallbackModel("boat_patch");
+                                currentSpecifiedModelLoading = "";
+                            } else {
+                                mobNameForFileAndMap.setBoth("boat_patch");
+                            }
                         }
-                    }
-                    case "skeleton_skull" -> mobNameForFileAndMap.setBoth("head_skeleton");
-                    case "sheep_fur" -> mobNameForFileAndMap.setBoth("sheep_wool");//old vanilla name
-                    case "trader_llama", "trader_llama_baby" -> traderLlamaHappened = true;
-                    case "tropical_fish_large" -> mobNameForFileAndMap.setBoth("tropical_fish_b");
-                    case "tropical_fish_large_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_b");
-                    case "tropical_fish_small" -> mobNameForFileAndMap.setBoth("tropical_fish_a");
-                    case "tropical_fish_small_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_a");
-                    case "wither_skeleton_skull" -> mobNameForFileAndMap.setBoth("head_wither_skeleton");
-                    case "zombie_head" -> mobNameForFileAndMap.setBoth("head_zombie");
-                    default -> {
-                        if (!currentSpecifiedModelLoading.isBlank()) {
-                            switch (currentSpecifiedModelLoading) {
-                                case "sign", "hanging_sign" -> {
-                                    //   sign/standing/oak.jem
-                                    //   sign/wall/oak.jem
-                                    //   hanging_sign/oak.jem
-                                    // to oak_sign oak_wall_sign oak_hanging_sign
+                        case "pufferfish_big" -> mobNameForFileAndMap.setBoth("puffer_fish_big");
+                        case "pufferfish_medium" -> mobNameForFileAndMap.setBoth("puffer_fish_medium");
+                        case "pufferfish_small" -> mobNameForFileAndMap.setBoth("puffer_fish_small");
+                        case "shulker" -> {
+                            if (currentSpecifiedModelLoading.equals("shulker_box")) {
+                                mobNameForFileAndMap.setBoth("shulker_box");
+                            }
+                        }
+                        case "skeleton_skull" -> mobNameForFileAndMap.setBoth("head_skeleton");
+                        case "sheep_fur" -> mobNameForFileAndMap.setBoth("sheep_wool");//old vanilla name
+                        case "trader_llama", "trader_llama_baby" -> traderLlamaHappened = true;
+                        case "tropical_fish_large" -> mobNameForFileAndMap.setBoth("tropical_fish_b");
+                        case "tropical_fish_large_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_b");
+                        case "tropical_fish_small" -> mobNameForFileAndMap.setBoth("tropical_fish_a");
+                        case "tropical_fish_small_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_a");
+                        case "wither_skeleton_skull" -> mobNameForFileAndMap.setBoth("head_wither_skeleton");
+                        case "zombie_head" -> mobNameForFileAndMap.setBoth("head_zombie");
+                        default -> {
+                            if (!currentSpecifiedModelLoading.isBlank()) {
+                                switch (currentSpecifiedModelLoading) {
+                                    case "sign", "hanging_sign" -> {
+                                        //   sign/standing/oak.jem
+                                        //   sign/wall/oak.jem
+                                        //   hanging_sign/oak.jem
+                                        // to oak_sign oak_wall_sign oak_hanging_sign
 
-                                    String sign = originalLayerName.replace("sign/standing/", "")
-                                            .replace("sign/wall/", "")
-                                            .replace("hanging_sign/", "");
+                                        String sign = originalLayerName.replace("sign/standing/", "")
+                                                .replace("sign/wall/", "")
+                                                .replace("hanging_sign/", "");
 
-                                    if (originalLayerName.startsWith("sign/standing/")) {
-                                        sign += "_sign";
-                                        mobNameForFileAndMap.setFileName(sign)
-                                                .setMapIdAndAddFallbackModel("sign");
-                                    } else if (originalLayerName.startsWith("sign/wall/")) {
-                                        sign += "_wall_sign";
-                                        mobNameForFileAndMap.setFileName(sign)
-                                                .setMapIdAndAddFallbackModel("wall_sign")
-                                                .setMapIdAndAddFallbackModel("sign");
-                                    } else {
-                                        sign += "_hanging_sign";
-                                        mobNameForFileAndMap.setFileName(sign)
-                                                .setMapIdAndAddFallbackModel("hanging_sign");
+                                        if (originalLayerName.startsWith("sign/standing/")) {
+                                            sign += "_sign";
+                                            mobNameForFileAndMap.setFileName(sign)
+                                                    .setMapIdAndAddFallbackModel("sign");
+                                        } else if (originalLayerName.startsWith("sign/wall/")) {
+                                            sign += "_wall_sign";
+                                            mobNameForFileAndMap.setFileName(sign)
+                                                    .setMapIdAndAddFallbackModel("wall_sign")
+                                                    .setMapIdAndAddFallbackModel("sign");
+                                        } else {
+                                            sign += "_hanging_sign";
+                                            mobNameForFileAndMap.setFileName(sign)
+                                                    .setMapIdAndAddFallbackModel("hanging_sign");
+                                        }
+                                    }
+                                    default -> {
+
+                                        if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
+                                            EMFUtils.log("EMF unknown modifiable block entity model identified during loading: " + currentSpecifiedModelLoading + ".jem");
+                                        mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading)
+                                                .setMapIdAndAddFallbackModel(currentSpecifiedModelLoading, originalLayerName);
                                     }
                                 }
-                                default -> {
-
-                                    if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
-                                        EMFUtils.log("EMF unknown modifiable block entity model identified during loading: " + currentSpecifiedModelLoading + ".jem");
-                                    mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading)
-                                            .setMapIdAndAddFallbackModel(currentSpecifiedModelLoading, originalLayerName);
-                                }
+                            } else if (originalLayerName.contains("/") && layer.
+                                    //#if MC >= 12102
+                                            layer()
+                                    //#else
+                                    //$$ getLayer()
+                                    //#endif
+                                    .equals("main")) {
+                                handleBoats(originalLayerName, mobNameForFileAndMap);
                             }
-                        } else if (originalLayerName.contains("/") && layer.
-                                //#if MC >= 12102
-                                        layer()
-                                //#else
-                                //$$ getLayer()
-                                //#endif
-                        .equals("main")) {
-                            handleBoats(originalLayerName, mobNameForFileAndMap);
                         }
                     }
                 }

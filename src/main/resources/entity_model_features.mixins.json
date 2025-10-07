@@ -21,8 +21,8 @@
     "MixinResourceReloadStart",
     "accessor.AgeableMobRendererAccessor",
     "accessor.CuboidAccessor",
-    "accessor.EntityRenderDispatcherAccessor",
     "accessor.MinecraftClientAccessor",
+    "accessor.Mixin_GuiEntityTester",
     "exporting.MixinBabyModelTransform",
     "exporting.MixinEntityModelSet",
     "exporting.MixinMeshTransformer",
@@ -49,9 +49,13 @@
     "rendering.model.MixinArmadilloModel",
     "rendering.model.MixinDragonModel",
     "rendering.model.MixinVillagerModel",
-    "rendering.model.MixinWolfEntityModel"
+    "rendering.model.MixinWolfEntityModel",
+    "rendering.submits.Mixin_GuiEntityRenderer",
+    "rendering.submits.Mixin_ModelPartRenderer",
+    "rendering.submits.Mixin_ModelRenderer"
   ],
   "mixins": [
+    "rendering.submits.Mixin_ModelSubmit_AddBackupState"
   ],
   "injectors": {
     "defaultRequire": 1

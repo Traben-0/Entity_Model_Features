@@ -28,12 +28,39 @@ import traben.entity_texture_features.features.state.HoldsETFRenderState;
 @Mixin(EntityRenderDispatcher.class)
 public abstract class MixinEntityRenderDispatcher {
 
-    @Shadow
-    public abstract double distanceToSqr(double x, double y, double z);
+
+    private static final String SHADOW_RENDER_ETF =
+            //#if MC>=12109
+            "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitShadow(Lcom/mojang/blaze3d/vertex/PoseStack;FLjava/util/List;)V"
+            //#elseif MC>=12105
+            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FLnet/minecraft/world/level/LevelReader;F)V"
+            //#elseif MC >=12102
+            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FFLnet/minecraft/world/level/LevelReader;F)V"
+            //#else
+            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;FFLnet/minecraft/world/level/LevelReader;F)V"
+            //#endif
+            ;
+
+    private static final String RENDER_ETF =
+            //#if MC>=12109
+            "submit"
+            //#elseif MC>=12105
+            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;render(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;DDDLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V"
+            //#elseif MC >=12102
+            //$$ "render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V"
+            //#else
+            //$$ "render"
+            //#endif
+            ;
+
+    //#if MC>=12109
+    //#else
+    //$$ @Shadow public abstract double distanceToSqr(double x, double y, double z);
+    //#endif
 
     //#if MC >= 12103
     //#if MC>= 12105
-    @Inject(method = "render(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;DDDLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V",
+    @Inject(method = RENDER_ETF,
             at = @At(value = "HEAD"))
     //#else
     //$$ @Inject(method = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V",
@@ -53,15 +80,7 @@ public abstract class MixinEntityRenderDispatcher {
 
 
 
-    @Inject(method =
-            //#if MC>= 12105
-            "render(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;DDDLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V",
-            //#elseif MC >=12102
-            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V",
-            //#else
-            //$$ "render",
-            //#endif
-            at = @At(value = "RETURN"))
+    @Inject(method = RENDER_ETF, at = @At(value = "RETURN"))
     //#if MC >=12102
     private <S extends net.minecraft.client.renderer.entity.state.EntityRenderState> void emf$endOfRender(
             final CallbackInfo ci
@@ -86,25 +105,7 @@ public abstract class MixinEntityRenderDispatcher {
     //$$ }
 
     //#endif
-    private static final String SHADOW_RENDER_ETF =
-            //#if MC>=12105
-            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FLnet/minecraft/world/level/LevelReader;F)V"
-            //#elseif MC >=12102
-            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FFLnet/minecraft/world/level/LevelReader;F)V"
-            //#else
-            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;FFLnet/minecraft/world/level/LevelReader;F)V"
-            //#endif
-        ;
 
-    private static final String RENDER_ETF =
-            //#if MC>=12105
-            "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;render(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;DDDLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V"
-            //#elseif MC >=12102
-            //$$ "render(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/renderer/entity/EntityRenderer;)V"
-            //#else
-            //$$ "render"
-            //#endif
-        ;
 
     @Inject(method = RENDER_ETF, at = @At(value = "INVOKE", target = SHADOW_RENDER_ETF, shift = At.Shift.BEFORE))
     private void emf$modifyShadowTranslate(final CallbackInfo ci, @Local(argsOnly = true) PoseStack matrices) {
@@ -120,19 +121,23 @@ public abstract class MixinEntityRenderDispatcher {
         }
     }
 
-    @ModifyArg(method = RENDER_ETF, at = @At(value = "INVOKE", target = SHADOW_RENDER_ETF), index = 3)
-    private float emf$modifyShadowOpacity(float opacity) {
-        if (!Float.isNaN(EMFAnimationEntityContext.getShadowOpacity())) {
-            double g = this.distanceToSqr(EMFAnimationEntityContext.getEntityX(), EMFAnimationEntityContext.getEntityY(), EMFAnimationEntityContext.getEntityZ());
-            return (float) ((1.0 - g / 256.0) * EMFAnimationEntityContext.getShadowOpacity());
-        }
-        return opacity;
-    }
+    //#if MC<12109
+    //$$ @ModifyArg(method = RENDER_ETF, at = @At(value = "INVOKE", target = SHADOW_RENDER_ETF), index = 3)
+    //$$ private float emf$modifyShadowOpacity(float opacity) {
+    //$$     if (!Float.isNaN(EMFAnimationEntityContext.getShadowOpacity())) {
+    //$$         double g = this.distanceToSqr(EMFAnimationEntityContext.getEntityX(), EMFAnimationEntityContext.getEntityY(), EMFAnimationEntityContext.getEntityZ());
+    //$$         return (float) ((1.0 - g / 256.0) * EMFAnimationEntityContext.getShadowOpacity());
+    //$$     }
+    //$$     return opacity;
+    //$$ }
+    //#endif
 
     @ModifyArg(method = RENDER_ETF, at = @At(value = "INVOKE", target = SHADOW_RENDER_ETF),
             index =
             //#if MC>=12105
-            5
+            1
+            //#elseif MC>=12105
+            //$$ 5
             //#else
             //$$ 6
             //#endif

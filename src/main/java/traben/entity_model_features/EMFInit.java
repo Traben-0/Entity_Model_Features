@@ -59,7 +59,13 @@ public class EMFInit implements ClientModInitializer {
 //$$ @net.neoforged.fml.common.Mod("entity_model_features")
 //$$ public class EMFInit {
 //$$     public EMFInit() {
-//$$        if (FMLEnvironment.dist.isClient()) {
+//$$        if (FMLEnvironment
+                    //#if MC >= 12109
+                    //$$ .getDist()
+                    //#else
+                    //$$ .dist
+                    //#endif
+//$$                    .isClient()) {
 //$$            try {
 //$$                ModLoadingContext.get().registerExtensionPoint(
                         //#if MC >= 12100

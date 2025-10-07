@@ -147,11 +147,11 @@ public class EMFUtils {
 
     @Nullable
     public static EMFPartData readModelPart(ResourceLocation location) {
+        boolean print = EMF.config().getConfig().logModelCreationData;
         try {
             Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(location);
             if (res.isEmpty()) {
-                if (EMF.config().getConfig().logModelCreationData)
-                    log("jpm failed " + location + " does not exist", false);
+                if (print) log("jpm failed " + location + " does not exist", false);
                 return null;
             }
             Resource jpmResource = res.get();
@@ -161,8 +161,9 @@ public class EMFUtils {
             }
         } catch (Exception e) {
             log("jpm ["+location.toString()+"] failed " + e, false);
-            if (EMF.config().getConfig().logModelCreationData) e.printStackTrace();
+            if (print) e.printStackTrace();
         }
+        if (print) log("jpm read returned null for " + location, false);
         return null;
     }
 

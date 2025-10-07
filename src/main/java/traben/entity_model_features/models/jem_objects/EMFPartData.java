@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -66,6 +67,8 @@ public class EMFPartData {
     }
 
     private void copyFrom(EMFPartData jpmModel) {
+
+        if (EMF.config().getConfig().logModelCreationData) EMFUtils.log(">> copying from jpm into part: " + id);
         //no part and attach
         if (submodels.isEmpty())
             this.submodels = jpmModel.submodels;
@@ -126,7 +129,9 @@ public class EMFPartData {
 
             //check if we need to load a .jpm into this object
             if (!model.isEmpty()) {
+                if (EMF.config().getConfig().logModelCreationData) EMFUtils.log("Loading model part from jpm: " + model + " into part: " + id);
                 ResourceLocation res = jem.validateResourcePathAndExists(model, "jpm");
+                if (EMF.config().getConfig().logModelCreationData) EMFUtils.log(">> resolved to: " + res);
                 if (res  != null) {
                     Optional.ofNullable(EMFUtils.readModelPart(res))
                             .ifPresent(this::copyFrom);

@@ -1,8 +1,9 @@
 package traben.entity_model_features.models;
 
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -16,14 +17,12 @@ import traben.entity_model_features.config.EMFConfig;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.client.model.geom.ModelPart;
-import traben.entity_model_features.models.jem_objects.export.EMFBoxPrinter;
-import traben.entity_model_features.models.jem_objects.export.EMFJemPrinter;
-import traben.entity_model_features.models.jem_objects.export.EMFPartPrinter;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.utils.IEMFCuboidDataSupplier;
 import traben.entity_model_features.utils.IEMFTextureSizeSupplier;
@@ -34,7 +33,7 @@ public class EMFModelMappings {
 
     public static final Map<String, Map<String, String>> UNKNOWN_MODEL_MAP_CACHE = new HashMap<>();
     public static final Map<String, Map<String, String>> OPTIFINE_MODEL_MAP_CACHE = new HashMap<>();
-    public static Map<String, String> DEFAULT_TEXTURE_MAPPINGS;
+//    public static Map<String, String> DEFAULT_TEXTURE_MAPPINGS;
 
     public static final Map<String, String> genericNonPlayerBiped = Map.ofEntries(
             partMapping("head"),
@@ -48,130 +47,130 @@ public class EMFModelMappings {
 
     static {
         initOptifineMappings();
-        initDefaultTextureMappings();
+//        initDefaultTextureMappings();
     }
 
-    private static String texture(String name){
-        return "minecraft:textures/entity/"+ name +".png";
-    }
-    private static String texture(String folder,String name){
-        return "minecraft:textures/entity/" + folder + "/" + name +".png";
-    }
-
-    private static Map.Entry<String,String> entry(String key, String value){
-        return new MutablePair<>(key,value);
-    }
-
-    private static void initDefaultTextureMappings() {
-        DEFAULT_TEXTURE_MAPPINGS = Map.ofEntries(
-                entry("allay", texture("allay","allay")),
-                entry("armor_stand", texture("armor_stand","wood")),
-                entry("armor_stand_small", texture("armor_stand","wood")),
-                entry("bat", texture("bat")),
-                entry("bell", texture("bell","bell_body")),
-                entry("blaze", texture("blaze")),
-                entry("breeze", texture("breeze","breeze")),
-                entry("breeze_eyes", texture("breeze","breeze_eyes")),
-                entry("breeze_wind", texture("breeze","breeze_wind")),
-                entry("camel", texture("camel","camel")),
-                entry("cat_collar", texture("cat","cat_collar")),
-                entry("cave_spider", texture("spider","cave_spider")),
-                entry("cod", texture("fish","cod")),
-                entry("creeper", texture("creeper","creeper")),
-                entry("creeper_charge", texture("creeper", "creeper_armor")),
-                entry("donkey", texture("horse","donkey")),
-                entry("dolphin", texture("dolphin")),
-                entry("drowned", texture("zombie", "drowned")),
-                entry("drowned_outer", texture("zombie", "drowned_outer_layer")),
-                entry("elder_guardian", texture("guardian_elder")),
-                entry("enchanting_book", texture("enchanting_table_book")),
-                entry("ender_chest", texture("chest","ender")),
-                entry("end_crystal", texture("end_crystal","end_crystal")),
-                entry("enderman", texture("enderman","enderman")),
-                entry("endermite", texture("endermite")),
-                entry("evoker", texture("illager", "evoker")),
-                entry("evoker_fangs", texture("illager", "evoker_fangs")),
-                entry("giant", texture("zombie", "zombie")),
-                entry("glow_squid", texture("squid", "glow_squid")),
-                entry("goat", texture("goat","goat")),
-                entry("guardian", texture("guardian")),
-                entry("head_creeper", texture("creeper","creeper")),
-                entry("head_piglin", texture("piglin", "piglin")),
-                entry("head_skeleton", texture("skeleton", "skeleton")),
-                entry("head_wither_skeleton", texture("skeleton", "wither_skeleton")),
-                entry("head_zombie", texture("zombie", "zombie")),
-                entry("hoglin", texture("hoglin","hoglin")),
-                entry("husk", texture("zombie", "husk")),
-                entry("illusioner", texture("illager", "illusioner")),
-                entry("lead_knot", texture("lead_knot")),
-                entry("lectern_book", texture("enchanting_table_book")),
-                entry("llama_spit", texture("llama","spit")),
-                entry("magma_cube", texture("slime","magmacube")),
-                entry("minecart", texture("minecart")),
-                entry("mule", texture("hosre","mule")),
-                entry("ocelot", texture("cat", "ocelot")),
-                entry("phantom", texture("phantom")),
-                entry("puffer_fish_big", texture("fish", "pufferfish")),
-                entry("puffer_fish_medium", texture("fish", "pufferfish")),
-                entry("puffer_fish_small", texture("fish", "pufferfish")),
-                entry("pig_saddle", texture("pig","pig_saddle")),
-                entry("piglin", texture("piglin", "piglin")),
-                entry("piglin_brute", texture("piglin", "piglin_brute")),
-                entry("pillager", texture("illager", "pillager")),
-                entry("polar_bear", texture("bear","polarbear")),
-                entry("ravager", texture("illager", "ravager")),
-                entry("salmon", texture("fish","salmon")),
-                entry("sheep", texture("sheep","sheep")),
-                entry("sheep_wool", texture("sheep","sheep_fur")),
-                entry("shulker_bullet", texture("shulker", "spark")),
-                entry("silverfish", texture("silverfish")),
-                entry("skeleton", texture("skeleton", "skeleton")),
-                entry("skeleton_horse", texture("horse","horse_skeleton")),
-                entry("slime", texture("slime","slime")),
-                entry("slime_outer", texture("slime","slime")),
-                entry("sniffer", texture("sniffer","sniffer")),
-                entry("snow_golem", texture("snow_golem")),
-                entry("spider", texture("spider","spider")),
-                entry("squid", texture("squid","squid")),
-                entry("stray", texture("skeleton", "stray")),
-                entry("stray_outer", texture("skeleton", "stray")),
-                entry("strider_saddle", texture("strider", "strider_saddle")),
-                entry("tadpole", texture("tadpole", "tadpole")),
-                entry("trader_llama_decor", texture("llama/decor","trader_llama")),
-                entry("trident", texture("trident")),
-                entry("turtle", texture("turtle","big_sea_turtle")),
-                entry("villager", texture("villager","villager")),
-                entry("vindicator", texture("illager","vindicator")),
-                entry("wandering_trader", texture("wandering_trader")),
-                entry("warden", texture("warden", "warden")),
-                entry("wind_charge", texture("projectiles", "wind_charge")),
-                entry("witch", texture("witch")),
-                entry("wither_skeleton", texture("skeleton", "wither_skeleton")),
-                entry("wolf_collar", texture("wolf", "wolf_collar")),
-                entry("zoglin", texture("hoglin", "zoglin")),
-                entry("zombie", texture("zombie","zombie")),
-                entry("zombie_horse", texture(" horse","horse_zombie")),
-//                "zombie_pigman", texture(),
-                entry("zombie_villager", texture("zombie_villager", "zombie_villager")),
-                entry("zombified_piglin", texture("piglin", "zombified_piglin")),
-
-                //#if MC >= 12105
-                entry("cow", texture("cow", "temperate_cow")),
-                entry("warm_cow", texture("cow", "warm_cow")),
-                entry("cold_cow", texture("cow", "cold_cow")),
-                entry("pig", texture("pig","temperate_pig")),
-                entry("warm_pig", texture("pig","warm_pig")),
-                entry("cold_pig", texture("pig","cold_pig")),
-                entry("chicken", texture("chicken", "temperate_chicken")),
-                entry("warm_chicken", texture("chicken", "warm_chicken")),
-                entry("cold_chicken", texture("chicken", "cold_chicken"))
-                //#else
-                //$$ entry("cow", texture("cow", "cow")),
-                //$$ entry("pig", texture("pig","pig")),
-                //$$ entry("chicken", texture("chicken"))
-                //#endif
-        );
-    }
+//    private static String texture(String name){
+//        return "minecraft:textures/entity/"+ name +".png";
+//    }
+//    private static String texture(String folder,String name){
+//        return "minecraft:textures/entity/" + folder + "/" + name +".png";
+//    }
+//
+//    private static Map.Entry<String,String> entry(String key, String value){
+//        return new MutablePair<>(key,value);
+//    }
+//
+//    private static void initDefaultTextureMappings() {
+//        DEFAULT_TEXTURE_MAPPINGS = Map.ofEntries(
+//                entry("allay", texture("allay","allay")),
+//                entry("armor_stand", texture("armor_stand","wood")),
+//                entry("armor_stand_small", texture("armor_stand","wood")),
+//                entry("bat", texture("bat")),
+//                entry("bell", texture("bell","bell_body")),
+//                entry("blaze", texture("blaze")),
+//                entry("breeze", texture("breeze","breeze")),
+//                entry("breeze_eyes", texture("breeze","breeze_eyes")),
+//                entry("breeze_wind", texture("breeze","breeze_wind")),
+//                entry("camel", texture("camel","camel")),
+//                entry("cat_collar", texture("cat","cat_collar")),
+//                entry("cave_spider", texture("spider","cave_spider")),
+//                entry("cod", texture("fish","cod")),
+//                entry("creeper", texture("creeper","creeper")),
+//                entry("creeper_charge", texture("creeper", "creeper_armor")),
+//                entry("donkey", texture("horse","donkey")),
+//                entry("dolphin", texture("dolphin")),
+//                entry("drowned", texture("zombie", "drowned")),
+//                entry("drowned_outer", texture("zombie", "drowned_outer_layer")),
+//                entry("elder_guardian", texture("guardian_elder")),
+//                entry("enchanting_book", texture("enchanting_table_book")),
+//                entry("ender_chest", texture("chest","ender")),
+//                entry("end_crystal", texture("end_crystal","end_crystal")),
+//                entry("enderman", texture("enderman","enderman")),
+//                entry("endermite", texture("endermite")),
+//                entry("evoker", texture("illager", "evoker")),
+//                entry("evoker_fangs", texture("illager", "evoker_fangs")),
+//                entry("giant", texture("zombie", "zombie")),
+//                entry("glow_squid", texture("squid", "glow_squid")),
+//                entry("goat", texture("goat","goat")),
+//                entry("guardian", texture("guardian")),
+//                entry("head_creeper", texture("creeper","creeper")),
+//                entry("head_piglin", texture("piglin", "piglin")),
+//                entry("head_skeleton", texture("skeleton", "skeleton")),
+//                entry("head_wither_skeleton", texture("skeleton", "wither_skeleton")),
+//                entry("head_zombie", texture("zombie", "zombie")),
+//                entry("hoglin", texture("hoglin","hoglin")),
+//                entry("husk", texture("zombie", "husk")),
+//                entry("illusioner", texture("illager", "illusioner")),
+//                entry("lead_knot", texture("lead_knot")),
+//                entry("lectern_book", texture("enchanting_table_book")),
+//                entry("llama_spit", texture("llama","spit")),
+//                entry("magma_cube", texture("slime","magmacube")),
+//                entry("minecart", texture("minecart")),
+//                entry("mule", texture("hosre","mule")),
+//                entry("ocelot", texture("cat", "ocelot")),
+//                entry("phantom", texture("phantom")),
+//                entry("puffer_fish_big", texture("fish", "pufferfish")),
+//                entry("puffer_fish_medium", texture("fish", "pufferfish")),
+//                entry("puffer_fish_small", texture("fish", "pufferfish")),
+//                entry("pig_saddle", texture("pig","pig_saddle")),
+//                entry("piglin", texture("piglin", "piglin")),
+//                entry("piglin_brute", texture("piglin", "piglin_brute")),
+//                entry("pillager", texture("illager", "pillager")),
+//                entry("polar_bear", texture("bear","polarbear")),
+//                entry("ravager", texture("illager", "ravager")),
+//                entry("salmon", texture("fish","salmon")),
+//                entry("sheep", texture("sheep","sheep")),
+//                entry("sheep_wool", texture("sheep","sheep_fur")),
+//                entry("shulker_bullet", texture("shulker", "spark")),
+//                entry("silverfish", texture("silverfish")),
+//                entry("skeleton", texture("skeleton", "skeleton")),
+//                entry("skeleton_horse", texture("horse","horse_skeleton")),
+//                entry("slime", texture("slime","slime")),
+//                entry("slime_outer", texture("slime","slime")),
+//                entry("sniffer", texture("sniffer","sniffer")),
+//                entry("snow_golem", texture("snow_golem")),
+//                entry("spider", texture("spider","spider")),
+//                entry("squid", texture("squid","squid")),
+//                entry("stray", texture("skeleton", "stray")),
+//                entry("stray_outer", texture("skeleton", "stray")),
+//                entry("strider_saddle", texture("strider", "strider_saddle")),
+//                entry("tadpole", texture("tadpole", "tadpole")),
+//                entry("trader_llama_decor", texture("llama/decor","trader_llama")),
+//                entry("trident", texture("trident")),
+//                entry("turtle", texture("turtle","big_sea_turtle")),
+//                entry("villager", texture("villager","villager")),
+//                entry("vindicator", texture("illager","vindicator")),
+//                entry("wandering_trader", texture("wandering_trader")),
+//                entry("warden", texture("warden", "warden")),
+//                entry("wind_charge", texture("projectiles", "wind_charge")),
+//                entry("witch", texture("witch")),
+//                entry("wither_skeleton", texture("skeleton", "wither_skeleton")),
+//                entry("wolf_collar", texture("wolf", "wolf_collar")),
+//                entry("zoglin", texture("hoglin", "zoglin")),
+//                entry("zombie", texture("zombie","zombie")),
+//                entry("zombie_horse", texture(" horse","horse_zombie")),
+////                "zombie_pigman", texture(),
+//                entry("zombie_villager", texture("zombie_villager", "zombie_villager")),
+//                entry("zombified_piglin", texture("piglin", "zombified_piglin")),
+//
+//                //#if MC >= 12105
+//                entry("cow", texture("cow", "temperate_cow")),
+//                entry("warm_cow", texture("cow", "warm_cow")),
+//                entry("cold_cow", texture("cow", "cold_cow")),
+//                entry("pig", texture("pig","temperate_pig")),
+//                entry("warm_pig", texture("pig","warm_pig")),
+//                entry("cold_pig", texture("pig","cold_pig")),
+//                entry("chicken", texture("chicken", "temperate_chicken")),
+//                entry("warm_chicken", texture("chicken", "warm_chicken")),
+//                entry("cold_chicken", texture("chicken", "cold_chicken"))
+//                //#else
+//                //$$ entry("cow", texture("cow", "cow")),
+//                //$$ entry("pig", texture("pig","pig")),
+//                //$$ entry("chicken", texture("chicken"))
+//                //#endif
+//        );
+//    }
 
     private static void initOptifineMappings() {
 
@@ -322,7 +321,11 @@ public class EMFModelMappings {
                 .parts(genericQuadraped);
         OptifineMapper.models("inner_armor","outer_armor","zombie", "husk", "drowned", "drowned_outer",
                         "enderman", "giant", "skeleton", "stray", "stray_outer", "wither_skeleton", "zombie_pigman", "bogged_outer",
-                        "helmet", "helmet_baby", "chestplate", "chestplate_baby", "leggings", "leggings_baby", "boots", "boots_baby")
+                        "helmet", "helmet_baby", "chestplate", "chestplate_baby", "leggings", "leggings_baby", "boots", "boots_baby"
+                        //#if MC >= 12109
+                        , "helmet", "chestplate", "leggings", "boots"
+                        //#endif
+                )
                 .parts(genericNonPlayerBiped);
         OptifineMapper.models("piglin", "piglin_brute", "zombified_piglin")
                 .parts(genericPiglinBiped);
@@ -359,6 +362,38 @@ public class EMFModelMappings {
                         partMapping("tentacle7", "tentacle6"),
                         partMapping("tentacle8", "tentacle7"),
                         partMapping("tentacle9", "tentacle8")
+                ));
+        OptifineMapper.models("happy_ghast", "happy_ghast_ropes")
+                .parts(Map.ofEntries(
+                        partMapping("body"),
+                        partMapping("tentacle1", "tentacle0"),
+                        partMapping("tentacle2", "tentacle1"),
+                        partMapping("tentacle3", "tentacle2"),
+                        partMapping("tentacle4", "tentacle3"),
+                        partMapping("tentacle5", "tentacle4"),
+                        partMapping("tentacle6", "tentacle5"),
+                        partMapping("tentacle7", "tentacle6"),
+                        partMapping("tentacle8", "tentacle7"),
+                        partMapping("tentacle9", "tentacle8")
+                ));
+        OptifineMapper.models("happy_ghast_baby", "happy_ghast_baby_ropes")
+                .parts(Map.ofEntries(
+                        partMapping("body"),
+                        partMapping("inner_body"),
+                        partMapping("tentacle1", "tentacle0"),
+                        partMapping("tentacle2", "tentacle1"),
+                        partMapping("tentacle3", "tentacle2"),
+                        partMapping("tentacle4", "tentacle3"),
+                        partMapping("tentacle5", "tentacle4"),
+                        partMapping("tentacle6", "tentacle5"),
+                        partMapping("tentacle7", "tentacle6"),
+                        partMapping("tentacle8", "tentacle7"),
+                        partMapping("tentacle9", "tentacle8")
+                ));
+        OptifineMapper.models("happy_ghast_harness", "happy_ghast_baby_harness")
+                .parts(Map.ofEntries(
+                        partMapping("harness"),
+                        partMapping("goggles")
                 ));
         OptifineMapper.models("wolf", "wolf_collar", "wolf_armor")
                 .parts(Map.ofEntries(
@@ -599,7 +634,7 @@ public class EMFModelMappings {
                 ));
         OptifineMapper.models("elder_guardian", "guardian")
                 .parts(Map.ofEntries(
-                        //# guardian                 body, eye, spine1 ... spine12, tail1 ... tail3
+                        // guardian                 body, eye, spine1 ... spine12, tail1 ... tail3
                         partMapping("tail1", "tail0"),
                         partMapping("tail2", "tail1"),
                         partMapping("tail3", "tail2"),
@@ -1054,7 +1089,15 @@ public class EMFModelMappings {
                         partMapping("board", "root")
                 ));
         OptifineMapper.models("trident")
-                .parts(Map.ofEntries(partMapping("body", "pole")));
+                .parts(Map.ofEntries(
+                        partMapping("body", "pole")
+                        //#if MC >= 1.20.3
+                        , partMapping("base"),
+                        partMapping("left_spike"),
+                        partMapping("middle_spike"),
+                        partMapping("right_spike")
+                        //#endif
+                ));
 
         OptifineMapper.models("shield")
                 .parts(Map.ofEntries(
@@ -1280,7 +1323,6 @@ public class EMFModelMappings {
 
 
 
-    //
     //this would make a usable mapping of the given model but with no part name changing as it would not be optifine customized
     public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, EMFModel_ID mobId, @Nullable Map<String, String> mobMap, boolean exportOnlyFirstTime) {
         String id = mobId.getDisplayFileName();
@@ -1297,13 +1339,10 @@ public class EMFModelMappings {
             }
         }
 
-
-
         if (originalModel == null) {
             EMFUtils.logError("model part was null and not already mapped in exploreProvidedEntityModel() EMF");
             return Map.of();
         }
-
 
         Map<String, String> detailsMap = new HashMap<>();
         boolean known = mobMap != null;
@@ -1311,8 +1350,10 @@ public class EMFModelMappings {
             mobMap = new HashMap<>();
             mapThisAndChildren("root", originalModel, mobMap, detailsMap);
         }
+
         //cache result;
         UNKNOWN_MODEL_MAP_CACHE.put(id, mobMap);
+
         if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
             StringBuilder mapString = new StringBuilder();
 
@@ -1334,27 +1375,33 @@ public class EMFModelMappings {
 
             if (EMF.config().getConfig().modelExportMode.doesJems()) {
                 EMFUtils.log("creating example .jem file for " + fileName);
-                EMFJemPrinter jemPrinter = new EMFJemPrinter();
+                var jemPrinter = new JsonObject();
                 int[] textureSize = null;
+                var models = new JsonArray();
                 for (Map.Entry<String, String> entry :
                         mobMap.entrySet()) {
 
-                    EMFPartPrinter partPrinter = new EMFPartPrinter();
-                    partPrinter.part = entry.getKey();
-                    partPrinter.id = entry.getKey();
+                    JsonObject partPrinter = new JsonObject();
+                    partPrinter.addProperty("invertAxis", "xy");
+                    partPrinter.addProperty("part", entry.getKey());
+                    partPrinter.addProperty("id", entry.getKey());
                     PartAndOffsets searchPart = getChildByName(entry.getValue(), originalModel,0,0,0);
-                    //allow nested child parts named root to be found first otherwise apply the root part as the root
+                    // allow nested child parts named root to be found first otherwise apply the root part as the root
                     PartAndOffsets vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? new PartAndOffsets(originalModel, 0,0,0) : searchPart;
 
                     textureSize = initPartPrinterAndCaptureTextureSizeIfNeeded(vanillaModelPart, partPrinter, textureSize);
-                    jemPrinter.models.add(partPrinter);
+                    models.add(partPrinter);
 
                 }
+                jemPrinter.add("models", models);
                 if (textureSize == null) {
                     textureSize = new int[]{64, 32};
                 }
-                jemPrinter.textureSize = textureSize;
 
+                var textureSize2 = new JsonArray();
+                textureSize2.add(textureSize[0]);
+                textureSize2.add(textureSize[1]);
+                jemPrinter.add("textureSize", textureSize2);
 
                 printModel(namespace, fileName, jemPrinter);
                 mobId.forEachFallback((fallback) -> printModel(fallback.namespace, fallback.getfileName(), jemPrinter));
@@ -1363,7 +1410,7 @@ public class EMFModelMappings {
         return mobMap;
     }
 
-    private static void printModel(final String namespace, final String fileName, final EMFJemPrinter jemPrinter) {
+    private static void printModel(final String namespace, final String fileName, final JsonObject jemPrinter) {
         String path = ETF.getConfigDirectory().toFile().getParent()
                 + "/emf/export/" + "assets/" + namespace + "/optifine/cem/" + fileName + ".jem";
         File outFile = new File(path);
@@ -1387,82 +1434,81 @@ public class EMFModelMappings {
     private record PartAndOffsets(ModelPart part, float x, float y, float z) {
     }
 
-    private static int[] initPartPrinterAndCaptureTextureSizeIfNeeded(final PartAndOffsets partAndOffsets, final EMFPartPrinter partPrinter, int[] textureSize) {
+    private static void addArrayProperty(JsonObject obj, String name, Number... values) {
+        var arr = new JsonArray(values.length);
+        for (Number value : values) {
+            arr.add(value);
+        }
+        obj.add(name, arr);
+    }
+
+    private static void addArrayProperty(JsonObject obj, String name, JsonObject... values) {
+        var arr = new JsonArray(values.length);
+        for (JsonObject value : values) {
+            arr.add(value);
+        }
+        obj.add(name, arr);
+    }
+
+
+    private static int[] initPartPrinterAndCaptureTextureSizeIfNeeded(PartAndOffsets partAndOffsets, JsonObject partPrinter, int[] textureSize) {
         if (partAndOffsets != null && partAndOffsets.part != null) {
 
             var vanillaModelPart = partAndOffsets.part;
 
+            // invert x and y's
+            var x = -partAndOffsets.x + vanillaModelPart.x;
+            var y = -24 -partAndOffsets.y + vanillaModelPart.y;
+            var z = partAndOffsets.z -vanillaModelPart.z;
+            if (x != 0 && y != 0 && z != 0) addArrayProperty(partPrinter,"translate", x, y, z);
 
-            //invert x and y's
-            partPrinter.translate = new float[]{
-                    -partAndOffsets.x + vanillaModelPart.x,
-                -24 -partAndOffsets.y + vanillaModelPart.y,
-                    partAndOffsets.z  -vanillaModelPart.z
-            };
-            //these are inherited
-//            if(!isPart) {
-//                            partPrinter.rotate = new float[]{
-//                                    vanillaModelPart.xRot * Mth.RAD_TO_DEG,
-//                                    vanillaModelPart.yRot * Mth.RAD_TO_DEG,
-//                                    -vanillaModelPart.zRot * Mth.RAD_TO_DEG};
-//            }
-            partPrinter.scale = vanillaModelPart.xScale;
-            //get part size incase empty, though cuboids often have better ideas about this
-            partPrinter.textureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
-            textureSize = partPrinter.textureSize;
-            //List<ModelPart.Cuboid> cuboids = vanillaModelPart.cuboids;
+            if (vanillaModelPart.xScale != 0) partPrinter.addProperty("scale", vanillaModelPart.xScale);
+            // get part size incase empty, though cuboids often have better ideas about this
+            //partPrinter.textureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
+            textureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
+
+            var list = new ArrayList<JsonObject>(vanillaModelPart.cubes.size());
+
             for (ModelPart.Cube cube :
                     vanillaModelPart.cubes) {
-                EMFBoxPrinter boxPrinter = new EMFBoxPrinter();
-                boxPrinter.coordinates = new float[]{
+                JsonObject boxPrinter = new JsonObject();
+                var coordinates = new float[]{
                         cube.minX,
                         cube.minY,
                         cube.minZ,
                         cube.maxX - cube.minX,
                         cube.maxY - cube.minY,
                         cube.maxZ - cube.minZ};
-                //can be different from part
-                partPrinter.textureSize = ((IEMFCuboidDataSupplier) cube).emf$getTextureXY();
-                boxPrinter.textureOffset = ((IEMFCuboidDataSupplier) cube).emf$getTextureUV();
+                // can be different from part
+                var xy = ((IEMFCuboidDataSupplier) cube).emf$getTextureXY();
+                addArrayProperty(boxPrinter,"textureSize", xy[0], xy[1]);
+
+                var uv = ((IEMFCuboidDataSupplier) cube).emf$getTextureUV();
+                addArrayProperty(boxPrinter,"textureOffset", uv[0], uv[1]);
+
                 var adds = ((IEMFCuboidDataSupplier) cube).emf$getSizeAdd();
                 if (adds != null) {
                     if (adds[0] == adds[1] && adds[0] == adds[2]) {
-                        boxPrinter.sizeAdd = adds[0];
+                        boxPrinter.addProperty("sizeAdd", adds[0]);
                     } else {
-                        boxPrinter.sizeAddX = adds[0];
-                        boxPrinter.sizeAddY = adds[1];
-                        boxPrinter.sizeAddZ = adds[2];
+                        boxPrinter.addProperty("sizeAddX", adds[0]);
+                        boxPrinter.addProperty("sizeAddY", adds[1]);
+                        boxPrinter.addProperty("sizeAddZ", adds[2]);
                     }
                 }
 
-                //invert x and y
-                boxPrinter.coordinates[0] = -boxPrinter.coordinates[0] - boxPrinter.coordinates[3] - partPrinter.translate[0];
-                boxPrinter.coordinates[1] = -boxPrinter.coordinates[1] - boxPrinter.coordinates[4] - partPrinter.translate[1];
+                // invert x and y
+                coordinates[0] = -coordinates[0] - coordinates[3] - x;
+                coordinates[1] = -coordinates[1] - coordinates[4] - y;
 
-                boxPrinter.coordinates[2] = boxPrinter.coordinates[2] - partPrinter.translate[2];
+                coordinates[2] = coordinates[2] - z;
 
-                //add to array
-                partPrinter.boxes = Arrays.copyOf(partPrinter.boxes, partPrinter.boxes.length + 1);
-                partPrinter.boxes[partPrinter.boxes.length - 1] = boxPrinter;
+                list.add(boxPrinter);
             }
-//            if (!isRoot) partPrinter.submodels = getNonSpecifiedChildren(vanillaModelPart, mobMap);
+            addArrayProperty(partPrinter, "boxes", list.toArray(new JsonObject[0]));
         }
         return textureSize;
     }
-
-//    private static LinkedList<EMFPartPrinter> getNonSpecifiedChildren(ModelPart vanillaModelPart, Map<String, String> mobMap) {
-//        LinkedList<EMFPartPrinter> submodels = new LinkedList<>();
-//        for (Map.Entry<String, ModelPart> childEntry : vanillaModelPart.children.entrySet()) {
-//            if(!mobMap.containsValue(childEntry.getKey())) {
-//                var printer = new EMFPartPrinter();
-//                printer.id = childEntry.getKey();
-//                initPartPrinterAndCaptureTextureSizeIfNeeded(mobMap, childEntry.getValue(), printer, null,false, false);
-//                submodels.add(printer);
-//            }
-//        }
-//        return submodels;
-//    }
-
 
     private static @Nullable PartAndOffsets getChildByName(String name, @NotNull ModelPart part, float x, float y, float z) {
         if (part.hasChild(name)) return new PartAndOffsets(part.getChild(name),
@@ -1483,12 +1529,13 @@ public class EMFModelMappings {
     }
 
     private static void mapThisAndChildren(String partName, @NotNull ModelPart originalModel, Map<String, String> newMap, Map<String, String> detailsMap) {
-        //iterate over children while collecting their names in a list
+        // iterate over children while collecting their names in a list
         for (Map.Entry<String, ModelPart> entry :
                 originalModel.children.entrySet()) {
             mapThisAndChildren(entry.getKey(), entry.getValue(), newMap, detailsMap);
         }
-        //add this part and its children names
+
+        // add this part and its children names
         newMap.put(partName, partName);
         if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
             StringBuilder cubes = new StringBuilder( originalModel.cubes.isEmpty() ? "[No boxes]" : "[boxes]");
@@ -1496,42 +1543,45 @@ public class EMFModelMappings {
             for (ModelPart.Cube cube :
                     originalModel.cubes) {
                     i++;
-                    EMFBoxPrinter boxPrinter = new EMFBoxPrinter();
-                    boxPrinter.coordinates = new float[]{
+                    var coordinates = new float[]{
                             cube.minX,
                             cube.minY,
                             cube.minZ,
                             cube.maxX - cube.minX,
                             cube.maxY - cube.minY,
                             cube.maxZ - cube.minZ};
-                    boxPrinter.textureOffset = ((IEMFCuboidDataSupplier) cube).emf$getTextureUV();
+                    var textureOffset = ((IEMFCuboidDataSupplier) cube).emf$getTextureUV();
                     var adds = ((IEMFCuboidDataSupplier) cube).emf$getSizeAdd();
+                    float sizeAdd = Float.NaN;
+                    float sizeAddX = Float.NaN;
+                    float sizeAddY = Float.NaN;
+                    float sizeAddZ = Float.NaN;
                     if (adds != null) {
                         if (adds[0] == adds[1] && adds[0] == adds[2]) {
-                            boxPrinter.sizeAdd = adds[0];
+                            sizeAdd = adds[0];
                         } else {
-                            boxPrinter.sizeAddX = adds[0];
-                            boxPrinter.sizeAddY = adds[1];
-                            boxPrinter.sizeAddZ = adds[2];
+                            sizeAddX = adds[0];
+                            sizeAddY = adds[1];
+                            sizeAddZ = adds[2];
                         }
                     }
 
-                    //invert x and y
-                    boxPrinter.coordinates[0] = -boxPrinter.coordinates[0] - boxPrinter.coordinates[3] - originalModel.x;
-                    boxPrinter.coordinates[1] = -boxPrinter.coordinates[1] - boxPrinter.coordinates[4] - originalModel.y;
+                    // invert x and y
+                    coordinates[0] = -coordinates[0] - coordinates[3] - originalModel.x;
+                    coordinates[1] = -coordinates[1] - coordinates[4] - originalModel.y;
 
-                    boxPrinter.coordinates[2] = boxPrinter.coordinates[2] - originalModel.z;
+                    coordinates[2] = coordinates[2] - originalModel.z;
 
-                    //now use printer to print final values
+                    // now print final values
                     cubes.   append("\n | |   |-[#").append(i).append("]")
-                            .append("\n | |   |-coordinates=").append(Arrays.toString(boxPrinter.coordinates))
-                            .append("\n | |   |-textureOffset=").append(Arrays.toString(boxPrinter.textureOffset));
-                    if(boxPrinter.sizeAddX == boxPrinter.sizeAddY && boxPrinter.sizeAddX == boxPrinter.sizeAddZ) {
-                        cubes.append("\n | |    \\-sizeAdd=").append(boxPrinter.sizeAdd);
+                            .append("\n | |   |-coordinates=").append(Arrays.toString(coordinates))
+                            .append("\n | |   |-textureOffset=").append(Arrays.toString(textureOffset));
+                    if(!Float.isNaN(sizeAdd)) {
+                        cubes.append("\n | |    \\-sizeAdd=").append(sizeAdd);
                     }else{
-                        cubes.   append("\n | |   |-sizeAddX=").append(boxPrinter.sizeAddX)
-                                .append("\n | |   |-sizeAddY=").append(boxPrinter.sizeAddY)
-                                .append("\n | |    \\-sizeAddZ=").append(boxPrinter.sizeAddZ);
+                        cubes.   append("\n | |   |-sizeAddX=").append(sizeAddX)
+                                .append("\n | |   |-sizeAddY=").append(sizeAddY)
+                                .append("\n | |    \\-sizeAddZ=").append(sizeAddZ);
                     }
             }
 

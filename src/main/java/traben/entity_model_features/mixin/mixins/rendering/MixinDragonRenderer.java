@@ -10,79 +10,92 @@ import traben.entity_texture_features.features.ETFRenderContext;
 
 @Mixin(EnderDragonRenderer.class)
 public abstract class MixinDragonRenderer {
+//#if MC >= 12109
 
-    @Inject(method =
+    @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/OrderedSubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderType;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V"))
+    private void emf$allowMultiPartRender3(final CallbackInfo ci) {
+        EMFManager.getInstance().entityRenderCount++;
+    }
+
+    @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderType;IIILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V"))
+    private void emf$allowMultiPartRender4(final CallbackInfo ci) {
+        EMFManager.getInstance().entityRenderCount++;
+    }
+
+//#else
+//$$     @Inject(method =
             //#if MC >= 12102
-            "render(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            //$$ "render(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             //#else
             //$$ "render(Lnet/minecraft/world/entity/boss/enderdragon/EnderDragon;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             //#endif
-            at = @At(value = "INVOKE",
-                    target =
+//$$             at = @At(value = "INVOKE",
+//$$                     target =
                     //#if MC >= 12102
-                    "Lnet/minecraft/client/model/dragon/EnderDragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V",
+                    //$$ "Lnet/minecraft/client/model/dragon/EnderDragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V",
                     //#elseif MC >= 12100
                     //$$ "Lnet/minecraft/client/renderer/entity/EnderDragonRenderer$DragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V",
                     //#else
                     //$$ "Lnet/minecraft/client/renderer/entity/EnderDragonRenderer$DragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V",
                     //#endif
-            shift = At.Shift.BEFORE, ordinal =
+//$$             shift = At.Shift.BEFORE, ordinal =
                                     //#if MC >= 12100
-                                    2
+                                    //$$ 2
                                     //#else
                                     //$$ 3
                                     //#endif
-                                    ))
-    private void emf$allowMultiPartRender(final CallbackInfo ci) {
-        ETFRenderContext.startSpecialRenderOverlayPhase();
-    }
-
-
-
-
-    @Inject(method =
+//$$                                     ))
+//$$     private void emf$allowMultiPartRender(final CallbackInfo ci) {
+//$$         ETFRenderContext.startSpecialRenderOverlayPhase();
+//$$     }
+//$$
+//$$     @Inject(method =
             //#if MC >= 12102
-            "render(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+            //$$ "render(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             //#else
             //$$ "render(Lnet/minecraft/world/entity/boss/enderdragon/EnderDragon;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
             //#endif
-            at = @At(value = "INVOKE",
-                    target =
+//$$             at = @At(value = "INVOKE",
+//$$                     target =
                     //#if MC >= 12102
-                    "Lnet/minecraft/client/model/dragon/EnderDragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V",
+                    //$$ "Lnet/minecraft/client/model/dragon/EnderDragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V",
                     //#elseif MC == 12100 || MC == 121001
                     //$$ "Lnet/minecraft/client/renderer/entity/EnderDragonRenderer$DragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V",
                     //#else
                     //$$ "Lnet/minecraft/client/renderer/entity/EnderDragonRenderer$DragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V",
                     //#endif
-            shift = At.Shift.AFTER, ordinal =
+//$$             shift = At.Shift.AFTER, ordinal =
                             //#if MC >= 12100
-                            2
+                            //$$ 2
                             //#else
                             //$$ 3
                             //#endif
-                            ))
-    private void emf$allowMultiPartRender2(final CallbackInfo ci) {
-        ETFRenderContext.endSpecialRenderOverlayPhase();
-    }
-
-
+//$$                             ))
+//$$     private void emf$allowMultiPartRender2(final CallbackInfo ci) {
+//$$         ETFRenderContext.endSpecialRenderOverlayPhase();
+//$$     }
+//$$
+//$$
     //#if MC >= 12102
-    @Inject(method = "render(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/model/dragon/EnderDragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V",
-                    shift = At.Shift.BEFORE))
-    private void emf$allowMultiPartRender3(final CallbackInfo ci) {
-        EMFManager.getInstance().entityRenderCount++;
-    }
-
-    @Inject(method = "render(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/minecraft/client/model/dragon/EnderDragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;III)V",
-                    shift = At.Shift.BEFORE, ordinal = 0))
-    private void emf$allowMultiPartRender24(final CallbackInfo ci) {
-        EMFManager.getInstance().entityRenderCount++;
-    }
+    //$$ @Inject(method = "render(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+    //$$         at = @At(value = "INVOKE",
+    //$$                 target = "Lnet/minecraft/client/model/dragon/EnderDragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;II)V",
+    //$$                 shift = At.Shift.BEFORE))
+    //$$ private void emf$allowMultiPartRender3(final CallbackInfo ci) {
+    //$$     EMFManager.getInstance().entityRenderCount++;
+    //$$ }
+    //$$
+    //$$ @Inject(method = "render(Lnet/minecraft/client/renderer/entity/state/EnderDragonRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+    //$$         at = @At(value = "INVOKE",
+    //$$                 target = "Lnet/minecraft/client/model/dragon/EnderDragonModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;III)V",
+    //$$                 shift = At.Shift.BEFORE, ordinal = 0))
+    //$$ private void emf$allowMultiPartRender24(final CallbackInfo ci) {
+    //$$     EMFManager.getInstance().entityRenderCount++;
+    //$$ }
     //#endif
-
+//#endif
 }

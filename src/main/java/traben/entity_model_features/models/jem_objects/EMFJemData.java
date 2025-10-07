@@ -51,20 +51,21 @@ public class EMFJemData {
 
         ResourceLocation res = validateResourcePathAndExists(textureIn, "png");
 
-        if (canRemoveRedundancy && res != null) {
-            String textureTest = res.toString();
-            //test if it is a redundant texture to reduce texture overrides during rendering
-            if("minecraft".equals(directoryContext.namespace) //is vanilla model
-                    && (!textureTest.contains(":") || textureTest.startsWith("minecraft:"))){//is vanilla texture
-                textureTest = textureTest.startsWith("minecraft:") ? textureTest : "minecraft:" + textureTest;
-
-                if (textureTest.equals(EMFModelMappings.DEFAULT_TEXTURE_MAPPINGS.get(directoryContext.rawFileName))) {
-                    if (EMF.config().getConfig().logModelCreationData)
-                        EMFUtils.log("Removing redundant texture: " + textureTest + " declared in " + directoryContext.getFileNameWithType());
-                    return null;
-                }
-            }
-        }
+        //todo had issues, need to start that rework of texture overrides anyway
+//        if (canRemoveRedundancy && res != null) {
+//            String textureTest = res.toString();
+//            //test if it is a redundant texture to reduce texture overrides during rendering
+//            if("minecraft".equals(directoryContext.namespace) //is vanilla model
+//                    && (!textureTest.contains(":") || textureTest.startsWith("minecraft:"))){//is vanilla texture
+//                textureTest = textureTest.startsWith("minecraft:") ? textureTest : "minecraft:" + textureTest;
+//
+//                if (textureTest.equals(EMFModelMappings.DEFAULT_TEXTURE_MAPPINGS.get(directoryContext.rawFileName))) {
+//                    if (EMF.config().getConfig().logModelCreationData)
+//                        EMFUtils.log("Removing redundant texture: " + textureTest + " declared in " + directoryContext.getFileNameWithType());
+//                    return null;
+//                }
+//            }
+//        }
 
         return res == null ? MissingTextureAtlasSprite.getLocation() : res;
     }
