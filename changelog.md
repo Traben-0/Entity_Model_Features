@@ -1,4 +1,8 @@
 
+[3.0.4]
+- fixed textures not variating correctly on custom models in 1.21.9+ (broke many packs)
+- fixed a neoforge black screen issue in 1.21.9+
+
 [3.0.2]
 - jpm files will now print loading exceptions to the log even without the logging option enabled
 - fixed texture overrides in fallback models not always applying
