@@ -134,7 +134,7 @@ public abstract class MixinEntityRenderDispatcher {
 
     @ModifyArg(method = RENDER_ETF, at = @At(value = "INVOKE", target = SHADOW_RENDER_ETF),
             index =
-            //#if MC>=12105
+            //#if MC>=12109
             1
             //#elseif MC>=12105
             //$$ 5
