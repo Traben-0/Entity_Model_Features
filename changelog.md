@@ -1,4 +1,9 @@
 
+[3.0.5]
+- fixed armor models no longer copying the custom animations of the base entity model in 1.21.9+ (this will not work for armor models that have their own custom animations)
+- print functions no longer continue ticking during game pause
+- added a shorthand version of the `print()` & `printb()` functions that only accept 1 argument and print every frame with the id being the argument itself
+
 [3.0.4]
 - fixed textures not variating correctly on custom models in 1.21.9+ (broke many packs)
 - fixed a neoforge black screen issue in 1.21.9+

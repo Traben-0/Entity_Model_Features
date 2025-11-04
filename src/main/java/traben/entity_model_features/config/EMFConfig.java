@@ -115,6 +115,9 @@ public class EMFConfig extends TConfig {
     //$$ public boolean enforceOptiFineFloorUVs = true;
     //#endif
     public boolean showReloadErrorToast = true;
+    //#if MC >= 12109
+    public boolean armorCopiesAnimationsHack = true;
+    //#endif
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -129,6 +132,11 @@ public class EMFConfig extends TConfig {
                                         () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.double_chest_fix", "entity_model_features.config.double_chest_fix.tooltip",
                                         () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true)
+                                //#if MC >= 12109
+                                , new TConfigEntryBoolean("entity_model_features.config.armor_hack", "entity_model_features.config.armor_hack.tooltip",
+                                        () -> armorCopiesAnimationsHack, value -> armorCopiesAnimationsHack = value, true)
+                                //#endif
+
                         ),
                         new TConfigEntryCategory("entity_model_features.config.player_settings").add(
                                 new TConfigEntryBoolean("entity_model_features.config.prevent_hand", "entity_model_features.config.prevent_hand.tooltip",

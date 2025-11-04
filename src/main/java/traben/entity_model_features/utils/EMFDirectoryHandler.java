@@ -90,6 +90,10 @@ public class EMFDirectoryHandler {
             EMFUtils.log(" >> Final valid directory after checking: " + actualDirectory.getAsDirectory(namespace, modelFileName) + suffixAndFileType);
     }
 
+    public static EMFDirectoryHandler basic(String filename) {
+        return new EMFDirectoryHandler("minecraft", filename, ".jem", false);
+    }
+
     public static @Nullable EMFDirectoryHandler getDirectoryManagerOrNull(boolean printing, @NotNull String namespace, @NotNull String modelFileName, @NotNull String suffixAndFileType) {
         try {
             EMFDirectoryHandler directoryManager = new EMFDirectoryHandler(namespace, modelFileName, suffixAndFileType, printing);

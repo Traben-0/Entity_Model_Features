@@ -1,4 +1,6 @@
 {
+  "entity_model_features.config.armor_hack": "Armor copies custom animations",
+  "entity_model_features.config.armor_hack.tooltip": "In 1.21.9+ armor no longer naturally copies the custom animations of the base model, this replicates that old behaviour.",
   "entity_model_features.config.animate_once": "Animate models once per entity",
   "entity_model_features.config.animate_once.tooltip": "On by default\nthis setting makes it so entity models will animate only once per each entity rendered\nthis will be entirely normal in game however mobs visible in\n inventory screens may flicker weirdly\n especially if it represents a real mob in the world you can already see",
   "entity_model_features.config.debug": "Debugging",
