@@ -1385,6 +1385,7 @@ public class EMFModelMappings {
                     partPrinter.addProperty("invertAxis", "xy");
                     partPrinter.addProperty("part", entry.getKey());
                     partPrinter.addProperty("id", entry.getKey());
+                    partPrinter.addProperty("attach", false);
                     PartAndOffsets searchPart = getChildByName(entry.getValue(), originalModel,0,0,0);
                     // allow nested child parts named root to be found first otherwise apply the root part as the root
                     PartAndOffsets vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? new PartAndOffsets(originalModel, 0,0,0) : searchPart;
@@ -1393,9 +1394,9 @@ public class EMFModelMappings {
                     models.add(partPrinter);
 
                 }
-                jemPrinter.add("models", models);
+                if (!models.isEmpty()) jemPrinter.add("models", models);
                 if (textureSize == null) {
-                    textureSize = new int[]{64, 32};
+                    textureSize = new int[] {64, 32};
                 }
 
                 var textureSize2 = new JsonArray();
@@ -1452,6 +1453,8 @@ public class EMFModelMappings {
 
 
     private static int[] initPartPrinterAndCaptureTextureSizeIfNeeded(PartAndOffsets partAndOffsets, JsonObject partPrinter, int[] textureSize) {
+
+        int[] thisTextureSize = null;
         if (partAndOffsets != null && partAndOffsets.part != null) {
 
             var vanillaModelPart = partAndOffsets.part;
@@ -1460,19 +1463,24 @@ public class EMFModelMappings {
             var x = -partAndOffsets.x + vanillaModelPart.x;
             var y = -24 -partAndOffsets.y + vanillaModelPart.y;
             var z = partAndOffsets.z -vanillaModelPart.z;
-            if (x != 0 && y != 0 && z != 0) addArrayProperty(partPrinter,"translate", x, y, z);
+            if (x != 0 || y != 0 || z != 0) addArrayProperty(partPrinter,"translate", x, y, z);
 
-            if (vanillaModelPart.xScale != 0) partPrinter.addProperty("scale", vanillaModelPart.xScale);
+            float rx = partAndOffsets.part.getInitialPose().xRot() * -Mth.RAD_TO_DEG;
+            float ry = partAndOffsets.part.getInitialPose().yRot() * -Mth.RAD_TO_DEG;
+            float rz = partAndOffsets.part.getInitialPose().zRot() * Mth.RAD_TO_DEG;
+            if (rx != 0 || ry != 0 || rz != 0) addArrayProperty(partPrinter,"rotate", rx, ry, rz);
+
+            if (vanillaModelPart.xScale != 1f) partPrinter.addProperty("scale", vanillaModelPart.xScale);
             // get part size incase empty, though cuboids often have better ideas about this
             //partPrinter.textureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
-            textureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
+            thisTextureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
 
-            var list = new ArrayList<JsonObject>(vanillaModelPart.cubes.size());
+            var list =new ArrayList<JsonObject>(vanillaModelPart.cubes.size());
 
             for (ModelPart.Cube cube :
                     vanillaModelPart.cubes) {
                 JsonObject boxPrinter = new JsonObject();
-                var coordinates = new float[]{
+                var coordinates = new Float[]{
                         cube.minX,
                         cube.minY,
                         cube.minZ,
@@ -1480,20 +1488,19 @@ public class EMFModelMappings {
                         cube.maxY - cube.minY,
                         cube.maxZ - cube.minZ};
                 // can be different from part
-                var xy = ((IEMFCuboidDataSupplier) cube).emf$getTextureXY();
-                addArrayProperty(boxPrinter,"textureSize", xy[0], xy[1]);
+                thisTextureSize = thisTextureSize == null ? ((IEMFCuboidDataSupplier) cube).emf$getTextureXY() : thisTextureSize;
 
                 var uv = ((IEMFCuboidDataSupplier) cube).emf$getTextureUV();
-                addArrayProperty(boxPrinter,"textureOffset", uv[0], uv[1]);
+                addArrayProperty(boxPrinter, "textureOffset", uv[0], uv[1]);
 
                 var adds = ((IEMFCuboidDataSupplier) cube).emf$getSizeAdd();
                 if (adds != null) {
                     if (adds[0] == adds[1] && adds[0] == adds[2]) {
-                        boxPrinter.addProperty("sizeAdd", adds[0]);
+                        if (adds[0] != 0) boxPrinter.addProperty("sizeAdd", adds[0]);
                     } else {
-                        boxPrinter.addProperty("sizeAddX", adds[0]);
-                        boxPrinter.addProperty("sizeAddY", adds[1]);
-                        boxPrinter.addProperty("sizeAddZ", adds[2]);
+                        if (adds[0] != 0) boxPrinter.addProperty("sizeAddX", adds[0]);
+                        if (adds[1] != 0) boxPrinter.addProperty("sizeAddY", adds[1]);
+                        if (adds[2] != 0) boxPrinter.addProperty("sizeAddZ", adds[2]);
                     }
                 }
 
@@ -1503,11 +1510,16 @@ public class EMFModelMappings {
 
                 coordinates[2] = coordinates[2] - z;
 
+                addArrayProperty(boxPrinter, "coordinates", coordinates);
+
                 list.add(boxPrinter);
             }
-            addArrayProperty(partPrinter, "boxes", list.toArray(new JsonObject[0]));
+            if (textureSize != null && (!Arrays.equals(textureSize, thisTextureSize))) {
+                addArrayProperty(partPrinter,"textureSize", textureSize[0], textureSize[1]);
+            }
+            if (!list.isEmpty()) addArrayProperty(partPrinter, "boxes", list.toArray(new JsonObject[0]));
         }
-        return textureSize;
+        return textureSize == null ? thisTextureSize : textureSize;
     }
 
     private static @Nullable PartAndOffsets getChildByName(String name, @NotNull ModelPart part, float x, float y, float z) {
