@@ -13,19 +13,16 @@ public class RandomBMethod extends RandomMethod {
 
     public RandomBMethod(final List<String> args, final boolean isNegative, final EMFAnimation calculationInstance) throws EMFMathException {
         super(args, isNegative, calculationInstance);
-
-
     }
 
     @Override
-    protected float nextValue(Random rand, float seed) {
-        rand.setSeed((long) seed);
-        return MathValue.fromBoolean(rand.nextBoolean());
+    protected float nextValue(float seed) {
+        return MathValue.fromBoolean(super.nextValue(seed) >= 0.5f);
     }
 
     @Override
-    protected float nextValue(Random rand) {
-        return MathValue.fromBoolean(rand.nextBoolean());
+    protected float nextValue() {
+        return MathValue.fromBoolean(super.nextValue() >= 0.5f);
     }
 
 
