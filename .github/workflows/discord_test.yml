@@ -3,7 +3,7 @@ name: release-pipeline
 on:
   push:
     tags:
-      - "discord-test"
+      - "dis-test"
 
 jobs:
   build-release-upload:
@@ -14,7 +14,8 @@ jobs:
 
       - name: update JSON content
         run: |
-          jq --arg ref "$GITHUB_REF_NAME" '.username = "Entity Model Features \($ref) released!"' discord_update.json
+          jq --arg ref "$GITHUB_REF_NAME" '.username = "Entity Model Features \($ref) released!"' discord_update.json > tmp.json
+          mv tmp.json discord_update.json
 
       - name: discord notification
         run: |
