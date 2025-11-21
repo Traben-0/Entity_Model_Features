@@ -1,4 +1,9 @@
 
+[3.0.6]
+- fixed exports being broken
+- matches `random()`s behaviour exactly to optifine
+- several fixes, mostly config gui, to EMF that were actually bugs in ETF so go update that too
+
 [3.0.5]
 - fixed armor models no longer copying the custom animations of the base entity model in 1.21.9+ (this will not work for armor models that have their own custom animations)
 - print functions no longer continue ticking during game pause

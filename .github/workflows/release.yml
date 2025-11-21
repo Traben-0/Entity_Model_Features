@@ -1,0 +1,43 @@
+name: release-pipeline
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-release-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - run: node changelog_test.js
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+
+      - run: ./gradlew build
+
+      - run: node uploader.js
+        env:
+          CF_TOKEN: ${{ secrets.CF_TOKEN }}
+          CF_COOKIE: ${{ secrets.CF_COOKIE }}
+          MODRINTH: ${{ secrets.MODRINTH }}
+
+      - name: discord notification
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"content\": \"Release ${GITHUB_REF_NAME} complete.\"}" \
+                 "$DISCORD_WEBHOOK"
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
