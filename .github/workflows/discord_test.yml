@@ -12,6 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: update JSON content
+        run: |
+          jq --arg ref "$GITHUB_REF_NAME" '.username = "Entity Model Features \($ref) released!"' discord_update.json > tmp.json
+          mv tmp.json discord_update.json
+
       - name: discord notification
         run: |
           curl -H "Content-Type: application/json" \
