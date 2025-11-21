@@ -1,0 +1,35 @@
+{
+  "username": "Entity Model Features ${GITHUB_REF_NAME} released",
+  "avatar_url": "https://github.com/Traben-0/Entity_Model_Features/blob/master/src/main/resources/assets/entity_model_features/textures/gui/icon.png?raw=true",
+  "content": "<@&950951012536033290>",
+  "embeds": [
+    {
+      "author": {
+        "name": "Changelog",
+        "url": "https://github.com/Traben-0/Entity_Model_Features/blob/master/CHANGELOG.MD",
+        "icon_url": "https://i.imgur.com/EYNx6oL.png"
+      }
+    },
+    {
+      "author": {
+        "name": "Modrinth",
+        "url": "https://modrinth.com/mod/entity-model-features",
+        "icon_url": "https://i.imgur.com/7fioiRx.png"
+      }
+    },
+    {
+      "author": {
+        "name": "CurseForge (might take a day...)",
+        "url": "https://www.curseforge.com/minecraft/mc-mods/entity-model-features",
+        "icon_url": "https://i.imgur.com/rpoyjVG.png"
+      }
+    },
+    {
+      "author": {
+        "name": "Support me on Ko-fi",
+        "url": "https://ko-fi.com/traben",
+        "icon_url": "https://i.imgur.com/xdhWKwC.png"
+      }
+    }
+  ]
+}

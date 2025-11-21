@@ -14,7 +14,7 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
                -X POST \
-               -d "{\"content\": \"# Entity Model Features ${GITHUB_REF_NAME} released. \\n<@950951012536033290> \\n:notebook_with_decorative_cover:  :  [Changelog](<https://github.com/Traben-0/Entity_Model_Features/blob/master/CHANGELOG.MD>) \n### EMF <:emf_m:1271706462460055596> : \\n:curseforge: :  [Curseforge](<https://www.curseforge.com/minecraft/mc-mods/entity-model-features>) \\n:modrinth: :  [Modrinth](<https://modrinth.com/mod/entity-model-features>) \\n**Support me:** \\n:kofi: :  <https://ko-fi.com/traben>\"}" \
+               -d @discord_update.json \
                  "$DISCORD_WEBHOOK"
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
