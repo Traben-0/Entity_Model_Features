@@ -25,12 +25,15 @@ public class Mixin_ModelRenderer {
     private <S> void emf$initRender(final CallbackInfo ci, @Local(argsOnly = true) SubmitNodeStorage.ModelSubmit<S> modelSubmit) {
         var state = modelSubmit.state();
         if (state instanceof HoldsETFRenderState holds && holds.etf$getState() != null) {
-            EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState) holds.etf$getState());
+            var state2 = (EMFEntityRenderState) holds.etf$getState();
+            EMFAnimationEntityContext.setCurrentEntityIteration(state2);
+            ETFRenderContext.setCurrentEntity(state2);
             EMFAnimationEntityContext.setLayerFactory(modelSubmit.model().renderType);
         } else if (((Object) modelSubmit) instanceof HoldsBackupEMFRenderState emf) { // block entity backup
             var state2 = emf.emf$getState();
             EMFAnimationEntityContext.setCurrentEntityIteration(state2);
             EMFAnimationEntityContext.setLayerFactory(modelSubmit.model().renderType);
+            ETFRenderContext.setCurrentEntity(state2);
         } else {
             EMFAnimationEntityContext.reset();
         }
@@ -47,12 +50,14 @@ public class Mixin_ModelRenderer {
     private void emf$endRender(final CallbackInfo ci) {
         EMFAnimationEntityContext.reset();
         ETFRenderContext.endSpecialRenderOverlayPhase();
+        ETFRenderContext.reset();
     }
 
     @Inject(method = "renderBatch", at = @At(value = "TAIL"))
     private void emf$endRender2(final CallbackInfo ci) {
         EMFAnimationEntityContext.reset();
         ETFRenderContext.endSpecialRenderOverlayPhase();
+        ETFRenderContext.reset();
     }
 
 }

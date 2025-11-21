@@ -1,0 +1,20 @@
+name: release-pipeline
+
+on:
+  push:
+    tags:
+      - "discord-test"
+
+jobs:
+  build-release-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: discord notification
+        run: |
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"content\": \"Release ${GITHUB_REF_NAME} complete.\"}" \
+                 "$DISCORD_WEBHOOK"
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}

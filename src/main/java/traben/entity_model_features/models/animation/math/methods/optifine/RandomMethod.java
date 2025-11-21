@@ -16,23 +16,30 @@ public class RandomMethod extends MathMethod {
         super(isNegative, calculationInstance, args.size());
 
         hasSeed = args.size() == 1 && !args.get(0).isBlank();
-        var rand = new Random();
         if (hasSeed) {
             var arg = parseArg(args.get(0), calculationInstance);
-            setSupplierAndOptimize(() -> nextValue(rand, arg.getResult()), arg);
+            setSupplierAndOptimize(() -> nextValue(arg.getResult()), arg);
         } else {
             //true random
-            setSupplierAndOptimize(() -> nextValue(rand));
+            setSupplierAndOptimize(this::nextValue);
         }
     }
 
-    protected float nextValue(Random rand, float seed) {
-        rand.setSeed((long) seed);
-        return rand.nextFloat();
+    protected float nextValue(float seed) {
+        int hash = optifineIntHash(Float.floatToIntBits(seed));
+        return (float)Math.abs(hash) / 2.14748365E9F;
     }
 
-    protected float nextValue(Random rand) {
-        return rand.nextFloat();
+    protected float nextValue() {
+        return (float) Math.random();
+    }
+
+    public static int optifineIntHash(int x) {
+        x = x ^ 61 ^ x >> 16;
+        x += x << 3;
+        x ^= x >> 4;
+        x *= 668265261;
+        return x ^ x >> 15;
     }
 
     @Override

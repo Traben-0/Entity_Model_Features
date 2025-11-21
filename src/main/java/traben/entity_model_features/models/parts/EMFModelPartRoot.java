@@ -40,6 +40,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public EMFDirectoryHandler directoryContext;
     public ETFApi.ETFVariantSuffixProvider variantTester = null;
     public boolean containsCustomModel = false;
+    public boolean containsCustomAnims = false;
     private long lastMobCountAnimatedOn = 0;
     private boolean hasRemovedTopLevelJemTextureFromChildren = false;
 
@@ -62,6 +63,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         // init the first time runnable into all vanilla children
         receiveOneTimeRunnable(this::registerModelRunnableWithEntityTypeContext);
     }
+
 
     @Override
     protected float[] debugBoxColor() {
@@ -321,6 +323,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 //        }
         final var finalList = new ArrayList<>(animationList);
         if (!finalList.isEmpty()) {
+            containsCustomAnims = true;
             Runnable run = () -> {
                 if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
                     lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;

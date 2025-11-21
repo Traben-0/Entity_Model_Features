@@ -53,6 +53,7 @@ import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.utils.*;
 import traben.entity_texture_features.ETF;
+import traben.entity_texture_features.features.ETFRenderContext;
 
 import java.util.Map;
 import java.util.Set;
@@ -269,6 +270,13 @@ public final class EMFAnimationEntityContext {
         newEntity(state);
 
         if (state != null) {
+
+            //#if MC>=12109
+            // ensure etf is active here, because emf may call on additional texture variation during model rendering
+            ETFRenderContext.setCurrentEntity(state);
+            //#endif
+
+
             //perform variant checking for this entity types models
             //this is the only way to keep it generic and also before the entity is rendered and affect al its models
             Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(state.typeString());
@@ -458,6 +466,10 @@ public final class EMFAnimationEntityContext {
         shadowX = 0;
         shadowZ = 0;
         lodFrameSkipping = null;
+
+        //#if MC>=12109
+        if (ETFRenderContext.getCurrentEntityState() != null) ETFRenderContext.reset();
+        //#endif
     }
 
     public static RenderType getLayerFromRecentFactoryOrETFOverrideOrTranslucent(ResourceLocation identifier) {
