@@ -1465,9 +1465,27 @@ public class EMFModelMappings {
             var z = partAndOffsets.z -vanillaModelPart.z;
             if (x != 0 || y != 0 || z != 0) addArrayProperty(partPrinter,"translate", x, y, z);
 
-            float rx = partAndOffsets.part.getInitialPose().xRot() * -Mth.RAD_TO_DEG;
-            float ry = partAndOffsets.part.getInitialPose().yRot() * -Mth.RAD_TO_DEG;
-            float rz = partAndOffsets.part.getInitialPose().zRot() * Mth.RAD_TO_DEG;
+            float rx = partAndOffsets.part.getInitialPose()
+                    //#if MC>=12102
+                    .xRot()
+                    //#else
+                    //$$ .xRot
+                    //#endif
+                    * -Mth.RAD_TO_DEG;
+            float ry = partAndOffsets.part.getInitialPose()
+                    //#if MC>=12102
+                    .yRot()
+                    //#else
+                    //$$ .yRot
+                    //#endif
+                    * -Mth.RAD_TO_DEG;
+            float rz = partAndOffsets.part.getInitialPose()
+                    //#if MC>=12102
+                    .zRot()
+                    //#else
+                    //$$ .zRot
+                    //#endif
+                    * Mth.RAD_TO_DEG;
             if (rx != 0 || ry != 0 || rz != 0) addArrayProperty(partPrinter,"rotate", rx, ry, rz);
 
             if (vanillaModelPart.xScale != 1f) partPrinter.addProperty("scale", vanillaModelPart.xScale);
