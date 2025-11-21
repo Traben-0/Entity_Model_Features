@@ -114,7 +114,7 @@ dependencies {
         modImplementation(files(File(rootDir.parent, "Entity_Texture_Features/jars/$etf.jar")))
     } else {
         // public modrinth ETF builds
-        val etf = "${properties["etf_version"]}-${platform.loaderStr.lowercase()}}-${platform.mcVersionStr}"
+        val etf = "${properties["etf_version"]}-${platform.loaderStr.lowercase()}-${platform.mcVersionStr}"
         modImplementation("maven.modrinth:entitytexturefeatures:$etf")
     }
 
