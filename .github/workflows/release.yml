@@ -26,7 +26,11 @@ jobs:
         env:
           TAG_NAME: ${{ github.ref_name }}
 
-      - run: ./gradlew build
+      - name: Make Gradle Wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Run Gradle build
+        run: ./gradlew build
 
       - name: upload mod
         run: node uploader.js
