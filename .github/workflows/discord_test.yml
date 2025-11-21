@@ -14,20 +14,7 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
                -X POST \
-               -d @- \
-               "$DISCORD_WEBHOOK" <<EOF
-          {
-            "content": [
-              "# Entity Model Features ${GITHUB_REF_NAME} released.",
-              "@Traben",
-              ":notebook_with_decorative_cover:  :  [Changelog](<https://github.com/Traben-0/Entity_Model_Features/blob/master/CHANGELOG.MD>)",
-              "### EMF :emf_m: :",
-              ":curseforge: :  [Curseforge](<https://www.curseforge.com/minecraft/mc-mods/entity-model-features>)",
-              ":modrinth: :  [Modrinth](<https://modrinth.com/mod/entity-model-features>)",
-              "**Support me:**",
-              ":kofi: :  https://ko-fi.com/traben"
-            ].join("\n")
-          }
-          EOF
+               -d "{\"content\": \"# Entity Model Features ${GITHUB_REF_NAME} released. \\n@Traben \\n:notebook_with_decorative_cover:  :  [Changelog](<https://github.com/Traben-0/Entity_Model_Features/blob/master/CHANGELOG.MD>) \n### EMF :emf_m: : \\n:curseforge: :  [Curseforge](<https://www.curseforge.com/minecraft/mc-mods/entity-model-features>) \\n:modrinth: :  [Modrinth](<https://modrinth.com/mod/entity-model-features>) \\n**Support me:** \\n:kofi: :  https://ko-fi.com/traben\"}" \
+                 "$DISCORD_WEBHOOK"
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
