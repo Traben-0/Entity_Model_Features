@@ -54,6 +54,17 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         super(ctx);
     }
 
+    //#if MC >= 12109
+    @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Ljava/lang/Object;)V",
+                    shift = At.Shift.AFTER))
+    private void falseAnimation(CallbackInfo ci) {
+        // animate so that dependant layers can read the positions (only applies if they set their matrix prior to submission)
+        IEMFModel model = (IEMFModel) getModel();
+        if (model.emf$isEMFModel()) model.emf$getEMFRootModel().triggerManualAnimation();
+    }
+    //#endif
+
 
 
     //#if MC >=12110
@@ -83,18 +94,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         //$$     private void emf$Animate(T livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, CallbackInfo ci) {
         //#endif
     //$$
-    //$$ //        if (emf$heldModelToForce != null) {
-    //$$ //            if (!emf$heldModelToForce.equals(model) && !(livingEntity instanceof Pufferfish)) {
-    //$$ //                boolean replace = EMF.config().getConfig().attemptRevertingEntityModelsAlteredByAnotherMod && "minecraft".equals(EntityType.getKey(livingEntity.getType()).getNamespace());
-    //$$ //                EMFUtils.overrideMessage(emf$heldModelToForce.getClass().getName(), model == null ? "null" : model.getClass().getName(), replace);
-    //$$ //                if (replace) {
-    //$$ //                    model = emf$heldModelToForce;
-    //$$ //                }
-    //$$ //            }
-    //$$ //            emf$heldModelToForce = null;
-    //$$ //        }
-    //$$
-    //$$
     //$$     //EMFManager.getInstance().preRenderEMFActions(emf$ModelId,livingEntity, vertexConsumerProvider, o, n, l, k, m);
     //$$     if (((IEMFModel) model).emf$isEMFModel()) {
     //$$
@@ -110,13 +109,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
                                     //#endif
     //$$                         ))), i, OverlayTexture.NO_OVERLAY);
     //$$             }
-    //$$             //simple attempt at a physics mod workaround
-    //$$ //                if (livingEntity.isDeadOrDying() && EMFManager.getInstance().IS_PHYSICS_MOD_INSTALLED
-    //$$ //                        && EMF.config().getConfig().getPhysicsModModeFor((EMFEntity) livingEntity) != EMFConfig.PhysicsModCompatChoice.OFF) {
-    //$$ //                    root.tryRenderVanillaFormatRoot(matrixStack, vertexConsumerProvider.getBuffer(
-    //$$ //                            RenderType.entityTranslucent(getTextureLocation(#if MC >= 12102 livingEntityRenderState #else livingEntity #endif))), i, OverlayTexture.NO_OVERLAY);
-    //$$ //                    //the regular render will get cancelled anyway nothing further to do
-    //$$ //                }
     //$$         }
     //$$     }
     //$$ }

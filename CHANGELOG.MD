@@ -1,6 +1,8 @@
 
 [3.0.7]
 - fixed chest and some other entity models in the inventory not loading or rendering correctly in some versions
+- fixed 1.21.9+ entity held items to match pre 1.21.9 behaviour when the base model is animated, e.g. fox mouth items positioning
+// TODO after youve done all the 1.21.9 items also check older versions for chest special rendering fix
 
 [3.0.6]
 - fixed exports being broken
