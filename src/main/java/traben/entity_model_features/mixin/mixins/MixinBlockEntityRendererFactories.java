@@ -49,6 +49,7 @@ public class MixinBlockEntityRendererFactories {
 
                 EMFManager.getInstance().currentBlockEntityTypeLoading = type;
 
+                // TODO DONT FORGET TO REPLICATE CHANGES IN SPECIAL RENDERERS
                 if (BlockEntityType.ENCHANTING_TABLE.equals(type))
                     EMFManager.getInstance().currentSpecifiedModelLoading = "enchanting_book";
                 else if (BlockEntityType.LECTERN.equals(type))
@@ -74,6 +75,8 @@ public class MixinBlockEntityRendererFactories {
                     }
                 }
                 emf$renderers.add(EMFManager.getInstance().currentSpecifiedModelLoading);
+                if (EMF.config().getConfig().logModelCreationData)
+                    EMFUtils.log("Seeing block entity renderer init for: " + EMFManager.getInstance().currentSpecifiedModelLoading);
 
                 // og code
                 action.accept(type, idk);

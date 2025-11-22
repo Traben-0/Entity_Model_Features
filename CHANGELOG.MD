@@ -1,4 +1,7 @@
 
+[3.0.7]
+- fixed chest and some other entity models in the inventory not loading or rendering correctly in some versions
+
 [3.0.6]
 - fixed exports being broken
 - matches `random()`s behaviour exactly to optifine

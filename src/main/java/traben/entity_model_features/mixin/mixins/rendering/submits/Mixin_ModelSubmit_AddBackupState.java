@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.utils.HoldsBackupEMFRenderState;
+
 @Mixin(SubmitNodeStorage.ModelSubmit.class)
 public class Mixin_ModelSubmit_AddBackupState implements HoldsBackupEMFRenderState {
 

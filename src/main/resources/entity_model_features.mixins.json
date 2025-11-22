@@ -26,6 +26,7 @@
     "exporting.MixinBabyModelTransform",
     "exporting.MixinEntityModelSet",
     "exporting.MixinMeshTransformer",
+    "rendering.Mixin_SpecialModelRenderers_SetCurrentSpecifiedModel",
     "rendering.MixinBannerRenderer",
     "rendering.MixinBlockEntityRenderDispatcher",
     "rendering.MixinBlockEntityWithoutLevelRenderer",
@@ -50,6 +51,7 @@
     "rendering.model.MixinDragonModel",
     "rendering.model.MixinVillagerModel",
     "rendering.model.MixinWolfEntityModel",
+    "rendering.submits.Mixin_ChestSpecialRenderer_PassState",
     "rendering.submits.Mixin_GuiEntityRenderer",
     "rendering.submits.Mixin_ModelPartRenderer",
     "rendering.submits.Mixin_ModelRenderer"
