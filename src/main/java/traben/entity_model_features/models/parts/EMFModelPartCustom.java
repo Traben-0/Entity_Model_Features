@@ -4,12 +4,12 @@ package traben.entity_model_features.models.parts;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.mixins.accessor.CuboidAccessor;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.EMFManager;
@@ -18,7 +18,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 
 public class EMFModelPartCustom extends EMFModelPart {
@@ -30,7 +29,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     private final float defaultScale;
 
-    private final @Nullable List<Consumer<PoseStack>> attachments;
+    private final @Nullable List<EMFAttachments> attachments;
 
     public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id) {//,//float[] parentalTransforms) {
         super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variant));
@@ -129,6 +128,26 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
     @Override
+    public void processArmItemOverrides(PoseStack matrices) {
+        if (attachments != null) {
+            for (EMFAttachments attachment : attachments) {
+                matrices.pushPose();
+                this.translateAndRotate(matrices);
+                attachment.setAttachment(matrices);
+                matrices.popPose();
+
+                var state = EMFAnimationEntityContext.getEmfState();
+                if (state != null) {
+                    if (attachment.right) state.setRightArmOverride(attachment);
+                    else state.setLeftArmOverride(attachment);
+                }
+            }
+        } else {
+            super.processArmItemOverrides(matrices);
+        }
+    }
+
+    @Override
     public void render(PoseStack matrices, VertexConsumer vertices, int light, int overlay,
                        //#if MC >= 12100
                        final int k
@@ -136,14 +155,10 @@ public class EMFModelPartCustom extends EMFModelPart {
                        //$$ float red, float green, float blue, float alpha
                        //#endif
     ) {
-        if (attachments != null) {
-            for (Consumer<PoseStack> attachment : attachments) {
-                matrices.pushPose();
-                this.translateAndRotate(matrices);
-                attachment.accept(matrices);
-                matrices.popPose();
-            }
-        }
+        //#if MC < 12109
+        //$$ processHandOverrides(matrices);
+        //#endif
+
         super.render(matrices, vertices, light, overlay,
                 //#if MC >= 12100
                 k

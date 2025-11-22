@@ -4,6 +4,8 @@ import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_texture_features.features.state.ETFEntityRenderStateViaReference;
 
@@ -64,4 +66,13 @@ public class EMFEntityRenderStateViaReference extends ETFEntityRenderStateViaRef
     public void setLayerFactory(final Function<ResourceLocation, RenderType> layerFactory) {
         this.layerFactory = layerFactory;
     }
+
+    private EMFAttachments leftArmOverride = null;
+    @Override public @Nullable EMFAttachments leftArmOverride() { return leftArmOverride; }
+    @Override public void setLeftArmOverride(EMFAttachments override) { leftArmOverride = override; }
+
+    private EMFAttachments rightArmOverride = null;
+    @Override public @Nullable EMFAttachments rightArmOverride() { return rightArmOverride; }
+    @Override public void setRightArmOverride(EMFAttachments override) { rightArmOverride = override; }
+
 }

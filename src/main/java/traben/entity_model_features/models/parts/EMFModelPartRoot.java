@@ -43,6 +43,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public boolean containsCustomAnims = false;
     private long lastMobCountAnimatedOn = 0;
     private boolean hasRemovedTopLevelJemTextureFromChildren = false;
+    private boolean hasArmItemOverrides = false;
 
     // construct vanilla root
     public EMFModelPartRoot(EMFModel_ID mobNameForFileAndMap,
@@ -141,6 +142,8 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public void addVariantOfJem(EMFJemData jemData, int variant) {
         if (EMF.config().getConfig().logModelCreationData)
             EMFUtils.log(" > " + jemData.getMobModelIDInfo().getfileName() + ", constructing variant #" + variant);
+
+        if (jemData.hasAttachments) this.hasArmItemOverrides = true;
 
         Map<String, EMFModelPartCustom> newEmfParts = new HashMap<>();
         for (EMFPartData part : jemData.models) {
@@ -298,8 +301,9 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         return animationHolder.hasAnimation();
     }
 
-    public void triggerManualAnimation() {
+    public void triggerManualAnimation(PoseStack pose) {
         if (hasAnimation()) animationHolder.run();
+        if (hasArmItemOverrides) processArmItemOverrides(pose);
     }
 
     public ModelPart getVanillaFormatRoot() {

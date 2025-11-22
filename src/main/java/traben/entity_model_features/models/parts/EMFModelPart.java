@@ -54,6 +54,13 @@ public abstract class EMFModelPart extends ModelPart {
         this.children = new Object2ObjectOpenHashMap<>(children);
     }
 
+    public void processArmItemOverrides(PoseStack matrices) {
+        matrices.pushPose();
+        translateAndRotate(matrices);
+        children.values().forEach(v -> ((EMFModelPart) v).processArmItemOverrides(matrices));
+        matrices.popPose();
+    }
+
     @Override
     public void render(final PoseStack matrices, final VertexConsumer vertices, final int light, final int overlay,
                        //#if MC >= 12100

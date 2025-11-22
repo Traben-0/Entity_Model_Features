@@ -98,8 +98,8 @@ public class EMFPartData {
             this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
     }
 
-    public List<Consumer<PoseStack>> getAttachments() {
-        var list = new ArrayList<Consumer<PoseStack>>();
+    public List<EMFAttachments> getAttachments() {
+        var list = new ArrayList<EMFAttachments>();
         boolean invX = invertAxis.contains("x");
         boolean invY = invertAxis.contains("y");
         boolean invZ = invertAxis.contains("z");
@@ -109,12 +109,16 @@ public class EMFPartData {
             float[] floats = entry.getValue();
             if (floats != null && floats.length == 3) {
                 try {
-                    EMFAttachments attachment = EMFAttachments.valueOf(s);
-                    list.add(attachment.getConsumerWithTranslates(
-                            floats[0] * (invX ? -1 : 1),
-                            floats[1] * (invY ? -1 : 1),
-                            floats[2] * (invZ ? -1 : 1)
-                    ));
+                    EMFAttachments attachment = switch (s) {
+                        case "left_handheld_item", "right_handheld_item" -> new EMFAttachments(
+                                floats[0] * (invX ? -1 : 1),
+                                floats[1] * (invY ? -1 : 1),
+                                floats[2] * (invZ ? -1 : 1),
+                                s.startsWith("right")
+                        );
+                        default -> throw new IllegalArgumentException("Unknown attachment point: " + s);
+                    };
+                    list.add(attachment);
                 } catch (IllegalArgumentException e) {
                     EMFUtils.log("Unknown attachment point: " + s);
                 }
@@ -136,6 +140,10 @@ public class EMFPartData {
                     Optional.ofNullable(EMFUtils.readModelPart(res))
                             .ifPresent(this::copyFrom);
                 }
+            }
+
+            if (!attachments.isEmpty() && (attachments.containsKey("left_handheld_item") || attachments.containsKey("right_handheld_item"))) {
+                jem.hasAttachments = true;
             }
 
             if (translate == null) translate = new float[]{0, 0, 0};

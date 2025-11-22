@@ -4,6 +4,8 @@ import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
 
@@ -51,4 +53,9 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
 
     Function<ResourceLocation, RenderType> layerFactory();
     void setLayerFactory(Function<ResourceLocation, RenderType> layerFactory);
+
+    @Nullable EMFAttachments leftArmOverride();
+    void setLeftArmOverride(EMFAttachments override);
+    @Nullable EMFAttachments rightArmOverride();
+    void setRightArmOverride(EMFAttachments override);
 }

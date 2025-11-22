@@ -58,10 +58,10 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Ljava/lang/Object;)V",
                     shift = At.Shift.AFTER))
-    private void falseAnimation(CallbackInfo ci) {
+    private void falseAnimation(CallbackInfo ci, @Local PoseStack pose) {
         // animate so that dependant layers can read the positions (only applies if they set their matrix prior to submission)
         IEMFModel model = (IEMFModel) getModel();
-        if (model.emf$isEMFModel()) model.emf$getEMFRootModel().triggerManualAnimation();
+        if (model.emf$isEMFModel()) model.emf$getEMFRootModel().triggerManualAnimation(pose);
     }
     //#endif
 
