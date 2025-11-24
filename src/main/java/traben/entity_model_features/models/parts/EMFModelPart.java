@@ -39,7 +39,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 public abstract class EMFModelPart extends ModelPart {
     public ResourceLocation textureOverride;
-    //    protected BufferBuilder MODIFIED_RENDER_BUFFER = null;
     protected long lastTextureOverride = -1L;
 
     public boolean isSetByAnimation = false;
@@ -69,10 +68,6 @@ public abstract class EMFModelPart extends ModelPart {
                        //$$ float red, float green, float blue, float alpha
                        //#endif
     ) {
-//        if (true) {
-//            super.render(matrices, vertices, light, overlay, k);
-//            return;
-//        }
         try {
             var choice = EMF.config().getConfig().getRenderModeFor(EMFAnimationEntityContext.getEMFEntity());
             //normal render

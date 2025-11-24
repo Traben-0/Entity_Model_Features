@@ -156,7 +156,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                        //#endif
     ) {
         //#if MC < 12109
-        //$$ processHandOverrides(matrices);
+        //$$ processArmItemOverrides(matrices);
         //#endif
 
         super.render(matrices, vertices, light, overlay,
