@@ -69,7 +69,7 @@ public final class EMFAnimationEntityContext {
         defaultReturnValue(0);
     }};
     private static final Object2IntOpenHashMap<UUID> lodEntityTimers = new Object2IntOpenHashMap<>();
-    public static boolean setInHand = false;
+    public static boolean setInHand = false; // todo probably needs a 1.21.9+ solution
     public static boolean isFirstPersonHand = false;
     public static boolean setInItemFrame = false;
     public static boolean setIsOnHead = false;

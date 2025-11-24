@@ -15,6 +15,10 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     final boolean isOptiFinePartSpecified;
     final Set<Integer> hideInTheseStates = new HashSet<>();
 
+    //#if MC >= 12109
+    public boolean isPlayerArm = false;
+    //#endif
+
     public EMFModelPartVanilla(String name,
                                ModelPart vanillaPart,
                                Collection<String> optifinePartNames,

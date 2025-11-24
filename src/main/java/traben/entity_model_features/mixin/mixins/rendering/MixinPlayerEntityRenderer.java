@@ -1,12 +1,18 @@
 package traben.entity_model_features.mixin.mixins.rendering;
 
+import com.llamalad7.mixinextras.sugar.Local;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
 import traben.entity_texture_features.features.state.HoldsETFRenderState;
@@ -72,15 +78,25 @@ public abstract class MixinPlayerEntityRenderer {
     }
     //#endif
 
+
     @Inject(method = "renderHand", at = @At(value = "HEAD"))
-    private void emf$setHand(final CallbackInfo ci) {
+    private void emf$setHand(CallbackInfo ci
+                             //#if MC >= 12109
+                            , @Local(argsOnly = true) ModelPart modelPart
+                             //#endif
+    ) {
         //#if MC >= 12102
         EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState) ((HoldsETFRenderState)emf$renderState()).etf$getState());
         //#else
         //$$ EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState)
         //$$         ETFEntityRenderState.forEntity((ETFEntity) Minecraft.getInstance().player));
         //#endif
-        EMFAnimationEntityContext.isFirstPersonHand = true;
+        EMFAnimationEntityContext.isFirstPersonHand = true; // moot in 1.21.9+ as despite the method name this is actually a submit
+
+        //#if MC >= 12109
+        // flag this for later submit render
+        if (modelPart instanceof EMFModelPartVanilla vanilla) vanilla.isPlayerArm = true;
+        //#endif
     }
 
     @Inject(method = "renderHand", at = @At(value = "RETURN"))

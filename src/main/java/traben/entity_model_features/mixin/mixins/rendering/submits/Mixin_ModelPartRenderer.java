@@ -8,6 +8,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import traben.entity_texture_features.ETF;
 import traben.entity_texture_features.features.ETFRenderContext;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -26,11 +28,16 @@ public class Mixin_ModelPartRenderer {
         } else {
             ETFRenderContext.endSpecialRenderOverlayPhase();
         }
+
+        if (modelSubmit.modelPart() instanceof EMFModelPartVanilla vanilla && vanilla.isPlayerArm) {
+            EMFAnimationEntityContext.isFirstPersonHand = true;
+        }
     }
 
     @Inject(method = "render", at = @At(value = "TAIL"))
     private void emf$endRender(final CallbackInfo ci) {
         ETFRenderContext.endSpecialRenderOverlayPhase();
+        EMFAnimationEntityContext.isFirstPersonHand = false;
     }
 
 }
