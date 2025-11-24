@@ -1,6 +1,10 @@
 package traben.entity_model_features.models.animation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+//#if MC<12105
+//$$ import org.joml.Matrix3f;
+//$$ import org.joml.Matrix4f;
+//#endif
 
 public class EMFAttachments {
 

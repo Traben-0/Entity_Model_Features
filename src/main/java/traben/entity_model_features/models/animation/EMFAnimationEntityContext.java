@@ -897,7 +897,8 @@ public final class EMFAnimationEntityContext {
             //#if MC >= 12106
             setIsInGui;
             //#else
-            //$$ Minecraft.getInstance().screen != null && !((Mixin_GuiEntityTester) Minecraft.getInstance().getEntityRenderDispatcher()).isShouldRenderShadow();
+            //$$ Minecraft.getInstance().screen != null
+            //$$    && !((traben.entity_model_features.mixin.mixins.accessor.Mixin_GuiEntityTester) Minecraft.getInstance().getEntityRenderDispatcher()).isShouldRenderShadow();
             //#endif
     }
 

@@ -1,6 +1,6 @@
 package traben.entity_model_features.mixin.mixins.rendering;
 
-
+//#if MC >= 12104
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -74,3 +74,10 @@ public class Mixin_SpecialModelRenderers_SetCurrentSpecifiedModel {
             };
     }
 }
+//#else
+//$$ import org.spongepowered.asm.mixin.Mixin;
+//$$ import traben.entity_texture_features.mixin.CancelTarget;
+//$$
+//$$ @Mixin(CancelTarget.class)
+//$$ public class Mixin_SpecialModelRenderers_SetCurrentSpecifiedModel { }
+//#endif
