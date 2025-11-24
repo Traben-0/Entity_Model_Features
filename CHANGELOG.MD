@@ -6,6 +6,7 @@
 - fixed the `prevent first person hand animations` player setting not working correctly in 1.21.9+
 - fixed 1.21.9+ entity held items to match pre 1.21.9 behaviour when the base model is animated, e.g. fox mouth items positioning
 - fixed arm item attachments (position overrides) in 1.21.9+ and in general improved their behaviour for older versions
+- fixed held tridents and shields breaking WaveyCapes mod compatibility in 1.20
 
 [3.0.6]
 - fixed exports being broken

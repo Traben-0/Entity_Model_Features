@@ -109,8 +109,8 @@ public class MixinBlockEntityWithoutLevelRenderer {
     private void setPlayerEntity() {
         if (Minecraft.getInstance().player == null) return;
         ETFEntityRenderState state = ETFEntityRenderState.forEntity( (ETFEntity) Minecraft.getInstance().player);
-        ETFRenderContext.setCurrentEntity(state); // todo was this a mistake? Should this be EMF only? ignoring for now during rewrite
-        EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState) state);
+        // ETFRenderContext.setCurrentEntity(state); // todo was this a mistake? Should this be EMF only? ignoring for now during rewrite
+        EMFAnimationEntityContext.setCurrentEntityNoIteration((EMFEntityRenderState) state);
     }
 }
 

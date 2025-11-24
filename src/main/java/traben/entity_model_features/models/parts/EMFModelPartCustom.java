@@ -19,6 +19,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import java.util.*;
 
+//#if MC < 12002
+//$$ import org.joml.Matrix3f;
+//$$ import org.joml.Vector4f;
+//#endif
 
 public class EMFModelPartCustom extends EMFModelPart {
 

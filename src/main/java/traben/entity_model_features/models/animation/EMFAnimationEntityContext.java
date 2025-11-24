@@ -448,9 +448,9 @@ public final class EMFAnimationEntityContext {
         return "\n\u00A76 - " + entry + ":\u00A7r " + value;
     }
 
-//todo check    public static void setCurrentEntityNoIteration(EMFEntity entityIn) {
-//        newEntity(entityIn);
-//    }
+    public static void setCurrentEntityNoIteration(@Nullable EMFEntityRenderState state) {
+        newEntity(state);
+    }
 
     private static void newEntity(@Nullable EMFEntityRenderState state) {
         emfState = state;

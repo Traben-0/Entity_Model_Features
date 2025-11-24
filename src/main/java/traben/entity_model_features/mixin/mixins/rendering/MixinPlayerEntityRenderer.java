@@ -79,7 +79,7 @@ public abstract class MixinPlayerEntityRenderer {
     @Inject(method = "renderHand", at = @At(value = "HEAD"))
     private void emf$setHand(CallbackInfo ci
                              //#if MC >= 12109
-                            , @Local(argsOnly = true) ModelPart modelPart
+                             , @Local(argsOnly = true) ModelPart modelPart
                              //#endif
     ) {
         //#if MC >= 12102
