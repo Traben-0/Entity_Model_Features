@@ -44,7 +44,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
-import traben.entity_model_features.mixin.mixins.accessor.Mixin_GuiEntityTester;
 import traben.entity_model_features.mixin.mixins.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
 import traben.entity_model_features.models.EMFModelMappings;
@@ -55,6 +54,8 @@ import traben.entity_model_features.utils.*;
 import traben.entity_texture_features.ETF;
 import traben.entity_texture_features.features.ETFRenderContext;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -96,13 +97,63 @@ public final class EMFAnimationEntityContext {
 
     public static Object2ObjectOpenHashMap<UUID, ModelPart[]> entitiesPausedParts = new Object2ObjectOpenHashMap<>();
     public static ObjectSet<UUID> entitiesPaused = new ObjectOpenHashSet<>();
+    public static List<Function<EMFEntity, Boolean>> pauseListeners = new ArrayList<>();
 
-    public static boolean isEntityAnimPaused(){
+    // Note don't modify this, both Essential and EmoteCraft mixin to this method
+    // EmoteCraft is also now intentionally leaving a mixin with a NPE here to effectively just always
+    // crash EMF and is refusing all attempts to rectify, so I'll just wrap this in a catch and use a backup check...
+    // unfortunately I cant fix this on my end without also breaking Essential's mixin
+    // And EmoteCraft has refused my PR to fix
+    // TODO check up on this with the new pauseListeners and get that in Essential so we can drop this method to just let
+    //  EmoteCraft's mixin fail silently
+    public static boolean isEntityAnimPaused() {
         if (emfState == null) return false;
+
+        // API for other mods to pause animations on specific entities
+        var entity = emfState.emfEntity();
+        if (entity != null) {
+            for (Function<EMFEntity, Boolean> pauseListener : pauseListeners) {
+                try {
+                    if (pauseListener.apply(entity)) return true;
+                } catch (Exception ignored) {}
+            }
+        }
+
         return entitiesPaused.contains(emfState.uuid());
     }
 
-    public static @Nullable ModelPart[] getEntityPartsAnimPaused(){
+    // TODO remove eventually Re: NPE in EmoteCraft
+    public static boolean isEntityAnimPausedWrapped() {
+        if (emfState == null) return false;
+        try {
+            return isEntityAnimPaused();
+        } catch (Exception e) { // just in case I guess, already happened once
+            try {
+                return isEntityAnimPausedBackupDontMixinToThisOneUseTheNewAPI();
+            } catch (Exception ex) {
+                return false;
+            }
+        }
+    }
+
+    // TODO remove eventually Re: NPE in EmoteCraft
+    private static boolean isEntityAnimPausedBackupDontMixinToThisOneUseTheNewAPI() {
+        if (emfState == null) return false;
+
+        // API for other mods to pause animations on specific entities
+        var entity = emfState.emfEntity();
+        if (entity != null) {
+            for (Function<EMFEntity, Boolean> pauseListener : pauseListeners) {
+                try {
+                    if (pauseListener.apply(entity)) return true;
+                } catch (Exception ignored) {}
+            }
+        }
+
+        return entitiesPaused.contains(emfState.uuid());
+    }
+
+    public static @Nullable ModelPart[] getEntityPartsAnimPaused() {
         if (emfState == null) return null;
         var parts = entitiesPausedParts.get(emfState.uuid());
         return parts == null || parts.length == 0 ? null : parts;

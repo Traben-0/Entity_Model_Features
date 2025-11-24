@@ -1,5 +1,7 @@
 
 [3.0.7]
+- caught a NPE crash that has been intentionally left in an EmoteCraft mixin to an EMF method
+- added `registerPauseCondition(Function<EMFEntity, Boolean> shouldPause)` to the EMFAnimationApi to better allow other mods to add their own pause conditions for entities rather than mixing in like EmoteCraft did
 - fixed chest and some other entity models in the inventory not loading or rendering correctly in some versions
 - fixed 1.21.9+ entity held items to match pre 1.21.9 behaviour when the base model is animated, e.g. fox mouth items positioning
 - fixed arm item attachments (position overrides) in 1.21.9+ and in general improved their behaviour

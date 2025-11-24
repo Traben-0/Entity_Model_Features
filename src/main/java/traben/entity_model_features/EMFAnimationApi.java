@@ -40,7 +40,7 @@ public interface EMFAnimationApi {
      */
     @SuppressWarnings("SameReturnValue")
     static int getApiVersion() {
-        return 5;
+        return 6;
     }
 
     /**
@@ -214,6 +214,21 @@ public interface EMFAnimationApi {
      */
     static EMFEntity emfEntityOf (BlockEntity blockEntity){
         return (EMFEntity) blockEntity;
+    }
+
+
+    /**
+     * @param shouldPause The function to consider if a given entity should be paused rather that triggering it via uuid.
+     *                    Note: that if this returns false, another mod or even EMF itself might yet return true and pause the entity for other reasons.
+     *                    Returning true from this function will ALWAYS lead to a pause.
+     * @return true if valid inputs were supplied.
+     */
+    static boolean registerPauseCondition(Function<EMFEntity, Boolean> shouldPause) {
+        if (shouldPause == null) {
+            return false;
+        }
+        EMFAnimationEntityContext.pauseListeners.add(shouldPause);
+        return true;
     }
 
     /**

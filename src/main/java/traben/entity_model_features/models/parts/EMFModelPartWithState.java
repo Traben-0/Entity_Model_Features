@@ -56,7 +56,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         if (startOfRenderRunnable != null) {
             startOfRenderRunnable.run();
         }
-        if (animationHolder != null && !EMFAnimationEntityContext.isEntityAnimPaused()) {
+        if (animationHolder != null && !EMFAnimationEntityContext.isEntityAnimPausedWrapped()) {
             animationHolder.run();
         }
         super.render(matrices, vertices, light, overlay,
