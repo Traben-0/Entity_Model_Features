@@ -33,6 +33,7 @@ repositories {
     maven("https://mvnrepository.com/artifact/com.demonwav.mcdev/annotations")
     maven("https://maven.terraformersmc.com/")
     maven("https://oss.sonatype.org/content/repositories/snapshots/")
+    maven ("https://repo.redlance.org/public")
 }
 
 val mcVersion = platform.mcVersion
@@ -145,6 +146,15 @@ dependencies {
         12002 to "TwfjidT5",
         12000 to "RTFDnTKf",
         )
+
+    if (mcVersion >= 12109) {
+        compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCommon:1.1.0+alpha.1+mc.1.21.9")
+        compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCore:1.1.0+alpha.1+mc.1.21.9")
+    }
+    else if (mcVersion >= 12100) {
+        compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCommon:1.0.14+mc.1.21.1")
+        compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCore:1.0.14+mc.1.21.1")
+    }
 
     if (platform.isNeoForge && mcVersion < 12002) { // NeoForge 20.2.84+ added it themselves
         include("io.github.llamalad7:mixinextras-neoforge:0.4.1:slim")
