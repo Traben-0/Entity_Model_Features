@@ -158,6 +158,7 @@ for (const file of config.files) {
     console.log(`Modrinth: File "${name}" uploaded`)
   } catch (error) {
     console.error(`File "${name}" FAILED!!!`, error)
+    throw error // throw to cancel
   }
 }
 
