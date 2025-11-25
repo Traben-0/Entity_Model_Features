@@ -12,13 +12,13 @@ import net.minecraft.client.gui.render.GuiRenderer;
 public class Mixin_GuiEntityTester {
     @Inject(method = "render",
         at = @At("HEAD"))
-    private static void etf$beforeRenderToTexture(final CallbackInfo ci) {
+    private void etf$beforeRenderToTexture(final CallbackInfo ci) {
         EMFAnimationEntityContext.setIsInGui = true;
     }
 
     @Inject(method = "render",
             at = @At("TAIL"))
-    private static void etf$afterRenderToTexture(final CallbackInfo ci) {
+    private void etf$afterRenderToTexture(final CallbackInfo ci) {
         EMFAnimationEntityContext.setIsInGui = false;
     }
 }
@@ -31,14 +31,14 @@ public class Mixin_GuiEntityTester {
 //$$ public class Mixin_GuiEntityTester {
 //$$     @ModifyArg(method = "render",
 //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V"))
-//$$     private static String etf$beforeRenderToTexture(String string) {
+//$$     private String etf$beforeRenderToTexture(String string) {
 //$$         if (string.equals("gui")) EMFAnimationEntityContext.setIsInGui = true;
 //$$         return string;
 //$$     }
 //$$
 //$$     @Inject(method = "render",
 //$$             at = @At("TAIL"))
-//$$     private static void etf$afterRenderToTexture(final CallbackInfo ci) {
+//$$     private void etf$afterRenderToTexture(final CallbackInfo ci) {
 //$$         EMFAnimationEntityContext.setIsInGui = false;
 //$$     }
 //$$ }
