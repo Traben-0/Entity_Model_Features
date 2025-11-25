@@ -255,6 +255,7 @@ public final class EMFAnimationEntityContext {
     }
 
     public static boolean isLODSkippingThisFrame() {
+        if (EMFAnimationEntityContext.isInGui()) return false;
         if (lodFrameSkipping != null) return lodFrameSkipping;
 
         //skip for shadow pass
@@ -891,15 +892,7 @@ public final class EMFAnimationEntityContext {
 
 
     public static boolean isInGui() {
-        //basing this almost solely on the fact that the inventory screen sets the shadow render flag to false during its render,
-        // I assume other gui renderers will follow suit, I'm not sure if other things affect it, it doesn't seem tied to the option setting
-        return
-            //#if MC >= 12106
-            setIsInGui;
-            //#else
-            //$$ Minecraft.getInstance().screen != null
-            //$$    && !((traben.entity_model_features.mixin.mixins.accessor.Mixin_GuiEntityTester) Minecraft.getInstance().getEntityRenderDispatcher()).isShouldRenderShadow();
-            //#endif
+        return setIsInGui;
     }
 
     public static boolean isClientHovered() {
