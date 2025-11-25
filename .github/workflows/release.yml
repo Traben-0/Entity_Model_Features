@@ -76,12 +76,12 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
 
-      - name: purge labeled issues
+      - name: close labeled issues
         run: |
           LABEL="Added / Fixed in next release"
           ISSUES=$(gh issue list --label "$LABEL" --state open --json number --jq '.[].number')
           for i in $ISSUES; do
-            gh api -X DELETE "/repos/${GITHUB_REPOSITORY}/issues/$i"
+            gh issue close $i
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
