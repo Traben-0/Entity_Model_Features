@@ -1,4 +1,6 @@
 {
+  "entity_model_features.config.armor_hack": "La armadura copia animaciones personalizadas",
+  "entity_model_features.config.armor_hack.tooltip": "En la versión 1.21.9+ la armadura ya no copia de forma natural las animaciones personalizadas del modelo base; esto replica el comportamiento antiguo.",
   "entity_model_features.config.animate_once": "Animar modelos una vez por entidad",
   "entity_model_features.config.animate_once.tooltip": "Activado por defecto\nesta opción hace que los modelos de entidad se animen solo una vez por cada entidad renderizada\nen el juego se verá normal, pero los mobs visibles en\npantallas de inventario pueden parpadear raro,\nsobre todo si representan una entidad real del mundo que ya podés ver",
   "entity_model_features.config.debug": "Depuración",
