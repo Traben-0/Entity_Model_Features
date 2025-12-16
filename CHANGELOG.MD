@@ -1,3 +1,5 @@
+[3.0.8]
+- updated to 1.21.11
 
 [3.0.7]
 - caught a NPE crash that has been intentionally left in an EmoteCraft mixin to an EMF method
