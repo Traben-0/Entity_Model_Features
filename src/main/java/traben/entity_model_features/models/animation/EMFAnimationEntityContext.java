@@ -54,6 +54,11 @@ import traben.entity_model_features.utils.*;
 import traben.entity_texture_features.ETF;
 import traben.entity_texture_features.features.ETFRenderContext;
 
+//#if MC >= 12111
+//$$ import net.minecraft.world.entity.monster.illager.SpellcasterIllager;
+//$$ import net.minecraft.world.entity.monster.illager.Vindicator;
+//#endif
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -480,9 +485,21 @@ public final class EMFAnimationEntityContext {
 
         if (state != null) {
             if (state.entity() instanceof Arrow) {
-                layerFactory = RenderType::entityCutout;
+                layerFactory =
+                        //#if MC>= 12111
+                        //$$ net.minecraft.client.renderer.rendertype.RenderTypes
+                        //#else
+                        RenderType
+                        //#endif
+                                ::entityCutout;
             } else if (state.isBlockEntity()) {
-                layerFactory = RenderType::entitySolid;
+                layerFactory =
+                        //#if MC>= 12111
+                        //$$ net.minecraft.client.renderer.rendertype.RenderTypes
+                        //#else
+                        RenderType
+                        //#endif
+                                ::entitySolid;
             }
             if (state.layerFactory() == null) state.setLayerFactory(layerFactory);
         }
@@ -527,18 +544,44 @@ public final class EMFAnimationEntityContext {
         if (layerFactory == null) {
             var layer = ETF.config().getConfig().getRenderLayerOverride();
             if (layer == null) {
-                return RenderType.entityTranslucent(identifier);
+                return
+                        //#if MC>= 12111
+                        //$$ net.minecraft.client.renderer.rendertype.RenderTypes
+                        //#else
+                        RenderType
+                        //#endif
+                                .entityTranslucent(identifier);
             } else {
                 return switch (layer) {
-                    case TRANSLUCENT -> RenderType.entityTranslucent(identifier);
+                    case TRANSLUCENT ->
+                        //#if MC>= 12111
+                        //$$ net.minecraft.client.renderer.rendertype.RenderTypes
+                        //#else
+                            RenderType
+                        //#endif
+                                    .entityTranslucent(identifier);
                     case TRANSLUCENT_CULL ->
-                            //#if MC >=12102
+                            //#if MC>= 12111
+                            //$$ net.minecraft.client.renderer.rendertype.RenderTypes.entityTranslucent(identifier);
+                            //#elseif MC >=12102
                             RenderType.entityTranslucent(identifier);
                             //#else
                             //$$ RenderType.entityTranslucentCull(identifier);
                             //#endif
-                    case END -> RenderType.endGateway();
-                    case OUTLINE -> RenderType.outline(identifier);
+                    case END ->
+                        //#if MC>= 12111
+                        //$$ net.minecraft.client.renderer.rendertype.RenderTypes
+                        //#else
+                            RenderType
+                        //#endif
+                                    .endGateway();
+                    case OUTLINE ->
+                        //#if MC>= 12111
+                        //$$ net.minecraft.client.renderer.rendertype.RenderTypes
+                        //#else
+                            RenderType
+                        //#endif
+                                    .outline(identifier);
                 };
             }
         }
@@ -569,9 +612,15 @@ public final class EMFAnimationEntityContext {
             var optional = emfState.world().dimensionTypeRegistration().unwrapKey();
             if (optional.isEmpty()) return 0;
             ResourceLocation id = optional.get().location();
+            //#if MC>= 12111
+            //$$ if (id.equals(BuiltinDimensionTypes.NETHER.identifier())) {
+            //$$     return -1;
+            //$$ } else if (id.equals(BuiltinDimensionTypes.END.identifier())) {
+            //#else
             if (id.equals(BuiltinDimensionTypes.NETHER_EFFECTS)) {
                 return -1;
             } else if (id.equals(BuiltinDimensionTypes.END_EFFECTS)) {
+            //#endif
                 return 1;
             } else {
                 return 0;
@@ -672,7 +721,11 @@ public final class EMFAnimationEntityContext {
         if (!(emfEntity() instanceof NeutralMob)) return 0;
 
         float currentKnownHighest = knownHighestAngerTimeByUUID.getInt(emfState.uuid());
+        //#if MC >= 12111
+        //$$ int angerTime = (int) (((NeutralMob) emfEntity()).getPersistentAngerEndTime() - emfState.world().getGameTime());
+        //#else
         int angerTime = ((NeutralMob) emfEntity()).getRemainingPersistentAngerTime();
+        //#endif
 
         //clear anger info if anger is over
         if (angerTime <= 0) {

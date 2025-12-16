@@ -26,6 +26,13 @@ import net.minecraft.network.chat.MutableComponent;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+
+//#if MC >= 12111
+//$$ import com.mojang.blaze3d.vertex.PoseStack;
+//$$ import com.mojang.blaze3d.vertex.VertexConsumer;
+//$$ import net.minecraft.world.phys.AABB;
+//#endif
+
 //#if MC >= 12004
 import net.minecraft.network.chat.contents.PlainTextContents;
 //#else
@@ -67,6 +74,47 @@ public class EMFUtils {
         }
         return null;
     }
+
+    // is a copy of the shaperenderer code in 1.21.9
+    //#if MC >=12111
+    //$$ public static void renderLineBox(PoseStack.Pose pose, VertexConsumer vertexConsumer, AABB aABB, float f, float g, float h, float i) {
+    //$$     renderLineBox(pose, vertexConsumer, aABB.minX, aABB.minY, aABB.minZ, aABB.maxX, aABB.maxY, aABB.maxZ, f, g, h, i, f, g, h);
+    //$$ }
+    //$$
+    //$$ private static void renderLineBox(PoseStack.Pose pose, VertexConsumer vertexConsumer, double d, double e, double f, double g, double h, double i, float j, float k, float l, float m, float n, float o, float p) {
+    //$$     float q = (float)d;
+    //$$     float r = (float)e;
+    //$$     float s = (float)f;
+    //$$     float t = (float)g;
+    //$$     float u = (float)h;
+    //$$     float v = (float)i;
+    //$$     int lineWidth = 2;
+    //$$     vertexConsumer.addVertex(pose, q, r, s).setColor(j, o, p, m).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, r, s).setColor(j, o, p, m).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, q, r, s).setColor(n, k, p, m).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, q, u, s).setColor(n, k, p, m).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, q, r, s).setColor(n, o, l, m).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, q, r, v).setColor(n, o, l, m).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, r, s).setColor(j, k, l, m).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, u, s).setColor(j, k, l, m).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, u, s).setColor(j, k, l, m).setNormal(pose, -1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, q, u, s).setColor(j, k, l, m).setNormal(pose, -1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, q, u, s).setColor(j, k, l, m).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, q, u, v).setColor(j, k, l, m).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, q, u, v).setColor(j, k, l, m).setNormal(pose, 0.0F, -1.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, q, r, v).setColor(j, k, l, m).setNormal(pose, 0.0F, -1.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, q, r, v).setColor(j, k, l, m).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, r, v).setColor(j, k, l, m).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, r, v).setColor(j, k, l, m).setNormal(pose, 0.0F, 0.0F, -1.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, r, s).setColor(j, k, l, m).setNormal(pose, 0.0F, 0.0F, -1.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, q, u, v).setColor(j, k, l, m).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, u, v).setColor(j, k, l, m).setNormal(pose, 1.0F, 0.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, r, v).setColor(j, k, l, m).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, u, v).setColor(j, k, l, m).setNormal(pose, 0.0F, 1.0F, 0.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, u, s).setColor(j, k, l, m).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+    //$$     vertexConsumer.addVertex(pose, t, u, v).setColor(j, k, l, m).setNormal(pose, 0.0F, 0.0F, 1.0F).setLineWidth(lineWidth);
+    //$$ }
+    //#endif
 
     public static void overrideMessage(String originalClass, String overriddenClassFromMod, boolean wasReverted) {
         LOGGER.warn("[" + MOD_ID_SHORT + "]: Entity model [" + originalClass + "] has been overridden by [" + overriddenClassFromMod + "] likely from a mod.");

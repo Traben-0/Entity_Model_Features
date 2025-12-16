@@ -12,10 +12,12 @@ import net.minecraft.client.renderer.ShapeRenderer;
 //#endif
 
 
-
-
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+//#if MC >= 12111
+//$$ import net.minecraft.client.renderer.rendertype.RenderTypes;
+//#endif
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -571,7 +573,13 @@ public class EMFConfig extends TConfig {
                 matrixStack.pushPose();
                 matrixStack.scale(-1.0F, -1.0F, 1.0F);
                 matrixStack.translate(0.0F, -1.501F, 0.0F);
-                var buffer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines());
+                var buffer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(
+                        //#if MC >= 12111
+                        //$$ RenderTypes.lines()
+                        //#else
+                        RenderType.lines()
+                        //#endif
+                );
                 //who knows what mods might do smdh
                 //noinspection ConstantValue
                 if (buffer != null) {
@@ -589,7 +597,9 @@ public class EMFConfig extends TConfig {
                     if (!modelPart.skipDraw) {
                         for (ModelPart.Cube cuboid : modelPart.cubes) {
                             AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
-                            //#if MC >= 12109
+                            //#if MC >= 12111
+                            //$$ EMFUtils.renderLineBox(matrices.last(), vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
+                            //#elseif MC >= 12109
                             ShapeRenderer.renderLineBox(matrices.last(), vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);
                             //#elseif MC >= 12102
                             //$$ ShapeRenderer.renderLineBox(matrices, vertices, box, 1.0F, 1.0F, 1.0F, 1.0F);

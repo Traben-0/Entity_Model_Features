@@ -29,7 +29,7 @@ public class Plugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(final String targetClassName, final String mixinClassName) {
-        return !targetClassName.equals("traben.entity_texture_features.mixins.CancelTarget");
+        return !targetClassName.equals("traben.entity_texture_features.mixin.CancelTarget");
     }
 
 //    private boolean hasClass(final String className) {

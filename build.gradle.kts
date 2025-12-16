@@ -42,6 +42,7 @@ base.archivesName.set("entity_model_features-$modVersion-${project.name}")
 
 // todo figure out why preprocessor wont work with these
 val accessWidener = "entity_model_features_" + when {
+    mcVersion >= 12111 -> 13
     mcVersion >= 12109 -> 12
     mcVersion >= 12106 -> 11
     mcVersion >= 12105 -> 10
@@ -113,8 +114,9 @@ dependencies {
         val etf = "entity_texture_features-${properties["etf_version"]}-${project.name}"
         modImplementation(files(File(rootDir.parent, "Entity_Texture_Features/jars/$etf.jar")))
     } else {
+        val version = if (mcVersion < 12111) "7.0.6" else "7.0.7" // TODO next non mc version update
         // public modrinth ETF builds
-        val etf = "${properties["etf_version"]}-${platform.loaderStr.lowercase()}-${platform.mcVersionStr}"
+        val etf = "$version-${platform.loaderStr.lowercase()}-${platform.mcVersionStr}"
         modImplementation("maven.modrinth:entitytexturefeatures:$etf")
     }
 

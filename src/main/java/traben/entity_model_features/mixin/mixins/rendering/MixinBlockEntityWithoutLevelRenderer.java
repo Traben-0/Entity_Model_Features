@@ -17,6 +17,11 @@ import traben.entity_texture_features.features.state.ETFEntityRenderState;
 import traben.entity_texture_features.utils.ETFEntity;
 
 //#if MC >=12104
+
+//#if MC>= 12111
+//$$ import net.minecraft.client.renderer.rendertype.RenderTypes;
+//#endif
+
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.special.SkullSpecialRenderer;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
@@ -48,7 +53,13 @@ public class MixinBlockEntityWithoutLevelRenderer {
                     shift = At.Shift.BEFORE))
     private void emf$setRenderFactory(CallbackInfo ci) {
         if (specialRenderer instanceof SkullSpecialRenderer) {
-            EMFAnimationEntityContext.setLayerFactory(RenderType::entityCutoutNoCullZOffset);
+            EMFAnimationEntityContext.setLayerFactory(
+                    //#if MC>= 12111
+                    //$$ RenderTypes
+                    //#else
+                    RenderType
+                    //#endif
+                            ::entityCutoutNoCullZOffset);
         }
 
         EMFManager.getInstance().entityRenderCount++;

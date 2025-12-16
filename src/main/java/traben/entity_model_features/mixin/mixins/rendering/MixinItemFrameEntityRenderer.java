@@ -10,7 +10,7 @@ import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 @Mixin(ItemFrameRenderer.class)
 public class MixinItemFrameEntityRenderer {
 
-    //#if MC >=12110
+    //#if MC >=12112
     //$$ dont forget this
     //#endif
 

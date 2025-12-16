@@ -19,7 +19,13 @@ public abstract class MixinVillagerModel {
         //#endif
             , at = @At(value = "HEAD"))
     private void emf$assertLayerFactory(final CallbackInfo ci) {
-        EMFAnimationEntityContext.setLayerFactory(RenderType::entityCutoutNoCull);
+        EMFAnimationEntityContext.setLayerFactory(
+                //#if MC>= 12111
+                //$$ net.minecraft.client.renderer.rendertype.RenderTypes
+                //#else
+                RenderType
+                //#endif
+                        ::entityCutoutNoCull);
     }
 
 

@@ -2,11 +2,16 @@ package traben.entity_model_features.models.parts;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
+import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.*;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
+import net.minecraft.world.phys.shapes.CubeVoxelShape;
+import org.joml.Vector3f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
@@ -23,6 +28,11 @@ import traben.entity_texture_features.utils.ETFVertexConsumer;
 import net.minecraft.util.ARGB;
 //#else
 //$$ import net.minecraft.util.FastColor;
+//#endif
+
+//#if MC >= 12111
+//$$ import net.minecraft.client.renderer.rendertype.RenderType;
+//$$ import net.minecraft.client.renderer.rendertype.RenderTypes;
 //#endif
 
 import java.util.*;
@@ -106,7 +116,7 @@ public abstract class EMFModelPart extends ModelPart {
                                 //#endif
                         );
                 case LINES ->
-                        renderBoxes(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()));
+                        renderBoxes(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(lines()));
                 case LINES_AND_TEXTURE -> {
                     renderWithTextureOverride(matrices, vertices, light, overlay,
                             //#if MC >= 12100
@@ -115,7 +125,7 @@ public abstract class EMFModelPart extends ModelPart {
                             //$$ red, green, blue, alpha
                             //#endif
                     );
-                    renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()), 1f);
+                    renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(lines()), 1f);
                 }
                 case LINES_AND_TEXTURE_FLASH -> {
                     renderWithTextureOverride(matrices, vertices, light, overlay,
@@ -126,7 +136,7 @@ public abstract class EMFModelPart extends ModelPart {
                             //#endif
                     );
                     float flash = (Mth.sin(System.currentTimeMillis() / 1000f) + 1) / 2f;
-                    renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.lines()), flash);
+                    renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(lines()), flash);
                 }
                 case NONE -> {
                 }
@@ -134,6 +144,14 @@ public abstract class EMFModelPart extends ModelPart {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private RenderType lines() {
+        //#if MC >= 12111
+        //$$ return RenderTypes.lines();
+        //#else
+        return RenderType.lines();
+        //#endif
     }
 
     private void renderDebugTinted(final PoseStack matrices, final VertexConsumer vertices, final int light, final int overlay,
@@ -429,7 +447,9 @@ public abstract class EMFModelPart extends ModelPart {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
                         var col = debugBoxColor();
-                        //#if MC >=12109
+                        //#if MC >=12111
+                        //$$ EMFUtils.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
+                        //#elseif MC >=12109
                         ShapeRenderer.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
                         //#elseif MC >=12102
                         //$$ ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
@@ -458,7 +478,9 @@ public abstract class EMFModelPart extends ModelPart {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
                         var col = debugBoxColor();
-                        //#if MC >=12109
+                        //#if MC >=12111
+                        //$$ EMFUtils.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
+                        //#elseif MC >=12109
                         ShapeRenderer.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
                         //#elseif MC >=12102
                         //$$ ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
@@ -471,6 +493,7 @@ public abstract class EMFModelPart extends ModelPart {
             }
         }
     }
+
     //required for sodium pre 0.5.4
     // overrides to circumvent sodium optimizations that mess with custom uv quad creation and swapping out cuboids
     @Override
