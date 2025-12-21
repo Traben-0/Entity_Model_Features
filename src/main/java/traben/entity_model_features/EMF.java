@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.mod_compat.PALCompat;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderStateViaReference;
 import traben.entity_model_features.propeties.*;
 import traben.entity_model_features.utils.EMFEntity;
@@ -28,6 +29,7 @@ public class EMF {
     public static boolean forgeHadLoadingError = false;
     public static boolean testedForge = !ETF.isForge();
     public static boolean tempDisableModelModifications = false;
+    public static boolean BC_DETECTED;
 
     private static TConfigHandler<EMFConfig> configHandler = null;
 
@@ -94,6 +96,11 @@ public class EMF {
         //register EMF physics mod hook
 //todo        RagdollMapper.addHook(new EMFCustomRagDollHookTest());
 
+        boolean palDetected = ETF.isThisModLoaded("player_animation_library");
+        BC_DETECTED = palDetected && ETF.isThisModLoaded("bendable_cuboids");
+        if (palDetected) {
+            EMFAnimationApi.registerPauseCondition(PALCompat::shouldPauseEntityAnim);
+        }
     }
 
     //mod menu config screen factory
