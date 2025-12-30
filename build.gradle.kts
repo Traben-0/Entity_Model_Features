@@ -148,13 +148,14 @@ dependencies {
         12000 to "RTFDnTKf",
         )
 
-    if (mcVersion >= 12109) {
-        compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCommon:1.1.0+alpha.1+mc.1.21.9")
-        compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCore:1.1.0+alpha.1+mc.1.21.9")
-    }
-    else if (mcVersion >= 12100) {
-        compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCommon:1.0.14+mc.1.21.1")
-        compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCore:1.0.14+mc.1.21.1")
+    if (!platform.isForge) {
+        if (mcVersion >= 12109) {
+            compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCommon:1.1.0+alpha.1+mc.1.21.9")
+            compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCore:1.1.0+alpha.1+mc.1.21.9")
+        } else if (mcVersion >= 12100) {
+            compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCommon:1.0.14+mc.1.21.1")
+            compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCore:1.0.14+mc.1.21.1")
+        }
     }
 
     if (platform.isNeoForge && mcVersion < 12002) { // NeoForge 20.2.84+ added it themselves

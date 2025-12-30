@@ -40,7 +40,7 @@ public interface EMFAnimationApi {
      */
     @SuppressWarnings("SameReturnValue")
     static int getApiVersion() {
-        return 6;
+        return 7;
     }
 
     /**
@@ -267,6 +267,20 @@ public interface EMFAnimationApi {
             return false;
         }
         EMFAnimationEntityContext.entitiesPausedParts.put(entityOrBlockEntity.etf$getUuid(), parts);
+        return true;
+    }
+
+    /**
+     * @param shouldUseVanillaModel The function to consider if a given entity should use the vanilla model rather that triggering it via uuid.
+     *                    Note: that if this returns false, another mod or even EMF itself might yet return true and do it for other reasons.
+     *                    Returning true from this function will ALWAYS lead to using the vanilla model variant.
+     * @return true if valid inputs were supplied.
+     */
+    static boolean registerVanillaModelCondition(Function<EMFEntity, Boolean> shouldUseVanillaModel) {
+        if (shouldUseVanillaModel == null) {
+            return false;
+        }
+        EMFAnimationEntityContext.forceVanillaModelListeners.add(shouldUseVanillaModel);
         return true;
     }
 

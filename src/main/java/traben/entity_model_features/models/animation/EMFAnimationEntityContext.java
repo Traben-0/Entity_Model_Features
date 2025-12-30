@@ -105,6 +105,7 @@ public final class EMFAnimationEntityContext {
     public static Object2ObjectOpenHashMap<UUID, ModelPart[]> entitiesPausedParts = new Object2ObjectOpenHashMap<>();
     public static ObjectSet<UUID> entitiesPaused = new ObjectOpenHashSet<>();
     public static List<Function<EMFEntity, Boolean>> pauseListeners = new ArrayList<>();
+    public static List<Function<EMFEntity, Boolean>> forceVanillaModelListeners = new ArrayList<>();
 
     // Note don't modify this, both Essential and EmoteCraft mixin to this method
     // EmoteCraft is also now intentionally leaving a mixin with a NPE here to effectively just always
@@ -598,7 +599,13 @@ public final class EMFAnimationEntityContext {
     public static boolean isEntityForcedToVanillaModel(){
         if (emfState == null) return false;
         if (entitiesToForceVanillaModel.contains(emfState.uuid())) return true;
-        if (EMF.BC_DETECTED && PALCompat.shouldPauseEntityAnim(emfState)) return true;
+
+        try {
+            for (var check : forceVanillaModelListeners) {
+                if (check.apply((EMFEntity) emfState.entity())) return true;
+            }
+        } catch (Exception ignored) {}
+
         return EMF.config().getConfig().onlyClientPlayerModel
                 && EMFAnimationEntityContext.getEMFEntity() instanceof Player player && !player.isLocalPlayer();
     }

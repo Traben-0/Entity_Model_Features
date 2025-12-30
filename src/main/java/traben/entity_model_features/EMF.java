@@ -29,7 +29,6 @@ public class EMF {
     public static boolean forgeHadLoadingError = false;
     public static boolean testedForge = !ETF.isForge();
     public static boolean tempDisableModelModifications = false;
-    public static boolean BC_DETECTED;
 
     private static TConfigHandler<EMFConfig> configHandler = null;
 
@@ -96,11 +95,12 @@ public class EMF {
         //register EMF physics mod hook
 //todo        RagdollMapper.addHook(new EMFCustomRagDollHookTest());
 
-        boolean palDetected = ETF.isThisModLoaded("player_animation_library");
-        BC_DETECTED = palDetected && ETF.isThisModLoaded("bendable_cuboids");
-        if (palDetected) {
+        //#if !FORGE && MC >= 12101
+        if (ETF.isThisModLoaded("player_animation_library")) {
             EMFAnimationApi.registerPauseCondition(PALCompat::shouldPauseEntityAnim);
+            EMFAnimationApi.registerVanillaModelCondition(PALCompat::shouldPauseEntityAnim);
         }
+        //#endif
     }
 
     //mod menu config screen factory
