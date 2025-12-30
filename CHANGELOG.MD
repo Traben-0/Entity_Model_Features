@@ -7,6 +7,7 @@
 - added OptiFine part name mappings for the models: parched, zombie_horse_armor, camel_saddle, camel_husk, camel_husk_saddle, and the various warden layer models
 - added support for PAL and bendable cuboids
 - added new animation api method to register a function to control whether an entity should be forced into the vanilla model
+- fixed item hand attachments breaking in th left hand when a right hand item was held in 1.21.2+
 
 [3.0.8]
 - updated to 1.21.11

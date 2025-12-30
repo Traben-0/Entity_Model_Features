@@ -14,6 +14,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.EMFAttachments;
+import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_texture_features.features.state.HoldsETFRenderState;
 
 //#if MC>=12109
 import traben.entity_model_features.models.IEMFModel;
@@ -52,9 +54,18 @@ MixinHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityM
 
     @Inject(method = RENDER_ARM,
             at = @At(value = "HEAD"))
-    private void emf$setHand(final CallbackInfo ci, @Local HumanoidArm arm, @Share("armOverride") LocalRef<EMFAttachments> armOverride) {
+    private void emf$setHand(final CallbackInfo ci,
+                             //#if MC >= 12102
+                             @Local(argsOnly = true) S stateIn,
+                             //#endif
+                             @Local HumanoidArm arm, @Share("armOverride") LocalRef<EMFAttachments> armOverride) {
         EMFAnimationEntityContext.setInHand = true;
-        var state = EMFAnimationEntityContext.getEmfState();
+        //#if MC >= 12102
+        if (stateIn == null) return;
+        var state = (EMFEntityRenderState) ((HoldsETFRenderState) stateIn).etf$getState();
+        //#else
+        //$$ var state = EMFAnimationEntityContext.getEmfState();
+        //#endif
         if (state == null) return;
 
         armOverride.set(arm == HumanoidArm.RIGHT ? state.rightArmOverride() : state.leftArmOverride());
