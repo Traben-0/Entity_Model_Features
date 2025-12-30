@@ -344,6 +344,12 @@ public class EMFManager {//singleton for data holding and resetting needs
                 if (!skipSwitch) {
                     //vanilla model
                     switch (originalLayerName) {
+                        //#if MC>=12111
+                        //$$ case "camel" -> {
+                        //$$     if (currentSpecifiedModelLoading.equals("camel_husk"))
+                        //$$         mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("camel_husk");
+                        //$$ }
+                        //#endif
                         //#if MC>=12109
                         case "villager_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager");
                         case "villager_no_hat_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager_baby").addFallbackModel("villager");
@@ -439,6 +445,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "tropical_fish_small_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_a");
                         case "wither_skeleton_skull" -> mobNameForFileAndMap.setBoth("head_wither_skeleton");
                         case "zombie_head" -> mobNameForFileAndMap.setBoth("head_zombie");
+                        case "zombie_horse" -> mobNameForFileAndMap.addFallbackModel("undead_horse");
+                        case "zombie_horse_armor" -> mobNameForFileAndMap.addFallbackModel("undead_horse_armor");
                         default -> {
                             if (!currentSpecifiedModelLoading.isBlank()) {
                                 switch (currentSpecifiedModelLoading) {

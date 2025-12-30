@@ -323,7 +323,7 @@ public class EMFModelMappings {
                         "enderman", "giant", "skeleton", "stray", "stray_outer", "wither_skeleton", "zombie_pigman", "bogged_outer",
                         "helmet", "helmet_baby", "chestplate", "chestplate_baby", "leggings", "leggings_baby", "boots", "boots_baby"
                         //#if MC >= 12109
-                        , "helmet", "chestplate", "leggings", "boots"
+                        , "helmet", "chestplate", "leggings", "boots", "parched"
                         //#endif
                 )
                 .parts(genericNonPlayerBiped);
@@ -429,7 +429,8 @@ public class EMFModelMappings {
                         partMapping("head"),
                         partMapping("jaw")
                 ));
-        OptifineMapper.models("camel")
+
+        OptifineMapper.models("camel", "camel_saddle", "camel_husk", "camel_husk_saddle")
                 .parts(Map.ofEntries(
                         partMapping("body"),
                         partMapping("hump"),
@@ -492,7 +493,7 @@ public class EMFModelMappings {
                         //#endif
                 ));
 
-        OptifineMapper.models("horse", "horse_armor", "skeleton_horse", "zombie_horse")
+        OptifineMapper.models("horse", "horse_armor", "skeleton_horse", "zombie_horse", "zombie_horse_armor")
                 .parts(genericHorse);
         OptifineMapper.models("donkey", "mule")
                 .parts(new HashMap<>(genericHorse) {{
@@ -910,7 +911,7 @@ public class EMFModelMappings {
                         partMapping("leg3", "right_front_leg"),
                         partMapping("leg4", "left_front_leg")
                 ));
-        OptifineMapper.models("warden")
+        OptifineMapper.models("warden", "warden_bioluminescent", "warden_heart", "warden_pulsating_spots", "warden_tendrils")
                 .parts(Map.ofEntries(
                         partMapping("body", "bone"),
                         partMapping("torso", "body"),
@@ -1123,6 +1124,7 @@ public class EMFModelMappings {
 //                        partMapping("cube2", "cube_r2"),
                         partMapping("charge", "wind_charge")
                 ));
+
         OptifineMapper.models("bogged").parts(
                 new HashMap<>(genericNonPlayerBiped) {{
                     put("mushrooms","mushrooms");

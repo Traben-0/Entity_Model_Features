@@ -44,6 +44,11 @@ public class MixinEntityRenderers {
                         .replaceAll("entity.minecraft.","")
                         .replaceAll("(_boat|_raft|_chest_boat)$","");
         }
+        //#if MC >= 12111
+        //$$  else if (entityType.equals(EntityType.CAMEL_HUSK)) {
+        //$$           EMFManager.getInstance().currentSpecifiedModelLoading = "camel_husk";
+        //$$       }
+        //#endif
     }
     @Inject(method = method, at = @At(value = "TAIL"))
     private static void emf$reset(final ImmutableMap.Builder<?,?> builder, final EntityRendererProvider.Context context, final EntityType<?> entityType, final EntityRendererProvider<?> entityRendererProvider, final CallbackInfo ci) {
