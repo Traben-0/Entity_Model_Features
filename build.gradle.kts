@@ -114,7 +114,6 @@ dependencies {
         val etf = "entity_texture_features-${properties["etf_version"]}-${project.name}"
         modImplementation(files(File(rootDir.parent, "Entity_Texture_Features/jars/$etf.jar")))
     } else {
-        val version = if (mcVersion < 12111) "7.0.6" else "7.0.7" // TODO next non mc version update
         // public modrinth ETF builds
         val etf = "$version-${platform.loaderStr.lowercase()}-${platform.mcVersionStr}"
         modImplementation("maven.modrinth:entitytexturefeatures:$etf")

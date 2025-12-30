@@ -15,11 +15,11 @@ import traben.entity_model_features.EMFManager;
 public class MixinEntityRenderers {
 
     // NeoForge is a special boy
-    //#if MC>=12111 && NEOFORGE
+    //#if MC>=12112 && NEOFORGE
     //$$ check on this
-    //#elseif MC>=12109 && !FABRIC && !FORGE
+    //#elseif MC>=12109 && NEOFORGE
     //$$ private static final String method = "lambda$createEntityRenderers$0";
-    //#elseif MC>=12106 && !FABRIC && !FORGE
+    //#elseif MC>=12106 && NEOFORGE
     //$$ private static final String method = "lambda$createEntityRenderers$2";
     //#else
     private static final String method = "method_32174";

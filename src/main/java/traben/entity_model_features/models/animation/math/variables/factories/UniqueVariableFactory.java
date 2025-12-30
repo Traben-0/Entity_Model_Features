@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.animation.math.variables.factories;
 
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.MathValue;
 
@@ -42,4 +43,7 @@ public abstract class UniqueVariableFactory {
 
     abstract public @Nullable String getTitleTranslationKey();
 
+    protected boolean printing() {
+        return EMF.config().getConfig().logModelCreationData;
+    }
 }

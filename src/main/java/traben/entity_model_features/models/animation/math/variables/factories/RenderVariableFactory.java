@@ -18,7 +18,7 @@ public class RenderVariableFactory extends UniqueVariableFactory {
         EMFModelOrRenderVariable variable = EMFModelOrRenderVariable.getRenderVariable(variableKey);
         if (variable != null && variable.isRenderVariable())
             return variable::getValue;
-        EMFUtils.logWarn("no render variable found for: [" + variableKey + "]");
+        if (printing()) EMFUtils.logWarn("no render variable found for: [" + variableKey + "]");
         return null;
     }
 

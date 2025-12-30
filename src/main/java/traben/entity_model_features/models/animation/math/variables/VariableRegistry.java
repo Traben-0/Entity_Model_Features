@@ -3,6 +3,7 @@ package traben.entity_model_features.models.animation.math.variables;
 import com.demonwav.mcdev.annotations.Translatable;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.util.Mth;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.MathComponent;
@@ -230,7 +231,7 @@ public final class VariableRegistry {
             String correction = warns[i+1];
 
             singletonVariables.put(variableName, new MathVariable(variableName, false, ()-> {
-                EMFUtils.logError("Math spelling error: [" + variableName + "]. You probably meant: [" + correction + "].");
+                if (printing()) EMFUtils.logError("Math spelling error: [" + variableName + "]. You probably meant: [" + correction + "].");
                 return Float.NaN;
             }));
         }
@@ -243,7 +244,7 @@ public final class VariableRegistry {
 
     public void registerSimpleBoolVariable(String variableName, @Translatable String explanationTranslationKey, BooleanSupplier boolGetter) {
         if (singletonVariables.containsKey(variableName)) {
-            EMFUtils.log("Duplicate variable: " + variableName + ". ignoring duplicate");
+            if (printing()) EMFUtils.log("Duplicate variable: " + variableName + ". ignoring duplicate");
             return;
         }
         singletonVariables.put(variableName, new MathVariable(variableName, () -> MathValue.fromBoolean(boolGetter)));
@@ -276,10 +277,14 @@ public final class VariableRegistry {
                 }
             }
             //unknown variable, return zero constant
-            EMFUtils.logError("Variable [" + variableName + "] not found in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
+            if (printing()) EMFUtils.logError("Variable [" + variableName + "] not found in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
         } catch (Exception e) {
-            EMFUtils.logError("Error finding variable: [" + variableName + "] in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
+            if (printing()) EMFUtils.logError("Error finding variable: [" + variableName + "] in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
         }
         return variableName.startsWith("is_") ? MathConstant.FALSE_CONST : MathConstant.ZERO_CONST;
+    }
+
+    private boolean printing() {
+        return EMF.config().getConfig().logModelCreationData;
     }
 }

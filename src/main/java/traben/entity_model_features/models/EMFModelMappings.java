@@ -1486,7 +1486,9 @@ public class EMFModelMappings {
                     //$$ .zRot
                     //#endif
                     * Mth.RAD_TO_DEG;
-            if (rx != 0 || ry != 0 || rz != 0) addArrayProperty(partPrinter,"rotate", rx, ry, rz);
+
+            if (EMF.config().getConfig().exportRotations && (rx != 0 || ry != 0 || rz != 0))
+                addArrayProperty(partPrinter,"rotate", rx, ry, rz);
 
             if (vanillaModelPart.xScale != 1f) partPrinter.addProperty("scale", vanillaModelPart.xScale);
             // get part size incase empty, though cuboids often have better ideas about this

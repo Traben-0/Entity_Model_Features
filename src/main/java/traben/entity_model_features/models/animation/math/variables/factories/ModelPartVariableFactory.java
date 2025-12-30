@@ -19,7 +19,7 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
             //silently skip so render variable factory can read it
             //unless it specifies .ty. or .rx. or .rz. or .sx. or .sy. or .sz. or .visible or .visible_boxes then log an error
             if (EMFModelOrRenderVariable.get(split[1]) != null){
-                EMFUtils.logError("Model part variable [" + variableKey + "] is not allowed, 'render' is a protected animation key name.");
+                if (printing()) EMFUtils.logError("Model part variable [" + variableKey + "] is not allowed, 'render' is a protected animation key name.");
             }
             return null;
         }
@@ -36,7 +36,7 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
             return MathConstant.ZERO_CONST::getResult;
         }
 
-        EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.temp_allPartsBySingleAndFullHeirachicalId.keySet());
+        if (printing()) EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.temp_allPartsBySingleAndFullHeirachicalId.keySet());
         return null;
     }
 

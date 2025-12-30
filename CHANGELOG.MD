@@ -1,3 +1,10 @@
+
+[3.0.9]
+- neoforge 1.21.11
+- fixed model exports incorrectly adding rotations, there is now an option to include rotations in exports if desired but they will not work in game
+- hid several more model and variable issues from the logs to reduce spam unless model debug logging is enabled
+- 
+
 [3.0.8]
 - updated to 1.21.11
 

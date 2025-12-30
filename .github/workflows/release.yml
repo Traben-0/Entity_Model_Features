@@ -15,6 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: checkout forked egt plugin repo
+        uses: actions/checkout@v4
+        with:
+          repository: Traben-0/essential-gradle-toolkit
+          path: egt-plugin-fork
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -56,6 +62,10 @@ jobs:
 
       - name: Make Gradle Wrapper executable
         run: chmod +x ./gradlew
+
+      - name: build forked plugin
+        working-directory: egt-plugin-fork
+        run: ./gradlew publishToMavenLocal
 
       - name: Run Gradle build
         run: ./gradlew build

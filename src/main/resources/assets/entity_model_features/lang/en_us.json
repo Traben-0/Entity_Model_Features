@@ -4,6 +4,8 @@
   "entity_model_features.config.animate_once": "Animate models once per entity",
   "entity_model_features.config.animate_once.tooltip": "On by default\nthis setting makes it so entity models will animate only once per each entity rendered\nthis will be entirely normal in game however mobs visible in\n inventory screens may flicker weirdly\n especially if it represents a real mob in the world you can already see",
   "entity_model_features.config.debug": "Debugging",
+  "entity_model_features.config.export_rotations": "Export rotations",
+  "entity_model_features.config.export_rotations.tooltip": "exported jem models should not include the rotation values as they will inherit these from the vanilla parts\n however some model editors may like to have these values included\n this option will include them in the exported jem files",
   "entity_model_features.config.optifine_fallback_properties": "Use fallback .properties",
   "entity_model_features.config.optifine_fallback_properties.tooltip": "If enabled this will make EMF try to load a fallback .properties file if the regular one cannot be found\nE.G. pig_baby.jem will fall back to using pig.properties if pig_baby.properties doesn't exist.\nOptiFine only works with these fallbacks and in fact does not allow the per model example like pig_baby.properties",
   "entity_model_features.config.show_reload_error_toast": "Show reload error toast",

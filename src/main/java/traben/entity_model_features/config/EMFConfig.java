@@ -121,6 +121,8 @@ public class EMFConfig extends TConfig {
     public boolean armorCopiesAnimationsHack = true;
     //#endif
 
+    public boolean exportRotations = false;
+
     @Override
     public TConfigEntryCategory getGUIOptions() {
         return new TConfigEntryCategory.Empty().add(
@@ -185,7 +187,9 @@ public class EMFConfig extends TConfig {
                                         (button) -> reprintLoadingErrors(true)
                                         ),
                                 new TConfigEntryBoolean("entity_model_features.config.show_reload_error_toast", "entity_model_features.config.show_reload_error_toast.tooltip",
-                                        () -> showReloadErrorToast, value -> showReloadErrorToast = value, true)
+                                        () -> showReloadErrorToast, value -> showReloadErrorToast = value, true),
+                        new TConfigEntryBoolean("entity_model_features.config.export_rotations", "entity_model_features.config.export_rotations.tooltip",
+                                () -> exportRotations, value -> exportRotations = value, false)
                         ), getModelSettings()
                         , getMathInfo()
                 )//, new TConfigEntryCategory("config.entity_features.general_settings.title")
