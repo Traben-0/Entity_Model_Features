@@ -660,8 +660,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                     var emptyArmorEmfModel = new EMFModelPartRoot(mobNameForFileAndMap,
                             EMFDirectoryHandler.basic(mobNameForFileAndMap.getfileName()),
                             root, optifinePartNameMap.values(), new HashMap<>());
-
-                    setupAnimationsFromJemToModel(possibleBase, emptyArmorEmfModel, 0);
+                    emptyArmorEmfModel.addVariantOfJem(possibleBase, 1);
+                    emptyArmorEmfModel.setVariantStateTo(1);
+                    setupAnimationsFromJemToModel(possibleBase, emptyArmorEmfModel, 1);
                     emptyArmorEmfModel.containsCustomModel = true;
 
                     if (printing) EMFUtils.logWarn(" > EMF armor model animation copy 1.21.9+ hack model used for: " + mobNameForFileAndMap);

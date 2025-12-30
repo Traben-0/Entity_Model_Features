@@ -2,8 +2,9 @@
 [3.0.9]
 - neoforge 1.21.11
 - fixed model exports incorrectly adding rotations, there is now an option to include rotations in exports if desired but they will not work in game
+- fixed the setting to only modify the client players models not properly affecting other players armor models in 1.21.9+
 - hid several more model and variable issues from the logs to reduce spam unless model debug logging is enabled
-- added optifine part name mappings for the models: parched, undead_horse_armor, camel_saddle, camel_husk, camel_husk_saddle, tha various warden layer models
+- added OptiFine part name mappings for the models: parched, zombie_horse_armor, camel_saddle, camel_husk, camel_husk_saddle, and the various warden layer models
 - added support for PAL and bendable cuboids
 - added new animation api method to register a function to control whether an entity should be forced into the vanilla model
 
