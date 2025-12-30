@@ -44,8 +44,10 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.mixin.mixins.accessor.Mixin_GuiEntityTester;
 import traben.entity_model_features.mixin.mixins.accessor.MinecraftClientAccessor;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
+import traben.entity_model_features.mod_compat.PALCompat;
 import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.models.EMFModel_ID;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
@@ -596,6 +598,7 @@ public final class EMFAnimationEntityContext {
     public static boolean isEntityForcedToVanillaModel(){
         if (emfState == null) return false;
         if (entitiesToForceVanillaModel.contains(emfState.uuid())) return true;
+        if (EMF.BC_DETECTED && PALCompat.shouldPauseEntityAnim(emfState)) return true;
         return EMF.config().getConfig().onlyClientPlayerModel
                 && EMFAnimationEntityContext.getEMFEntity() instanceof Player player && !player.isLocalPlayer();
     }
