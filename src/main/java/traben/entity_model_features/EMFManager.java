@@ -660,7 +660,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                     var emptyArmorEmfModel = new EMFModelPartRoot(mobNameForFileAndMap,
                             EMFDirectoryHandler.basic(mobNameForFileAndMap.getfileName()),
                             root, optifinePartNameMap.values(), new HashMap<>());
-                    emptyArmorEmfModel.addVariantOfJem(possibleBase, 1);
+                    emptyArmorEmfModel.copyVariantTo(0, 1);
                     emptyArmorEmfModel.setVariantStateTo(1);
                     setupAnimationsFromJemToModel(possibleBase, emptyArmorEmfModel, 1);
                     emptyArmorEmfModel.containsCustomModel = true;

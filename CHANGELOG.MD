@@ -1,4 +1,7 @@
 
+[3.0.10]
+- fixed armor textures breaking on 3.0.9 in MC 1.21.9+
+
 [3.0.9]
 - neoforge 1.21.11
 - fixed model exports incorrectly adding rotations, there is now an option to include rotations in exports if desired but they will not work in game

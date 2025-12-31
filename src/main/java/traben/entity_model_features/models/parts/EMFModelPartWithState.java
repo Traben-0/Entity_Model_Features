@@ -142,6 +142,14 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         }
     }
 
+    public void copyVariantTo(int from, int to) {
+        allKnownStateVariants.putIfAbsent(to, EMFModelState.copy(allKnownStateVariants.get(from)));
+        for (ModelPart value : children.values()) {
+            if (value instanceof EMFModelPartWithState p3)
+                p3.copyVariantTo(from, to);
+        }
+    }
+
     public record
             //#if MC >= 12102
             EMFModelState(
