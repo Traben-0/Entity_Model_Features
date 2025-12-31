@@ -1,6 +1,7 @@
 
 [3.0.10]
 - fixed armor textures breaking on 3.0.9 in MC 1.21.9+
+- fixed entities flickering in some GUIs in older versions, e.g. horses inventory when using Fresh Animations & some player GUIs
 
 [3.0.9]
 - neoforge 1.21.11

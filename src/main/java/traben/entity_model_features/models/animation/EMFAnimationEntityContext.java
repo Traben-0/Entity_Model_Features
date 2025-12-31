@@ -1158,6 +1158,7 @@ public final class EMFAnimationEntityContext {
     public static float getHeadYaw() {
         if (emfState == null) return 0;
         if (Float.isNaN(headYaw)) {
+            if (isInGui()) return 0;
             doHeadValues();
         }
         return headYaw;
@@ -1170,6 +1171,7 @@ public final class EMFAnimationEntityContext {
     public static float getHeadPitch() {
         if (emfState == null) return 0;
         if (Float.isNaN(headPitch)) {
+            if (isInGui()) return 0;
             doHeadValues();
         }
         return headPitch;
