@@ -1,4 +1,11 @@
 
+[3.0.11]
+- updated cem model names and part names to match `OptiFine 1.21.11_HD_U_J9_pre2`
+- added `parrot_shoulder` model
+- added models for warm pigs and chickens which don't have unique models in vanilla
+- added the model `dragon_fireball` with only a single part `fireball` (EMF ONLY)
+- fixed trident models not variating properly on 1.21.9+
+
 [3.0.10]
 - fixed armor textures breaking on 3.0.9 in MC 1.21.9+
 - fixed entities flickering in some GUIs in older versions, e.g. horses inventory when using Fresh Animations & some player GUIs

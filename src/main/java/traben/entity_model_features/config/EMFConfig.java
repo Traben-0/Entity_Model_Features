@@ -58,10 +58,10 @@ public class EMFConfig extends TConfig {
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
     public VanillaModelRenderMode vanillaModelHologramRenderMode_2 = VanillaModelRenderMode.OFF;
     public ModelPrintMode modelExportMode = ModelPrintMode.NONE;
-//    public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
+    @Deprecated(forRemoval = true) public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
     public ETFConfig.String2EnumNullMap<RenderModeChoice> entityRenderModeOverrides = new ETFConfig.String2EnumNullMap<>();
-//    public ETFConfig.String2EnumNullMap<PhysicsModCompatChoice> entityPhysicsModPatchOverrides = new ETFConfig.String2EnumNullMap<>();
+    @Deprecated(forRemoval = true) public ETFConfig.String2EnumNullMap<PhysicsModCompatChoice> entityPhysicsModPatchOverrides = new ETFConfig.String2EnumNullMap<>();
     public ETFConfig.String2EnumNullMap<VanillaModelRenderMode> entityVanillaHologramOverrides = new ETFConfig.String2EnumNullMap<>();
 
     public RenderModeChoice getRenderModeFor(EMFEntity entity) {
@@ -70,11 +70,11 @@ public class EMFConfig extends TConfig {
         return Objects.requireNonNullElseGet(entityRenderModeOverrides.getNullable(typeString), () -> renderModeChoice);
     }
 
-//    public PhysicsModCompatChoice getPhysicsModModeFor(EMFEntity entity) {
-//        String typeString = getTypeString(entity);
-//        if (typeString == null) return attemptPhysicsModPatch_2;
-//        return Objects.requireNonNullElseGet(entityPhysicsModPatchOverrides.getNullable(typeString), () -> attemptPhysicsModPatch_2);
-//    }
+    @Deprecated(forRemoval = true) public PhysicsModCompatChoice getPhysicsModModeFor(EMFEntity entity) {
+        String typeString = getTypeString(entity);
+        if (typeString == null) return attemptPhysicsModPatch_2;
+        return Objects.requireNonNullElseGet(entityPhysicsModPatchOverrides.getNullable(typeString), () -> attemptPhysicsModPatch_2);
+    }
 
     public VanillaModelRenderMode getVanillaHologramModeFor(EMFEntity entity) {
         String typeString = getTypeString(entity);
@@ -110,7 +110,7 @@ public class EMFConfig extends TConfig {
     @Deprecated(since = "2.4.1", forRemoval = true) public boolean resetPlayerModelEachRender = true;
     public boolean resetPlayerModelEachRender_v2 = true;
     public boolean onlyDebugRenderOnHover = false;
-    public boolean enforceOptifineSubFoldersVariantOnly = true;
+    public boolean enforceOptifineSubFoldersVariantOnly = false;
     public boolean enforceOptiFineAnimSyntaxLimits = true;
     public boolean allowOptifineFallbackProperties = true;
     //#if MC < 12100
@@ -477,23 +477,24 @@ public class EMFConfig extends TConfig {
             return Component.translatable(text).getString();
         }
     }
-//todo remove fully after physics mod implementation
-//    public enum PhysicsModCompatChoice {
-//        OFF("options.off"),
-//        VANILLA("entity_model_features.config.physics.1"),
-//        CUSTOM("entity_model_features.config.physics.2");
-//
-//        private final String text;
-//
-//        PhysicsModCompatChoice(String text) {
-//            this.text = text;
-//        }
-//
-//        @Override
-//        public String toString() {
-//            return Component.translatable(text).getString();
-//        }
-//    }
+
+    //todo remove fully
+    @Deprecated(forRemoval = true) public enum PhysicsModCompatChoice {
+        OFF("options.off"),
+        VANILLA("entity_model_features.config.physics.1"),
+        CUSTOM("entity_model_features.config.physics.2");
+
+        private final String text;
+
+        PhysicsModCompatChoice(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return Component.translatable(text).getString();
+        }
+    }
 
     public enum RenderModeChoice {
         NORMAL("entity_model_features.config.render.normal"),

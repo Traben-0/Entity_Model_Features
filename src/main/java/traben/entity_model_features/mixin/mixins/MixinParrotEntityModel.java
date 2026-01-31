@@ -1,38 +1,45 @@
 package traben.entity_model_features.mixin.mixins;
 
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.ParrotModel;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import traben.entity_model_features.EMF;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.utils.EMFEntity;
 
 //#if MC >= 12102
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.layers.ParrotOnShoulderLayer;
-import net.minecraft.client.renderer.entity.state.ParrotRenderState;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Parrot;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Shadow;
 import net.minecraft.client.Minecraft;
+import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
-import traben.entity_texture_features.features.state.HoldsETFRenderState;
 
 @Mixin(ParrotOnShoulderLayer.class)
 public class MixinParrotEntityModel {
 
-    //#if MC < 12109
-    //$$ @Shadow
-    //$$ @Final
-    //$$ private ParrotRenderState parrotState;
-    //#endif
+    @Unique
+    private static final ModelLayerLocation emf$parrot_shoulder =
+            new ModelLayerLocation(EMFUtils.res("minecraft", "parrot"), "shoulder");
+
+    @ModifyExpressionValue(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/geom/EntityModelSet;bakeLayer(Lnet/minecraft/client/model/geom/ModelLayerLocation;)Lnet/minecraft/client/model/geom/ModelPart;"))
+    private ModelPart emf$injectParrotShoulderLayer(ModelPart original) {
+        if (EMF.testForForgeLoadingError()) return original;
+
+        return EMFManager.getInstance().injectIntoModelRootGetter(emf$parrot_shoulder, ParrotModel.createBodyLayer().bakeRoot());
+    }
+
 
     //#if MC >= 12109
     private static final String RENDER_METHOD = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V";

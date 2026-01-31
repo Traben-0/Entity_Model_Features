@@ -90,6 +90,8 @@ public class EMFManager {//singleton for data holding and resetting needs
     public EMFEntityRenderState awaitingState = null;
     //#endif
 
+    @Nullable private String lastUndeadHorse = null;
+
     public final List<Exception> loadingExceptions = new ArrayList<>();
 
     public void receiveException(Exception exception) {
@@ -312,7 +314,14 @@ public class EMFManager {//singleton for data holding and resetting needs
                 //wolf_baby_collar
 
                 //#if MC >= 12102
-                if (mobNameForFileAndMap.getfileName().matches(".*_baby($|_\\w*)")) {
+                if (mobNameForFileAndMap.getfileName().matches(".*_baby($|_\\w*)")
+                        // Exclude these baby variants from falling back
+                        && !mobNameForFileAndMap.getfileName().startsWith("horse_baby")
+                        && !mobNameForFileAndMap.getfileName().startsWith("skeleton_horse_baby")
+                        && !mobNameForFileAndMap.getfileName().startsWith("zombie_horse_baby")
+                        && !mobNameForFileAndMap.getfileName().startsWith("mule_baby")
+                        && !mobNameForFileAndMap.getfileName().startsWith("donkey_baby")
+                ) {
                     String adultName = mobNameForFileAndMap.getfileName().replaceFirst("_baby", "");
                     mobNameForFileAndMap.addFallbackModel(adultName);
                     isBaby = true;
@@ -329,7 +338,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                     //wolf_baby_collar, wolf_collar, wolf_baby, wolf
                 }
 
-                //#if MC>=12109
+                //#if MC >= 12109
                 if (originalLayerName.endsWith("_helmet")) {
                     mobNameForFileAndMap.setMapIdAndAddFallbackModel("helmet"); skipSwitch = true; wasArmor = true;
                 } else if (originalLayerName.endsWith("_chestplate")) {
@@ -341,9 +350,15 @@ public class EMFManager {//singleton for data holding and resetting needs
                 }
                 //#endif
 
+                var filename = mobNameForFileAndMap.getfileName();
+                if (filename.startsWith("zombie_horse") || filename.startsWith("skeleton_horse")) {
+                    lastUndeadHorse = filename;
+                }
+
                 if (!skipSwitch) {
                     //vanilla model
                     switch (originalLayerName) {
+                        case "parrot_shoulder" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("parrot");
                         //#if MC>=12111
                         //$$ case "camel" -> {
                         //$$     if (currentSpecifiedModelLoading.equals("camel_husk"))
@@ -445,8 +460,11 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "tropical_fish_small_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_a");
                         case "wither_skeleton_skull" -> mobNameForFileAndMap.setBoth("head_wither_skeleton");
                         case "zombie_head" -> mobNameForFileAndMap.setBoth("head_zombie");
-                        case "zombie_horse" -> mobNameForFileAndMap.addFallbackModel("undead_horse");
-                        case "zombie_horse_armor" -> mobNameForFileAndMap.addFallbackModel("undead_horse_armor");
+                        case "undead_horse_armor" -> {
+                            if (lastUndeadHorse != null) {
+                                mobNameForFileAndMap.pushNewMainModelAndMapIdAddingOldAsFallback(lastUndeadHorse + "_armor");
+                            }
+                        }
                         default -> {
                             if (!currentSpecifiedModelLoading.isBlank()) {
                                 switch (currentSpecifiedModelLoading) {

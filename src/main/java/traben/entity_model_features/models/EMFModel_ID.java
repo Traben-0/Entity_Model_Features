@@ -157,6 +157,19 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
     }
 
     @SuppressWarnings("UnusedReturnValue")
+    public EMFModel_ID pushNewMainModelAndMapIdAddingOldAsFallback(String both) throws EMFException {
+        return pushNewMainModelAndMapIdAddingOldAsFallback(both, both);
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public EMFModel_ID pushNewMainModelAndMapIdAddingOldAsFallback(String fileName, String mapId) throws EMFException {
+        addFallbackModel(namespace, this.fileName, true);
+        this.fileName = fileName;
+        this.mapId = mapId;
+        return this;
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
     public EMFModel_ID addFallbackModel(String fileName) throws EMFException {
         return addFallbackModel(namespace, fileName);
     }

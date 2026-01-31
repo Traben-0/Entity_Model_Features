@@ -215,12 +215,12 @@ public class EMFModelMappings {
                 partMapping("left_ear"),
                 partMapping("right_ear"),
                 partMapping("neck", "head_parts"),
-                partMapping("noseband", "mouth_saddle_wrap"),
-                partMapping("headpiece", "head_saddle"),
-                partMapping("right_rein", "right_saddle_line"),
-                partMapping("left_rein", "left_saddle_line"),
-                partMapping("right_bit", "right_saddle_mouth"),
-                partMapping("left_bit", "left_saddle_mouth"),
+                partMapping("mouth_saddle_wrap"),
+                partMapping("head_saddle"),
+                partMapping("right_saddle_line"),
+                partMapping("left_saddle_line"),
+                partMapping("right_saddle_mouth"),
+                partMapping("left_saddle_mouth"),
                 partMapping("back_left_leg", "left_hind_leg"),
                 partMapping("back_right_leg", "right_hind_leg"),
                 partMapping("front_left_leg", "left_front_leg"),
@@ -306,16 +306,8 @@ public class EMFModelMappings {
                         partMapping("leg6", "left_middle_front_leg"),
                         partMapping("leg7", "right_front_leg"),
                         partMapping("leg8", "left_front_leg")));
-        OptifineMapper.models("sheep", "cow", "warm_cow", "mooshroom", "panda", "pig", "cold_pig", "warm_pig", "pig_saddle", "polar_bear", "sheep_wool", "sheep_wool_undercoat", "sheep_baby_wool_undercoat")
+        OptifineMapper.models("sheep", "cow", "warm_cow", "cold_cow", "mooshroom", "panda", "pig", "cold_pig", "warm_pig", "pig_saddle", "polar_bear", "sheep_wool", "sheep_wool_undercoat", "sheep_baby_wool_undercoat")
                 .parts(genericQuadraped);
-
-
-        OptifineMapper.models("cold_cow")
-                .parts( new HashMap<>(genericQuadraped) {{
-                    putAll(Map.ofEntries(
-                            partMapping("right_horn"),
-                            partMapping("left_horn")));
-                }});
 
         OptifineMapper.models("creeper", "creeper_charge")
                 .parts(genericQuadraped);
@@ -392,7 +384,7 @@ public class EMFModelMappings {
                 ));
         OptifineMapper.models("happy_ghast_harness", "happy_ghast_baby_harness")
                 .parts(Map.ofEntries(
-                        partMapping("harness"),
+                        partMapping("body"),
                         partMapping("goggles")
                 ));
         OptifineMapper.models("wolf", "wolf_collar", "wolf_armor")
@@ -493,7 +485,7 @@ public class EMFModelMappings {
                         //#endif
                 ));
 
-        OptifineMapper.models("horse", "horse_armor", "skeleton_horse", "zombie_horse", "zombie_horse_armor")
+        OptifineMapper.models("horse", "horse_armor", "skeleton_horse", "skeleton_horse_armor", "zombie_horse", "zombie_horse_armor")
                 .parts(genericHorse);
         OptifineMapper.models("donkey", "mule")
                 .parts(new HashMap<>(genericHorse) {{
@@ -1259,6 +1251,42 @@ public class EMFModelMappings {
         //$$                 partMapping("base")
         //$$         ));
         //#endif
+
+        OptifineMapper.models("copper_Golem")
+                .parts(Map.ofEntries(
+                        partMapping("body"),
+                        partMapping("head"),
+                        partMapping("right_arm"),
+                        partMapping("left_arm"),
+                        partMapping("right_leg"),
+                        partMapping("left_leg")
+                ));
+        OptifineMapper.models("nautilus", "zombie_nautilus")
+                .parts(Map.ofEntries(
+                        partMapping("body"),
+                        partMapping("shell"),
+                        partMapping("upper_mouth"),
+                        partMapping("inner_mouth"),
+                        partMapping("lower_mouth")
+                ));
+        OptifineMapper.models("zombie_nautilus_coral")
+                .parts(Map.ofEntries(
+                        partMapping("body"),
+                        partMapping("shell"),
+                        partMapping("upper_mouth"),
+                        partMapping("inner_mouth"),
+                        partMapping("lower_mouth"),
+                        partMapping("coral", "root")
+                ));
+        OptifineMapper.models("nautilus_saddle", "zombie_nautilus_saddle")
+                .parts(Map.ofEntries(
+                        partMapping("shell")
+                ));
+        OptifineMapper.models("dragon_fireball") // EMF only
+                .parts(Map.ofEntries(
+                        partMapping("fireball")
+                ));
+
     }
 
     @Contract(value = "_ -> new", pure = true)
