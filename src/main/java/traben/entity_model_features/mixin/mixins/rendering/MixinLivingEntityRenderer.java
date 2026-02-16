@@ -63,6 +63,17 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         IEMFModel model = (IEMFModel) getModel();
         if (model.emf$isEMFModel()) model.emf$getEMFRootModel().triggerManualAnimation(pose);
     }
+    //#else
+    //$$ @ModifyExpressionValue(method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+    //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;shouldRenderLayers(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)Z"))
+    //$$ private boolean armOverrides(boolean original, @Local PoseStack pose) {
+    //$$     if (original) {
+    //$$         // check arm overrides
+    //$$         IEMFModel model = (IEMFModel) getModel();
+    //$$         if (model.emf$isEMFModel()) model.emf$getEMFRootModel().checkArmOverrides(pose);
+    //$$     }
+    //$$     return original;
+    //$$ }
     //#endif
 
 

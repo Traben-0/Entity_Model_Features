@@ -28,16 +28,14 @@ public class Mixin_ModelRenderer {
         var state = modelSubmit.state();
         if (state instanceof HoldsETFRenderState holds && holds.etf$getState() != null) {
             var state2 = (EMFEntityRenderState) holds.etf$getState();
-            EMFAnimationEntityContext.setCurrentEntityIteration(state2);
+            EMFAnimationEntityContext.setCurrentEntityIteration(state2, setModelVariant(modelSubmit));
             ETFRenderContext.setCurrentEntity(state2);
             EMFAnimationEntityContext.setLayerFactory(modelSubmit.model().renderType);
-            setModelVariant(state2, modelSubmit);
         } else if (((Object) modelSubmit) instanceof HoldsBackupEMFRenderState emf) { // block entity backup
             var state2 = emf.emf$getState();
-            EMFAnimationEntityContext.setCurrentEntityIteration(state2);
+            EMFAnimationEntityContext.setCurrentEntityIteration(state2, setModelVariant(modelSubmit));
             EMFAnimationEntityContext.setLayerFactory(modelSubmit.model().renderType);
             ETFRenderContext.setCurrentEntity(state2);
-            setModelVariant(state2, modelSubmit);
         } else {
             EMFAnimationEntityContext.reset();
         }
@@ -51,10 +49,14 @@ public class Mixin_ModelRenderer {
     }
 
     @Unique
-    private <S> void setModelVariant(EMFEntityRenderState emf, SubmitNodeStorage.ModelSubmit<S> modelSubmit) {
-        if (emf.modelVariant() != -1 && modelSubmit.model().root() instanceof EMFModelPartRoot root) {
-            root.setVariantStateTo(emf.modelVariant());
+    private <S> boolean setModelVariant(SubmitNodeStorage.ModelSubmit<S> modelSubmit) {
+        if (((Object) modelSubmit) instanceof HoldsBackupEMFRenderState holds
+                && holds.emf$getModelVariant() != -1
+                && modelSubmit.model().root() instanceof EMFModelPartRoot root) {
+            root.setVariantStateTo(holds.emf$getModelVariant());
+            return true;
         }
+        return false;
     }
 
     @Inject(method = "renderTranslucents", at = @At(value = "TAIL"))

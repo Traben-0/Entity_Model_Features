@@ -6,4 +6,6 @@ public interface HoldsBackupEMFRenderState {
     void emf$setState(EMFEntityRenderState state);
     EMFEntityRenderState emf$getState();
 
+    int emf$getModelVariant();
+    void emf$setModelVariant(int variant);
 }

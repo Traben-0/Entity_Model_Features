@@ -1,4 +1,7 @@
 
+- fix arm overrides pre 1.21.9
+
+
 [3.0.11]
 - updated cem model names and part names to match `OptiFine 1.21.11_HD_U_J9_pre2`
 - added `parrot_shoulder` model

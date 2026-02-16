@@ -303,6 +303,10 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public void triggerManualAnimation(PoseStack pose) {
         if (hasAnimation()) animationHolder.run();
+        checkArmOverrides(pose);
+    }
+
+    public void checkArmOverrides(PoseStack pose) {
         if (hasArmItemOverrides) processArmItemOverrides(pose);
     }
 

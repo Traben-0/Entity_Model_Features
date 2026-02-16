@@ -33,18 +33,8 @@ public abstract class Mixin_ModelSubmit_AddBackupState<S> implements HoldsBackup
             this.emfState = emf.awaitingState;
         }
 
-        if (state() instanceof HoldsETFRenderState etf) {
-            if (model().root() instanceof EMFModelPartRoot emfRoot) {
-                int variant = emfRoot.currentModelVariant;
-                if (variant != -1) {
-                    if (etf.etf$getState() instanceof EMFEntityRenderState emfEntityRenderState) {
-                        emfEntityRenderState.setModelVariant(variant);
-                    }
-                    if (this.emfState != null) {
-                        this.emfState.setModelVariant(variant);
-                    }
-                }
-            }
+        if (model().root() instanceof EMFModelPartRoot emfRoot) {
+            modelVariant = emfRoot.currentModelVariant;
         }
     }
 
@@ -59,6 +49,20 @@ public abstract class Mixin_ModelSubmit_AddBackupState<S> implements HoldsBackup
     @Override
     public EMFEntityRenderState emf$getState() {
         return emfState;
+    }
+
+
+    @Unique
+    private int modelVariant =-1;
+
+    @Override
+    public int emf$getModelVariant() {
+        return modelVariant;
+    }
+
+    @Override
+    public void emf$setModelVariant(int variant) {
+        modelVariant = variant;
     }
 }
 //#else

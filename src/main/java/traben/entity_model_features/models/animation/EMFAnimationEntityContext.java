@@ -313,6 +313,10 @@ public final class EMFAnimationEntityContext {
     //#endif
 
     public static void setCurrentEntityIteration(@Nullable EMFEntityRenderState state) {
+        setCurrentEntityIteration(state, false);
+    }
+
+    public static void setCurrentEntityIteration(@Nullable EMFEntityRenderState state, boolean skipModelVariation) {
 
         isFirstPersonHand = false;
         EMFManager.getInstance().entityRenderCount++;
@@ -338,7 +342,7 @@ public final class EMFAnimationEntityContext {
 
             //perform variant checking for this entity types models
             //this is the only way to keep it generic and also before the entity is rendered and affect al its models
-            if (state.modelVariant() == -1) {
+            if (!skipModelVariation) {
                 Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(state.typeString());
                 if (roots != null) {
                     if (isEntityForcedToVanillaModel()) {
