@@ -3,6 +3,7 @@ package traben.entity_model_features.mixin.mixins.rendering.submits;
 import org.spongepowered.asm.mixin.Mixin;
 
 //#if MC >= 12109
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -10,6 +11,7 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.utils.HoldsBackupEMFRenderState;
 import traben.entity_texture_features.ETF;
 import traben.entity_texture_features.features.ETFRenderContext;
@@ -29,11 +31,13 @@ public class Mixin_ModelRenderer {
             EMFAnimationEntityContext.setCurrentEntityIteration(state2);
             ETFRenderContext.setCurrentEntity(state2);
             EMFAnimationEntityContext.setLayerFactory(modelSubmit.model().renderType);
+            setModelVariant(state2, modelSubmit);
         } else if (((Object) modelSubmit) instanceof HoldsBackupEMFRenderState emf) { // block entity backup
             var state2 = emf.emf$getState();
             EMFAnimationEntityContext.setCurrentEntityIteration(state2);
             EMFAnimationEntityContext.setLayerFactory(modelSubmit.model().renderType);
             ETFRenderContext.setCurrentEntity(state2);
+            setModelVariant(state2, modelSubmit);
         } else {
             EMFAnimationEntityContext.reset();
         }
@@ -43,6 +47,13 @@ public class Mixin_ModelRenderer {
             ETFRenderContext.startSpecialRenderOverlayPhase();
         } else {
             ETFRenderContext.endSpecialRenderOverlayPhase();
+        }
+    }
+
+    @Unique
+    private <S> void setModelVariant(EMFEntityRenderState emf, SubmitNodeStorage.ModelSubmit<S> modelSubmit) {
+        if (emf.modelVariant() != -1 && modelSubmit.model().root() instanceof EMFModelPartRoot root) {
+            root.setVariantStateTo(emf.modelVariant());
         }
     }
 

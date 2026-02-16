@@ -58,4 +58,8 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     void setLeftArmOverride(EMFAttachments override);
     @Nullable EMFAttachments rightArmOverride();
     void setRightArmOverride(EMFAttachments override);
+
+    /** -1 == unset */
+    int modelVariant();
+    void setModelVariant(int variant);
 }

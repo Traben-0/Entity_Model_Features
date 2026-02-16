@@ -330,7 +330,7 @@ public final class EMFAnimationEntityContext {
 
         if (state != null) {
 
-            //#if MC>=12109
+            //#if MC >= 1.21.9
             // ensure etf is active here, because emf may call on additional texture variation during model rendering
             ETFRenderContext.setCurrentEntity(state);
             //#endif
@@ -338,16 +338,18 @@ public final class EMFAnimationEntityContext {
 
             //perform variant checking for this entity types models
             //this is the only way to keep it generic and also before the entity is rendered and affect al its models
-            Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(state.typeString());
-            if (roots != null) {
-                if (isEntityForcedToVanillaModel()) {
-                    roots.forEach((root) -> root.setVariantStateTo(0));
-                } else {
-                    roots.forEach(EMFModelPartRoot::doVariantCheck);
-                }
+            if (state.modelVariant() == -1) {
+                Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(state.typeString());
+                if (roots != null) {
+                    if (isEntityForcedToVanillaModel()) {
+                        roots.forEach((root) -> root.setVariantStateTo(0));
+                    } else {
+                        roots.forEach(EMFModelPartRoot::doVariantCheck);
+                    }
 
-                if(state.emfEntity() instanceof Player player && EMF.config().getConfig().resetPlayerModelEachRender_v2){
-                    roots.forEach(EMFModelPartRoot::resetVanillaPartsToDefaults);
+                    if (state.emfEntity() instanceof Player player && EMF.config().getConfig().resetPlayerModelEachRender_v2) {
+                        roots.forEach(EMFModelPartRoot::resetVanillaPartsToDefaults);
+                    }
                 }
             }
 

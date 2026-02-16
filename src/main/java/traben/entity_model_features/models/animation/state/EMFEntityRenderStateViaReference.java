@@ -75,4 +75,7 @@ public class EMFEntityRenderStateViaReference extends ETFEntityRenderStateViaRef
     @Override public @Nullable EMFAttachments rightArmOverride() { return rightArmOverride; }
     @Override public void setRightArmOverride(EMFAttachments override) { rightArmOverride = override; }
 
+    private int modelVariant = -1;
+    @Override public int modelVariant() { return modelVariant; }
+    @Override public void setModelVariant(int variant) { modelVariant = variant; }
 }
