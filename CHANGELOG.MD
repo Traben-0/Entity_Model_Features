@@ -1,6 +1,7 @@
 
 - fix arm overrides pre 1.21.9
 - fixed armor in 1.21.9+ causing a lot of lag with animated player models loaded
+- partially fixed compatibility with Essential cosmetics and animated player models *(currently doesn't work when the root part animates, the fix has been supplied to the Essential team)*
 
 
 [3.0.11]

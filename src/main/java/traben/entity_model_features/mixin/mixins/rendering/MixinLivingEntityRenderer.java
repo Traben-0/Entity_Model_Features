@@ -68,7 +68,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     private void falseAnimation(CallbackInfo ci, @Local(argsOnly = true) PoseStack pose, @Local(argsOnly = true) S renderState) {
         // animate so that dependant layers can read the positions (only applies if they set their matrix prior to submission)
         IEMFModel model = (IEMFModel) getModel();
-        if (model.emf$isEMFModel()) {
+        if (model.emf$isEMFModel() && model.emf$getEMFRootModel().hasAnimation()) {
             model.emf$getEMFRootModel().triggerManualAnimation(pose);
             // Store the biped pose in the render state for use by layers that need it.
             if (getModel() instanceof HumanoidModel<?> humanoidModel) {

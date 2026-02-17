@@ -28,10 +28,7 @@ public class Mixin_ModelRenderer {
     @Inject(method = "renderModel", at = @At(value = "HEAD"))
     private <S> void emf$initRender(final CallbackInfo ci, @Local(argsOnly = true) SubmitNodeStorage.ModelSubmit<S> modelSubmit) {
         var state = modelSubmit.state();
-        //noinspection ConstantValue
-        EMFSubmitData data = ((Object) modelSubmit) instanceof EMFSubmitExtension emf
-                ? ((EMFSubmitExtension) (Object) modelSubmit).emf$getData()
-                : null;
+        EMFSubmitData data = EMFSubmitData.from(modelSubmit);
 
         // Set up the current entity context for this render
         if (state instanceof HoldsETFRenderState holds && holds.etf$getState() != null) {
@@ -55,15 +52,25 @@ public class Mixin_ModelRenderer {
         } else {
             ETFRenderContext.endSpecialRenderOverlayPhase();
         }
+    }
+
+    @Inject(method = "renderModel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/Model;setupAnim(Ljava/lang/Object;)V",
+            shift = At.Shift.AFTER))
+    private <S> void emf$animate(final CallbackInfo ci, @Local(argsOnly = true) SubmitNodeStorage.ModelSubmit<S> modelSubmit) {
 
         // Apply a simple pose copy to armor if required
-        applyArmorBipedPose(data, modelSubmit);
-
+        applyArmorBipedPose(modelSubmit);
     }
 
     @Unique
-    private <S> void applyArmorBipedPose(@Nullable EMFSubmitData data, SubmitNodeStorage.ModelSubmit<S> modelSubmit) {
-        if (data != null && data.bipedPose != null && modelSubmit.model() instanceof HumanoidModel<?> humanoidModel) {
+    private <S> void applyArmorBipedPose(SubmitNodeStorage.ModelSubmit<S> modelSubmit) {
+
+        EMFSubmitData data = EMFSubmitData.from(modelSubmit);
+        if (data != null
+                && data.bipedPose != null
+                && modelSubmit.model() instanceof HumanoidModel<?> humanoidModel
+                && !(modelSubmit.model().root() instanceof EMFModelPartRoot root && root.hasAnimation())
+        ) {
             data.bipedPose.applyTo(humanoidModel);
         }
     }

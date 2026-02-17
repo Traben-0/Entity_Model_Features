@@ -51,6 +51,7 @@
     "rendering.model.Mixin_ChickenRenderer_WarmModel",
     "rendering.model.Mixin_EnderDragonFireball_Model",
     "rendering.model.Mixin_PigRenderer_WarmModel",
+    "rendering.model.Mixin_PlayerModel_ReApplyPoseToExtraCallsMadeByMods",
     "rendering.model.MixinArmadilloModel",
     "rendering.model.MixinDragonModel",
     "rendering.model.MixinVillagerModel",
@@ -59,10 +60,10 @@
     "rendering.submits.Mixin_GuiEntityRenderer",
     "rendering.submits.Mixin_HumanoidArmorLayer_AddBaseModelPoseRef",
     "rendering.submits.Mixin_ModelPartRenderer",
-    "rendering.submits.Mixin_ModelRenderer"
+    "rendering.submits.Mixin_ModelRenderer",
+    "rendering.submits.Mixin_ModelSubmit_AddBackupState"
   ],
   "mixins": [
-    "rendering.submits.Mixin_ModelSubmit_AddBackupState"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
+import traben.entity_texture_features.features.state.HoldsETFRenderState;
 
 import java.util.function.Function;
 
@@ -61,5 +62,16 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
 
 
     void setBipedPose(EMFBipedPose pose);
-    EMFBipedPose getBipedPose();
+    /** Returns the biped pose if it was animated. */
+    @Nullable EMFBipedPose getBipedPose();
+
+    //#if MC >= 1.21.2
+    @Nullable
+    static EMFEntityRenderState from(net.minecraft.client.renderer.entity.state.EntityRenderState state) {
+        if (state instanceof HoldsETFRenderState holds && holds.etf$getState() instanceof EMFEntityRenderState emf) {
+            return emf;
+        }
+        return null;
+    }
+    //#endif
 }
