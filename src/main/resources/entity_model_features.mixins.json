@@ -57,6 +57,7 @@
     "rendering.model.MixinWolfEntityModel",
     "rendering.submits.Mixin_ChestSpecialRenderer_PassState",
     "rendering.submits.Mixin_GuiEntityRenderer",
+    "rendering.submits.Mixin_HumanoidArmorLayer_AddBaseModelPoseRef",
     "rendering.submits.Mixin_ModelPartRenderer",
     "rendering.submits.Mixin_ModelRenderer"
   ],

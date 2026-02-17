@@ -59,4 +59,7 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     @Nullable EMFAttachments rightArmOverride();
     void setRightArmOverride(EMFAttachments override);
 
+
+    void setBipedPose(EMFBipedPose pose);
+    EMFBipedPose getBipedPose();
 }

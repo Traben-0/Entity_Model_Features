@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFSubmitData;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
 import traben.entity_texture_features.utils.ETFEntity;
 
@@ -27,12 +28,12 @@ public class Mixin_ChestSpecialRenderer_PassState {
                 // TODO do we really need the actual chest type here? this is just so inventory anims can play
                 (ETFEntity) new ChestBlockEntity(BlockPos.ZERO, Blocks.CHEST.defaultBlockState()));
         EMFAnimationEntityContext.setCurrentEntityIteration(state);
-        EMFManager.getInstance().awaitingState = state;
+        EMFSubmitData.AWAITING_backupState = state;
     }
 
     @Inject(method = "submit", at = @At(value = "TAIL"))
     private static void emf$reset(CallbackInfo ci) {
-        EMFManager.getInstance().awaitingState = null;
+        EMFSubmitData.AWAITING_backupState = null;
     }
 
 }

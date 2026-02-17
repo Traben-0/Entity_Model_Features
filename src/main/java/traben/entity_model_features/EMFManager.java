@@ -86,9 +86,6 @@ public class EMFManager {//singleton for data holding and resetting needs
     public String currentSpecifiedModelLoading = "";
     public BlockEntityType<?> currentBlockEntityTypeLoading = null;
     private boolean traderLlamaHappened = false;
-    //#if MC >= 12109
-    public EMFEntityRenderState awaitingState = null;
-    //#endif
 
     @Nullable private String lastUndeadHorse = null;
 
@@ -286,7 +283,6 @@ public class EMFManager {//singleton for data holding and resetting needs
 
             boolean modded;
             boolean isBaby = false;
-            boolean wasArmor = false;
 
             //add simple modded layer checks
             if (!"minecraft".equals(layer.
@@ -340,13 +336,13 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                 //#if MC >= 12109
                 if (originalLayerName.endsWith("_helmet")) {
-                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("helmet"); skipSwitch = true; wasArmor = true;
+                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("helmet"); skipSwitch = true;
                 } else if (originalLayerName.endsWith("_chestplate")) {
-                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("chestplate"); skipSwitch = true; wasArmor = true;
+                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("chestplate"); skipSwitch = true;
                 } else if (originalLayerName.endsWith("_leggings")) {
-                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("leggings"); skipSwitch = true; wasArmor = true;
+                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("leggings"); skipSwitch = true;
                 } else if (originalLayerName.endsWith("_boots")) {
-                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("boots"); skipSwitch = true; wasArmor = true;
+                    mobNameForFileAndMap.setMapIdAndAddFallbackModel("boots"); skipSwitch = true;
                 }
                 //#endif
 
@@ -640,55 +636,12 @@ public class EMFManager {//singleton for data holding and resetting needs
                             }
                         }
 
-                        //#if MC >= 12109
-                        // armor animation copying hack
-                        if (wasArmor && !emfRoot.containsCustomAnims && EMF.config().getConfig().armorCopiesAnimationsHack) {
-                            var baseName = mobNameForFileAndMap.getfileName().replaceFirst("(_helmet|_chestplate|_leggings|_boots)","");
-                            if (printing) EMFUtils.logWarn("attempting to find base model for: " + mobNameForFileAndMap.getfileName() +", trying: " + baseName);
-                            var possibleBase = cache_JemDataByFileName.get(baseName);
-                            if (possibleBase == null) possibleBase = getJemAndContext(printing, new EMFModel_ID(baseName), originalLayerBase).getLeft();
-
-                            if (possibleBase != null && !possibleBase.getAllTopLevelAnimationsByVanillaPartName().isEmpty()) {
-                                for (Integer i : emfRoot.allKnownStateVariants.keySet()) {
-                                    setupAnimationsFromJemToModel(possibleBase, emfRoot, i);
-                                }
-
-                                if (printing) EMFUtils.logWarn(" > injected armor model animation copy 1.21.9+ hack into: " + mobNameForFileAndMap);
-                            }
-                        }
-                        //#endif
-
                         //finished
                         if (printing) EMFUtils.logWarn(" > EMF model used for: " + mobNameForFileAndMap);
                         return emfRoot;//tada
                     }
                 }
             }
-
-            //#if MC >= 12109
-            // armor animation copying hack
-            if (wasArmor && EMF.config().getConfig().armorCopiesAnimationsHack) {
-                var baseName = mobNameForFileAndMap.getfileName().replaceFirst("(_helmet|_chestplate|_leggings|_boots)","");
-                if (printing) EMFUtils.logWarn("attempting to find base model for: " + mobNameForFileAndMap.getfileName() +", trying: " + baseName);
-                var possibleBase = cache_JemDataByFileName.get(baseName);
-                if (possibleBase == null) possibleBase = getJemAndContext(printing, new EMFModel_ID(baseName), originalLayerBase).getLeft();
-
-                if (possibleBase != null && !possibleBase.getAllTopLevelAnimationsByVanillaPartName().isEmpty()) {
-
-                    var emptyArmorEmfModel = new EMFModelPartRoot(mobNameForFileAndMap,
-                            EMFDirectoryHandler.basic(mobNameForFileAndMap.getfileName()),
-                            root, optifinePartNameMap.values(), new HashMap<>());
-                    emptyArmorEmfModel.copyVariantTo(0, 1);
-                    emptyArmorEmfModel.setVariantStateTo(1);
-                    setupAnimationsFromJemToModel(possibleBase, emptyArmorEmfModel, 1);
-                    emptyArmorEmfModel.containsCustomModel = true;
-
-                    if (printing) EMFUtils.logWarn(" > EMF armor model animation copy 1.21.9+ hack model used for: " + mobNameForFileAndMap);
-                    return emptyArmorEmfModel;
-                }
-                if (printing) EMFUtils.logWarn("no base model found for: " + baseName);
-            }
-            //#endif
 
             if (printing) EMFUtils.logWarn(" > Vanilla model used for: " + mobNameForFileAndMap);//original name
             ((IEMFModelNameContainer) root).emf$insertKnownMappings(mobNameForFileAndMap);

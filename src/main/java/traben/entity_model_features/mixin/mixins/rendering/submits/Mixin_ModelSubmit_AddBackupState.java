@@ -12,58 +12,40 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFSubmitData;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
-import traben.entity_model_features.utils.HoldsBackupEMFRenderState;
-import traben.entity_texture_features.features.state.HoldsETFRenderState;
+import traben.entity_model_features.models.animation.state.EMFSubmitExtension;
 
 @Mixin(SubmitNodeStorage.ModelSubmit.class)
-public abstract class Mixin_ModelSubmit_AddBackupState<S> implements HoldsBackupEMFRenderState {
+public abstract class Mixin_ModelSubmit_AddBackupState<S> implements EMFSubmitExtension {
 
-    @Shadow
-    public abstract S state();
+    @Unique private final EMFSubmitData data = new EMFSubmitData();
+
+    @Override
+    public EMFSubmitData emf$getData() {
+        return data;
+    }
 
     @Shadow
     public abstract Model<? super S> model();
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void emf$init(CallbackInfo ci) {
-        var emf = EMFManager.getInstance();
-        if (emf.awaitingState != null) {
+        if (EMFSubmitData.AWAITING_backupState != null) {
             // this is for those dumb block entities that don't pass the state through because they only need 1 primitive of state data
-            this.emfState = emf.awaitingState;
+            data.backupState = EMFSubmitData.AWAITING_backupState;
         }
 
-        if (model().root() instanceof EMFModelPartRoot emfRoot) {
-            modelVariant = emfRoot.currentModelVariant;
+        if (EMFSubmitData.AWAITING_bipedPose != null) {
+            data.bipedPose = EMFSubmitData.AWAITING_bipedPose;
+        }
+
+        EMFModelPartRoot emfRoot = model().root() instanceof EMFModelPartRoot ? (EMFModelPartRoot) model().root() : null;
+        if (emfRoot != null) {
+            data.modelVariant = emfRoot.currentModelVariant;
         }
     }
 
-    @Unique
-    private EMFEntityRenderState emfState = null;
-
-    @Override
-    public void emf$setState(final EMFEntityRenderState state) {
-        this.emfState = state;
-    }
-
-    @Override
-    public EMFEntityRenderState emf$getState() {
-        return emfState;
-    }
-
-
-    @Unique
-    private int modelVariant =-1;
-
-    @Override
-    public int emf$getModelVariant() {
-        return modelVariant;
-    }
-
-    @Override
-    public void emf$setModelVariant(int variant) {
-        modelVariant = variant;
-    }
 }
 //#else
 //$$ @Mixin(traben.entity_texture_features.mixin.CancelTarget.class)

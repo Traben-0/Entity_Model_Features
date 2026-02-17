@@ -74,4 +74,8 @@ public class EMFEntityRenderStateViaReference extends ETFEntityRenderStateViaRef
     private EMFAttachments rightArmOverride = null;
     @Override public @Nullable EMFAttachments rightArmOverride() { return rightArmOverride; }
     @Override public void setRightArmOverride(EMFAttachments override) { rightArmOverride = override; }
+
+    EMFBipedPose bipedPose = null;
+    @Override public void setBipedPose(EMFBipedPose pose) { bipedPose = pose; }
+    @Override public EMFBipedPose getBipedPose() { return bipedPose; }
 }

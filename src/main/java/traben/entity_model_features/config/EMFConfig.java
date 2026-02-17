@@ -118,7 +118,7 @@ public class EMFConfig extends TConfig {
     //#endif
     public boolean showReloadErrorToast = true;
     //#if MC >= 12109
-    public boolean armorCopiesAnimationsHack = true;
+    @Deprecated(forRemoval = true) public boolean armorCopiesAnimationsHack = false;
     //#endif
 
     public boolean exportRotations = false;
@@ -136,10 +136,6 @@ public class EMFConfig extends TConfig {
                                         () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.double_chest_fix", "entity_model_features.config.double_chest_fix.tooltip",
                                         () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true)
-                                //#if MC >= 12109
-                                , new TConfigEntryBoolean("entity_model_features.config.armor_hack", "entity_model_features.config.armor_hack.tooltip",
-                                        () -> armorCopiesAnimationsHack, value -> armorCopiesAnimationsHack = value, true)
-                                //#endif
 
                         ),
                         new TConfigEntryCategory("entity_model_features.config.player_settings").add(

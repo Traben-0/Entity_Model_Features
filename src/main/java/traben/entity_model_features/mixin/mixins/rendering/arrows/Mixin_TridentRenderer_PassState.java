@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFSubmitData;
 import traben.entity_texture_features.features.state.HoldsETFRenderState;
 
 @Mixin(ThrownTridentRenderer.class)
@@ -19,13 +20,13 @@ public abstract class Mixin_TridentRenderer_PassState {
     @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/ThrownTridentRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
             at = @At(value = "HEAD"))
     private void emf$backupState(CallbackInfo ci, @Local(argsOnly = true) ThrownTridentRenderState thrownTridentRenderState) {
-        EMFManager.getInstance().awaitingState = (EMFEntityRenderState) ((HoldsETFRenderState)thrownTridentRenderState).etf$getState();
+        EMFSubmitData.AWAITING_backupState = (EMFEntityRenderState) ((HoldsETFRenderState)thrownTridentRenderState).etf$getState();
     }
 
     @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/ThrownTridentRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
             at = @At(value = "TAIL"))
     private void emf$backupStateClear(CallbackInfo ci) {
-        EMFManager.getInstance().awaitingState = null;
+        EMFSubmitData.AWAITING_backupState = null;
     }
 }
 //#else

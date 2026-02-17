@@ -7,6 +7,7 @@ import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -24,6 +25,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.models.animation.state.EMFBipedPose;
+import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
@@ -32,6 +35,7 @@ import traben.entity_model_features.utils.EMFEntity;
 
 //#if MC >= 12102
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import traben.entity_texture_features.features.state.HoldsETFRenderState;
 //#endif
 
 @Mixin(LivingEntityRenderer.class)
@@ -49,6 +53,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     @Shadow
     protected M model;
 
+    @Shadow
+    public abstract M getModel();
+
     @SuppressWarnings("unused")
     protected MixinLivingEntityRenderer(EntityRendererProvider.Context ctx) {
         super(ctx);
@@ -58,10 +65,18 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Ljava/lang/Object;)V",
                     shift = At.Shift.AFTER))
-    private void falseAnimation(CallbackInfo ci, @Local PoseStack pose) {
+    private void falseAnimation(CallbackInfo ci, @Local(argsOnly = true) PoseStack pose, @Local(argsOnly = true) S renderState) {
         // animate so that dependant layers can read the positions (only applies if they set their matrix prior to submission)
         IEMFModel model = (IEMFModel) getModel();
-        if (model.emf$isEMFModel()) model.emf$getEMFRootModel().triggerManualAnimation(pose);
+        if (model.emf$isEMFModel()) {
+            model.emf$getEMFRootModel().triggerManualAnimation(pose);
+            // Store the biped pose in the render state for use by layers that need it.
+            if (getModel() instanceof HumanoidModel<?> humanoidModel) {
+                var state = (EMFEntityRenderState) ((HoldsETFRenderState) renderState).etf$getState();
+                if (state != null) state.setBipedPose(new EMFBipedPose(humanoidModel));
+            }
+
+        }
     }
     //#else
     //$$ @ModifyExpressionValue(method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",

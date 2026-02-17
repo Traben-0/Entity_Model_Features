@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFSubmitData;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
 import traben.entity_texture_features.features.state.HoldsETFRenderState;
 import traben.entity_texture_features.utils.ETFEntity;
@@ -23,12 +24,12 @@ public class MixinBlockEntityRenderDispatcher {
                    @Local(argsOnly = true) T blockEntity) {
         var state = (EMFEntityRenderState) ((HoldsETFRenderState) blockEntity).etf$getState();
         EMFAnimationEntityContext.setCurrentEntityIteration(state);
-        EMFManager.getInstance().awaitingState = state;
+        EMFSubmitData.AWAITING_backupState = state;
     }
 
     @Inject(method = "submit", at = @At(value = "TAIL"))
     private static <T extends net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState> void emf$grabEntity2(CallbackInfo ci) {
-        EMFManager.getInstance().awaitingState = null;
+        EMFSubmitData.AWAITING_backupState = null;
     }
     //#elseif MC >=12104
     //$$ @Inject(method = "setupAndRender",

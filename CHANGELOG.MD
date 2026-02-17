@@ -1,5 +1,6 @@
 
 - fix arm overrides pre 1.21.9
+- fixed armor in 1.21.9+ causing a lot of lag with animated player models loaded
 
 
 [3.0.11]
