@@ -20,7 +20,11 @@ public class EMFBipedPose {
         this.rightArm = new PosePart(model.rightArm);
         this.leftLeg = new PosePart(model.leftLeg);
         this.rightLeg = new PosePart(model.rightLeg);
+        //#if MC >= 1.21.2
         this.root = new PosePart(model.root());
+        //#else
+        //$$ this.root = null;
+        //#endif
     }
 
     public void applyTo(HumanoidModel<?> model) {
@@ -30,7 +34,9 @@ public class EMFBipedPose {
         rightArm.applyTo(model.rightArm);
         leftLeg.applyTo(model.leftLeg);
         rightLeg.applyTo(model.rightLeg);
+        //#if MC >= 1.21.2
         root.applyTo(model.root());
+        //#endif
     }
 
     private static class PosePart {
