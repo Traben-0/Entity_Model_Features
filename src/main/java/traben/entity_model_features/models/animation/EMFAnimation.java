@@ -140,7 +140,7 @@ public class EMFAnimation {
     }
 
     public void calculateAndSet() {
-        if (EMFAnimationEntityContext.isLODSkippingThisFrame()) {
+        if (EMFAnimationEntityContext.isLODSkippingThisFrame(modelName)) {
             if (!isVar()) handleResultNonVariable(getLastResultOnly());
         } else {
             calculateAndSetNotLod();

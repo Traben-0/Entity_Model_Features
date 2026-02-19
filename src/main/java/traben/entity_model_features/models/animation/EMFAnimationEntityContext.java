@@ -75,7 +75,7 @@ public final class EMFAnimationEntityContext {
     private static final Object2IntOpenHashMap<UUID> knownHighestAngerTimeByUUID = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
     }};
-    private static final Object2IntOpenHashMap<UUID> lodEntityTimers = new Object2IntOpenHashMap<>();
+    private static final Object2IntOpenHashMap<String> lodEntityTimers = new Object2IntOpenHashMap<>();
     public static boolean setInHand = false; // todo probably needs a 1.21.9+ solution
     public static boolean isFirstPersonHand = false;
     public static boolean setInItemFrame = false;
@@ -262,7 +262,7 @@ public final class EMFAnimationEntityContext {
         return lodFactor;
     }
 
-    public static boolean isLODSkippingThisFrame() {
+    public static boolean isLODSkippingThisFrame(String modelId) {
         if (EMFAnimationEntityContext.isInGui()) return false;
         if (lodFrameSkipping != null) return lodFrameSkipping;
 
@@ -279,7 +279,9 @@ public final class EMFAnimationEntityContext {
 
         if (EMF.config().getConfig().animationLODDistance == 0 || emfState == null) return false;
 
-        int lodTimer = lodEntityTimers.getInt(emfState.uuid());
+        String lodKey = emfState.uuid() + modelId;
+
+        int lodTimer = lodEntityTimers.getInt(lodKey);
         int lodResult;
         //check lod
         if (lodTimer < 1) {
@@ -287,7 +289,7 @@ public final class EMFAnimationEntityContext {
         } else {
             lodResult = lodTimer - 1;
         }
-        lodEntityTimers.put(emfState.uuid(), lodResult);
+        lodEntityTimers.put(lodKey, lodResult);
         //intellij requires it for certain versions :/
         //noinspection RedundantCast
         lodFrameSkipping = (Boolean) (lodResult > 0);

@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.animation.state.EMFSubmitData;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
@@ -39,6 +40,8 @@ public abstract class Mixin_ModelSubmit_AddBackupState<S> implements EMFSubmitEx
         if (EMFSubmitData.AWAITING_bipedPose != null) {
             data.bipedPose = EMFSubmitData.AWAITING_bipedPose;
         }
+
+        data.onShoulder = EMFAnimationEntityContext.isOnShoulder();
 
         EMFModelPartRoot emfRoot = model().root() instanceof EMFModelPartRoot ? (EMFModelPartRoot) model().root() : null;
         if (emfRoot != null) {

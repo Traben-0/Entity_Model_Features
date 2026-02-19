@@ -10,6 +10,8 @@ public class EMFSubmitData {
 
     public EMFBipedPose bipedPose = null;
 
+    public boolean onShoulder = false;
+
 
     /**
      * These fields are used as a sort of "thread local" for passing data easily into new submit instances

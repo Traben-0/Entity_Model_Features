@@ -22,7 +22,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         public EMFModelState get(final int k) {
             if (!containsKey(k)) {
                 EMFUtils.logWarn("EMFModelState variant with key " + k + " does not exist in part [" + toStringShort() + "], returning copy of 0");
-                put(k, EMFModelState.copy(get(0)));
+                put(k, get(0).copy());
             }
             return super.get(k);
         }
@@ -143,7 +143,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     }
 
     public void copyVariantTo(int from, int to) {
-        allKnownStateVariants.putIfAbsent(to, EMFModelState.copy(allKnownStateVariants.get(from)));
+        allKnownStateVariants.putIfAbsent(to, allKnownStateVariants.get(from).copy());
         for (ModelPart value : children.values()) {
             if (value instanceof EMFModelPartWithState p3)
                 p3.copyVariantTo(from, to);
@@ -179,27 +179,31 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
             //#endif
 
      {
-        public static EMFModelState copy(EMFModelState copyFrom) {
-            PartPose trans = copyFrom.defaultTransform();
+         public EMFModelState copy() {
+             return copy(visible());
+         }
+
+        public EMFModelState copy(boolean visibleOverride) {
+            PartPose trans = defaultTransform();
             Animator animator = new Animator();
-            animator.setAnimation(copyFrom.animation().getAnimation());
+            animator.setAnimation(animation().getAnimation());
             return new EMFModelState(
                     //#if MC >= 12102
                     new PartPose(trans.x(), trans.y(), trans.z(), trans.xRot(), trans.yRot(), trans.zRot(), trans.xScale(), trans.yScale(), trans.zScale()),
                     //#else
                     //$$ PartPose.offsetAndRotation(trans.x, trans.y, trans.z, trans.xRot, trans.yRot, trans.zRot),
                     //#endif
-                    new ArrayList<>(copyFrom.cuboids()),
-                    new HashMap<>(copyFrom.variantChildren()),
+                    new ArrayList<>(cuboids()),
+                    new HashMap<>(variantChildren()),
                     //#if MC < 12102
-                    //$$ copyFrom.xScale(),
-                    //$$ copyFrom.yScale(),
-                    //$$ copyFrom.zScale(),
+                    //$$ xScale(),
+                    //$$ yScale(),
+                    //$$ zScale(),
                     //#endif
 
-                    copyFrom.visible(),
-                    copyFrom.hidden(),
-                    copyFrom.texture(),
+                    visibleOverride,
+                    hidden(),
+                    texture(),
                     animator
             );
         }

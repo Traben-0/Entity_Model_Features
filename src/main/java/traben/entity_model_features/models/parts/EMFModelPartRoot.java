@@ -156,7 +156,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
         for (Map.Entry<String, EMFModelPartVanilla> vanillaEntry : allVanillaParts.entrySet()) {
             EMFModelPartVanilla thisPart = vanillaEntry.getValue();
-            EMFModelState vanillaState = EMFModelState.copy(thisPart.allKnownStateVariants.get(0));
+            EMFModelState vanillaState = thisPart.allKnownStateVariants.get(0).copy();
             thisPart.setFromState(vanillaState);
 
             thisPart.textureOverride = rootTextureOverride;
@@ -181,7 +181,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             thisPart.allKnownStateVariants.put(variant, thisPart.getCurrentState());
 
         }
-        allKnownStateVariants.putIfAbsent(variant, EMFModelState.copy(allKnownStateVariants.get(0)));
+        allKnownStateVariants.putIfAbsent(variant, allKnownStateVariants.get(0).copy());
     }
 
     public void discoverAndInitVariants(String fallbackPropertiesName) {

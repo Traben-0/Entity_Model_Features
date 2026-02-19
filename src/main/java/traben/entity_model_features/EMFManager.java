@@ -23,6 +23,7 @@ import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
+import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETF;
@@ -310,6 +311,14 @@ public class EMFManager {//singleton for data holding and resetting needs
                 //wolf_baby_collar
 
                 //#if MC >= 12102
+
+                // OptiFine uses reversed naming order
+                if (mobNameForFileAndMap.getfileName().endsWith("_armor_baby")) {
+                    mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback(
+                            mobNameForFileAndMap.getfileName().replace("_armor_baby", "_baby_armor"));
+                }
+
+
                 if (mobNameForFileAndMap.getfileName().matches(".*_baby($|_\\w*)")
                         // Exclude these baby variants from falling back
                         && !mobNameForFileAndMap.getfileName().startsWith("horse_baby")
@@ -449,6 +458,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                         }
                         case "skeleton_skull" -> mobNameForFileAndMap.setBoth("head_skeleton");
                         case "sheep_fur" -> mobNameForFileAndMap.setBoth("sheep_wool");//old vanilla name
+                        case "sheep_wool_undercoat", "sheep_baby_wool_undercoat" ->
+                            mobNameForFileAndMap.addFallbackModel(originalLayerName.replace("_wool_undercoat", ""));
                         case "trader_llama", "trader_llama_baby" -> traderLlamaHappened = true;
                         case "tropical_fish_large" -> mobNameForFileAndMap.setBoth("tropical_fish_b");
                         case "tropical_fish_large_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_b");
@@ -458,11 +469,18 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "zombie_head" -> mobNameForFileAndMap.setBoth("head_zombie");
                         case "undead_horse_armor" -> {
                             if (lastUndeadHorse != null) {
-                                mobNameForFileAndMap.pushNewMainModelAndMapIdAddingOldAsFallback(lastUndeadHorse + "_armor");
+                                mobNameForFileAndMap.pushNewMainModelAndMapIdAddingOldAsFallback(
+                                        lastUndeadHorse.replaceAll("_baby", "") + "_armor");
+                            }
+                        }
+                        case "undead_horse_baby_armor" -> {
+                            if (lastUndeadHorse != null) {
+                                mobNameForFileAndMap.pushNewMainModelAndMapIdAddingOldAsFallback(
+                                        lastUndeadHorse.replaceAll("_baby", "") + "_baby_armor");
                             }
                         }
                         default -> {
-                            if (!currentSpecifiedModelLoading.isBlank()) {
+                            if (!currentSpecifiedModelLoading.isBlank() && !currentSpecifiedModelLoading.startsWith("emf$")) { //key to not override
                                 switch (currentSpecifiedModelLoading) {
                                     case "sign", "hanging_sign" -> {
                                         //   sign/standing/oak.jem
@@ -635,6 +653,23 @@ public class EMFManager {//singleton for data holding and resetting needs
                                 EBE_JEMS_FOUND.add(EBETypes.get(currentBlockEntityTypeLoading));
                             }
                         }
+
+                        try {
+                            // armor stands do this once only in the constructor so EMF doesn't know about it
+                            if (mobNameForFileAndMap.getMapId().equals("armor_stand")) {
+                                //#if MC >= 1.21.2
+                                var toHide = (EMFModelPartVanilla) emfRoot.getChild("head").getChild("hat");
+                                //#else
+                                //$$ var toHide = (EMFModelPartVanilla) emfRoot.getChild("hat");
+                                //#endif
+
+                                toHide.allKnownStateVariants.entrySet().forEach(entry ->
+                                        entry.setValue(entry.getValue().copy(false))
+                                );
+                                toHide.visible = false;
+                            }
+                        } catch (Exception ignored) {}
+
 
                         //finished
                         if (printing) EMFUtils.logWarn(" > EMF model used for: " + mobNameForFileAndMap);

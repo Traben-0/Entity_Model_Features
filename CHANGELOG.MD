@@ -1,7 +1,18 @@
 
 - fix arm overrides pre 1.21.9
 - fixed armor in 1.21.9+ causing a lot of lag with animated player models loaded
-- partially fixed compatibility with Essential cosmetics and animated player models *(currently doesn't work when the root part animates, the fix has been supplied to the Essential team)*
+- reduced a portion of the lag introduced by the 1.21.9+ changes
+- partially fixed compatibility with Essential Mod cosmetics and animated player models *(currently doesn't work when the root part animates, the fix has been supplied to the Essential team)*
+- fixed `is_on_shoulder` in 1.21.9+
+- fixed happy ghast harness models `body` not working correctly *(fresh animations also needs to update for this fix)*
+- fixed horse armor names not matching OptiFine's
+- fixed camel_husk_saddle model
+- fixed tadpole models not matching OptiFine
+- fixed armor_stand models headwear part visibility being reset in secondary models
+- fixed bell model 'base' part not working correctly
+- fixed raft models breaking after a resource reload
+- fixed the animation LOD setting sometimes breaking for mobs with multiple models *(was quite noticeable on happy ghasts with harnesses)*
+- fixed first person hand animations breaking in 1.21.9+
 
 
 [3.0.11]

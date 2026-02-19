@@ -33,7 +33,6 @@ public class EMFModelMappings {
 
     public static final Map<String, Map<String, String>> UNKNOWN_MODEL_MAP_CACHE = new HashMap<>();
     public static final Map<String, Map<String, String>> OPTIFINE_MODEL_MAP_CACHE = new HashMap<>();
-//    public static Map<String, String> DEFAULT_TEXTURE_MAPPINGS;
 
     public static final Map<String, String> genericNonPlayerBiped = Map.ofEntries(
             partMapping("head"),
@@ -47,133 +46,9 @@ public class EMFModelMappings {
 
     static {
         initOptifineMappings();
-//        initDefaultTextureMappings();
     }
 
-//    private static String texture(String name){
-//        return "minecraft:textures/entity/"+ name +".png";
-//    }
-//    private static String texture(String folder,String name){
-//        return "minecraft:textures/entity/" + folder + "/" + name +".png";
-//    }
-//
-//    private static Map.Entry<String,String> entry(String key, String value){
-//        return new MutablePair<>(key,value);
-//    }
-//
-//    private static void initDefaultTextureMappings() {
-//        DEFAULT_TEXTURE_MAPPINGS = Map.ofEntries(
-//                entry("allay", texture("allay","allay")),
-//                entry("armor_stand", texture("armor_stand","wood")),
-//                entry("armor_stand_small", texture("armor_stand","wood")),
-//                entry("bat", texture("bat")),
-//                entry("bell", texture("bell","bell_body")),
-//                entry("blaze", texture("blaze")),
-//                entry("breeze", texture("breeze","breeze")),
-//                entry("breeze_eyes", texture("breeze","breeze_eyes")),
-//                entry("breeze_wind", texture("breeze","breeze_wind")),
-//                entry("camel", texture("camel","camel")),
-//                entry("cat_collar", texture("cat","cat_collar")),
-//                entry("cave_spider", texture("spider","cave_spider")),
-//                entry("cod", texture("fish","cod")),
-//                entry("creeper", texture("creeper","creeper")),
-//                entry("creeper_charge", texture("creeper", "creeper_armor")),
-//                entry("donkey", texture("horse","donkey")),
-//                entry("dolphin", texture("dolphin")),
-//                entry("drowned", texture("zombie", "drowned")),
-//                entry("drowned_outer", texture("zombie", "drowned_outer_layer")),
-//                entry("elder_guardian", texture("guardian_elder")),
-//                entry("enchanting_book", texture("enchanting_table_book")),
-//                entry("ender_chest", texture("chest","ender")),
-//                entry("end_crystal", texture("end_crystal","end_crystal")),
-//                entry("enderman", texture("enderman","enderman")),
-//                entry("endermite", texture("endermite")),
-//                entry("evoker", texture("illager", "evoker")),
-//                entry("evoker_fangs", texture("illager", "evoker_fangs")),
-//                entry("giant", texture("zombie", "zombie")),
-//                entry("glow_squid", texture("squid", "glow_squid")),
-//                entry("goat", texture("goat","goat")),
-//                entry("guardian", texture("guardian")),
-//                entry("head_creeper", texture("creeper","creeper")),
-//                entry("head_piglin", texture("piglin", "piglin")),
-//                entry("head_skeleton", texture("skeleton", "skeleton")),
-//                entry("head_wither_skeleton", texture("skeleton", "wither_skeleton")),
-//                entry("head_zombie", texture("zombie", "zombie")),
-//                entry("hoglin", texture("hoglin","hoglin")),
-//                entry("husk", texture("zombie", "husk")),
-//                entry("illusioner", texture("illager", "illusioner")),
-//                entry("lead_knot", texture("lead_knot")),
-//                entry("lectern_book", texture("enchanting_table_book")),
-//                entry("llama_spit", texture("llama","spit")),
-//                entry("magma_cube", texture("slime","magmacube")),
-//                entry("minecart", texture("minecart")),
-//                entry("mule", texture("hosre","mule")),
-//                entry("ocelot", texture("cat", "ocelot")),
-//                entry("phantom", texture("phantom")),
-//                entry("puffer_fish_big", texture("fish", "pufferfish")),
-//                entry("puffer_fish_medium", texture("fish", "pufferfish")),
-//                entry("puffer_fish_small", texture("fish", "pufferfish")),
-//                entry("pig_saddle", texture("pig","pig_saddle")),
-//                entry("piglin", texture("piglin", "piglin")),
-//                entry("piglin_brute", texture("piglin", "piglin_brute")),
-//                entry("pillager", texture("illager", "pillager")),
-//                entry("polar_bear", texture("bear","polarbear")),
-//                entry("ravager", texture("illager", "ravager")),
-//                entry("salmon", texture("fish","salmon")),
-//                entry("sheep", texture("sheep","sheep")),
-//                entry("sheep_wool", texture("sheep","sheep_fur")),
-//                entry("shulker_bullet", texture("shulker", "spark")),
-//                entry("silverfish", texture("silverfish")),
-//                entry("skeleton", texture("skeleton", "skeleton")),
-//                entry("skeleton_horse", texture("horse","horse_skeleton")),
-//                entry("slime", texture("slime","slime")),
-//                entry("slime_outer", texture("slime","slime")),
-//                entry("sniffer", texture("sniffer","sniffer")),
-//                entry("snow_golem", texture("snow_golem")),
-//                entry("spider", texture("spider","spider")),
-//                entry("squid", texture("squid","squid")),
-//                entry("stray", texture("skeleton", "stray")),
-//                entry("stray_outer", texture("skeleton", "stray")),
-//                entry("strider_saddle", texture("strider", "strider_saddle")),
-//                entry("tadpole", texture("tadpole", "tadpole")),
-//                entry("trader_llama_decor", texture("llama/decor","trader_llama")),
-//                entry("trident", texture("trident")),
-//                entry("turtle", texture("turtle","big_sea_turtle")),
-//                entry("villager", texture("villager","villager")),
-//                entry("vindicator", texture("illager","vindicator")),
-//                entry("wandering_trader", texture("wandering_trader")),
-//                entry("warden", texture("warden", "warden")),
-//                entry("wind_charge", texture("projectiles", "wind_charge")),
-//                entry("witch", texture("witch")),
-//                entry("wither_skeleton", texture("skeleton", "wither_skeleton")),
-//                entry("wolf_collar", texture("wolf", "wolf_collar")),
-//                entry("zoglin", texture("hoglin", "zoglin")),
-//                entry("zombie", texture("zombie","zombie")),
-//                entry("zombie_horse", texture(" horse","horse_zombie")),
-////                "zombie_pigman", texture(),
-//                entry("zombie_villager", texture("zombie_villager", "zombie_villager")),
-//                entry("zombified_piglin", texture("piglin", "zombified_piglin")),
-//
-//                //#if MC >= 12105
-//                entry("cow", texture("cow", "temperate_cow")),
-//                entry("warm_cow", texture("cow", "warm_cow")),
-//                entry("cold_cow", texture("cow", "cold_cow")),
-//                entry("pig", texture("pig","temperate_pig")),
-//                entry("warm_pig", texture("pig","warm_pig")),
-//                entry("cold_pig", texture("pig","cold_pig")),
-//                entry("chicken", texture("chicken", "temperate_chicken")),
-//                entry("warm_chicken", texture("chicken", "warm_chicken")),
-//                entry("cold_chicken", texture("chicken", "cold_chicken"))
-//                //#else
-//                //$$ entry("cow", texture("cow", "cow")),
-//                //$$ entry("pig", texture("pig","pig")),
-//                //$$ entry("chicken", texture("chicken"))
-//                //#endif
-//        );
-//    }
-
     private static void initOptifineMappings() {
-
 
         var genericHorse = Map.ofEntries(
                   partMapping("body", "body"),
@@ -382,9 +257,10 @@ public class EMFModelMappings {
                         partMapping("tentacle8", "tentacle7"),
                         partMapping("tentacle9", "tentacle8")
                 ));
+
         OptifineMapper.models("happy_ghast_harness", "happy_ghast_baby_harness")
                 .parts(Map.ofEntries(
-                        partMapping("body"),
+                        partMapping("body", "harness"),
                         partMapping("goggles")
                 ));
         OptifineMapper.models("wolf", "wolf_collar", "wolf_armor")
@@ -422,7 +298,20 @@ public class EMFModelMappings {
                         partMapping("jaw")
                 ));
 
-        OptifineMapper.models("camel", "camel_saddle", "camel_husk", "camel_husk_saddle")
+        OptifineMapper.models("camel", "camel_husk")
+                .parts(Map.ofEntries(
+                        partMapping("body"),
+                        partMapping("hump"),
+                        partMapping("tail"),
+                        partMapping("head"),
+                        partMapping("left_ear"),
+                        partMapping("right_ear"),
+                        partMapping("back_left_leg", "left_hind_leg"),
+                        partMapping("back_right_leg", "right_hind_leg"),
+                        partMapping("front_left_leg", "left_front_leg"),
+                        partMapping("front_right_leg", "right_front_leg")
+                ));
+        OptifineMapper.models( "camel_saddle", "camel_baby_saddle", "camel_husk_saddle", "camel_husk_baby_saddle")
                 .parts(Map.ofEntries(
                         partMapping("body"),
                         partMapping("hump"),
@@ -872,8 +761,7 @@ public class EMFModelMappings {
                 ));
         OptifineMapper.models("tadpole")
                 .parts(Map.ofEntries(
-                        partMapping("body", "root"),//body = root for some reason because we don't need things to make sense when it comes to optifine
-                        partMapping("EMPTY", "body"),//EMPTY is important
+                        partMapping("body"),
                         partMapping("tail")
                 ));
         OptifineMapper.models("tropical_fish_a", "tropical_fish_pattern_a")
@@ -976,7 +864,8 @@ public class EMFModelMappings {
                 ));
         OptifineMapper.models("bell")
                 .parts(Map.ofEntries(
-                        partMapping("body", "bell_body")
+                        partMapping("body", "bell_body"),
+                        partMapping("base", "bell_base")
                 ));
         OptifineMapper.models("chest_boat")
                 .parts(Map.ofEntries(

@@ -36,11 +36,13 @@ public class Mixin_ModelRenderer {
             EMFAnimationEntityContext.setCurrentEntityIteration(state2, setModelVariant(data, modelSubmit));
             ETFRenderContext.setCurrentEntity(state2);
             EMFAnimationEntityContext.setLayerFactory(modelSubmit.model().renderType);
+            state2.setBipedPose(null);
         } else if (data != null && data.backupState != null) { // block entity backup
             var state2 = data.backupState;
             EMFAnimationEntityContext.setCurrentEntityIteration(state2, setModelVariant(data, modelSubmit));
             EMFAnimationEntityContext.setLayerFactory(modelSubmit.model().renderType);
             ETFRenderContext.setCurrentEntity(state2);
+            state2.setBipedPose(null);
         } else {
             EMFAnimationEntityContext.reset();
         }
@@ -51,6 +53,10 @@ public class Mixin_ModelRenderer {
             ETFRenderContext.startSpecialRenderOverlayPhase();
         } else {
             ETFRenderContext.endSpecialRenderOverlayPhase();
+        }
+
+        if (data != null) {
+            EMFAnimationEntityContext.setCurrentEntityOnShoulder(data.onShoulder);
         }
     }
 
@@ -89,6 +95,7 @@ public class Mixin_ModelRenderer {
         EMFAnimationEntityContext.reset();
         ETFRenderContext.endSpecialRenderOverlayPhase();
         ETFRenderContext.reset();
+        EMFAnimationEntityContext.setCurrentEntityOnShoulder(false);
     }
 
     @Inject(method = "renderBatch", at = @At(value = "TAIL"))
@@ -96,6 +103,7 @@ public class Mixin_ModelRenderer {
         EMFAnimationEntityContext.reset();
         ETFRenderContext.endSpecialRenderOverlayPhase();
         ETFRenderContext.reset();
+        EMFAnimationEntityContext.setCurrentEntityOnShoulder(false);
     }
 
 }
