@@ -1,5 +1,6 @@
 
-- fix arm overrides pre 1.21.9
+[3.0.12]
+- fixed arm overrides pre 1.21.9
 - fixed armor in 1.21.9+ causing a lot of lag with animated player models loaded
 - reduced a portion of the lag introduced by the 1.21.9+ changes
 - partially fixed compatibility with Essential Mod cosmetics and animated player models *(currently doesn't work when the root part animates, the fix has been supplied to the Essential team)*
@@ -13,6 +14,7 @@
 - fixed raft models breaking after a resource reload
 - fixed the animation LOD setting sometimes breaking for mobs with multiple models *(was quite noticeable on happy ghasts with harnesses)*
 - fixed first person hand animations breaking in 1.21.9+
+- several technical changes/fixups mostly related to 1.21.9+
 
 
 [3.0.11]
