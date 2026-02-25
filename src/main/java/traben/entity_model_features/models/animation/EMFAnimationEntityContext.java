@@ -169,9 +169,8 @@ public final class EMFAnimationEntityContext {
     private static boolean isPlayerEmoting(EMFEntity entity) {
         if (!(entity instanceof Player player)) return false;
 
-        Class<?> emotePlayerType = getIEmotePlayerEntityType();
         Method emoteMethod = getIsPlayingEmoteMethod();
-        if (emotePlayerType == null || emoteMethod == null || !emotePlayerType.isInstance(player)) return false;
+        if (emoteMethod == null) return false;
 
         try {
             return (boolean) emoteMethod.invoke(player);
@@ -185,6 +184,9 @@ public final class EMFAnimationEntityContext {
         checkedIfIEmotePlayerExists = true;
 
         try {
+            // Tries to get the IEmotePlayerEntity interface in order to access the isPlayingEmote() method
+            // https://github.com/KosmX/emotes/blob/1.20.1/executor/src/main/java/io/github/kosmx/emotes/executor/emotePlayer/IEmotePlayerEntity.java
+            // This type should always be found if EmoteCraft mod doesn't change it too much and the mod is actually loaded obv
             iEmotePlayerEntityType = Class.forName("io.github.kosmx.emotes.executor.emotePlayer.IEmotePlayerEntity");
         } catch (ClassNotFoundException ignored) {
             iEmotePlayerEntityType = null;
@@ -654,9 +656,13 @@ public final class EMFAnimationEntityContext {
 
             EntityType<?> type = emfState.entity().etf$getType();
             if (type != null && type.toString().contains("customnpc")) {
-
+                // CustomNPC has been ported to 1.20.1 by another dev that ask for having access to the source code
+                // CustomNPC nor UnofficialCustomNPC are not open source (so no source code :x)
+                //Downloads on https://www.curseforge.com/minecraft/mc-mods/customnpcs-unofficial/files/all?page=1&pageSize=20&version=1.20.1&gameVersionTypeId=1&showAlphaFiles=hide
                 CompoundTag nbtTags = emfState.entity().etf$getNbt();
 
+                // If the customNPC is in puppet role
+                // Or if we want the customNPC to not use EMF animations (like with Fresh Animation RP) we can set his maxhp to 777 to have a full control (usefull for the siting pose for example)
                 if ((((LivingEntity) emfState.entity()).getMaxHealth() == 777f) ||
                         nbtTags.contains("PuppetStanding") ||
                         nbtTags.contains("PuppetMoving") ||
