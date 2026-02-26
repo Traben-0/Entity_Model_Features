@@ -16,6 +16,7 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFSubmitData;
 import traben.entity_model_features.utils.EMFEntity;
 
 //#if MC >= 12102
@@ -51,9 +52,11 @@ public class MixinParrotEntityModel {
     private void emf$parrot1(final CallbackInfo ci) {
         try{
             var entity = (EMFEntity) EntityType.PARROT.create(Minecraft.getInstance().level, EntitySpawnReason.COMMAND);
-            if (entity != null)
+            if (entity != null) {
                 EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState) ETFEntityRenderState.forEntity(entity));
-        }catch (Exception ignored){
+                EMFSubmitData.AWAITING_backupState = EMFAnimationEntityContext.getEmfState();
+            }
+                }catch (Exception ignored){
         }
         EMFAnimationEntityContext.setCurrentEntityOnShoulder(true);
     }
@@ -61,6 +64,7 @@ public class MixinParrotEntityModel {
     @Inject(method = RENDER_METHOD, at = @At("TAIL"))
     private void emf$parrot2(final CallbackInfo ci) {
         EMFAnimationEntityContext.setCurrentEntityOnShoulder(false);
+        EMFSubmitData.AWAITING_backupState = null;
     }
 }
 

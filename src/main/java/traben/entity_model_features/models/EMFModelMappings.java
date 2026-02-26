@@ -84,22 +84,31 @@ public class EMFModelMappings {
                 partMapping("body", "body"),
                 partMapping("head", "head"),
                 partMapping("tail"),
-                partMapping("saddle"),
                 partMapping("mane"),
                 partMapping("mouth", "upper_mouth"),
                 partMapping("left_ear"),
                 partMapping("right_ear"),
                 partMapping("neck", "head_parts"),
+                partMapping("back_left_leg", "left_hind_leg"),
+                partMapping("back_right_leg", "right_hind_leg"),
+                partMapping("front_left_leg", "left_front_leg"),
+                partMapping("front_right_leg", "right_front_leg"),
+                partMapping("saddle"),
+                //#if MC >= 1.21.5
+                //$$ partMapping("headpiece", "head_saddle"),
+                //$$ partMapping("noseband", "mouth_saddle_wrap"),
+                //$$ partMapping("right_rein", "right_saddle_line"),
+                //$$ partMapping("left_rein", "left_saddle_line"),
+                //$$ partMapping("right_bit", "right_saddle_mouth"),
+                //$$ partMapping("left_bit", "left_saddle_mouth")
+                //#else
                 partMapping("mouth_saddle_wrap"),
                 partMapping("head_saddle"),
                 partMapping("right_saddle_line"),
                 partMapping("left_saddle_line"),
                 partMapping("right_saddle_mouth"),
-                partMapping("left_saddle_mouth"),
-                partMapping("back_left_leg", "left_hind_leg"),
-                partMapping("back_right_leg", "right_hind_leg"),
-                partMapping("front_left_leg", "left_front_leg"),
-                partMapping("front_right_leg", "right_front_leg")
+                partMapping("left_saddle_mouth")
+                //#endif
         );
         var genericPlayerBiped = Map.ofEntries(
                 partMapping("head"),

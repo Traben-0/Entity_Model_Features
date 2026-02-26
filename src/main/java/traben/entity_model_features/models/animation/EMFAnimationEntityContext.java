@@ -263,7 +263,7 @@ public final class EMFAnimationEntityContext {
     }
 
     public static boolean isLODSkippingThisFrame(String modelId) {
-        if (EMFAnimationEntityContext.isInGui()) return false;
+        if (isInGui() || isOnShoulder()) return false;
         if (lodFrameSkipping != null) return lodFrameSkipping;
 
         //skip for shadow pass
@@ -271,7 +271,7 @@ public final class EMFAnimationEntityContext {
                 && IrisShadowPassDetection.getInstance().inShadowPass()
                 && EMF.config().getConfig().animationFrameSkipDuringIrisShadowPass
                 //not client player in first person
-                && !(EMFAnimationEntityContext.getEMFEntity() instanceof Player player
+                && !(getEMFEntity() instanceof Player player
                     && player.isLocalPlayer()
                     && Minecraft.getInstance().options.getCameraType().isFirstPerson())) {
             return true;
@@ -770,7 +770,9 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getId() {
-        return emfState == null ? 0 : Math.abs(emfState.optifineId()) % 27720 ;
+        return emfState == null || isOnShoulder()
+                ? 0
+                : Math.abs(emfState.optifineId()) % 27720 ;
     }
 
     public static float getHurtTime() {

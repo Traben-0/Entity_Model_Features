@@ -170,35 +170,28 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
 
     }
 
-    //#if MC >=12112
-    //$$ dont forget this
-    //#elseif MC < 12109
-    //$$ @Inject(method =
-            //#if MC >= 12102
-            //$$ "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            //#else
-            //$$ "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            //#endif
-    //$$         at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
-    //$$ private void emf$grabEntity(CallbackInfo ci, @Share("iteration") LocalRef<EMFAnimationEntityContext.IterationContext> emf$heldIteration) {
-    //$$     emf$heldIteration.set(EMFAnimationEntityContext.getIterationContext());
-    //$$ }
-    //$$
-    //$$ @Inject(method =
-            //#if MC >= 12102
-            //$$ "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            //#else
-            //$$ "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            //#endif
-    //$$         at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
-    //$$ private void emf$eachFeatureLoop(CallbackInfo ci, @Share("iteration") LocalRef<EMFAnimationEntityContext.IterationContext> emf$heldIteration) {
-    //$$     if (emf$heldIteration.get() != null && EMFManager.getInstance().entityRenderCount != emf$heldIteration.get().entityRenderCount()) {
-    //$$         EMFAnimationEntityContext.setIterationContext(emf$heldIteration.get());
-    //$$     }
-    //$$     //todo needed for stray bogged drowned outer layers in 1.21.2+
-    //$$     //check its needed for 1.21.1
-    //$$     EMFManager.getInstance().entityRenderCount++;
-    //$$ }
+    //#if MC >= 1.21.9
+    private static final String RENDER = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V";
+    //#elseif MC >= 1.21.2
+    //$$ private static final String RENDER = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V";
+    //#else
+    //$$ private static final String RENDER = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V";
     //#endif
+
+
+    @Inject(method = RENDER, at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
+    private void emf$grabEntity(CallbackInfo ci, @Share("iteration") LocalRef<EMFAnimationEntityContext.IterationContext> emf$heldIteration) {
+        emf$heldIteration.set(EMFAnimationEntityContext.getIterationContext());
+    }
+
+    @Inject(method = RENDER, at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
+    private void emf$eachFeatureLoop(CallbackInfo ci, @Share("iteration") LocalRef<EMFAnimationEntityContext.IterationContext> emf$heldIteration) {
+        if (emf$heldIteration.get() != null && EMFManager.getInstance().entityRenderCount != emf$heldIteration.get().entityRenderCount()) {
+            EMFAnimationEntityContext.setIterationContext(emf$heldIteration.get());
+        }
+        //todo needed for stray bogged drowned outer layers in 1.21.2+
+        //check its needed for 1.21.1
+        EMFManager.getInstance().entityRenderCount++;
+    }
 
 }

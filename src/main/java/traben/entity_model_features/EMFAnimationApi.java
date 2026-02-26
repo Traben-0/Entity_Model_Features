@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
+import java.util.function.Supplier;
+
 import net.minecraft.util.valueproviders.SampledFloat;
 
 /**
@@ -40,7 +42,7 @@ public interface EMFAnimationApi {
      */
     @SuppressWarnings("SameReturnValue")
     static int getApiVersion() {
-        return 7;
+        return 8;
     }
 
     /**
@@ -70,6 +72,10 @@ public interface EMFAnimationApi {
         }
     }
 
+    @Deprecated(since = "api v8")
+    static void registerSingletonAnimationVariable(String sourceModId, String variableName, String variableExplanationTranslationKeyOrText, SampledFloat variableValueSupplier) {
+        EMFUtils.logWarn("INVALID registration of singleton variable:" + variableName + " from mod " + sourceModId);
+    }
 
     /**
      * Registers a singleton float variable for use in animation math expressions.
@@ -79,9 +85,9 @@ public interface EMFAnimationApi {
      * @param variableExplanationTranslationKeyOrText The explanation of the variable.
      * @param variableValueSupplier                   A supplier for the value of the variable.
      */
-    static void registerSingletonAnimationVariable(String sourceModId, String variableName, String variableExplanationTranslationKeyOrText, SampledFloat variableValueSupplier) {
+    static void registerSingletonAnimationVariable(String sourceModId, String variableName, String variableExplanationTranslationKeyOrText, Supplier<Float> variableValueSupplier) {
         if (sourceModId != null && variableName != null && variableValueSupplier != null && variableExplanationTranslationKeyOrText != null) {
-            VariableRegistry.getInstance().registerSimpleFloatVariable(variableName, variableExplanationTranslationKeyOrText, (MathValue.ResultSupplier) variableValueSupplier);
+            VariableRegistry.getInstance().registerSimpleFloatVariable(variableName, variableExplanationTranslationKeyOrText, variableValueSupplier::get);
             EMFUtils.log("Successful registration of singleton variable:" + variableName + " from mod " + sourceModId);
         } else {
             EMFUtils.logError("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
@@ -390,6 +396,11 @@ public interface EMFAnimationApi {
 
     @Deprecated(since = "api v2")
     static void registerSingletonAnimationVariable(String sourceModId, String variableName, SampledFloat variableValueSupplier) {
+        EMFUtils.logWarn("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
+    }
+
+    @Deprecated(since = "api v2")
+    static void registerSingletonAnimationVariable(String sourceModId, String variableName, Supplier<Float> variableValueSupplier) {
         EMFUtils.logWarn("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
         registerSingletonAnimationVariable(sourceModId, variableName, variableName, variableValueSupplier);
     }

@@ -1,4 +1,10 @@
 
+- fixed an issue with the animation variable api
+- bumped the animation api version
+- fixed shoulder parrots not animating in 1.21.9+
+- fixed boat water patch models not animating in 1.21.9+
+- fixed horse saddle OptiFine part names on 1.21.5+
+
 [3.0.12]
 - fixed arm overrides pre 1.21.9
 - fixed armor in 1.21.9+ causing a lot of lag with animated player models loaded
