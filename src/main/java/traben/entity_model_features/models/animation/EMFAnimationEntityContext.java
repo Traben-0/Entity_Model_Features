@@ -8,8 +8,10 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.nbt.CompoundTag;
 //#if MC>=12105
 import net.minecraft.world.entity.animal.wolf.Wolf;
 //#else
@@ -61,11 +63,8 @@ import traben.entity_texture_features.features.ETFRenderContext;
 //$$ import net.minecraft.world.entity.monster.illager.Vindicator;
 //#endif
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.function.Function;
 
 @SuppressWarnings({"SameParameterValue", "unused", "UnnecessaryUnicodeEscape"})
@@ -102,6 +101,10 @@ public final class EMFAnimationEntityContext {
     private static boolean announceModels = false;
     private static float frameCounter = 0;
 
+    private static boolean checkedIfIEmotePlayerExists = false;
+    private static Class<?> iEmotePlayerEntityType = null;
+    private static Method isPlayingEmoteMethod = null;
+
     public static Object2ObjectOpenHashMap<UUID, ModelPart[]> entitiesPausedParts = new Object2ObjectOpenHashMap<>();
     public static ObjectSet<UUID> entitiesPaused = new ObjectOpenHashSet<>();
     public static List<Function<EMFEntity, Boolean>> pauseListeners = new ArrayList<>();
@@ -120,6 +123,7 @@ public final class EMFAnimationEntityContext {
         // API for other mods to pause animations on specific entities
         var entity = emfState.emfEntity();
         if (entity != null) {
+            if (isPlayerEmoting(entity)) return true;
             for (Function<EMFEntity, Boolean> pauseListener : pauseListeners) {
                 try {
                     if (pauseListener.apply(entity)) return true;
@@ -151,6 +155,7 @@ public final class EMFAnimationEntityContext {
         // API for other mods to pause animations on specific entities
         var entity = emfState.emfEntity();
         if (entity != null) {
+            if (isPlayerEmoting(entity)) return true;
             for (Function<EMFEntity, Boolean> pauseListener : pauseListeners) {
                 try {
                     if (pauseListener.apply(entity)) return true;
@@ -160,6 +165,51 @@ public final class EMFAnimationEntityContext {
 
         return entitiesPaused.contains(emfState.uuid());
     }
+
+    private static boolean isPlayerEmoting(EMFEntity entity) {
+        if (!(entity instanceof Player player)) return false;
+
+        Method emoteMethod = getIsPlayingEmoteMethod();
+        if (emoteMethod == null) return false;
+
+        try {
+            return (boolean) emoteMethod.invoke(player);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private static @Nullable Class<?> getIEmotePlayerEntityType() {
+        if (checkedIfIEmotePlayerExists) return iEmotePlayerEntityType;
+        checkedIfIEmotePlayerExists = true;
+
+        try {
+            // Tries to get the IEmotePlayerEntity interface in order to access the isPlayingEmote() method
+            // https://github.com/KosmX/emotes/blob/1.20.1/executor/src/main/java/io/github/kosmx/emotes/executor/emotePlayer/IEmotePlayerEntity.java
+            // This type should always be found if EmoteCraft mod doesn't change it too much and the mod is actually loaded obv
+            iEmotePlayerEntityType = Class.forName("io.github.kosmx.emotes.executor.emotePlayer.IEmotePlayerEntity");
+        } catch (ClassNotFoundException ignored) {
+            iEmotePlayerEntityType = null;
+        }
+
+        return iEmotePlayerEntityType;
+    }
+
+    private static @Nullable Method getIsPlayingEmoteMethod() {
+        if (isPlayingEmoteMethod != null) return isPlayingEmoteMethod;
+
+        Class<?> emotePlayerType = getIEmotePlayerEntityType();
+        if (emotePlayerType == null) return null;
+
+        try {
+            isPlayingEmoteMethod = emotePlayerType.getMethod("isPlayingEmote");
+        } catch (NoSuchMethodException ignored) {
+            isPlayingEmoteMethod = null;
+        }
+
+        return isPlayingEmoteMethod;
+    }
+
 
     public static @Nullable ModelPart[] getEntityPartsAnimPaused() {
         if (emfState == null) return null;
@@ -605,10 +655,31 @@ public final class EMFAnimationEntityContext {
     }
 
     public static boolean isEntityForcedToVanillaModel(){
+
         if (emfState == null) return false;
+
         if (entitiesToForceVanillaModel.contains(emfState.uuid())) return true;
 
         try {
+
+            EntityType<?> type = emfState.entity().etf$getType();
+            if (type != null && type.toString().contains("customnpc")) {
+                // CustomNPC has been ported to 1.20.1 by another dev that ask for having access to the source code
+                // CustomNPC nor UnofficialCustomNPC are not open source (so no source code :x)
+                //Downloads on https://www.curseforge.com/minecraft/mc-mods/customnpcs-unofficial/files/all?page=1&pageSize=20&version=1.20.1&gameVersionTypeId=1&showAlphaFiles=hide
+                CompoundTag nbtTags = emfState.entity().etf$getNbt();
+
+                // If the customNPC is in puppet role
+                // Or if we want the customNPC to not use EMF animations (like with Fresh Animation RP) we can set his maxhp to 777 to have a full control (usefull for the siting pose for example)
+                if ((((LivingEntity) emfState.entity()).getMaxHealth() == 777f) ||
+                        nbtTags.contains("PuppetStanding") ||
+                        nbtTags.contains("PuppetMoving") ||
+                        nbtTags.contains("PuppetAttacking") ||
+                        nbtTags.contains("PuppetAnimate")) {
+                    return true;
+                }
+            }
+
             for (var check : forceVanillaModelListeners) {
                 if (check.apply((EMFEntity) emfState.entity())) return true;
             }
