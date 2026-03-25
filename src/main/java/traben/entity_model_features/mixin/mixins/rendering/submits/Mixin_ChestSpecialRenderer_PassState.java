@@ -23,7 +23,7 @@ import traben.entity_texture_features.utils.ETFEntity;
 public class Mixin_ChestSpecialRenderer_PassState {
 
     @Inject(method = "submit", at = @At(value = "HEAD"))
-    private static void emf$dummyState(ItemDisplayContext itemDisplayContext, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int i, int j, boolean bl, int k, CallbackInfo ci) {
+    private static void emf$dummyState(CallbackInfo ci) {
         var state = (EMFEntityRenderState) ETFEntityRenderState.forEntity(
                 // TODO do we really need the actual chest type here? this is just so inventory anims can play
                 (ETFEntity) new ChestBlockEntity(BlockPos.ZERO, Blocks.CHEST.defaultBlockState()));

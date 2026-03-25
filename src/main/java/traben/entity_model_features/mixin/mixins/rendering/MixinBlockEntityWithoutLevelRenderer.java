@@ -45,21 +45,25 @@ public class MixinBlockEntityWithoutLevelRenderer {
     @Inject(method = RENDER,
             at = @At(value = "INVOKE",
                     target =
-                            //#if MC >= 12109
-                            "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V",
+                            //#if MC >= 26.1
+                            //$$ "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V"
+                            //#elseif MC >= 12109
+                            "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V"
                             //#else
-                            //$$ "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;render(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIZ)V",
+                            //$$ "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;render(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIZ)V"
                             //#endif
-                    shift = At.Shift.BEFORE))
+                    , shift = At.Shift.BEFORE))
     private void emf$setRenderFactory(CallbackInfo ci) {
         if (specialRenderer instanceof SkullSpecialRenderer) {
             EMFAnimationEntityContext.setLayerFactory(
-                    //#if MC>= 12111
-                    //$$ RenderTypes
+                    //#if MC >= 26.1
+                    //$$ RenderTypes::entityCutoutZOffset
+                    //#elseif MC>= 12111
+                    //$$ RenderTypes::entityCutoutNoCullZOffset
                     //#else
-                    RenderType
+                    RenderType::entityCutoutNoCullZOffset
                     //#endif
-                            ::entityCutoutNoCullZOffset);
+            );
         }
 
         EMFManager.getInstance().entityRenderCount++;

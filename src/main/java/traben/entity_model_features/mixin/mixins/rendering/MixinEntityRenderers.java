@@ -14,10 +14,8 @@ import traben.entity_model_features.EMFManager;
 @Mixin(EntityRenderers.class)
 public class MixinEntityRenderers {
 
-    // NeoForge is a special boy
-    //#if MC>=12112 && NEOFORGE
-    //$$ check on this
-    //#elseif MC>=12109 && NEOFORGE
+
+    //#if MC >= 1.21.9 && NEOFORGE || MC >= 26.1
     //$$ private static final String method = "lambda$createEntityRenderers$0";
     //#elseif MC>=12106 && NEOFORGE
     //$$ private static final String method = "lambda$createEntityRenderers$2";
@@ -37,7 +35,11 @@ public class MixinEntityRenderers {
             EMFManager.getInstance().currentSpecifiedModelLoading = "spectral_arrow";
         }else if (entityType.equals(EntityType.BREEZE_WIND_CHARGE)) {
             EMFManager.getInstance().currentSpecifiedModelLoading = "breeze_wind_charge";
-        }else if (entityType.is(EntityTypeTags.BOAT)) {
+        }else if (entityType
+                //#if MC >= 26.1
+                //$$ .builtInRegistryHolder()
+                //#endif
+                .is(EntityTypeTags.BOAT)) {
             //entity.minecraft.dark_oak_boat
             EMFManager.getInstance().currentSpecifiedModelLoading = "emf$boat$" //key to not override
                     + entityType.getDescriptionId()

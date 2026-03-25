@@ -39,11 +39,17 @@ public abstract class Mixin_ChickenRenderer_WarmModel extends MobRenderer<Chicke
         if (EMF.testForForgeLoadingError()) return;
 
         models = new AdultAndBabyModelPair<>(
+                //#if MC >= 26.1
+                //$$ new net.minecraft.client.model.animal.chicken.AdultChickenModel(EMFManager.getInstance().injectIntoModelRootGetter(emf$warm,
+                //$$         net.minecraft.client.model.animal.chicken.AdultChickenModel.createBodyLayer().bakeRoot())),
+                //$$ new net.minecraft.client.model.animal.chicken.BabyChickenModel(EMFManager.getInstance().injectIntoModelRootGetter(emf$warm_baby,
+                //$$         net.minecraft.client.model.animal.chicken.BabyChickenModel.createBodyLayer().bakeRoot()))
+                //#else
                 new ChickenModel(EMFManager.getInstance().injectIntoModelRootGetter(emf$warm,
                         ChickenModel.createBodyLayer().bakeRoot())),
                 new ChickenModel(EMFManager.getInstance().injectIntoModelRootGetter(emf$warm_baby,
-                        ChickenModel.createBodyLayer()
-                                .apply(ChickenModel.BABY_TRANSFORMER).bakeRoot()))
+                        ChickenModel.createBodyLayer().apply(ChickenModel.BABY_TRANSFORMER).bakeRoot()))
+                //#endif
         );
     }
 
@@ -51,7 +57,7 @@ public abstract class Mixin_ChickenRenderer_WarmModel extends MobRenderer<Chicke
     //#if MC >= 1.21.9
     private static final String RENDER_METHOD = "submit(Lnet/minecraft/client/renderer/entity/state/ChickenRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V";
     //#else
-    //$$ private static final String RENDER_METHOD = "render";
+    //$$ private static final String RENDER_METHOD = "render(Lnet/minecraft/client/renderer/entity/state/ChickenRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V";
     //#endif
 
     @Inject(method = RENDER_METHOD, at = @At(value = "INVOKE", target =

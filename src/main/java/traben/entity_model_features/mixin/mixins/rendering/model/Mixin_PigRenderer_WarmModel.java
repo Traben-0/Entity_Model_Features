@@ -52,7 +52,7 @@ public abstract class Mixin_PigRenderer_WarmModel extends MobRenderer<Pig, PigRe
     //#if MC >= 1.21.9
     private static final String RENDER_METHOD = "submit(Lnet/minecraft/client/renderer/entity/state/PigRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V";
     //#else
-    //$$ private static final String RENDER_METHOD = "render";
+    //$$ private static final String RENDER_METHOD = "render(Lnet/minecraft/client/renderer/entity/state/PigRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V";
     //#endif
 
     @Inject(method = RENDER_METHOD, at = @At(value = "INVOKE", target =

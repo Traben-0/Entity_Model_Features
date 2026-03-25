@@ -13,10 +13,12 @@ public class IfBMethod extends IfMethod {
     public IfBMethod(final List<String> args, final boolean isNegative, final EMFAnimation calculationInstance) throws EMFMathException {
         super(args, isNegative, calculationInstance);
 
+        var current = supplier;
         //validate output is boolean
-        supplier = () -> MathValue.validateBoolean(supplier.get());
+        supplier = () -> MathValue.validateBoolean(current.get());
         if (optimizedAlternativeToThis != null) {
-            optimizedAlternativeToThis = () -> MathValue.validateBoolean(optimizedAlternativeToThis.getResult());
+            var current2 = optimizedAlternativeToThis;
+            optimizedAlternativeToThis = () -> MathValue.validateBoolean(current2.getResult());
         }
     }
 }

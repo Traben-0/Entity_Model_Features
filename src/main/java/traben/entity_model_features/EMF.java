@@ -3,7 +3,6 @@ package traben.entity_model_features;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.config.EMFConfig;
@@ -18,17 +17,19 @@ import traben.entity_texture_features.config.ETFConfigWarning;
 import traben.entity_texture_features.config.ETFConfigWarnings;
 import traben.entity_texture_features.features.property_reading.properties.RandomProperties;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
+import traben.entity_texture_features.utils.ETFUtils2;
 import traben.tconfig.TConfigHandler;
 
 import java.util.Random;
 
 public class EMF {
 
-    public static final int EYES_FEATURE_LIGHT_VALUE = LightTexture.FULL_BRIGHT + 1;
+    public static final int EYES_FEATURE_LIGHT_VALUE = ETFUtils2.FULL_BRIGHT + 1;
     public static final String MOD_ID = "entity_model_features";
     public static boolean forgeHadLoadingError = false;
     public static boolean testedForge = !ETF.isForge();
     public static boolean tempDisableModelModifications = false;
+    public static boolean isLoadingPhase = true;
 
     private static TConfigHandler<EMFConfig> configHandler = null;
 

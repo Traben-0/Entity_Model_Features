@@ -30,6 +30,7 @@ public abstract class MixinResourceReloadEnd {
         if (EMF.testForForgeLoadingError()) return;
         EMFManager.getInstance().modifyEBEIfRequired();
         EMFManager.getInstance().reloadEnd();
+        EMF.isLoadingPhase = false;
     }
 }
 

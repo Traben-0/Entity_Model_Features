@@ -1,9 +1,12 @@
 
+[3.0.13]
+- 26.1 support for fabric and forge (note baby models changed significantly)
 - fixed an issue with the animation variable api
 - bumped the animation api version
 - fixed shoulder parrots not animating in 1.21.9+
 - fixed boat water patch models not animating in 1.21.9+
 - fixed horse saddle OptiFine part names on 1.21.5+
+- fixed the ifb() function causing a stack overflow
 
 [3.0.12]
 - fixed arm overrides pre 1.21.9

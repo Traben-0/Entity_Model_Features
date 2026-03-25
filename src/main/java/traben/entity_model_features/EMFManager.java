@@ -73,8 +73,8 @@ public class EMFManager {//singleton for data holding and resetting needs
     public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
         defaultReturnValue(null);
     }};
-    public final Object2ObjectOpenHashMap<String, EMFJemData> cache_JemDataByFileName = new Object2ObjectOpenHashMap<>();
-    public final Object2ObjectOpenHashMap<EMFModel_ID, ModelLayerLocation> cache_LayersByModelName = new Object2ObjectOpenHashMap<>();
+    public final HashMap<String, EMFJemData> cache_JemDataByFileName = new HashMap<>();
+    public final HashMap<EMFModel_ID, ModelLayerLocation> cache_LayersByModelName = new HashMap<>();
     public final Set<String> EBE_JEMS_FOUND_LAST = new HashSet<>();
     private final Object2IntOpenHashMap<ModelLayerLocation> amountOfLayerAttempts = new Object2IntOpenHashMap<>() {{
         defaultReturnValue(0);
@@ -230,12 +230,14 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public ModelPart injectIntoModelRootGetter(final ModelLayerLocation layer, final ModelPart root) {
-        int creationsOfLayer = amountOfLayerAttempts.put(layer, amountOfLayerAttempts.getInt(layer) + 1);
-        if (creationsOfLayer > 64) {
-            if (creationsOfLayer == 65) {
-                EMFUtils.logError("model attempted creation more than 64 times {" + layer.toString() + "]. EMF is now ignoring this model. Please inform the mod maker that this is not how entity models are meant to be utilised. They should ALWAYS be stored and reused.");
+        if (!EMF.isLoadingPhase) {
+            int creationsOfLayer = amountOfLayerAttempts.put(layer, amountOfLayerAttempts.getInt(layer) + 1);
+            if (creationsOfLayer > 64) {
+                if (creationsOfLayer == 65) {
+                    EMFUtils.logError("model attempted creation more than 64 times {" + layer.toString() + "]. EMF is now ignoring this model. Please inform the mod maker that this is not how entity models are meant to be utilised. They should ALWAYS be stored and reused.");
+                }
+                return root;
             }
-            return root;
         }
 
 

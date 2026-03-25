@@ -21,6 +21,7 @@ public abstract class MixinResourceReloadStart {
             //#endif
             at = @At("HEAD"))
     private void emf$reloadStart(CallbackInfoReturnable<Float> cir) {
+        EMF.isLoadingPhase = true;
         if (EMF.testForForgeLoadingError()) return;
         EMFManager.resetInstance();
     }

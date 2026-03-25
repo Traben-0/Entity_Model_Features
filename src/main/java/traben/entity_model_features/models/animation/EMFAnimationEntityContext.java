@@ -80,6 +80,7 @@ public final class EMFAnimationEntityContext {
     public static boolean setInItemFrame = false;
     public static boolean setIsOnHead = false;
     public static boolean setIsInGui = false;
+    @Deprecated // 26.1+
     public static double lastFOV = 70;
     public static boolean is_in_ground_override = false;
     public static ObjectSet<UUID> entitiesToForceVanillaModel = new ObjectOpenHashSet<>();
@@ -290,7 +291,13 @@ public final class EMFAnimationEntityContext {
 
         int factor = distance / EMF.config().getConfig().animationLODDistance;
         //reduce factor when using zoom mods or lower fov
-        int factorByFOV = (int) (factor * lastFOV / 70);
+        int factorByFOV = (int) (factor *
+                //#if MC >= 26.1
+                //$$ Minecraft.getInstance().gameRenderer.getGameRenderState().levelRenderState.cameraRenderState.hudFov
+                //#else
+                lastFOV
+                //#endif
+                    / 70);
 
         int lodFactor;
         //factor in low fps detail retention
@@ -783,7 +790,13 @@ public final class EMFAnimationEntityContext {
             return 0 + getTickDelta();
         } else {
             //limit value upper limit to preserve floating point precision
-            return constrainedFloat(emfState.world().getDayTime(), 31415) + getTickDelta();
+            return constrainedFloat(emfState.world()
+                            //#if MC >= 26.1
+                            //$$ .getOverworldClockTime()
+                            //#else
+                            .getDayTime()
+                            //#endif
+                    , 31415) + getTickDelta();
         }
     }
 
@@ -792,7 +805,13 @@ public final class EMFAnimationEntityContext {
             return 0 + getTickDelta();
         } else {
             //limit value upper limit to preserve floating point precision
-            return (float) (emfState.world().getDayTime() / 27720L);
+            return (float) (emfState.world()
+                    //#if MC >= 26.1
+                    //$$ .getOverworldClockTime()
+                    //#else
+                    .getDayTime()
+                    //#endif
+                        / 27720L);
         }
     }
 

@@ -17,6 +17,7 @@ import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 @Mixin(GameRenderer.class)
 public class MixinGameRenderer {
 
+    //#if MC < 26.1
     @Inject(method = "getFov",
             at = @At(value = "RETURN"))
     private void emf$captureFov(final CallbackInfoReturnable<
@@ -30,6 +31,7 @@ public class MixinGameRenderer {
             EMFAnimationEntityContext.lastFOV = (double) cir.getReturnValue();
         }
     }
+    //#endif
 
     @Inject(method = "render",
             at = @At(value = "HEAD"))

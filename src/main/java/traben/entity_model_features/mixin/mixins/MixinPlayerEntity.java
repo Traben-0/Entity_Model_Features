@@ -1,5 +1,6 @@
 package traben.entity_model_features.mixin.mixins;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -16,7 +17,7 @@ import traben.entity_model_features.EMFManager;
 public abstract class MixinPlayerEntity {
 
     @Inject(method = "interactOn", at = @At("HEAD"))
-    private void emf$injected(Entity entity, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+    private void emf$injected(CallbackInfoReturnable<InteractionResult> cir, @Local(argsOnly = true) Entity entity) {
         if (EMF.config().getConfig().debugOnRightClick && ((LivingEntity) ((Object) this)).level().isClientSide()) {
             EMFManager.getInstance().entityForDebugPrint = entity.getUUID();
         }

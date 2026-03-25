@@ -100,7 +100,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
 
 
 
-    //#if MC >=12112
+    //#if MC > 26.1
     //$$ dont forget this
     //#elseif MC < 12109
     //$$ @Inject(method =

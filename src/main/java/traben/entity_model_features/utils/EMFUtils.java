@@ -135,7 +135,11 @@ public class EMFUtils {
         if (inChat) {
             LocalPlayer plyr = Minecraft.getInstance().player;
             if (plyr != null) {
+                //#if MC >= 26.1
+                //$$ plyr.sendSystemMessage(Component.nullToEmpty((noPrefix ? "" : "§6[" + MOD_ID_SHORT + "]:§r ") + message));
+                //#else
                 plyr.displayClientMessage(Component.nullToEmpty((noPrefix ? "" : "§6[" + MOD_ID_SHORT + "]:§r ") + message), false);
+                //#endif
             } else {
                 LOGGER.info((noPrefix ? "" : "[" + MOD_ID_SHORT + "]: ") + message);
             }
@@ -147,6 +151,10 @@ public class EMFUtils {
     public static void chat(String message) {
         LocalPlayer plyr = Minecraft.getInstance().player;
         if (plyr != null) {
+
+            //#if MC >= 26.1
+            //$$ plyr.sendSystemMessage(MutableComponent.create(new PlainTextContents.LiteralContents(message)));
+            //#else
             plyr.displayClientMessage(MutableComponent.create(
                     //#if MC >= 12004
                     new PlainTextContents.LiteralContents(message)
@@ -154,6 +162,7 @@ public class EMFUtils {
                     //$$ new LiteralContents(message)
                     //#endif
             ), false);
+            //#endif
         }
     }
 
@@ -166,7 +175,11 @@ public class EMFUtils {
         if (inChat) {
             LocalPlayer plyr = Minecraft.getInstance().player;
             if (plyr != null) {
+                //#if MC >= 26.1
+                //$$ plyr.sendSystemMessage(Component.nullToEmpty("§6[" + MOD_ID_SHORT + "]§r: " + message));
+                //#else
                 plyr.displayClientMessage(Component.nullToEmpty("§6[" + MOD_ID_SHORT + "]§r: " + message), false);
+                //#endif
             } else {
                 LOGGER.warn("[" + MOD_ID_SHORT + "]: " + message);
             }
@@ -183,7 +196,11 @@ public class EMFUtils {
         if (inChat) {
             LocalPlayer plyr = Minecraft.getInstance().player;
             if (plyr != null) {
+                //#if MC >= 26.1
+                //$$ plyr.sendSystemMessage(Component.nullToEmpty("§6[" + MOD_ID_SHORT + "]§r: " + message));
+                //#else
                 plyr.displayClientMessage(Component.nullToEmpty("§6[" + MOD_ID_SHORT + "]§r: " + message), false);
+                //#endif
             } else {
                 LOGGER.error("[" + MOD_ID_SHORT + "]: " + message);
             }

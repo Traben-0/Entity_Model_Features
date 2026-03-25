@@ -52,12 +52,16 @@ WolfRenderState, WolfModel
         if (EMF.testForForgeLoadingError()) return;
 
         ModelPart collarModel = EMFManager.getInstance().injectIntoModelRootGetter(emf$collar_layer,
+                //#if MC >= 26.1
+                //$$ net.minecraft.client.model.animal.wolf.AdultWolfModel.createBodyLayer(CubeDeformation.NONE).getRoot().bake(64, 32)
+                //#else
                 WolfModel
                         //#if MC >= 12006
                         .createMeshDefinition(CubeDeformation.NONE).getRoot().bake(64,32)
                         //#else
                         //$$ .createBodyLayer().bakeRoot()
                         //#endif
+                //#endif
         );
 
         //separate the collar model, if it has a custom jem model or the base wolf has a custom jem model
@@ -71,7 +75,9 @@ WolfRenderState, WolfModel
                     //#endif
                         holder) {
                     holder.emf$setCollarModel(new
-                            //#if MC >= 12102
+                            //#if MC >= 26.1
+                            //$$ net.minecraft.client.model.animal.wolf.AdultWolfModel
+                            //#elseif MC >= 12102
                             WolfModel
                             //#else
                             //$$ WolfModel<>
@@ -85,7 +91,11 @@ WolfRenderState, WolfModel
 
         //#if MC >= 12102
         ModelPart collarModelBaby = EMFManager.getInstance().injectIntoModelRootGetter(emf$collar_layer_baby,
+                //#if MC >= 26.1
+                //$$ net.minecraft.client.model.animal.wolf.BabyWolfModel.createBodyLayer().bakeRoot()
+                //#else
                 LayerDefinition.create(WolfModel.createMeshDefinition(CubeDeformation.NONE), 64, 32).apply(WolfModel.BABY_TRANSFORMER).bakeRoot()
+                //#endif
         );
 
 
@@ -94,7 +104,11 @@ WolfRenderState, WolfModel
         if (collarModelBaby instanceof EMFModelPartRoot
                 || // base model is custom
                 EMFManager.getInstance().injectIntoModelRootGetter(new ModelLayerLocation(EMFUtils.res("minecraft", "wolf_baby"), "main"),
-                    LayerDefinition.create(WolfModel.createMeshDefinition(CubeDeformation.NONE), 64, 32).bakeRoot()
+                        //#if MC >= 26.1
+                        //$$ net.minecraft.client.model.animal.wolf.BabyWolfModel.createBodyLayer().bakeRoot()
+                        //#else
+                        LayerDefinition.create(WolfModel.createMeshDefinition(CubeDeformation.NONE), 64, 32).bakeRoot()
+                        //#endif
                     ) instanceof EMFModelPart) {
             try {
                 // store in primary model
@@ -107,7 +121,9 @@ WolfRenderState, WolfModel
                                 //#endif
                                 holder) {
                     holder.emf$setCollarModel(new
-                            //#if MC >= 12102
+                            //#if MC >= 26.1
+                            //$$ net.minecraft.client.model.animal.wolf.BabyWolfModel
+                            //#elseif MC >= 12102
                             WolfModel
                             //#else
                             //$$ WolfModel<>
