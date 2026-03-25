@@ -15,6 +15,7 @@ import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
@@ -36,8 +37,8 @@ import static traben.entity_model_features.models.animation.math.MathValue.TRUE;
 public final class VariableRegistry {
 
     private static final VariableRegistry INSTANCE = new VariableRegistry();
-    private final Map<String, MathComponent> singletonVariables = new Object2ObjectOpenHashMap<>();
-    private final Map<String, String> singletonVariableExplanationTranslationKeys = new Object2ObjectOpenHashMap<>();
+    private final Map<String, MathComponent> singletonVariables = new HashMap<>();
+    private final Map<String, String> singletonVariableExplanationTranslationKeys = new HashMap<>();
     private final List<UniqueVariableFactory> uniqueVariableFactories = new ArrayList<>();
 
     private VariableRegistry() {

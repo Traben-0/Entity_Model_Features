@@ -1,7 +1,6 @@
 package traben.entity_model_features.models.jem_objects;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
@@ -36,7 +35,7 @@ public class EMFPartData {
 
     @Nullable transient String originalPart = null;
 
-    public Object2ObjectOpenHashMap<String, float[]> attachments = new Object2ObjectOpenHashMap<>();
+    public HashMap<String, float[]> attachments = new HashMap<>();
 
     public LinkedList<LinkedHashMap<String, String>> animations = null;
 

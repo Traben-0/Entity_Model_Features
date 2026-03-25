@@ -3,8 +3,6 @@ package traben.entity_model_features.models.parts;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import it.unimi.dsi.fastutil.Pair;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.*;
 import net.minecraft.util.Mth;
@@ -60,7 +58,7 @@ public abstract class EMFModelPart extends ModelPart {
         // required for sodium post 0.5.4
         // this should not cause issues as emf does not allow these model parts to pass through sodium's unique renderer
         this.cubes = new ObjectArrayList<>(cuboids);
-        this.children = new Object2ObjectOpenHashMap<>(children);
+        this.children = new HashMap<>(children);
     }
 
     public void processArmItemOverrides(PoseStack matrices) {
@@ -582,11 +580,11 @@ public abstract class EMFModelPart extends ModelPart {
         return part;
     }
 
-    public Object2ReferenceOpenHashMap<String, EMFModelPart> getAllChildPartsAsAnimationMap(String prefixableParents, int variantNum, Map<String, String> optifinePartNameMap) {
+    public HashMap<String, EMFModelPart> getAllChildPartsAsAnimationMap(String prefixableParents, int variantNum, Map<String, String> optifinePartNameMap) {
         if (this instanceof EMFModelPartRoot root)
             root.setVariantStateTo(variantNum);
 
-        Object2ReferenceOpenHashMap<String, EMFModelPart> mapOfAll = new Object2ReferenceOpenHashMap<>();
+        HashMap<String, EMFModelPart> mapOfAll = new HashMap<>();
 
         for (ModelPart part : children.values()) {
             if (part instanceof EMFModelPart emfPart) {

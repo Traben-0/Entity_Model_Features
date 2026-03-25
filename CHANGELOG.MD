@@ -1,4 +1,7 @@
 
+[3.0.14]
+- fixed ArrayIndexOutOfBoundsException crash
+
 [3.0.13]
 - 26.1 support for fabric and forge (note baby models changed significantly)
 - fixed an issue with the animation variable api

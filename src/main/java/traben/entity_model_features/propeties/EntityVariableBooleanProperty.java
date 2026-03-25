@@ -1,6 +1,5 @@
 package traben.entity_model_features.propeties;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.models.animation.math.MathValue;
 import traben.entity_model_features.utils.EMFEntity;
@@ -8,6 +7,7 @@ import traben.entity_texture_features.features.property_reading.properties.Rando
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
 import traben.entity_texture_features.utils.ETFEntity;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -16,7 +16,7 @@ public class EntityVariableBooleanProperty extends RandomProperty {
 
     protected EntityVariableBooleanProperty(Properties properties, int propertyNum) throws RandomProperty.RandomPropertyException {
         String keyPrefix = "varb." + propertyNum + ".";
-        this.VARIABLE_MAP = new Object2ObjectLinkedOpenHashMap<>();
+        this.VARIABLE_MAP = new HashMap<>();
         properties.forEach((key, value) -> {
             if (key != null && ((String) key).startsWith(keyPrefix)) {
                 String instruction = ((String) value).trim();

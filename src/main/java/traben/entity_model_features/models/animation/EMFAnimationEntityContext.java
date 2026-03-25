@@ -3,7 +3,6 @@ package traben.entity_model_features.models.animation;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.client.Minecraft;
@@ -106,7 +105,7 @@ public final class EMFAnimationEntityContext {
     private static Class<?> iEmotePlayerEntityType = null;
     private static Method isPlayingEmoteMethod = null;
 
-    public static Object2ObjectOpenHashMap<UUID, ModelPart[]> entitiesPausedParts = new Object2ObjectOpenHashMap<>();
+    public static HashMap<UUID, ModelPart[]> entitiesPausedParts = new HashMap<>();
     public static ObjectSet<UUID> entitiesPaused = new ObjectOpenHashSet<>();
     public static List<Function<EMFEntity, Boolean>> pauseListeners = new ArrayList<>();
     public static List<Function<EMFEntity, Boolean>> forceVanillaModelListeners = new ArrayList<>();

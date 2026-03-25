@@ -64,15 +64,11 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public final EntityIntLRU lastModelRuleOfEntity;
     public final EntityIntLRU lastModelSuffixOfEntity;
-    public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new Object2ObjectLinkedOpenHashMap<>() {{
-        defaultReturnValue(null);
-    }};
+    public final LinkedHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new LinkedHashMap<>();
 
     public final ObjectSet<EMFModel_ID> modelsAnnounced = new ObjectOpenHashSet<>();
 
-    public final Object2ObjectLinkedOpenHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForVariation = new Object2ObjectLinkedOpenHashMap<>() {{
-        defaultReturnValue(null);
-    }};
+    public final LinkedHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForVariation = new LinkedHashMap<>();
     public final HashMap<String, EMFJemData> cache_JemDataByFileName = new HashMap<>();
     public final HashMap<EMFModel_ID, ModelLayerLocation> cache_LayersByModelName = new HashMap<>();
     public final Set<String> EBE_JEMS_FOUND_LAST = new HashSet<>();
@@ -685,6 +681,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             return root;
         } catch (Exception e) {
             EMFUtils.logWarn("default model returned for " + layer + " due to exception: " + e);
+            e.printStackTrace();
             ((IEMFModelNameContainer) root).emf$insertKnownMappings(mobNameForFileAndMap);
             EMFException.recordException(e);
             return root;
@@ -779,11 +776,11 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         boolean printing = EMF.config().getConfig().logModelCreationData;
 
-        Object2ObjectOpenHashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new Object2ObjectOpenHashMap<>();
+        HashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId = new HashMap<>();
         allPartsBySingleAndFullHeirachicalId.put("root", emfRootPart);
         allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFModelMappings.getMapOf(emfRootPart.modelName, null)));
 
-        Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimations = new Object2ObjectLinkedOpenHashMap<>();
+        LinkedHashMap<String, EMFAnimation> emfAnimations = new LinkedHashMap<>();
 
         if (printing) {
             EMFUtils.log(" > finalAnimationsForModel =");

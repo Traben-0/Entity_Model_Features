@@ -2,8 +2,6 @@ package traben.entity_model_features.models.animation;
 
 import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.models.parts.EMFModelPart;
@@ -13,6 +11,8 @@ import traben.entity_model_features.models.animation.math.MathValue;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.UUID;
 
 import static traben.entity_model_features.models.animation.math.MathValue.FALSE;
@@ -27,8 +27,8 @@ public class EMFAnimation {
     private final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
     private final FloatConsumer variableResultConsumer;
     private final float defaultValue;
-    public Object2ObjectLinkedOpenHashMap<String, EMFAnimation> temp_emfAnimationVariables = null;
-    public Object2ObjectOpenHashMap<String, EMFModelPart> temp_allPartsBySingleAndFullHeirachicalId = null;
+    public LinkedHashMap<String, EMFAnimation> temp_emfAnimationVariables = null;
+    public HashMap<String, EMFModelPart> temp_allPartsBySingleAndFullHeirachicalId = null;
     @NotNull
     private MathComponent emfCalculator = MathExpressionParser.NULL_EXPRESSION;
 
@@ -92,8 +92,8 @@ public class EMFAnimation {
     }
 
 
-    public void initExpression(Object2ObjectLinkedOpenHashMap<String, EMFAnimation> emfAnimationVariables,
-                               Object2ObjectOpenHashMap<String, EMFModelPart> allPartByName) {
+    public void initExpression(LinkedHashMap<String, EMFAnimation> emfAnimationVariables,
+                               HashMap<String, EMFModelPart> allPartByName) {
         this.temp_emfAnimationVariables = emfAnimationVariables;
         this.temp_allPartsBySingleAndFullHeirachicalId = allPartByName;
         emfCalculator = MathExpressionParser.getOptimizedExpression(expressionString, false, this);
