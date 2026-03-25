@@ -96,6 +96,14 @@ public class EMF {
         //register EMF physics mod hook
 //todo        RagdollMapper.addHook(new EMFCustomRagDollHookTest());
 
+
+
+        //#if FORGE && MC >= 12001
+        if (ETF.isThisModLoaded("playeranimator")) {
+            EMFAnimationApi.registerPauseCondition(PALCompat::shouldPauseEntityAnim);
+        }
+        //#endif
+
         //#if !FORGE && MC >= 12101
         if (ETF.isThisModLoaded("player_animation_library")) {
             EMFAnimationApi.registerPauseCondition(PALCompat::shouldPauseEntityAnim);
