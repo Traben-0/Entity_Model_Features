@@ -42,9 +42,13 @@ public abstract class Mixin_PigRenderer_WarmModel extends MobRenderer<Pig, PigRe
         models = new AdultAndBabyModelPair<>(
                 new PigModel(EMFManager.getInstance().injectIntoModelRootGetter(emf$warm,
                         PigModel.createBodyLayer(CubeDeformation.NONE).bakeRoot())),
+                //#if MC >= 26.1
+                //$$ new net.minecraft.client.model.animal.pig.BabyPigModel(EMFManager.getInstance().injectIntoModelRootGetter(emf$warm_baby,
+                //$$         net.minecraft.client.model.animal.pig.BabyPigModel.createBodyLayer(CubeDeformation.NONE).bakeRoot()))
+                //#else
                 new PigModel(EMFManager.getInstance().injectIntoModelRootGetter(emf$warm_baby,
-                        PigModel.createBodyLayer(CubeDeformation.NONE)
-                                .apply(PigModel.BABY_TRANSFORMER).bakeRoot()))
+                        PigModel.createBodyLayer(CubeDeformation.NONE).apply(PigModel.BABY_TRANSFORMER).bakeRoot()))
+                //#endif
         );
     }
 

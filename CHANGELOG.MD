@@ -1,5 +1,9 @@
 
+[3.0.15]
+- fixed baby pig models breaking in 26.1 even with no custom models loaded
 - fixed rabbit model part name mappings in 26.1
+- fixed rabbit model exports in 26.1
+- this release also adds all the fixes from v3.0.13 to mc versions other than 26.1
 
 [3.0.14]
 - fixed ArrayIndexOutOfBoundsException crash
