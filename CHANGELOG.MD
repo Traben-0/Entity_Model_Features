@@ -1,4 +1,6 @@
 
+- fixed rabbit model part name mappings in 26.1
+
 [3.0.14]
 - fixed ArrayIndexOutOfBoundsException crash
 

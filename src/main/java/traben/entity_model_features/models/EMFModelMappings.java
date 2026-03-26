@@ -676,7 +676,37 @@ public class EMFModelMappings {
                         partMapping("eye_left", "left_eye"),
                         partMapping("tail", "back_fin")
                 ));
-        OptifineMapper.models("rabbit")
+        //#if MC >= 26.1
+        //$$ OptifineMapper.models("rabbit")
+        //$$         .parts(Map.ofEntries(
+        //$$                 partMapping("body"),
+        //$$                 partMapping("left_foot", "left_hind_leg"),
+        //$$                 partMapping("right_foot", "right_hind_leg"),
+        //$$                 partMapping("left_thigh", "left_haunch"),
+        //$$                 partMapping("right_thigh", "right_haunch"),
+        //$$                 partMapping("left_arm", "left_front_leg"),
+        //$$                 partMapping("right_arm", "right_front_leg"),
+        //$$                 partMapping("head"),
+        //$$                 partMapping("right_ear"),
+        //$$                 partMapping("left_ear"),
+        //$$                 partMapping("tail")
+        //$$         ));
+        //$$ OptifineMapper.models("rabbit_baby")
+        //$$         .parts(Map.ofEntries(
+        //$$                 partMapping("body", "body_r1"),
+        //$$                 partMapping("left_foot", "left_hind_leg"),
+        //$$                 partMapping("right_foot", "right_hind_leg"),
+        //$$                 partMapping("left_thigh", "left_haunch"),
+        //$$                 partMapping("right_thigh", "right_haunch"),
+        //$$                 partMapping("left_arm", "left_front_leg"),
+        //$$                 partMapping("right_arm", "right_front_leg"),
+        //$$                 partMapping("head"),
+        //$$                 partMapping("right_ear"),
+        //$$                 partMapping("left_ear"),
+        //$$                 partMapping("tail", "tail_r1")
+        //$$         ));
+        //#else
+        OptifineMapper.models("rabbit", "rabbit_baby")
                 .parts(Map.ofEntries(
                         partMapping("body"),
                         partMapping("left_foot", "left_hind_foot"),
@@ -691,6 +721,7 @@ public class EMFModelMappings {
                         partMapping("tail"),
                         partMapping("nose")
                 ));
+        //#endif
         OptifineMapper.models("ravager")
                 .parts(Map.ofEntries(
                         partMapping("head"),
@@ -1204,7 +1235,9 @@ public class EMFModelMappings {
     public static Map<String, String> getMapOf(@NotNull EMFModel_ID mobId, @Nullable ModelPart root, boolean exportOnlyFirstTime) {
 
         String mobName = mobId.getMapId();
-        if (mobName.matches(".*_baby($|_.*)") && !mobName.contains(":")){
+        if (mobName.matches(".*_baby($|_.*)") && !mobName.contains(":")
+                && !mobName.equals("rabbit_baby")
+        ){
             mobName = mobName.replaceFirst("_baby","");
         }
 
