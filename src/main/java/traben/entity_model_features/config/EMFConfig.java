@@ -257,10 +257,14 @@ public class EMFConfig extends TConfig {
         TConfigEntryCategory category = new TConfigEntryCategory("entity_model_features.config.models");
         category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.models_text", 200, TConfigEntryText.TextAlignment.LEFT));
 
-        EMFManager.getInstance().cache_LayersByModelName.put(new EMFModel_ID("wolf_collar"), ModelLayers.WOLF);
+        var map = new HashMap<>(EMFManager.getInstance().cache_LayersByModelName);
+        map.put(new EMFModel_ID("wolf_collar"), ModelLayers.WOLF);
 
-        EMFManager.getInstance().cache_LayersByModelName.keySet().stream().sorted().forEach(mapData -> {
-            var layer = EMFManager.getInstance().cache_LayersByModelName.get(mapData);
+        map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
+            var mapData = entry.getKey();
+            if (mapData.toString().startsWith("_")) return;
+
+            var layer = entry.getValue();
             if (layer != null) {
                 var vanilla = Minecraft.getInstance().getEntityModels().roots.get(layer);
                 if (vanilla != null) {

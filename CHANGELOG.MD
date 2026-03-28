@@ -1,4 +1,9 @@
 
+[3.0.17]
+- fixed the position of the first person hand when using custom player models on 1.21.9+
+- fixed the config not changing properly until a full game reload on 26.1
+- fixed a crash that could occur when opening the config screen
+
 [3.0.16]
 - fixed exporting models in 26.1
 - fixed many part names for 26.1 baby models (same may have been missed, please report them if so)

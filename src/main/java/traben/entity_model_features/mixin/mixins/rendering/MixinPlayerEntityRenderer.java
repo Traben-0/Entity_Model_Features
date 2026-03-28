@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
@@ -100,7 +101,8 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
             vanilla.isPlayerArm = true;
 
             // Animate
-            if (getModel() instanceof IEMFModel emf && emf.emf$isEMFModel()) {
+            if (!EMF.config().getConfig().preventFirstPersonHandAnimating
+                    && getModel() instanceof IEMFModel emf && emf.emf$isEMFModel()) {
                 emf.emf$getEMFRootModel().triggerManualAnimation(poseStack);
                 modelPart.translateAndRotate(poseStack);
             }
