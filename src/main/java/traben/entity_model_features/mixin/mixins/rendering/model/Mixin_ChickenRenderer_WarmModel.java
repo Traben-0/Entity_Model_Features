@@ -30,13 +30,24 @@ public abstract class Mixin_ChickenRenderer_WarmModel extends MobRenderer<Chicke
     @Unique
     private static final ModelLayerLocation emf$warm_baby =
             new ModelLayerLocation(EMFUtils.res("minecraft", "warm_chicken_baby"), "main");
+    @Unique
+    private static final ModelLayerLocation emf$cold_baby =
+            new ModelLayerLocation(EMFUtils.res("minecraft", "cold_chicken_baby"), "main");
 
     @Unique
     private AdultAndBabyModelPair<ChickenModel> models = null;
 
+    @Unique
+    private ChickenModel coldBabyModel = null;
+
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     private void emf$createWarmModels(EntityRendererProvider.Context context, CallbackInfo ci) {
         if (EMF.testForForgeLoadingError()) return;
+
+        //#if MC >= 26.1
+        //$$ coldBabyModel = new net.minecraft.client.model.animal.chicken.BabyChickenModel(EMFManager.getInstance().injectIntoModelRootGetter(emf$cold_baby,
+        //$$         net.minecraft.client.model.animal.chicken.BabyChickenModel.createBodyLayer().bakeRoot()));
+        //#endif
 
         models = new AdultAndBabyModelPair<>(
                 //#if MC >= 26.1
@@ -73,6 +84,14 @@ public abstract class Mixin_ChickenRenderer_WarmModel extends MobRenderer<Chicke
                 && "minecraft:warm".equals(cluck.getVariant().getRegisteredName())) {
             this.model = models.getModel(cluck.isBaby());
         }
+        //#if MC >= 26.1
+        //$$ if (state != null && state.entity() != null && state.entity() instanceof Chicken cluck
+        //$$         && "minecraft:cold".equals(cluck.getVariant().getRegisteredName())
+        //$$         && cluck.isBaby()
+        //$$ ) {
+        //$$     this.model = coldBabyModel;
+        //$$ }
+        //#endif
     }
 
 

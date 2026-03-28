@@ -1,4 +1,11 @@
 
+[3.0.16]
+- fixed exporting models in 26.1
+- fixed many part names for 26.1 baby models (same may have been missed, please report them if so)
+- EMF no longer allows baby models to fall back to their adult model in 26.1+ when no baby model is present
+- fixed "value is not a boolean" animation error when a part is missing and its visibility is tested
+
+
 [3.0.15]
 - fixed baby pig models breaking in 26.1 even with no custom models loaded
 - fixed rabbit model part name mappings in 26.1

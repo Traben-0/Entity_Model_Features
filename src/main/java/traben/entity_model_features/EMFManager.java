@@ -316,7 +316,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                             mobNameForFileAndMap.getfileName().replace("_armor_baby", "_baby_armor"));
                 }
 
-
+                //#if MC < 26.1
                 if (mobNameForFileAndMap.getfileName().matches(".*_baby($|_\\w*)")
                         // Exclude these baby variants from falling back
                         && !mobNameForFileAndMap.getfileName().startsWith("horse_baby")
@@ -329,6 +329,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                     mobNameForFileAndMap.addFallbackModel(adultName);
                     isBaby = true;
                 }
+                //#endif
+
                 //wolf_baby_collar, wolf_collar
                 //#endif
                 if (mobNameForFileAndMap.getfileName().matches(".*_collar($|_\\w*)")) {
@@ -361,6 +363,15 @@ public class EMFManager {//singleton for data holding and resetting needs
                 if (!skipSwitch) {
                     //vanilla model
                     switch (originalLayerName) {
+                        //#if MC >= 26.1
+                        //$$ case "cold_pig_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("pig_baby");
+                        //$$ case "warm_pig_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("pig_baby");
+                        //$$ case "cold_cow_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("cow_baby");
+                        //$$ case "warm_cow_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("cow_baby");
+                        //$$ case "cold_chicken_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("chicken_baby");
+                        //$$ case "warm_chicken_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("chicken_baby");
+                        //#endif
+
                         case "parrot_shoulder" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("parrot");
                         //#if MC>=12111
                         //$$ case "camel" -> {

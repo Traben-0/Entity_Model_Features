@@ -33,11 +33,23 @@ public abstract class Mixin_PigRenderer_WarmModel extends MobRenderer<Pig, PigRe
             new ModelLayerLocation(EMFUtils.res("minecraft", "warm_pig_baby"), "main");
 
     @Unique
+    private static final ModelLayerLocation emf$cold_baby =
+            new ModelLayerLocation(EMFUtils.res("minecraft", "cold_pig_baby"), "main");
+
+    @Unique
     private AdultAndBabyModelPair<PigModel> models = null;
+
+    @Unique
+    private PigModel coldBabyModel = null;
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     private void emf$createWarmModels(EntityRendererProvider.Context context, CallbackInfo ci) {
         if (EMF.testForForgeLoadingError()) return;
+
+        //#if MC >= 26.1
+        //$$ coldBabyModel = new net.minecraft.client.model.animal.pig.BabyPigModel(EMFManager.getInstance().injectIntoModelRootGetter(emf$cold_baby,
+        //$$         net.minecraft.client.model.animal.pig.BabyPigModel.createBodyLayer().bakeRoot()));
+        //#endif
 
         models = new AdultAndBabyModelPair<>(
                 new PigModel(EMFManager.getInstance().injectIntoModelRootGetter(emf$warm,
@@ -72,6 +84,14 @@ public abstract class Mixin_PigRenderer_WarmModel extends MobRenderer<Pig, PigRe
                 && "minecraft:warm".equals(oink.getVariant().getRegisteredName())) {
             this.model = models.getModel(oink.isBaby());
         }
+        //#if MC >= 26.1
+        //$$ if (state != null && state.entity() != null && state.entity() instanceof Pig oink
+        //$$         && "minecraft:cold".equals(oink.getVariant().getRegisteredName())
+        //$$         && oink.isBaby()
+        //$$ ) {
+        //$$     this.model = coldBabyModel;
+        //$$ }
+        //#endif
     }
 
 

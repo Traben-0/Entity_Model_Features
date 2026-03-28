@@ -25,8 +25,14 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
         }
         EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
         EMFModelPart part = EMFManager.getModelFromHierarchicalId(partName, calculationInstance.temp_allPartsBySingleAndFullHeirachicalId);
-        if (partVariable != null && part != null) {
-            return () -> partVariable.getValue(part);
+        if (partVariable != null) {
+            if (part != null) {
+                return () -> partVariable.getValue(part);
+            } else {
+                if (printing()) EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.temp_allPartsBySingleAndFullHeirachicalId.keySet());
+                if (partVariable.isBoolean()) return MathConstant.FALSE_CONST::getResult;
+                else return MathConstant.ZERO_CONST::getResult;
+            }
         }
 
         //cheeky little thing for how I get large chests working from 1 jem file
