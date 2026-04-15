@@ -1,6 +1,7 @@
 
 [3.1]
 - ESF will need to update to be compatible with this version
+- fixed entity animations jittering in guis with certain animation packs
 - fixed ArrayIndexOutOfBoundsException crash on 26.1+
 - added a setting to control which models EMF will attempt to load for, e.g. Known (most vanilla / OptiFine) or unknown (mostly modded)
 - temporarily incompatible with ESF

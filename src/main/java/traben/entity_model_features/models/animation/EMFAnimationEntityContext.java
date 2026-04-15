@@ -528,7 +528,7 @@ public final class EMFAnimationEntityContext {
 
         //#if MC >= 12102
         if (getEntityRenderState() instanceof LivingEntityRenderState livingEntityRenderState) {
-            if (setIsInGui) {
+            if (isInGui()) {
                 // entity isn't actually walking in the gui, zero these out so animations don't jitter
                 limbAngle = 0;
                 limbDistance = 0;
@@ -541,7 +541,7 @@ public final class EMFAnimationEntityContext {
                 headYaw = (Mth.wrapDegrees(headYaw));
             }
             headPitch = livingEntityRenderState.xRot;
-        }else{ //block entity
+        } else { //block entity
             limbAngle = Float.NaN;
             limbDistance = Float.NaN;
             headYaw = Float.NaN;

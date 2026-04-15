@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -23,6 +24,8 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Unique
     private final Map<String, Float> emf$variableMap = new HashMap<>();
+    @Unique
+    private @Nullable Map<String, Float> emf$variableMapGuiCopy = null;
 
 
     @Shadow
@@ -269,6 +272,11 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Override
     public Map<String, Float> emf$getVariableMap() {
+        if (EMFAnimationEntityContext.isInGui()) {
+            // Copy the initial variable state but allow the gui to now change these separately
+            if (emf$variableMapGuiCopy == null) emf$variableMapGuiCopy = new HashMap<>(emf$variableMap);
+            return emf$variableMapGuiCopy;
+        }
         return emf$variableMap;
     }
 }
