@@ -528,14 +528,20 @@ public final class EMFAnimationEntityContext {
 
         //#if MC >= 12102
         if (getEntityRenderState() instanceof LivingEntityRenderState livingEntityRenderState) {
-            limbAngle = livingEntityRenderState.walkAnimationPos;
-            limbDistance = livingEntityRenderState.walkAnimationSpeed;
+            if (isInGui()) {
+                // entity isn't actually walking in the gui, zero these out so animations don't jitter
+                limbAngle = 0;
+                limbDistance = 0;
+            } else {
+                limbAngle = livingEntityRenderState.walkAnimationPos;
+                limbDistance = livingEntityRenderState.walkAnimationSpeed;
+            }
             headYaw = livingEntityRenderState.yRot;
             if (headYaw >= 180 || headYaw < -180) {
                 headYaw = (Mth.wrapDegrees(headYaw));
             }
             headPitch = livingEntityRenderState.xRot;
-        }else{ //block entity
+        } else { //block entity
             limbAngle = Float.NaN;
             limbDistance = Float.NaN;
             headYaw = Float.NaN;
@@ -765,6 +771,14 @@ public final class EMFAnimationEntityContext {
 
     public static float getEntityRY() {
         if (emfState == null) return 0;
+        // yBodyRotO/yBodyRot oscillate between ticks while inventory is open, skip the lerp in gui
+        if (isInGui()) {
+            return (emfEntity() instanceof LivingEntity alive) ?
+                    (float) Math.toRadians(alive.yBodyRot) :
+                    emfEntity() instanceof Entity entity ?
+                            (float) Math.toRadians(entity.getYRot())
+                            : 0;
+        }
         return (emfEntity() instanceof LivingEntity alive) ?
                 (float) Math.toRadians(Mth.rotLerp(getTickDelta(), alive.yBodyRotO, alive.yBodyRot)) :
                 emfEntity() instanceof Entity entity ?
@@ -1137,6 +1151,7 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getSwingProgress() {
+        if (isInGui()) return 0;
         return emfEntity() instanceof LivingEntity alive ? alive.getAttackAnim(getTickDelta()) : 0;
     }
 
@@ -1347,7 +1362,7 @@ public final class EMFAnimationEntityContext {
 
 
     public static float getMoveForward() {
-        if (emfState == null) return 0;
+        if (emfState == null || isInGui()) return 0;
         double lookDir = Math.toRadians(90 - emfState.yaw());
         //float speed = entity.horizontalSpeed;
         Vec3 velocity = emfState.emfVelocity();
@@ -1365,7 +1380,7 @@ public final class EMFAnimationEntityContext {
     }
 
     public static float getMoveStrafe() {
-        if (emfState == null) return 0;
+        if (emfState == null || isInGui()) return 0;
         double lookDir = Math.toRadians(90 - emfState.yaw());
         //float speed = entity.horizontalSpeed;
         Vec3 velocity = emfState.emfVelocity();
