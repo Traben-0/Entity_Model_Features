@@ -32,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.Minecraft;
@@ -63,20 +64,15 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public final ETFLruCache.UUIDInteger lastModelRuleOfEntity;
     public final ETFLruCache.UUIDInteger lastModelSuffixOfEntity;
-    public final LinkedHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new LinkedHashMap<>();
+    public final Map<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new ConcurrentHashMap<>();
 
     public final Set<EMFModel_ID> modelsAnnounced = new HashSet<>();
 
-    public final LinkedHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForVariation = new LinkedHashMap<>();
-    public final HashMap<String, EMFJemData> cache_JemDataByFileName = new HashMap<>();
-    public final HashMap<EMFModel_ID, ModelLayerLocation> cache_LayersByModelName = new HashMap<>();
+    public final Map<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForVariation = new ConcurrentHashMap<>();
+    public final Map<String, EMFJemData> cache_JemDataByFileName = new HashMap<>();
+    public final Map<EMFModel_ID, ModelLayerLocation> cache_LayersByModelName = new ConcurrentHashMap<>();
     public final Set<String> EBE_JEMS_FOUND_LAST = new HashSet<>();
-    private final Map<ModelLayerLocation, Integer> amountOfLayerAttempts = new HashMap<>() {
-        @Override
-        public @NotNull Integer get(Object key) {
-            return super.getOrDefault(key, 0);
-        }
-    };
+    private final Map<ModelLayerLocation, Integer> amountOfLayerAttempts = new ConcurrentHashMap<>();
     private final Set<String> EBE_JEMS_FOUND = new HashSet<>();
     private final ArrayList<String> KNOWN_RESOURCEPACK_ORDER;
     public UUID entityForDebugPrint = null;
@@ -527,7 +523,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                                     }
                                     default -> {
 
-                                        if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
+                                        if (EMF.config().getConfig().automaticModelExporting)
                                             EMFUtils.log("EMF unknown modifiable block entity model identified during loading: " + currentSpecifiedModelLoading + ".jem");
                                         mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading)
                                                 .setMapIdAndAddFallbackModel(currentSpecifiedModelLoading, originalLayerName);
@@ -547,7 +543,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 }
             }
 
-            if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE
+            if (EMF.config().getConfig().automaticModelExporting
                     && !currentSpecifiedModelLoading.isBlank() && currentSpecifiedModelLoading.contains(":")) {
                 EMFUtils.log("EMF modifiable modded block entity model identified during loading: " + mobNameForFileAndMap.getfileName() + ".jem");
             }

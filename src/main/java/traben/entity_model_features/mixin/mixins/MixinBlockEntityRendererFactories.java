@@ -36,7 +36,7 @@ public class MixinBlockEntityRendererFactories {
         if (EMF.testForForgeLoadingError()) return;
         EMFManager.getInstance().currentSpecifiedModelLoading = "";
         EMFManager.getInstance().currentBlockEntityTypeLoading = null;
-        if (EMF.config().getConfig().logModelCreationData || EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE)
+        if (EMF.config().getConfig().logModelCreationData || EMF.config().getConfig().automaticModelExporting)
             EMFUtils.log("Identified block entity renderers: " + emf$renderers);
         emf$renderers.clear();
     }

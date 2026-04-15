@@ -56,7 +56,8 @@ public class EMFConfig extends TConfig {
     public boolean debugOnRightClick = false;
     public RenderModeChoice renderModeChoice = RenderModeChoice.NORMAL;
     public VanillaModelRenderMode vanillaModelHologramRenderMode_2 = VanillaModelRenderMode.OFF;
-    public ModelPrintMode modelExportMode = ModelPrintMode.NONE;
+    @Deprecated(forRemoval = true) public ModelPrintMode modelExportMode = ModelPrintMode.NONE;
+    public boolean automaticModelExporting = false;
     @Deprecated(forRemoval = true) public PhysicsModCompatChoice attemptPhysicsModPatch_2 = PhysicsModCompatChoice.CUSTOM;
     public ETFConfig.UpdateFrequency modelUpdateFrequency = ETFConfig.UpdateFrequency.Average;
     public ETFConfig.String2EnumNullMap<RenderModeChoice> entityRenderModeOverrides = new ETFConfig.String2EnumNullMap<>();
@@ -66,19 +67,19 @@ public class EMFConfig extends TConfig {
     public RenderModeChoice getRenderModeFor(EMFEntity entity) {
         String typeString = getTypeString(entity);
         if (typeString == null) return renderModeChoice;
-        return Objects.requireNonNullElseGet(entityRenderModeOverrides.getNullable(typeString), () -> renderModeChoice);
+        return Objects.requireNonNullElseGet(entityRenderModeOverrides.get(typeString), () -> renderModeChoice);
     }
 
     @Deprecated(forRemoval = true) public PhysicsModCompatChoice getPhysicsModModeFor(EMFEntity entity) {
         String typeString = getTypeString(entity);
         if (typeString == null) return attemptPhysicsModPatch_2;
-        return Objects.requireNonNullElseGet(entityPhysicsModPatchOverrides.getNullable(typeString), () -> attemptPhysicsModPatch_2);
+        return Objects.requireNonNullElseGet(entityPhysicsModPatchOverrides.get(typeString), () -> attemptPhysicsModPatch_2);
     }
 
     public VanillaModelRenderMode getVanillaHologramModeFor(EMFEntity entity) {
         String typeString = getTypeString(entity);
         if (typeString == null) return vanillaModelHologramRenderMode_2;
-        return Objects.requireNonNullElseGet(entityVanillaHologramOverrides.getNullable(typeString), () -> vanillaModelHologramRenderMode_2);
+        return Objects.requireNonNullElseGet(entityVanillaHologramOverrides.get(typeString), () -> vanillaModelHologramRenderMode_2);
     }
 
     private static @Nullable String getTypeString(final EMFEntity entity) {
@@ -162,8 +163,8 @@ public class EMFConfig extends TConfig {
                         new TConfigEntryCategory("entity_model_features.config.tools", "entity_model_features.config.tools.tooltip").add(
                                 new TConfigEntryEnumSlider<>("entity_model_features.config.vanilla_render", "entity_model_features.config.vanilla_render.tooltip",
                                         () -> vanillaModelHologramRenderMode_2, value -> vanillaModelHologramRenderMode_2 = value, VanillaModelRenderMode.OFF),
-                                new TConfigEntryEnumSlider<>("entity_model_features.config.print_mode", "entity_model_features.config.print_mode.tooltip",
-                                        () -> modelExportMode, value -> modelExportMode = value, ModelPrintMode.NONE)
+                                new TConfigEntryBoolean("entity_model_features.config.print_mode", "entity_model_features.config.print_mode.tooltip",
+                                        () -> automaticModelExporting, value -> automaticModelExporting = value, false)
                         ),
                         new TConfigEntryCategory("entity_model_features.config.debug", "entity_model_features.config.debug.tooltip").add(
                                 new TConfigEntryEnumSlider<>("entity_model_features.config.render", "entity_model_features.config.render.tooltip",
@@ -326,8 +327,6 @@ public class EMFConfig extends TConfig {
 //            Objects.requireNonNull(((IEMFUnmodifiedLayerRootGetter)Minecraft.getInstance().getEntityModels())
 //                    .emf$getUnmodifiedRoots().get(layer));
             export = new TConfigEntryCustomButton("entity_model_features.config.models.export", "entity_model_features.config.models.export.tooltip", (button) -> {
-                var old = modelExportMode;
-                modelExportMode = ModelPrintMode.ALL_LOG_AND_JEM;
                 try {
                     EMFModelMappings.getMapOf(key,
                             Objects.requireNonNullElseGet(
@@ -335,18 +334,19 @@ public class EMFConfig extends TConfig {
                                             .emf$getUnmodifiedRoots().get(layer),
                                     () -> Minecraft.getInstance().getEntityModels().roots.get(layer)
                             ).bakeRoot(),
-                            false, false);
+                            false, false, true);
                 } catch (Exception e) {
                     //noinspection CallToPrintStackTrace
                     e.printStackTrace();
                 }
-                modelExportMode = old;
                 button.active = false;
-                //dont use etf translation class it crashes for some unknown reason
+                // don't use etf translation class it crashes for some unknown reason
                 button.setMessage(Component.translatable("entity_model_features.config.models.export.success"));
             });
         } catch (Exception e) {
             export = new TConfigEntryText.TwoLines("entity_model_features.config.models.export.fail", e.getMessage());
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
         }
         return export;
     }
@@ -408,11 +408,11 @@ public class EMFConfig extends TConfig {
         entityCategory.add(category);
         category.add(
                 new TConfigEntryEnumSlider<>("entity_model_features.config.render", "entity_model_features.config.render.tooltip",
-                        () -> this.entityRenderModeOverrides.getNullable(translationKey),
+                        () -> this.entityRenderModeOverrides.get(translationKey),
                         (layer) -> this.entityRenderModeOverrides.putNullable(translationKey, layer),
                         null, RenderModeChoice.class),
                 new TConfigEntryEnumButton<>("entity_model_features.config.vanilla_render", "entity_model_features.config.vanilla_render.tooltip",
-                        () -> this.entityVanillaHologramOverrides.getNullable(translationKey),
+                        () -> this.entityVanillaHologramOverrides.get(translationKey),
                         (layer) -> this.entityVanillaHologramOverrides.putNullable(translationKey, layer),
                         null, VanillaModelRenderMode.class)//,
 //                new TConfigEntryEnumButton<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
@@ -428,6 +428,7 @@ public class EMFConfig extends TConfig {
     }
 
 
+    @Deprecated(forRemoval = true)
     public enum ModelPrintMode {
         NONE("options.off"),
         @SuppressWarnings("unused")

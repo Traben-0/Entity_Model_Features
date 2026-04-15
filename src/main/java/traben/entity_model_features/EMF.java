@@ -35,13 +35,17 @@ public class EMF {
 
     public static TConfigHandler<EMFConfig> config() {
         if (configHandler == null) {
-            configHandler = new TConfigHandler<>(EMFConfig::new, MOD_ID, "EMF");
+            configHandler = new TConfigHandler<>(EMFConfig::new, MOD_ID, "EMF_load");
             ETF.registerConfigHandler(configHandler);
         }
         return configHandler;
     }
 
     public static void init() {
+
+        configHandler = new TConfigHandler<>(EMFConfig::new, MOD_ID, "EMF");
+        ETF.registerConfigHandler(configHandler);
+
         ETFEntityRenderState.setEtfRenderStateConstructor("for EMF",
                 etf -> new EMFEntityRenderStateViaReference((EMFEntity) etf));
 

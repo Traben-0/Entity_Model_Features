@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.client.model.geom.ModelPart;
 import traben.entity_model_features.utils.EMFUtils;
@@ -31,7 +32,7 @@ import traben.entity_texture_features.ETF;
 
 public class EMFModelMappings {
 
-    public static final Map<String, Map<String, String>> UNKNOWN_MODEL_MAP_CACHE = new HashMap<>();
+    public static final Map<String, Map<String, String>> UNKNOWN_MODEL_MAP_CACHE = new ConcurrentHashMap<>();
     public static final Map<String, Map<String, String>> OPTIFINE_MODEL_MAP_CACHE = new HashMap<>();
 
     public static final Map<String, String> genericNonPlayerBiped = Map.ofEntries(
@@ -1377,15 +1378,14 @@ public class EMFModelMappings {
     }
 
     public static boolean isKnownMapping(EMFModel_ID mobId) {
-        return !getMapOf(mobId, null, true, true).isEmpty();
+        return !getMapOf(mobId, null, true, true, false).isEmpty();
     }
 
     public static Map<String, String> getMapOf(EMFModel_ID mobId, @Nullable ModelPart root) {
-        return getMapOf(mobId, root, true, false);
+        return getMapOf(mobId, root, true, false, EMF.config().getConfig().automaticModelExporting);
     }
 
-    public static Map<String, String> getMapOf(@NotNull EMFModel_ID mobId, @Nullable ModelPart root, boolean exportOnlyFirstTime, boolean noExport) {
-
+    public static Map<String, String> getMapOf(@NotNull EMFModel_ID mobId, @Nullable ModelPart root, boolean exportOnlyFirstTime, boolean noExport, boolean allowsExport) {
         String mobName = mobId.getMapId();
         //#if MC < 26.1
         if (mobName.matches(".*_baby($|_.*)") && !mobName.contains(":")
@@ -1401,34 +1401,29 @@ public class EMFModelMappings {
             knownMap = getKnownMap(mobName);
         }
         if (knownMap == null) {
-            return root == null || noExport ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, exportOnlyFirstTime);
+            return root == null || noExport ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, exportOnlyFirstTime, allowsExport);
         }
         //trigger the export of the known model if we are exporting all
-        if (!noExport && EMF.config().getConfig().modelExportMode.doesAll()) {
-            exportKnown(mobId, root, knownMap, exportOnlyFirstTime);
+        if (!noExport && allowsExport) {
+            exportKnown(mobId, root, knownMap, exportOnlyFirstTime, true);
         }
-
         return knownMap;
     }
 
-    private static void exportKnown(final EMFModel_ID mobId, final @Nullable ModelPart root, final Map<String, String> knownMap, boolean exportOnlyFirstTime) {
+    private static void exportKnown(final EMFModel_ID mobId, final @Nullable ModelPart root, final Map<String, String> knownMap, boolean exportOnlyFirstTime, boolean allowsExport) {
         String mobName = mobId.getfileName();
         EMFUtils.log("Exporting/logging  model for " + mobName + " that has known OptiFine part names:");
-        exploreProvidedEntityModelAndExportIfNeeded(root, mobId, knownMap, exportOnlyFirstTime);
+        exploreProvidedEntityModelAndExportIfNeeded(root, mobId, knownMap, exportOnlyFirstTime, allowsExport);
         //also print out the model with its actual values in case a mod has added something
         EMFUtils.log("Additionally exporting/logging model for " + mobName + " again as though it did not have known OptiFine part names:\nThis might highlight some vanilla, or mod added, parts that are not usually exposed by OptiFine");
 
-        var old = EMF.config().getConfig().modelExportMode;
-        EMF.config().getConfig().modelExportMode = EMFConfig.ModelPrintMode.ALL_LOG_ONLY;
         try {
-            exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, exportOnlyFirstTime);
+            exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, exportOnlyFirstTime, allowsExport);
         } catch (Exception e) {
             EMFUtils.logError("Error while exporting model for " + mobName + " again as though it did not have known OptiFine part names:");
             //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
-
-        EMF.config().getConfig().modelExportMode = old;
     }
 
     private static @Nullable Map<String, String> getKnownMap(String mobName) {
@@ -1438,7 +1433,7 @@ public class EMFModelMappings {
 
 
     //this would make a usable mapping of the given model but with no part name changing as it would not be optifine customized
-    public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, EMFModel_ID mobId, @Nullable Map<String, String> mobMap, boolean exportOnlyFirstTime) {
+    public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, EMFModel_ID mobId, @Nullable Map<String, String> mobMap, boolean exportOnlyFirstTime, boolean allowsExport) {
         String id = mobId.getDisplayFileName();
         if (UNKNOWN_MODEL_MAP_CACHE.containsKey(id) && exportOnlyFirstTime)
             return UNKNOWN_MODEL_MAP_CACHE.get(id);
@@ -1462,13 +1457,13 @@ public class EMFModelMappings {
         boolean known = mobMap != null;
         if (!known) {
             mobMap = new HashMap<>();
-            mapThisAndChildren("root", originalModel, mobMap, detailsMap);
+            mapThisAndChildren("root", originalModel, mobMap, detailsMap,  allowsExport);
         }
 
         //cache result;
         UNKNOWN_MODEL_MAP_CACHE.put(id, mobMap);
 
-        if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
+        if (allowsExport) {
             StringBuilder mapString = new StringBuilder();
 
             String namespace = mobId.namespace;
@@ -1487,40 +1482,38 @@ public class EMFModelMappings {
                 EMFUtils.log("Unknown (possibly modded) model detected, Mapping now...\n" + mapString);
             }
 
-            if (EMF.config().getConfig().modelExportMode.doesJems()) {
-                EMFUtils.log("creating example .jem file for " + fileName);
-                var jemPrinter = new JsonObject();
-                int[] textureSize = null;
-                var models = new JsonArray();
-                for (Map.Entry<String, String> entry :
-                        mobMap.entrySet()) {
+            EMFUtils.log("creating example .jem file for " + fileName);
+            var jemPrinter = new JsonObject();
+            int[] textureSize = null;
+            var models = new JsonArray();
+            for (Map.Entry<String, String> entry :
+                    mobMap.entrySet()) {
 
-                    JsonObject partPrinter = new JsonObject();
-                    partPrinter.addProperty("invertAxis", "xy");
-                    partPrinter.addProperty("part", entry.getKey());
-                    partPrinter.addProperty("id", entry.getKey());
-                    partPrinter.addProperty("attach", false);
-                    PartAndOffsets searchPart = getChildByName(entry.getValue(), originalModel,0,0,0);
-                    // allow nested child parts named root to be found first otherwise apply the root part as the root
-                    PartAndOffsets vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? new PartAndOffsets(originalModel, 0,0,0) : searchPart;
+                JsonObject partPrinter = new JsonObject();
+                partPrinter.addProperty("invertAxis", "xy");
+                partPrinter.addProperty("part", entry.getKey());
+                partPrinter.addProperty("id", entry.getKey());
+                partPrinter.addProperty("attach", false);
+                PartAndOffsets searchPart = getChildByName(entry.getValue(), originalModel,0,0,0);
+                // allow nested child parts named root to be found first otherwise apply the root part as the root
+                PartAndOffsets vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? new PartAndOffsets(originalModel, 0,0,0) : searchPart;
 
-                    textureSize = initPartPrinterAndCaptureTextureSizeIfNeeded(vanillaModelPart, partPrinter, textureSize);
-                    models.add(partPrinter);
+                textureSize = initPartPrinterAndCaptureTextureSizeIfNeeded(vanillaModelPart, partPrinter, textureSize);
+                models.add(partPrinter);
 
-                }
-                if (!models.isEmpty()) jemPrinter.add("models", models);
-                if (textureSize == null) {
-                    textureSize = new int[] {64, 32};
-                }
-
-                var textureSize2 = new JsonArray();
-                textureSize2.add(textureSize[0]);
-                textureSize2.add(textureSize[1]);
-                jemPrinter.add("textureSize", textureSize2);
-
-                printModel(namespace, fileName, jemPrinter);
-                mobId.forEachFallback((fallback) -> printModel(fallback.namespace, fallback.getfileName(), jemPrinter));
             }
+            if (!models.isEmpty()) jemPrinter.add("models", models);
+            if (textureSize == null) {
+                textureSize = new int[] {64, 32};
+            }
+
+            var textureSize2 = new JsonArray();
+            textureSize2.add(textureSize[0]);
+            textureSize2.add(textureSize[1]);
+            jemPrinter.add("textureSize", textureSize2);
+
+            printModel(namespace, fileName, jemPrinter);
+            mobId.forEachFallback((fallback) -> printModel(fallback.namespace, fallback.getfileName(), jemPrinter));
         }
         return mobMap;
     }
@@ -1674,16 +1667,16 @@ public class EMFModelMappings {
         return null;
     }
 
-    private static void mapThisAndChildren(String partName, @NotNull ModelPart originalModel, Map<String, String> newMap, Map<String, String> detailsMap) {
+    private static void mapThisAndChildren(String partName, @NotNull ModelPart originalModel, Map<String, String> newMap, Map<String, String> detailsMap, boolean allowsExport) {
         // iterate over children while collecting their names in a list
         for (Map.Entry<String, ModelPart> entry :
                 originalModel.children.entrySet()) {
-            mapThisAndChildren(entry.getKey(), entry.getValue(), newMap, detailsMap);
+            mapThisAndChildren(entry.getKey(), entry.getValue(), newMap, detailsMap, allowsExport);
         }
 
         // add this part and its children names
         newMap.put(partName, partName);
-        if (EMF.config().getConfig().modelExportMode != EMFConfig.ModelPrintMode.NONE) {
+        if (allowsExport) {
             StringBuilder cubes = new StringBuilder( originalModel.cubes.isEmpty() ? "[No boxes]" : "[boxes]");
             int i = 0;
             for (ModelPart.Cube cube :
