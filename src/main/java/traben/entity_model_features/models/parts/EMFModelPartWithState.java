@@ -2,7 +2,6 @@ package traben.entity_model_features.models.parts;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFUtils;
@@ -17,14 +16,16 @@ import net.minecraft.resources.ResourceLocation;
 
 public abstract class EMFModelPartWithState extends EMFModelPart {
 
-    public final Int2ObjectOpenHashMap<EMFModelState> allKnownStateVariants = new Int2ObjectOpenHashMap<>() {
+    public final Map<Integer, EMFModelState> allKnownStateVariants = new HashMap<>() {
         @Override
-        public EMFModelState get(final int k) {
-            if (!containsKey(k)) {
+        public EMFModelState get(Object k) {
+            var val = super.get(k);
+            if (val == null) {
                 EMFUtils.logWarn("EMFModelState variant with key " + k + " does not exist in part [" + toStringShort() + "], returning copy of 0");
-                put(k, get(0).copy());
+                val = get(0).copy();
+                put((Integer) k, val);
             }
-            return super.get(k);
+            return val;
         }
     };
     public int currentModelVariant = 0;

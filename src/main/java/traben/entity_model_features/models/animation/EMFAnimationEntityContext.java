@@ -1,10 +1,5 @@
 package traben.entity_model_features.models.animation;
 
-import it.unimi.dsi.fastutil.ints.IntArraySet;
-import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -70,10 +65,13 @@ import java.util.function.Function;
 @Deprecated // todo move most func into EMFRenderState where appropriate
 public final class EMFAnimationEntityContext {
 
-    private static final Object2IntOpenHashMap<UUID> knownHighestAngerTimeByUUID = new Object2IntOpenHashMap<>() {{
-        defaultReturnValue(0);
-    }};
-    private static final Object2IntOpenHashMap<String> lodEntityTimers = new Object2IntOpenHashMap<>();
+    private static final Map<UUID, Integer> knownHighestAngerTimeByUUID = new HashMap<>() {
+        @Override
+        public Integer get(Object key) {
+            return super.getOrDefault(key, 0);
+        }
+    };
+    private static final Map<String, Integer> lodEntityTimers = new HashMap<>();
     public static boolean setInHand = false; // todo probably needs a 1.21.9+ solution
     public static boolean isFirstPersonHand = false;
     public static boolean setInItemFrame = false;
@@ -82,7 +80,7 @@ public final class EMFAnimationEntityContext {
     @Deprecated // 26.1+
     public static double lastFOV = 70;
     public static boolean is_in_ground_override = false;
-    public static ObjectSet<UUID> entitiesToForceVanillaModel = new ObjectOpenHashSet<>();
+    public static Set<UUID> entitiesToForceVanillaModel = new HashSet<>();
     //private static @Nullable EMFEntity IEMFEntity = null;
     private static float shadowSize = Float.NaN;
     private static float shadowOpacity = Float.NaN;
@@ -106,7 +104,7 @@ public final class EMFAnimationEntityContext {
     private static Method isPlayingEmoteMethod = null;
 
     public static HashMap<UUID, ModelPart[]> entitiesPausedParts = new HashMap<>();
-    public static ObjectSet<UUID> entitiesPaused = new ObjectOpenHashSet<>();
+    public static Set<UUID> entitiesPaused = new HashSet<>();
     public static List<Function<EMFEntity, Boolean>> pauseListeners = new ArrayList<>();
     public static List<Function<EMFEntity, Boolean>> forceVanillaModelListeners = new ArrayList<>();
 
@@ -337,7 +335,7 @@ public final class EMFAnimationEntityContext {
 
         String lodKey = emfState.uuid() + modelId;
 
-        int lodTimer = lodEntityTimers.getInt(lodKey);
+        int lodTimer = lodEntityTimers.getOrDefault(lodKey, 0);
         int lodResult;
         //check lod
         if (lodTimer < 1) {
@@ -463,7 +461,7 @@ public final class EMFAnimationEntityContext {
                     model.append(entryAndValue("texture_override", debugRoot.textureOverride.toString()));
                 }
                 if (debugRoot.variantTester != null) {
-                    IntSet set = new IntArraySet(debugRoot.allKnownStateVariants.keySet());
+                    Set<Integer> set = new HashSet<>(debugRoot.allKnownStateVariants.keySet());
                     set.remove(0);
                     model.append(entryAndValue("model_variants", set.toString()))
                             .append(entryAndValue("current_variant", String.valueOf(debugRoot.currentModelVariant)));
@@ -657,7 +655,7 @@ public final class EMFAnimationEntityContext {
 
     public static float getRuleIndex() {
         if (emfState == null) return 0;
-        return EMFManager.getInstance().lastModelRuleOfEntity.getInt(emfState.uuid());
+        return EMFManager.getInstance().lastModelRuleOfEntity.get(emfState.uuid());
     }
 
     public static boolean isEntityForcedToVanillaModel(){
@@ -827,7 +825,7 @@ public final class EMFAnimationEntityContext {
     public static float getAngerTime() {
         if (!(emfEntity() instanceof NeutralMob)) return 0;
 
-        float currentKnownHighest = knownHighestAngerTimeByUUID.getInt(emfState.uuid());
+        float currentKnownHighest = knownHighestAngerTimeByUUID.getOrDefault(emfState.uuid(), 0);
         //#if MC >= 12111
         //$$ int angerTime = (int) (((NeutralMob) emfEntity()).getPersistentAngerEndTime() - emfState.world().getGameTime());
         //#else
@@ -850,7 +848,7 @@ public final class EMFAnimationEntityContext {
     public static float getAngerTimeStart() {
         //this only makes sense if we are calculating it here from the largest known value of anger time
         // i could also reset it when anger time hits 0
-        return emfEntity() instanceof NeutralMob ? knownHighestAngerTimeByUUID.getInt(emfState.uuid()) : 0;
+        return emfEntity() instanceof NeutralMob ? knownHighestAngerTimeByUUID.getOrDefault(emfState.uuid(), 0) : 0;
 
     }
 

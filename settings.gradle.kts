@@ -10,7 +10,7 @@ pluginManagement {
         maven("https://maven.neoforged.net/releases/")
     }
     plugins {
-        val egtVersion = "0.7.0-alpha.4"
+        val egtVersion = "0.7.0-alpha.5"
         id("gg.essential.multi-version.root") version egtVersion
         id("gg.essential.multi-version.api-validation") version egtVersion
     }
@@ -44,9 +44,9 @@ mutableListOf<String>()
     .version(12104)
     .version(12103)
     .version(12100)
-    .version(12006)
-    .version(12004)
-    .version(12002)
+//    .version(12006)
+//    .version(12004)
+//    .version(12002)
     .version(12001, neoforge = false)
 .forEach { version ->
     include(":$version")

@@ -1,7 +1,6 @@
 package traben.entity_model_features.mixin.mixins;
 
 
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -15,17 +14,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFEntity;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Mixin(Entity.class)
 public abstract class MixinEntity implements EMFEntity {
 
     @Unique
-    private final Object2FloatOpenHashMap<String> emf$variableMap = new Object2FloatOpenHashMap<>() {{
-        defaultReturnValue(0);
-    }};
-
-
+    private final Map<String, Float> emf$variableMap = new HashMap<>();
 
 
     @Shadow
@@ -271,7 +268,7 @@ public abstract class MixinEntity implements EMFEntity {
     }
 
     @Override
-    public Object2FloatOpenHashMap<String> emf$getVariableMap() {
+    public Map<String, Float> emf$getVariableMap() {
         return emf$variableMap;
     }
 }

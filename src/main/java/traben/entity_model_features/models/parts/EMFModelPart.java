@@ -2,8 +2,6 @@ package traben.entity_model_features.models.parts;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
-import it.unimi.dsi.fastutil.Pair;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.renderer.*;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -57,7 +55,7 @@ public abstract class EMFModelPart extends ModelPart {
         // re assert children and cuboids as modifiable
         // required for sodium post 0.5.4
         // this should not cause issues as emf does not allow these model parts to pass through sodium's unique renderer
-        this.cubes = new ObjectArrayList<>(cuboids);
+        this.cubes = new ArrayList<>(cuboids);
         this.children = new HashMap<>(children);
     }
 

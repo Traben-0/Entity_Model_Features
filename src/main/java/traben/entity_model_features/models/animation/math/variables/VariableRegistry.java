@@ -1,7 +1,6 @@
 package traben.entity_model_features.models.animation.math.variables;
 
 import com.demonwav.mcdev.annotations.Translatable;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.util.Mth;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.EMFAnimation;

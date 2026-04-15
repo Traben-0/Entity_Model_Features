@@ -1,9 +1,7 @@
 package traben.entity_model_features.config;
 
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.model.geom.ModelLayers;
 //#if MC >= 12102
 import net.minecraft.client.renderer.ShapeRenderer;
@@ -12,7 +10,6 @@ import net.minecraft.client.renderer.ShapeRenderer;
 //#endif
 
 
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 //#if MC >= 12111
@@ -52,6 +49,8 @@ import net.minecraft.world.phys.AABB;
 
 @SuppressWarnings("CanBeFinal")
 public class EMFConfig extends TConfig {
+
+    public CustomEntityModelSupportMode allowedCEM = CustomEntityModelSupportMode.ALL;
 
     public boolean logModelCreationData = false;
     public boolean debugOnRightClick = false;
@@ -96,7 +95,7 @@ public class EMFConfig extends TConfig {
         return modelsNamesDisabled.contains(modelName);
     }
 
-    public ObjectOpenHashSet<String> modelsNamesDisabled = new ObjectOpenHashSet<>();
+    public Set<String> modelsNamesDisabled = new HashSet<>();
     public boolean allowEBEModConfigModify = true;
     public int animationLODDistance = 20;
     public boolean retainDetailOnLowFps = true;
@@ -128,6 +127,8 @@ public class EMFConfig extends TConfig {
         return new TConfigEntryCategory.Empty().add(
                 new TConfigEntryCategory("config.entity_features.models_main").add(
                         new TConfigEntryCategory("entity_model_features.config.options", "entity_model_features.config.options.tooltip").add(
+                                new TConfigEntryEnumButton<>("entity_model_features.config.allowed_cem", "entity_model_features.config.allowed_cem.tooltip",
+                                        () -> allowedCEM, (it) -> allowedCEM = it, CustomEntityModelSupportMode.ALL),
 //                                new TConfigEntryBoolean("entity_model_features.config.force_models", "entity_model_features.config.force_models.tooltip",
 //                                        () -> attemptRevertingEntityModelsAlteredByAnotherMod, value -> attemptRevertingEntityModelsAlteredByAnotherMod = value, true),
 //                                new TConfigEntryEnumButton<>("entity_model_features.config.physics", "entity_model_features.config.physics.tooltip",
@@ -334,7 +335,7 @@ public class EMFConfig extends TConfig {
                                             .emf$getUnmodifiedRoots().get(layer),
                                     () -> Minecraft.getInstance().getEntityModels().roots.get(layer)
                             ).bakeRoot(),
-                            false);
+                            false, false);
                 } catch (Exception e) {
                     //noinspection CallToPrintStackTrace
                     e.printStackTrace();
@@ -478,6 +479,41 @@ public class EMFConfig extends TConfig {
         }
     }
 
+    public enum CustomEntityModelSupportMode {
+        OFF("options.off"),
+        ALL("entity_model_features.config.allowed_cem.all"),
+        KNOWN_ONLY("entity_model_features.config.allowed_cem.known_only"),
+        UNKNOWN_ONLY("entity_model_features.config.allowed_cem.unknown_only");
+
+        private final String text;
+
+        CustomEntityModelSupportMode(String text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return Component.translatable(text).getString();
+        }
+
+        public boolean allowsKnown() {
+            return this == ALL || this == KNOWN_ONLY;
+        }
+
+        public boolean allowsUnknowns() {
+            return this == ALL || this == UNKNOWN_ONLY;
+        }
+
+        public boolean isOn() {
+            return this != OFF;
+        }
+
+        public boolean allowsAll() {
+            return this == ALL;
+        }
+
+    }
+
     //todo remove fully
     @Deprecated(forRemoval = true) public enum PhysicsModCompatChoice {
         OFF("options.off"),
@@ -560,7 +596,7 @@ public class EMFConfig extends TConfig {
                 PoseStack matrixStack = new PoseStack();
                 //#else
                 //$$ PoseStack matrixStack = context.pose();
-                //$$ Lighting.setupForEntityInInventory();
+                //$$ com.mojang.blaze3d.platform.Lighting.setupForEntityInInventory();
                 //#endif
 
                 matrixStack.pushPose();

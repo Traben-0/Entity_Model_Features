@@ -1,7 +1,5 @@
 package traben.entity_model_features.models.animation;
 
-import it.unimi.dsi.fastutil.floats.FloatConsumer;
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.NotNull;
 import traben.entity_model_features.models.parts.EMFModelPart;
@@ -13,7 +11,9 @@ import traben.entity_model_features.models.animation.math.variables.factories.Gl
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static traben.entity_model_features.models.animation.math.MathValue.FALSE;
 
@@ -24,8 +24,8 @@ public class EMFAnimation {
     public final String modelName;
     private final EMFModelPart partToApplyTo;
     private final EMFModelOrRenderVariable modelOrRenderVariableToChange;
-    private final Object2FloatOpenHashMap<UUID> prevResult = new Object2FloatOpenHashMap<>();
-    private final FloatConsumer variableResultConsumer;
+    private final Map<UUID, Float> prevResult;
+    private final Consumer<Float> variableResultConsumer;
     private final float defaultValue;
     public LinkedHashMap<String, EMFAnimation> temp_emfAnimationVariables = null;
     public HashMap<String, EMFModelPart> temp_allPartsBySingleAndFullHeirachicalId = null;
@@ -78,7 +78,14 @@ public class EMFAnimation {
         this.defaultValue = animKeyIsBoolean ||
                 (modelOrRenderVariableToChange != null && modelOrRenderVariableToChange.isBoolean())
                 ? FALSE : 0;
-        prevResult.defaultReturnValue(this.defaultValue);
+
+        prevResult = new HashMap<>() {
+            @Override
+            public Float get(Object key) {
+                return super.getOrDefault(key, defaultValue);
+            }
+        };
+
         expressionString = initialExpression;
     }
 
@@ -106,7 +113,7 @@ public class EMFAnimation {
         if (EMFAnimationEntityContext.getEMFEntity() == null) {
             return defaultValue;
         }
-        return prevResult.getFloat(EMFAnimationEntityContext.getEMFEntity().etf$getUuid());
+        return prevResult.get(EMFAnimationEntityContext.getEMFEntity().etf$getUuid());
 
     }
 

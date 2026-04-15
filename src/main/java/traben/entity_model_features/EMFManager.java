@@ -2,20 +2,19 @@ package traben.entity_model_features;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackResources;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutableTriple;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.EBEConfigModifier;
 import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.models.EMFModel_ID;
 import traben.entity_model_features.models.EMFPartialArmor;
-import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModelNameContainer;
@@ -27,7 +26,7 @@ import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETF;
-import traben.entity_texture_features.utils.EntityIntLRU;
+import traben.entity_texture_features.utils.ETFLruCache;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -62,19 +61,22 @@ public class EMFManager {//singleton for data holding and resetting needs
     public final boolean IS_PHYSICS_MOD_INSTALLED;
     public final boolean IS_EBE_INSTALLED;
 
-    public final EntityIntLRU lastModelRuleOfEntity;
-    public final EntityIntLRU lastModelSuffixOfEntity;
+    public final ETFLruCache.UUIDInteger lastModelRuleOfEntity;
+    public final ETFLruCache.UUIDInteger lastModelSuffixOfEntity;
     public final LinkedHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForDebug = new LinkedHashMap<>();
 
-    public final ObjectSet<EMFModel_ID> modelsAnnounced = new ObjectOpenHashSet<>();
+    public final Set<EMFModel_ID> modelsAnnounced = new HashSet<>();
 
     public final LinkedHashMap<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForVariation = new LinkedHashMap<>();
     public final HashMap<String, EMFJemData> cache_JemDataByFileName = new HashMap<>();
     public final HashMap<EMFModel_ID, ModelLayerLocation> cache_LayersByModelName = new HashMap<>();
     public final Set<String> EBE_JEMS_FOUND_LAST = new HashSet<>();
-    private final Object2IntOpenHashMap<ModelLayerLocation> amountOfLayerAttempts = new Object2IntOpenHashMap<>() {{
-        defaultReturnValue(0);
-    }};
+    private final Map<ModelLayerLocation, Integer> amountOfLayerAttempts = new HashMap<>() {
+        @Override
+        public @NotNull Integer get(Object key) {
+            return super.getOrDefault(key, 0);
+        }
+    };
     private final Set<String> EBE_JEMS_FOUND = new HashSet<>();
     private final ArrayList<String> KNOWN_RESOURCEPACK_ORDER;
     public UUID entityForDebugPrint = null;
@@ -101,9 +103,9 @@ public class EMFManager {//singleton for data holding and resetting needs
         IS_PHYSICS_MOD_INSTALLED = ETF.isThisModLoaded("physicsmod");
 //        IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
         IS_EBE_INSTALLED = ETF.isThisModLoaded("enhancedblockentities");
-        lastModelRuleOfEntity = new EntityIntLRU();
+        lastModelRuleOfEntity = new ETFLruCache.UUIDInteger();
         lastModelRuleOfEntity.defaultReturnValue(0);
-        lastModelSuffixOfEntity = new EntityIntLRU();
+        lastModelSuffixOfEntity = new ETFLruCache.UUIDInteger();
         lastModelSuffixOfEntity.defaultReturnValue(0);
         KNOWN_RESOURCEPACK_ORDER = new ArrayList<>();
     }
@@ -227,9 +229,12 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public ModelPart injectIntoModelRootGetter(final ModelLayerLocation layer, final ModelPart root) {
+        var allowedCEM = EMF.config().getConfig().allowedCEM;
+        if (!allowedCEM.isOn()) return root;
+
         if (!EMF.isLoadingPhase) {
-            int creationsOfLayer = amountOfLayerAttempts.put(layer, amountOfLayerAttempts.getInt(layer) + 1);
-            if (creationsOfLayer > 64) {
+            Integer creationsOfLayer = amountOfLayerAttempts.put(layer, amountOfLayerAttempts.getOrDefault(layer, 0) + 1);
+            if (creationsOfLayer != null && creationsOfLayer > 64) {
                 if (creationsOfLayer == 65) {
                     EMFUtils.logError("model attempted creation more than 64 times {" + layer.toString() + "]. EMF is now ignoring this model. Please inform the mod maker that this is not how entity models are meant to be utilised. They should ALWAYS be stored and reused.");
                 }
@@ -293,6 +298,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                     //#endif
                     .getNamespace())) {
                 modded = true;
+                if (!allowedCEM.allowsUnknowns()) return root;
+
                 //mobNameForFileAndMap.setBoth(("modded/" + layer.getId().getNamespace() + "/" + originalLayerName).toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
                 mobNameForFileAndMap.setBoth(originalLayerName.toLowerCase().replaceAll("[^a-z0-9/._-]", "_"));
                 mobNameForFileAndMap.namespace = layer.
@@ -304,6 +311,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                 .getNamespace();
             } else {
                 modded = false;
+                if (!allowedCEM.allowsKnown()) return root;
 
                 boolean skipSwitch = false;
 
@@ -563,6 +571,12 @@ public class EMFManager {//singleton for data holding and resetting needs
                 } else {
                     throw new EMFException("Model name is blank, for input layer: "+ layer);
                 }
+            }
+
+            if (!allowedCEM.allowsAll()) {
+                boolean known = EMFModelMappings.isKnownMapping(mobNameForFileAndMap);
+                boolean allowed = known ? allowedCEM.allowsKnown() : allowedCEM.allowsUnknowns();
+                if (!allowed) return root;
             }
 
             //cache the layers for the model

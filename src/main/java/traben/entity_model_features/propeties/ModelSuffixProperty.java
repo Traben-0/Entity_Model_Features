@@ -26,7 +26,7 @@ public class ModelSuffixProperty extends SimpleIntegerArrayProperty {
     }
 
     protected int getValueFromEntity(ETFEntityRenderState entity) {
-        int val = EMFManager.getInstance().lastModelSuffixOfEntity.getInt(entity.uuid());
+        int val = EMFManager.getInstance().lastModelSuffixOfEntity.get(entity.uuid());
         return Math.max(val, 0);
     }
 }

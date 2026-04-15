@@ -1,4 +1,10 @@
 
+[3.1]
+- ESF will need to update to be compatible with this version
+- fixed ArrayIndexOutOfBoundsException crash on 26.1+
+- added a setting to control which models EMF will attempt to load for, e.g. Known (most vanilla / OptiFine) or unknown (mostly modded)
+- temporarily incompatible with ESF
+
 [3.0.17]
 - fixed the position of the first person hand when using custom player models on 1.21.9+
 - fixed the config not changing properly until a full game reload on 26.1

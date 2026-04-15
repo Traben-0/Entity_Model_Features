@@ -1376,11 +1376,15 @@ public class EMFModelMappings {
         return new MutablePair<>(optifineName, vanillaName);
     }
 
-    public static Map<String, String> getMapOf(EMFModel_ID mobId, @Nullable ModelPart root) {
-        return getMapOf(mobId, root, true);
+    public static boolean isKnownMapping(EMFModel_ID mobId) {
+        return !getMapOf(mobId, null, true, true).isEmpty();
     }
 
-    public static Map<String, String> getMapOf(@NotNull EMFModel_ID mobId, @Nullable ModelPart root, boolean exportOnlyFirstTime) {
+    public static Map<String, String> getMapOf(EMFModel_ID mobId, @Nullable ModelPart root) {
+        return getMapOf(mobId, root, true, false);
+    }
+
+    public static Map<String, String> getMapOf(@NotNull EMFModel_ID mobId, @Nullable ModelPart root, boolean exportOnlyFirstTime, boolean noExport) {
 
         String mobName = mobId.getMapId();
         //#if MC < 26.1
@@ -1397,10 +1401,10 @@ public class EMFModelMappings {
             knownMap = getKnownMap(mobName);
         }
         if (knownMap == null) {
-            return root == null ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, exportOnlyFirstTime);
+            return root == null || noExport ? Map.of() : exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, exportOnlyFirstTime);
         }
         //trigger the export of the known model if we are exporting all
-        if (EMF.config().getConfig().modelExportMode.doesAll()) {
+        if (!noExport && EMF.config().getConfig().modelExportMode.doesAll()) {
             exportKnown(mobId, root, knownMap, exportOnlyFirstTime);
         }
 
