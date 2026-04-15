@@ -46,7 +46,7 @@ public class EntityVariableBooleanProperty extends RandomProperty {
         if (etfEntity != null && etfEntity.entity() instanceof EMFEntity IEMFEntity) {
             for (Map.Entry<String, Boolean> stringFunctionEntry : VARIABLE_MAP.entrySet()) {
                 boolean value = MathValue.toBoolean(
-                        IEMFEntity.emf$getVariableMap().getFloat(stringFunctionEntry.getKey())
+                        IEMFEntity.emf$getVariableMap().getOrDefault(stringFunctionEntry.getKey(), MathValue.FALSE)
                 );
                 if (stringFunctionEntry.getValue() != value) {
                     return false;

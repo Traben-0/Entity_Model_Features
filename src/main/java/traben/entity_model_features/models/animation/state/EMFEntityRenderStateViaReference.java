@@ -1,6 +1,5 @@
 package traben.entity_model_features.models.animation.state;
 
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
@@ -9,6 +8,7 @@ import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_texture_features.features.state.ETFEntityRenderStateViaReference;
 
+import java.util.Map;
 import java.util.function.Function;
 
 public class EMFEntityRenderStateViaReference extends ETFEntityRenderStateViaReference implements EMFEntityRenderState {
@@ -52,7 +52,7 @@ public class EMFEntityRenderStateViaReference extends ETFEntityRenderStateViaRef
 
     @Override public String typeString() { return emfEntity.emf$getTypeString(); }
 
-    @Override public Object2FloatOpenHashMap<String> variableMap() {
+    @Override public Map<String, Float> variableMap() {
         return emfEntity.emf$getVariableMap();
     }
 

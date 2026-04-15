@@ -1,25 +1,28 @@
 package traben.entity_model_features.models.animation.math.variables.factories;
 
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
+
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.MathValue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class GlobalVariableFactory extends UniqueVariableFactory {
 
-    private static final Object2FloatOpenHashMap<String> globalVariables = new Object2FloatOpenHashMap<>();
+    private static final Map<String, Float> globalVariables = new HashMap<>();
 
     public static void setGlobalVariable(String key, float value) {
         globalVariables.put(key, value);
     }
 
     public static float getGlobalVariable(String key) {
-        return globalVariables.getFloat(key);
+        return globalVariables.getOrDefault(key, 0f);
     }
 
     @Override
     public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
-        return () -> globalVariables.getFloat(variableKey);
+        return () -> globalVariables.getOrDefault(variableKey, 0f);
     }
 
     @Override

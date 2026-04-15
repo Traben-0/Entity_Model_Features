@@ -1,15 +1,13 @@
 package traben.entity_model_features.models.animation.math;
 
 
-import it.unimi.dsi.fastutil.chars.CharArrayList;
-import it.unimi.dsi.fastutil.chars.CharListIterator;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFException;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.utils.EMFUtils;
 
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -46,12 +44,13 @@ public class MathExpressionParser {
         try {
 
             RollingReader rollingReader = new RollingReader();
-            CharArrayList charList = new CharArrayList(expressionString.toCharArray());
-            CharListIterator charIterator = charList.iterator();
+            var charIterator = expressionString.chars()
+                    .mapToObj(c -> (char) c)
+                    .iterator();
 
             Character firstBooleanChar = null;
             while (charIterator.hasNext()) {
-                char currentChar = charIterator.nextChar();
+                char currentChar = charIterator.next();
 
                 //ignore whitespace
                 if (Character.isWhitespace(currentChar)) continue;
@@ -66,7 +65,7 @@ public class MathExpressionParser {
                         //now iterate once again manually to continue as a regular iteration
                         if (!charIterator.hasNext())
                             throw new EMFMathException("ERROR: boolean operator [" + firstBooleanChar + currentChar + "] at end of expression for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
-                        currentChar = charIterator.nextChar();
+                        currentChar = charIterator.next();
                         asAction = MathOperator.getAction(currentChar);
                     } else {
                         // the last boolean character was a single character boolean such as !, =, &, |, <, >
@@ -171,11 +170,11 @@ public class MathExpressionParser {
         }
     }
 
-    private static String readBracketContents(final CharListIterator charIterator) {
+    private static String readBracketContents(Iterator<Character> charIterator) {
         final StringBuilder bracketContents = new StringBuilder();
         int nesting = 0;
         while (charIterator.hasNext()) {
-            char ch2 = charIterator.nextChar();
+            char ch2 = charIterator.next();
             if (ch2 == '(') {
                 nesting++;
             } else if (ch2 == ')') {
@@ -220,7 +219,7 @@ public class MathExpressionParser {
         components.add(doubleAction);
     }
 
-    private void readMethodOrBrackets(final RollingReader rollingReader, final CharListIterator charIterator) throws EMFMathException {
+    private void readMethodOrBrackets(final RollingReader rollingReader, Iterator<Character> charIterator) throws EMFMathException {
         String functionName = rollingReader.read();
         String bracketContents = readBracketContents(charIterator);
         if (functionName.isEmpty() || "!".equals(functionName) || "-".equals(functionName)) {
@@ -396,7 +395,7 @@ public class MathExpressionParser {
 
     }
 
-    private static class CalculationList extends ObjectArrayList<MathComponent> {
+    private static class CalculationList extends ArrayList<MathComponent> {
         public CalculationList(CalculationList components) {
             super(components);
         }
@@ -405,7 +404,7 @@ public class MathExpressionParser {
         }
 
         public MathComponent getLast() {
-            return super.get(size - 1);
+            return super.get(size() - 1);
         }
 
     }

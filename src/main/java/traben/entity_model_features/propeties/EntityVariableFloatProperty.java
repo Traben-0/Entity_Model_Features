@@ -29,7 +29,7 @@ public class EntityVariableFloatProperty extends RandomProperty {
                 String instruction = ((String) value).trim();
                 String variableKey = "var." + key.replaceAll(keyPrefix, "");
                 if (!variableKey.isBlank() && !instruction.isBlank()) {
-                    var tester = new InnerTester(instruction, (emfEntity) -> emfEntity.emf$getVariableMap().getFloat(variableKey), variableKey);
+                    var tester = new InnerTester(instruction, (emfEntity) -> emfEntity.emf$getVariableMap().getOrDefault(variableKey, 0f), variableKey);
                     this.VARIABLES.add(tester);
                 }
             }

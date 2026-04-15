@@ -1,8 +1,9 @@
 package traben.entity_model_features.utils;
 
-import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.world.phys.Vec3;
 import traben.entity_texture_features.utils.ETFEntity;
+
+import java.util.Map;
 
 /**
  * This interface is applied to all entities that are used in the Entity Model Features system.
@@ -64,6 +65,6 @@ public interface EMFEntity extends ETFEntity {
 
     String emf$getTypeString();
 
-    Object2FloatOpenHashMap<String> emf$getVariableMap();
+    Map<String, Float> emf$getVariableMap();
 
 }

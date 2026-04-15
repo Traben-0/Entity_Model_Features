@@ -27,6 +27,6 @@ public class ModelRuleIndexProperty extends SimpleIntegerArrayProperty {
     }
 
     protected int getValueFromEntity(ETFEntityRenderState entity) {
-        return EMFManager.getInstance().lastModelRuleOfEntity.getInt(entity.uuid());
+        return EMFManager.getInstance().lastModelRuleOfEntity.get(entity.uuid());
     }
 }

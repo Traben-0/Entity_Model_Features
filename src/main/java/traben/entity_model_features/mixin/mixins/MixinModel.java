@@ -60,6 +60,7 @@ public class MixinModel implements IEMFModel {
     @Inject(method = "renderType",
             at = @At(value = "HEAD"))
     private void emf$discoverEMFModel(CallbackInfoReturnable<RenderType> cir) {
+        //noinspection unchecked,rawtypes
         EMFAnimationEntityContext.setLayerFactory(((Model) ((Object) this)).renderType);
     }
 }
