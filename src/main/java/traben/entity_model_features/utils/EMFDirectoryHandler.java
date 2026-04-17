@@ -38,7 +38,7 @@ public class EMFDirectoryHandler {
             String pathPrefix = prefix.contains(":") ? prefix.split(":", 2)[1] : prefix;
             var found = resources.listResources(pathPrefix, p -> true);
             for (ResourceLocation loc : found.keySet()) {
-                RESOURCE_EXISTENCE_CACHE.put(loc.getNamespace() + ":" + loc.getPath(), Boolean.TRUE);
+                RESOURCE_EXISTENCE_CACHE.put(loc.toString(), Boolean.TRUE);
             }
         } catch (Exception e) {
             EMFException.recordException(e);
@@ -46,7 +46,7 @@ public class EMFDirectoryHandler {
     }
 
     public static boolean resourceExists(ResourceManager resources, ResourceLocation loc) {
-        String key = loc.getNamespace() + ":" + loc.getPath();
+        String key = loc.toString();
         Boolean cached = RESOURCE_EXISTENCE_CACHE.get(key);
         if (cached != null) return cached;
 
