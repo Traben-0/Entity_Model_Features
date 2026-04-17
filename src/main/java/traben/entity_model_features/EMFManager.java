@@ -115,6 +115,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         EMFUtils.log("Clearing data for reload.", false);
         EMF.config().loadFromFile();
         EMFModelMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
+        EMFDirectoryHandler.clearAndPopulateCache(Minecraft.getInstance().getResourceManager());
         self = new EMFManager();
     }
 
@@ -126,12 +127,15 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
         final boolean print = EMF.config().getConfig().logModelCreationData;
         try {
-            Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(EMFUtils.res(pathOfJem));
-            if (res.isEmpty()) {
+            var jemLoc = EMFUtils.res(pathOfJem);
+            var resourceManager = Minecraft.getInstance().getResourceManager();
+            if (!EMFDirectoryHandler.resourceExists(resourceManager, jemLoc)) {
                 if (print) EMFUtils.log(pathOfJem + ", .jem read failed " + pathOfJem + " does not exist", false);
                 return null;
             }
             if (print) EMFUtils.log(pathOfJem + ", .jem read success " + pathOfJem + " exists", false);
+            Optional<Resource> res = resourceManager.getResource(jemLoc);
+            if (res.isEmpty()) return null;
             Resource jemResource = res.get();
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
             BufferedReader reader = new BufferedReader(new InputStreamReader(jemResource.open()));

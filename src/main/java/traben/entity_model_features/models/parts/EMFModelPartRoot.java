@@ -190,13 +190,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
         if(printing) EMFUtils.log(" > checking properties file: " + propertyID + " for: " + thisDirectoryFileName + ".jem");
 
-        boolean exists = Minecraft.getInstance().getResourceManager().getResource(propertyID).isPresent();
+        var resourceManager = Minecraft.getInstance().getResourceManager();
+        boolean exists = EMFDirectoryHandler.resourceExists(resourceManager, propertyID);
 
         //try fallback properties
         if (!exists && EMF.config().getConfig().allowOptifineFallbackProperties){
             ResourceLocation fallbackPropertiesID = directoryContext.getRelativeFilePossiblyEMFOverridden(fallbackPropertiesName + ".properties");
             if(printing) EMFUtils.log(" > checking fallback .properties file: " + fallbackPropertiesID + " for: " + thisDirectoryFileName + ".jem");
-            exists = Minecraft.getInstance().getResourceManager().getResource(fallbackPropertiesID).isPresent();
+            exists = EMFDirectoryHandler.resourceExists(resourceManager, fallbackPropertiesID);
             if(exists){
                 propertyID = fallbackPropertiesID;
             }

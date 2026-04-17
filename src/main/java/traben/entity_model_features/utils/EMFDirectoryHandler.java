@@ -10,10 +10,39 @@ import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMFManager;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static traben.entity_model_features.utils.EMFDirectoryHandler.EMFDirectory.*;
 
 public class EMFDirectoryHandler {
+
+    public static final Map<String, Boolean> RESOURCE_EXISTENCE_CACHE = new ConcurrentHashMap<>();
+
+    public static void clearAndPopulateCache(ResourceManager resources) {
+        RESOURCE_EXISTENCE_CACHE.clear();
+        scanPrefix(resources, "emf/cem/");
+        scanPrefix(resources, "optifine/cem/");
+    }
+
+    private static void scanPrefix(ResourceManager resources, String prefix) {
+        try {
+            String pathPrefix = prefix.contains(":") ? prefix.split(":", 2)[1] : prefix;
+            var found = resources.listResources(pathPrefix, p -> true);
+            for (ResourceLocation loc : found.keySet()) {
+                RESOURCE_EXISTENCE_CACHE.put(loc.getNamespace() + ":" + loc.getPath(), Boolean.TRUE);
+            }
+        } catch (Exception ignored) {}
+    }
+
+    public static boolean resourceExists(ResourceManager resources, ResourceLocation loc) {
+        String key = loc.getNamespace() + ":" + loc.getPath();
+        Boolean cached = RESOURCE_EXISTENCE_CACHE.get(key);
+        if (cached != null) return cached;
+        boolean exists = resources.getResource(loc).isPresent();
+        RESOURCE_EXISTENCE_CACHE.put(key, exists);
+        return exists;
+    }
 
     public final String namespace;
     public final String rawFileName;
@@ -134,8 +163,13 @@ public class EMFDirectoryHandler {
     private Resource getResourceOrNull(ResourceManager resources, EMFDirectoryHandler.EMFDirectory directory, boolean printing) {
         try {
             var loc = EMFUtils.res(directory.getAsDirectory(namespace, rawFileName) + suffixAndFileType);
+            if (printing) {
+                boolean exists = resourceExists(resources, loc);
+                EMFUtils.log(" >>> Checking directory: " + loc + ", exists = " + exists);
+                return exists ? resources.getResource(loc).orElse(null) : null;
+            }
+            if (!resourceExists(resources, loc)) return null;
             var res = resources.getResource(loc);
-            if (printing) EMFUtils.log(" >>> Checking directory: " + loc + ", exists = " + res.isPresent());
             return res.orElse(null);
         } catch (Exception e) {
             return null;
@@ -164,7 +198,8 @@ public class EMFDirectoryHandler {
 
         //return emf dir if file exists
         var sameDir = EMFUtils.res(first.getAsDirectory(namespace, rawFileName).replaceFirst(rawFileName + "$", jpmOrVariantFileNameWithSuffixAndFileType));
-        if (Minecraft.getInstance().getResourceManager().getResource(sameDir).isPresent()) {
+        var resources = Minecraft.getInstance().getResourceManager();
+        if (resourceExists(resources, sameDir)) {
             return sameDir;
         }
         //else return optifine

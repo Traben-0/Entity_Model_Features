@@ -107,7 +107,7 @@ public class EMFJemData {
                 //#endif
             ) {
                 ResourceLocation possibleResource = EMFUtils.res(pathTest);
-                if (Minecraft.getInstance().getResourceManager().getResource(possibleResource).isPresent()) {
+                if (EMFDirectoryHandler.resourceExists(Minecraft.getInstance().getResourceManager(), possibleResource)) {
                     return possibleResource;
                 }
             } else {
