@@ -1,5 +1,5 @@
 
-[?]
+[3.1.1]
 - Optimized resource loading time
 
 [3.1]
