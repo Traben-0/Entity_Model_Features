@@ -13,6 +13,7 @@ import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.utils.EMFResourceCaching;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.EMFModel_ID;
 import traben.entity_texture_features.ETFApi;
@@ -191,13 +192,13 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         if(printing) EMFUtils.log(" > checking properties file: " + propertyID + " for: " + thisDirectoryFileName + ".jem");
 
         var resourceManager = Minecraft.getInstance().getResourceManager();
-        boolean exists = EMFDirectoryHandler.resourceExists(resourceManager, propertyID);
+        boolean exists = EMFResourceCaching.resourceExists(resourceManager, propertyID);
 
         //try fallback properties
         if (!exists && EMF.config().getConfig().allowOptifineFallbackProperties){
             ResourceLocation fallbackPropertiesID = directoryContext.getRelativeFilePossiblyEMFOverridden(fallbackPropertiesName + ".properties");
             if(printing) EMFUtils.log(" > checking fallback .properties file: " + fallbackPropertiesID + " for: " + thisDirectoryFileName + ".jem");
-            exists = EMFDirectoryHandler.resourceExists(resourceManager, fallbackPropertiesID);
+            exists = EMFResourceCaching.resourceExists(resourceManager, fallbackPropertiesID);
             if(exists){
                 propertyID = fallbackPropertiesID;
             }

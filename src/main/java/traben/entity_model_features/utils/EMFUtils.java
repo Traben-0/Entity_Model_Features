@@ -214,7 +214,12 @@ public class EMFUtils {
     public static EMFPartData readModelPart(ResourceLocation location) {
         boolean print = EMF.config().getConfig().logModelCreationData;
         try {
-            Optional<Resource> res = Minecraft.getInstance().getResourceManager().getResource(location);
+            var manager = Minecraft.getInstance().getResourceManager();
+            if (!EMFResourceCaching.resourceExists(manager, location)) {
+                if (print) log("jpm failed " + location + " does not exist", false);
+                return null;
+            }
+            Optional<Resource> res = manager.getResource(location);
             if (res.isEmpty()) {
                 if (print) log("jpm failed " + location + " does not exist", false);
                 return null;

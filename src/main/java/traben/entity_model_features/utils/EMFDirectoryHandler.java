@@ -7,56 +7,13 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.EMFException;
 import traben.entity_model_features.EMFManager;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static traben.entity_model_features.utils.EMFDirectoryHandler.EMFDirectory.*;
 
 public class EMFDirectoryHandler {
-
-    public static final Map<String, Boolean> RESOURCE_EXISTENCE_CACHE = new ConcurrentHashMap<>();
-    private static boolean isPopulated = false;
-
-    public static void clearCache() {
-        RESOURCE_EXISTENCE_CACHE.clear();
-        isPopulated = false;
-    }
-
-    private static void populateCacheIfNeeded(ResourceManager resources) {
-        if (isPopulated) return;
-        scanPrefix(resources, "emf/cem");
-        scanPrefix(resources, "optifine/cem");
-        isPopulated = true;
-    }
-
-    private static void scanPrefix(ResourceManager resources, String prefix) {
-        try {
-            String pathPrefix = prefix.contains(":") ? prefix.split(":", 2)[1] : prefix;
-            var found = resources.listResources(pathPrefix, p -> true);
-            for (ResourceLocation loc : found.keySet()) {
-                RESOURCE_EXISTENCE_CACHE.put(loc.toString(), Boolean.TRUE);
-            }
-        } catch (Exception e) {
-            EMFException.recordException(e);
-        }
-    }
-
-    public static boolean resourceExists(ResourceManager resources, ResourceLocation loc) {
-        String key = loc.toString();
-        Boolean cached = RESOURCE_EXISTENCE_CACHE.get(key);
-        if (cached != null) return cached;
-
-        // By the time this method is first called after a reload starts we should be ready to populate the cache with the cem folders
-        populateCacheIfNeeded(resources);
-
-        boolean exists = resources.getResource(loc).isPresent();
-        RESOURCE_EXISTENCE_CACHE.put(key, exists);
-        return exists;
-    }
 
     public final String namespace;
     public final String rawFileName;
@@ -178,11 +135,11 @@ public class EMFDirectoryHandler {
         try {
             var loc = EMFUtils.res(directory.getAsDirectory(namespace, rawFileName) + suffixAndFileType);
             if (printing) {
-                boolean exists = resourceExists(resources, loc);
+                boolean exists = EMFResourceCaching.resourceExists(resources, loc);
                 EMFUtils.log(" >>> Checking directory: " + loc + ", exists = " + exists);
                 return exists ? resources.getResource(loc).orElse(null) : null;
             }
-            if (!resourceExists(resources, loc)) return null;
+            if (!EMFResourceCaching.resourceExists(resources, loc)) return null;
             var res = resources.getResource(loc);
             return res.orElse(null);
         } catch (Exception e) {
@@ -213,7 +170,7 @@ public class EMFDirectoryHandler {
         //return emf dir if file exists
         var sameDir = EMFUtils.res(first.getAsDirectory(namespace, rawFileName).replaceFirst(rawFileName + "$", jpmOrVariantFileNameWithSuffixAndFileType));
         var resources = Minecraft.getInstance().getResourceManager();
-        if (resourceExists(resources, sameDir)) {
+        if (EMFResourceCaching.resourceExists(resources, sameDir)) {
             return sameDir;
         }
         //else return optifine
