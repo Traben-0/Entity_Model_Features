@@ -134,8 +134,13 @@ public class EMFDirectoryHandler {
     private Resource getResourceOrNull(ResourceManager resources, EMFDirectoryHandler.EMFDirectory directory, boolean printing) {
         try {
             var loc = EMFUtils.res(directory.getAsDirectory(namespace, rawFileName) + suffixAndFileType);
+            if (printing) {
+                boolean exists = EMFResourceCaching.resourceExists(resources, loc);
+                EMFUtils.log(" >>> Checking directory: " + loc + ", exists = " + exists);
+                return exists ? resources.getResource(loc).orElse(null) : null;
+            }
+            if (!EMFResourceCaching.resourceExists(resources, loc)) return null;
             var res = resources.getResource(loc);
-            if (printing) EMFUtils.log(" >>> Checking directory: " + loc + ", exists = " + res.isPresent());
             return res.orElse(null);
         } catch (Exception e) {
             return null;
@@ -164,7 +169,8 @@ public class EMFDirectoryHandler {
 
         //return emf dir if file exists
         var sameDir = EMFUtils.res(first.getAsDirectory(namespace, rawFileName).replaceFirst(rawFileName + "$", jpmOrVariantFileNameWithSuffixAndFileType));
-        if (Minecraft.getInstance().getResourceManager().getResource(sameDir).isPresent()) {
+        var resources = Minecraft.getInstance().getResourceManager();
+        if (EMFResourceCaching.resourceExists(resources, sameDir)) {
             return sameDir;
         }
         //else return optifine

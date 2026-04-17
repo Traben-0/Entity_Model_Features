@@ -6,6 +6,7 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFException;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.models.EMFModelMappings;
+import traben.entity_model_features.utils.EMFResourceCaching;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.EMFModel_ID;
 
@@ -107,7 +108,7 @@ public class EMFJemData {
                 //#endif
             ) {
                 ResourceLocation possibleResource = EMFUtils.res(pathTest);
-                if (Minecraft.getInstance().getResourceManager().getResource(possibleResource).isPresent()) {
+                if (EMFResourceCaching.resourceExists(Minecraft.getInstance().getResourceManager(), possibleResource)) {
                     return possibleResource;
                 }
             } else {
