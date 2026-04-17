@@ -115,7 +115,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         EMFUtils.log("Clearing data for reload.", false);
         EMF.config().loadFromFile();
         EMFModelMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
-        EMFDirectoryHandler.clearAndPopulateCache(Minecraft.getInstance().getResourceManager());
+        EMFDirectoryHandler.clearCache();
         self = new EMFManager();
     }
 

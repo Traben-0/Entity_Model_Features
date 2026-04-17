@@ -7,6 +7,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.EMFException;
 import traben.entity_model_features.EMFManager;
 
 import java.util.List;
@@ -18,11 +19,18 @@ import static traben.entity_model_features.utils.EMFDirectoryHandler.EMFDirector
 public class EMFDirectoryHandler {
 
     public static final Map<String, Boolean> RESOURCE_EXISTENCE_CACHE = new ConcurrentHashMap<>();
+    private static boolean isPopulated = false;
 
-    public static void clearAndPopulateCache(ResourceManager resources) {
+    public static void clearCache() {
         RESOURCE_EXISTENCE_CACHE.clear();
-        scanPrefix(resources, "emf/cem/");
-        scanPrefix(resources, "optifine/cem/");
+        isPopulated = false;
+    }
+
+    private static void populateCacheIfNeeded(ResourceManager resources) {
+        if (isPopulated) return;
+        scanPrefix(resources, "emf/cem");
+        scanPrefix(resources, "optifine/cem");
+        isPopulated = true;
     }
 
     private static void scanPrefix(ResourceManager resources, String prefix) {
@@ -32,13 +40,19 @@ public class EMFDirectoryHandler {
             for (ResourceLocation loc : found.keySet()) {
                 RESOURCE_EXISTENCE_CACHE.put(loc.getNamespace() + ":" + loc.getPath(), Boolean.TRUE);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            EMFException.recordException(e);
+        }
     }
 
     public static boolean resourceExists(ResourceManager resources, ResourceLocation loc) {
         String key = loc.getNamespace() + ":" + loc.getPath();
         Boolean cached = RESOURCE_EXISTENCE_CACHE.get(key);
         if (cached != null) return cached;
+
+        // By the time this method is first called after a reload starts we should be ready to populate the cache with the cem folders
+        populateCacheIfNeeded(resources);
+
         boolean exists = resources.getResource(loc).isPresent();
         RESOURCE_EXISTENCE_CACHE.put(key, exists);
         return exists;
