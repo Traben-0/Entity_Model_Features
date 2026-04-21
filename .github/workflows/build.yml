@@ -20,5 +20,8 @@ jobs:
           distribution: temurin
           java-version: 25
 
+      - name: Make Gradle Wrapper executable
+        run: chmod +x ./gradlew
+
       # Build the mod
       - run: ./gradlew build
