@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.client.model.geom.ModelPart;
@@ -1750,10 +1751,14 @@ public class EMFModelMappings {
         }
 
 
+        private static Set<String> exceptions = Set.of("helmet", "chestplate", "leggins", "boots");
+
         void parts(final Map<String, String> stringStringMap) {
             for (String key : modelNames) {
                 if (OPTIFINE_MODEL_MAP_CACHE.put(key, stringStringMap) != null) {
-                    EMFUtils.logError("OptiFine model map for " + key + " already exists, overwriting");
+                    if (!exceptions.contains(key)) {
+                        EMFUtils.logError("OptiFine model map for " + key + " already exists, overwriting");
+                    }
                 }
             }
         }

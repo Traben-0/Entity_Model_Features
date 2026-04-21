@@ -1,4 +1,6 @@
 
+- reduced some log spam
+
 [3.1.1]
 - Optimized resource loading time
 
