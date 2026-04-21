@@ -8,13 +8,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackResources;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutableTriple;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.EBEConfigModifier;
 import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.models.EMFModel_ID;
 import traben.entity_model_features.models.EMFPartialArmor;
+import traben.entity_model_features.models.animation.AnimSetupContext;
+import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
+import traben.entity_model_features.models.animation.math.methods.emf.NBTMethod;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModelNameContainer;
@@ -117,6 +118,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         EMF.config().loadFromFile();
         EMFModelMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
         EMFResourceCaching.clearCache();
+        NBTMethod.CACHE.clear();
         self = new EMFManager();
     }
 
@@ -863,10 +865,12 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         isAnimationValidationPhase = true;
         Iterator<EMFAnimation> animMapIterate = emfAnimations.values().iterator();
+        var asmVarList = new ASMVariableHandler();
+        var context = new AnimSetupContext(jemData.directoryContext.getFileNameWithType() ,emfAnimations, allPartsBySingleAndFullHeirachicalId);
         while (animMapIterate.hasNext()) {
             EMFAnimation anim = animMapIterate.next();
             if (anim != null) {
-                anim.initExpression(emfAnimations, allPartsBySingleAndFullHeirachicalId);
+                anim.initExpression(context, asmVarList);
                 if (!anim.isValid()) {
                     EMFUtils.logError("animation was invalid: [" + anim.animKey + "] = [" + anim.expressionString + "] in model [" + emfRootPart.modelName + "]");
                     //animMapIterate.remove();
@@ -879,6 +883,6 @@ public class EMFManager {//singleton for data holding and resetting needs
         }
         isAnimationValidationPhase = false;
 
-        emfRootPart.receiveAnimations(variantNum, emfAnimations.values()); //emfAnimationsByPartName);
+        emfRootPart.receiveAnimations(variantNum, emfAnimations.values(), asmVarList, emfAnimations, allPartsBySingleAndFullHeirachicalId); //emfAnimationsByPartName);
     }
 }

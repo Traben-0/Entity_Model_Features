@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.animation.math.variables.factories;
 
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.MathValue;
@@ -9,7 +10,7 @@ import static traben.entity_model_features.models.animation.math.MathValue.FALSE
 
 public class ModelVariableFactory extends UniqueVariableFactory {
     @Override
-    public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
+    public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, AnimSetupContext context) {
         if (variableKey.startsWith("varb")) {
             return () -> EMFAnimationEntityContext.getEntityVariable(variableKey, FALSE);
         } else {

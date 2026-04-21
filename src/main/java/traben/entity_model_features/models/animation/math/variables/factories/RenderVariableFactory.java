@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.animation.math.variables.factories;
 
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.MathValue;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
@@ -8,9 +9,9 @@ import traben.entity_model_features.utils.EMFUtils;
 
 public class RenderVariableFactory extends UniqueVariableFactory {
     @Override
-    public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
+    public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, AnimSetupContext context) {
         //requires calculation instance check before global check so must be a factory
-        EMFAnimation renderVariableCalculator = calculationInstance.temp_emfAnimationVariables.get(variableKey);
+        EMFAnimation renderVariableCalculator = context.emfAnimationVariables.get(variableKey);
         if (renderVariableCalculator != null) {
             return renderVariableCalculator::getLastResultOnly;
         }

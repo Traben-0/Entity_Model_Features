@@ -2,6 +2,7 @@ package traben.entity_model_features.models.animation.math.variables.factories;
 
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.MathConstant;
@@ -12,7 +13,7 @@ import traben.entity_model_features.utils.EMFUtils;
 
 public class ModelPartVariableFactory extends UniqueVariableFactory {
     @Override
-    public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
+    public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, AnimSetupContext context) {
         String[] split = variableKey.split("\\.");//todo only works with one split point
         String partName = split[0];
         if ("render".equals(partName) && EMF.config().getConfig().enforceOptiFineAnimSyntaxLimits){
@@ -24,12 +25,12 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
             return null;
         }
         EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
-        EMFModelPart part = EMFManager.getModelFromHierarchicalId(partName, calculationInstance.temp_allPartsBySingleAndFullHeirachicalId);
+        EMFModelPart part = EMFManager.getModelFromHierarchicalId(partName, context.allPartsBySingleAndFullHeirachicalId);
         if (partVariable != null) {
             if (part != null) {
                 return () -> partVariable.getValue(part);
             } else {
-                if (printing()) EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.temp_allPartsBySingleAndFullHeirachicalId.keySet());
+                if (printing()) EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + context.modelName + "]. Available parts were: " + context.allPartsBySingleAndFullHeirachicalId.keySet());
                 if (partVariable.isBoolean()) return MathConstant.FALSE_CONST::getResult;
                 else return MathConstant.ZERO_CONST::getResult;
             }
@@ -37,12 +38,12 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
 
         //cheeky little thing for how I get large chests working from 1 jem file
         //todo possibly need the same in bed.jem???
-        if (calculationInstance.modelName.endsWith("chest_large.jem") && (partName.endsWith("_left") || partName.endsWith("_right"))) {
+        if (context.modelName.endsWith("chest_large.jem") && (partName.endsWith("_left") || partName.endsWith("_right"))) {
             //just silences the log spam when the left chest cant find the parts of the right side animation lines :/
             return MathConstant.ZERO_CONST::getResult;
         }
 
-        if (printing()) EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + calculationInstance.modelName + "]. Available parts were: " + calculationInstance.temp_allPartsBySingleAndFullHeirachicalId.keySet());
+        if (printing()) EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + context.modelName + "]. Available parts were: " + context.allPartsBySingleAndFullHeirachicalId.keySet());
         return null;
     }
 

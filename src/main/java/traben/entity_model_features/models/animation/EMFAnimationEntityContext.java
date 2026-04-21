@@ -538,7 +538,7 @@ public final class EMFAnimationEntityContext {
             }
             headYaw = livingEntityRenderState.yRot;
             if (headYaw >= 180 || headYaw < -180) {
-                headYaw = (Mth.wrapDegrees(headYaw));
+                headYaw = Mth.wrapDegrees(headYaw);
             }
             headPitch = livingEntityRenderState.xRot;
         } else { //block entity

@@ -122,6 +122,8 @@ public class EMFConfig extends TConfig {
     //#endif
 
     public boolean exportRotations = false;
+    public boolean asmMaths = true;
+    public boolean logASM = false;
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -158,8 +160,11 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryBoolean("entity_model_features.config.large_mob_lod", "entity_model_features.config.large_mob_lod.tooltip",
                                         () -> retainDetailOnLargerMobs, value -> retainDetailOnLargerMobs = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.iris_shadow_skip", "entity_model_features.config.iris_shadow_skip.tooltip",
-                                        () -> animationFrameSkipDuringIrisShadowPass, value -> animationFrameSkipDuringIrisShadowPass = value, true)
-                        ),
+                                        () -> animationFrameSkipDuringIrisShadowPass, value -> animationFrameSkipDuringIrisShadowPass = value, true),
+                                new TConfigEntryBoolean("entity_model_features.config.asmmaths", "entity_model_features.config.asmmaths.tooltip",//TODO
+                                        () -> asmMaths, value -> asmMaths = value, true)
+
+                                ),
                         new TConfigEntryCategory("entity_model_features.config.tools", "entity_model_features.config.tools.tooltip").add(
                                 new TConfigEntryEnumSlider<>("entity_model_features.config.vanilla_render", "entity_model_features.config.vanilla_render.tooltip",
                                         () -> vanillaModelHologramRenderMode_2, value -> vanillaModelHologramRenderMode_2 = value, VanillaModelRenderMode.OFF),
@@ -186,8 +191,10 @@ public class EMFConfig extends TConfig {
                                         ),
                                 new TConfigEntryBoolean("entity_model_features.config.show_reload_error_toast", "entity_model_features.config.show_reload_error_toast.tooltip",
                                         () -> showReloadErrorToast, value -> showReloadErrorToast = value, true),
-                        new TConfigEntryBoolean("entity_model_features.config.export_rotations", "entity_model_features.config.export_rotations.tooltip",
-                                () -> exportRotations, value -> exportRotations = value, false)
+                                new TConfigEntryBoolean("entity_model_features.config.export_rotations", "entity_model_features.config.export_rotations.tooltip",
+                                        () -> exportRotations, value -> exportRotations = value, false),
+                                new TConfigEntryBoolean("entity_model_features.config.logASM", "entity_model_features.config.asmmaths.logASM",//TODO
+                                        () -> logASM, value -> logASM = value, false)
                         ), getModelSettings()
                         , getMathInfo()
                 )//, new TConfigEntryCategory("config.entity_features.general_settings.title")

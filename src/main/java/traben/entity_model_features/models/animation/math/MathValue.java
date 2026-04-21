@@ -76,11 +76,6 @@ public abstract class MathValue implements MathComponent {
         return isNegative ? -getResultSupplier().get() : getResultSupplier().get();
     }
 
-    public MathValue makeNegative() {
-        isNegative = !isNegative;
-        return this;
-    }
-
     /**
      * This is simply a {@link Supplier<Float>}
      * It is declared separately for the sake of code clarity and to avoid confusion with {@link Supplier<Float>} & {@link MathComponent}

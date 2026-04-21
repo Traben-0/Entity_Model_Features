@@ -1,5 +1,7 @@
 package traben.entity_model_features.models.animation.math.methods.optifine;
 
+import org.objectweb.asm.MethodVisitor;
+import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.models.animation.math.MathComponent;
@@ -9,14 +11,14 @@ import traben.entity_model_features.models.animation.math.MathValue;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.util.Tuple;
+import traben.entity_model_features.models.animation.math.asm.ASMHelper;
+import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 
 public class IfMethod extends MathMethod {
 
+    public IfMethod(final List<String> args, final boolean isNegative, AnimSetupContext context) throws EMFMathException {
+        super(isNegative, context, args);
 
-    public IfMethod(final List<String> args, final boolean isNegative, final EMFAnimation calculationInstance) throws EMFMathException {
-        super(isNegative, calculationInstance, args.size());
-
-        var parsedArgs = parseAllArgs(args, calculationInstance);
 
         if (parsedArgs.size() == 3) {
             //simple if statement
@@ -70,4 +72,45 @@ public class IfMethod extends MathMethod {
         return argCount >= 3 && argCount % 2 == 1;
     }
 
+    @Override
+    public void asmVisitInner(MethodVisitor mv, ASMVariableHandler vars) throws EMFMathException {
+        if (parsedArgs.size() == 3) {
+            vars.scopeBool();
+            parsedArgs.get(0).asmVisit(mv, vars);
+            vars.scopePop();
+            vars.scopeFloat();
+            ASMHelper.asmIf(mv,
+                    ()-> parsedArgs.get(1).asmVisit(mv, vars),
+                    ()-> parsedArgs.get(2).asmVisit(mv, vars)
+                    );
+            vars.scopePop();
+        } else {
+            vars.scopeBool();
+            parsedArgs.get(0).asmVisit(mv, vars);
+            vars.scopePop();
+            vars.scopeFloat();
+            ASMHelper.asmIf(mv,
+                    ()-> parsedArgs.get(1).asmVisit(mv, vars),
+                    ()-> deepIf(2, mv, vars)
+            );
+            vars.scopePop();
+        }
+    }
+
+    private void deepIf(int startFrom, MethodVisitor mv, ASMVariableHandler vars) throws EMFMathException  {
+        // always scope float here
+        if (startFrom == parsedArgs.size() - 1) {
+            parsedArgs.get(startFrom).asmVisit(mv, vars);
+            return;
+        }
+
+        vars.scopeBool();
+        parsedArgs.get(startFrom).asmVisit(mv, vars);
+        vars.scopePop();
+
+        ASMHelper.asmIf(mv,
+                ()-> parsedArgs.get(startFrom + 1).asmVisit(mv, vars),
+                ()-> deepIf(startFrom + 2, mv, vars)
+        );
+    }
 }

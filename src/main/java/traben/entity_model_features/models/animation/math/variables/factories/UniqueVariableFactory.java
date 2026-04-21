@@ -2,6 +2,7 @@ package traben.entity_model_features.models.animation.math.variables.factories;
 
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.MathValue;
 
@@ -17,14 +18,10 @@ public abstract class UniqueVariableFactory {
 
     /**
      * Gets the supplier for the variable with the given key.
-     *
-     * @param variableKey         The key of the variable.
-     * @param calculationInstance the object handling this animation calculation, there is useful context available
-     *                            within it such as model name and model parts.
      * @return The supplier for the variable with the given key.
      */
     @Nullable
-    abstract public MathValue.ResultSupplier getSupplierOrNull(String variableKey, EMFAnimation calculationInstance);
+    abstract public MathValue.ResultSupplier getSupplierOrNull(String variableKey, AnimSetupContext context);
 
     /**
      * Checks if this factory creates the variable with the given key.
