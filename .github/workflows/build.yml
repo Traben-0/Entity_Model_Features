@@ -4,17 +4,28 @@ on:
   issue_comment:
     types: [created]
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   build:
     if: >
-      github.event.issue.pull_request != null && contains(github.event.comment.body, '/build')
+      github.event.issue.pull_request != null && 
+      contains(github.event.comment.body, '/build') &&
+      (
+        github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR'
+      )
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout PR head
+      - name: Checkout PR
         uses: actions/checkout@v4
         with:
-          ref: refs/pull/${{ github.event.issue.number }}/head
+          ref: refs/pull/${{ github.event.issue.number }}/merge
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -24,6 +35,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 25
+          cache: gradle
 
       - name: Make Gradle Wrapper executable
         run: chmod +x ./gradlew
