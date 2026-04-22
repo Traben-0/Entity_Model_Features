@@ -1,11 +1,10 @@
 package traben.entity_model_features.propeties;
 
 import org.jetbrains.annotations.NotNull;
-import traben.entity_model_features.models.animation.math.MathValue;
+import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
 import traben.entity_texture_features.features.property_reading.properties.RandomProperty;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
-import traben.entity_texture_features.utils.ETFEntity;
 
 import java.util.HashMap;
 import java.util.Map;

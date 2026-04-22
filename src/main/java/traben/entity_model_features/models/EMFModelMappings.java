@@ -1751,7 +1751,7 @@ public class EMFModelMappings {
         }
 
 
-        private static Set<String> exceptions = Set.of("helmet", "chestplate", "leggins", "boots");
+        private static Set<String> exceptions = Set.of("helmet", "chestplate", "leggings", "boots");
 
         void parts(final Map<String, String> stringStringMap) {
             for (String key : modelNames) {

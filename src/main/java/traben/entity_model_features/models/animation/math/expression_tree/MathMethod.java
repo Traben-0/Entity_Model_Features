@@ -1,21 +1,18 @@
-package traben.entity_model_features.models.animation.math;
+package traben.entity_model_features.models.animation.math.expression_tree;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.MethodVisitor;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimation;
+import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
+import traben.entity_model_features.models.animation.math.methods.SimpleMethod;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-
-import static org.objectweb.asm.Opcodes.FNEG;
-import static org.objectweb.asm.Opcodes.ICONST_1;
-import static org.objectweb.asm.Opcodes.IXOR;
 
 /**
  * This class is the base class for all methods that can be used in the animation math parser.
@@ -205,7 +202,7 @@ public abstract class MathMethod extends MathValue implements MathComponent {
     }
 
     /**
-     * @see traben.entity_model_features.models.animation.math.methods.StaticReflectMethods for a simple example of how to implement this method.
+     * @see SimpleMethod for a simple example of how to implement this method.
      */
     public abstract void asmVisitInner(MethodVisitor mv, ASMVariableHandler varNames) throws EMFMathException;
 

@@ -1,4 +1,4 @@
-package traben.entity_model_features.models.animation.math;
+package traben.entity_model_features.models.animation.math.expression_tree;
 
 import org.objectweb.asm.MethodVisitor;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;

@@ -1,22 +1,23 @@
 package traben.entity_model_features.models.animation.math.methods.simple;
 
 import org.objectweb.asm.MethodVisitor;
-import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
-import traben.entity_model_features.models.animation.math.MathMethod;
+import traben.entity_model_features.models.animation.math.expression_tree.MathMethod;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
 
 import java.util.List;
 import java.util.function.Function;
 
+@SuppressWarnings("removal")
 @Deprecated(forRemoval = true)
 public class FunctionMethods extends MathMethod {
 
     @Deprecated(forRemoval = true)
     protected FunctionMethods(final List<String> args,
                               final boolean isNegative,
-                              final EMFAnimation calculationInstance,
+                              @SuppressWarnings("removal")
+                              final traben.entity_model_features.models.animation.EMFAnimation calculationInstance,
                               final Function<Float, Float> function) throws EMFMathException {
         super(isNegative, null, args);
 

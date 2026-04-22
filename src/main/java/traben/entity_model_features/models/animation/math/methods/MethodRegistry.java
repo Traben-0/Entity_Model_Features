@@ -3,17 +3,12 @@ package traben.entity_model_features.models.animation.math.methods;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
-import traben.entity_model_features.models.animation.math.MathMethod;
+import traben.entity_model_features.models.animation.math.expression_tree.MathMethod;
 import traben.entity_model_features.models.animation.math.asm.ASMHelper;
 import traben.entity_model_features.models.animation.math.asm.ASMVisitable;
 import traben.entity_model_features.models.animation.math.methods.emf.*;
 import traben.entity_model_features.models.animation.math.methods.optifine.*;
-import traben.entity_model_features.models.animation.math.methods.simple.BiFunctionMethods;
-import traben.entity_model_features.models.animation.math.methods.simple.FunctionMethods;
-import traben.entity_model_features.models.animation.math.methods.simple.MultiFunctionMethods;
-import traben.entity_model_features.models.animation.math.methods.simple.TriFunctionMethods;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -151,7 +146,7 @@ public final class MethodRegistry {
     }
 
     public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, Method staticMethod, @Nullable ASMVisitable asmCompiler) {
-        register(methodName, explanationTranslationKey, StaticReflectMethods.makeFactory(methodName, staticMethod, asmCompiler));
+        register(methodName, explanationTranslationKey, SimpleMethod.makeFactory(methodName, staticMethod, asmCompiler));
     }
 
     @SuppressWarnings("removal")

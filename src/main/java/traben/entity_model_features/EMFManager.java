@@ -14,12 +14,17 @@ import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.models.EMFModel_ID;
 import traben.entity_model_features.models.EMFPartialArmor;
 import traben.entity_model_features.models.animation.AnimSetupContext;
+import traben.entity_model_features.models.animation.EMFAnimationHandler;
+import traben.entity_model_features.models.animation.math.expression_tree.OldEMFAnimationHandler;
+import traben.entity_model_features.models.animation.math.expression_tree.MathComponent;
+import traben.entity_model_features.models.animation.math.expression_tree.MathExpressionParser;
+import traben.entity_model_features.models.animation.math.asm.ASMAnimationHandler;
+import traben.entity_model_features.models.animation.math.asm.ASMParser;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 import traben.entity_model_features.models.animation.math.methods.emf.NBTMethod;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModelNameContainer;
-import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
@@ -43,6 +48,9 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+
+import static traben.entity_model_features.models.animation.math.expression_tree.MathExpressionParser.NULL_EXPRESSION;
+import static traben.entity_model_features.models.animation.math.expression_tree.MathValue.FALSE;
 
 
 public class EMFManager {//singleton for data holding and resetting needs
@@ -809,7 +817,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         allPartsBySingleAndFullHeirachicalId.put("root", emfRootPart);
         allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFModelMappings.getMapOf(emfRootPart.modelName, null)));
 
-        LinkedHashMap<String, EMFAnimation> emfAnimations = new LinkedHashMap<>();
+        OldEMFAnimationHandler oldAnimationHandler = new OldEMFAnimationHandler(jemData.directoryContext.getFileNameWithType());
 
         if (printing) {
             EMFUtils.log(" > finalAnimationsForModel =");
@@ -840,49 +848,58 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                     EMFModelPart thisPart = "render".equals(modelId) ? null : getModelFromHierarchicalId(modelId, allPartsBySingleAndFullHeirachicalId);
 
-                    EMFAnimation newAnimation = new EMFAnimation(
-                            thisPart,
-                            thisVariable,
+                    oldAnimationHandler.addAnimLineData(new EMFAnimationHandler.AnimLineData(
                             animKey,
                             animationLine.getValue(),
-                            jemData.directoryContext.getFileNameWithType()
-                    );
-
-                    if (emfAnimations.containsKey(animKey)) {
-                        //this is a secondary variable modification
-                        String key = animKey + '#';
-                        while (emfAnimations.containsKey(key)) {
-                            key += '#';
-                        }
-                        // add it in the animation list but alter the key name
-                        emfAnimations.put(key, newAnimation);
-                    } else {
-                        emfAnimations.put(animKey, newAnimation);
-                    }
+                            thisPart,
+                            thisVariable
+                    ));
                 }
             }
         }
 
+        if (oldAnimationHandler.lines().isEmpty()) return;
+
+        ASMAnimationHandler asmHandler = null;
         isAnimationValidationPhase = true;
-        Iterator<EMFAnimation> animMapIterate = emfAnimations.values().iterator();
-        var asmVarList = new ASMVariableHandler();
-        var context = new AnimSetupContext(jemData.directoryContext.getFileNameWithType() ,emfAnimations, allPartsBySingleAndFullHeirachicalId);
-        while (animMapIterate.hasNext()) {
-            EMFAnimation anim = animMapIterate.next();
-            if (anim != null) {
-                anim.initExpression(context, asmVarList);
-                if (!anim.isValid()) {
-                    EMFUtils.logError("animation was invalid: [" + anim.animKey + "] = [" + anim.expressionString + "] in model [" + emfRootPart.modelName + "]");
-                    //animMapIterate.remove();
+        try {
+            Iterator<EMFAnimationHandler.AnimLineData> animMapIterate = oldAnimationHandler.lines().iterator();
+            var context = new AnimSetupContext(jemData.directoryContext.getFileNameWithType(), oldAnimationHandler, allPartsBySingleAndFullHeirachicalId);
+
+            while (animMapIterate.hasNext()) {
+                var line = animMapIterate.next();
+                context.animKey = line.animKey;
+                MathComponent emfCalculator = MathExpressionParser.getOptimizedExpression(line.expression, false, context);
+                context.animKey = null;
+
+                if (emfCalculator == NULL_EXPRESSION) {
+                    EMFUtils.logError("animation was invalid: [" + line.animKey + "] = [" + line.expression + "] in model [" + oldAnimationHandler.modelName + "]");
+                    isAnimationValidationPhase = false;
+                    return;
+                } else {
+                    oldAnimationHandler.oldAnimLines.put(line.animKey, emfCalculator);
+                    oldAnimationHandler.defaults.put(line.animKey, line.isBoolean ? FALSE : 0);
+                }
+            }
+            // All animations have passed through the binary expression tree system and been validated, now ready for asm if we are using it
+
+            if (EMF.config().getConfig().asmMaths) {
+                var varHandler = new ASMVariableHandler();
+                var executor = ASMParser.compileOrNull(oldAnimationHandler, varHandler);
+                if (executor == null) {
+                    EMFUtils.logError("ASM animation was invalid: for model [" + oldAnimationHandler.modelName + "]");
                     isAnimationValidationPhase = false;
                     return;
                 }
-            } else {
-                animMapIterate.remove();
+                asmHandler = new ASMAnimationHandler(executor, varHandler, context);
             }
+        } finally {
+            isAnimationValidationPhase = false;
         }
-        isAnimationValidationPhase = false;
 
-        emfRootPart.receiveAnimations(variantNum, emfAnimations.values(), asmVarList, emfAnimations, allPartsBySingleAndFullHeirachicalId); //emfAnimationsByPartName);
+        var handler = asmHandler == null ? oldAnimationHandler : asmHandler;
+
+        if (handler.finishAndValidate())
+            emfRootPart.receiveAnimationHandler(variantNum, handler);
     }
 }

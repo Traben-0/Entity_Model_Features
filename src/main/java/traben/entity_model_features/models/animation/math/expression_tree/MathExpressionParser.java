@@ -1,10 +1,10 @@
-package traben.entity_model_features.models.animation.math;
+package traben.entity_model_features.models.animation.math.expression_tree;
 
 
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFException;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimation;
+import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.utils.EMFUtils;
 
 

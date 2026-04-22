@@ -1,4 +1,4 @@
-package traben.entity_model_features.models.animation.math;
+package traben.entity_model_features.models.animation.math.expression_tree;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;

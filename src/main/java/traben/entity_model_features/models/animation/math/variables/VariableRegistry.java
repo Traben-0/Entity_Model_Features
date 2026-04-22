@@ -4,12 +4,11 @@ import com.demonwav.mcdev.annotations.Translatable;
 import net.minecraft.util.Mth;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
-import traben.entity_model_features.models.animation.math.MathComponent;
-import traben.entity_model_features.models.animation.math.MathConstant;
-import traben.entity_model_features.models.animation.math.MathValue;
-import traben.entity_model_features.models.animation.math.MathVariable;
+import traben.entity_model_features.models.animation.math.expression_tree.MathComponent;
+import traben.entity_model_features.models.animation.math.expression_tree.MathConstant;
+import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
+import traben.entity_model_features.models.animation.math.expression_tree.MathVariable;
 import traben.entity_model_features.models.animation.math.variables.factories.*;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
@@ -24,8 +23,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 
-import static traben.entity_model_features.models.animation.math.MathValue.FALSE;
-import static traben.entity_model_features.models.animation.math.MathValue.TRUE;
+import static traben.entity_model_features.models.animation.math.expression_tree.MathValue.FALSE;
+import static traben.entity_model_features.models.animation.math.expression_tree.MathValue.TRUE;
 
 /**
  * This class is used to register all the variables that can be used in the math parser.

@@ -2,11 +2,12 @@ package traben.entity_model_features.models.animation.math.methods.emf;
 
 import org.objectweb.asm.MethodVisitor;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.*;
 import traben.entity_model_features.models.animation.math.asm.ASMHelper;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
+import traben.entity_model_features.models.animation.math.expression_tree.MathMethod;
+import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.features.property_reading.properties.optifine_properties.NBTProperty;
 

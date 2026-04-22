@@ -11,10 +11,13 @@ import java.util.Stack;
 
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.BALOAD;
+import static org.objectweb.asm.Opcodes.BASTORE;
 import static org.objectweb.asm.Opcodes.FALOAD;
+import static org.objectweb.asm.Opcodes.FASTORE;
 import static org.objectweb.asm.Opcodes.FNEG;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IXOR;
+import static org.objectweb.asm.Opcodes.SWAP;
 
 public class ASMVariableHandler {
 
@@ -22,6 +25,7 @@ public class ASMVariableHandler {
     List<String> floatVarList = new ArrayList<>();
     List<String> boolVarList = new ArrayList<>();
     Set<String> readVarNames = new HashSet<>();
+    Set<String> writeVarNames = new HashSet<>();
 
     int localVarIndex = 1;
 
@@ -41,15 +45,13 @@ public class ASMVariableHandler {
         return boolVarList;
     }
 
-    public void scopeFloat() {
-        booleanScopeStack.push(false);
+
+    public void scope(boolean isBoolean) {
+        booleanScopeStack.push(isBoolean);
     }
-    public void scopeBool() {
-        booleanScopeStack.push(true);
-    }
-    public void scopePop() {
-        booleanScopeStack.pop();
-    }
+    public void scopeFloat() { scope(false); }
+    public void scopeBool() { scope(true); }
+    public void scopePop() { booleanScopeStack.pop(); }
 
     public void verifyEndOfParse() throws EMFMathException {
         if (!booleanScopeStack.isEmpty())
@@ -72,16 +74,13 @@ public class ASMVariableHandler {
     public boolean isReadVarName(String varName) {
         return readVarNames.contains(varName);
     }
-
-    public int getVarIndexFromOutsideParse(String varName, boolean reading, boolean isBoolean) {
-        booleanScopeStack.push(isBoolean);
-        var v = getAndAssignVarIndex(varName, reading);
-        booleanScopeStack.pop();
-        return v;
+    public boolean isWriteVarName(String varName) {
+        return writeVarNames.contains(varName);
     }
 
     public int getAndAssignVarIndex(String varName, boolean reading) {
         if (reading) readVarNames.add(varName);
+        if (!reading) writeVarNames.add(varName);
 
         var list = (booleanScopeStack.peek() ? boolVarList : floatVarList);
         if (list.contains(varName)) {
@@ -107,6 +106,20 @@ public class ASMVariableHandler {
         mv.visitVarInsn(ALOAD, isBoolean ? 1 : 0);
         mv.visitLdcInsn(index);
         mv.visitInsn(isBoolean ? BALOAD : FALOAD);
+    }
+
+    public int asmStoreVar(MethodVisitor mv, String varName) {
+        int index = getAndAssignVarIndex(varName, false);
+
+        boolean isBoolean = booleanScopeStack.peek();
+        // [?]
+        mv.visitVarInsn(ALOAD, isBoolean ? 1 : 0); // [?, a]
+        mv.visitInsn(SWAP); // [a, ?]
+        mv.visitLdcInsn(index); // [a, ?, i]
+        mv.visitInsn(SWAP); // [a, i, ?]
+        mv.visitInsn(isBoolean ? BASTORE : FASTORE); // []
+
+        return index;
     }
 
     public void asmInvertBoolean(MethodVisitor mv) {

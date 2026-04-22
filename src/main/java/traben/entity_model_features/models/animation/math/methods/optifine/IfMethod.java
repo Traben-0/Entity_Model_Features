@@ -2,11 +2,10 @@ package traben.entity_model_features.models.animation.math.methods.optifine;
 
 import org.objectweb.asm.MethodVisitor;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
-import traben.entity_model_features.models.animation.math.MathComponent;
-import traben.entity_model_features.models.animation.math.MathMethod;
-import traben.entity_model_features.models.animation.math.MathValue;
+import traben.entity_model_features.models.animation.math.expression_tree.MathComponent;
+import traben.entity_model_features.models.animation.math.expression_tree.MathMethod;
+import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 
 import java.util.ArrayList;
 import java.util.List;

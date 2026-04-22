@@ -4,7 +4,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
-import traben.entity_model_features.models.animation.math.MathValue;
+import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 
 public enum EMFModelOrRenderVariable {
     TX() {
@@ -319,7 +319,6 @@ public enum EMFModelOrRenderVariable {
     }
 
     public abstract float getValue(ModelPart modelPart);
-
     public float getValue() {
         return getValue(null);
     }

@@ -1,13 +1,11 @@
 package traben.entity_model_features.models.animation.math.methods;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.MethodVisitor;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.math.EMFMathException;
-import traben.entity_model_features.models.animation.math.MathMethod;
-import traben.entity_model_features.models.animation.math.MathValue;
+import traben.entity_model_features.models.animation.math.expression_tree.MathMethod;
+import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 import traben.entity_model_features.models.animation.math.asm.ASMHelper;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 import traben.entity_model_features.models.animation.math.asm.ASMVisitable;
@@ -17,18 +15,17 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 
-public class StaticReflectMethods extends MathMethod {
+public class SimpleMethod extends MathMethod {
 
-    private final Method staticMethod;
-
-
+    final Method staticMethod;
     final @Nullable ASMVisitable asmCompiler;
 
-    protected StaticReflectMethods(List<String> args,
-                                   boolean isNegative,
-                                   AnimSetupContext context,
-                                   Method staticMethod,
-                                   @Nullable ASMVisitable asmCompiler
+    protected SimpleMethod(
+            List<String> args,
+            boolean isNegative,
+            AnimSetupContext context,
+            Method staticMethod,
+            @Nullable ASMVisitable asmCompiler
     ) throws EMFMathException {
         super(isNegative, context, args, getParameterCount(staticMethod));
         this.staticMethod = staticMethod;
@@ -72,7 +69,7 @@ public class StaticReflectMethods extends MathMethod {
                     !(it == boolean.class || it == float.class || it == String.class)))
                     throw new EMFMathException(staticMethod.getName() + " has a parameter that is not a float or boolean primitive type, or a String Object");
 
-                return new StaticReflectMethods(args, isNegative, calculationInstance, staticMethod, asmCompiler);
+                return new SimpleMethod(args, isNegative, calculationInstance, staticMethod, asmCompiler);
             } catch (Exception e) {
                 throw new EMFMathException("Failed to create " + methodName + "() method, because: " + e);
             }

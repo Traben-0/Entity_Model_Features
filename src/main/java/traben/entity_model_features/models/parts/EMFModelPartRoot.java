@@ -5,16 +5,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimation;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
-import traben.entity_model_features.models.animation.math.MathComponent;
-import traben.entity_model_features.models.animation.math.MathValue;
-import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
-import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
+import traben.entity_model_features.models.animation.EMFAnimationHandler;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
@@ -26,7 +20,6 @@ import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.features.property_reading.PropertiesRandomProvider;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 import static traben.entity_model_features.EMFManager.getJemDataWithDirectory;
 
@@ -323,128 +316,28 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         return vanillaFormatModelPartOfEachState.get(currentModelVariant);
     }
 
-    public void receiveAnimations(int variant, Collection<EMFAnimation> animationList, ASMVariableHandler asmVariableHandler, LinkedHashMap<String, EMFAnimation> emfAnimationVariables,
-                                  HashMap<String, EMFModelPart> allPartByName) {
-        final var finalList = new ArrayList<>(animationList);
-        boolean doesASM = EMF.config().getConfig().asmMaths;
-        boolean logsASM = doesASM && EMF.config().getConfig().logASM;
-        final var finalAsmVarListSupplier = doesASM ? prepopulateVarStates(asmVariableHandler, emfAnimationVariables, allPartByName) : null;
+    public void receiveAnimationHandler(int variant, final EMFAnimationHandler animationHandler) {
+        containsCustomAnims = true;
+        Runnable run = () -> {
+            if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
+                lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
 
-        if (!finalList.isEmpty()) {
-            containsCustomAnims = true;
-            Runnable run = () -> {
-                if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
-                    lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
+                if (EMFAnimationEntityContext.isFirstPersonHand && EMF.config().getConfig().preventFirstPersonHandAnimating)
+                    return;
 
-                    if (EMFAnimationEntityContext.isFirstPersonHand && EMF.config().getConfig().preventFirstPersonHandAnimating) return;
-
-                    var pausedParts = EMFAnimationEntityContext.getEntityPartsAnimPaused();
-
-                    ASMVariableHandler.AnimVars vars = doesASM ? finalAsmVarListSupplier.get() : null;
-
-                    if (logsASM) {
-                        EMFUtils.log("Start ASM anim with vars:");
-                        for (int i = 0; i < vars.floats().length; i++) {
-                            EMFUtils.log(" - " + asmVariableHandler.getFloatVarList().get(i) + ": " + vars.floats()[i]);
-                        }
-                        for (int i = 0; i < vars.bools().length; i++) {
-                            EMFUtils.log(" - " + asmVariableHandler.getBoolVarList().get(i) + ": " + vars.bools()[i]);
-                        }
-                    }
-
-                    for (EMFAnimation emfAnimation : finalList) {
-                        try {
-                            if (pausedParts != null){
-                                emfAnimation.calculateAndSetIfNotPaused(pausedParts, vars);
-                            }else{
-                                emfAnimation.calculateAndSet(vars);
-                            }
-                        } catch (Exception e) {
-                            EMFUtils.logError("Error in animation expression [" + emfAnimation.animKey + "] for model [" + modelName.getfileName() + "] with expression [" + emfAnimation.expressionString + "].");
-                            e.printStackTrace();
-                            EMFUtils.logError("Disabling all animations for model: [" + modelName + "]");
-                            allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, null));
-                        }
-                    }
-                    if (logsASM) {
-                        EMFUtils.log("End ASM anim with vars:");
-                        for (int i = 0; i < vars.floats().length; i++) {
-                            EMFUtils.log(" - " + asmVariableHandler.getFloatVarList().get(i) + ": " + vars.floats()[i]);
-                        }
-                        for (int i = 0; i < vars.bools().length; i++) {
-                            EMFUtils.log(" - " + asmVariableHandler.getBoolVarList().get(i) + ": " + vars.bools()[i]);
-                        }
-                    }
-                }
-            };
-            allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, run));
-        }
-    }
-
-    ;
-
-
-    private Supplier<ASMVariableHandler.AnimVars> prepopulateVarStates(
-            ASMVariableHandler asmVariableHandler,
-            LinkedHashMap<String, EMFAnimation> emfAnimationVariables,
-            HashMap<String, EMFModelPart> allPartByName
-    ) {
-        var dummyInstance = new AnimSetupContext("prepopulateVarStates()", emfAnimationVariables,allPartByName);
-        dummyInstance.animKey = "prepopulateVarStates()";
-
-        List<@Nullable MathComponent> floats = new ArrayList<>();
-        List<@Nullable MathComponent> bools = new ArrayList<>();
-        for (String varName : asmVariableHandler.getFloatVarList()) {
-
-            if (!asmVariableHandler.isReadVarName(varName)) {
-                floats.add(null);
-                continue;
-                // Skip var names that aren't read, as they won't be used by the calculation, but we couldn't know that
-                // until the end so all the ASM var indexing already includes them in the index counts
-            }
-            var variable = VariableRegistry.getInstance().getVariable(varName, false, dummyInstance);
-            floats.add(variable);
-        }
-        for (String varName : asmVariableHandler.getBoolVarList()) {
-
-            if (!asmVariableHandler.isReadVarName(varName)) {
-                bools.add(null);
-                continue;
-                // Skip var names that aren't read, as they won't be used by the calculation, but we couldn't know that
-                // until the end so all the ASM var indexing already includes them in the index counts
-            }
-            var variable = VariableRegistry.getInstance().getVariable(varName, false, dummyInstance);
-            bools.add(variable);
-        }
-
-        final int size = floats.size();
-        final int sizeBool = bools.size();
-        return ()-> {
-            float[] vars = new float[size];
-            for (int i = 0; i < size; i++) {
-                MathComponent variable = floats.get(i);
-                if (variable != null) {
-                    float result = variable.getResult();
-
-                    vars[i] = Float.isInfinite(result)
-                            ? result > 0 ? 1 : 0
-                            : result;
+                try {
+                    animationHandler.animate(EMFAnimationEntityContext.getEntityPartsAnimPaused());
+                } catch (Throwable e) {
+                    EMFUtils.logError("Error in animation for model [" + modelName.getfileName() + "].");
+                    e.printStackTrace();
+                    EMFUtils.logError("Disabling all animations for model: [" + modelName + "]");
+                    allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, null));
+                    containsCustomAnims = false;
                 }
             }
-            boolean[] varsBool  = new boolean[sizeBool];
-            for (int i = 0; i < sizeBool ; i++) {
-                MathComponent variable = bools.get(i);
-                if (variable != null) {
-                    float result = variable.getResult();
-
-                    varsBool[i] = MathValue.toBoolean(result);
-                }
-            }
-            return new ASMVariableHandler.AnimVars(vars, varsBool);
         };
-
+        allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, run));
     }
-
 
     /**
      * Gets top level jem texture.

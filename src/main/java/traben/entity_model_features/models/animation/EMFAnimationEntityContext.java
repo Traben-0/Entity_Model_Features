@@ -282,7 +282,6 @@ public final class EMFAnimationEntityContext {
             return 0;
         }
 
-
         int distance = distanceOfEntityFrom(Minecraft.getInstance().player.blockPosition());
         if (distance < 1) return 0;
 
@@ -332,6 +331,13 @@ public final class EMFAnimationEntityContext {
         }
 
         if (EMF.config().getConfig().animationLODDistance == 0 || emfState == null) return false;
+
+        //FIXME properly, layers lod flickering, likely related to the layer mixin but not doing that rn
+        var type = emfState.entityType();
+        if (type == EntityType.VILLAGER || type == EntityType.HORSE) return false;
+
+        // Just putting this here so that fresh animations counter rotation keep working, plus these tend to render from a distance anyway
+        if (type == EntityType.BLAZE) return false;
 
         String lodKey = emfState.uuid() + modelId;
 

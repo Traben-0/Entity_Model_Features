@@ -1,8 +1,9 @@
-package traben.entity_model_features.models.animation.math;
+package traben.entity_model_features.models.animation.math.expression_tree;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 import traben.entity_model_features.utils.EMFUtils;
 

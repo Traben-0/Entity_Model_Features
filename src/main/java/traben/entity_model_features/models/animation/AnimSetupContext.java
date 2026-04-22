@@ -1,14 +1,14 @@
 package traben.entity_model_features.models.animation;
 
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.models.animation.math.expression_tree.OldEMFAnimationHandler;
 import traben.entity_model_features.models.parts.EMFModelPart;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 public class AnimSetupContext implements AutoCloseable {
 
-    public LinkedHashMap<String, EMFAnimation> emfAnimationVariables;
+    public OldEMFAnimationHandler oldAnimationHandler;
     public HashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId;
 
     public @Nullable String animKey = null;
@@ -16,18 +16,18 @@ public class AnimSetupContext implements AutoCloseable {
 
     public AnimSetupContext(
             String modelName,
-            LinkedHashMap<String, EMFAnimation> emfAnimationVariables,
+            OldEMFAnimationHandler oldAnimationHandler,
             HashMap<String, EMFModelPart> allPartsBySingleAndFullHeirachicalId
     ) {
         this.modelName = modelName;
-        this.emfAnimationVariables = emfAnimationVariables;
+        this.oldAnimationHandler = oldAnimationHandler;
         this.allPartsBySingleAndFullHeirachicalId = allPartsBySingleAndFullHeirachicalId;
     }
 
 
     @Override
     public void close() throws Exception {
-        emfAnimationVariables = null;
+        oldAnimationHandler = null;
         allPartsBySingleAndFullHeirachicalId = null;
     }
 }

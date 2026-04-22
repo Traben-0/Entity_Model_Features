@@ -3,8 +3,7 @@ package traben.entity_model_features.models.animation.math.variables.factories;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimation;
-import traben.entity_model_features.models.animation.math.MathValue;
+import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 
 /**
  * A factory for creating unique math animation variables.
