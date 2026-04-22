@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFEntity;
 
 import java.util.HashMap;
@@ -156,8 +157,16 @@ public abstract class MixinBlockEntity implements EMFEntity {
         return getType().toString();
     }
 
+    @Unique private int varHash = 0;
+
     @Override
     public Map<String, Float> emf$getVariableMap() {
+        int managerHash = EMFManager.getManagerInstanceHash();
+        if (varHash != managerHash) {
+            varHash = managerHash;
+            emf$variableMap.clear();
+        }
+
         return emf$variableMap;
     }
 }

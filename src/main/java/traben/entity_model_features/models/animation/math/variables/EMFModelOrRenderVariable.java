@@ -146,13 +146,13 @@ public enum EMFModelOrRenderVariable {
         @Override
         public void setValue(EMFModelPart modelPart, float value) {
             if (modelPart == null) return;
-            modelPart.skipDraw = MathValue.toBoolean(value);
+            modelPart.skipDraw = !MathValue.toBoolean(value);
         }
 
         @Override
         public float getValue(ModelPart modelPart) {
             if (modelPart == null) return 0;
-            return MathValue.fromBoolean(modelPart.skipDraw);
+            return MathValue.fromBoolean(!modelPart.skipDraw);
         }
 
         @Override

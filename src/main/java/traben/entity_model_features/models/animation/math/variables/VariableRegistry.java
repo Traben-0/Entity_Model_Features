@@ -40,6 +40,46 @@ public final class VariableRegistry {
     private final Map<String, String> singletonVariableExplanationTranslationKeys = new HashMap<>();
     private final List<UniqueVariableFactory> uniqueVariableFactories = new ArrayList<>();
 
+    // Dropping the expression tree boilerplate for asm
+    public final Map<String, BooleanSupplier> singletonASMVariablesBool = new HashMap<>();
+    public final Map<String, MathValue.ResultSupplier> singletonASMVariablesFloat = new HashMap<>();
+
+    public BooleanSupplier getASMVarBoolOrDefault(String varKey, AnimSetupContext context) {
+        var simple =  singletonASMVariablesBool.get(varKey);
+        if (simple == null) { // More complex variable?
+            // Check if any of the unique variable factories can create this variable
+            for (UniqueVariableFactory uniqueVariableFactory : uniqueVariableFactories) {
+                if (uniqueVariableFactory.createsThisVariable(varKey)) {
+                    var supplier = uniqueVariableFactory.getASMBoolSupplierOrNull(varKey, context);
+                    if (supplier != null) {
+                        return supplier;
+                    }
+                }
+            }
+        } else {
+            return simple;
+        }
+        return ()-> false;
+    }
+
+    public MathValue.ResultSupplier getASMVarFloatOrDefault(String varKey, AnimSetupContext context) {
+        var simple =  singletonASMVariablesFloat.get(varKey);
+        if (simple == null) { // More complex variable?
+            // Check if any of the unique variable factories can create this variable
+            for (UniqueVariableFactory uniqueVariableFactory : uniqueVariableFactories) {
+                if (uniqueVariableFactory.createsThisVariable(varKey)) {
+                    var supplier = uniqueVariableFactory.getASMFloatSupplierOrNull(varKey, context);
+                    if (supplier != null) {
+                        return supplier;
+                    }
+                }
+            }
+        } else {
+            return simple;
+        }
+        return ()-> 0f;
+    }
+
     private VariableRegistry() {
 
         //these constants are better hardcoded
@@ -219,6 +259,8 @@ public final class VariableRegistry {
         singletonVariables.put(variableName, new MathVariable(variableName, false, supplier));
         singletonVariables.put("-" + variableName, new MathVariable("-" + variableName, true, supplier));
         singletonVariableExplanationTranslationKeys.put(variableName, explanationTranslationKey);
+
+        singletonASMVariablesFloat.put(variableName, supplier);
     }
 
     private void registerSimpleSpellingErrorWarning(String[] warns){
@@ -250,6 +292,9 @@ public final class VariableRegistry {
         singletonVariables.put(variableName, new MathVariable(variableName, () -> MathValue.fromBoolean(boolGetter)));
         singletonVariables.put("!" + variableName, new MathVariable("!" + variableName, () -> MathValue.invertBoolean(boolGetter)));
         singletonVariableExplanationTranslationKeys.put(variableName, explanationTranslationKey);
+
+
+        singletonASMVariablesBool.put(variableName, boolGetter);
     }
 
 

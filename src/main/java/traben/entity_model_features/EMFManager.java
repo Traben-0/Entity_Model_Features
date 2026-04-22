@@ -22,6 +22,7 @@ import traben.entity_model_features.models.animation.math.asm.ASMAnimationHandle
 import traben.entity_model_features.models.animation.math.asm.ASMParser;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 import traben.entity_model_features.models.animation.math.methods.emf.NBTMethod;
+import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModelNameContainer;
@@ -114,7 +115,11 @@ public class EMFManager {//singleton for data holding and resetting needs
         lastModelSuffixOfEntity = new ETFLruCache.UUIDInteger();
         lastModelSuffixOfEntity.defaultReturnValue(0);
         KNOWN_RESOURCEPACK_ORDER = new ArrayList<>();
+        managerInstanceHash++;
     }
+
+    private static int managerInstanceHash = 0;
+    public static int getManagerInstanceHash() { return managerInstanceHash; }
 
     public static EMFManager getInstance() {
         if (self == null) self = new EMFManager();
@@ -127,6 +132,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         EMFModelMappings.UNKNOWN_MODEL_MAP_CACHE.clear();
         EMFResourceCaching.clearCache();
         NBTMethod.CACHE.clear();
+        GlobalVariableFactory.clear();
         self = new EMFManager();
     }
 

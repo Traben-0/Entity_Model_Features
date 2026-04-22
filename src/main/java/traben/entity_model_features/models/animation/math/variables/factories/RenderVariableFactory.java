@@ -6,6 +6,8 @@ import traben.entity_model_features.models.animation.math.expression_tree.MathVa
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.utils.EMFUtils;
 
+import java.util.function.BooleanSupplier;
+
 public class RenderVariableFactory extends UniqueVariableFactory {
     @Override
     public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, AnimSetupContext context) {

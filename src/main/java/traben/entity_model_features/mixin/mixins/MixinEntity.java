@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.utils.EMFEntity;
 
@@ -270,8 +271,17 @@ public abstract class MixinEntity implements EMFEntity {
         return getType().toString();
     }
 
+    @Unique private int varHash = 0;
+
     @Override
     public Map<String, Float> emf$getVariableMap() {
+        int managerHash = EMFManager.getManagerInstanceHash();
+        if (varHash != managerHash) {
+            varHash = managerHash;
+            emf$variableMap.clear();
+            emf$variableMapGuiCopy = null;
+        }
+
         if (EMFAnimationEntityContext.isInGui()) {
             // Copy the initial variable state but allow the gui to now change these separately
             if (emf$variableMapGuiCopy == null) emf$variableMapGuiCopy = new HashMap<>(emf$variableMap);

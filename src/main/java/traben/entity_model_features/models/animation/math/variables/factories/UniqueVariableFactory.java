@@ -5,6 +5,8 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 
+import java.util.function.BooleanSupplier;
+
 /**
  * A factory for creating unique math animation variables.
  */
@@ -21,6 +23,15 @@ public abstract class UniqueVariableFactory {
      */
     @Nullable
     abstract public MathValue.ResultSupplier getSupplierOrNull(String variableKey, AnimSetupContext context);
+
+    public @Nullable BooleanSupplier getASMBoolSupplierOrNull(String variableKey, AnimSetupContext context) {
+        var x = getSupplierOrNull(variableKey, context);
+        return x == null ? null : ()-> x.get() > 0;
+    }
+
+    public @Nullable MathValue.ResultSupplier getASMFloatSupplierOrNull(String variableKey, AnimSetupContext context) {
+        return getSupplierOrNull(variableKey, context);
+    }
 
     /**
      * Checks if this factory creates the variable with the given key.

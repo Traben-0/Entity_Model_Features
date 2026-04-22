@@ -5,6 +5,8 @@ import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 
+import java.util.function.BooleanSupplier;
+
 import static traben.entity_model_features.models.animation.math.expression_tree.MathValue.FALSE;
 
 public class ModelVariableFactory extends UniqueVariableFactory {
@@ -17,6 +19,7 @@ public class ModelVariableFactory extends UniqueVariableFactory {
         }
 
     }
+
 
     @Override
     public boolean createsThisVariable(final String variableKey) {

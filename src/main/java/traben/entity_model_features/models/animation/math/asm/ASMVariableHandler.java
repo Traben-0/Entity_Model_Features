@@ -131,5 +131,6 @@ public class ASMVariableHandler {
         mv.visitInsn(FNEG);
     }
 
-    public record AnimVars(float[] floats, boolean[] bools) { }
+    public record AnimVars(float[] floats, boolean[] bools) {
+    }
 }

@@ -17,6 +17,7 @@ import traben.entity_texture_features.utils.ETFLruCache;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import static traben.entity_model_features.models.animation.math.expression_tree.MathValue.FALSE;
@@ -107,7 +108,6 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
             String key = line.animKey;
             FloatConsumerAsm consumer = null;
             if (line.isVar) {
-                //TODO remove reliance on old variable system for setting
                 if (line.isVarGlobal) {
                     consumer = (array, doVar) -> { if (doVar) GlobalVariableFactory.setGlobalVariable(key, array[index]);};
                 } else {
@@ -117,9 +117,23 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
                 var finApply = line.applier;
                 @Nullable var finPart = line.partToApplyTo;
                 consumer = (array, doVar) -> finApply.setValue(finPart, array[index]);
+                // Find optimized alternative
+                if (finPart != null && !finApply.isBoolean()) {
+                    consumer = switch (finApply) {
+                        case TX -> (array, b) -> finPart.x = array[index];
+                        case TY -> (array, b) -> finPart.y = array[index];
+                        case TZ -> (array, b) -> finPart.z = array[index];
+                        case RX -> (array, b) -> finPart.xRot = array[index];
+                        case RY -> (array, b) -> finPart.yRot = array[index];
+                        case RZ -> (array, b) -> finPart.zRot = array[index];
+                        case SX -> (array, b) -> finPart.xScale = array[index];
+                        case SY -> (array, b) -> finPart.yScale = array[index];
+                        case SZ -> (array, b) -> finPart.zScale = array[index];
+                        default -> consumer;
+                    };
+                }
             }
             if (consumer != null) floats.add(consumer);
-            else System.out.println("line didnt build consumer: " + line);
 
         }
         return floats;
@@ -136,7 +150,6 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
             String key = line.animKey;
             BoolConsumerAsm consumer = null;
             if (line.isVar) {
-                //TODO remove reliance on old variable system for setting
                 if (line.isVarGlobal) {
                     consumer = (array, doVar) -> { if (doVar) GlobalVariableFactory.setGlobalVariable(key, array[index] ? TRUE : FALSE);};
                 } else {
@@ -146,9 +159,17 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
                 var finApply = line.applier;
                 @Nullable var finPart = line.partToApplyTo;
                 consumer = (array, doVar) -> finApply.setValue(finPart, array[index] ? TRUE : FALSE);
+                // Find optimized alternative
+                if (finPart != null && finApply.isBoolean()) {
+                    consumer = switch (finApply) {
+                        case VISIBLE -> (array, b) -> finPart.visible = array[index];
+                        case VISIBLE_BOXES -> (array, b) -> finPart.skipDraw = !array[index];
+                        default -> consumer;
+                    };
+                }
+
             }
             if (consumer != null) bools.add(consumer);
-            else System.out.println("line didnt build consumer: " + line);
 
         }
         return bools;
@@ -158,47 +179,41 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
             ASMVariableHandler asmVariableHandler,
             AnimSetupContext context
     ) {
-        context.animKey = "prepopulateVarStates()";
+        context.animKey = "buildVarSupplier()";
 
-        //TODO remove reliance on old variable system for getting
-        List<@Nullable MathComponent> floatVars = new ArrayList<>();
-        for (String varName : asmVariableHandler.getFloatVarList()) {
+        var floatList = asmVariableHandler.getFloatVarList();
+        MathValue.ResultSupplier[] floatVars = new MathValue.ResultSupplier[floatList.size()];
+        for (int i = 0; i < floatList.size(); i++) {
+            var varName = floatList.get(i);
             if (!asmVariableHandler.isReadVarName(varName)) {
-                floatVars.add(null);
+                floatVars[i] = ()-> 0f;
             } else {
-                floatVars.add(VariableRegistry.getInstance().getVariable(varName, false, context));
+                floatVars[i] = VariableRegistry.getInstance().getASMVarFloatOrDefault(varName, context);
             }
         }
 
-        List<@Nullable MathComponent> boolVars = new ArrayList<>();
-        for (String varName : asmVariableHandler.getBoolVarList()) {
+        var boolList = asmVariableHandler.getBoolVarList();
+        BooleanSupplier[] boolVars = new BooleanSupplier[boolList.size()];
+        for (int i = 0; i < boolList.size(); i++) {
+            var varName = boolList.get(i);
             if (!asmVariableHandler.isReadVarName(varName)) {
-                boolVars.add(null);
+                boolVars[i] = ()-> false;
             } else {
-                boolVars.add(VariableRegistry.getInstance().getVariable(varName, false, context));
+                boolVars[i] = VariableRegistry.getInstance().getASMVarBoolOrDefault(varName, context);
             }
         }
 
-
-        final int fSize = floatVars.size();
-        final int bSize = boolVars.size();
+        final int fSize = floatVars.length;
+        final int bSize = boolVars.length;
         return ()-> {
             float[] fArr = new float[fSize];
             for (int i = 0; i < fSize; i++) {
-                MathComponent v = floatVars.get(i);
-                if (v != null) {
-                    float res = v.getResult();
-                    fArr[i] = Float.isInfinite(res) ? (res > 0 ? 1 : 0) : res;
-                }
+                fArr[i] = floatVars[i].get();
             }
 
             boolean[] bArr = new boolean[bSize];
             for (int i = 0; i < bSize; i++) {
-                MathComponent v = boolVars.get(i);
-                if (v != null) {
-                    float res = v.getResult();
-                    bArr[i] = MathValue.toBoolean(res);
-                }
+                bArr[i] = boolVars[i].getAsBoolean();
             }
 
             return new ASMVariableHandler.AnimVars(fArr, bArr);

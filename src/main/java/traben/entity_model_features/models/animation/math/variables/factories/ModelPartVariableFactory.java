@@ -10,19 +10,13 @@ import traben.entity_model_features.models.animation.math.variables.EMFModelOrRe
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
+import java.util.function.BooleanSupplier;
+
 public class ModelPartVariableFactory extends UniqueVariableFactory {
     @Override
     public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, AnimSetupContext context) {
         String[] split = variableKey.split("\\.");//todo only works with one split point
         String partName = split[0];
-        if ("render".equals(partName) && EMF.config().getConfig().enforceOptiFineAnimSyntaxLimits){
-            //silently skip so render variable factory can read it
-            //unless it specifies .ty. or .rx. or .rz. or .sx. or .sy. or .sz. or .visible or .visible_boxes then log an error
-            if (EMFModelOrRenderVariable.get(split[1]) != null){
-                if (printing()) EMFUtils.logError("Model part variable [" + variableKey + "] is not allowed, 'render' is a protected animation key name.");
-            }
-            return null;
-        }
         EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
         EMFModelPart part = EMFManager.getModelFromHierarchicalId(partName, context.allPartsBySingleAndFullHeirachicalId);
         if (partVariable != null) {
@@ -46,9 +40,70 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
         return null;
     }
 
+
+    @Override
+    public @Nullable BooleanSupplier getASMBoolSupplierOrNull(String variableKey, AnimSetupContext context) {
+        String[] split = variableKey.split("\\.");
+        String partName = split[0];
+        EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
+        EMFModelPart part = EMFManager.getModelFromHierarchicalId(partName, context.allPartsBySingleAndFullHeirachicalId);
+        if (partVariable != null && partVariable.isBoolean()) {
+            if (part != null) {
+                return switch (partVariable) {
+                    case VISIBLE -> ()-> part.visible;
+                    case VISIBLE_BOXES -> ()-> !part.skipDraw;
+                    default -> null;
+                };
+            } else {
+                if (printing() && !(context.modelName.endsWith("chest_large.jem") && (partName.endsWith("_left") || partName.endsWith("_right"))))
+                    EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + context.modelName + "]. Available parts were: " + context.allPartsBySingleAndFullHeirachicalId.keySet());
+                return ()-> false;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public @Nullable MathValue.ResultSupplier getASMFloatSupplierOrNull(String variableKey, AnimSetupContext context) {
+        String[] split = variableKey.split("\\.");
+        String partName = split[0];
+        EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
+        EMFModelPart part = EMFManager.getModelFromHierarchicalId(partName, context.allPartsBySingleAndFullHeirachicalId);
+        if (partVariable != null && !partVariable.isBoolean()) {
+            if (part != null) {
+                return switch (partVariable) {
+                    case TX -> ()-> part.x;
+                    case TY -> ()-> part.y;
+                    case TZ -> ()-> part.z;
+                    case RX -> ()-> part.xRot;
+                    case RY -> ()-> part.yRot;
+                    case RZ -> ()-> part.zRot;
+                    case SX -> ()-> part.xScale;
+                    case SY -> ()-> part.yScale;
+                    case SZ -> ()-> part.zScale;
+                    default -> null;
+                };
+            } else {
+                if (printing() && !(context.modelName.endsWith("chest_large.jem") && (partName.endsWith("_left") || partName.endsWith("_right"))))
+                    EMFUtils.logWarn("no part found for: [" + variableKey + "] in [" + context.modelName + "]. Available parts were: " + context.allPartsBySingleAndFullHeirachicalId.keySet());
+                return ()-> 0f;
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean createsThisVariable(final String variableKey) {
         if (variableKey == null) return false;
+        String[] split = variableKey.split("\\.");//todo only works with one split point
+        String partName = split[0];
+        if ("render".equals(partName) && EMF.config().getConfig().enforceOptiFineAnimSyntaxLimits){
+            // if it specifies .ty. or .rx. or .rz. or .sx. or .sy. or .sz. or .visible or .visible_boxes then log an error
+            if (EMFModelOrRenderVariable.get(split[1]) != null){
+                if (printing()) EMFUtils.logError("Model part variable [" + variableKey + "] is not allowed, 'render' is a protected animation key name.");
+            }
+            return false;
+        }
         return variableKey.matches("[a-zA-Z0-9_]+\\.([trs][xyz]$|visible$|visible_boxes$)");
     }
 
