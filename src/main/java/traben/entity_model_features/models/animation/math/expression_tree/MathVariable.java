@@ -8,7 +8,6 @@ import traben.entity_model_features.models.animation.math.variables.VariableRegi
 
 public class MathVariable extends MathValue implements MathComponent {
 
-
     private final ResultSupplier resultSupplier;
     private final String name;
 
@@ -22,7 +21,6 @@ public class MathVariable extends MathValue implements MathComponent {
         resultSupplier = supplier;
         name = variableName;
     }
-
 
     static MathComponent getOptimizedVariable(String variableName, boolean isNegative, AnimSetupContext context) {
         if (variableName.startsWith("-")) {//catch mistake of double negative
@@ -54,6 +52,6 @@ public class MathVariable extends MathValue implements MathComponent {
         vars.asmVisitVar(mv, name);
 
         if (inverted) vars.asmInvertBoolean(mv);
-        if (isNegative || negativeAgain) vars.asmNegateFloat(mv); // TODO test "-(age)" works from "negativeAgain"
+        if (isNegative || negativeAgain) vars.asmNegateFloat(mv);
     }
 }

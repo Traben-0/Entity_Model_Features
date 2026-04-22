@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 import static org.objectweb.asm.Opcodes.*;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "CallToPrintStackTrace"})
 public abstract class ASMHelper {
     public static void visitHelperFunctionASM(MethodVisitor mv, String name) throws EMFMathException {
         visitStaticFunctionASM(mv, name, ASMHelper.class);
@@ -33,7 +33,7 @@ public abstract class ASMHelper {
         throw new EMFMathException("Method [" + name + "] not found in ASMHelper");
     }
 
-    public static @Nullable ASMVisitable getHelperMethodCompiler(String name) throws EMFMathException {
+    public static @Nullable ASMVisitable getHelperMethodCompiler(String name) {
         var method = Arrays.stream(ASMHelper.class.getMethods())
                 .filter(m -> m.getName().equalsIgnoreCase(name + "_ASM"))
                 .findFirst();
@@ -72,7 +72,7 @@ public abstract class ASMHelper {
         );
     }
 
-    public static void visitStaticFunctionASM(MethodVisitor mv, Method method) throws EMFMathException {
+    public static void visitStaticFunctionASM(MethodVisitor mv, Method method) {
         var func = fromMethod(method.getDeclaringClass(), method);
         mv.visitMethodInsn(
                 org.objectweb.asm.Opcodes.INVOKESTATIC,
@@ -146,13 +146,13 @@ public abstract class ASMHelper {
     }
     public static float exp(float f) { return (float) Math.exp(f); }
     public static float torad(float f) { return f * Mth.DEG_TO_RAD; }
-    public static void torad_ASM(MethodVisitor mv, ASMVariableHandler varNames) throws EMFMathException {
+    public static void torad_ASM(MethodVisitor mv, ASMVariableHandler varNames) {
         // easy
         mv.visitLdcInsn(Mth.DEG_TO_RAD);
         mv.visitInsn(FMUL);
     }
     public static float todeg(float f) { return f * Mth.RAD_TO_DEG; }
-    public static void todeg_ASM(MethodVisitor mv, ASMVariableHandler varNames) throws EMFMathException {
+    public static void todeg_ASM(MethodVisitor mv, ASMVariableHandler varNames) {
         // easy
         mv.visitLdcInsn(Mth.RAD_TO_DEG);
         mv.visitInsn(FMUL);

@@ -80,6 +80,7 @@ public final class VariableRegistry {
         return ()-> 0f;
     }
 
+    @SuppressWarnings("deprecation")
     private VariableRegistry() {
 
         //these constants are better hardcoded
@@ -277,7 +278,6 @@ public final class VariableRegistry {
                 return Float.NaN;
             }));
         }
-
     }
 
     private void registerSimpleBoolVariable(String variableName, BooleanSupplier boolGetter) {
@@ -292,7 +292,6 @@ public final class VariableRegistry {
         singletonVariables.put(variableName, new MathVariable(variableName, () -> MathValue.fromBoolean(boolGetter)));
         singletonVariables.put("!" + variableName, new MathVariable("!" + variableName, () -> MathValue.invertBoolean(boolGetter)));
         singletonVariableExplanationTranslationKeys.put(variableName, explanationTranslationKey);
-
 
         singletonASMVariablesBool.put(variableName, boolGetter);
     }

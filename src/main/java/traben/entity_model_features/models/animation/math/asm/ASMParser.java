@@ -7,10 +7,12 @@ import traben.entity_model_features.utils.EMFUtils;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.objectweb.asm.Opcodes.*;
 
+@SuppressWarnings("CallToPrintStackTrace")
 public class ASMParser {
 
     private static final AtomicLong id = new AtomicLong();
@@ -109,14 +111,13 @@ public class ASMParser {
     private static void handleParseException(String expression, Throwable e) {
         EMFUtils.logError("Parsing ASM for expression: " + expression);
 
-//        var text = Arrays.toString(e.getStackTrace());
+        var text = Arrays.toString(e.getStackTrace());
 
-//        if (text.matches(".*ireturn.*Reason:.*Type float .* is not assignable to integer.*"))
-//            EMFUtils.logError(" - expression did not result in a boolean!");
-//
-//        if (text.matches(".*freturn.*Reason:.*Type integer .* is not assignable to float.*"))
-//            EMFUtils.logError(" - expression did not result in a number!");
+        if (text.matches(".*Reason:.*Type float .* is not assignable to integer.*"))
+            EMFUtils.logError(" - expected a boolean but found a number?!");
 
+        if (text.matches(".*Reason:.*Type integer .* is not assignable to float.*"))
+            EMFUtils.logError(" - expected a number but found a boolean?!");
 
         e.printStackTrace();
     }

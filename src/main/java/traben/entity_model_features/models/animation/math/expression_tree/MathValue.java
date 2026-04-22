@@ -40,7 +40,6 @@ public abstract class MathValue implements MathComponent {
     }
 
     public static float validateBoolean(float value) {
-        //noinspection ResultOfMethodCallIgnored
         toBoolean(value);
         return value;
     }

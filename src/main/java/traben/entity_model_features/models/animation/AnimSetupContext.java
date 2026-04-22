@@ -24,9 +24,8 @@ public class AnimSetupContext implements AutoCloseable {
         this.allPartsBySingleAndFullHeirachicalId = allPartsBySingleAndFullHeirachicalId;
     }
 
-
     @Override
-    public void close() throws Exception {
+    public void close() {
         oldAnimationHandler = null;
         allPartsBySingleAndFullHeirachicalId = null;
     }

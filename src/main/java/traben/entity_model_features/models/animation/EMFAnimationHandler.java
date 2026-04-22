@@ -9,9 +9,8 @@ import java.util.List;
 
 public abstract class EMFAnimationHandler {
 
-    private List<AnimLineData> animLineDataList;
+    private final List<AnimLineData> animLineDataList;
     public final String modelName;
-
 
     public EMFAnimationHandler(String modelName, List<AnimLineData> animLineDataList) {
         this.modelName = modelName;

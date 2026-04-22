@@ -21,30 +21,28 @@ import static org.objectweb.asm.Opcodes.SWAP;
 
 public class ASMVariableHandler {
 
-    Stack<Boolean> booleanScopeStack = new Stack<>();
-    List<String> floatVarList = new ArrayList<>();
-    List<String> boolVarList = new ArrayList<>();
-    Set<String> readVarNames = new HashSet<>();
-    Set<String> writeVarNames = new HashSet<>();
+    private final Stack<Boolean> booleanScopeStack = new Stack<>();
+    private final List<String> floatVarList = new ArrayList<>();
+    private final List<String> boolVarList = new ArrayList<>();
+    private final Set<String> readVarNames = new HashSet<>();
+    private final Set<String> writeVarNames = new HashSet<>();
 
-    int localVarIndex = 1;
+    private int localVarIndex = 1;
 
     public int getLocalVarIndex() {
         return ++localVarIndex;
     }
     public void popLocalVarIndex(int was) {
-        if (localVarIndex != was) throw new IllegalStateException("popLocalVarIndex was not called in correct order");
+        if (localVarIndex != was) throw new IllegalStateException("popLocalVarIndex was not called from correct scope");
         --localVarIndex;
     }
 
     public List<String> getFloatVarList() {
         return floatVarList;
     }
-
     public List<String> getBoolVarList() {
         return boolVarList;
     }
-
 
     public void scope(boolean isBoolean) {
         booleanScopeStack.push(isBoolean);
@@ -60,7 +58,7 @@ public class ASMVariableHandler {
         if (localVarIndex != 1)
             throw new EMFMathException("ASMVariableHandler verifyEndOfParse issue: local variable index is not reset");
 
-        if (floatVarList.stream().anyMatch(it-> boolVarList.contains(it)))
+        if (floatVarList.stream().anyMatch(boolVarList::contains))
             throw new EMFMathException("ASMVariableHandler verifyEndOfParse issue: has variable names that are both in float and bool lists");
     }
 
@@ -71,14 +69,16 @@ public class ASMVariableHandler {
         return !isScopeBool();
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isReadVarName(String varName) {
         return readVarNames.contains(varName);
     }
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isWriteVarName(String varName) {
         return writeVarNames.contains(varName);
     }
 
-    public int getAndAssignVarIndex(String varName, boolean reading) {
+    private int getAndAssignVarIndex(String varName, boolean reading) {
         if (reading) readVarNames.add(varName);
         if (!reading) writeVarNames.add(varName);
 
@@ -131,6 +131,4 @@ public class ASMVariableHandler {
         mv.visitInsn(FNEG);
     }
 
-    public record AnimVars(float[] floats, boolean[] bools) {
-    }
 }

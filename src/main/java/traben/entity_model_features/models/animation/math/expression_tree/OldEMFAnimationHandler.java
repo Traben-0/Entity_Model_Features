@@ -2,7 +2,6 @@ package traben.entity_model_features.models.animation.math.expression_tree;
 
 import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.EMFAnimationHandler;
 import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
@@ -25,7 +24,7 @@ public class OldEMFAnimationHandler extends EMFAnimationHandler {
     public final HashMap<String, Float> defaults = new HashMap<>();
     public final HashMap<String, Consumer<Float>> resultConsumers = new HashMap<>();
 
-    public final @Nullable ETFLruCache<UUID, ConcurrentHashMap<String, Float>> lastResultsPerEntity = new ETFLruCache<>();
+    public final ETFLruCache<UUID, ConcurrentHashMap<String, Float>> lastResultsPerEntity = new ETFLruCache<>();
 
     public OldEMFAnimationHandler(String modelName) {
         super(modelName, new ArrayList<>());
@@ -37,6 +36,7 @@ public class OldEMFAnimationHandler extends EMFAnimationHandler {
     }
 
     private Map<String, Float> prevResultsOfEntity() {
+        //noinspection deprecation
         var state = EMFAnimationEntityContext.getEmfState();
         if (state == null) return null;
 
@@ -73,8 +73,10 @@ public class OldEMFAnimationHandler extends EMFAnimationHandler {
                     }
                 } else {
                     if (line.isBoolean) {
+                        //noinspection deprecation
                         consumer = value -> EMFAnimationEntityContext.setEntityVariable(key, MathValue.isBoolean(value) ? value : FALSE);
                     } else {
+                        //noinspection deprecation
                         consumer = value -> EMFAnimationEntityContext.setEntityVariable(key, MathValue.isBoolean(value) ? 0 : value);
                     }
                 }
@@ -91,6 +93,7 @@ public class OldEMFAnimationHandler extends EMFAnimationHandler {
     @Override
     protected void animateInner(ModelPart[] pausedParts){
         Map<String, Float> prevVals = prevResultsOfEntity();
+        //noinspection deprecation
         boolean skip = prevVals != null && EMFAnimationEntityContext.isLODSkippingThisFrame(modelName);
 
         for (var line : lines()) {

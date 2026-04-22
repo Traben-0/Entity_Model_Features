@@ -132,7 +132,9 @@ public class MathExpressionParser {
                 }
                 lastComponent = component;
             }
+            //noinspection SequencedCollectionMethodCanBeUsed
             if (newComponents.get(0) == MathOperator.ADD) {
+                //noinspection SequencedCollectionMethodCanBeUsed
                 newComponents.remove(0);
             }
             if (newComponents.size() != components.size()) components = newComponents;
@@ -276,13 +278,15 @@ public class MathExpressionParser {
     protected void validateAndOptimize() {
         if (caughtExceptionString != null) {
             EMFUtils.logWarn(caughtExceptionString);
+            //noinspection ThrowableNotThrown
             new EMFMathException(caughtExceptionString).record();
             return;
         }
 
-        //if the expression is not valid, then return NaN
+        // if the expression is not valid, then return NaN
         if (Float.isNaN(this.validateCalculationAndOptimize())) {
             EMFUtils.logWarn("result was NaN, expression not valid: " + originalExpression);
+            //noinspection ThrowableNotThrown
             new EMFMathException("result was NaN, expression not valid: " + originalExpression).record();
         }
     }
@@ -337,6 +341,7 @@ public class MathExpressionParser {
         } catch (Exception e) {
             String message = "EMF animation ERROR: expression error in [" + context.animKey + "] in [" + context.modelName + "] caused by [" + e + "].";
             EMFUtils.logError(message);
+            //noinspection ThrowableNotThrown
             new EMFException(message).record();
         }
 
@@ -361,6 +366,7 @@ public class MathExpressionParser {
             if (component instanceof MathOperator action && containedActions.contains(action)) {
                 MathComponent last = newComponents.getLast();
                 MathComponent next = compIterator.next();
+                //noinspection SequencedCollectionMethodCanBeUsed
                 newComponents.remove(newComponents.size() - 1);
                 newComponents.add(MathBinaryExpressionComponent.getOptimizedExpression(last, action, next));
             } else {

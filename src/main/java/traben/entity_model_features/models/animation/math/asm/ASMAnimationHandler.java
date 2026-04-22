@@ -7,7 +7,6 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.EMFAnimationHandler;
-import traben.entity_model_features.models.animation.math.expression_tree.MathComponent;
 import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
 import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
@@ -26,18 +25,14 @@ import static traben.entity_model_features.models.animation.math.expression_tree
 
 public class ASMAnimationHandler extends EMFAnimationHandler {
 
-    final ASMParser.ASMExecutor compiledAnimationExecutor;
-    final ASMVariableHandler asmVariableHandler;
-    final boolean logsASM = EMF.config().getConfig().logASM;
-    Supplier<ASMVariableHandler.AnimVars> varSupplier = null;
-    VarConsumer varConsumer = null;
+    private final ASMParser.ASMExecutor compiledAnimationExecutor;
+    private final ASMVariableHandler asmVariableHandler;
+    private final boolean logsASM = EMF.config().getConfig().logASM;
+    private Supplier<AnimVars> varSupplier = null;
+    private VarConsumer varConsumer = null;
 
-    private interface VarConsumer {
-        void accept(ASMVariableHandler.AnimVars vars, boolean saveToVars);
-    }
-
-    final boolean lod = EMF.config().getConfig().animationLODDistance != 0;
-    public final ETFLruCache<UUID, ASMVariableHandler.AnimVars> lastResultsPerEntity = lod ? new ETFLruCache<>() : null;
+    private final boolean lod = EMF.config().getConfig().animationLODDistance != 0;
+    private final ETFLruCache<UUID, AnimVars> lastResultsPerEntity = lod ? new ETFLruCache<>() : null;
 
     public ASMAnimationHandler(ASMParser.ASMExecutor compiledAnimationExecutor, ASMVariableHandler asmVariableHandler, AnimSetupContext animSetupContext) {
         super(animSetupContext.oldAnimationHandler.modelName, animSetupContext.oldAnimationHandler.lines());
@@ -49,10 +44,12 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
 
     @Override
     protected void animateInner(ModelPart[] pausedParts) throws Throwable {
+        //noinspection deprecation
         var state = EMFAnimationEntityContext.getEmfState();
+        //noinspection deprecation
         if (lod && EMFAnimationEntityContext.isLODSkippingThisFrame(modelName)) {
             if (state != null) {
-                ASMVariableHandler.AnimVars vars = lastResultsPerEntity.get(state.uuid());
+                AnimVars vars = lastResultsPerEntity.get(state.uuid());
                 if (vars != null) {
                     varConsumer.accept(vars, false);
                     return;
@@ -60,7 +57,7 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
             }
         }
 
-        ASMVariableHandler.AnimVars vars = varSupplier.get();
+        AnimVars vars = varSupplier.get();
         if (logsASM) asmLog(asmVariableHandler, vars, "Start ASM anim with variable state:");
 
         compiledAnimationExecutor.execute(vars.floats(), vars.bools());
@@ -70,13 +67,6 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
 
         if (logsASM) asmLog(asmVariableHandler, vars, "End ASM anim with variable state:");
 
-    }
-
-    private interface FloatConsumerAsm {
-        void accept(float[] floats, boolean doVars);
-    }
-    private interface BoolConsumerAsm {
-        void accept(boolean[] floats, boolean doVars);
     }
 
     @Override
@@ -109,9 +99,15 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
             FloatConsumerAsm consumer = null;
             if (line.isVar) {
                 if (line.isVarGlobal) {
-                    consumer = (array, doVar) -> { if (doVar) GlobalVariableFactory.setGlobalVariable(key, array[index]);};
+                    consumer = (array, doVar) -> {
+                        if (doVar) GlobalVariableFactory.setGlobalVariable(key, array[index]);
+                    };
                 } else {
-                    consumer = (array, doVar) -> { if (doVar) EMFAnimationEntityContext.setEntityVariable(key, array[index]);};
+                    consumer = (array, doVar) -> {
+                        if (doVar)
+                            //noinspection deprecation
+                            EMFAnimationEntityContext.setEntityVariable(key, array[index]);
+                    };
                 }
             } else if (line.applier != null) {
                 var finApply = line.applier;
@@ -151,9 +147,15 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
             BoolConsumerAsm consumer = null;
             if (line.isVar) {
                 if (line.isVarGlobal) {
-                    consumer = (array, doVar) -> { if (doVar) GlobalVariableFactory.setGlobalVariable(key, array[index] ? TRUE : FALSE);};
+                    consumer = (array, doVar) -> {
+                        if (doVar) GlobalVariableFactory.setGlobalVariable(key, array[index] ? TRUE : FALSE);
+                    };
                 } else {
-                    consumer = (array, doVar) -> { if (doVar) EMFAnimationEntityContext.setEntityVariable(key, array[index] ? TRUE : FALSE);};
+                    consumer = (array, doVar) -> {
+                        if (doVar)
+                            //noinspection deprecation
+                            EMFAnimationEntityContext.setEntityVariable(key, array[index] ? TRUE : FALSE);
+                    };
                 }
             } else if (line.applier != null) {
                 var finApply = line.applier;
@@ -175,7 +177,7 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
         return bools;
     }
 
-    private  Supplier<ASMVariableHandler.AnimVars> buildVarSupplier(
+    private  Supplier<AnimVars> buildVarSupplier(
             ASMVariableHandler asmVariableHandler,
             AnimSetupContext context
     ) {
@@ -216,12 +218,12 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
                 bArr[i] = boolVars[i].getAsBoolean();
             }
 
-            return new ASMVariableHandler.AnimVars(fArr, bArr);
+            return new AnimVars(fArr, bArr);
         };
 
     }
 
-    private static void asmLog(ASMVariableHandler asmVariableHandler, ASMVariableHandler.AnimVars vars, String prefix) {
+    private static void asmLog(ASMVariableHandler asmVariableHandler, AnimVars vars, String prefix) {
         var str = new StringBuilder(prefix);
         str.append("\nFloats:");
         for (int i = 0; i < vars.floats().length; i++) {
@@ -239,4 +241,18 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
         }
         EMFUtils.log(str.toString());
     }
+
+    private interface FloatConsumerAsm {
+        void accept(float[] floats, boolean doVars);
+    }
+
+    private interface BoolConsumerAsm {
+        void accept(boolean[] floats, boolean doVars);
+    }
+
+    private interface VarConsumer {
+        void accept(AnimVars vars, boolean saveToVars);
+    }
+
+    private record AnimVars(float[] floats, boolean[] bools) { }
 }

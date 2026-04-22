@@ -74,6 +74,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     private void registerModelRunnableWithEntityTypeContext() {
+        //noinspection deprecation
         var entity = EMFAnimationEntityContext.getEmfState();
         if (entity != null) { // await a valid entity
             String type = entity.typeString();
@@ -101,6 +102,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     public void doVariantCheck() {
+        //noinspection deprecation
         var emfState = EMFAnimationEntityContext.getEmfState();
         if(this.variantTester == null || emfState == null) {
             this.setVariantStateTo(1);
@@ -127,6 +129,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 case Instant -> this.entitySuffixMap.remove(id);
                 default -> {
                     int delay = EMF.config().getConfig().modelUpdateFrequency.getDelay();
+                    //noinspection deprecation
                     int time = (int) (EMFAnimationEntityContext.getTime() % delay);
                     if (time == Math.abs(id.hashCode()) % delay) {
                         this.entitySuffixMap.remove(id);
@@ -270,6 +273,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public void tryRenderVanillaRootNormally(PoseStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
         if (vanillaRoot != null) {
             matrixStack.pushPose();
+            //noinspection deprecation
             if (EMF.config().getConfig().getVanillaHologramModeFor(EMFAnimationEntityContext.getEMFEntity()) == EMFConfig.VanillaModelRenderMode.OFFSET) {
                 matrixStack.translate(1, 0, 0);
             }
@@ -322,13 +326,16 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
                 lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
 
+                //noinspection deprecation
                 if (EMFAnimationEntityContext.isFirstPersonHand && EMF.config().getConfig().preventFirstPersonHandAnimating)
                     return;
 
                 try {
+                    //noinspection deprecation
                     animationHandler.animate(EMFAnimationEntityContext.getEntityPartsAnimPaused());
                 } catch (Throwable e) {
                     EMFUtils.logError("Error in animation for model [" + modelName.getfileName() + "].");
+                    //noinspection CallToPrintStackTrace
                     e.printStackTrace();
                     EMFUtils.logError("Disabling all animations for model: [" + modelName + "]");
                     allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, null));

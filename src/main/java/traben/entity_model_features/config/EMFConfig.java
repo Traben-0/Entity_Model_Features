@@ -160,9 +160,7 @@ public class EMFConfig extends TConfig {
                                 new TConfigEntryBoolean("entity_model_features.config.large_mob_lod", "entity_model_features.config.large_mob_lod.tooltip",
                                         () -> retainDetailOnLargerMobs, value -> retainDetailOnLargerMobs = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.iris_shadow_skip", "entity_model_features.config.iris_shadow_skip.tooltip",
-                                        () -> animationFrameSkipDuringIrisShadowPass, value -> animationFrameSkipDuringIrisShadowPass = value, true),
-                                new TConfigEntryBoolean("entity_model_features.config.asmmaths", "entity_model_features.config.asmmaths.tooltip",//TODO
-                                        () -> asmMaths, value -> asmMaths = value, true)
+                                        () -> animationFrameSkipDuringIrisShadowPass, value -> animationFrameSkipDuringIrisShadowPass = value, true)
 
                                 ),
                         new TConfigEntryCategory("entity_model_features.config.tools", "entity_model_features.config.tools.tooltip").add(
@@ -193,7 +191,9 @@ public class EMFConfig extends TConfig {
                                         () -> showReloadErrorToast, value -> showReloadErrorToast = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.export_rotations", "entity_model_features.config.export_rotations.tooltip",
                                         () -> exportRotations, value -> exportRotations = value, false),
-                                new TConfigEntryBoolean("entity_model_features.config.logASM", "entity_model_features.config.asmmaths.logASM",//TODO
+                                new TConfigEntryBoolean("entity_model_features.config.asmmaths", "entity_model_features.config.asmmaths.tooltip",
+                                        () -> asmMaths, value -> asmMaths = value, true),
+                                new TConfigEntryBoolean("entity_model_features.config.logASM", "entity_model_features.config.asmmaths.logASM",
                                         () -> logASM, value -> logASM = value, false)
                         ), getModelSettings()
                         , getMathInfo()
@@ -435,6 +435,7 @@ public class EMFConfig extends TConfig {
     }
 
 
+    @SuppressWarnings("unused")
     @Deprecated(forRemoval = true)
     public enum ModelPrintMode {
         NONE("options.off"),
