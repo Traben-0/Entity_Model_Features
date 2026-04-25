@@ -34,6 +34,11 @@ public interface MathComponent extends ASMVisitable {
                 delegate.asmVisit(mv, vars);
                 vars.asmNegateFloat(mv);
             }
+
+            @Override
+            public boolean isConstant() {
+                return delegate.isConstant();
+            }
         };
     }
 
@@ -49,6 +54,11 @@ public interface MathComponent extends ASMVisitable {
                 delegate.asmVisit(mv, vars);
                 vars.asmInvertBoolean(mv);
             }
+
+            @Override
+            public boolean isConstant() {
+                return delegate.isConstant();
+            }
         };
     }
 
@@ -62,6 +72,11 @@ public interface MathComponent extends ASMVisitable {
             @Override
             public void asmVisit(MethodVisitor mv, ASMVariableHandler varNames) throws EMFMathException {
                 delegate.asmVisit(mv, varNames); // will be boolean anyway
+            }
+
+            @Override
+            public boolean isConstant() {
+                return delegate.isConstant();
             }
         };
     }
