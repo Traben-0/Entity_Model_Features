@@ -20,7 +20,7 @@ import static traben.entity_model_features.models.animation.math.expression_tree
 
 public class OldEMFAnimationHandler extends EMFAnimationHandler {
 
-    public final LinkedHashMap<String, @Nullable MathComponent> oldAnimLines = new LinkedHashMap<>();
+    public final LinkedHashMap<AnimLineData, MathComponent> oldAnimLines = new LinkedHashMap<>();
     public final HashMap<String, Float> defaults = new HashMap<>();
     public final HashMap<String, Consumer<Float>> resultConsumers = new HashMap<>();
 
@@ -30,8 +30,12 @@ public class OldEMFAnimationHandler extends EMFAnimationHandler {
         super(modelName, new ArrayList<>());
     }
 
+    public void addParsedLine(AnimLineData line, MathComponent emfCalculator) {
+        oldAnimLines.put(line, emfCalculator);
+        defaults.put(line.animKey, line.isBoolean ? FALSE : 0);
+    }
+
     public MathValue.ResultSupplier getLastResultGetter(String variableKey) {
-        if (!oldAnimLines.containsKey(variableKey)) return null;
         return ()-> lastResult(variableKey);
     }
 
@@ -116,8 +120,7 @@ public class OldEMFAnimationHandler extends EMFAnimationHandler {
                     }
                 }
             } else {
-                //noinspection DataFlowIssue
-                float result = oldAnimLines.get(line.animKey).getResult();
+                float result = oldAnimLines.get(line).getResult();
                 if (!Float.isNaN(result)) {
                     if (prevVals != null) {
                         prevVals.put(line.animKey, result);

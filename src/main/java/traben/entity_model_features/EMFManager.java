@@ -883,8 +883,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                     isAnimationValidationPhase = false;
                     return;
                 } else {
-                    oldAnimationHandler.oldAnimLines.put(line.animKey, emfCalculator);
-                    oldAnimationHandler.defaults.put(line.animKey, line.isBoolean ? FALSE : 0);
+                    oldAnimationHandler.addParsedLine(line, emfCalculator);
                 }
             }
             // All animations have passed through the binary expression tree system and been validated, now ready for asm if we are using it

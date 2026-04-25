@@ -6,6 +6,7 @@ import traben.entity_model_features.models.animation.math.variables.EMFModelOrRe
 import traben.entity_model_features.models.parts.EMFModelPart;
 
 import java.util.List;
+import java.util.Objects;
 
 public abstract class EMFAnimationHandler {
 
@@ -19,6 +20,7 @@ public abstract class EMFAnimationHandler {
 
     public void addAnimLineData(AnimLineData animLineData) {
         animLineDataList.add(animLineData);
+        animLineData.lineIndex = animLineDataList.size() - 1;
     }
 
     public List<AnimLineData> lines() {
@@ -63,6 +65,8 @@ public abstract class EMFAnimationHandler {
 
         public int asmIndex = -1;
 
+        private int lineIndex = -1;
+
         public AnimLineData(
                 String animKey,
                 String expression,
@@ -78,6 +82,11 @@ public abstract class EMFAnimationHandler {
             isBoolean = animKeyIsBoolean || (applier != null && applier.isBoolean());
             isVar = animKeyIsBoolean || animKey.startsWith("var.") || animKey.startsWith("global_var.");
             isVarGlobal = isVar && animKey.startsWith("global_var");
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(lineIndex);
         }
 
         @Override

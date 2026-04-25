@@ -38,7 +38,7 @@ public class ASMParser {
 
             for (int i = 0; i < animHandler.lines().size(); i++) {
                 var line = animHandler.lines().get(i);
-                var oldAnim = animHandler.oldAnimLines.get(line.animKey);
+                var oldAnim = animHandler.oldAnimLines.get(line);
 
                 assert oldAnim != null;
 
