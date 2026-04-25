@@ -2,6 +2,7 @@
 [3.2]
 - significant performance improvement for custom animations
 - reduced some log spam
+- fixed new 26.1+ rabbit model part names
 
 [3.1.1]
 - Optimized resource loading time
