@@ -1,4 +1,6 @@
 
+[3.2]
+- significant performance improvement for custom animations
 - reduced some log spam
 
 [3.1.1]
