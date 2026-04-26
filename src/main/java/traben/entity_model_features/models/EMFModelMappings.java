@@ -580,7 +580,7 @@ public class EMFModelMappings {
         //$$                 partMapping("body"),
         //$$                 partMapping("leg1", "right_hind_leg"),
         //$$                 partMapping("leg2", "left_hind_leg"),
-        //$$                 partMapping("leg2", "right_leg_r1"), // Why?
+        //$$                 partMapping("leg2_cube", "right_leg_r1"), // Why?
         //$$                 partMapping("leg3", "right_front_leg"),
         //$$                 partMapping("leg4", "left_front_leg"),
         //$$                 partMapping("right_gills"),
