@@ -235,7 +235,25 @@ public class EMFModelMappings {
         //#endif
         OptifineMapper.models("piglin", "piglin_brute", "zombified_piglin")
                 .parts(genericPiglinBiped);
-        OptifineMapper.models("piglin_baby").parts(
+        //#if MC >= 26.1
+        //$$ OptifineMapper.models("piglin_baby", "zombified_piglin_baby").parts(
+        //$$         Map.ofEntries(
+        //$$                 partMapping("head"),
+        //$$                 partMapping("headwear", "hat"),
+        //$$                 partMapping("body"),
+        //$$                 partMapping("left_arm"),
+        //$$                 partMapping("right_arm"),
+        //$$                 partMapping("left_leg"),
+        //$$                 partMapping("ear"),
+        //$$                 partMapping("right_leg"),
+        //$$                 partMapping("left_ear"),
+        //$$                 partMapping("right_ear"),
+        //$$                 partMapping("left_ear_r1"),
+        //$$                 partMapping("right_ear_r1")
+        //$$         )
+        //$$ );
+        //#else
+        OptifineMapper.models("piglin_baby", "zombified_piglin_baby").parts(
                 Map.ofEntries(
                         partMapping("head"),
                         partMapping("headwear", "hat"),
@@ -249,6 +267,7 @@ public class EMFModelMappings {
                         partMapping("right_ear")
                 )
         );
+        //#endif
 
         OptifineMapper.models("allay", "vex")
                 .parts(Map.ofEntries(
@@ -328,6 +347,18 @@ public class EMFModelMappings {
                         partMapping("leg3", "right_front_leg"),
                         partMapping("leg4", "left_front_leg")
                 ));
+        //#if MC >= 26.1
+        //$$ OptifineMapper.models("wolf_baby", "wolf_baby_collar", "wolf_baby_armor")
+        //$$         .parts(Map.ofEntries(
+        //$$                 partMapping("body"),
+        //$$                 partMapping("head"),
+        //$$                 partMapping("tail"),
+        //$$                 partMapping("leg1", "right_hind_leg"),
+        //$$                 partMapping("leg2", "left_hind_leg"),
+        //$$                 partMapping("leg3", "right_front_leg"),
+        //$$                 partMapping("leg4", "left_front_leg")
+        //$$         ));
+        //#else
         OptifineMapper.models("wolf_baby", "wolf_baby_collar", "wolf_baby_armor")
                 .parts(Map.ofEntries(
                         partMapping("body"),
@@ -339,6 +370,7 @@ public class EMFModelMappings {
                         partMapping("leg3", "right_front_leg"),
                         partMapping("leg4", "left_front_leg")
                 ));
+        //#endif
         OptifineMapper.models("shulker_bullet")
                 .parts(Map.ofEntries(
                         partMapping("bullet", "main")
@@ -528,7 +560,7 @@ public class EMFModelMappings {
                             partMapping("base", "base_plate")
                     ));
                 }});
-        OptifineMapper.models("axolotl", "axolotl_baby")
+        OptifineMapper.models("axolotl")
                 .parts(Map.ofEntries(
                         partMapping("head"),
                         partMapping("body"),
@@ -541,6 +573,38 @@ public class EMFModelMappings {
                         partMapping("left_gills"),
                         partMapping("tail")
                 ));
+        //#if MC >= 26.1
+        //$$ OptifineMapper.models("axolotl_baby")
+        //$$         .parts(Map.ofEntries(
+        //$$                 partMapping("head"),
+        //$$                 partMapping("body"),
+        //$$                 partMapping("leg1", "right_hind_leg"),
+        //$$                 partMapping("leg2", "left_hind_leg"),
+        //$$                 partMapping("leg2", "right_leg_r1"), // Why?
+        //$$                 partMapping("leg3", "right_front_leg"),
+        //$$                 partMapping("leg4", "left_front_leg"),
+        //$$                 partMapping("right_gills"),
+        //$$                 partMapping("top_gills"),
+        //$$                 partMapping("left_gills"),
+        //$$                 partMapping("tail")
+        //$$         ));
+        //#else
+        OptifineMapper.models("axolotl_baby")
+                .parts(Map.ofEntries(
+                        partMapping("head"),
+                        partMapping("body"),
+                        partMapping("leg1", "right_hind_leg"),
+                        partMapping("leg2", "left_hind_leg"),
+                        partMapping("leg3", "right_front_leg"),
+                        partMapping("leg4", "left_front_leg"),
+                        partMapping("right_gills"),
+                        partMapping("top_gills"),
+                        partMapping("left_gills"),
+                        partMapping("tail")
+                ));
+        //#endif
+
+
         OptifineMapper.models("bat")
                 .parts(Map.ofEntries(
                         partMapping("body"),

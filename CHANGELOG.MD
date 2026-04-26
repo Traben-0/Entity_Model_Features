@@ -5,6 +5,7 @@
 - fixed models with texture overrides breaking for layer models (e.g. villager layers)
 - reduced some log spam
 - fixed new 26.1+ rabbit model part names
+- fixed several baby model part name mappings in 26.1+
 - various minor fixes
 - breaking changes made to the `EMFAnimationAPI`, mods that use this may need to update, like ESF
 - temporarily incompatible with ESF again, will be fixed soon
