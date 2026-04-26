@@ -1,8 +1,13 @@
 
 [3.2]
-- significant performance improvement for custom animations
+- significant performance improvement for custom animations (more than doubling frames when many animated entities are present)
+- entity animation variables now reset when resource-packs are reloaded (e.g. var & varb)
+- fixed models with texture overrides breaking for layer models (e.g. villager layers)
 - reduced some log spam
 - fixed new 26.1+ rabbit model part names
+- various minor fixes
+- breaking changes made to the `EMFAnimationAPI`, mods that use this may need to update, like ESF
+- temporarily incompatible with ESF again, will be fixed soon
 
 [3.1.1]
 - Optimized resource loading time

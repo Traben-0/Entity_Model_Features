@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
@@ -43,6 +44,20 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     private boolean hasRemovedTopLevelJemTextureFromChildren = false;
     private boolean hasArmItemOverrides = false;
 
+    public boolean isMainModel = false;
+    public boolean isLayerModel = false;
+
+    private boolean needsToRunOneTimeRunnable = false;
+
+    private final HashMap<Integer, Runnable> animations = new HashMap<>();
+    @Nullable
+    private Runnable animation = null;
+
+    @Override
+    public EMFModelPartRoot getRoot() {
+        return this;
+    }
+
     // construct vanilla root
     public EMFModelPartRoot(EMFModel_ID mobNameForFileAndMap,
                             EMFDirectoryHandler directoryContext,
@@ -50,7 +65,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                             Collection<String> optifinePartNames,
                             Map<String, EMFModelPartVanilla> mapForCreatedParts) {
         // create vanilla root model object
-        super("root", vanillaRoot, optifinePartNames, mapForCreatedParts);
+        super("root", vanillaRoot, optifinePartNames, mapForCreatedParts, null);
         allVanillaParts = mapForCreatedParts;
         allVanillaParts.putIfAbsent(name, this);
 
@@ -58,9 +73,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         this.directoryContext = directoryContext;
 
         this.vanillaRoot = vanillaRoot;
-
-        // init the first time runnable into all vanilla children
-        receiveOneTimeRunnable(this::registerModelRunnableWithEntityTypeContext);
     }
 
 
@@ -71,6 +83,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public Collection<EMFModelPartVanilla> getAllVanillaPartsEMF() {
         return allVanillaParts.values();
+    }
+
+
+    public void oneTimeRunnable() {
+        if (needsToRunOneTimeRunnable) {
+            registerModelRunnableWithEntityTypeContext();
+            needsToRunOneTimeRunnable = false;
+        }
     }
 
     private void registerModelRunnableWithEntityTypeContext() {
@@ -96,10 +116,9 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 EMFUtils.log("Registered new variating model for: " + type);
             }
 
-            // now set the runnable to null so it only runs once
-            this.receiveOneTimeRunnable(null);
         }
     }
+
 
     public void doVariantCheck() {
         //noinspection deprecation
@@ -150,7 +169,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         for (EMFPartData part : jemData.models) {
             if (part.part != null) {
                 String idUnique = EMFUtils.getIdUnique(newEmfParts.keySet(), part.id);
-                newEmfParts.put(idUnique, new EMFModelPartCustom(part, variant, part.part, idUnique));
+                newEmfParts.put(idUnique, new EMFModelPartCustom(part, variant, part.part, idUnique, this));
             }
         }
         var rootTextureOverride = jemData.getCustomTexture();
@@ -301,11 +320,11 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 //    }
 
     public boolean hasAnimation(){
-        return animationHolder.hasAnimation();
+        return animation != null;
     }
 
     public void triggerManualAnimation(PoseStack pose) {
-        if (hasAnimation()) animationHolder.run();
+        if (animation != null) animation.run();
         checkArmOverrides(pose);
     }
 
@@ -318,6 +337,19 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             vanillaFormatModelPartOfEachState.put(currentModelVariant, getVanillaModelPartsOfCurrentState());
         }
         return vanillaFormatModelPartOfEachState.get(currentModelVariant);
+    }
+
+
+    @Override
+    public void setVariantStateTo(int newVariant) {
+        super.setVariantStateTo(newVariant);
+        animation = animations.get(newVariant);
+    }
+
+    public void animate() {
+        if (animation != null && !EMFAnimationEntityContext.isEntityAnimPausedWrapped()) {
+            animation.run();
+        }
     }
 
     public void receiveAnimationHandler(int variant, final EMFAnimationHandler animationHandler) {
@@ -338,12 +370,13 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     //noinspection CallToPrintStackTrace
                     e.printStackTrace();
                     EMFUtils.logError("Disabling all animations for model: [" + modelName + "]");
-                    allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, null));
+                    animations.remove(variant);
+                    animation = null;
                     containsCustomAnims = false;
                 }
             }
         };
-        allVanillaParts.values().forEach((emf) -> emf.receiveRootAnimationRunnable(variant, run));
+        animations.put(variant, run);
     }
 
     /**

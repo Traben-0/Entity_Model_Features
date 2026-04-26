@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.animation.state.EMFSubmitData;
@@ -57,6 +58,21 @@ public class Mixin_ModelRenderer {
 
         if (data != null) {
             EMFAnimationEntityContext.setCurrentEntityOnShoulder(data.onShoulder);
+
+
+            if (modelSubmit.model() instanceof IEMFModel emfModel && emfModel.emf$isEMFModel()) {
+                if (data.isMainModelPhase) {
+                    emfModel.emf$getEMFRootModel().isMainModel = true;
+                    EMFAnimationEntityContext.unsetLayerPhase();
+                }
+
+                if (data.isLayerModelPhase) {
+                    EMFAnimationEntityContext.setLayerPhase();
+                    if (!emfModel.emf$getEMFRootModel().isMainModel) {
+                        emfModel.emf$getEMFRootModel().isLayerModel = true;
+                    }
+                }
+            }
         }
     }
 

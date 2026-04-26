@@ -98,6 +98,7 @@ public final class EMFAnimationEntityContext {
     private static Boolean lodFrameSkipping = null;
     private static boolean announceModels = false;
     private static float frameCounter = 0;
+    private static boolean isLayerPhase = false;
 
     private static boolean checkedIfIEmotePlayerExists = false;
     private static Class<?> iEmotePlayerEntityType = null;
@@ -593,6 +594,18 @@ public final class EMFAnimationEntityContext {
         frameCounter = 0;
     }
 
+    public static boolean isLayerPhase() {
+        return isLayerPhase;
+    }
+
+    public static void setLayerPhase() {
+        isLayerPhase = true;
+    }
+
+    public static void unsetLayerPhase() {
+        isLayerPhase = false;
+    }
+
     public static void reset() {
         isFirstPersonHand = false;
         layerFactory = null;
@@ -611,6 +624,7 @@ public final class EMFAnimationEntityContext {
         shadowX = 0;
         shadowZ = 0;
         lodFrameSkipping = null;
+        isLayerPhase = false;
 
         //#if MC>=12109
         if (ETFRenderContext.getCurrentEntityState() != null) ETFRenderContext.reset();

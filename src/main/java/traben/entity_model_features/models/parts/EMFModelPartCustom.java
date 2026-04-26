@@ -8,6 +8,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.mixins.accessor.CuboidAccessor;
+import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
@@ -35,8 +36,8 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     private final @Nullable List<EMFAttachments> attachments;
 
-    public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id) {//,//float[] parentalTransforms) {
-        super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variant));
+    public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id, EMFModelPartRoot root) {//,//float[] parentalTransforms) {
+        super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variant, root), root);
         this.attach = emfPartData.attach;
         this.partToBeAttached = part;
         this.id = id;
@@ -77,11 +78,11 @@ public class EMFModelPartCustom extends EMFModelPart {
         return createCuboidsFromBoxDataV3(emfPartData);
     }
 
-    private static Map<String, ModelPart> getChildrenFromData(EMFPartData emfPartData, int variant) {
+    private static Map<String, ModelPart> getChildrenFromData(EMFPartData emfPartData, int variant, EMFModelPartRoot root) {
         Map<String, ModelPart> emfChildren = new HashMap<>();
         for (EMFPartData sub : emfPartData.submodels) {
             String idUnique = EMFUtils.getIdUnique(emfChildren.keySet(), sub.id);
-            emfChildren.put(idUnique, new EMFModelPartCustom(sub, variant, null, idUnique));
+            emfChildren.put(idUnique, new EMFModelPartCustom(sub, variant, null, idUnique, root));
         }
         return emfChildren;
     }
@@ -186,11 +187,11 @@ public class EMFModelPartCustom extends EMFModelPart {
                                    //$$ float red, float green, float blue, float alpha
                                    //#endif
     ) {
-        if (textureOverride != null && lastTextureOverride == EMFManager.getInstance().entityRenderCount){
-            //do not render if this is a custom part with a texture override and are rendering a feature overlay
-            //custom parts with texture overrides are explicitly stating they will not be used in feature layers
-            return;
-        }
+//        if (textureOverride != null && (EMFAnimationEntityContext.isLayerPhase() && getRoot().isMainModel)){
+//            //do not render if this is a custom part with a texture override and are rendering a feature overlay
+//            //custom parts with texture overrides are explicitly stating they will not be used in feature layers
+//            return;
+//        }
         //otherwise render as normal
         super.renderWithTextureOverride(matrices, vertices, light, overlay,
                 //#if MC >= 12100

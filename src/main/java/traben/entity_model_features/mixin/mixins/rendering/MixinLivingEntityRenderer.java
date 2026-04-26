@@ -27,6 +27,7 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.animation.state.EMFBipedPose;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFSubmitData;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
@@ -182,6 +183,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     @Inject(method = RENDER, at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
     private void emf$grabEntity(CallbackInfo ci, @Share("iteration") LocalRef<EMFAnimationEntityContext.IterationContext> emf$heldIteration) {
         emf$heldIteration.set(EMFAnimationEntityContext.getIterationContext());
+        EMFSubmitData.AWAITING_isLayerModelPhase = true;
+        EMFAnimationEntityContext.setLayerPhase();
+        EMFSubmitData.AWAITING_isMainModelPhase = false;
     }
 
     @Inject(method = RENDER, at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
@@ -192,6 +196,21 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         //todo needed for stray bogged drowned outer layers in 1.21.2+
         //check its needed for 1.21.1
         EMFManager.getInstance().entityRenderCount++;
+        EMFSubmitData.AWAITING_isLayerModelPhase = true;
+        EMFAnimationEntityContext.setLayerPhase();
+    }
+
+    @Inject(method = RENDER, at = @At("HEAD"))
+    private void emf$preRender(CallbackInfo ci) {
+        EMFSubmitData.AWAITING_isLayerModelPhase = false;
+        EMFSubmitData.AWAITING_isMainModelPhase = true;
+    }
+
+    @Inject(method = RENDER, at = @At("TAIL"))
+    private void emf$postRender(CallbackInfo ci) {
+        EMFSubmitData.AWAITING_isLayerModelPhase = false;
+        EMFSubmitData.AWAITING_isMainModelPhase = false;
+        EMFAnimationEntityContext.unsetLayerPhase();
     }
 
 }
