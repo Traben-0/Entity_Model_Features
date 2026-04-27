@@ -1,5 +1,6 @@
 package traben.entity_model_features.mixin.mixins.rendering.submits;
 
+import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 
 //#if MC >= 12109
@@ -9,12 +10,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import traben.entity_texture_features.ETF;
 import traben.entity_texture_features.features.ETFRenderContext;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.feature.ModelPartFeatureRenderer;
+import traben.entity_texture_features.features.state.ETFEntityRenderState;
+import traben.entity_texture_features.utils.ETFEntity;
 
 @Mixin(ModelPartFeatureRenderer.class)
 public class Mixin_ModelPartRenderer {
@@ -30,6 +34,9 @@ public class Mixin_ModelPartRenderer {
         }
 
         if (modelSubmit.modelPart() instanceof EMFModelPartVanilla vanilla && vanilla.isPlayerArm) {
+            if (Minecraft.getInstance().player != null)
+                EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState)
+                        ETFEntityRenderState.forEntity((ETFEntity) Minecraft.getInstance().player));
             EMFAnimationEntityContext.isFirstPersonHand = true;
         }
     }
@@ -38,6 +45,7 @@ public class Mixin_ModelPartRenderer {
     private void emf$endRender(final CallbackInfo ci) {
         ETFRenderContext.endSpecialRenderOverlayPhase();
         EMFAnimationEntityContext.isFirstPersonHand = false;
+        EMFAnimationEntityContext.reset();
     }
 
 }

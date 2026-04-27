@@ -6,6 +6,7 @@
 - reduced some log spam
 - fixed new 26.1+ rabbit model part names
 - fixed several baby model part name mappings in 26.1+
+- further fixes for first person arm positioning when animated
 - various minor fixes
 - breaking changes made to the `EMFAnimationAPI`, mods that use this may need to update, like ESF
 - temporarily incompatible with ESF again, will be fixed soon

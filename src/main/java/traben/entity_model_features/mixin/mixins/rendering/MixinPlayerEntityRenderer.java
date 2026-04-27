@@ -99,13 +99,6 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
         // flag this for later submit render
         if (modelPart instanceof EMFModelPartVanilla vanilla) {
             vanilla.isPlayerArm = true;
-
-            // Animate
-            if (!EMF.config().getConfig().preventFirstPersonHandAnimating
-                    && getModel() instanceof IEMFModel emf && emf.emf$isEMFModel()) {
-                emf.emf$getEMFRootModel().triggerManualAnimation(poseStack);
-                modelPart.translateAndRotate(poseStack);
-            }
         }
 
     }
