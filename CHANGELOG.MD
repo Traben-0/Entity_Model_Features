@@ -8,7 +8,7 @@
 - fixed several baby model part name mappings in 26.1+
 - further fixes for first person arm positioning when animated
 - various minor fixes, mostly relating to layer models and 1.21.9+ consistency
-- breaking changes made to the `EMFAnimationAPI`, mods that use this may need to update, like ESF
+- breaking changes made to the `EMFAnimationAPI`, mods that use this API may need to update, like ESF
 - temporarily incompatible with ESF again, will be fixed soon
 
 [3.1.1]
