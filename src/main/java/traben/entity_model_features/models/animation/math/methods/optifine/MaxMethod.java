@@ -1,9 +1,11 @@
 package traben.entity_model_features.models.animation.math.methods.optifine;
 
-import traben.entity_model_features.models.animation.EMFAnimation;
+import org.objectweb.asm.MethodVisitor;
+import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.math.EMFMathException;
-import traben.entity_model_features.models.animation.math.MathComponent;
-import traben.entity_model_features.models.animation.math.MathMethod;
+import traben.entity_model_features.models.animation.math.expression_tree.MathComponent;
+import traben.entity_model_features.models.animation.math.expression_tree.MathMethod;
+import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +13,10 @@ import java.util.List;
 public class MaxMethod extends MathMethod {
 
 
-    public MaxMethod(final List<String> args, final boolean isNegative, final EMFAnimation calculationInstance) throws EMFMathException {
-        super(isNegative, calculationInstance, args.size());
 
-        var parsedArgs = parseAllArgs(args, calculationInstance);
+    public MaxMethod(final List<String> args, final boolean isNegative, AnimSetupContext context) throws EMFMathException {
+        super(isNegative, context, args);
+
         var initial = parsedArgs.get(0);
         var theRest = new ArrayList<>(parsedArgs);
         theRest.remove(0);
@@ -37,4 +39,25 @@ public class MaxMethod extends MathMethod {
         return argCount >= 2;
     }
 
+    @Override
+    public void asmVisitInner(MethodVisitor mv, ASMVariableHandler vars) throws EMFMathException {
+        vars.scopeFloat();
+        parsedArgs.get(0).asmVisit(mv, vars);
+
+        var theRest = new ArrayList<>(parsedArgs);
+        theRest.remove(0);
+
+        for (var arg : theRest) {
+            arg.asmVisit(mv, vars);
+
+            mv.visitMethodInsn(
+                    org.objectweb.asm.Opcodes.INVOKESTATIC,
+                    "java/lang/Math",
+                    "max",
+                    "(FF)F",
+                    false
+            );
+        }
+        vars.scopePop();
+    }
 }

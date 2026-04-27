@@ -1,9 +1,10 @@
-package traben.entity_model_features.models.animation.math;
+package traben.entity_model_features.models.animation.math.expression_tree;
 
 
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFException;
-import traben.entity_model_features.models.animation.EMFAnimation;
+import traben.entity_model_features.models.animation.AnimSetupContext;
+import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.utils.EMFUtils;
 
 
@@ -13,9 +14,12 @@ import java.util.List;
 
 public class MathExpressionParser {
 
-    public static final MathComponent NULL_EXPRESSION = () -> {
-        EMFUtils.logError("ERROR: NULL_EXPRESSION was called, this should not happen.");
-        return Float.NaN;
+    public static final MathComponent NULL_EXPRESSION = new MathConstant(Float.NaN) {
+        @Override
+        public float getResult() {
+            EMFUtils.logError("ERROR: NULL_EXPRESSION was called, this should not happen.");
+            return super.getResult();
+        }
     };
     private static final List<MathOperator> BOOLEAN_COMPARATOR_ACTIONS = List.of(MathOperator.EQUALS, MathOperator.SMALLER_THAN_OR_EQUALS, MathOperator.SMALLER_THAN, MathOperator.LARGER_THAN_OR_EQUALS, MathOperator.LARGER_THAN, MathOperator.NOT_EQUALS);
     private static final List<MathOperator> BOOLEAN_LOGICAL_ACTIONS = List.of(MathOperator.AND, MathOperator.OR);
@@ -24,15 +28,15 @@ public class MathExpressionParser {
     private final String originalExpression;
     private final boolean wasInvertedBooleanExpression;
     private final boolean isNegative;
-    private final EMFAnimation calculationInstance;
+    private final AnimSetupContext context;
     private MathComponent optimizedComponent = null;
     private CalculationList components;
     private boolean nextValueIsNegative = false;
     private String caughtExceptionString = null;
 
-    private MathExpressionParser(String expressionString, boolean isNegative, EMFAnimation calculationInstance, boolean invertBoolean) {
+    private MathExpressionParser(String expressionString, boolean isNegative, AnimSetupContext context, boolean invertBoolean) {
         this.isNegative = isNegative;
-        this.calculationInstance = calculationInstance;
+        this.context = context;
 
         wasInvertedBooleanExpression = invertBoolean;
 
@@ -61,16 +65,16 @@ public class MathExpressionParser {
                 if (firstBooleanChar != null) {
                     if (asAction == MathOperator.BOOLEAN_CHAR) {
                         // confirmed double boolean character such as ==, !=, &&, ||, <=, >=
-                        readDoubleBooleanAction(calculationInstance, firstBooleanChar, currentChar);
+                        readDoubleBooleanAction(this.context, firstBooleanChar, currentChar);
                         //now iterate once again manually to continue as a regular iteration
                         if (!charIterator.hasNext())
-                            throw new EMFMathException("ERROR: boolean operator [" + firstBooleanChar + currentChar + "] at end of expression for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
+                            throw new EMFMathException("ERROR: boolean operator [" + firstBooleanChar + currentChar + "] at end of expression for [" + this.context.animKey + "] in [" + this.context.modelName + "].");
                         currentChar = charIterator.next();
                         asAction = MathOperator.getAction(currentChar);
                     } else {
                         // the last boolean character was a single character boolean such as !, =, &, |, <, >
                         // so process it and continue as normal
-                        readLastSingleBooleanAction(calculationInstance, firstBooleanChar, rollingReader);
+                        readLastSingleBooleanAction(this.context, firstBooleanChar, rollingReader);
                     }
                     firstBooleanChar = null;
                 }
@@ -111,7 +115,7 @@ public class MathExpressionParser {
             readVariableOrConstant(rollingReader);
 
             if (components.isEmpty())
-                throw new EMFMathException("ERROR: math components found to be empty for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "]");
+                throw new EMFMathException("ERROR: math components found to be empty for [" + this.context.animKey + "] in [" + this.context.modelName + "]");
 
             //resolve unnecessary addition actions
             CalculationList newComponents = new CalculationList();
@@ -128,7 +132,9 @@ public class MathExpressionParser {
                 }
                 lastComponent = component;
             }
+            //noinspection SequencedCollectionMethodCanBeUsed
             if (newComponents.get(0) == MathOperator.ADD) {
+                //noinspection SequencedCollectionMethodCanBeUsed
                 newComponents.remove(0);
             }
             if (newComponents.size() != components.size()) components = newComponents;
@@ -139,33 +145,35 @@ public class MathExpressionParser {
         } catch (EMFMathException e) {
             caughtExceptionString = e.toString();
         } catch (Exception e) {
-            caughtExceptionString = "EMF animation ERROR: for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "] cause [" + e + "].";
+            caughtExceptionString = "EMF animation ERROR: for [" + this.context.animKey + "] in [" + this.context.modelName + "] cause [" + e + "].";
             //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
 
-    public static MathComponent getOptimizedExpression(String expressionString, boolean isNegative, EMFAnimation calculationInstance) {
-        return getOptimizedExpression(expressionString, isNegative, calculationInstance, false);
+    public static MathComponent getOptimizedExpression(String expressionString, boolean isNegative, AnimSetupContext context) {
+        return getOptimizedExpression(expressionString, isNegative, context, false);
     }
 
-    private static MathComponent getOptimizedExpression(String expressionString, boolean isNegative, EMFAnimation calculationInstance, boolean invertBoolean) {
+    private static MathComponent getOptimizedExpression(String expressionString, boolean isNegative, AnimSetupContext context, boolean invertBoolean) {
         try {
-            MathExpressionParser expression = new MathExpressionParser(expressionString, isNegative, calculationInstance, invertBoolean);
+            MathExpressionParser expression = new MathExpressionParser(expressionString, isNegative, context, invertBoolean);
 
             MathComponent optimized = expression.optimizedComponent;
             if (optimized == null) {
+                EMFUtils.logError("EMF animation ERROR: for [" + context.animKey + "] in [" + context.modelName
+                        + "] because " + expression.caughtExceptionString);
                 return NULL_EXPRESSION;
             }
 
             //just a boolean inverting wrapper
             if (expression.wasInvertedBooleanExpression) {
-                return () -> MathValue.invertBoolean(optimized.getResult());
+                return MathComponent.invertedBooleanDelegate(optimized);
             }
 
             return optimized;
         } catch (Exception e) {
-            EMFUtils.logError("EMF animation ERROR: for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "] because [" + e + "].");
+            EMFUtils.logError("EMF animation ERROR: for [" + context.animKey + "] in [" + context.modelName + "] because [" + e + "].");
             return NULL_EXPRESSION;
         }
     }
@@ -186,7 +194,7 @@ public class MathExpressionParser {
         return bracketContents.toString();
     }
 
-    private void readLastSingleBooleanAction(final EMFAnimation calculationInstance, final Character firstBooleanChar, final RollingReader rollingReader) throws EMFMathException {
+    private void readLastSingleBooleanAction(AnimSetupContext context, final Character firstBooleanChar, final RollingReader rollingReader) throws EMFMathException {
         if (firstBooleanChar == '!') {
             //likely a '!' for boolean variables so need to add to read
             rollingReader.write('!');
@@ -199,12 +207,12 @@ public class MathExpressionParser {
                 case '<' -> MathOperator.SMALLER_THAN;
                 case '>' -> MathOperator.LARGER_THAN;
                 default ->
-                        throw new EMFMathException("ERROR: with boolean processing for operator [" + firstBooleanChar + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
+                        throw new EMFMathException("ERROR: with boolean processing for operator [" + firstBooleanChar + "] for [" + context.animKey + "] in [" + context.modelName + "].");
             });
         }
     }
 
-    private void readDoubleBooleanAction(final EMFAnimation calculationInstance, final Character firstBooleanChar, final char currentChar) throws EMFMathException {
+    private void readDoubleBooleanAction(AnimSetupContext context, final Character firstBooleanChar, final char currentChar) throws EMFMathException {
         MathOperator doubleAction = switch (firstBooleanChar + "" + currentChar) {
             case "==" -> MathOperator.EQUALS;
             case "!=" -> MathOperator.NOT_EQUALS;
@@ -213,7 +221,7 @@ public class MathExpressionParser {
             case ">=" -> MathOperator.LARGER_THAN_OR_EQUALS;
             case "<=" -> MathOperator.SMALLER_THAN_OR_EQUALS;
             default ->
-                    throw new EMFMathException("ERROR: with boolean processing for operator [" + firstBooleanChar + currentChar + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
+                    throw new EMFMathException("ERROR: with boolean processing for operator [" + firstBooleanChar + currentChar + "] for [" + context.animKey + "] in [" + context.modelName + "].");
         };
         //add complete double boolean action
         components.add(doubleAction);
@@ -222,12 +230,22 @@ public class MathExpressionParser {
     private void readMethodOrBrackets(final RollingReader rollingReader, Iterator<Character> charIterator) throws EMFMathException {
         String functionName = rollingReader.read();
         String bracketContents = readBracketContents(charIterator);
-        if (functionName.isEmpty() || "!".equals(functionName) || "-".equals(functionName)) {
-            //just nested brackets
-            components.add(MathExpressionParser.getOptimizedExpression(bracketContents, getNegativeNext() || "-".equals(functionName), this.calculationInstance, "!".equals(functionName)));
-        } else {
-            //method
-            components.add(MathMethod.getOptimizedExpression(functionName, bracketContents, getNegativeNext(), this.calculationInstance));
+        switch (functionName) {
+            case "" ->
+                //just nested brackets
+                    components.add(MathExpressionParser.getOptimizedExpression(bracketContents, getNegativeNext(), this.context, false));
+            case "!" ->
+                //just nested brackets
+                    components.add(MathExpressionParser.getOptimizedExpression(bracketContents, getNegativeNext(), this.context, true));
+            case "-" -> {
+                getNegativeNext(); // drain just in case
+
+                //just nested brackets
+                components.add(MathExpressionParser.getOptimizedExpression(bracketContents, true, this.context, false));
+            }
+            default ->
+                //method
+                    components.add(MathMethod.getOptimizedExpression(functionName, bracketContents, getNegativeNext(), this.context));
         }
     }
 
@@ -242,17 +260,17 @@ public class MathExpressionParser {
             //valid number
             if (read.startsWith(".") && EMF.config().getConfig().enforceOptiFineAnimSyntaxLimits){
                 //if it starts with a dot, reject this as incorrect formatting
-                throw new EMFMathException("ERROR: number [" + read + "] in expression [" + originalExpression + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "] is not valid in OptiFine. It must not start with '.' please add a zero");
+                throw new EMFMathException("ERROR: number [" + read + "] in expression [" + originalExpression + "] for [" + context.animKey + "] in [" + context.modelName + "] is not valid in OptiFine. It must not start with '.' please add a zero");
             }
 
             components.add(new MathConstant(number, getNegativeNext()));
         } catch (NumberFormatException ignored) {
             if (read.matches("^(\\d|_).*") && EMF.config().getConfig().enforceOptiFineAnimSyntaxLimits){
                 //if it starts with a digit or underscore, reject this as incorrect formatting
-                throw new EMFMathException("ERROR: variable [" + read + "] in expression [" + originalExpression + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "] is not valid in OptiFine. It must not start with '.' please add a zero");
+                throw new EMFMathException("ERROR: variable [" + read + "] in expression [" + originalExpression + "] for [" + context.animKey + "] in [" + context.modelName + "] is not valid in OptiFine. It must not start with '.' please add a zero");
             }
             //otherwise it must be a text variable
-            components.add(MathVariable.getOptimizedVariable(read, getNegativeNext(), this.calculationInstance));
+            components.add(MathVariable.getOptimizedVariable(read, getNegativeNext(), this.context));
         }
         //throws an additional exception if not a number or variable and not empty
     }
@@ -260,13 +278,15 @@ public class MathExpressionParser {
     protected void validateAndOptimize() {
         if (caughtExceptionString != null) {
             EMFUtils.logWarn(caughtExceptionString);
+            //noinspection ThrowableNotThrown
             new EMFMathException(caughtExceptionString).record();
             return;
         }
 
-        //if the expression is not valid, then return NaN
+        // if the expression is not valid, then return NaN
         if (Float.isNaN(this.validateCalculationAndOptimize())) {
             EMFUtils.logWarn("result was NaN, expression not valid: " + originalExpression);
+            //noinspection ThrowableNotThrown
             new EMFMathException("result was NaN, expression not valid: " + originalExpression).record();
         }
     }
@@ -305,22 +325,23 @@ public class MathExpressionParser {
             if (optimised.size() == 1) {
                 float result = optimised.getLast().getResult();
                 if (Float.isNaN(result)) {
-                    EMFUtils.logError(" result was NaN in [" + calculationInstance.modelName + "] for expression: " + originalExpression + " as " + components);
+                    EMFUtils.logError(" result was NaN in [" + context.modelName + "] for expression: " + originalExpression + " as " + components);
                 } else {
                     //save optimized version of valid expression
-                    optimizedComponent = optimised.getLast();
-                    if (optimizedComponent instanceof MathValue value && this.isNegative) {
-                        optimizedComponent = value.makeNegative();
-                    }
+                    optimizedComponent = isNegative
+                            ? MathComponent.negativeDelegate(optimised.getLast())
+                            : optimised.getLast();
+
                 }
                 return result;
             } else {
-                EMFUtils.logError("ERROR: calculation did not result in 1 component, found: " + optimised + " in [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
+                EMFUtils.logError("ERROR: calculation did not result in 1 component, found: " + optimised + " in [" + context.animKey + "] in [" + context.modelName + "].");
                 EMFUtils.logError("\texpression was [" + originalExpression + "].");
             }
         } catch (Exception e) {
-            String message = "EMF animation ERROR: expression error in [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "] caused by [" + e + "].";
+            String message = "EMF animation ERROR: expression error in [" + context.animKey + "] in [" + context.modelName + "] caused by [" + e + "].";
             EMFUtils.logError(message);
+            //noinspection ThrowableNotThrown
             new EMFException(message).record();
         }
 
@@ -345,6 +366,7 @@ public class MathExpressionParser {
             if (component instanceof MathOperator action && containedActions.contains(action)) {
                 MathComponent last = newComponents.getLast();
                 MathComponent next = compIterator.next();
+                //noinspection SequencedCollectionMethodCanBeUsed
                 newComponents.remove(newComponents.size() - 1);
                 newComponents.add(MathBinaryExpressionComponent.getOptimizedExpression(last, action, next));
             } else {

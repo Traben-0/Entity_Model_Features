@@ -3,12 +3,12 @@ package traben.entity_model_features.models.animation.math.variables;
 import com.demonwav.mcdev.annotations.Translatable;
 import net.minecraft.util.Mth;
 import traben.entity_model_features.EMF;
-import traben.entity_model_features.models.animation.EMFAnimation;
+import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
-import traben.entity_model_features.models.animation.math.MathComponent;
-import traben.entity_model_features.models.animation.math.MathConstant;
-import traben.entity_model_features.models.animation.math.MathValue;
-import traben.entity_model_features.models.animation.math.MathVariable;
+import traben.entity_model_features.models.animation.math.expression_tree.MathComponent;
+import traben.entity_model_features.models.animation.math.expression_tree.MathConstant;
+import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
+import traben.entity_model_features.models.animation.math.expression_tree.MathVariable;
 import traben.entity_model_features.models.animation.math.variables.factories.*;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
@@ -23,8 +23,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 
-import static traben.entity_model_features.models.animation.math.MathValue.FALSE;
-import static traben.entity_model_features.models.animation.math.MathValue.TRUE;
+import static traben.entity_model_features.models.animation.math.expression_tree.MathValue.FALSE;
+import static traben.entity_model_features.models.animation.math.expression_tree.MathValue.TRUE;
 
 /**
  * This class is used to register all the variables that can be used in the math parser.
@@ -40,6 +40,47 @@ public final class VariableRegistry {
     private final Map<String, String> singletonVariableExplanationTranslationKeys = new HashMap<>();
     private final List<UniqueVariableFactory> uniqueVariableFactories = new ArrayList<>();
 
+    // Dropping the expression tree boilerplate for asm
+    public final Map<String, BooleanSupplier> singletonASMVariablesBool = new HashMap<>();
+    public final Map<String, MathValue.ResultSupplier> singletonASMVariablesFloat = new HashMap<>();
+
+    public BooleanSupplier getASMVarBoolOrDefault(String varKey, AnimSetupContext context) {
+        var simple =  singletonASMVariablesBool.get(varKey);
+        if (simple == null) { // More complex variable?
+            // Check if any of the unique variable factories can create this variable
+            for (UniqueVariableFactory uniqueVariableFactory : uniqueVariableFactories) {
+                if (uniqueVariableFactory.createsThisVariable(varKey)) {
+                    var supplier = uniqueVariableFactory.getASMBoolSupplierOrNull(varKey, context);
+                    if (supplier != null) {
+                        return supplier;
+                    }
+                }
+            }
+        } else {
+            return simple;
+        }
+        return ()-> false;
+    }
+
+    public MathValue.ResultSupplier getASMVarFloatOrDefault(String varKey, AnimSetupContext context) {
+        var simple =  singletonASMVariablesFloat.get(varKey);
+        if (simple == null) { // More complex variable?
+            // Check if any of the unique variable factories can create this variable
+            for (UniqueVariableFactory uniqueVariableFactory : uniqueVariableFactories) {
+                if (uniqueVariableFactory.createsThisVariable(varKey)) {
+                    var supplier = uniqueVariableFactory.getASMFloatSupplierOrNull(varKey, context);
+                    if (supplier != null) {
+                        return supplier;
+                    }
+                }
+            }
+        } else {
+            return simple;
+        }
+        return ()-> 0f;
+    }
+
+    @SuppressWarnings("deprecation")
     private VariableRegistry() {
 
         //these constants are better hardcoded
@@ -219,6 +260,8 @@ public final class VariableRegistry {
         singletonVariables.put(variableName, new MathVariable(variableName, false, supplier));
         singletonVariables.put("-" + variableName, new MathVariable("-" + variableName, true, supplier));
         singletonVariableExplanationTranslationKeys.put(variableName, explanationTranslationKey);
+
+        singletonASMVariablesFloat.put(variableName, supplier);
     }
 
     private void registerSimpleSpellingErrorWarning(String[] warns){
@@ -235,7 +278,6 @@ public final class VariableRegistry {
                 return Float.NaN;
             }));
         }
-
     }
 
     private void registerSimpleBoolVariable(String variableName, BooleanSupplier boolGetter) {
@@ -250,10 +292,12 @@ public final class VariableRegistry {
         singletonVariables.put(variableName, new MathVariable(variableName, () -> MathValue.fromBoolean(boolGetter)));
         singletonVariables.put("!" + variableName, new MathVariable("!" + variableName, () -> MathValue.invertBoolean(boolGetter)));
         singletonVariableExplanationTranslationKeys.put(variableName, explanationTranslationKey);
+
+        singletonASMVariablesBool.put(variableName, boolGetter);
     }
 
 
-    public MathComponent getVariable(String variableName, boolean isNegative, EMFAnimation calculationInstance) {
+    public MathComponent getVariable(String variableName, boolean isNegative, AnimSetupContext context) {
         try {
             String variableWithNegative = isNegative ? "-" + variableName : variableName;
             if (singletonVariables.containsKey(variableWithNegative)) {
@@ -266,7 +310,7 @@ public final class VariableRegistry {
                 //check if any of the unique variable factories can create this variable
                 for (UniqueVariableFactory uniqueVariableFactory : uniqueVariableFactories) {
                     if (uniqueVariableFactory.createsThisVariable(variableNameWithoutBooleanInvert)) {
-                        var supplier = uniqueVariableFactory.getSupplierOrNull(variableNameWithoutBooleanInvert, calculationInstance);
+                        var supplier = uniqueVariableFactory.getSupplierOrNull(variableNameWithoutBooleanInvert, context);
                         if (supplier != null) {
                             return new MathVariable(variableName, isNegative,
                                     invertBooleans ?
@@ -277,9 +321,9 @@ public final class VariableRegistry {
                 }
             }
             //unknown variable, return zero constant
-            if (printing()) EMFUtils.logError("Variable [" + variableName + "] not found in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
+            if (printing()) EMFUtils.logError("Variable [" + variableName + "] not found in animation [" + context.animKey + "] of model [" + context.modelName + "]. EMF will treat the variable as zero.");
         } catch (Exception e) {
-            if (printing()) EMFUtils.logError("Error finding variable: [" + variableName + "] in animation [" + calculationInstance.animKey + "] of model [" + calculationInstance.modelName + "]. EMF will treat the variable as zero.");
+            if (printing()) EMFUtils.logError("Error finding variable: [" + variableName + "] in animation [" + context.animKey + "] of model [" + context.modelName + "]. EMF will treat the variable as zero.");
         }
         return variableName.startsWith("is_") ? MathConstant.FALSE_CONST : MathConstant.ZERO_CONST;
     }

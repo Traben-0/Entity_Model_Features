@@ -1,8 +1,13 @@
-package traben.entity_model_features.models.animation.math;
+package traben.entity_model_features.models.animation.math.expression_tree;
 
 import org.jetbrains.annotations.NotNull;
-import traben.entity_model_features.models.animation.EMFAnimation;
+import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.MethodVisitor;
+import traben.entity_model_features.models.animation.AnimSetupContext;
+import traben.entity_model_features.models.animation.math.EMFMathException;
+import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
+import traben.entity_model_features.models.animation.math.methods.SimpleMethod;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,47 +36,60 @@ import java.util.Objects;
  */
 public abstract class MathMethod extends MathValue implements MathComponent {
 
-    protected MathComponent optimizedAlternativeToThis = null;
-    protected ResultSupplier supplier = null;
+    protected @Nullable MathComponent optimizedAlternativeToThis = null;
+    protected @Nullable ResultSupplier supplier = null;
+    protected final @NotNull List<String> rawArgs;
+    protected final @NotNull List<MathComponent> parsedArgs;
 
-    protected MathMethod(boolean isNegative, EMFAnimation calculationInstance, int argCount) throws EMFMathException {
-        super(isNegative);
-        if (!hasCorrectArgCount(argCount)) {
-            throw new EMFMathException("ERROR: wrong number of arguments [" + argCount + "] in [" + this.getClass().getSimpleName() + "] for [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
-        }
+    protected MathMethod(boolean isNegative, AnimSetupContext context, @NotNull List<String> args) throws EMFMathException {
+        this(isNegative, context, args, -1);
     }
 
-    protected static MathComponent parseArg(String arg, EMFAnimation calculationInstance) throws EMFMathException {
+    protected MathMethod(boolean isNegative, AnimSetupContext context, @NotNull List<String> args, int customArgCount) throws EMFMathException {
+        super(isNegative);
+        rawArgs = args;
+        boolean correctArgCount = customArgCount != -1
+                ? customArgCount == args.size()
+                : hasCorrectArgCount(args.size());
+        if (!correctArgCount) {
+            throw new EMFMathException("ERROR: wrong number of arguments [" + args.size() + "] in [" + this.getClass().getSimpleName() + "] for [" + context.animKey + "] in [" + context.modelName + "].");
+        }
+        this.parsedArgs = parseAllArgs(args, context);
+    }
+
+    private @Nullable MathComponent parseArg(int index, String arg, AnimSetupContext context) throws EMFMathException {
+        if (isRawStringArg(index)) return null;
+
         if (arg == null || arg.isBlank())
-            throw new EMFMathException("Method argument parsing error [" + arg + "] in [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
-        var ret = MathExpressionParser.getOptimizedExpression(arg, false, calculationInstance);
+            throw new EMFMathException("Method argument parsing error [" + arg + "] in [" + context.animKey + "] in [" + context.modelName + "].");
+        var ret = MathExpressionParser.getOptimizedExpression(arg, false, context);
 
         if (ret == MathExpressionParser.NULL_EXPRESSION) {
-            throw new EMFMathException("Method argument parsing null [" + arg + "] in [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
+            throw new EMFMathException("Method argument parsing null [" + arg + "] in [" + context.animKey + "] in [" + context.modelName + "].");
         }
         return ret;
     }
 
-    protected static List<MathComponent> parseAllArgs(List<String> args, EMFAnimation calculationInstance) throws EMFMathException {
-        if (args == null || args.isEmpty())
-            throw new EMFMathException("Method argument parsing error [" + args + "] in [" + calculationInstance.animKey + "] in [" + calculationInstance.modelName + "].");
-        List<MathComponent> expressionList = new ArrayList<>();
-        for (String arg : args) {
-            expressionList.add(parseArg(arg, calculationInstance));
+    private List<@Nullable MathComponent> parseAllArgs(List<String> args, AnimSetupContext context) throws EMFMathException {
+        if (args == null)
+            throw new EMFMathException("Method argument parsing error [" + args + "] in [" + context.animKey + "] in [" + context.modelName + "].");
+        List<@Nullable MathComponent> expressionList = new ArrayList<>();
+        for (int i = 0; i < args.size(); i++) {
+            expressionList.add(parseArg(i, args.get(i), context));
         }
         return expressionList;
     }
 
-    private static MathMethod of(String methodNameIn, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
+    private static MathMethod of(String methodNameIn, String args, boolean isNegative, AnimSetupContext context) throws EMFMathException {
         boolean booleanInvert = methodNameIn.startsWith("!");
         String methodName = booleanInvert ? methodNameIn.substring(1) : methodNameIn;
 
         if (!MethodRegistry.getInstance().containsMethod(methodName)) {
-            throw new EMFMathException("ERROR: Unknown method [" + methodName + "], rejecting animation expression for [" + calculationInstance.animKey + "].");
+            throw new EMFMathException("ERROR: Unknown method [" + methodName + "], rejecting animation expression for [" + context.animKey + "].");
         }
 
         List<String> argsList = getArgsList(args);
-        MathMethod method = MethodRegistry.getInstance().getMethodFactory(methodName).getMethod(argsList, isNegative, calculationInstance);
+        MathMethod method = MethodRegistry.getInstance().getMethodFactory(methodName).getMethod(argsList, isNegative, context);
         if (booleanInvert) {
             method.invertSupplierBoolean();
         }
@@ -112,13 +130,13 @@ public abstract class MathMethod extends MathValue implements MathComponent {
         return argsList;
     }
 
-    static MathComponent getOptimizedExpression(String methodName, String args, boolean isNegative, EMFAnimation calculationInstance) throws EMFMathException {
+    static MathComponent getOptimizedExpression(String methodName, String args, boolean isNegative, AnimSetupContext context) throws EMFMathException {
         //double check just incase it was missed
         if (methodName.startsWith("-")) {
             isNegative = true;
             methodName = methodName.substring(1);
         }
-        MathMethod method = of(methodName, args, isNegative, calculationInstance);
+        MathMethod method = of(methodName, args, isNegative, context);
         return Objects.requireNonNullElse(method.optimizedAlternativeToThis, method);
     }
 
@@ -145,9 +163,10 @@ public abstract class MathMethod extends MathValue implements MathComponent {
         setOptimizedIfPossible(supplier, allArgs);
     }
 
-    protected abstract boolean hasCorrectArgCount(int argCount);
+    protected boolean isInvertedBoolean = false;
 
     private void invertSupplierBoolean() {
+        isInvertedBoolean = true;
         if (optimizedAlternativeToThis == null) {
             var currentSupplier = supplier;
             supplier = () -> MathValue.invertBoolean(currentSupplier);
@@ -160,7 +179,7 @@ public abstract class MathMethod extends MathValue implements MathComponent {
         //check if method only contains constants, if so precalculate the result and replace this with a constant
         if (!canOptimizeForConstantArgs() || allComponents.isEmpty()) return;
 
-        boolean foundNonConstant = allComponents.stream().anyMatch(comp -> !comp.isConstant());
+        boolean foundNonConstant = allComponents.stream().anyMatch(comp -> comp != null && !comp.isConstant());
         if (!foundNonConstant) {
             float constantResult = supplier.get();
             if (!Float.isNaN(constantResult)) {
@@ -174,4 +193,22 @@ public abstract class MathMethod extends MathValue implements MathComponent {
     ResultSupplier getResultSupplier() {
         return supplier;
     }
+
+    @Override
+    public final void asmVisit(MethodVisitor mv, ASMVariableHandler vars) throws EMFMathException {
+        asmVisitInner(mv, vars);
+        if (isInvertedBoolean) vars.asmInvertBoolean(mv);
+        if (isNegative) vars.asmNegateFloat(mv);
+    }
+
+    /**
+     * @see SimpleMethod for a simple example of how to implement this method.
+     */
+    public abstract void asmVisitInner(MethodVisitor mv, ASMVariableHandler varNames) throws EMFMathException;
+
+    protected boolean isRawStringArg(int index) {
+        return false;
+    }
+
+    protected abstract boolean hasCorrectArgCount(int argCount);
 }

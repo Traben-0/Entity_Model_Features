@@ -1,26 +1,21 @@
 package traben.entity_model_features.models.animation.math.methods;
 
 import org.apache.commons.lang3.function.TriFunction;
-import traben.entity_model_features.models.animation.EMFAnimation;
+import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.math.EMFMathException;
-import traben.entity_model_features.models.animation.math.MathMethod;
+import traben.entity_model_features.models.animation.math.expression_tree.MathMethod;
+import traben.entity_model_features.models.animation.math.asm.ASMHelper;
+import traben.entity_model_features.models.animation.math.asm.ASMVisitable;
 import traben.entity_model_features.models.animation.math.methods.emf.*;
 import traben.entity_model_features.models.animation.math.methods.optifine.*;
-import traben.entity_model_features.models.animation.math.methods.simple.BiFunctionMethods;
-import traben.entity_model_features.models.animation.math.methods.simple.FunctionMethods;
-import traben.entity_model_features.models.animation.math.methods.simple.MultiFunctionMethods;
-import traben.entity_model_features.models.animation.math.methods.simple.TriFunctionMethods;
-import traben.entity_model_features.EMFManager;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import net.minecraft.util.Mth;
-
-import static traben.entity_model_features.models.animation.math.MathValue.FALSE;
-import static traben.entity_model_features.models.animation.math.MathValue.TRUE;
 
 public final class MethodRegistry {
 
@@ -30,99 +25,103 @@ public final class MethodRegistry {
     private final Map<String, String> methodExplanationTranslationKeys = new HashMap<>();
 
     private MethodRegistry() {
+        try {
+            //optifine methods
+            registerAndWrapMethodFactory("max", MaxMethod::new);
+            registerAndWrapMethodFactory("min", MinMethod::new);
+            registerAndWrapMethodFactory("random", RandomMethod::new);
+            registerHelperMethodFactory("sin");
+            registerHelperMethodFactory("asin");
+            registerHelperMethodFactory("cos");
+            registerHelperMethodFactory("acos");
+            registerHelperMethodFactory("tan");
+            registerHelperMethodFactory("atan");
+            registerHelperMethodFactory("abs");
+            registerHelperMethodFactory("floor");
+            registerHelperMethodFactory("ceil");
+            registerHelperMethodFactory("round");
+            registerHelperMethodFactory("log");
+            registerHelperMethodFactory("exp");
+            registerHelperMethodFactory("torad");
+            registerHelperMethodFactory("todeg");
+            registerHelperMethodFactory("frac");
+            registerHelperMethodFactory("signum");
+            registerHelperMethodFactory("sqrt");
+            registerHelperMethodFactory("fmod");
+            registerHelperMethodFactory("pow");
+            registerHelperMethodFactory("atan2");
+            registerHelperMethodFactory("clamp");
+            registerHelperMethodFactory("lerp");
+            registerAndWrapMethodFactory("print", PrintMethod::new);
+            registerAndWrapMethodFactory("printb", PrintBMethod::new);
+            registerAndWrapMethodFactory("catch", CatchMethod::new);
 
-        //optifine methods
-        registerAndWrapMethodFactory("max", MaxMethod::new);
-        registerAndWrapMethodFactory("min", MinMethod::new);
-        registerAndWrapMethodFactory("random", RandomMethod::new);
-        registerSimpleMethodFactory("sin", Mth::sin);
-        registerSimpleMethodFactory("asin", (v) -> (float) Math.asin(v));
-        registerSimpleMethodFactory("cos", Mth::cos);
-        registerSimpleMethodFactory("acos", (v) -> (float) Math.acos(v));
-        registerSimpleMethodFactory("tan", (v) -> (float) Math.tan(v));
-        registerSimpleMethodFactory("atan", (v) -> (float) Math.atan(v));
-        registerSimpleMethodFactory("abs", Mth::abs);
-        registerSimpleMethodFactory("floor", (v) -> (float) Mth.floor(v));
-        registerSimpleMethodFactory("ceil", (v) -> (float) Mth.ceil(v));
-        registerSimpleMethodFactory("round", (v) -> (float) Math.round(v));
-        registerSimpleMethodFactory("log", (v) -> v < 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : (float) Math.log(v));
-        registerSimpleMethodFactory("exp", (v) -> (float) Math.exp(v));
-        registerSimpleMethodFactory("torad", (v) -> v * Mth.DEG_TO_RAD);
-        registerSimpleMethodFactory("todeg", (v) -> v * Mth.RAD_TO_DEG);
-        registerSimpleMethodFactory("frac", Mth::frac);
-        registerSimpleMethodFactory("signum", Math::signum);
-        registerSimpleMethodFactory("sqrt", (v) -> v < 0 && EMFManager.getInstance().isAnimationValidationPhase ? 0 : Mth.sqrt(v));
-        registerSimpleMethodFactory("fmod", (v, w) -> (float) Math.floorMod((int) (float) v, (int) (float) w));
-        registerSimpleMethodFactory("pow", (v, w) -> (float) Math.pow(v, w));
-        registerSimpleMethodFactory("atan2", (v, w) -> (float) Mth.atan2(v, w));
-        registerSimpleMethodFactory("clamp", Mth::clamp);
-        registerSimpleMethodFactory("lerp", Mth::lerp);
-        registerAndWrapMethodFactory("print", PrintMethod::new);
-        registerAndWrapMethodFactory("printb", PrintBMethod::new);
-        registerAndWrapMethodFactory("catch", CatchMethod::new);
-
-        // booleans
-        registerAndWrapMethodFactory("if", IfMethod::new);
-        registerAndWrapMethodFactory("ifb", IfBMethod::new);
-        registerAndWrapMethodFactory("randomb", RandomBMethod::new);
-        registerAndWrapMethodFactory("in", InMethod::new);
-        registerSimpleMethodFactory("between", (a, b, c) -> a > c ? FALSE : (a < b ? FALSE : TRUE));
-        registerSimpleMethodFactory("equals", (x, y, epsilon) -> Math.abs(y - x) <= epsilon ? TRUE : FALSE);
+            // booleans
+            registerAndWrapMethodFactory("if", IfMethod::new);
+            registerAndWrapMethodFactory("ifb", IfBMethod::new);
+            registerAndWrapMethodFactory("randomb", RandomBMethod::new);
+            registerAndWrapMethodFactory("in", InMethod::new);
+            registerHelperMethodFactory("between");
+            registerHelperMethodFactory("equals");
 
 
-        //emf methods
+            //emf methods
 
-        registerAndWrapMethodFactory("nbt", NBTMethod::new);
-        registerAndWrapMethodFactory("keyframe", KeyframeMethod::new);
-        registerAndWrapMethodFactory("keyframeloop", KeyframeloopMethod::new);
-        registerSimpleMethodFactory("wrapdeg", Mth::wrapDegrees);
-        registerSimpleMethodFactory("wraprad", (v) -> (float) Math.toRadians(Mth.wrapDegrees(Math.toDegrees(v))));
-        registerSimpleMethodFactory("degdiff", Mth::degreesDifferenceAbs);
-        registerSimpleMethodFactory("raddiff", (v, w) -> (float) Math.toRadians(Mth.degreesDifferenceAbs((float) Math.toDegrees(v), (float) Math.toDegrees(w))));
+            registerAndWrapMethodFactory("nbt", NBTMethod::new);
+            registerAndWrapMethodFactory("keyframe", KeyframeMethod::new);
+            registerAndWrapMethodFactory("keyframeloop", KeyframeloopMethod::new);
+            registerHelperMethodFactory("wrapdeg");
+            registerHelperMethodFactory("wraprad");
+            registerHelperMethodFactory("degdiff");
+            registerHelperMethodFactory("raddiff");
 
-        //deprecated
-        registerSimpleMethodFactory("easeinout", TriFunctionMethods::easeInOutSine);
-        registerSimpleMethodFactory("easein", TriFunctionMethods::easeInSine);
-        registerSimpleMethodFactory("easeout", TriFunctionMethods::easeOutSine);
-        registerSimpleMethodFactory("cubiceaseinout", TriFunctionMethods::easeInOutCubic);
-        registerSimpleMethodFactory("cubiceasein", TriFunctionMethods::easeInCubic);
-        registerSimpleMethodFactory("cubiceaseout", TriFunctionMethods::easeOutCubic);
+            //deprecated
+            registerHelperMethodFactory("easeinout", "easeInOutSine");
+            registerHelperMethodFactory("easein", "easeInSine");
+            registerHelperMethodFactory("easeout", "easeOutSine");
+            registerHelperMethodFactory("cubiceaseinout", "easeInOutCubic");
+            registerHelperMethodFactory("cubiceasein", "easeInCubic");
+            registerHelperMethodFactory("cubiceaseout", "easeOutCubic");
 
-        //lerps
-        registerSimpleMultiMethodFactory("catmullrom", (args) -> Mth.catmullrom(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
-        registerSimpleMultiMethodFactory("quadbezier", (args) -> MultiFunctionMethods.quadraticBezier(args.get(0), args.get(1), args.get(2), args.get(3)));
-        registerSimpleMultiMethodFactory("cubicbezier", (args) -> MultiFunctionMethods.cubicBezier(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
-        registerSimpleMultiMethodFactory("hermite", (args) -> MultiFunctionMethods.hermiteInterpolation(args.get(0), args.get(1), args.get(2), args.get(3), args.get(4)));
-        registerSimpleMethodFactory("easeinoutexpo", TriFunctionMethods::easeInOutExpo);
-        registerSimpleMethodFactory("easeinexpo", TriFunctionMethods::easeInExpo);
-        registerSimpleMethodFactory("easeoutexpo", TriFunctionMethods::easeOutExpo);
-        registerSimpleMethodFactory("easeinoutcirc", TriFunctionMethods::easeInOutCirc);
-        registerSimpleMethodFactory("easeincirc", TriFunctionMethods::easeInCirc);
-        registerSimpleMethodFactory("easeoutcirc", TriFunctionMethods::easeOutCirc);
-        registerSimpleMethodFactory("easeinoutelastic", TriFunctionMethods::easeInOutElastic);
-        registerSimpleMethodFactory("easeinelastic", TriFunctionMethods::easeInElastic);
-        registerSimpleMethodFactory("easeoutelastic", TriFunctionMethods::easeOutElastic);
-        registerSimpleMethodFactory("easeinoutback", TriFunctionMethods::easeInOutBack);
-        registerSimpleMethodFactory("easeinback", TriFunctionMethods::easeInBack);
-        registerSimpleMethodFactory("easeoutback", TriFunctionMethods::easeOutBack);
-        registerSimpleMethodFactory("easeinoutbounce", TriFunctionMethods::easeInOutBounce);
-        registerSimpleMethodFactory("easeinbounce", TriFunctionMethods::easeInBounce);
-        registerSimpleMethodFactory("easeoutbounce", TriFunctionMethods::easeOutBounce);
-        registerSimpleMethodFactory("easeinquad", TriFunctionMethods::easeInQuad);
-        registerSimpleMethodFactory("easeoutquad", TriFunctionMethods::easeOutQuad);
-        registerSimpleMethodFactory("easeinoutquad", TriFunctionMethods::easeInOutQuad);
-        registerSimpleMethodFactory("easeincubic", TriFunctionMethods::easeInCubic);
-        registerSimpleMethodFactory("easeoutcubic", TriFunctionMethods::easeOutCubic);
-        registerSimpleMethodFactory("easeinoutcubic", TriFunctionMethods::easeInOutCubic);
-        registerSimpleMethodFactory("easeinquart", TriFunctionMethods::easeInQuart);
-        registerSimpleMethodFactory("easeoutquart", TriFunctionMethods::easeOutQuart);
-        registerSimpleMethodFactory("easeinoutquart", TriFunctionMethods::easeInOutQuart);
-        registerSimpleMethodFactory("easeinquint", TriFunctionMethods::easeInQuint);
-        registerSimpleMethodFactory("easeoutquint", TriFunctionMethods::easeOutQuint);
-        registerSimpleMethodFactory("easeinoutquint", TriFunctionMethods::easeInOutQuint);
-        registerSimpleMethodFactory("easeinsine", TriFunctionMethods::easeInSine);
-        registerSimpleMethodFactory("easeoutsine", TriFunctionMethods::easeOutSine);
-        registerSimpleMethodFactory("easeinoutsine", TriFunctionMethods::easeInOutSine);
+            //lerps
+            registerHelperMethodFactory("catmullrom");
+            registerHelperMethodFactory("quadbezier", "quadraticBezier");
+            registerHelperMethodFactory("cubicbezier", "cubicBezier");
+            registerHelperMethodFactory("hermite", "hermiteInterpolation");
+            registerHelperMethodFactory("easeinoutexpo");
+            registerHelperMethodFactory("easeinexpo");
+            registerHelperMethodFactory("easeoutexpo");
+            registerHelperMethodFactory("easeinoutcirc");
+            registerHelperMethodFactory("easeincirc");
+            registerHelperMethodFactory("easeoutcirc");
+            registerHelperMethodFactory("easeinoutelastic");
+            registerHelperMethodFactory("easeinelastic");
+            registerHelperMethodFactory("easeoutelastic");
+            registerHelperMethodFactory("easeinoutback");
+            registerHelperMethodFactory("easeinback");
+            registerHelperMethodFactory("easeoutback");
+            registerHelperMethodFactory("easeinoutbounce");
+            registerHelperMethodFactory("easeinbounce");
+            registerHelperMethodFactory("easeoutbounce");
+            registerHelperMethodFactory("easeinquad");
+            registerHelperMethodFactory("easeoutquad");
+            registerHelperMethodFactory("easeinoutquad");
+            registerHelperMethodFactory("easeincubic");
+            registerHelperMethodFactory("easeoutcubic");
+            registerHelperMethodFactory("easeinoutcubic");
+            registerHelperMethodFactory("easeinquart");
+            registerHelperMethodFactory("easeoutquart");
+            registerHelperMethodFactory("easeinoutquart");
+            registerHelperMethodFactory("easeinquint");
+            registerHelperMethodFactory("easeoutquint");
+            registerHelperMethodFactory("easeinoutquint");
+            registerHelperMethodFactory("easeinsine");
+            registerHelperMethodFactory("easeoutsine");
+            registerHelperMethodFactory("easeinoutsine");
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static String emfTranslationKey(String key) {
@@ -138,36 +137,42 @@ public final class MethodRegistry {
         return methodExplanationTranslationKeys;
     }
 
-    private void registerSimpleMethodFactory(String methodName, Function<Float, Float> function) {
-        registerSimpleMethodFactory(methodName, emfTranslationKey(methodName), function);
+    private void registerHelperMethodFactory(String methodName) throws EMFMathException {
+        registerSimpleMethodFactory(methodName, emfTranslationKey(methodName), ASMHelper.getHelperMethod(methodName), ASMHelper.getHelperMethodCompiler(methodName));
     }
 
-    public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, Function<Float, Float> function) {
-        register(methodName, explanationTranslationKey, FunctionMethods.makeFactory(methodName, function));
+    private void registerHelperMethodFactory(String methodName, String staticName) throws EMFMathException {
+        registerSimpleMethodFactory(methodName, emfTranslationKey(methodName), ASMHelper.getHelperMethod(staticName), ASMHelper.getHelperMethodCompiler(methodName));
     }
 
-    private void registerSimpleMethodFactory(String methodName, BiFunction<Float, Float, Float> function) {
-        registerSimpleMethodFactory(methodName, emfTranslationKey(methodName), function);
+    public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, Method staticMethod, @Nullable ASMVisitable asmCompiler) {
+        register(methodName, explanationTranslationKey, SimpleMethod.makeFactory(methodName, staticMethod, asmCompiler));
     }
 
-    public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, BiFunction<Float, Float, Float> function) {
-        register(methodName, explanationTranslationKey, BiFunctionMethods.makeFactory(methodName, function));
+    @SuppressWarnings("removal")
+    @Deprecated(forRemoval = true)
+    public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, Function<Float, Float> function) throws EMFMathException {
+        throw  new UnsupportedOperationException("deprecated");
     }
 
-    private void registerSimpleMethodFactory(String methodName, TriFunction<Float, Float, Float, Float> function) {
-        registerSimpleMethodFactory(methodName, emfTranslationKey(methodName), function);
+    @SuppressWarnings("removal")
+    @Deprecated(forRemoval = true)
+    public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, BiFunction<Float, Float, Float> function) throws EMFMathException {
+        throw  new UnsupportedOperationException("deprecated");
     }
 
-    public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, TriFunction<Float, Float, Float, Float> function) {
-        register(methodName, explanationTranslationKey, TriFunctionMethods.makeFactory(methodName, function));
+
+    @SuppressWarnings("removal")
+    @Deprecated(forRemoval = true)
+    public void registerSimpleMethodFactory(String methodName, String explanationTranslationKey, TriFunction<Float, Float, Float, Float> function) throws EMFMathException {
+        throw  new UnsupportedOperationException("deprecated");
     }
 
-    private void registerSimpleMultiMethodFactory(String methodName, Function<List<Float>, Float> function) {
-        registerSimpleMultiMethodFactory(methodName, emfTranslationKey(methodName), function);
-    }
 
-    public void registerSimpleMultiMethodFactory(String methodName, String explanationTranslationKey, Function<List<Float>, Float> function) {
-        register(methodName, explanationTranslationKey, MultiFunctionMethods.makeFactory(methodName, function));
+    @SuppressWarnings("removal")
+    @Deprecated(forRemoval = true)
+    public void registerSimpleMultiMethodFactory(String methodName, String explanationTranslationKey, Function<List<Float>, Float> function) throws EMFMathException {
+        throw  new UnsupportedOperationException("deprecated");
     }
 
     private void register(String methodName, String explanationTranslationKey, MethodFactory factory) {
@@ -202,7 +207,7 @@ public final class MethodRegistry {
      * A factory for supplying or creating {@link MathMethod} instances.
      */
     public interface MethodFactory {
-        MathMethod getMethod(final List<String> args, final boolean isNegative, final EMFAnimation calculationInstance)
+        MathMethod getMethod(final List<String> args, final boolean isNegative, AnimSetupContext context)
                 throws EMFMathException;
     }
 }

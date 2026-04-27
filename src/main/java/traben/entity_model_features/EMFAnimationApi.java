@@ -8,7 +8,7 @@ import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
-import traben.entity_model_features.models.animation.math.MathValue;
+import traben.entity_model_features.models.animation.math.asm.ASMVisitable;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
 import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
 import traben.entity_model_features.models.animation.math.variables.factories.UniqueVariableFactory;
@@ -17,6 +17,8 @@ import traben.entity_model_features.models.parts.EMFModelPartCustom;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
 
+import java.lang.reflect.Method;
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
@@ -42,7 +44,7 @@ public interface EMFAnimationApi {
      */
     @SuppressWarnings("SameReturnValue")
     static int getApiVersion() {
-        return 8;
+        return 9;
     }
 
     /**
@@ -63,12 +65,12 @@ public interface EMFAnimationApi {
      * @param variableExplanationTranslationKeyOrText The explanation of the variable.
      * @param variableValueSupplier                   A supplier for the value of the variable.
      */
-    static void registerSingletonAnimationVariable(String sourceModId, String variableName, String variableExplanationTranslationKeyOrText, BooleanSupplier variableValueSupplier) {
+    static void registerSingletonAnimationVariable(String sourceModId, String variableName, String variableExplanationTranslationKeyOrText, BooleanSupplier variableValueSupplier) throws Exception {
         if (sourceModId != null && variableName != null && variableValueSupplier != null && variableExplanationTranslationKeyOrText != null) {
             VariableRegistry.getInstance().registerSimpleBoolVariable(variableName, variableExplanationTranslationKeyOrText, variableValueSupplier);
             EMFUtils.log("Successful registration of singleton variable:" + variableName + " from mod " + sourceModId);
         } else {
-            EMFUtils.logError("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
+            throw paramFail("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
         }
     }
 
@@ -85,12 +87,12 @@ public interface EMFAnimationApi {
      * @param variableExplanationTranslationKeyOrText The explanation of the variable.
      * @param variableValueSupplier                   A supplier for the value of the variable.
      */
-    static void registerSingletonAnimationVariable(String sourceModId, String variableName, String variableExplanationTranslationKeyOrText, Supplier<Float> variableValueSupplier) {
+    static void registerSingletonAnimationVariable(String sourceModId, String variableName, String variableExplanationTranslationKeyOrText, Supplier<Float> variableValueSupplier) throws Exception {
         if (sourceModId != null && variableName != null && variableValueSupplier != null && variableExplanationTranslationKeyOrText != null) {
             VariableRegistry.getInstance().registerSimpleFloatVariable(variableName, variableExplanationTranslationKeyOrText, variableValueSupplier::get);
             EMFUtils.log("Successful registration of singleton variable:" + variableName + " from mod " + sourceModId);
         } else {
-            EMFUtils.logError("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
+            throw paramFail("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
         }
     }
 
@@ -106,81 +108,42 @@ public interface EMFAnimationApi {
      * @param variableName          The name of the variable.
      * @param uniqueVariableFactory A factory for the variable.
      */
-    static void registerUniqueAnimationVariableFactory(String sourceModId, String variableName, UniqueVariableFactory uniqueVariableFactory) {
+    static void registerUniqueAnimationVariableFactory(String sourceModId, String variableName, UniqueVariableFactory uniqueVariableFactory) throws Exception {
         if (sourceModId != null && variableName != null && uniqueVariableFactory != null) {
             VariableRegistry.getInstance().registerContextVariable(uniqueVariableFactory);
             EMFUtils.log("Successful registration of unique variable:" + variableName + " from mod " + sourceModId);
         } else {
-            EMFUtils.logError("Invalid registration of unique variable:" + variableName + " from mod " + sourceModId);
+            throw paramFail("Invalid registration of unique variable:" + variableName + " from mod " + sourceModId);
         }
     }
 
     /**
-     * Registers a simple function for use in animation math expressions.
+     * Registers a custom {@link traben.entity_model_features.models.animation.math.methods.MethodRegistry.MethodFactory}
+     * for use in animation math expressions.
+     * <p>
+     * The supplied method must be public and static
+     * The supplied method must return a primitive type of either [boolean] or [float].
+     * The supplied method can accept any number of parameters of types [boolean], [float], or [String].
      *
      * @param sourceModId                           The mod id of the mod registering the function.
      * @param methodName                            The name of the function.
      * @param methodExplanationTranslationKeyOrText The explanation of the function.
-     * @param function                              The function to register.
+     * @param staticMethod                          The method to be registered.
+     * @param asmCompiler                           (Optional) an {@link ASMVisitable} function that can provide an optimized
+     *                                              ASM compiled alternative to the static method, just leave it [null] if you can't do this.
      */
-    static void registerAnimationFunction(String sourceModId, String methodName, String methodExplanationTranslationKeyOrText, Function<Float, Float> function) {
-        if (sourceModId != null && methodName != null && function != null && methodExplanationTranslationKeyOrText != null) {
-            MethodRegistry.getInstance().registerSimpleMethodFactory(methodName, methodExplanationTranslationKeyOrText, function);
-            EMFUtils.log("Successful registration of function:" + methodName + " from mod " + sourceModId);
+    static void registerCustomFunctionFromStaticMethod(
+            String sourceModId,
+            String methodName,
+            String methodExplanationTranslationKeyOrText,
+            Method staticMethod,
+            @Nullable ASMVisitable asmCompiler
+    ) throws Exception {
+        if (sourceModId != null && methodName != null && staticMethod != null && methodExplanationTranslationKeyOrText != null) {
+            MethodRegistry.getInstance().registerSimpleMethodFactory(methodName, methodExplanationTranslationKeyOrText, staticMethod, asmCompiler);
+            EMFUtils.log("Successful registration of custom function:" + methodName + " from mod " + sourceModId);
         } else {
-            EMFUtils.logError("Invalid registration of function:" + methodName + " from mod " + sourceModId);
-        }
-    }
-
-    /**
-     * Registers a simple function for use in animation math expressions.
-     *
-     * @param sourceModId                           The mod id of the mod registering the function.
-     * @param methodName                            The name of the function.
-     * @param methodExplanationTranslationKeyOrText The explanation of the function.
-     * @param biFunction                            The function to register.
-     */
-    static void registerAnimationBiFunction(String sourceModId, String methodName, String methodExplanationTranslationKeyOrText, BiFunction<Float, Float, Float> biFunction) {
-        if (sourceModId != null && methodName != null && biFunction != null && methodExplanationTranslationKeyOrText != null) {
-            MethodRegistry.getInstance().registerSimpleMethodFactory(methodName, methodExplanationTranslationKeyOrText, biFunction);
-            EMFUtils.log("Successful registration of bifunction:" + methodName + " from mod " + sourceModId);
-        } else {
-            EMFUtils.logError("Invalid registration of bifunction:" + methodName + " from mod " + sourceModId);
-        }
-    }
-
-    /**
-     * Registers a simple function for use in animation math expressions.
-     *
-     * @param sourceModId                           The mod id of the mod registering the function.
-     * @param methodName                            The name of the function.
-     * @param methodExplanationTranslationKeyOrText The explanation of the function.
-     * @param triFunction                           The function to register.
-     */
-    static void registerAnimationTriFunction(String sourceModId, String methodName, String methodExplanationTranslationKeyOrText, TriFunction<Float, Float, Float, Float> triFunction) {
-        if (sourceModId != null && methodName != null && triFunction != null && methodExplanationTranslationKeyOrText != null) {
-            MethodRegistry.getInstance().registerSimpleMethodFactory(methodName, methodExplanationTranslationKeyOrText, triFunction);
-            EMFUtils.log("Successful registration of trifunction:" + methodName + " from mod " + sourceModId);
-        } else {
-            EMFUtils.logError("Invalid registration of trifunction:" + methodName + " from mod " + sourceModId);
-        }
-    }
-
-    /**
-     * Registers a multiple parameter function for use in animation math expressions.
-     * the List<Float> parameter is a list of the parameters in the order supplied to the function.
-     *
-     * @param sourceModId                           The mod id of the mod registering the function.
-     * @param methodName                            The name of the function.
-     * @param methodExplanationTranslationKeyOrText The explanation of the function.
-     * @param multiFunction                         The function to register.
-     */
-    static void registerAnimationMultiFunction(String sourceModId, String methodName, String methodExplanationTranslationKeyOrText, Function<List<Float>, Float> multiFunction) {
-        if (sourceModId != null && methodName != null && multiFunction != null && methodExplanationTranslationKeyOrText != null) {
-            MethodRegistry.getInstance().registerSimpleMultiMethodFactory(methodName, methodExplanationTranslationKeyOrText, multiFunction);
-            EMFUtils.log("Successful registration of multifunction:" + methodName + " from mod " + sourceModId);
-        } else {
-            EMFUtils.logError("Invalid registration of multifunction:" + methodName + " from mod " + sourceModId);
+            throw paramFail("Invalid registration of custom function:" + methodName + " from mod " + sourceModId);
         }
     }
 
@@ -197,12 +160,17 @@ public interface EMFAnimationApi {
      * @param methodExplanationTranslationKeyOrText The explanation of the function.
      * @param factory                               The factory to register.
      */
-    static void registerCustomFunctionFactory(String sourceModId, String methodName, String methodExplanationTranslationKeyOrText, MethodRegistry.MethodFactory factory) {
+    static void registerCustomFunctionFactory(
+            String sourceModId,
+            String methodName,
+            String methodExplanationTranslationKeyOrText,
+            MethodRegistry.MethodFactory factory
+    ) throws Exception {
         if (sourceModId != null && methodName != null && factory != null && methodExplanationTranslationKeyOrText != null) {
             MethodRegistry.getInstance().registerAndWrapMethodFactory(methodName, methodExplanationTranslationKeyOrText, factory);
             EMFUtils.log("Successful registration of custom function:" + methodName + " from mod " + sourceModId);
         } else {
-            EMFUtils.logError("Invalid registration of custom function:" + methodName + " from mod " + sourceModId);
+            throw paramFail("Invalid registration of custom function:" + methodName + " from mod " + sourceModId);
         }
     }
 
@@ -229,9 +197,9 @@ public interface EMFAnimationApi {
      *                    Returning true from this function will ALWAYS lead to a pause.
      * @return true if valid inputs were supplied.
      */
-    static boolean registerPauseCondition(Function<EMFEntity, Boolean> shouldPause) {
+    static boolean registerPauseCondition(Function<EMFEntity, Boolean> shouldPause) throws Exception {
         if (shouldPause == null) {
-            return false;
+            throw paramFail("null pause condition");
         }
         EMFAnimationEntityContext.pauseListeners.add(shouldPause);
         return true;
@@ -282,9 +250,9 @@ public interface EMFAnimationApi {
      *                    Returning true from this function will ALWAYS lead to using the vanilla model variant.
      * @return true if valid inputs were supplied.
      */
-    static boolean registerVanillaModelCondition(Function<EMFEntity, Boolean> shouldUseVanillaModel) {
+    static boolean registerVanillaModelCondition(Function<EMFEntity, Boolean> shouldUseVanillaModel) throws Exception {
         if (shouldUseVanillaModel == null) {
-            return false;
+            throw paramFail("null vanilla model condition");
         }
         EMFAnimationEntityContext.forceVanillaModelListeners.add(shouldUseVanillaModel);
         return true;
@@ -388,51 +356,75 @@ public interface EMFAnimationApi {
         return modelPart instanceof EMFModelPart emf && emf.isSetByAnimation;
     }
 
+    @Deprecated(since = "api v9")
+    static void registerAnimationFunction(String sourceModId, String methodName, String methodExplanationTranslationKeyOrText, Function<Float, Float> function) throws Exception {
+        throw dependencyException();
+    }
+
+    @Deprecated(since = "api v9")
+    static void registerAnimationBiFunction(String sourceModId, String methodName, String methodExplanationTranslationKeyOrText, BiFunction<Float, Float, Float> biFunction) throws Exception {
+        throw dependencyException();
+    }
+
+    @Deprecated(since = "api v9")
+    static void registerAnimationTriFunction(String sourceModId, String methodName, String methodExplanationTranslationKeyOrText, TriFunction<Float, Float, Float, Float> triFunction) throws Exception {
+        throw dependencyException();
+    }
+
+    @Deprecated(since = "api v9")
+    static void registerAnimationMultiFunction(String sourceModId, String methodName, String methodExplanationTranslationKeyOrText, Function<List<Float>, Float> multiFunction) throws Exception {
+        throw dependencyException();
+    }
+
     @Deprecated(since = "api v2")
-    static void registerSingletonAnimationVariable(String sourceModId, String variableName, BooleanSupplier variableValueSupplier) {
+    static void registerSingletonAnimationVariable(String sourceModId, String variableName, BooleanSupplier variableValueSupplier) throws Exception {
         EMFUtils.logWarn("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
         registerSingletonAnimationVariable(sourceModId, variableName, variableName, variableValueSupplier);
     }
 
     @Deprecated(since = "api v2")
-    static void registerSingletonAnimationVariable(String sourceModId, String variableName, SampledFloat variableValueSupplier) {
-        EMFUtils.logWarn("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
+    static void registerSingletonAnimationVariable(String sourceModId, String variableName, SampledFloat variableValueSupplier) throws Exception {
+        throw dependencyException();
     }
 
     @Deprecated(since = "api v2")
-    static void registerSingletonAnimationVariable(String sourceModId, String variableName, Supplier<Float> variableValueSupplier) {
+    static void registerSingletonAnimationVariable(String sourceModId, String variableName, Supplier<Float> variableValueSupplier) throws Exception {
         EMFUtils.logWarn("Invalid registration of singleton variable:" + variableName + " from mod " + sourceModId);
         registerSingletonAnimationVariable(sourceModId, variableName, variableName, variableValueSupplier);
     }
 
 
     @Deprecated(since = "api v2")
-    static void registerAnimationFunction(String sourceModId, String methodName, Function<Float, Float> function) {
-        EMFUtils.logWarn("Invalid registration of function:" + methodName + " from mod " + sourceModId);
-        registerAnimationFunction(sourceModId, methodName, methodName, function);
+    static void registerAnimationFunction(String sourceModId, String methodName, Function<Float, Float> function) throws Exception {
+        throw dependencyException();
     }
 
     @Deprecated(since = "api v2")
-    static void registerAnimationBiFunction(String sourceModId, String methodName, BiFunction<Float, Float, Float> biFunction) {
-        EMFUtils.logWarn("Invalid registration of bifunction:" + methodName + " from mod " + sourceModId);
-        registerAnimationBiFunction(sourceModId, methodName, methodName, biFunction);
+    static void registerAnimationBiFunction(String sourceModId, String methodName, BiFunction<Float, Float, Float> biFunction) throws Exception {
+        throw dependencyException();
     }
 
     @Deprecated(since = "api v2")
-    static void registerAnimationTriFunction(String sourceModId, String methodName, TriFunction<Float, Float, Float, Float> triFunction) {
-        EMFUtils.logWarn("Invalid registration of trifunction:" + methodName + " from mod " + sourceModId);
-        registerAnimationTriFunction(sourceModId, methodName, methodName, triFunction);
+    static void registerAnimationTriFunction(String sourceModId, String methodName, TriFunction<Float, Float, Float, Float> triFunction) throws Exception {
+        throw dependencyException();
     }
 
     @Deprecated(since = "api v2")
-    static void registerAnimationMultiFunction(String sourceModId, String methodName, Function<List<Float>, Float> multiFunction) {
-        EMFUtils.logWarn("Invalid registration of multifunction:" + methodName + " from mod " + sourceModId);
-        registerAnimationMultiFunction(sourceModId, methodName, methodName, multiFunction);
+    static void registerAnimationMultiFunction(String sourceModId, String methodName, Function<List<Float>, Float> multiFunction) throws Exception {
+        throw dependencyException();
     }
 
     @Deprecated(since = "api v2")
-    static void registerCustomFunctionFactory(String sourceModId, String methodName, MethodRegistry.MethodFactory factory) {
-        EMFUtils.logWarn("Invalid registration of custom function:" + methodName + " from mod " + sourceModId);
-        registerCustomFunctionFactory(sourceModId, methodName, methodName, factory);
+    static void registerCustomFunctionFactory(String sourceModId, String methodName, MethodRegistry.MethodFactory factory) throws Exception {
+        throw dependencyException();
+    }
+
+    private static Exception dependencyException() {
+        return new UnsupportedOperationException("EMF Animation API: method is deprecated.");
+    }
+
+    private static Exception paramFail(String message) {
+        EMFUtils.logError("EMF Animation API: " + message);
+        return new InvalidParameterException("EMF Animation API: " + message);
     }
 }

@@ -45,11 +45,17 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 
 public abstract class EMFModelPart extends ModelPart {
     public ResourceLocation textureOverride;
-    protected long lastTextureOverride = -1L;
+//    protected long lastTextureOverride = -1L;
 
     public boolean isSetByAnimation = false;
 
-    public EMFModelPart(List<Cube> cuboids, Map<String, ModelPart> children) {
+    private final EMFModelPartRoot root;
+
+    public EMFModelPartRoot getRoot() {
+        return root;
+    }
+
+    public EMFModelPart(List<Cube> cuboids, Map<String, ModelPart> children, EMFModelPartRoot root) {
         super(cuboids, children);
 
         // re assert children and cuboids as modifiable
@@ -57,6 +63,7 @@ public abstract class EMFModelPart extends ModelPart {
         // this should not cause issues as emf does not allow these model parts to pass through sodium's unique renderer
         this.cubes = new ArrayList<>(cuboids);
         this.children = new HashMap<>(children);
+        this.root = root;
     }
 
     public void processArmItemOverrides(PoseStack matrices) {
@@ -186,9 +193,8 @@ public abstract class EMFModelPart extends ModelPart {
                                    //$$ float red, float green, float blue, float alpha
                                    //#endif
     ) {
-
-        if (textureOverride == null
-                || lastTextureOverride == EMFManager.getInstance().entityRenderCount) {//prevents texture overrides carrying over into feature renderers that reuse the base model
+        if (textureOverride == null || (EMFAnimationEntityContext.isLayerPhase() && getRoot().isMainModel)) {
+            // || lastTextureOverride == EMFManager.getInstance().entityRenderCount // prevents texture overrides carrying over into feature renderers that reuse the base model
             //normal vertex consumer
             renderLikeETF(matrices, vertices, light, overlay,
                     //#if MC >= 12100
@@ -271,7 +277,7 @@ public abstract class EMFModelPart extends ModelPart {
                                                    //#endif
     ){
 
-        lastTextureOverride = EMFManager.getInstance().entityRenderCount;
+//        lastTextureOverride = EMFManager.getInstance().entityRenderCount;
         RenderType layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrETFOverrideOrTranslucent(textureOverride);
         VertexConsumer newConsumer = provider.getBuffer(layerModified);
 
@@ -623,30 +629,4 @@ public abstract class EMFModelPart extends ModelPart {
         return mapOfAll;
     }
 
-
-
-
-    public static class Animator implements Runnable {
-        private Runnable animation = null;
-
-        Animator() {
-
-        }
-
-        public boolean hasAnimation() {
-            return animation != null;
-        }
-
-        public Runnable getAnimation() {
-            return animation;
-        }
-
-        public void setAnimation(Runnable animation) {
-            this.animation = animation;
-        }
-
-        public void run() {
-            if (animation != null) animation.run();
-        }
-    }
 }

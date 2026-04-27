@@ -22,9 +22,11 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     public EMFModelPartVanilla(String name,
                                ModelPart vanillaPart,
                                Collection<String> optifinePartNames,
-                               Map<String, EMFModelPartVanilla> allVanillaParts) {
+                               Map<String, EMFModelPartVanilla> allVanillaParts,
+                               EMFModelPartRoot root
+    ) {
         //create vanilla root model object
-        super(new ArrayList<>(), new HashMap<>());
+        super(new ArrayList<>(), new HashMap<>(), root);
         this.name = name;
 
         if (EMF.config().getConfig().logModelCreationData) EMFUtils.log(" > EMF vanilla part made: " + name);
@@ -36,7 +38,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
         for (Map.Entry<String, ModelPart> child :
                 vanillaPart.children.entrySet()) {
 
-            EMFModelPartVanilla vanilla = new EMFModelPartVanilla(child.getKey(), child.getValue(), optifinePartNames, allVanillaParts);
+            EMFModelPartVanilla vanilla = new EMFModelPartVanilla(child.getKey(), child.getValue(), optifinePartNames, allVanillaParts, getRoot());
             children.put(child.getKey(), vanilla);
             allVanillaParts.put(child.getKey(), vanilla);
         }
@@ -91,10 +93,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
             if (part instanceof EMFModelPartVanilla vanilla && !vanilla.isOptiFinePartSpecified)
                 vanilla.setHideInTheseStates(variant);
         });
-    }
-
-    public void receiveRootAnimationRunnable(int variant, Runnable run) {
-        allKnownStateVariants.get(variant).animation().setAnimation(run);
     }
 
     @Override

@@ -43,6 +43,9 @@ public abstract class Mixin_ModelSubmit_AddBackupState<S> implements EMFSubmitEx
 
         data.onShoulder = EMFAnimationEntityContext.isOnShoulder();
 
+        data.isMainModelPhase = EMFSubmitData.AWAITING_isMainModelPhase;
+        data.isLayerModelPhase = EMFSubmitData.AWAITING_isLayerModelPhase;
+
         EMFModelPartRoot emfRoot = model().root() instanceof EMFModelPartRoot ? (EMFModelPartRoot) model().root() : null;
         if (emfRoot != null) {
             data.modelVariant = emfRoot.currentModelVariant;

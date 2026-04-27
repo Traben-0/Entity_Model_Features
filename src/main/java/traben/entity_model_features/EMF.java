@@ -102,10 +102,12 @@ public class EMF {
 
         //#if !FORGE && MC >= 12101
         if (ETF.isThisModLoaded("player_animation_library")) {
-            EMFAnimationApi.registerPauseCondition(PALCompat::shouldPauseEntityAnim);
-            if (ETF.isThisModLoaded("bendable_cuboids")) {
-                EMFAnimationApi.registerVanillaModelCondition(PALCompat::shouldPauseEntityAnim);
-            }
+            try {
+                EMFAnimationApi.registerPauseCondition(PALCompat::shouldPauseEntityAnim);
+                if (ETF.isThisModLoaded("bendable_cuboids")) {
+                    EMFAnimationApi.registerVanillaModelCondition(PALCompat::shouldPauseEntityAnim);
+                }
+            } catch (Exception ignored) {}
         }
         //#endif
     }

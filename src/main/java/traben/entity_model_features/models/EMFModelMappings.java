@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.client.model.geom.ModelPart;
@@ -234,7 +235,25 @@ public class EMFModelMappings {
         //#endif
         OptifineMapper.models("piglin", "piglin_brute", "zombified_piglin")
                 .parts(genericPiglinBiped);
-        OptifineMapper.models("piglin_baby").parts(
+        //#if MC >= 26.1
+        //$$ OptifineMapper.models("piglin_baby", "zombified_piglin_baby").parts(
+        //$$         Map.ofEntries(
+        //$$                 partMapping("head"),
+        //$$                 partMapping("headwear", "hat"),
+        //$$                 partMapping("body"),
+        //$$                 partMapping("left_arm"),
+        //$$                 partMapping("right_arm"),
+        //$$                 partMapping("left_leg"),
+        //$$                 partMapping("ear"),
+        //$$                 partMapping("right_leg"),
+        //$$                 partMapping("left_ear"),
+        //$$                 partMapping("right_ear"),
+        //$$                 partMapping("left_ear_r1"),
+        //$$                 partMapping("right_ear_r1")
+        //$$         )
+        //$$ );
+        //#else
+        OptifineMapper.models("piglin_baby", "zombified_piglin_baby").parts(
                 Map.ofEntries(
                         partMapping("head"),
                         partMapping("headwear", "hat"),
@@ -248,6 +267,7 @@ public class EMFModelMappings {
                         partMapping("right_ear")
                 )
         );
+        //#endif
 
         OptifineMapper.models("allay", "vex")
                 .parts(Map.ofEntries(
@@ -327,6 +347,18 @@ public class EMFModelMappings {
                         partMapping("leg3", "right_front_leg"),
                         partMapping("leg4", "left_front_leg")
                 ));
+        //#if MC >= 26.1
+        //$$ OptifineMapper.models("wolf_baby", "wolf_baby_collar", "wolf_baby_armor")
+        //$$         .parts(Map.ofEntries(
+        //$$                 partMapping("body"),
+        //$$                 partMapping("head"),
+        //$$                 partMapping("tail"),
+        //$$                 partMapping("leg1", "right_hind_leg"),
+        //$$                 partMapping("leg2", "left_hind_leg"),
+        //$$                 partMapping("leg3", "right_front_leg"),
+        //$$                 partMapping("leg4", "left_front_leg")
+        //$$         ));
+        //#else
         OptifineMapper.models("wolf_baby", "wolf_baby_collar", "wolf_baby_armor")
                 .parts(Map.ofEntries(
                         partMapping("body"),
@@ -338,6 +370,7 @@ public class EMFModelMappings {
                         partMapping("leg3", "right_front_leg"),
                         partMapping("leg4", "left_front_leg")
                 ));
+        //#endif
         OptifineMapper.models("shulker_bullet")
                 .parts(Map.ofEntries(
                         partMapping("bullet", "main")
@@ -527,7 +560,7 @@ public class EMFModelMappings {
                             partMapping("base", "base_plate")
                     ));
                 }});
-        OptifineMapper.models("axolotl", "axolotl_baby")
+        OptifineMapper.models("axolotl")
                 .parts(Map.ofEntries(
                         partMapping("head"),
                         partMapping("body"),
@@ -540,6 +573,38 @@ public class EMFModelMappings {
                         partMapping("left_gills"),
                         partMapping("tail")
                 ));
+        //#if MC >= 26.1
+        //$$ OptifineMapper.models("axolotl_baby")
+        //$$         .parts(Map.ofEntries(
+        //$$                 partMapping("head"),
+        //$$                 partMapping("body"),
+        //$$                 partMapping("leg1", "right_hind_leg"),
+        //$$                 partMapping("leg2", "left_hind_leg"),
+        //$$                 partMapping("leg2_cube", "right_leg_r1"), // Why?
+        //$$                 partMapping("leg3", "right_front_leg"),
+        //$$                 partMapping("leg4", "left_front_leg"),
+        //$$                 partMapping("right_gills"),
+        //$$                 partMapping("top_gills"),
+        //$$                 partMapping("left_gills"),
+        //$$                 partMapping("tail")
+        //$$         ));
+        //#else
+        OptifineMapper.models("axolotl_baby")
+                .parts(Map.ofEntries(
+                        partMapping("head"),
+                        partMapping("body"),
+                        partMapping("leg1", "right_hind_leg"),
+                        partMapping("leg2", "left_hind_leg"),
+                        partMapping("leg3", "right_front_leg"),
+                        partMapping("leg4", "left_front_leg"),
+                        partMapping("right_gills"),
+                        partMapping("top_gills"),
+                        partMapping("left_gills"),
+                        partMapping("tail")
+                ));
+        //#endif
+
+
         OptifineMapper.models("bat")
                 .parts(Map.ofEntries(
                         partMapping("body"),
@@ -820,13 +885,15 @@ public class EMFModelMappings {
         //$$ OptifineMapper.models("rabbit")
         //$$         .parts(Map.ofEntries(
         //$$                 partMapping("body"),
-        //$$                 partMapping("left_foot", "left_hind_leg"),
-        //$$                 partMapping("right_foot", "right_hind_leg"),
-        //$$                 partMapping("left_thigh", "left_haunch"),
-        //$$                 partMapping("right_thigh", "right_haunch"),
+        //$$                 partMapping("left_foot", "left_haunch"),
+        //$$                 partMapping("right_foot", "right_haunch"),
+        //$$                 partMapping("left_thigh", "left_hind_leg"),
+        //$$                 partMapping("right_thigh", "right_hind_leg"),
         //$$                 partMapping("left_arm", "left_front_leg"),
         //$$                 partMapping("right_arm", "right_front_leg"),
         //$$                 partMapping("head"),
+        //$$                 partMapping("front_legs"),
+        //$$                 partMapping("back_legs"),
         //$$                 partMapping("right_ear"),
         //$$                 partMapping("left_ear"),
         //$$                 partMapping("tail")
@@ -834,13 +901,15 @@ public class EMFModelMappings {
         //$$ OptifineMapper.models("rabbit_baby")
         //$$         .parts(Map.ofEntries(
         //$$                 partMapping("body", "body_r1"),
-        //$$                 partMapping("left_foot", "left_hind_leg"),
-        //$$                 partMapping("right_foot", "right_hind_leg"),
-        //$$                 partMapping("left_thigh", "left_haunch"),
-        //$$                 partMapping("right_thigh", "right_haunch"),
-        //$$                 partMapping("left_arm", "left_front_leg"),
-        //$$                 partMapping("right_arm", "right_front_leg"),
+        //$$                 partMapping("left_foot", "left_haunch"),
+        //$$                 partMapping("right_foot", "right_haunch"),
+        //$$                 partMapping("left_thigh", "left_hind_leg"),
+        //$$                 partMapping("right_thigh", "right_hind_leg"),
+        //$$                 partMapping("left_arm", "left_front_leg_r1"),
+        //$$                 partMapping("right_arm", "right_front_leg_r1"),
         //$$                 partMapping("head"),
+        //$$                 partMapping("front_legs"),
+        //$$                 partMapping("back_legs"),
         //$$                 partMapping("right_ear"),
         //$$                 partMapping("left_ear"),
         //$$                 partMapping("tail", "tail_r1")
@@ -1750,10 +1819,14 @@ public class EMFModelMappings {
         }
 
 
+        private static Set<String> exceptions = Set.of("helmet", "chestplate", "leggings", "boots");
+
         void parts(final Map<String, String> stringStringMap) {
             for (String key : modelNames) {
                 if (OPTIFINE_MODEL_MAP_CACHE.put(key, stringStringMap) != null) {
-                    EMFUtils.logError("OptiFine model map for " + key + " already exists, overwriting");
+                    if (!exceptions.contains(key)) {
+                        EMFUtils.logError("OptiFine model map for " + key + " already exists, overwriting");
+                    }
                 }
             }
         }

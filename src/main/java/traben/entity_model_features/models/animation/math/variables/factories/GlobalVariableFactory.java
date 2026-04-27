@@ -2,15 +2,23 @@ package traben.entity_model_features.models.animation.math.variables.factories;
 
 
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.models.animation.EMFAnimation;
-import traben.entity_model_features.models.animation.math.MathValue;
+import traben.entity_model_features.models.animation.AnimSetupContext;
+import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
+
+import static traben.entity_model_features.models.animation.math.expression_tree.MathValue.FALSE;
+import static traben.entity_model_features.models.animation.math.expression_tree.MathValue.TRUE;
 
 public class GlobalVariableFactory extends UniqueVariableFactory {
 
     private static final Map<String, Float> globalVariables = new HashMap<>();
+
+    public static void clear() {
+        globalVariables.clear();
+    }
 
     public static void setGlobalVariable(String key, float value) {
         globalVariables.put(key, value);
@@ -21,8 +29,18 @@ public class GlobalVariableFactory extends UniqueVariableFactory {
     }
 
     @Override
-    public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
+    public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, AnimSetupContext context) {
         return () -> globalVariables.getOrDefault(variableKey, 0f);
+    }
+
+    @Override
+    public @Nullable BooleanSupplier getASMBoolSupplierOrNull(String variableKey, AnimSetupContext context) {
+        return ()-> globalVariables.getOrDefault(variableKey, FALSE) > 0;
+    }
+
+    @Override
+    public @Nullable MathValue.ResultSupplier getASMFloatSupplierOrNull(String variableKey, AnimSetupContext context) {
+        return ()-> globalVariables.getOrDefault(variableKey, 0f);
     }
 
     @Override

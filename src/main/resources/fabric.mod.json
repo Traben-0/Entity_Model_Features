@@ -44,7 +44,8 @@
   "breaks": {
     "optifabric": "*",
     "cem": "*",
-    "entity_texture_features": "<7.1"
+    "entity_texture_features": "<7.1",
+    "entity_sound_features": "<=0.8"
   },
   "custom": {
     "modmenu": {

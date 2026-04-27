@@ -11,6 +11,8 @@ public class EMFSubmitData {
     public EMFBipedPose bipedPose = null;
 
     public boolean onShoulder = false;
+    public boolean isMainModelPhase = false;
+    public boolean isLayerModelPhase = false;
 
 
     /**
@@ -18,6 +20,10 @@ public class EMFSubmitData {
      */
     public static EMFEntityRenderState AWAITING_backupState = null;
     public static EMFBipedPose AWAITING_bipedPose = null;
+
+    public static boolean AWAITING_isMainModelPhase = false;
+    public static boolean AWAITING_isLayerModelPhase = false;
+
 
     //#if MC >= 1.21.9
     @Nullable

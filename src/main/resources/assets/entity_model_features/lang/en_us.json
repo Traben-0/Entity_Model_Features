@@ -1,4 +1,8 @@
 {
+  "entity_model_features.config.logASM": "Log compiled math state",
+  "entity_model_features.config.asmmaths.logASM": "Will cause log spam, you probably don't need this unless the dev asked you to provide a log with this.",
+  "entity_model_features.config.asmmaths": "Compiled animation math",
+  "entity_model_features.config.asmmaths.tooltip": "You almost always want this ON.\nWhen disabled the animation system will defer to a more computationally expensive expression tree, which can be more useful for debugging.",
   "entity_model_features.config.allowed_cem" : "Allowed models",
   "entity_model_features.config.allowed_cem.tooltip" : "Determines what models EMF will try to interact with. Note: this is not perfect, some mods just use the vanilla namespace ids and there is little EMF can do about it",
   "entity_model_features.config.allowed_cem.all" : "All",

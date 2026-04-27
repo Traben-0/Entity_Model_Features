@@ -98,6 +98,7 @@ public final class EMFAnimationEntityContext {
     private static Boolean lodFrameSkipping = null;
     private static boolean announceModels = false;
     private static float frameCounter = 0;
+    private static boolean isLayerPhase = false;
 
     private static boolean checkedIfIEmotePlayerExists = false;
     private static Class<?> iEmotePlayerEntityType = null;
@@ -282,7 +283,6 @@ public final class EMFAnimationEntityContext {
             return 0;
         }
 
-
         int distance = distanceOfEntityFrom(Minecraft.getInstance().player.blockPosition());
         if (distance < 1) return 0;
 
@@ -332,6 +332,13 @@ public final class EMFAnimationEntityContext {
         }
 
         if (EMF.config().getConfig().animationLODDistance == 0 || emfState == null) return false;
+
+        //FIXME properly, layers lod flickering, likely related to the layer mixin but not doing that rn
+        var type = emfState.entityType();
+        if (type == EntityType.VILLAGER || type == EntityType.HORSE) return false;
+
+        // Just putting this here so that fresh animations counter rotation keep working, plus these tend to render from a distance anyway
+        if (type == EntityType.BLAZE) return false;
 
         String lodKey = emfState.uuid() + modelId;
 
@@ -538,7 +545,7 @@ public final class EMFAnimationEntityContext {
             }
             headYaw = livingEntityRenderState.yRot;
             if (headYaw >= 180 || headYaw < -180) {
-                headYaw = (Mth.wrapDegrees(headYaw));
+                headYaw = Mth.wrapDegrees(headYaw);
             }
             headPitch = livingEntityRenderState.xRot;
         } else { //block entity
@@ -587,6 +594,18 @@ public final class EMFAnimationEntityContext {
         frameCounter = 0;
     }
 
+    public static boolean isLayerPhase() {
+        return isLayerPhase;
+    }
+
+    public static void setLayerPhase() {
+        isLayerPhase = true;
+    }
+
+    public static void unsetLayerPhase() {
+        isLayerPhase = false;
+    }
+
     public static void reset() {
         isFirstPersonHand = false;
         layerFactory = null;
@@ -605,6 +624,7 @@ public final class EMFAnimationEntityContext {
         shadowX = 0;
         shadowZ = 0;
         lodFrameSkipping = null;
+        isLayerPhase = false;
 
         //#if MC>=12109
         if (ETFRenderContext.getCurrentEntityState() != null) ETFRenderContext.reset();

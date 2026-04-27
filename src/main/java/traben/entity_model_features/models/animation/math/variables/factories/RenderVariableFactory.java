@@ -1,18 +1,20 @@
 package traben.entity_model_features.models.animation.math.variables.factories;
 
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.models.animation.EMFAnimation;
-import traben.entity_model_features.models.animation.math.MathValue;
+import traben.entity_model_features.models.animation.AnimSetupContext;
+import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.utils.EMFUtils;
 
+import java.util.function.BooleanSupplier;
+
 public class RenderVariableFactory extends UniqueVariableFactory {
     @Override
-    public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, final EMFAnimation calculationInstance) {
+    public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, AnimSetupContext context) {
         //requires calculation instance check before global check so must be a factory
-        EMFAnimation renderVariableCalculator = calculationInstance.temp_emfAnimationVariables.get(variableKey);
+        MathValue.ResultSupplier renderVariableCalculator = context.oldAnimationHandler.getLastResultGetter(variableKey);
         if (renderVariableCalculator != null) {
-            return renderVariableCalculator::getLastResultOnly;
+            return renderVariableCalculator;
         }
         //try get default
         EMFModelOrRenderVariable variable = EMFModelOrRenderVariable.getRenderVariable(variableKey);

@@ -30,20 +30,9 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
     };
     public int currentModelVariant = 0;
     Map<String, ModelPart> vanillaChildren = new HashMap<>();
-    Runnable startOfRenderRunnable = null;
-    @NotNull Animator animationHolder = new Animator();
 
-    public EMFModelPartWithState(List<Cube> cuboids, Map<String, ModelPart> children) {
-        super(cuboids, children);
-    }
-
-    void receiveOneTimeRunnable(Runnable run) {
-        startOfRenderRunnable = run;
-        children.values().forEach((child) -> {
-            if (child instanceof EMFModelPartWithState emf) {
-                emf.receiveOneTimeRunnable(run);
-            }
-        });
+    public EMFModelPartWithState(List<Cube> cuboids, Map<String, ModelPart> children, EMFModelPartRoot root) {
+        super(cuboids, children, root);
     }
 
     @Override
@@ -54,12 +43,10 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
                        //$$ float red, float green, float blue, float alpha
                        //#endif
     ) {
-        if (startOfRenderRunnable != null) {
-            startOfRenderRunnable.run();
-        }
-        if (animationHolder != null && !EMFAnimationEntityContext.isEntityAnimPausedWrapped()) {
-            animationHolder.run();
-        }
+        var root = getRoot();
+        root.oneTimeRunnable();
+        root.animate();
+
         super.render(matrices, vertices, light, overlay,
                 //#if MC >= 12100
                 k
@@ -79,7 +66,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
                 //$$ xScale, yScale, zScale,
                 //#endif
                 visible, skipDraw,
-                textureOverride, animationHolder
+                textureOverride
         );
     }
 
@@ -93,7 +80,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
                     //$$ modelPart.xScale, modelPart.yScale, modelPart.zScale,
                     //#endif
                     modelPart.visible, modelPart.skipDraw,
-                    emf.textureOverride, emf.animationHolder
+                    emf.textureOverride
             );
         }
         return new EMFModelState(
@@ -104,7 +91,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
                 //$$ modelPart.xScale, modelPart.yScale, modelPart.zScale,
                 //#endif
                 modelPart.visible, modelPart.skipDraw,
-                null, new Animator()
+                null
         );
     }
 
@@ -124,7 +111,6 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         visible = newState.visible();
         skipDraw = newState.hidden();
         textureOverride = newState.texture();
-        animationHolder = newState.animation();
     }
 
     protected void resetState(){
@@ -160,8 +146,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
                     Map<String, ModelPart> variantChildren,
                     boolean visible,
                     boolean hidden,
-                    ResourceLocation texture,
-                    Animator animation
+                    ResourceLocation texture
             )
             //#else
             //$$ EMFModelState(
@@ -174,8 +159,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
             //$$     float zScale,
             //$$     boolean visible,
             //$$     boolean hidden,
-            //$$     ResourceLocation texture,
-            //$$     Animator animation
+            //$$     ResourceLocation texture
             //$$ )
             //#endif
 
@@ -186,8 +170,6 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
 
         public EMFModelState copy(boolean visibleOverride) {
             PartPose trans = defaultTransform();
-            Animator animator = new Animator();
-            animator.setAnimation(animation().getAnimation());
             return new EMFModelState(
                     //#if MC >= 12102
                     new PartPose(trans.x(), trans.y(), trans.z(), trans.xRot(), trans.yRot(), trans.zRot(), trans.xScale(), trans.yScale(), trans.zScale()),
@@ -204,8 +186,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
 
                     visibleOverride,
                     hidden(),
-                    texture(),
-                    animator
+                    texture()
             );
         }
     }
