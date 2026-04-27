@@ -1,5 +1,5 @@
 
-[3.2.1]
+[3.2.2]
 - fixed random models no longer working in v3.2
 
 [3.2]
