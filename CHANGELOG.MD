@@ -1,4 +1,7 @@
 
+[3.2.1]
+- fixed random models no longer working in v3.2
+
 [3.2]
 - significant performance improvement for custom animations (more than doubling frames when many animated entities are present)
 - entity animation variables now reset when resource-packs are reloaded (e.g. var & varb)

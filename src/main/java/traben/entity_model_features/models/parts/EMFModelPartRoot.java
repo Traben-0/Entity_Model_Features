@@ -46,7 +46,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public boolean isMainModel = false;
 
-    private boolean needsToRunOneTimeRunnable = false;
+    private Set<String> registeredSet = new HashSet<>();
 
     private final HashMap<Integer, Runnable> animations = new HashMap<>();
     @Nullable
@@ -86,10 +86,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
 
     public void oneTimeRunnable() {
-        if (needsToRunOneTimeRunnable) {
-            registerModelRunnableWithEntityTypeContext();
-            needsToRunOneTimeRunnable = false;
-        }
+        registerModelRunnableWithEntityTypeContext();
     }
 
     private void registerModelRunnableWithEntityTypeContext() {
@@ -97,6 +94,10 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         var entity = EMFAnimationEntityContext.getEmfState();
         if (entity != null) { // await a valid entity
             String type = entity.typeString();
+
+            if (registeredSet.contains(type)) return;
+            registeredSet.add(type);
+
             var config = EMF.config().getConfig();
 
             // register models to entity type for debug print
@@ -114,7 +115,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             if (variantTester != null && config.logModelCreationData) {
                 EMFUtils.log("Registered new variating model for: " + type);
             }
-
         }
     }
 
