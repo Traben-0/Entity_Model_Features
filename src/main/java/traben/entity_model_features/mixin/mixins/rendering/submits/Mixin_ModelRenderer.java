@@ -59,18 +59,13 @@ public class Mixin_ModelRenderer {
         if (data != null) {
             EMFAnimationEntityContext.setCurrentEntityOnShoulder(data.onShoulder);
 
-
             if (modelSubmit.model() instanceof IEMFModel emfModel && emfModel.emf$isEMFModel()) {
                 if (data.isMainModelPhase) {
                     emfModel.emf$getEMFRootModel().isMainModel = true;
                     EMFAnimationEntityContext.unsetLayerPhase();
                 }
-
                 if (data.isLayerModelPhase) {
                     EMFAnimationEntityContext.setLayerPhase();
-                    if (!emfModel.emf$getEMFRootModel().isMainModel) {
-                        emfModel.emf$getEMFRootModel().isLayerModel = true;
-                    }
                 }
             }
         }

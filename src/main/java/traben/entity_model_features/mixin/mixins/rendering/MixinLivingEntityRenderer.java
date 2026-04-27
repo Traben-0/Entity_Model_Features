@@ -186,6 +186,12 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         EMFSubmitData.AWAITING_isLayerModelPhase = true;
         EMFAnimationEntityContext.setLayerPhase();
         EMFSubmitData.AWAITING_isMainModelPhase = false;
+        //#if MC < 1.21.9
+        //$$ // Set whatever model we used as the main one, handled by submits in 1.21.9+
+        //$$ if (getModel() instanceof IEMFModel emf && emf.emf$isEMFModel()) {
+        //$$     emf.emf$getEMFRootModel().isMainModel = true;
+        //$$ }
+        //#endif
     }
 
     @Inject(method = RENDER, at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))

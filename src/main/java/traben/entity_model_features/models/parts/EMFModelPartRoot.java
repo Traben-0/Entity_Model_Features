@@ -45,7 +45,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     private boolean hasArmItemOverrides = false;
 
     public boolean isMainModel = false;
-    public boolean isLayerModel = false;
 
     private boolean needsToRunOneTimeRunnable = false;
 
