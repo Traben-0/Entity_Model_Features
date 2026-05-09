@@ -5,6 +5,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 //#if MC>=12105
 import net.minecraft.world.entity.animal.wolf.Wolf;
@@ -903,7 +904,8 @@ public final class EMFAnimationEntityContext {
     public static float getHeightAboveGround() {
         if (!(emfEntity() instanceof Entity)) return 0;
         float y = getEntityY();
-        BlockPos pos = emfState.blockPos();
+        BlockPos.MutableBlockPos pos = emfState.blockPos().mutable();
+
         int worldBottom =
                 //#if MC >=12102
                 emfState.world().getMinY();
@@ -911,11 +913,14 @@ public final class EMFAnimationEntityContext {
                 //$$ emfState.world().getMinBuildHeight();
                 //#endif
 
+        if (emfState.isBlockEntity()) // Don't include self
+            pos.move(Direction.DOWN);
+
         //loop down until we hit a block that can be stood on
         while (!emfState.world().getBlockState(pos)
                 .entityCanStandOn(emfState.world(),pos, (Entity) emfEntity())
                 && pos.getY() > worldBottom) {
-            pos = pos.below();
+            pos.move(Direction.DOWN);
         }
         return y - pos.getY();
     }
