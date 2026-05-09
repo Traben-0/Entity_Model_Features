@@ -1,8 +1,9 @@
 
-
-[?]
+[3.2.4]
 - added stinger part to baby bee models
 - fixed the height_above_ground animation variable with block entities considering its own block as the ground
+- fixed a startup crash with supplementaries and EMF v3.2.3 specifically
+- added some more detailed failure messages for asm animation math errors
 
 [3.2.3]
 - fixed asm animation math failing when booleans were compared with the `==` or `!=` operators

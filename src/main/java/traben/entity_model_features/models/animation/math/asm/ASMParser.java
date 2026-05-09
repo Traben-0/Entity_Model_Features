@@ -2,13 +2,18 @@ package traben.entity_model_features.models.animation.math.asm;
 
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.*;
+import traben.entity_model_features.EMF;
+import traben.entity_model_features.models.animation.EMFAnimationHandler;
 import traben.entity_model_features.models.animation.math.expression_tree.OldEMFAnimationHandler;
 import traben.entity_model_features.utils.EMFUtils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -84,7 +89,7 @@ public class ASMParser {
                 }
             };
         } catch (Throwable e) {
-            handleParseException(animHandler.toString(), e);
+            handleParseException(animHandler, e);
             return null;
         }
 
@@ -108,17 +113,50 @@ public class ASMParser {
         return cw;
     }
 
-    private static void handleParseException(String expression, Throwable e) {
-        EMFUtils.logError("Parsing ASM for expression: " + expression);
+    private static void handleParseException(EMFAnimationHandler expression, Throwable e) {
+        EMFUtils.logError("Failure parsing ASM:");
 
-        var text = Arrays.toString(e.getStackTrace());
+        StringWriter sw = new StringWriter();
+        try (PrintWriter pw = new PrintWriter(sw)) {
+            e.printStackTrace(pw);
+        }
+        var text = sw.toString();
 
-        if (text.matches(".*Reason:.*Type float .* is not assignable to integer.*"))
-            EMFUtils.logError(" - expected a boolean but found a number?!");
+        boolean hadSimpleReason = true;
 
-        if (text.matches(".*Reason:.*Type integer .* is not assignable to float.*"))
-            EMFUtils.logError(" - expected a number but found a boolean?!");
+        // TODO expand with further known failure reasons
+        // TODO if this gets too long look into simplifying these checks
+        if (P_BASTORE_FLOAT_TO_INT.matcher(text).find()) {
+            EMFUtils.logWarn(" - expected a boolean but found a number at the end of the expression?!");
+        } else if (P_FASTORE_INT_TO_FLOAT.matcher(text).find()) {
+            EMFUtils.logWarn(" - expected a number but found a boolean at the end of the expression?!");
+        } else if (P_FLOAT_TO_INT.matcher(text).find()) {
+            EMFUtils.logWarn(" - expected a boolean but found a number within the expression?!");
+        } else if (P_INT_TO_FLOAT.matcher(text).find()) {
+            EMFUtils.logWarn(" - expected a number but found a boolean within the expression?!");
+        } else {
+            hadSimpleReason = false;
+        }
 
-        e.printStackTrace();
+        if (EMF.config().getConfig().logModelCreationData) {
+            StringBuilder sb = new StringBuilder("Animations:\n");
+            for (var it : expression.lines()) {
+                sb.append("  - ").append(it.animKey).append(" : ").append(it.expression).append('\n');
+            }
+            EMFUtils.logWarn(sb.toString());
+        }
+
+        if (!hadSimpleReason || EMF.config().getConfig().logModelCreationData)
+            e.printStackTrace();
     }
+
+    private static final Pattern P_BASTORE_FLOAT_TO_INT =
+            Pattern.compile("bastore.*Reason:.*Type float .* is not assignable to integer", Pattern.DOTALL);
+    private static final Pattern P_FASTORE_INT_TO_FLOAT =
+            Pattern.compile("fastore.*Reason:.*Type integer .* is not assignable to float", Pattern.DOTALL);
+    private static final Pattern P_FLOAT_TO_INT =
+            Pattern.compile("Reason:.*Type float .* is not assignable to integer", Pattern.DOTALL);
+    private static final Pattern P_INT_TO_FLOAT =
+            Pattern.compile("Reason:.*Type integer .* is not assignable to float", Pattern.DOTALL);
+
 }

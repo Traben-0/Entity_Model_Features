@@ -36,12 +36,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     private final @Nullable List<EMFAttachments> attachments;
 
-    @Deprecated // Old init method some older mods mixin to this and aren't updated anymore
-    public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id) {
-        super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variant, null), null);
-        throw new IllegalStateException();
-    }
-
+    /// Note `supplementaries` mixin's to this
     public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id, EMFModelPartRoot root) {//,//float[] parentalTransforms) {
         super(getCuboidsFromData(emfPartData), getChildrenFromData(emfPartData, variant, root), root);
         this.attach = emfPartData.attach;
