@@ -496,10 +496,10 @@ public class EMFModelMappings {
                 }});
         OptifineMapper.models("horse_saddle", "mule_saddle", "donkey_saddle", "skeleton_horse_saddle", "zombie_horse_saddle")
                 .parts(new HashMap<>(genericHorseSaddle));
-        //#if MC > 26.1
-        //$$ OptifineMapper.models("horse_baby").parts(Map.ofEntries(
-        //$$         partMapping("body", "body"),
-        //$$         partMapping("head", "head"),
+        //#if MC >= 26.1
+        //$$ OptifineMapper.models("horse_baby", "skeleton_horse_baby", "zombie_horse_baby").parts(Map.ofEntries(
+        //$$         partMapping("body"),
+        //$$         partMapping("head"),
         //$$         partMapping("tail"),
         //$$         partMapping("left_ear"),
         //$$         partMapping("right_ear"),
@@ -511,8 +511,8 @@ public class EMFModelMappings {
         //$$         )
         //$$ );
         //$$ OptifineMapper.models("donkey_baby", "mule_baby").parts(Map.ofEntries(
-        //$$         partMapping("body", "body"),
-        //$$         partMapping("head", "head"),
+        //$$         partMapping("body"),
+        //$$         partMapping("head"),
         //$$         partMapping("tail"),
         //$$         partMapping("left_ear"),
         //$$         partMapping("right_ear"),
@@ -520,10 +520,25 @@ public class EMFModelMappings {
         //$$         partMapping("back_left_leg", "left_hind_leg"),
         //$$         partMapping("back_right_leg", "right_hind_leg"),
         //$$         partMapping("front_left_leg", "left_front_leg"),
-        //$$         partMapping("front_right_leg", "right_front_leg")
+        //$$         partMapping("front_right_leg", "right_front_leg"),
         //$$         partMapping("right_chest"),
         //$$         partMapping("left_chest")
         //$$         )
+        //$$ );
+        //#else
+        // not certain the armor layers etc exist, but wont cause any harm
+        OptifineMapper.models("horse_baby", "horse_baby_armor", "skeleton_horse_baby", "skeleton_horse_baby_armor", "zombie_horse_baby", "zombie_horse_baby_armor")
+                .parts(genericHorse);
+        OptifineMapper.models("donkey_baby", "mule_baby")
+                .parts(new HashMap<>(genericHorse) {{
+                    putAll(Map.ofEntries(
+                            partMapping("right_chest"),
+                            partMapping("left_chest"),
+                            partMapping("body")
+                    ));
+                }});
+        OptifineMapper.models("horse_baby_saddle", "mule_baby_saddle", "donkey_baby_saddle", "skeleton_horse_baby_saddle", "zombie_horse_baby_saddle")
+                .parts(new HashMap<>(genericHorseSaddle));
         //#endif
 
 
@@ -550,6 +565,8 @@ public class EMFModelMappings {
                         partMapping("right_leg")
                 ));
         OptifineMapper.models("llama", "llama_decor", "trader_llama", "trader_llama_decor")
+                .parts(genericLlama);
+        OptifineMapper.models("llama_baby", "llama_baby_decor", "trader_llama_baby", "trader_llama_baby_decor")
                 .parts(genericLlama);
         OptifineMapper.models("armor_stand", "armor_stand_small")
                 .parts(new HashMap<>(genericNonPlayerBiped) {{
@@ -798,7 +815,7 @@ public class EMFModelMappings {
                         partMapping("left_ear"),
                         partMapping("right_ear")
                 ));
-        OptifineMapper.models("hoglin_baby")
+        OptifineMapper.models("hoglin_baby", "zoglin_baby")
                 .parts(Map.ofEntries(
                         partMapping("head"),
                         partMapping("body"),

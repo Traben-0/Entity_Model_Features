@@ -1,6 +1,9 @@
 
-[?]
+[3.2.3]
 - fixed asm animation math failing when booleans were compared with the `==` or `!=` operators
+- further fixes for entity layer renderers reusing the base model and its interaction with texture overrides
+- fixed baby model part names mappings in 26.1 for zoglin, llama, trader llama, and all horses/donkeys
+- fixed a startup crash
 
 [3.2.2]
 - fixed random models no longer working in v3.2
