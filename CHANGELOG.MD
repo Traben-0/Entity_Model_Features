@@ -1,4 +1,9 @@
 
+
+[?]
+- added stinger part to baby bee models
+- 
+
 [3.2.3]
 - fixed asm animation math failing when booleans were compared with the `==` or `!=` operators
 - further fixes for entity layer renderers reusing the base model and its interaction with texture overrides

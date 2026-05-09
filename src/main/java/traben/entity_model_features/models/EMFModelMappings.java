@@ -646,6 +646,19 @@ public class EMFModelMappings {
                         partMapping("left_antenna"),
                         partMapping("right_antenna")
                 ));
+        //#if MC >= 26.1
+        //$$ OptifineMapper.models("bee_baby")
+        //$$         .parts(Map.ofEntries(
+        //$$                 partMapping("body", "bone"),
+        //$$                 partMapping("torso", "body"),
+        //$$                 partMapping("stinger"),
+        //$$                 partMapping("right_wing"),
+        //$$                 partMapping("left_wing"),
+        //$$                 partMapping("front_legs"),
+        //$$                 partMapping("middle_legs"),
+        //$$                 partMapping("back_legs")
+        //$$         ));
+        //#else
         OptifineMapper.models("bee_baby")
                 .parts(Map.ofEntries(
                         partMapping("body", "bone"),
@@ -654,8 +667,12 @@ public class EMFModelMappings {
                         partMapping("left_wing"),
                         partMapping("front_legs"),
                         partMapping("middle_legs"),
-                        partMapping("back_legs")
+                        partMapping("back_legs"),
+                        partMapping("stinger"),
+                        partMapping("left_antenna"),
+                        partMapping("right_antenna")
                 ));
+        //#endif
         OptifineMapper.models("blaze")
                 .parts(Map.ofEntries(
                         partMapping("head"),
