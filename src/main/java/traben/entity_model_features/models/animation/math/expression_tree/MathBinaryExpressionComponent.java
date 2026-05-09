@@ -49,22 +49,17 @@ public class MathBinaryExpressionComponent extends MathValue implements MathComp
             if (b && bb) {
                 overrideScopeToBool = true; // Confident
             } else overrideScopeToBool = b || bb; // Less confident
-
         } else {
             overrideScopeToBool = false;
         }
 
-        if (overrideScopeToBool || action.isFirstScopeBool()) vars.scopeBool();
-        else vars.scopeFloat();
-        first.asmVisit(mv, vars);
-        vars.scopePop();
+        vars.scope(overrideScopeToBool || action.isScopeBool());
 
-        if (overrideScopeToBool || action.isSecondScopeBool()) vars.scopeBool();
-        else vars.scopeFloat();
+        first.asmVisit(mv, vars);
         second.asmVisit(mv, vars);
-        vars.scopePop();
 
         action.asmVisit(mv, vars);
+        vars.scopePop();
     }
 
     @Override

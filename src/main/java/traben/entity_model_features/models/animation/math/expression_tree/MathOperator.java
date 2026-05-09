@@ -87,12 +87,7 @@ public enum MathOperator implements MathComponent {
         }
 
         @Override
-        public boolean isFirstScopeBool() {
-            return true;
-        }
-
-        @Override
-        public boolean isSecondScopeBool() {
+        public boolean isScopeBool() {
             return true;
         }
 
@@ -109,12 +104,7 @@ public enum MathOperator implements MathComponent {
         }
 
         @Override
-        public boolean isFirstScopeBool() {
-            return true;
-        }
-
-        @Override
-        public boolean isSecondScopeBool() {
+        public boolean isScopeBool() {
             return true;
         }
 
@@ -132,7 +122,7 @@ public enum MathOperator implements MathComponent {
         @Override
         public void asmVisit(MethodVisitor mv, ASMVariableHandler varNames) {
             mv.visitInsn(FCMPG);
-            asmFloatToBool(mv, IFGT);
+            asmCompare(mv, IFGT);
         }
     },
     SMALLER_THAN {
@@ -144,7 +134,7 @@ public enum MathOperator implements MathComponent {
         @Override
         public void asmVisit(MethodVisitor mv, ASMVariableHandler varNames) {
             mv.visitInsn(FCMPG);
-            asmFloatToBool(mv, IFLT);
+            asmCompare(mv, IFLT);
         }
     },
 
@@ -157,7 +147,7 @@ public enum MathOperator implements MathComponent {
         @Override
         public void asmVisit(MethodVisitor mv, ASMVariableHandler varNames) {
             mv.visitInsn(FCMPG);
-            asmFloatToBool(mv, IFGE);
+            asmCompare(mv, IFGE);
         }
     },
     SMALLER_THAN_OR_EQUALS {
@@ -169,7 +159,7 @@ public enum MathOperator implements MathComponent {
         @Override
         public void asmVisit(MethodVisitor mv, ASMVariableHandler varNames) {
             mv.visitInsn(FCMPG);
-            asmFloatToBool(mv, IFLE);
+            asmCompare(mv, IFLE);
         }
     },
     EQUALS {
@@ -180,8 +170,12 @@ public enum MathOperator implements MathComponent {
 
         @Override
         public void asmVisit(MethodVisitor mv, ASMVariableHandler varNames) {
-            mv.visitInsn(FCMPL);
-            asmFloatToBool(mv, IFEQ);
+            if (varNames.isScopeFloat()) {
+                mv.visitInsn(FCMPL);
+                asmCompare(mv, IFEQ);
+            } else {
+                asmCompare(mv, IF_ICMPEQ);
+            }
         }
     },
     NOT_EQUALS {
@@ -192,8 +186,12 @@ public enum MathOperator implements MathComponent {
 
         @Override
         public void asmVisit(MethodVisitor mv, ASMVariableHandler varNames) {
-            mv.visitInsn(FCMPL);
-            asmFloatToBool(mv, IFNE);
+            if (varNames.isScopeFloat()) {
+                mv.visitInsn(FCMPL);
+                asmCompare(mv, IFNE);
+            } else {
+                asmCompare(mv, IF_ICMPNE);
+            }
         }
     },
     BOOLEAN_CHAR;
@@ -230,8 +228,7 @@ public enum MathOperator implements MathComponent {
         return Float.NaN;
     }
 
-    public boolean isFirstScopeBool() { return false; }
-    public boolean isSecondScopeBool() { return false; }
+    public boolean isScopeBool() { return false; }
 
     public boolean isEqualsType() {
         return this == EQUALS || this == NOT_EQUALS;
@@ -242,16 +239,16 @@ public enum MathOperator implements MathComponent {
         throw new UnsupportedOperationException(this + " operator shouldn't have called this.");
     }
 
-    public static void asmFloatToBool(MethodVisitor mv, int opCode) {
+    public static void asmCompare(MethodVisitor mv, int opCode) {
         var t = new Label();
         var end = new Label();
 
         mv.visitJumpInsn(opCode, t);
-        mv.visitLdcInsn(0);
+        mv.visitInsn(ICONST_0);
         mv.visitJumpInsn(GOTO, end);
 
         mv.visitLabel(t);
-        mv.visitLdcInsn(1);
+        mv.visitInsn(ICONST_1);
 
         mv.visitLabel(end);
     }

@@ -1,4 +1,7 @@
 
+[?]
+- fixed asm animation math failing when booleans were compared with the `==` or `!=` operators
+
 [3.2.2]
 - fixed random models no longer working in v3.2
 
