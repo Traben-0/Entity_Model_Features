@@ -1,4 +1,7 @@
 
+[?]
+- added new boolean animation variables `is_player_first_person`, `is_player_third_person`, `is_player_third_person_reversed`
+
 [3.2.4]
 - added stinger part to baby bee models
 - fixed the height_above_ground animation variable with block entities considering its own block as the ground

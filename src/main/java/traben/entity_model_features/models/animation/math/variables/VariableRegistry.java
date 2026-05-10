@@ -1,6 +1,7 @@
 package traben.entity_model_features.models.animation.math.variables;
 
 import com.demonwav.mcdev.annotations.Translatable;
+import net.minecraft.client.CameraType;
 import net.minecraft.util.Mth;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.AnimSetupContext;
@@ -200,6 +201,9 @@ public final class VariableRegistry {
         registerSimpleBoolVariable("is_tamed", EMFAnimationEntityContext::isTamed);
         registerSimpleBoolVariable("is_wet", EMFAnimationEntityContext::isWet);
         registerSimpleBoolVariable("is_jumping", EMFAnimationEntityContext::isJumping);
+        registerSimpleBoolVariable("is_player_first_person", ()-> Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON);
+        registerSimpleBoolVariable("is_player_third_person", ()-> Minecraft.getInstance().options.getCameraType() == CameraType.THIRD_PERSON_BACK);
+        registerSimpleBoolVariable("is_player_third_person_reversed", ()-> Minecraft.getInstance().options.getCameraType() == CameraType.THIRD_PERSON_FRONT);
 
         //context variables
         // these variables require a context to be created, and are not constants
