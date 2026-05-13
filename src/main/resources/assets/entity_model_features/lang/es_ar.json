@@ -279,5 +279,16 @@
   "entity_model_features.config.double_chest_fix": "Corregir errores de registro del modelo de cofre doble",
   "entity_model_features.config.double_chest_fix.tooltip": "Debido a que el modelo de cofre doble, 'chest_large.jem', debe dividirse en 2 mitades en el código,\npodría haber un exceso de mensajes de registro sobre la mitad izquierda/derecha faltante.\nEsta opción lo arregla si está habilitada y también soluciona parcialmente las animaciones que hacen referencia al lado opuesto del cofre.\nAún se recomienda encarecidamente mantener las animaciones de las mitades izquierda y derecha separadas.",
   "entity_model_features.config.iris_shadow_skip": "Omitir animación de la sombra Iris",
-  "entity_model_features.config.iris_shadow_skip.tooltip": "Esto hará que el modelo de la entidad no se anime dos veces\nen cada fotograma tanto para el renderizado como para la pasada de sombra Iris\nesto siempre debe estar ACTIVADO y solo está aquí en caso de\nfuturas modificaciones de la API de Iris"
+  "entity_model_features.config.iris_shadow_skip.tooltip": "Esto hará que el modelo de la entidad no se anime dos veces\nen cada fotograma tanto para el renderizado como para la pasada de sombra Iris\nesto siempre debe estar ACTIVADO y solo está aquí en caso de\nfuturas modificaciones de la API de Iris",
+  "entity_model_features.config.logASM": "Registrar estado compilado de matemáticas",
+  "entity_model_features.config.asmmaths.logASM": "Va a generar muchísimas entradas en el registro, probablemente no lo necesites a menos que el desarrollador te haya pedido un log con esto activado.",
+  "entity_model_features.config.asmmaths": "Matemáticas de animación compiladas",
+  "entity_model_features.config.asmmaths.tooltip": "Casi siempre vas a querer esto ACTIVADO.\nSi está desactivado, el sistema de animación va a usar un árbol de expresiones más costoso computacionalmente, que puede ser útil para depuración.",
+  "entity_model_features.config.allowed_cem": "Modelos permitidos",
+  "entity_model_features.config.allowed_cem.tooltip": "Determina con qué modelos va a intentar interactuar EMF. Nota: esto no es perfecto, algunos mods simplemente usan los IDs del namespace vanilla y hay poco que EMF pueda hacer al respecto.",
+  "entity_model_features.config.allowed_cem.all": "Todos",
+  "entity_model_features.config.allowed_cem.known_only": "Solo conocidos (principalmente Vanilla / OptiFine)",
+  "entity_model_features.config.allowed_cem.unknown_only": "Solo desconocidos (principalmente de mods)",
+  "entity_model_features.config.export_rotations": "Exportar rotaciones",
+  "entity_model_features.config.export_rotations.tooltip": "Los modelos .jem exportados no deberían incluir los valores de rotación, ya que los heredan de las partes vanilla.\nSin embargo, algunos editores de modelos pueden preferir tener esos valores incluidos.\nEsta opción los va a incluir en los archivos .jem exportados.",
 }
