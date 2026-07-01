@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import org.spongepowered.asm.service.MixinService;
+import traben.entity_texture_features.ETF;
 
 import java.io.IOException;
 import java.util.List;
@@ -29,6 +30,7 @@ public class Plugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(final String targetClassName, final String mixinClassName) {
+        if (targetClassName.contains("MixinRealCamera")) return ETF.isThisModLoaded("realcamera");
         return !targetClassName.equals("traben.entity_texture_features.mixin.CancelTarget");
     }
 
