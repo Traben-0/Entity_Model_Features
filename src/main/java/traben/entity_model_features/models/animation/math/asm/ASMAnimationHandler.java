@@ -10,6 +10,7 @@ import traben.entity_model_features.models.animation.EMFAnimationHandler;
 import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
 import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
+import traben.entity_model_features.mod_compat.RealCameraCompat;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.utils.ETFLruCache;
 
@@ -61,8 +62,9 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
         if (logsASM) asmLog(asmVariableHandler, vars, "Start ASM anim with variable state:");
 
         compiledAnimationExecutor.execute(vars.floats(), vars.bools());
-
-        varConsumer.accept(vars, true);
+        //Default is TRUE
+        boolean shouldUpdateVars = RealCameraCompat.isShouldRenderEntity();
+        varConsumer.accept(vars, shouldUpdateVars);
         if (lod && state != null) lastResultsPerEntity.put(state.uuid(), vars);
 
         if (logsASM) asmLog(asmVariableHandler, vars, "End ASM anim with variable state:");

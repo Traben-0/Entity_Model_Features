@@ -95,10 +95,26 @@ dependencies {
     //region MOD DEPENDENCIES
 
     fun modImpl(modPrefix: String, vararg versions: Pair<Int, String?>): Boolean {
-        for ((versionMC, versionMod) in versions) {
+        for ((versionMC, implVersionMod) in versions) {
             if (platform.mcVersion >= versionMC) {
-                if (versionMod != null) {
-                    modImplementation("$modPrefix$versionMod") {
+                if (implVersionMod != null) {
+                    modImplementation("$modPrefix$implVersionMod") {
+                        exclude("net.fabricmc.fabric-api")
+                        isTransitive = true
+                    }
+                    return true
+                }
+                break
+            }
+        }
+        return false
+    }
+
+    fun modComp(modPrefix: String, vararg versions: Pair<Int, String?>): Boolean {
+        for ((versionMC, compVersionMod) in versions) {
+            if (platform.mcVersion >= versionMC) {
+                if (compVersionMod != null) {
+                    compileOnly("$modPrefix$compVersionMod") {
                         exclude("net.fabricmc.fabric-api")
                         isTransitive = true
                     }
@@ -166,14 +182,21 @@ dependencies {
     }
 
     if (!platform.isForge) {
-        if (mcVersion >= 12109) {
-            compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCommon:1.1.0+alpha.1+mc.1.21.9")
-            compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCore:1.1.0+alpha.1+mc.1.21.9")
-        } else if (mcVersion >= 12100) {
-            compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCommon:1.0.14+mc.1.21.1")
-            compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCore:1.0.14+mc.1.21.1")
-        }
+        val playerAnimVersions = arrayOf(
+            12109 to "1.1.0+alpha.1+mc.1.21.9",
+            12100 to "1.0.14+mc.1.21.1"
+        )
+        modComp("com.zigythebird.playeranim:PlayerAnimationLibCommon:", *playerAnimVersions)
+        modComp("com.zigythebird.playeranim:PlayerAnimationLibCore:", *playerAnimVersions)
     }
+
+    modComp("maven.modrinth:real-camera:",
+        26_01_00 to ver("8iDFFsGL", null, "tPhOLg40"),
+        1_21_04 to ver("ERGbfBFO", null, "j9j0EChP"),
+        1_21_02 to ver("ERGbfBFO", null, "j9j0EChP"),
+        1_21_00 to ver("ERGbfBFO", null, "j9j0EChP"),
+        1_20_01 to ver("GtVt9wyh", "zxrGLIlw", null),
+    )
 
     //endregion
 
