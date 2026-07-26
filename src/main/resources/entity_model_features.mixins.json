@@ -27,7 +27,6 @@
     "exporting.MixinEntityModelSet",
     "exporting.MixinMeshTransformer",
     "mod_compat.MixinRealCameraCore",
-    "mod_compat.MixinRealCameraModelViewScreen",
     "rendering.Mixin_SpecialModelRenderers_SetCurrentSpecifiedModel",
     "rendering.MixinBannerRenderer",
     "rendering.MixinBlockEntityRenderDispatcher",

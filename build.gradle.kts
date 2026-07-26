@@ -95,10 +95,10 @@ dependencies {
     //region MOD DEPENDENCIES
 
     fun modImpl(modPrefix: String, vararg versions: Pair<Int, String?>): Boolean {
-        for ((versionMC, ImplVersionMod) in versions) {
+        for ((versionMC, implVersionMod) in versions) {
             if (platform.mcVersion >= versionMC) {
-                if (ImplVersionMod != null) {
-                    modImplementation("$modPrefix$ImplVersionMod") {
+                if (implVersionMod != null) {
+                    modImplementation("$modPrefix$implVersionMod") {
                         exclude("net.fabricmc.fabric-api")
                         isTransitive = true
                     }
@@ -111,10 +111,10 @@ dependencies {
     }
 
     fun modComp(modPrefix: String, vararg versions: Pair<Int, String?>): Boolean {
-        for ((versionMC, CompVersionMod) in versions) {
+        for ((versionMC, compVersionMod) in versions) {
             if (platform.mcVersion >= versionMC) {
-                if (CompVersionMod != null) {
-                    compileOnly("$modPrefix$CompVersionMod") {
+                if (compVersionMod != null) {
+                    compileOnly("$modPrefix$compVersionMod") {
                         exclude("net.fabricmc.fabric-api")
                         isTransitive = true
                     }

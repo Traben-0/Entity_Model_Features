@@ -14,9 +14,7 @@ import traben.entity_model_features.mod_compat.RealCameraCompat;
 public class MixinRealCameraCore {
     // This method is used to get the vertex catcher
     // It does NOT render the entity in the world
-//#if MC == 12001 && !NEOFORGE
-//#if MC >= 12101 && MC <= 12104 && !FORGE
-//#if MC == 2601 && !FORGE
+//#if MC == 1.20.1 && !NEOFORGE || MC >= 1.21.1 && MC <= 1.21.4 && !FORGE || MC == 26.1 && !FORGE
 //$$    @Inject(method = "computeCamera", at = @At("HEAD"))
 //$$    private static void EFM$onComputeCameraHead(Minecraft client, float partialTicks, CallbackInfo ci) {
 //$$        RealCameraCompat.isComputeCameraRendering = true;
@@ -26,8 +24,6 @@ public class MixinRealCameraCore {
 //$$    private static void EFM$onComputeCameraReturn(Minecraft client, float partialTicks, CallbackInfo ci) {
 //$$        RealCameraCompat.isComputeCameraRendering = false;
 //$$    }
-//#endif
-//#endif
 //#endif
 }
 
