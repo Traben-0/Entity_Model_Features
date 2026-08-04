@@ -136,7 +136,7 @@ dependencies {
 
     "IRIS" setVar (
             modImpl("maven.modrinth:iris:",
-                26_02_00 to ver("3uIIps8q", null, null),
+                26_02_00 to ver("3uIIps8q", null, "YL57xq9U"),
                 26_01_00 to ver("MwcLS51S", null, "YEGDGnJM"),
                 //1_21_11 to ver("TSXvi2yD", null,  "t3ruzodq"), //"k9tHcfnb"), //todo why does this break
                 1_21_06 to ver("l77DAK6U", null,  "t3ruzodq"), //"xA5cxBvz"), // same here
