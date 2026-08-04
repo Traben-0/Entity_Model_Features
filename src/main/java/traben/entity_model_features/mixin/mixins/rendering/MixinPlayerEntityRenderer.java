@@ -99,6 +99,8 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
         // flag this for later submit render
         if (modelPart instanceof EMFModelPartVanilla vanilla) {
             vanilla.isPlayerArm = true;
+            // Position now for mods that need it
+            vanilla.getRoot().animate();
         }
 
     }
