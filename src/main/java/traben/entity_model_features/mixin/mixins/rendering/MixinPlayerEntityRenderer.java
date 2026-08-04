@@ -90,12 +90,16 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
 
 
     //#if MC >= 12109
-    @Inject(method = "renderHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModelPart(Lnet/minecraft/client/model/geom/ModelPart;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderType;IILnet/minecraft/client/renderer/texture/TextureAtlasSprite;)V"))
-    private void emf$setHandAnims(CallbackInfo ci, @Local(argsOnly = true) ModelPart modelPart, @Local(argsOnly = true) PoseStack poseStack
-    ) {
-        EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState) ((HoldsETFRenderState)emf$renderState()).etf$getState());
+    @Inject(method = "renderHand", at = @At(value = "HEAD"))
+    private void emf$setHandAnimState(CallbackInfo ci) {
+        // Before visibility checks
+        var state = (EMFEntityRenderState) ((HoldsETFRenderState)emf$renderState()).etf$getState();
+        EMFAnimationEntityContext.setCurrentEntityIteration(state);
         EMFAnimationEntityContext.isFirstPersonHand = true;
+    }
 
+    @Inject(method = "renderHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModelPart(Lnet/minecraft/client/model/geom/ModelPart;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderType;IILnet/minecraft/client/renderer/texture/TextureAtlasSprite;)V"))
+    private void emf$setHandAnims(CallbackInfo ci, @Local(argsOnly = true) ModelPart modelPart) {
         // flag this for later submit render
         if (modelPart instanceof EMFModelPartVanilla vanilla) {
             vanilla.isPlayerArm = true;

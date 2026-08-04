@@ -34,9 +34,11 @@ public class Mixin_ModelPartRenderer {
         }
 
         if (modelSubmit.modelPart() instanceof EMFModelPartVanilla vanilla && vanilla.isPlayerArm) {
-            if (Minecraft.getInstance().player != null)
+            if (Minecraft.getInstance().player != null) {
+                EMFAnimationEntityContext.modelVariationIgnoresVisibility = true;
                 EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState)
                         ETFEntityRenderState.forEntity((ETFEntity) Minecraft.getInstance().player));
+            }
             EMFAnimationEntityContext.isFirstPersonHand = true;
         }
     }

@@ -108,8 +108,10 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         //$$ zScale = newState.zScale();
         //#endif
 
-        visible = newState.visible();
-        skipDraw = newState.hidden();
+        if (!EMFAnimationEntityContext.modelVariationIgnoresVisibility) {
+            visible = newState.visible();
+            skipDraw = newState.hidden();
+        }
         textureOverride = newState.texture();
     }
 

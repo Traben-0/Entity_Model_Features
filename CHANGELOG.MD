@@ -1,5 +1,6 @@
 
 [?]
+- fixed first person arm rendering with sleeves even when turned off in the settings
 - fixed first person arm animations with some other mods hand rendering
 - added new boolean animation variables `is_player_first_person`, `is_player_third_person`, `is_player_third_person_reversed`
 

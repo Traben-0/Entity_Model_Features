@@ -383,6 +383,8 @@ public final class EMFAnimationEntityContext {
         setCurrentEntityIteration(state, false);
     }
 
+    public static boolean modelVariationIgnoresVisibility = false;
+
     public static void setCurrentEntityIteration(@Nullable EMFEntityRenderState state, boolean skipModelVariation) {
 
         isFirstPersonHand = false;
@@ -413,7 +415,7 @@ public final class EMFAnimationEntityContext {
                 Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(state.typeString());
                 if (roots != null) {
                     if (isEntityForcedToVanillaModel()) {
-                        roots.forEach((root) -> root.setVariantStateTo(0));
+                        roots.forEach(root -> root.setVariantStateTo(0));
                     } else {
                         roots.forEach(EMFModelPartRoot::doVariantCheck);
                     }
@@ -629,6 +631,7 @@ public final class EMFAnimationEntityContext {
         shadowZ = 0;
         lodFrameSkipping = null;
         isLayerPhase = false;
+        modelVariationIgnoresVisibility = false;
 
         //#if MC>=12109
         if (ETFRenderContext.getCurrentEntityState() != null) ETFRenderContext.reset();
