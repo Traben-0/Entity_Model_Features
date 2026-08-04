@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.utils.UEntityTypes;
 
 @Mixin(EntityRenderers.class)
 public class MixinEntityRenderers {
@@ -31,9 +32,9 @@ public class MixinEntityRenderers {
         //$$     EMFManager.getInstance().currentSpecifiedModelLoading = "creaking_transient";
         //$$ } else
         //#endif
-        if(entityType.equals(EntityType.SPECTRAL_ARROW)) {
+        if(entityType.equals(UEntityTypes.SPECTRAL_ARROW)) {
             EMFManager.getInstance().currentSpecifiedModelLoading = "spectral_arrow";
-        }else if (entityType.equals(EntityType.BREEZE_WIND_CHARGE)) {
+        }else if (entityType.equals(UEntityTypes.BREEZE_WIND_CHARGE)) {
             EMFManager.getInstance().currentSpecifiedModelLoading = "breeze_wind_charge";
         }else if (entityType
                 //#if MC >= 26.1
@@ -47,7 +48,7 @@ public class MixinEntityRenderers {
                         .replaceAll("(_boat|_raft|_chest_boat)$","");
         }
         //#if MC >= 12111
-        //$$  else if (entityType.equals(EntityType.CAMEL_HUSK)) {
+        //$$  else if (entityType.equals(UEntityTypes.CAMEL_HUSK)) {
         //$$           EMFManager.getInstance().currentSpecifiedModelLoading = "camel_husk";
         //$$       }
         //#endif

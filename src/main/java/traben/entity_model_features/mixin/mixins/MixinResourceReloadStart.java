@@ -12,7 +12,9 @@ import traben.entity_model_features.EMFManager;
 public abstract class MixinResourceReloadStart {
 
     @Inject(
-            //#if MC >=12100
+            //#if MC >= 26.2
+            //$$ method = "reloadResourcePacks(ZLnet/minecraft/client/GameLoadCookie;)Ljava/util/concurrent/CompletableFuture;",
+            //#elseif MC >= 12100
             method = "reloadResourcePacks(ZLnet/minecraft/client/Minecraft$GameLoadCookie;)Ljava/util/concurrent/CompletableFuture;",
             //#elseif MC >= 12002
             //$$ method = "reloadResourcePacks(ZLnet/minecraft/client/Minecraft$GameLoadCookie;)Ljava/util/concurrent/CompletableFuture;",

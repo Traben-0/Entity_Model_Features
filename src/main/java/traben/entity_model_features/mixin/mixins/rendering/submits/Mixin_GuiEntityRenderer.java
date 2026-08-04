@@ -25,12 +25,14 @@ public class Mixin_GuiEntityRenderer {
         // so the entity dispatcher can use this state
         assertEmfState(guiEntityRenderState);
     }
+    //#if MC < 26.2
     @Inject(method = "renderToTexture(Lnet/minecraft/client/gui/render/state/pip/GuiEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/feature/FeatureRenderDispatcher;renderAllFeatures()V"))
     private void emf$initRender2(final CallbackInfo ci, @Local(argsOnly = true) GuiEntityRenderState guiEntityRenderState) {
         // things get reset by the render dispatcher, re-assert before the actual render
         assertEmfState(guiEntityRenderState);
     }
+    //#endif
 
     @Unique
     private static void assertEmfState(final GuiEntityRenderState guiEntityRenderState) {

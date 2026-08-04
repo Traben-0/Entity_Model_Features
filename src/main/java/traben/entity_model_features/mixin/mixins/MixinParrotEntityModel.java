@@ -26,6 +26,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.client.Minecraft;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
+import traben.entity_texture_features.utils.UEntityTypes;
 
 @Mixin(ParrotOnShoulderLayer.class)
 public class MixinParrotEntityModel {
@@ -51,7 +52,7 @@ public class MixinParrotEntityModel {
     @Inject(method = RENDER_METHOD, at = @At("HEAD"))
     private void emf$parrot1(final CallbackInfo ci) {
         try{
-            var entity = (EMFEntity) EntityType.PARROT.create(Minecraft.getInstance().level, EntitySpawnReason.COMMAND);
+            var entity = (EMFEntity) UEntityTypes.PARROT.create(Minecraft.getInstance().level, EntitySpawnReason.COMMAND);
             if (entity != null) {
                 EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState) ETFEntityRenderState.forEntity(entity));
                 EMFSubmitData.AWAITING_backupState = EMFAnimationEntityContext.getEmfState();

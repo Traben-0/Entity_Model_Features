@@ -2,7 +2,9 @@ package traben.entity_model_features.mixin.mixins.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+//#if MC < 26.2
 import net.minecraft.client.renderer.MultiBufferSource;
+//#endif
 import net.minecraft.client.renderer.RenderType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

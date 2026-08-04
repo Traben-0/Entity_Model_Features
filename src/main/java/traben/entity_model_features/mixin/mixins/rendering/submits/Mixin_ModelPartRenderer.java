@@ -3,7 +3,7 @@ package traben.entity_model_features.mixin.mixins.rendering.submits;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 
-//#if MC >= 12109
+//#if MC >= 12109 && MC < 26.2
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;

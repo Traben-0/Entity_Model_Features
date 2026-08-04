@@ -10,10 +10,6 @@ import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 @Mixin(ItemFrameRenderer.class)
 public class MixinItemFrameEntityRenderer {
 
-    //#if MC > 26.1
-    //$$ dont forget this
-    //#endif
-
     //#if MC < 12109
     //$$ @Inject(method =
             //#if MC >=12102

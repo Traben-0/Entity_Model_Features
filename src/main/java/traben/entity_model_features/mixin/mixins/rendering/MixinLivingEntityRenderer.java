@@ -8,7 +8,9 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
+//#if MC < 26.2
 import net.minecraft.client.renderer.MultiBufferSource;
+//#endif
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -101,7 +103,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
 
 
 
-    //#if MC > 26.1
+    //#if MC > 26.2
     //$$ dont forget this
     //#elseif MC < 12109
     //$$ @Inject(method =

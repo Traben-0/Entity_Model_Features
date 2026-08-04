@@ -3,7 +3,7 @@ package traben.entity_model_features.config;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.geom.ModelLayers;
-//#if MC >= 12102
+//#if MC >= 12102 && MC < 26.2
 import net.minecraft.client.renderer.ShapeRenderer;
 //#else
 //$$ import net.minecraft.client.renderer.LevelRenderer;
@@ -30,6 +30,7 @@ import traben.entity_model_features.models.EMFModel_ID;
 import traben.entity_model_features.utils.IEMFUnmodifiedLayerRootGetter;
 import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.config.ETFConfig;
+import traben.entity_texture_features.utils.UScreen;
 import traben.tconfig.TConfig;
 import traben.tconfig.gui.TConfigScreenList;
 import traben.tconfig.gui.entries.*;
@@ -589,7 +590,7 @@ public class EMFConfig extends TConfig {
         @Override
         public void render(final GuiGraphics context, final int mouseX, final int mouseY) {
             if (canRender()) {
-                Screen screen = Minecraft.getInstance().screen;
+                Screen screen = UScreen.currentScreen();
                 if (screen == null) return;
 
 
@@ -623,6 +624,12 @@ public class EMFConfig extends TConfig {
                 matrixStack.pushPose();
                 matrixStack.scale(-1.0F, -1.0F, 1.0F);
                 matrixStack.translate(0.0F, -1.501F, 0.0F);
+                //#if MC >= 26.2
+                //$$ //TODO definitely wrong
+                //$$ var draw = Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().appendDraw(
+                //$$         RenderTypes.lines().format(), com.mojang.blaze3d.PrimitiveTopology.LINES);
+                //$$ var buffer = Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().getVertexBuilder(draw);
+                //#else
                 var buffer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(
                         //#if MC >= 12111
                         //$$ RenderTypes.lines()
@@ -630,6 +637,7 @@ public class EMFConfig extends TConfig {
                         RenderType.lines()
                         //#endif
                 );
+                //#endif
                 //who knows what mods might do smdh
                 //noinspection ConstantValue
                 if (buffer != null) {

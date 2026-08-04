@@ -1,7 +1,6 @@
 package traben.entity_model_features.models.parts;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -42,6 +41,7 @@ import static traben.entity_model_features.EMF.EYES_FEATURE_LIGHT_VALUE;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import traben.entity_texture_features.utils.URenderTypeToVertexConsumer;
 
 public abstract class EMFModelPart extends ModelPart {
     public ResourceLocation textureOverride;
@@ -118,8 +118,13 @@ public abstract class EMFModelPart extends ModelPart {
                                 //$$ red, green, blue, alpha
                                 //#endif
                         );
-                case LINES ->
-                        renderBoxes(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(lines()));
+                case LINES ->{
+                    if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
+                        URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
+                        if (provider != null)
+                            renderBoxes(matrices, provider.getBuffer(lines()));
+                    }
+                }
                 case LINES_AND_TEXTURE -> {
                     renderWithTextureOverride(matrices, vertices, light, overlay,
                             //#if MC >= 12100
@@ -128,7 +133,11 @@ public abstract class EMFModelPart extends ModelPart {
                             //$$ red, green, blue, alpha
                             //#endif
                     );
-                    renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(lines()), 1f);
+                    if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
+                        URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
+                        if (provider != null)
+                            renderBoxesNoChildren(matrices, provider.getBuffer(lines()), 1f);
+                    }
                 }
                 case LINES_AND_TEXTURE_FLASH -> {
                     renderWithTextureOverride(matrices, vertices, light, overlay,
@@ -138,8 +147,13 @@ public abstract class EMFModelPart extends ModelPart {
                             //$$ red, green, blue, alpha
                             //#endif
                     );
-                    float flash = (Mth.sin(System.currentTimeMillis() / 1000f) + 1) / 2f;
-                    renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(lines()), flash);
+                    if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
+                        URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
+                        if (provider != null) {
+                            float flash = (Mth.sin(System.currentTimeMillis() / 1000f) + 1) / 2f;
+                            renderBoxesNoChildren(matrices, provider.getBuffer(lines()), flash);
+                        }
+                    }
                 }
                 case NONE -> {
                 }
@@ -242,7 +256,7 @@ public abstract class EMFModelPart extends ModelPart {
                 RenderType originalLayer = etfVertexConsumer.etf$getRenderLayer();
                 if (originalLayer == null) return;
 
-                MultiBufferSource provider = etfVertexConsumer.etf$getProvider();
+                URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
                 if (provider == null) return;
                 renderTextureOverrideWithoutReset(provider, matrices, light, overlay,
                         //#if MC >= 12100
@@ -256,7 +270,19 @@ public abstract class EMFModelPart extends ModelPart {
                 provider.getBuffer(originalLayer);
             }else{
                 //could be a sprite originally, if so lets ignore trying to reset the texture at all to its original
-                MultiBufferSource provider = Minecraft.getInstance().renderBuffers().bufferSource();
+                //#if MC >= 26.2
+                //$$ URenderTypeToVertexConsumer provider = new URenderTypeToVertexConsumer(null) {
+                //$$     @Override
+                //$$     public VertexConsumer getBuffer(RenderType type) {
+                //$$         //TODO probably wrong investigate further
+                //$$         var draw = Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().appendDraw(
+                //$$                 type.format(), com.mojang.blaze3d.PrimitiveTopology.QUADS);
+                //$$         return Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().getVertexBuilder(draw);
+                //$$     }
+                //$$ };
+                //#else
+                URenderTypeToVertexConsumer provider = new URenderTypeToVertexConsumer(Minecraft.getInstance().renderBuffers().bufferSource());
+                //#endif
                 renderTextureOverrideWithoutReset(provider, matrices, light, overlay,
                         //#if MC >= 12100
                         k
@@ -269,7 +295,7 @@ public abstract class EMFModelPart extends ModelPart {
         //else cancel out render
     }
 
-    private void renderTextureOverrideWithoutReset(MultiBufferSource provider, PoseStack matrices, int light, int overlay,
+    private void renderTextureOverrideWithoutReset(URenderTypeToVertexConsumer provider, PoseStack matrices, int light, int overlay,
                                                    //#if MC >= 12100
                                                    final int k
                                                    //#else
@@ -348,9 +374,13 @@ public abstract class EMFModelPart extends ModelPart {
             testBuilding = (BufferBuilder) vertices;
         } else if (vertices instanceof SpriteCoordinateExpander sprite && sprite.delegate instanceof BufferBuilder) {
             testBuilding = (BufferBuilder) sprite.delegate;
-        }else if (vertices instanceof VertexMultiConsumer.Double dub && dub.second instanceof BufferBuilder) {
+        }else
+        //#if MC < 26.2
+        if (vertices instanceof com.mojang.blaze3d.vertex.VertexMultiConsumer.Double dub && dub.second instanceof BufferBuilder) {
             testBuilding = (BufferBuilder) dub.second;
-        }else{
+        } else
+        //#endif
+        {
             //exit early if not a buffer builder
             return vertices;
         }
@@ -411,7 +441,7 @@ public abstract class EMFModelPart extends ModelPart {
                 ETFTexture texture = etfVertexConsumer.etf$getETFTexture();
                 //is etf texture not null and does it special render?
                 if (texture != null && (texture.isEmissive() || texture.isEnchanted())) {
-                    MultiBufferSource provider = etfVertexConsumer.etf$getProvider();
+                    URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
                     //very important this is captured before doing the special renders as they can potentially modify
                     //the same ETFVertexConsumer down stream
                     RenderType layer = etfVertexConsumer.etf$getRenderLayer();

@@ -33,6 +33,7 @@ import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.utils.EMFResourceCaching;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.utils.UEntityTypes;
 import traben.entity_texture_features.ETF;
 import traben.entity_texture_features.utils.ETFLruCache;
 
@@ -59,14 +60,16 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
     private static final Map<BlockEntityType<?>, String> EBETypes = Map.of(
-            BlockEntityType.BED, "bed",
-            BlockEntityType.CHEST, "chest",
-            BlockEntityType.TRAPPED_CHEST, "chest",
-            BlockEntityType.ENDER_CHEST, "chest",
-            BlockEntityType.SHULKER_BOX, "shulker_box",
-            BlockEntityType.BELL, "bell",
-            BlockEntityType.SIGN, "sign",
-            BlockEntityType.DECORATED_POT, "decorated_pot");
+            //#if MC < 26.2
+            UEntityTypes.BED, "bed",
+            //#endif
+            UEntityTypes.CHEST, "chest",
+            UEntityTypes.TRAPPED_CHEST, "chest",
+            UEntityTypes.ENDER_CHEST, "chest",
+            UEntityTypes.SHULKER_BOX, "shulker_box",
+            UEntityTypes.BELL, "bell",
+            UEntityTypes.SIGN, "sign",
+            UEntityTypes.DECORATED_POT, "decorated_pot");
 
     public static EMFModelPartRoot lastCreatedRootModelPart = null;
     private static EMFManager self = null;
@@ -735,11 +738,13 @@ public class EMFManager {//singleton for data holding and resetting needs
         if (EMF.config().getConfig().showReloadErrorToast && !loadingExceptions.isEmpty()){
             try {
                 var toastManager = Minecraft.getInstance()
-                //#if MC >= 12102
-                        .getToastManager();
-                //#else
-                //$$    .getToasts();
-                //#endif
+                    //#if MC >= 26.2
+                    //$$ .gui.toastManager();
+                    //#elseif MC >= 12102
+                    .getToastManager();
+                    //#else
+                    //$$.getToasts();
+                    //#endif
                 SystemToast.add(toastManager,
                         //#if MC > 12002
                         SystemToast.SystemToastId.PERIODIC_NOTIFICATION

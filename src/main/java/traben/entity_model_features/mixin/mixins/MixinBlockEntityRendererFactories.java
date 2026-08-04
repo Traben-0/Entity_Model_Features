@@ -19,6 +19,7 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.utils.UEntityTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,15 +51,15 @@ public class MixinBlockEntityRendererFactories {
                 EMFManager.getInstance().currentBlockEntityTypeLoading = type;
 
                 // TODO DONT FORGET TO REPLICATE CHANGES IN SPECIAL RENDERERS
-                if (BlockEntityType.ENCHANTING_TABLE.equals(type))
+                if (UEntityTypes.ENCHANTING_TABLE.equals(type))
                     EMFManager.getInstance().currentSpecifiedModelLoading = "enchanting_book";
-                else if (BlockEntityType.LECTERN.equals(type))
+                else if (UEntityTypes.LECTERN.equals(type))
                     EMFManager.getInstance().currentSpecifiedModelLoading = "lectern_book";
-                else if (BlockEntityType.CHEST.equals(type))
+                else if (UEntityTypes.CHEST.equals(type))
                     EMFManager.getInstance().currentSpecifiedModelLoading = "chest";
-                else if (BlockEntityType.ENDER_CHEST.equals(type))
+                else if (UEntityTypes.ENDER_CHEST.equals(type))
                     EMFManager.getInstance().currentSpecifiedModelLoading = "ender_chest";
-                else if (BlockEntityType.TRAPPED_CHEST.equals(type))
+                else if (UEntityTypes.TRAPPED_CHEST.equals(type))
                     EMFManager.getInstance().currentSpecifiedModelLoading = "trapped_chest";
                 //#if MC >= 12002
                 //todo did deprecation start in 1.21.2?

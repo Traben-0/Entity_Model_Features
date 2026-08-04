@@ -4,7 +4,6 @@ import net.minecraft.client.model.Model;
 import org.spongepowered.asm.mixin.Mixin;
 
 //#if MC>=12109
-import net.minecraft.client.renderer.SubmitNodeStorage;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,8 +16,13 @@ import traben.entity_model_features.models.animation.state.EMFSubmitData;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.animation.state.EMFSubmitExtension;
 
-@Mixin(SubmitNodeStorage.ModelSubmit.class)
+//#if MC >= 26.2
+//$$ @Mixin(net.minecraft.client.renderer.feature.ModelFeatureRenderer.Submit.class)
+//#else
+@Mixin(net.minecraft.client.renderer.SubmitNodeStorage.ModelSubmit.class)
+//#endif
 public abstract class Mixin_ModelSubmit_AddBackupState<S> implements EMFSubmitExtension {
+    //TODO to go upstream in ETF refactor
 
     @Unique private final EMFSubmitData data = new EMFSubmitData();
 

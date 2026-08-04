@@ -290,7 +290,10 @@ public final class EMFAnimationEntityContext {
         int factor = distance / EMF.config().getConfig().animationLODDistance;
         //reduce factor when using zoom mods or lower fov
         int factorByFOV = (int) (factor *
-                //#if MC >= 26.1
+
+                //#if MC >= 26.2
+                //$$ Minecraft.getInstance().gameRenderer.gameRenderState().levelRenderState.cameraRenderState.hudFov
+                //#elseif MC >= 26.1
                 //$$ Minecraft.getInstance().gameRenderer.getGameRenderState().levelRenderState.cameraRenderState.hudFov
                 //#else
                 lastFOV
@@ -336,10 +339,10 @@ public final class EMFAnimationEntityContext {
 
         //FIXME properly, layers lod flickering, likely related to the layer mixin but not doing that rn
         var type = emfState.entityType();
-        if (type == EntityType.VILLAGER || type == EntityType.HORSE) return false;
+        if (type == UEntityTypes.VILLAGER || type == UEntityTypes.HORSE) return false;
 
         // Just putting this here so that fresh animations counter rotation keep working, plus these tend to render from a distance anyway
-        if (type == EntityType.BLAZE) return false;
+        if (type == UEntityTypes.BLAZE) return false;
 
         String lodKey = emfState.uuid() + modelId;
 
