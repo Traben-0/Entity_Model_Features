@@ -19,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -1521,7 +1522,7 @@ public class EMFModelMappings {
         EMFUtils.log("Additionally exporting/logging model for " + mobName + " again as though it did not have known OptiFine part names:\nThis might highlight some vanilla, or mod added, parts that are not usually exposed by OptiFine");
 
         try {
-            exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, exportOnlyFirstTime, allowsExport);
+            exploreProvidedEntityModelAndExportIfNeeded(root, mobId, null, false, false);
         } catch (Exception e) {
             EMFUtils.logError("Error while exporting model for " + mobName + " again as though it did not have known OptiFine part names:");
             //noinspection CallToPrintStackTrace
@@ -1566,25 +1567,25 @@ public class EMFModelMappings {
         //cache result;
         UNKNOWN_MODEL_MAP_CACHE.put(id, mobMap);
 
+        StringBuilder mapString = new StringBuilder();
+
+        String namespace = mobId.namespace;
+        String fileName = mobId.getfileName();
+
+        mapString.append(" |-[assets/").append(namespace).append("/optifine/cem/").append(fileName).append(".jem]\n");
+        mobMap.forEach((key, entry) -> {
+            mapString.append(" | |-[").append("root".equals(key) ? "(optional) " : "").append("part=").append(key).append("]\n");
+            mapString.append(detailsMap.get(key));
+        });
+        mapString.append("  \\-\\{{end of model}}");
+
+        if (known) {
+            EMFUtils.log("Known model detected, Mapping now...\n" + mapString);
+        } else {
+            EMFUtils.log("Unknown (possibly modded) model detected, Mapping now...\n" + mapString);
+        }
+
         if (allowsExport) {
-            StringBuilder mapString = new StringBuilder();
-
-            String namespace = mobId.namespace;
-            String fileName = mobId.getfileName();
-
-            mapString.append(" |-[assets/").append(namespace).append("/optifine/cem/").append(fileName).append(".jem]\n");
-            mobMap.forEach((key, entry) -> {
-                mapString.append(" | |-[").append("root".equals(key) ? "(optional) " : "").append("part=").append(key).append("]\n");
-                mapString.append(detailsMap.get(key));
-            });
-            mapString.append("  \\-\\{{end of model}}");
-
-            if (known) {
-                EMFUtils.log("Known model detected, Mapping now...\n" + mapString);
-            } else {
-                EMFUtils.log("Unknown (possibly modded) model detected, Mapping now...\n" + mapString);
-            }
-
             EMFUtils.log("creating example .jem file for " + fileName);
             var jemPrinter = new JsonObject();
             int[] textureSize = null;
@@ -1593,7 +1594,6 @@ public class EMFModelMappings {
                     mobMap.entrySet()) {
 
                 JsonObject partPrinter = new JsonObject();
-                partPrinter.addProperty("invertAxis", "xy");
                 partPrinter.addProperty("part", entry.getKey());
                 partPrinter.addProperty("id", entry.getKey());
                 partPrinter.addProperty("attach", false);
@@ -1601,7 +1601,15 @@ public class EMFModelMappings {
                 // allow nested child parts named root to be found first otherwise apply the root part as the root
                 PartAndOffsets vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? new PartAndOffsets(originalModel, 0,0,0) : searchPart;
 
-                textureSize = initPartPrinterAndCaptureTextureSizeIfNeeded(vanillaModelPart, partPrinter, textureSize);
+                partPrinter(vanillaModelPart, partPrinter, textureSize, mobMap.values(), false, originalModel);
+
+                if (textureSize == null && partPrinter.has("textureSize")) {
+                    var textureSize2 = partPrinter.getAsJsonArray("textureSize");
+                    if (textureSize2.size() == 2) {
+                        textureSize = new int[]{textureSize2.get(0).getAsInt(), textureSize2.get(1).getAsInt()};
+                    }
+                }
+
                 models.add(partPrinter);
 
             }
@@ -1662,17 +1670,25 @@ public class EMFModelMappings {
     }
 
 
-    private static int[] initPartPrinterAndCaptureTextureSizeIfNeeded(PartAndOffsets partAndOffsets, JsonObject partPrinter, int[] textureSize) {
-
-        int[] thisTextureSize = null;
+    private static JsonObject partPrinter(PartAndOffsets partAndOffsets, JsonObject partPrinter, int[] textureSize, Collection<String> topLevelParts, boolean child) {
         if (partAndOffsets != null && partAndOffsets.part != null) {
 
             var vanillaModelPart = partAndOffsets.part;
+            partPrinter.addProperty("invertAxis", "xy");
 
             // invert x and y's
-            var x = -partAndOffsets.x + vanillaModelPart.x;
-            var y = -24 -partAndOffsets.y + vanillaModelPart.y;
-            var z = partAndOffsets.z -vanillaModelPart.z;
+            var x = (child
+                    ? -vanillaModelPart.x - partAndOffsets.x // See self-referential method call at bottom of file
+                    : -partAndOffsets.x + vanillaModelPart.x
+            );
+            var y = (child
+                    ? -vanillaModelPart.y - partAndOffsets.y // See self-referential method call at bottom of file
+                    : -24 -partAndOffsets.y + vanillaModelPart.y
+            );
+            var z = (child
+                    ? vanillaModelPart.z - partAndOffsets.z // See self-referential method call at bottom of file
+                    : partAndOffsets.z - vanillaModelPart.z
+            );
             if (x != 0 || y != 0 || z != 0) addArrayProperty(partPrinter,"translate", x, y, z);
 
             float rx = partAndOffsets.part.getInitialPose()
@@ -1697,13 +1713,13 @@ public class EMFModelMappings {
                     //#endif
                     * Mth.RAD_TO_DEG;
 
-            if (EMF.config().getConfig().exportRotations && (rx != 0 || ry != 0 || rz != 0))
-                addArrayProperty(partPrinter,"rotate", rx, ry, rz);
+            if (child || EMF.config().getConfig().exportRotations && (rx != 0 || ry != 0 || rz != 0))
+                addArrayProperty(partPrinter, "rotate", rx, ry, rz);
 
             if (vanillaModelPart.xScale != 1f) partPrinter.addProperty("scale", vanillaModelPart.xScale);
             // get part size incase empty, though cuboids often have better ideas about this
             //partPrinter.textureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
-            thisTextureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
+            int[] thisTextureSize = ((IEMFTextureSizeSupplier) vanillaModelPart).emf$getTextureSize();
 
             var list =new ArrayList<JsonObject>(vanillaModelPart.cubes.size());
 
@@ -1735,21 +1751,52 @@ public class EMFModelMappings {
                 }
 
                 // invert x and y
-                coordinates[0] = -coordinates[0] - coordinates[3] - x;
-                coordinates[1] = -coordinates[1] - coordinates[4] - y;
+                if (!child) {
+                    coordinates[0] = -coordinates[0] - coordinates[3] - x;
+                    coordinates[1] = -coordinates[1] - coordinates[4] - y;
 
-                coordinates[2] = coordinates[2] - z;
+                    coordinates[2] = coordinates[2] - z;
+                } else {
+                    // Just flat invert as cem will only flat reinvert it
+                    coordinates[0] = -coordinates[0] - coordinates[3];
+                    coordinates[1] = -coordinates[1] - coordinates[4];
+                }
 
                 addArrayProperty(boxPrinter, "coordinates", coordinates);
 
                 list.add(boxPrinter);
             }
-            if (textureSize != null && (!Arrays.equals(textureSize, thisTextureSize))) {
-                addArrayProperty(partPrinter,"textureSize", textureSize[0], textureSize[1]);
+            if (thisTextureSize != null) {
+                if (textureSize == null){
+                    addArrayProperty(partPrinter,"textureSize", thisTextureSize[0], thisTextureSize[1]);
+                } else if (!Arrays.equals(textureSize, thisTextureSize)) {
+                    addArrayProperty(partPrinter,"textureSize", textureSize[0], textureSize[1]);
+                }
             }
+
             if (!list.isEmpty()) addArrayProperty(partPrinter, "boxes", list.toArray(new JsonObject[0]));
+
+            if (!partAndOffsets.part.children.isEmpty()) {
+                var nonTopLevel = partAndOffsets.part.children.keySet().stream().filter(it -> !topLevelParts.contains(it)).toList();
+                if (!nonTopLevel.isEmpty()) {
+                    // There exist child parts that are not in the optifine mappings (e.g. witch hat sub parts & wolf head/tail bullshit)
+                    // we will add them as cem submodels to include their cubes
+                    var childList = new ArrayList<JsonObject>();
+                    for (String name : nonTopLevel) {
+                        var childPart = partAndOffsets.part.getChild(name);
+                        var wrapped = child
+                                // Child calls will use this data class differently as they have simpler setup
+                                ? new PartAndOffsets(childPart, 0, 0, 0) // Further children no longer need weird pivot adjustments
+                                : new PartAndOffsets(childPart, x, y, z); // First child needs to undo these xyz values
+                        var object = new JsonObject();
+                        object.addProperty("id", name + "_export_copy");
+                        childList.add(partPrinter(wrapped, object, thisTextureSize, topLevelParts, true));
+                    }
+                    addArrayProperty(partPrinter, "submodels", childList.toArray(new JsonObject[0]));
+                }
+            }
         }
-        return textureSize == null ? thisTextureSize : textureSize;
+        return partPrinter;
     }
 
     private static @Nullable PartAndOffsets getChildByName(String name, @NotNull ModelPart part, float x, float y, float z) {
@@ -1852,8 +1899,7 @@ public class EMFModelMappings {
             return new OptifineMapper(modelNames);
         }
 
-
-        private static Set<String> exceptions = Set.of("helmet", "chestplate", "leggings", "boots");
+        private static final Set<String> exceptions = Set.of("helmet", "chestplate", "leggings", "boots");
 
         void parts(final Map<String, String> stringStringMap) {
             for (String key : modelNames) {
