@@ -1,5 +1,6 @@
 
 [?]
+- fixed several model exporting issues, including missing parts, wrong rotations, and rabbit/axolotl legs on 26.1+
 - fixed 26.2 neoforge iris compatibility not working causing excess animation during the shadow pass
 - fixed first person arm rendering with sleeves even when turned off in the settings
 - fixed first person arm animations with some other mods hand rendering
