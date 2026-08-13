@@ -927,8 +927,8 @@ public class EMFModelMappings {
         //$$                 partMapping("left_arm", "left_front_leg"),
         //$$                 partMapping("right_arm", "right_front_leg"),
         //$$                 partMapping("head"),
-        //$$                 partMapping("front_legs"),
-        //$$                 partMapping("back_legs"),
+        //$$                 partMapping("frontlegs"),
+        //$$                 partMapping("backlegs"),
         //$$                 partMapping("right_ear"),
         //$$                 partMapping("left_ear"),
         //$$                 partMapping("tail")
@@ -943,8 +943,8 @@ public class EMFModelMappings {
         //$$                 partMapping("left_arm", "left_front_leg_r1"),
         //$$                 partMapping("right_arm", "right_front_leg_r1"),
         //$$                 partMapping("head"),
-        //$$                 partMapping("front_legs"),
-        //$$                 partMapping("back_legs"),
+        //$$                 partMapping("frontlegs"),
+        //$$                 partMapping("backlegs"),
         //$$                 partMapping("right_ear"),
         //$$                 partMapping("left_ear"),
         //$$                 partMapping("tail", "tail_r1")
