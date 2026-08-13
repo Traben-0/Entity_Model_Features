@@ -1538,7 +1538,7 @@ public class EMFModelMappings {
 
     //this would make a usable mapping of the given model but with no part name changing as it would not be optifine customized
     public static Map<String, String> exploreProvidedEntityModelAndExportIfNeeded(ModelPart originalModel, EMFModel_ID mobId, @Nullable Map<String, String> mobMap, boolean exportOnlyFirstTime, boolean allowsExport) {
-        String id = mobId.getDisplayFileName();
+        String id = mobId.getCacheID();
         if (UNKNOWN_MODEL_MAP_CACHE.containsKey(id) && exportOnlyFirstTime)
             return UNKNOWN_MODEL_MAP_CACHE.get(id);
 
@@ -1561,7 +1561,9 @@ public class EMFModelMappings {
         boolean known = mobMap != null;
         if (!known) {
             mobMap = new HashMap<>();
-            mapThisAndChildren("root", originalModel, mobMap, detailsMap,  allowsExport);
+            mapThisAndChildren("root", originalModel, mobMap, detailsMap, allowsExport);
+        } else {
+            mapThisAndChildren("root", originalModel, new HashMap<>(), detailsMap, allowsExport);
         }
 
         //cache result;
@@ -1575,7 +1577,8 @@ public class EMFModelMappings {
         mapString.append(" |-[assets/").append(namespace).append("/optifine/cem/").append(fileName).append(".jem]\n");
         mobMap.forEach((key, entry) -> {
             mapString.append(" | |-[").append("root".equals(key) ? "(optional) " : "").append("part=").append(key).append("]\n");
-            mapString.append(detailsMap.get(key));
+            var details = detailsMap.get(entry);
+            mapString.append(details == null ? "" : details);
         });
         mapString.append("  \\-\\{{end of model}}");
 
@@ -1624,7 +1627,7 @@ public class EMFModelMappings {
             jemPrinter.add("textureSize", textureSize2);
 
             printModel(namespace, fileName, jemPrinter);
-            mobId.forEachFallback((fallback) -> printModel(fallback.namespace, fallback.getfileName(), jemPrinter));
+            // Do not print fallbacks
         }
         return mobMap;
     }

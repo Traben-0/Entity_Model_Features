@@ -16,6 +16,20 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
     private @NotNull String fileName;
     private @NotNull String mapId;
 
+    public EMFModel_ID setCacheID(@NotNull String cacheID) {
+        this.cacheID = cacheID;
+        return this;
+    }
+    public EMFModel_ID resetCacheID() {
+        return setCacheID(namespace + ":" + fileName);
+    }
+
+    public @NotNull String getCacheID() {
+        return cacheID;
+    }
+
+    private @NotNull String cacheID;
+
     private final List<FallbackModel> fallBackModels;
 
     private record FallbackModel(String namespace, String fileName){}
@@ -23,14 +37,15 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
     public EMFModel_ID(String both) {
         this(both, both);
     }
-    public EMFModel_ID(String both, String mapId) {
-        this(both, mapId, new ArrayList<>());
+    public EMFModel_ID(String fileName, String mapId) {
+        this(fileName, mapId, new ArrayList<>());
     }
 
-    private EMFModel_ID(@NotNull String both, @NotNull String mapId, List<FallbackModel> fallBackModels) {
-        this.fileName = both;
+    private EMFModel_ID(@NotNull String fileName, @NotNull String mapId, List<FallbackModel> fallBackModels) {
+        this.fileName = fileName;
         this.mapId = mapId;
         this.fallBackModels = fallBackModels;
+        this.resetCacheID();
     }
 
     public EMFModel_ID setFileName(final String fileName) throws EMFException {
@@ -51,15 +66,14 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EMFModel_ID that = (EMFModel_ID) o;
-        return fileName.equals(that.fileName) && Objects.equals(mapId, that.mapId);
+        return Objects.equals(getCacheID(), that.getCacheID());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fileName, mapId);
+        return Objects.hashCode(getCacheID());
     }
 
     @Override
@@ -93,21 +107,23 @@ public class EMFModel_ID implements Comparable<EMFModel_ID> {
 
     public void forEachFallback(Consumer<EMFModel_ID> action){
         var fallbackModel = this;
+        int count = 0;
         while (fallbackModel.hasFallbackModels()) {
-            fallbackModel = fallbackModel.getNextFallbackModel();
+            count++;
+            fallbackModel = fallbackModel.getNextFallbackModel(count);
             if (fallbackModel == null) return;
             action.accept(fallbackModel);
         }
     }
 
-    public @Nullable EMFModel_ID getNextFallbackModel() {
+    public @Nullable EMFModel_ID getNextFallbackModel(int count) {
         if (hasFallbackModels()) {
             //noinspection SequencedCollectionMethodCanBeUsed
             var next = fallBackModels.get(0);
 
             var second = new EMFModel_ID(next.fileName, mapId, fallBackModels.subList(1, fallBackModels.size()));
             second.namespace = next.namespace == null ? namespace : next.namespace;
-            return second;
+            return second.setCacheID(this.cacheID + "_fallback_" + count);
         }
         return null;
     }

@@ -217,7 +217,8 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         mobNameForFileAndMap.setMapIdAndAddFallbackModel(jem);
         String type = mobNameForFileAndMap.getfileName().split("/")[1];
-        mobNameForFileAndMap.setFileName(type + "_" + jem);
+        mobNameForFileAndMap.setFileName(type + "_" + jem)
+                .resetCacheID();
     }
 
     public boolean wasEBEModified() {
@@ -405,7 +406,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         //#if MC>=12111
                         //$$ case "camel" -> {
                         //$$     if (currentSpecifiedModelLoading.equals("camel_husk"))
-                        //$$         mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("camel_husk");
+                        //$$         mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("camel_husk").resetCacheID();
                         //$$ }
                         //#endif
                         //#if MC>=12109
@@ -432,9 +433,13 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "bed_head" -> mobNameForFileAndMap.setBoth("bed_head").addFallbackModel("bed");
                         case "book" -> {
                             if (currentSpecifiedModelLoading.equals("enchanting_book")) {
-                                mobNameForFileAndMap.setBoth("enchanting_book", "book").addFallbackModel("book");
+                                mobNameForFileAndMap.setBoth("enchanting_book", "book")
+                                        .addFallbackModel("book")
+                                        .resetCacheID();
                             } else {/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/
-                                mobNameForFileAndMap.setBoth("lectern_book", "book").addFallbackModel("book");
+                                mobNameForFileAndMap.setBoth("lectern_book", "book")
+                                        .addFallbackModel("book")
+                                        .resetCacheID();
                             }
                         }
                         case "salmon_small", "salmon_large" -> mobNameForFileAndMap.addFallbackModel("salmon");
@@ -442,7 +447,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("creaking");
                         case "chest" -> mobNameForFileAndMap.setBoth(
                                 currentSpecifiedModelLoading != null && !currentSpecifiedModelLoading.isBlank()
-                                        ? currentSpecifiedModelLoading : "chest", "chest");
+                                        ? currentSpecifiedModelLoading : "chest", "chest")
+                                    .resetCacheID();
                         case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit_cage").addFallbackModel("conduit");
                         case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit_eye").addFallbackModel("conduit");
                         case "conduit_shell" ->
@@ -461,9 +467,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "leash_knot" -> mobNameForFileAndMap.setBoth("lead_knot");
                         case "llama", "llama_baby" -> traderLlamaHappened = false;
                         case "llama_decor" ->
-                                mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
+                                mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor").resetCacheID();
                         case "llama_baby_decor" ->
-                                mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_baby_decor" : "llama_baby_decor");
+                                mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_baby_decor" : "llama_baby_decor").resetCacheID();
                         case "chest_minecart", "command_block_minecart", "spawner_minecart", "tnt_minecart",
                              "furnace_minecart", "hopper_minecart" ->
                                 mobNameForFileAndMap.setMapIdAndAddFallbackModel("minecart");
@@ -472,15 +478,16 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "player_slim" -> mobNameForFileAndMap.addFallbackModel("player");
                         case "arrow" -> {
                             if (currentSpecifiedModelLoading.equals("spectral_arrow")) {
-                                mobNameForFileAndMap.setBoth("spectral_arrow");
-                                mobNameForFileAndMap.addFallbackModel("arrow");
+                                mobNameForFileAndMap.setBoth("spectral_arrow")
+                                        .resetCacheID()
+                                        .addFallbackModel("arrow");
                             }
 
                         }
                         case "boat_water_patch" -> {
                             if (currentSpecifiedModelLoading.startsWith("emf$boat$")) {
                                 String type = currentSpecifiedModelLoading.substring(9);
-                                mobNameForFileAndMap.setBoth(type + "_boat_patch", "boat_patch").addFallbackModel("boat_patch");
+                                mobNameForFileAndMap.setBoth(type + "_boat_patch", "boat_patch").addFallbackModel("boat_patch").resetCacheID();
                                 currentSpecifiedModelLoading = "";
                             } else {
                                 mobNameForFileAndMap.setBoth("boat_patch");
@@ -491,7 +498,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "pufferfish_small" -> mobNameForFileAndMap.setBoth("puffer_fish_small");
                         case "shulker" -> {
                             if (currentSpecifiedModelLoading.equals("shulker_box")) {
-                                mobNameForFileAndMap.setBoth("shulker_box");
+                                mobNameForFileAndMap.setBoth("shulker_box").resetCacheID();
                             }
                         }
                         case "skeleton_skull" -> mobNameForFileAndMap.setBoth("head_skeleton");
@@ -508,13 +515,13 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "undead_horse_armor" -> {
                             if (lastUndeadHorse != null) {
                                 mobNameForFileAndMap.pushNewMainModelAndMapIdAddingOldAsFallback(
-                                        lastUndeadHorse.replaceAll("_baby", "") + "_armor");
+                                        lastUndeadHorse.replaceAll("_baby", "") + "_armor").resetCacheID();
                             }
                         }
                         case "undead_horse_baby_armor" -> {
                             if (lastUndeadHorse != null) {
                                 mobNameForFileAndMap.pushNewMainModelAndMapIdAddingOldAsFallback(
-                                        lastUndeadHorse.replaceAll("_baby", "") + "_baby_armor");
+                                        lastUndeadHorse.replaceAll("_baby", "") + "_baby_armor").resetCacheID();
                             }
                         }
                         default -> {
@@ -533,16 +540,19 @@ public class EMFManager {//singleton for data holding and resetting needs
                                         if (originalLayerName.startsWith("sign/standing/")) {
                                             sign += "_sign";
                                             mobNameForFileAndMap.setFileName(sign)
-                                                    .setMapIdAndAddFallbackModel("sign");
+                                                    .setMapIdAndAddFallbackModel("sign")
+                                                    .resetCacheID();
                                         } else if (originalLayerName.startsWith("sign/wall/")) {
                                             sign += "_wall_sign";
                                             mobNameForFileAndMap.setFileName(sign)
                                                     .setMapIdAndAddFallbackModel("wall_sign")
-                                                    .setMapIdAndAddFallbackModel("sign");
+                                                    .setMapIdAndAddFallbackModel("sign")
+                                                    .resetCacheID();
                                         } else {
                                             sign += "_hanging_sign";
                                             mobNameForFileAndMap.setFileName(sign)
-                                                    .setMapIdAndAddFallbackModel("hanging_sign");
+                                                    .setMapIdAndAddFallbackModel("hanging_sign")
+                                                    .resetCacheID();
                                         }
                                     }
                                     default -> {
@@ -550,7 +560,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                                         if (EMF.config().getConfig().automaticModelExporting)
                                             EMFUtils.log("EMF unknown modifiable block entity model identified during loading: " + currentSpecifiedModelLoading + ".jem");
                                         mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading)
-                                                .setMapIdAndAddFallbackModel(currentSpecifiedModelLoading, originalLayerName);
+                                                .setMapIdAndAddFallbackModel(currentSpecifiedModelLoading, originalLayerName)
+                                                .resetCacheID();
                                     }
                                 }
                             } else if (originalLayerName.contains("/") && layer.
@@ -585,7 +596,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             ///jem name and fallbacks are final and correct from here and there are no blank fallbacks
             if (mobNameForFileAndMap.getfileName().isBlank()){
                 if(mobNameForFileAndMap.hasFallbackModels()){
-                    mobNameForFileAndMap = mobNameForFileAndMap.getNextFallbackModel();
+                    mobNameForFileAndMap = mobNameForFileAndMap.getNextFallbackModel(0);
                 } else if(!originalLayerName.isBlank()){
                     mobNameForFileAndMap.setFileName(originalLayerName);
                 } else {
@@ -602,7 +613,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             //cache the layers for the model
 //            if(!isBaby) {
                 cache_LayersByModelName.put(mobNameForFileAndMap, layer);
-                mobNameForFileAndMap.forEachFallback((fallBack) -> cache_LayersByModelName.put(fallBack, layer));
+                mobNameForFileAndMap.forEachFallback((fallBack) -> cache_LayersByModelName.putIfAbsent(fallBack, layer));
 //            }
 
 
