@@ -1601,7 +1601,7 @@ public class EMFModelMappings {
                 // allow nested child parts named root to be found first otherwise apply the root part as the root
                 PartAndOffsets vanillaModelPart = searchPart == null && "root".equals(entry.getKey()) ? new PartAndOffsets(originalModel, 0,0,0) : searchPart;
 
-                partPrinter(vanillaModelPart, partPrinter, textureSize, mobMap.values(), false, originalModel);
+                partPrinter(vanillaModelPart, partPrinter, textureSize, mobMap.values(), false);
 
                 if (textureSize == null && partPrinter.has("textureSize")) {
                     var textureSize2 = partPrinter.getAsJsonArray("textureSize");
