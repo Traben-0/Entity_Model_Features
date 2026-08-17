@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFState;
 
 //#if MC>= 12111
 //$$ import net.minecraft.client.renderer.rendertype.RenderTypes;
@@ -30,7 +30,8 @@ public class MixinSlimeOverlayFeatureRenderer {
 //#endif
             at = @At(value = "HEAD"))
     private void emf$setLayerForOverrides(CallbackInfo ci) {
-        EMFAnimationEntityContext.setLayerFactory(
+        if (EMFState.state() == null) return;
+        EMFState.state().setLayerFactory(
                 //#if MC>= 12111
                 //$$ RenderTypes
                 //#else

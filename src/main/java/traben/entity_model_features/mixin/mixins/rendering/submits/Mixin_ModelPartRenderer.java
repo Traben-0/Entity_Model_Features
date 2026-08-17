@@ -7,18 +7,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.parts.EMFModelPartVanilla;
-import traben.entity_texture_features.ETF;
-import traben.entity_texture_features.features.ETFRenderContext;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.renderer.SubmitNodeStorage;
 import net.minecraft.client.renderer.feature.ModelPartFeatureRenderer;
-import traben.entity_texture_features.features.state.ETFEntityRenderState;
-import traben.entity_texture_features.utils.ETFEntity;
+import traben.entity_texture_features.features.state.ETFState;
 
 @Mixin(ModelPartFeatureRenderer.class)
 public class Mixin_ModelPartRenderer {
@@ -26,28 +22,23 @@ public class Mixin_ModelPartRenderer {
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;last()Lcom/mojang/blaze3d/vertex/PoseStack$Pose;"))
     private void emf$initRender(final CallbackInfo ci, @Local SubmitNodeStorage.ModelPartSubmit modelSubmit) {
         EMFManager.getInstance().entityRenderCount++;
-        var light = modelSubmit.lightCoords();
-        if (light == ETF.EMISSIVE_FEATURE_LIGHT_VALUE || light == EMF.EYES_FEATURE_LIGHT_VALUE) {
-            ETFRenderContext.startSpecialRenderOverlayPhase();
-        } else {
-            ETFRenderContext.endSpecialRenderOverlayPhase();
-        }
+
 
         if (modelSubmit.modelPart() instanceof EMFModelPartVanilla vanilla && vanilla.isPlayerArm) {
             if (Minecraft.getInstance().player != null) {
-                EMFAnimationEntityContext.modelVariationIgnoresVisibility = true;
-                EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState)
-                        ETFEntityRenderState.forEntity((ETFEntity) Minecraft.getInstance().player));
+                EMFState.modelVariationIgnoresVisibility = true;
+                var state = EMFEntityRenderState.manualPlayerState();
+                if (state != null) ETFState.mount(state);
             }
-            EMFAnimationEntityContext.isFirstPersonHand = true;
+            if (EMFState.state() != null) EMFState.state().setIsFirstPersonHand(true);
         }
     }
 
     @Inject(method = "render", at = @At(value = "TAIL"))
     private void emf$endRender(final CallbackInfo ci) {
-        ETFRenderContext.endSpecialRenderOverlayPhase();
-        EMFAnimationEntityContext.isFirstPersonHand = false;
-        EMFAnimationEntityContext.reset();
+            if (EMFState.state().isManualPlayerState()) {
+                ETFState.unMount();
+            }
     }
 
 }

@@ -10,11 +10,12 @@ import org.joml.Vector3f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.models.animation.math.EMFMath;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.ETF;
-import traben.entity_texture_features.features.ETFRenderContext;
+import traben.entity_texture_features.features.state.ETFState;
 import traben.entity_texture_features.features.texture_handlers.ETFTexture;
 import traben.entity_texture_features.utils.ETFUtils2;
 import traben.entity_texture_features.utils.ETFVertexConsumer;
@@ -37,7 +38,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.AABB;
 
-import static traben.entity_model_features.EMF.EYES_FEATURE_LIGHT_VALUE;
+import static traben.entity_texture_features.ETF.EYES_FEATURE_LIGHT_VALUE;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -82,7 +83,7 @@ public abstract class EMFModelPart extends ModelPart {
                        //#endif
     ) {
         try {
-            var choice = EMF.config().getConfig().getRenderModeFor(EMFAnimationEntityContext.getEMFEntity());
+            var choice = EMF.config().getConfig().getRenderModeFor(EMFState.state());
             //normal render
             if (choice == EMFConfig.RenderModeChoice.NORMAL) {
                 renderWithTextureOverride(matrices, vertices, light, overlay,
@@ -97,7 +98,7 @@ public abstract class EMFModelPart extends ModelPart {
 
             //debug choice chosen
             //check if only render debug when hovered
-            if (EMF.config().getConfig().onlyDebugRenderOnHover && !EMFAnimationEntityContext.isClientHovered()) {
+            if (EMF.config().getConfig().onlyDebugRenderOnHover && !EMFMath.isClientHovered()) {
                 renderWithTextureOverride(matrices, vertices, light, overlay,
                         //#if MC >= 12100
                         k
@@ -207,7 +208,7 @@ public abstract class EMFModelPart extends ModelPart {
                                    //$$ float red, float green, float blue, float alpha
                                    //#endif
     ) {
-        if (textureOverride == null || (EMFAnimationEntityContext.isLayerPhase() && getRoot().isMainModel)) {
+        if (textureOverride == null || (EMFState.isLayerPhase && getRoot().isMainModel)) {
             // || lastTextureOverride == EMFManager.getInstance().entityRenderCount // prevents texture overrides carrying over into feature renderers that reuse the base model
             //normal vertex consumer
             renderLikeETF(matrices, vertices, light, overlay,
@@ -218,7 +219,7 @@ public abstract class EMFModelPart extends ModelPart {
                     //#endif
             );
         } else if (light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
-                && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() //do not allow new etf emissive rendering here
+                && !ETFState.isIsInSpecialRenderOverlayPhase() //do not allow new etf emissive rendering here
                 //&& vertices instanceof ETFVertexConsumer etfVertexConsumer
         ) { //can restore to previous render layer
 
@@ -226,7 +227,8 @@ public abstract class EMFModelPart extends ModelPart {
             // fixed weird bug with certain texture overrides rendering in first person as though from the sun's POV
             // downside is incorrect shadows for some model parts :/
             //todo triple check it is only block entities, I so far cannot recreate the bug for regular mobs
-            if ((EMFAnimationEntityContext.getEMFEntity() != null && EMFAnimationEntityContext.getEMFEntity().etf$isBlockEntity())
+            var state = EMFState.state();
+            if ((state != null && state.isBlockEntity())
                     && ETF.IRIS_DETECTED && IrisShadowPassDetection.getInstance().inShadowPass()) {
                 //skip texture override
                 renderLikeETF(matrices, vertices, light, overlay,
@@ -304,7 +306,7 @@ public abstract class EMFModelPart extends ModelPart {
     ){
 
 //        lastTextureOverride = EMFManager.getInstance().entityRenderCount;
-        RenderType layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrETFOverrideOrTranslucent(textureOverride);
+        RenderType layerModified = EMFState.getLayerFromRecentFactoryOrETFOverrideOrTranslucent(textureOverride);
         VertexConsumer newConsumer = provider.getBuffer(layerModified);
 
         renderLikeVanilla(matrices, newConsumer, light, overlay,
@@ -390,12 +392,11 @@ public abstract class EMFModelPart extends ModelPart {
             if (testBuilding instanceof ETFVertexConsumer etf
                     && etf.etf$getRenderLayer() != null
                     && etf.etf$getProvider() != null){
-                boolean allowed = ETFRenderContext.isAllowedToRenderLayerTextureModify();
-                ETFRenderContext.preventRenderLayerTextureModify();
+                ETFState.pushRenderLayerModifyState(false);
 
                 vertices = etf.etf$getProvider().getBuffer(etf.etf$getRenderLayer());
 
-                if (allowed) ETFRenderContext.allowRenderLayerTextureModify();
+                ETFState.popRenderLayerModifyState();
             }else {
                 return null;
             }
@@ -421,7 +422,7 @@ public abstract class EMFModelPart extends ModelPart {
         //#endif
 
         //etf ModelPartMixin copy
-        ETFRenderContext.incrementCurrentModelPartDepth();
+        ETFState.currentModelPartDepth++;
 
         renderLikeVanilla(matrices, vertices, light, overlay,
                 //#if MC >= 12100
@@ -432,11 +433,11 @@ public abstract class EMFModelPart extends ModelPart {
         );
 
         //etf ModelPartMixin copy
-        if (ETFRenderContext.getCurrentModelPartDepth() != 1) {
-            ETFRenderContext.decrementCurrentModelPartDepth();
+        if (ETFState.currentModelPartDepth != 1) {
+            ETFState.currentModelPartDepth--;
         } else {
             //top level model so try special rendering
-            if (ETFRenderContext.isCurrentlyRenderingEntity()
+            if (ETFState.isStateActive()
                     && vertices instanceof ETFVertexConsumer etfVertexConsumer) {
                 ETFTexture texture = etfVertexConsumer.etf$getETFTexture();
                 //is etf texture not null and does it special render?
@@ -466,7 +467,7 @@ public abstract class EMFModelPart extends ModelPart {
                 }
             }
             //ensure model count is reset
-            ETFRenderContext.resetCurrentModelPartDepth();
+            ETFState.currentModelPartDepth = 0;
         }
     }
 

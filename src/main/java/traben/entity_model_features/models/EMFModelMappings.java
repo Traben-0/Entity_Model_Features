@@ -1573,18 +1573,20 @@ public class EMFModelMappings {
         String namespace = mobId.namespace;
         String fileName = mobId.getfileName();
 
-        mapString.append(" |-[assets/").append(namespace).append("/optifine/cem/").append(fileName).append(".jem]\n");
-        mobMap.forEach((key, entry) -> {
-            mapString.append(" | |-[").append("root".equals(key) ? "(optional) " : "").append("part=").append(key).append("]\n");
-            var details = detailsMap.get(entry);
-            mapString.append(details == null ? "" : details);
-        });
-        mapString.append("  \\-\\{{end of model}}");
+        if (allowsExport || EMF.config().getConfig().logModelCreationData) {
+            mapString.append(" |-[assets/").append(namespace).append("/optifine/cem/").append(fileName).append(".jem]\n");
+            mobMap.forEach((key, entry) -> {
+                mapString.append(" | |-[").append("root".equals(key) ? "(optional) " : "").append("part=").append(key).append("]\n");
+                var details = detailsMap.get(entry);
+                mapString.append(details == null ? "" : details);
+            });
+            mapString.append("  \\-\\{{end of model}}");
 
-        if (known) {
-            EMFUtils.log("Known model detected, Mapping now...\n" + mapString);
-        } else {
-            EMFUtils.log("Unknown (possibly modded) model detected, Mapping now...\n" + mapString);
+            if (known) {
+                EMFUtils.log("Known model detected, Mapping now...\n" + mapString);
+            } else {
+                EMFUtils.log("Unknown (possibly modded) model detected, Mapping now...\n" + mapString);
+            }
         }
 
         if (allowsExport) {

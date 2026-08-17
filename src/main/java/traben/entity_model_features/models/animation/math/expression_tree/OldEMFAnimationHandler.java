@@ -2,9 +2,11 @@ package traben.entity_model_features.models.animation.math.expression_tree;
 
 import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.EMFAnimationHandler;
+import traben.entity_model_features.models.animation.math.EMFMath;
 import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
+import traben.entity_model_features.models.animation.state.EMFState;
+import traben.entity_model_features.utils.EMFLODHandler;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.utils.ETFLruCache;
 
@@ -41,7 +43,7 @@ public class OldEMFAnimationHandler extends EMFAnimationHandler {
 
     private Map<String, Float> prevResultsOfEntity() {
         //noinspection deprecation
-        var state = EMFAnimationEntityContext.getEmfState();
+        var state = EMFState.state();
         if (state == null) return null;
 
         return lastResultsPerEntity.computeIfAbsent(state.uuid(), u -> new ConcurrentHashMap<>());
@@ -78,10 +80,10 @@ public class OldEMFAnimationHandler extends EMFAnimationHandler {
                 } else {
                     if (line.isBoolean) {
                         //noinspection deprecation
-                        consumer = value -> EMFAnimationEntityContext.setEntityVariable(key, MathValue.isBoolean(value) ? value : FALSE);
+                        consumer = value -> EMFMath.setEntityVariable(key, MathValue.isBoolean(value) ? value : FALSE);
                     } else {
                         //noinspection deprecation
-                        consumer = value -> EMFAnimationEntityContext.setEntityVariable(key, MathValue.isBoolean(value) ? 0 : value);
+                        consumer = value -> EMFMath.setEntityVariable(key, MathValue.isBoolean(value) ? 0 : value);
                     }
                 }
             } else if (line.applier != null) {
@@ -98,7 +100,7 @@ public class OldEMFAnimationHandler extends EMFAnimationHandler {
     protected void animateInner(ModelPart[] pausedParts){
         Map<String, Float> prevVals = prevResultsOfEntity();
         //noinspection deprecation
-        boolean skip = prevVals != null && EMFAnimationEntityContext.isLODSkippingThisFrame(modelName);
+        boolean skip = prevVals != null && EMFLODHandler.isLODSkippingThisFrame(modelName);
 
         for (var line : lines()) {
             if (pausedParts != null) {

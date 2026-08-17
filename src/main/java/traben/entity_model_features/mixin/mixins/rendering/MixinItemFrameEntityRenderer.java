@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFState;
 
 @Mixin(ItemFrameRenderer.class)
 public class MixinItemFrameEntityRenderer {
@@ -27,7 +27,7 @@ public class MixinItemFrameEntityRenderer {
     //$$                 shift = At.Shift.AFTER))
     //$$ private void emf$setFrame(final CallbackInfo ci) {
     //$$     //basically "HEAD"
-    //$$     EMFAnimationEntityContext.setInItemFrame = true;
+    //$$     EMFState.isInItemFrame = true;
     //$$ }
     //$$
     //$$ @Inject(method =
@@ -38,7 +38,7 @@ public class MixinItemFrameEntityRenderer {
             //#endif
     //$$         at = @At(value = "TAIL"))
     //$$ private void emf$unsetFrame(final CallbackInfo ci) {
-    //$$     EMFAnimationEntityContext.setInItemFrame = false;
+    //$$     EMFState.isInItemFrame = false;
     //$$ }
     //#endif
 }

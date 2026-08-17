@@ -3,10 +3,12 @@ package traben.entity_model_features.mixin.mixins.rendering.arrows;
 
 //#if MC >=12102
 import org.spongepowered.asm.mixin.Mixin;
+
 @Mixin(traben.entity_texture_features.mixin.CancelTarget.class)
 public abstract class MixinProjectileEntityRenderer { }
 //#else
 //$$ import com.mojang.blaze3d.vertex.PoseStack;
+//$$ import traben.entity_model_features.models.animation.state.EMFState;
 //$$ import com.mojang.blaze3d.vertex.VertexConsumer;
 //$$ import net.minecraft.client.renderer.MultiBufferSource;
 //$$ import net.minecraft.client.renderer.RenderType;
@@ -36,11 +38,12 @@ public abstract class MixinProjectileEntityRenderer { }
 //$$             at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;last()Lcom/mojang/blaze3d/vertex/PoseStack$Pose;", shift = At.Shift.BEFORE), cancellable = true)
 //$$     private void emf$cancelAndCEMRender(final T entity, final float entityYaw, final float partialTicks, final PoseStack poseStack, final MultiBufferSource buffer, final int packedLight, final CallbackInfo ci) {
 //$$         if (this instanceof IEMFCustomModelHolder customModelHolder && customModelHolder.emf$hasModel()) {
+//$$             var state = EMFState.state();
 //$$             //matrixStack.translate(4,0,0);
 //$$             poseStack.scale(16, -12.8f, -12.8f);//result 0.9,  0.72   0.72
-//$$             EMFAnimationEntityContext.setHeadYaw(entityYaw);
+//$$             if (state != null) state.setHeadYaw(entityYaw);
 //$$             float s = (float) entity.shakeTime - partialTicks;
-//$$             EMFAnimationEntityContext.setHeadPitch(-Mth.sin(s * 3.0F) * s);// copy of t
+//$$             if (state != null) state.setHeadPitch(-Mth.sin(s * 3.0F) * s);// copy of t
 //$$             VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.entityTranslucent(this.getTextureLocation(entity)));
 //$$             customModelHolder.emf$getModel().render(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY
                     //#if MC >= 12100

@@ -23,10 +23,10 @@ import traben.entity_model_features.models.animation.math.asm.ASMParser;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 import traben.entity_model_features.models.animation.math.methods.emf.NBTMethod;
 import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModelNameContainer;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.parts.EMFModelPartVanilla;
@@ -109,7 +109,6 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     private EMFManager() {
-        EMFAnimationEntityContext.globalReset();
         IS_PHYSICS_MOD_INSTALLED = ETF.isThisModLoaded("physicsmod");
 //        IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
         IS_EBE_INSTALLED = ETF.isThisModLoaded("enhancedblockentities");
@@ -137,6 +136,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         NBTMethod.CACHE.clear();
         GlobalVariableFactory.clear();
         self = new EMFManager();
+        EMFState.clear();
     }
 
     @Nullable

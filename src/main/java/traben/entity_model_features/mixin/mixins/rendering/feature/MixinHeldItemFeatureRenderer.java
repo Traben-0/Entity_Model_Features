@@ -12,9 +12,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_texture_features.features.state.HoldsETFRenderState;
 
 //#if MC>=12109
@@ -59,12 +59,12 @@ MixinHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityM
                              @Local(argsOnly = true) S stateIn,
                              //#endif
                              @Local HumanoidArm arm, @Share("armOverride") LocalRef<EMFAttachments> armOverride) {
-        EMFAnimationEntityContext.setInHand = true;
+        EMFState.isInHand = true;
         //#if MC >= 12102
         if (stateIn == null) return;
         var state = (EMFEntityRenderState) ((HoldsETFRenderState) stateIn).etf$getState();
         //#else
-        //$$ var state = EMFAnimationEntityContext.getEmfState();
+        //$$ var state = EMFState.state();
         //#endif
         if (state == null) return;
 
@@ -102,7 +102,7 @@ MixinHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityM
     @Inject(method = RENDER_ARM,
             at = @At(value = "TAIL"))
     private void emf$unsetHand(final CallbackInfo ci, @Local(argsOnly = true) PoseStack matrices, @Share("needsPop") LocalBooleanRef needsToPop) {
-        EMFAnimationEntityContext.setInHand = false;
+        EMFState.isInHand = false;
         if (needsToPop.get()) matrices.popPose();
     }
 

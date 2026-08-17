@@ -8,10 +8,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.EMFAnimationHandler;
+import traben.entity_model_features.models.animation.math.EMFMath;
+import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
+import traben.entity_model_features.utils.EMFAnimationPauseHandler;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFResourceCaching;
@@ -91,7 +94,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     private void registerModelRunnableWithEntityTypeContext() {
         //noinspection deprecation
-        var entity = EMFAnimationEntityContext.getEmfState();
+        var entity = EMFState.state();
         if (entity != null) { // await a valid entity
             String type = entity.typeString();
 
@@ -119,10 +122,8 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
 
-    public void doVariantCheck() {
-        //noinspection deprecation
-        var emfState = EMFAnimationEntityContext.getEmfState();
-        if(this.variantTester == null || emfState == null) {
+    public void doVariantCheck(@NotNull EMFEntityRenderState emfState) {
+        if(this.variantTester == null) {
             this.setVariantStateTo(1);
             return;
         }
@@ -131,7 +132,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         int finalSuffix = entitySuffixMap.get(id);
 
         if (finalSuffix != -1) {
-            checkIfShouldExpireEntity(id);
+            checkIfShouldExpireEntity(emfState, id);
         } else {
             finalSuffix = Math.max(1, variantTester.getSuffixForETFEntity(emfState));
             entitySuffixMap.put(id, finalSuffix);
@@ -140,15 +141,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         setVariantStateTo(finalSuffix);
     }
 
-    public void checkIfShouldExpireEntity(UUID id) {
+    public void checkIfShouldExpireEntity(@NotNull EMFEntityRenderState emfState, UUID id) {
         if (this.variantTester.entityCanUpdate(id)) {
             switch (EMF.config().getConfig().modelUpdateFrequency) {
                 case Never -> {}
                 case Instant -> this.entitySuffixMap.remove(id);
                 default -> {
                     int delay = EMF.config().getConfig().modelUpdateFrequency.getDelay();
-                    //noinspection deprecation
-                    int time = (int) (EMFAnimationEntityContext.getTime() % delay);
+                    int time = (int) (EMFMath.getTime(emfState) % delay);
                     if (time == Math.abs(id.hashCode()) % delay) {
                         this.entitySuffixMap.remove(id);
                     }
@@ -292,7 +292,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         if (vanillaRoot != null) {
             matrixStack.pushPose();
             //noinspection deprecation
-            if (EMF.config().getConfig().getVanillaHologramModeFor(EMFAnimationEntityContext.getEMFEntity()) == EMFConfig.VanillaModelRenderMode.OFFSET) {
+            if (EMF.config().getConfig().getVanillaHologramModeFor(EMFState.state().emfEntity()) == EMFConfig.VanillaModelRenderMode.OFFSET) {
                 matrixStack.translate(1, 0, 0);
             }
             vanillaRoot.render(matrixStack, vertexConsumer, light, overlay
@@ -346,7 +346,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     public void animate() {
-        if (animation != null && !EMFAnimationEntityContext.isEntityAnimPausedWrapped()) {
+        if (animation != null && !EMFAnimationPauseHandler.shouldAnimationsPause(EMFState.state())) {
             animation.run();
         }
     }
@@ -358,12 +358,13 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                 lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
 
                 //noinspection deprecation
-                if (EMFAnimationEntityContext.isFirstPersonHand && EMF.config().getConfig().preventFirstPersonHandAnimating)
+                var state = EMFState.state();
+                if (state != null && state.isFirstPersonHand() && EMF.config().getConfig().preventFirstPersonHandAnimating)
                     return;
 
                 try {
                     //noinspection deprecation
-                    animationHandler.animate(EMFAnimationEntityContext.getEntityPartsAnimPaused());
+                    animationHandler.animate(EMFAnimationPauseHandler.getEntityPartsAnimPaused());
                 } catch (Throwable e) {
                     EMFUtils.logError("Error in animation for model [" + modelName.getfileName() + "].");
                     //noinspection CallToPrintStackTrace

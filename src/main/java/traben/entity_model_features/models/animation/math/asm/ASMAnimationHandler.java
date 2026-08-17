@@ -5,11 +5,13 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.EMFAnimationHandler;
+import traben.entity_model_features.models.animation.math.EMFMath;
 import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
 import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
+import traben.entity_model_features.models.animation.state.EMFState;
+import traben.entity_model_features.utils.EMFLODHandler;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.utils.ETFLruCache;
 
@@ -45,9 +47,9 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
     @Override
     protected void animateInner(ModelPart[] pausedParts) throws Throwable {
         //noinspection deprecation
-        var state = EMFAnimationEntityContext.getEmfState();
+        var state = EMFState.state();
         //noinspection deprecation
-        if (lod && EMFAnimationEntityContext.isLODSkippingThisFrame(modelName)) {
+        if (lod && EMFLODHandler.isLODSkippingThisFrame(modelName)) {
             if (state != null) {
                 AnimVars vars = lastResultsPerEntity.get(state.uuid());
                 if (vars != null) {
@@ -106,7 +108,7 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
                     consumer = (array, doVar) -> {
                         if (doVar)
                             //noinspection deprecation
-                            EMFAnimationEntityContext.setEntityVariable(key, array[index]);
+                            EMFMath.setEntityVariable(key, array[index]);
                     };
                 }
             } else if (line.applier != null) {
@@ -154,7 +156,7 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
                     consumer = (array, doVar) -> {
                         if (doVar)
                             //noinspection deprecation
-                            EMFAnimationEntityContext.setEntityVariable(key, array[index] ? TRUE : FALSE);
+                            EMFMath.setEntityVariable(key, array[index] ? TRUE : FALSE);
                     };
                 }
             } else if (line.applier != null) {

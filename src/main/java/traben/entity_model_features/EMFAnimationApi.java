@@ -7,13 +7,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.IEMFModel;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.asm.ASMVisitable;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
 import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
 import traben.entity_model_features.models.animation.math.variables.factories.UniqueVariableFactory;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartCustom;
+import traben.entity_model_features.utils.EMFAnimationPauseHandler;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -54,7 +55,8 @@ public interface EMFAnimationApi {
      * @return the currently rendered entity
      */
     static @Nullable EMFEntity getCurrentEntity() {
-        return EMFAnimationEntityContext.getEMFEntity();
+        var state = EMFState.state();
+        return state != null ? state.emfEntity() : null;
     }
 
     /**
@@ -201,7 +203,7 @@ public interface EMFAnimationApi {
         if (shouldPause == null) {
             throw paramFail("null pause condition");
         }
-        EMFAnimationEntityContext.pauseListeners.add(shouldPause);
+        EMFAnimationPauseHandler.pauseListeners.add(shouldPause);
         return true;
     }
 
@@ -213,7 +215,7 @@ public interface EMFAnimationApi {
         if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
             return false;
         }
-        EMFAnimationEntityContext.entitiesPaused.add(entityOrBlockEntity.etf$getUuid());
+        EMFAnimationPauseHandler.entitiesPaused.add(entityOrBlockEntity.etf$getUuid());
         return true;
     }
 
@@ -225,8 +227,8 @@ public interface EMFAnimationApi {
         if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
             return false;
         }
-        EMFAnimationEntityContext.entitiesPaused.remove(entityOrBlockEntity.etf$getUuid());
-        EMFAnimationEntityContext.entitiesPausedParts.remove(entityOrBlockEntity.etf$getUuid());
+        EMFAnimationPauseHandler.entitiesPaused.remove(entityOrBlockEntity.etf$getUuid());
+        EMFAnimationPauseHandler.entitiesPausedParts.remove(entityOrBlockEntity.etf$getUuid());
         return true;
     }
 
@@ -240,7 +242,7 @@ public interface EMFAnimationApi {
                 || parts == null || parts.length == 0) {
             return false;
         }
-        EMFAnimationEntityContext.entitiesPausedParts.put(entityOrBlockEntity.etf$getUuid(), parts);
+        EMFAnimationPauseHandler.entitiesPausedParts.put(entityOrBlockEntity.etf$getUuid(), parts);
         return true;
     }
 
@@ -254,7 +256,7 @@ public interface EMFAnimationApi {
         if (shouldUseVanillaModel == null) {
             throw paramFail("null vanilla model condition");
         }
-        EMFAnimationEntityContext.forceVanillaModelListeners.add(shouldUseVanillaModel);
+        EMFState.forceVanillaModelListeners.add(shouldUseVanillaModel);
         return true;
     }
 
@@ -266,7 +268,7 @@ public interface EMFAnimationApi {
         if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
             return false;
         }
-        EMFAnimationEntityContext.entitiesToForceVanillaModel.add(entityOrBlockEntity.etf$getUuid());
+        EMFState.entitiesToForceVanillaModel.add(entityOrBlockEntity.etf$getUuid());
         return true;
     }
 
@@ -278,7 +280,7 @@ public interface EMFAnimationApi {
         if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
             return false;
         }
-        EMFAnimationEntityContext.entitiesToForceVanillaModel.remove(entityOrBlockEntity.etf$getUuid());
+        EMFState.entitiesToForceVanillaModel.remove(entityOrBlockEntity.etf$getUuid());
         return true;
     }
 

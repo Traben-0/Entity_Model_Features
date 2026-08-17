@@ -24,6 +24,7 @@ import traben.entity_model_features.models.animation.math.variables.VariableRegi
 import traben.entity_model_features.models.animation.math.variables.factories.UniqueVariableFactory;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.EMFModelMappings;
+import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_model_features.models.EMFModel_ID;
@@ -65,7 +66,12 @@ public class EMFConfig extends TConfig {
     @Deprecated(forRemoval = true) public ETFConfig.String2EnumNullMap<PhysicsModCompatChoice> entityPhysicsModPatchOverrides = new ETFConfig.String2EnumNullMap<>();
     public ETFConfig.String2EnumNullMap<VanillaModelRenderMode> entityVanillaHologramOverrides = new ETFConfig.String2EnumNullMap<>();
 
-    public RenderModeChoice getRenderModeFor(EMFEntity entity) {
+    public RenderModeChoice getRenderModeFor(@Nullable EMFEntityRenderState state) {
+        if (state == null) return getRenderModeFor((EMFEntity) null);
+        return getRenderModeFor(state.emfEntity());
+    }
+
+    public RenderModeChoice getRenderModeFor(@Nullable EMFEntity entity) {
         String typeString = getTypeString(entity);
         if (typeString == null) return renderModeChoice;
         return Objects.requireNonNullElseGet(entityRenderModeOverrides.get(typeString), () -> renderModeChoice);

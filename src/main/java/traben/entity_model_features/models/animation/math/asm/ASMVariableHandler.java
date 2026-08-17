@@ -53,13 +53,13 @@ public class ASMVariableHandler {
 
     public void verifyEndOfParse() throws EMFMathException {
         if (!booleanScopeStack.isEmpty())
-            throw new EMFMathException("ASMVariableHandler verifyEndOfParse issue: type stack is not empty");
+            throw new EMFMathException("ASMVariableHandler verifyEndOfParse issue: type stack is not empty, probably an EMF issue.");
 
         if (localVarIndex != 1)
-            throw new EMFMathException("ASMVariableHandler verifyEndOfParse issue: local variable index is not reset");
+            throw new EMFMathException("ASMVariableHandler verifyEndOfParse issue: local variable index is not reset, probably an EMF issue.");
 
         if (floatVarList.stream().anyMatch(boolVarList::contains))
-            throw new EMFMathException("ASMVariableHandler verifyEndOfParse issue: has variable names that are both in float and bool lists");
+            throw new EMFMathException("ASMVariableHandler verifyEndOfParse issue: a variable was used both as a number and a boolean somewhere, this is not allowed.");
     }
 
     public boolean isScopeBool() {

@@ -13,6 +13,8 @@ public class EMFBipedPose {
     private final PosePart rightLeg;
     public final PosePart root;
 
+    public boolean applyToSubmit = false;
+
     public EMFBipedPose(HumanoidModel<?> model) {
         this.head = new PosePart(model.head);
         this.body = new PosePart(model.body);

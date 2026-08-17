@@ -9,8 +9,8 @@ import org.joml.Vector3f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.mixins.accessor.CuboidAccessor;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.EMFAttachments;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
 import traben.entity_model_features.EMFManager;
@@ -142,7 +142,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                 attachment.setAttachment(matrices);
                 matrices.popPose();
 
-                var state = EMFAnimationEntityContext.getEmfState();
+                var state = EMFState.state();
                 if (state != null) {
                     if (attachment.right) state.setRightArmOverride(attachment);
                     else state.setLeftArmOverride(attachment);
@@ -188,7 +188,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                                    //$$ float red, float green, float blue, float alpha
                                    //#endif
     ) {
-        if (textureOverride != null && (EMFAnimationEntityContext.isLayerPhase() && getRoot().isMainModel)){
+        if (textureOverride != null && (EMFState.isLayerPhase && getRoot().isMainModel)){
             //do not render if this is a custom part with a texture override and are rendering a feature overlay
             //custom parts with texture overrides are explicitly stating they will not be used in feature layers
             return;

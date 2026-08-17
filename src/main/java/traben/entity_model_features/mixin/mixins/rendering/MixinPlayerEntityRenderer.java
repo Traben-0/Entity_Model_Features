@@ -12,12 +12,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.IEMFModel;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.math.EMFMath;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
+import traben.entity_texture_features.features.state.ETFState;
 import traben.entity_texture_features.features.state.HoldsETFRenderState;
 import traben.entity_texture_features.utils.ETFEntity;
 
@@ -81,7 +84,7 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
         //#endif
     emf$renderState(){
         var state = createRenderState();
-        extractRenderState(Minecraft.getInstance().player, state, EMFAnimationEntityContext.getTickDelta());
+        extractRenderState(Minecraft.getInstance().player, state, EMFMath.getTickDelta());
         return state;
     }
     //#endif
@@ -94,8 +97,9 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
     private void emf$setHandAnimState(CallbackInfo ci) {
         // Before visibility checks
         var state = (EMFEntityRenderState) ((HoldsETFRenderState)emf$renderState()).etf$getState();
-        EMFAnimationEntityContext.setCurrentEntityIteration(state);
-        EMFAnimationEntityContext.isFirstPersonHand = true;
+        ETFState.mount(state);
+        state.setManualPlayerState(true);
+        state.setIsFirstPersonHand(true);
     }
 
     @Inject(method = "renderHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModelPart(Lnet/minecraft/client/model/geom/ModelPart;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderType;IILnet/minecraft/client/renderer/texture/TextureAtlasSprite;)V"))
@@ -113,18 +117,21 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
     //$$ private void emf$setHand(CallbackInfo ci
     //$$ ) {
         //#if MC >= 12102
-        //$$ EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState) ((HoldsETFRenderState)emf$renderState()).etf$getState());
+        //$$ var state = (EMFEntityRenderState) ((HoldsETFRenderState)emf$renderState()).etf$getState();
         //#else
-        //$$ EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState)
-        //$$         ETFEntityRenderState.forEntity((ETFEntity) Minecraft.getInstance().player));
+        //$$ var state = (EMFEntityRenderState) ETFEntityRenderState.forEntity((ETFEntity) Minecraft.getInstance().player);
         //#endif
-    //$$     EMFAnimationEntityContext.isFirstPersonHand = true; // moot in 1.21.9+ as despite the method name this is actually a submit
+    //$$     ETFState.mount(state);
+    //$$     state.setManualPlayerState(true);
+    //$$     state.setIsFirstPersonHand(true);
+    //$$     //EMFAnimationEntityContext.isFirstPersonHand = true; // moot in 1.21.9+ as despite the method name this is actually a submit
     //$$ }
     //#endif
 
     @Inject(method = "renderHand", at = @At(value = "RETURN"))
     private void emf$unsetHand(final CallbackInfo ci) {
-        EMFAnimationEntityContext.reset();
+        if (EMFState.state() == null || !EMFState.state().isManualPlayerState()) return;
+        ETFState.unMount();
     }
 
 

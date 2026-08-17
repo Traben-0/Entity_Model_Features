@@ -1,6 +1,7 @@
 package traben.entity_model_features.mixin.mixins;
 
 import org.spongepowered.asm.mixin.Mixin;
+import traben.entity_model_features.models.animation.state.EMFState;
 
 //#if MC < 12102
 //$$ import net.minecraft.client.model.PlayerModel;
@@ -60,7 +61,7 @@ public abstract class MixinCapeModels {
 //$$             poseStack.popPose();
 //$$             poseStack.pushPose();
 //$$
-//$$             EMFEntity emfEntity = EMFAnimationEntityContext.getEMFEntity();
+//$$             EMFEntity emfEntity = EMFState.emfEntity();
 //$$             if (!(emfEntity instanceof Player)) return;
 //$$             Player player = (Player) emfEntity;
 //$$

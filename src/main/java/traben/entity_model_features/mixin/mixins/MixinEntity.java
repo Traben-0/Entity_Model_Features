@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.EMFManager;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFEntity;
 
 import java.util.HashMap;
@@ -130,10 +130,12 @@ public abstract class MixinEntity implements EMFEntity {
     //$$ @Inject(method = "getLeashOffset()Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"))
     //#endif
     private void emf$leashwither(CallbackInfoReturnable<Vec3> cir) {
+        var state = EMFState.state();
+        if (state == null) return;
         //return new Vec3d(0.0, (double)this.getStandingEyeHeight(), (double)(this.getWidth() * 0.4F));
-        if (EMFAnimationEntityContext.getLeashX() != 0 || EMFAnimationEntityContext.getLeashY() != 0 || EMFAnimationEntityContext.getLeashZ() != 0) {
+        if (state.leashX() != 0 || state.leashY() != 0 || state.leashZ() != 0) {
             Vec3 vec = cir.getReturnValue();
-            vec.add(EMFAnimationEntityContext.getLeashX(), EMFAnimationEntityContext.getLeashY(), EMFAnimationEntityContext.getLeashZ());
+            vec.add(state.leashX(), state.leashY(), state.leashZ());
         }
     }
 
@@ -282,7 +284,7 @@ public abstract class MixinEntity implements EMFEntity {
             emf$variableMapGuiCopy = null;
         }
 
-        if (EMFAnimationEntityContext.isInGui()) {
+        if (EMFState.isInGui) {
             // Copy the initial variable state but allow the gui to now change these separately
             if (emf$variableMapGuiCopy == null) emf$variableMapGuiCopy = new HashMap<>(emf$variableMap);
             return emf$variableMapGuiCopy;

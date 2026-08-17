@@ -7,7 +7,11 @@ import net.minecraft.network.chat.Component;
 import org.apache.logging.log4j.LogManager;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.PALCompat;
+import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderStateViaReference;
+import traben.entity_model_features.models.animation.state.EMFState;
+import traben.entity_model_features.models.parts.EMFModelPartRoot;
+import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import traben.entity_model_features.propeties.*;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
@@ -17,6 +21,9 @@ import traben.entity_texture_features.config.ETFConfigWarning;
 import traben.entity_texture_features.config.ETFConfigWarnings;
 import traben.entity_texture_features.features.property_reading.properties.RandomProperties;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
+import traben.entity_texture_features.features.state.ETFState;
+import traben.entity_texture_features.features.state.ETFSubmitData;
+import traben.entity_texture_features.utils.ETFEntity;
 import traben.entity_texture_features.utils.ETFUtils2;
 import traben.tconfig.TConfigHandler;
 
@@ -24,7 +31,7 @@ import java.util.Random;
 
 public class EMF {
 
-    public static final int EYES_FEATURE_LIGHT_VALUE = ETFUtils2.FULL_BRIGHT + 1;
+
     public static final String MOD_ID = "entity_model_features";
     public static boolean forgeHadLoadingError = false;
     public static boolean testedForge = !ETF.isForge();
@@ -109,6 +116,48 @@ public class EMF {
                 }
             } catch (Exception ignored) {}
         }
+        //#endif
+
+        //#if MC >= 1.21.9
+        ETFSubmitData.DATA_IN.add((data, vanilla)->{
+
+            var state = EMFState.state();
+            if (state != null) {
+                var pose = state.getBipedPose();
+                if (pose != null && pose.applyToSubmit) {
+                    data.data.put("bipedPose", state.getBipedPose());
+                }
+            }
+
+            data.data.put("onShoulder", state != null && state.onShoulder());
+
+            data.data.put("isMainModelPhase", EMFState.isMainPhase);
+            data.data.put("isLayerModelPhase", EMFState.isLayerPhase);
+
+            EMFModelPartRoot emfRoot = vanilla.model().root() instanceof EMFModelPartRoot ? (EMFModelPartRoot) vanilla.model().root() : null;
+            if (emfRoot != null) {
+                data.data.put("modelVariant", emfRoot.currentModelVariant);
+            }
+        });
+
+        //#if MC >= 26.2
+        ETFSubmitData.DATA_OUT.add((data, vanilla)->{
+            // Replaces logic for model part submits that now wrap in simple models
+            if (vanilla.model().root() instanceof EMFModelPartVanilla partVanilla && partVanilla.getRoot() != partVanilla) {
+                EMFManager.getInstance().entityRenderCount++;
+
+                if (partVanilla.isPlayerArm) {
+                    if (Minecraft.getInstance().player != null) {
+                        EMFState.modelVariationIgnoresVisibility = true;
+                        var state = EMFEntityRenderState.manualPlayerState();
+                        if (state != null) ETFState.mount(state);
+                    }
+                    EMFState.state().setIsFirstPersonHand(true);
+                }
+            }
+        });
+        //#endif
+
         //#endif
     }
 

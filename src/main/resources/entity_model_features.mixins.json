@@ -28,7 +28,6 @@
     "exporting.MixinMeshTransformer",
     "rendering.Mixin_SpecialModelRenderers_SetCurrentSpecifiedModel",
     "rendering.MixinBannerRenderer",
-    "rendering.MixinBlockEntityRenderDispatcher",
     "rendering.MixinBlockEntityWithoutLevelRenderer",
     "rendering.MixinDragonRenderer",
     "rendering.MixinEntityRenderDispatcher",
@@ -41,7 +40,6 @@
     "rendering.arrows.MixinSpectralArrowRenderer",
     "rendering.arrows.MixinStuckArrowsFeatureRenderer",
     "rendering.feature.MixinCreeperChargeFeatureRenderer",
-    "rendering.feature.MixinEyesFeatureRenderer",
     "rendering.feature.MixinHeadFeatureRenderer",
     "rendering.feature.MixinHeldItemFeatureRenderer",
     "rendering.feature.MixinHumanoidArmorLayer",
@@ -55,14 +53,9 @@
     "rendering.model.MixinDragonModel",
     "rendering.model.MixinVillagerModel",
     "rendering.model.MixinWolfEntityModel",
-    "rendering.submits.Mixin_ChestSpecialRenderer_PassState",
-    "rendering.submits.Mixin_GuiEntityRenderer",
     "rendering.submits.Mixin_HumanoidArmorLayer_AddBaseModelPoseRef",
     "rendering.submits.Mixin_ModelPartRenderer",
-    "rendering.submits.Mixin_ModelRenderer",
-    "rendering.submits.Mixin_ModelSubmit_AddBackupState",
-    "rendering.submits.adjustments.Mixin_BoatRenderer_PassState",
-    "rendering.submits.adjustments.Mixin_TridentRenderer_PassState"
+    "rendering.submits.Mixin_ModelRenderer"
   ],
   "mixins": [
   ],

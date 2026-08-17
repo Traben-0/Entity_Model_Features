@@ -4,22 +4,23 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFState;
 
 //#if MC >= 12106
 import net.minecraft.client.gui.render.GuiRenderer;
+
 @Mixin(GuiRenderer.class)
 public class Mixin_GuiEntityTester {
     @Inject(method = "render",
         at = @At("HEAD"))
     private void etf$beforeRenderToTexture(final CallbackInfo ci) {
-        EMFAnimationEntityContext.setIsInGui = true;
+        EMFState.isInGui = true;
     }
 
     @Inject(method = "render",
             at = @At("TAIL"))
     private void etf$afterRenderToTexture(final CallbackInfo ci) {
-        EMFAnimationEntityContext.setIsInGui = false;
+        EMFState.isInGui = false;
     }
 }
 //#else
@@ -32,14 +33,14 @@ public class Mixin_GuiEntityTester {
 //$$     @ModifyArg(method = "render",
 //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V"))
 //$$     private String etf$beforeRenderToTexture(String string) {
-//$$         if (string.equals("gui")) EMFAnimationEntityContext.setIsInGui = true;
+//$$         if (string.equals("gui")) EMFState.isInGui = true;
 //$$         return string;
 //$$     }
 //$$
 //$$     @Inject(method = "render",
 //$$             at = @At("TAIL"))
 //$$     private void etf$afterRenderToTexture(final CallbackInfo ci) {
-//$$         EMFAnimationEntityContext.setIsInGui = false;
+//$$         EMFState.isInGui = false;
 //$$     }
 //$$ }
 //#endif

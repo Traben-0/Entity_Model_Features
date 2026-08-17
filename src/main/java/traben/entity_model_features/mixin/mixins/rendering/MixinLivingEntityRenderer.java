@@ -29,10 +29,9 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.animation.state.EMFBipedPose;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
-import traben.entity_model_features.models.animation.state.EMFSubmitData;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFEntity;
 
@@ -122,7 +121,8 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     //$$
         //#if MC >= 12102
         //$$     private void emf$Animate(final S livingEntityRenderState, final PoseStack matrixStack, final MultiBufferSource vertexConsumerProvider, final int i, final CallbackInfo ci) {
-        //$$         if(!(EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity livingEntity)) {
+        //$$         var emf = EMFState.state();
+        //$$         if(!(emf != null && emf.emfEntity() instanceof LivingEntity livingEntity)) {
         //$$             return;
         //$$         }
         //$$
@@ -183,11 +183,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
 
 
     @Inject(method = RENDER, at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
-    private void emf$grabEntity(CallbackInfo ci, @Share("iteration") LocalRef<EMFAnimationEntityContext.IterationContext> emf$heldIteration) {
-        emf$heldIteration.set(EMFAnimationEntityContext.getIterationContext());
-        EMFSubmitData.AWAITING_isLayerModelPhase = true;
-        EMFAnimationEntityContext.setLayerPhase();
-        EMFSubmitData.AWAITING_isMainModelPhase = false;
+    private void emf$grabEntity(CallbackInfo ci) {
+        EMFState.isLayerPhase = true;
+        EMFState.isMainPhase = false;
         //#if MC < 1.21.9
         //$$ // Set whatever model we used as the main one, handled by submits in 1.21.9+
         //$$ if (getModel() instanceof IEMFModel emf && emf.emf$isEMFModel()) {
@@ -197,28 +195,23 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     }
 
     @Inject(method = RENDER, at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
-    private void emf$eachFeatureLoop(CallbackInfo ci, @Share("iteration") LocalRef<EMFAnimationEntityContext.IterationContext> emf$heldIteration) {
-        if (emf$heldIteration.get() != null && EMFManager.getInstance().entityRenderCount != emf$heldIteration.get().entityRenderCount()) {
-            EMFAnimationEntityContext.setIterationContext(emf$heldIteration.get());
-        }
+    private void emf$eachFeatureLoop(CallbackInfo ci) {
         //todo needed for stray bogged drowned outer layers in 1.21.2+
         //check its needed for 1.21.1
         EMFManager.getInstance().entityRenderCount++;
-        EMFSubmitData.AWAITING_isLayerModelPhase = true;
-        EMFAnimationEntityContext.setLayerPhase();
+        EMFState.isLayerPhase = true;
     }
 
     @Inject(method = RENDER, at = @At("HEAD"))
     private void emf$preRender(CallbackInfo ci) {
-        EMFSubmitData.AWAITING_isLayerModelPhase = false;
-        EMFSubmitData.AWAITING_isMainModelPhase = true;
+        EMFState.isLayerPhase = false;
+        EMFState.isMainPhase = true;
     }
 
     @Inject(method = RENDER, at = @At("TAIL"))
     private void emf$postRender(CallbackInfo ci) {
-        EMFSubmitData.AWAITING_isLayerModelPhase = false;
-        EMFSubmitData.AWAITING_isMainModelPhase = false;
-        EMFAnimationEntityContext.unsetLayerPhase();
+        EMFState.isLayerPhase = false;
+        EMFState.isMainPhase = false;
     }
 
 }

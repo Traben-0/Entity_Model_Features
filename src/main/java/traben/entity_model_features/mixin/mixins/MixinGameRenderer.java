@@ -8,7 +8,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.EMF;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFState;
+import traben.entity_model_features.utils.EMFLODHandler;
 
 /**
  * This mixin is used to get the current FOV value from the game renderer.
@@ -28,7 +29,7 @@ public class MixinGameRenderer {
                     //#endif
                     > cir) {
         if (EMF.config().getConfig().animationLODDistance != 0) {
-            EMFAnimationEntityContext.lastFOV = (double) cir.getReturnValue();
+            EMFLODHandler.lastFOV = (double) cir.getReturnValue();
         }
     }
     //#endif
@@ -36,6 +37,6 @@ public class MixinGameRenderer {
     @Inject(method = "render",
             at = @At(value = "HEAD"))
     private void emf$injectCounter(final CallbackInfo ci) {
-        EMFAnimationEntityContext.incFrameCount();
+        EMFState.incFrameCount();
     }
 }

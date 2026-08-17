@@ -2,8 +2,8 @@ package traben.entity_model_features.models.animation.math.variables;
 
 import net.minecraft.client.model.geom.ModelPart;
 import org.jetbrains.annotations.Nullable;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.parts.EMFModelPart;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 
 public enum EMFModelOrRenderVariable {
@@ -163,12 +163,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_shadow_size() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationEntityContext.setShadowSize(value);
+            if (EMFState.state() != null) EMFState.state().setShadowSize(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationEntityContext.getShadowSize();
+            return EMFState.state() != null ? EMFState.state().shadowSize() : 0;
         }
 
         @Override
@@ -179,12 +179,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_SHADOW_OPACITY() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationEntityContext.setShadowOpacity(value);
+            if (EMFState.state() != null) EMFState.state().setShadowOpacity(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationEntityContext.getShadowOpacity();
+            return EMFState.state() != null ? EMFState.state().shadowOpacity() : 0;
         }
 
         @Override
@@ -195,12 +195,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_SHADOW_X() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationEntityContext.setShadowX(value);
+            if (EMFState.state() != null) EMFState.state().setShadowX(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationEntityContext.getShadowX();
+            return EMFState.state() != null ? EMFState.state().shadowX() : 0;
         }
 
         @Override
@@ -211,12 +211,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_SHADOW_Z() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationEntityContext.setShadowZ(value);
+            if (EMFState.state() != null) EMFState.state().setShadowZ(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationEntityContext.getShadowZ();
+            return EMFState.state() != null ? EMFState.state().shadowZ() : 0;
         }
 
         @Override
@@ -227,12 +227,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_LEASH_X() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationEntityContext.setLeashX(value);
+            if (EMFState.state() != null) EMFState.state().setLeashX(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationEntityContext.getLeashX();
+            return EMFState.state() != null ? EMFState.state().leashX() : 0;
         }
 
         @Override
@@ -243,12 +243,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_LEASH_Y() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationEntityContext.setLeashY(value);
+            if (EMFState.state() != null) EMFState.state().setLeashY(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationEntityContext.getLeashY();
+            return EMFState.state() != null ? EMFState.state().leashY() : 0;
         }
 
         @Override
@@ -259,12 +259,12 @@ public enum EMFModelOrRenderVariable {
     RENDER_LEASH_Z() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            EMFAnimationEntityContext.setLeashZ(value);
+            if (EMFState.state() != null) EMFState.state().setLeashZ(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFAnimationEntityContext.getLeashZ();
+            return EMFState.state() != null ? EMFState.state().leashZ() : 0;
         }
 
         @Override
