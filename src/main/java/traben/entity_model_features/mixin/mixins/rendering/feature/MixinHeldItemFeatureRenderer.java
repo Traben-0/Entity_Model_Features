@@ -1,5 +1,6 @@
 package traben.entity_model_features.mixin.mixins.rendering.feature;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
@@ -52,58 +53,34 @@ MixinHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityM
     //$$ private static final String RENDER_ARM = "renderArmWithItem";
     //#endif
 
+    //#if MC >= 12109
+    private static final String TRANSLATE = "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V";
+    //#else
+    //$$ private static final String TRANSLATE = "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V";
+    //#endif
+
     @Inject(method = RENDER_ARM,
             at = @At(value = "HEAD"))
-    private void emf$setHand(final CallbackInfo ci,
-                             //#if MC >= 12102
-                             @Local(argsOnly = true) S stateIn,
-                             //#endif
-                             @Local HumanoidArm arm, @Share("armOverride") LocalRef<EMFAttachments> armOverride) {
+    private void emf$setHand(final CallbackInfo ci, @Local HumanoidArm arm) {
         EMFState.isInHand = true;
-        //#if MC >= 12102
-        if (stateIn == null) return;
-        var state = (EMFEntityRenderState) ((HoldsETFRenderState) stateIn).etf$getState();
-        //#else
-        //$$ var state = EMFState.state();
-        //#endif
-        if (state == null) return;
-
-        armOverride.set(arm == HumanoidArm.RIGHT ? state.rightArmOverride() : state.leftArmOverride());
+        EMFState.isInLeftHand = arm == HumanoidArm.LEFT;
     }
 
-    @Inject(
-            method = RENDER_ARM,
-            at = @At(value = "INVOKE", target =
-                    //#if MC >= 12109
-                    "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V",
-                    //#else
-                    //$$ "Lnet/minecraft/client/model/ArmedModel;translateToHand(Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;)V",
-                    //#endif
-                    shift = At.Shift.AFTER)
-    )
-    private void emf$transforms(final CallbackInfo ci, @Local(argsOnly = true) PoseStack matrices,
-                                @Share("armOverride") LocalRef<EMFAttachments> armOverride,
-                                @Share("needsPop") LocalBooleanRef needsToPop) {
-        if (armOverride.get() != null) {
-            var entry = armOverride.get().pose;
-            if (entry != null) {
-                needsToPop.set(true);
-
-                //#if MC>=12105
-                matrices.pushPose();
-                matrices.last().set(entry);
-                //#else
-                //$$ matrices.poseStack.addLast(entry);
-                //#endif
-            }
-        }
+    @Inject(method = RENDER_ARM, at = @At(value = "INVOKE", target = TRANSLATE))
+    private void emf$transform(final CallbackInfo ci) {
+        EMFState.isInHandItemLayerTransform = true;
+        EMFState.hasDoneArmOverride = null;
     }
 
-    @Inject(method = RENDER_ARM,
-            at = @At(value = "TAIL"))
-    private void emf$unsetHand(final CallbackInfo ci, @Local(argsOnly = true) PoseStack matrices, @Share("needsPop") LocalBooleanRef needsToPop) {
+    @Inject(method = RENDER_ARM, at = @At(value = "INVOKE", target =TRANSLATE, shift = At.Shift.AFTER))
+    private void emf$transform2(final CallbackInfo ci) {
+        EMFState.isInHandItemLayerTransform = false;
+    }
+
+    @Inject(method = RENDER_ARM, at = @At(value = "TAIL"))
+    private void emf$unsetHand(final CallbackInfo ci) {
         EMFState.isInHand = false;
-        if (needsToPop.get()) matrices.popPose();
+        EMFState.isInLeftHand = null;
     }
 
 }

@@ -3,10 +3,12 @@ package traben.entity_model_features.models.parts;
 
 import net.minecraft.client.model.geom.ModelPart;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import java.util.*;
+import java.util.function.Consumer;
 
 
 public class EMFModelPartVanilla extends EMFModelPartWithState {
@@ -53,6 +55,43 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
                 .toArray(ModelPart[]::new);
     }
 
+    @Override
+    public void translateAndRotate(PoseStack poseStack) {
+        if (EMFState.isInHandItemLayerTransform && EMFState.isInLeftHand != null) {
+            // Held item rendering runs this to translate for hand positioning, but we might have attachment points set in any arbitrary part at any depth
+            // To account for this on the first call to this method during that layer call we will run that stack through
+            // the root's positioner
+            var root = getRoot();
+            boolean leftArm = EMFState.isInLeftHand == Boolean.TRUE;
+            if ((leftArm && root.hasLeftArmItemOverrides.contains(currentModelVariant))
+                    || (!leftArm && root.hasRightArmItemOverrides.contains(currentModelVariant))) {
+                // Already done the once only transform
+                if (EMFState.hasDoneArmOverride == Boolean.TRUE) return;
+                // Already failed the once only transform
+                if (EMFState.hasDoneArmOverride == Boolean.FALSE) {
+                    super.translateAndRotate(poseStack);
+                    return;
+                }
+
+                Consumer<PoseStack> positioner = leftArm
+                        ? root.leftArmPositioners.get(currentModelVariant)
+                        : root.rightArmPositioners.get(currentModelVariant);
+
+                if (positioner != null) {
+                    EMFState.isInHandItemLayerTransform = false; // Very likely to recurse into this method
+                    positioner.accept(poseStack);
+                    EMFState.isInHandItemLayerTransform = true;
+                    EMFState.hasDoneArmOverride = Boolean.TRUE;
+                } else {
+                    EMFState.hasDoneArmOverride = Boolean.FALSE;
+                }
+                return;
+            }
+        }
+
+        // Normal or aborted call
+        super.translateAndRotate(poseStack);
+    }
 
     @Override
     protected float[] debugBoxColor() {
@@ -69,7 +108,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
     ) {
         //ignore non optifine specified parts when not vanilla variant
         if (!hideInTheseStates.contains(currentModelVariant)){
-//            if (legacyScaler == null) {
                 super.render(matrices, vertices, light, overlay,
                         //#if MC >= 12100
                         k
@@ -77,13 +115,6 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
                         //$$ red, green, blue, alpha
                         //#endif
                 );
-//            }else{
-//                matrices.pushPose();
-//                legacyScaler.accept(matrices);
-//                super.render(matrices, vertices, light, overlay, #if MC >= MC_21 k #else red, green, blue, alpha #endif);
-//                matrices.popPose();
-//            }
-
         }
     }
 

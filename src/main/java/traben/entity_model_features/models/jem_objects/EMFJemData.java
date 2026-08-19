@@ -28,7 +28,8 @@ public class EMFJemData {
     public transient EMFDirectoryHandler directoryContext = null;
     private transient EMFModel_ID mobModelIDInfo = null;
     private transient ResourceLocation customTexture = null;
-    public transient boolean hasAttachments = false;
+    public transient boolean hasAttachmentsLeft = false;
+    public transient boolean hasAttachmentsRight = false;
 
     public LinkedHashMap<String, List<LinkedHashMap<String, String>>> getAllTopLevelAnimationsByVanillaPartName() {
         return allTopLevelAnimationsByVanillaPartName;

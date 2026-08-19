@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.state.EMFState;
+import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.EMFManager;
@@ -30,8 +31,10 @@ public class MixinModel implements IEMFModel {
             at = @At(value = "TAIL"))
     private void emf$discoverEMFModel(final ModelPart modelPart, final Function<?,?> function, final CallbackInfo ci) {
         if (EMF.testForForgeLoadingError()) return;
-        if(modelPart instanceof EMFModelPartRoot root) {
+        if (modelPart instanceof EMFModelPartRoot root) {
             emf$thisEMFModelRoot = root;
+        } else if (modelPart instanceof EMFModelPart nonRoot) {
+            emf$thisEMFModelRoot = nonRoot.getRoot(); // See vex model having a non-root root part
         }
         EMFManager.lastCreatedRootModelPart = null;
     }

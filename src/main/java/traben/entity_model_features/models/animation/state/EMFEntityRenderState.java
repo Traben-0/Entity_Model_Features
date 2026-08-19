@@ -96,12 +96,6 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     Function<ResourceLocation, RenderType> layerFactory();
     void setLayerFactory(Function<ResourceLocation, RenderType> layerFactory);
 
-    @Nullable EMFAttachments leftArmOverride();
-    void setLeftArmOverride(EMFAttachments override);
-    @Nullable EMFAttachments rightArmOverride();
-    void setRightArmOverride(EMFAttachments override);
-
-
     void setBipedPose(EMFBipedPose pose);
     /** Returns the biped pose if it was animated. */
     @Nullable EMFBipedPose getBipedPose();
@@ -163,8 +157,12 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     ) {
         ETFEntityRenderState.super.preSubmitActivate(submitData, vanillaSubmit);
 
+        // The specific submit might have more precise changes that multiple submits using the same state might need to
+        // be different, consider that here
+
         if (submitData == null) {
             setSkipModelVariate(false);
+            setBipedPose(null);
         } else {
             Integer variant = (Integer) submitData.data.get("modelVariant");
             if (variant != null && vanillaSubmit.model().root() instanceof EMFModelPartRoot root) {
@@ -173,6 +171,9 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
             } else {
                 setSkipModelVariate(false);
             }
+
+            // Submit data now controls if the state keeps this during the submit consumption phase, setting it null if we didn't want it this submit
+            if (!isFirstPersonHand()) setBipedPose((EMFBipedPose) submitData.data.get("bipedPose"));
         }
 
         setLayerFactory(vanillaSubmit.model().renderType);
@@ -181,6 +182,7 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
             EMFState.isInItemFrame = true;
         }
 
+        EMFState.isLayerPhase = false;
         if (submitData != null) {
             setOnShoulder(submitData.data.get("onShoulder") == Boolean.TRUE);
 
@@ -258,16 +260,22 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
 
             //perform variant checking for this entity types models
             //this is the only way to keep it generic and also before the entity is rendered and affect al its models
-            if (!skipModelVariate()) {
+            boolean playerNeedsReset = emfEntity() instanceof Player
+                    && EMF.config().getConfig().resetPlayerModelEachRender_v2
+                    && !isFirstPersonHand();
+
+            if (!skipModelVariate() || playerNeedsReset) {
                 Set<EMFModelPartRoot> roots = EMFManager.getInstance().rootPartsPerEntityTypeForVariation.get(typeString());
                 if (roots != null) {
-                    if (EMFState.isEntityForcedToVanillaModel(this)) {
-                        roots.forEach(root -> root.setVariantStateTo(0));
-                    } else {
-                        roots.forEach(root -> root.doVariantCheck(this));
+                    if (!skipModelVariate()) {
+                        if (EMFState.isEntityForcedToVanillaModel(this)) {
+                            roots.forEach(root -> root.setVariantStateTo(0));
+                        } else {
+                            roots.forEach(root -> root.doVariantCheck(this));
+                        }
                     }
 
-                    if (emfEntity() instanceof Player && EMF.config().getConfig().resetPlayerModelEachRender_v2) {
+                    if (playerNeedsReset) {
                         roots.forEach(EMFModelPartRoot::resetVanillaPartsToDefaults);
                     }
                 }
@@ -286,7 +294,6 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     @Override
     default void deactivate(boolean inMount) {
         ETFEntityRenderState.super.deactivate(inMount);
-        EMFState.isLayerPhase = false;
         EMFState.modelVariationIgnoresVisibility = false;
         EMFState.isInItemFrame = false;
 

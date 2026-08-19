@@ -7,6 +7,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
@@ -52,7 +53,10 @@ public abstract class EMFState {
         isInGroundOverride = false;
         isOnHead = false;
         isInHand = false;
+        isInLeftHand = null;
         isInItemFrame = false;
+        isInHandItemLayerTransform = false;
+        hasDoneArmOverride = null;
     }
 
     public static float frameCounter = 0;
@@ -63,6 +67,9 @@ public abstract class EMFState {
     public static boolean isInGroundOverride = false;
     public static boolean isOnHead = false;
     public static boolean isInHand = false;
+    public static @Nullable Boolean isInLeftHand = null;
+    public static boolean isInHandItemLayerTransform = false;
+    public static @Nullable Boolean hasDoneArmOverride = null;
     public static boolean isInItemFrame = false;
     public static boolean modelVariationIgnoresVisibility = false;
 

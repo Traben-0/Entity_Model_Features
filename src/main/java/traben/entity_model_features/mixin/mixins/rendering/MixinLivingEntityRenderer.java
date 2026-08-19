@@ -63,13 +63,15 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         super(ctx);
     }
 
-    //#if MC >= 12109
+    //#if MC > 26.2
+    //$$ todo check that they still use this.model and not the getter
+    //#elseif MC >= 12109
     @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Ljava/lang/Object;)V",
                     shift = At.Shift.AFTER))
     private void falseAnimation(CallbackInfo ci, @Local(argsOnly = true) PoseStack pose, @Local(argsOnly = true) S renderState) {
         // animate so that dependant layers can read the positions (only applies if they set their matrix prior to submission)
-        IEMFModel model = (IEMFModel) getModel();
+        IEMFModel model = (IEMFModel) this.model;
         if (model.emf$isEMFModel() && model.emf$getEMFRootModel().hasAnimation()) {
             model.emf$getEMFRootModel().triggerManualAnimation(pose);
             // Store the biped pose in the render state for use by layers that need it.
@@ -80,24 +82,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
 
         }
     }
-    //#else
-    //#if MC >= 1.21.2
-    //$$ @ModifyExpressionValue(method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-    //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;shouldRenderLayers(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)Z"))
-    //$$ private boolean armOverrides(boolean original, @Local PoseStack pose) {
-    //$$     if (original) {
-    //#else
-    //$$ @ModifyExpressionValue(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-    //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isSpectator()Z"))
-    //$$ private boolean armOverrides(boolean original, @Local PoseStack pose) {
-    //$$     if (!original) {
-    //#endif
-    //$$         // check arm overrides
-    //$$         IEMFModel model = (IEMFModel) getModel();
-    //$$         if (model.emf$isEMFModel()) model.emf$getEMFRootModel().checkArmOverrides(pose);
-    //$$     }
-    //$$     return original;
-    //$$ }
     //#endif
 
 

@@ -67,26 +67,28 @@ public class EMFConfig extends TConfig {
     public ETFConfig.String2EnumNullMap<VanillaModelRenderMode> entityVanillaHologramOverrides = new ETFConfig.String2EnumNullMap<>();
 
     public RenderModeChoice getRenderModeFor(@Nullable EMFEntityRenderState state) {
-        if (state == null) return getRenderModeFor((EMFEntity) null);
+        if (state == null || entityRenderModeOverrides.isEmpty()) return renderModeChoice;
         return getRenderModeFor(state.emfEntity());
     }
 
     public RenderModeChoice getRenderModeFor(@Nullable EMFEntity entity) {
         String typeString = getTypeString(entity);
         if (typeString == null) return renderModeChoice;
-        return Objects.requireNonNullElseGet(entityRenderModeOverrides.get(typeString), () -> renderModeChoice);
+        return Objects.requireNonNullElse(entityRenderModeOverrides.get(typeString), renderModeChoice);
     }
 
     @Deprecated(forRemoval = true) public PhysicsModCompatChoice getPhysicsModModeFor(EMFEntity entity) {
+        if (entityPhysicsModPatchOverrides.isEmpty()) return attemptPhysicsModPatch_2;
         String typeString = getTypeString(entity);
         if (typeString == null) return attemptPhysicsModPatch_2;
-        return Objects.requireNonNullElseGet(entityPhysicsModPatchOverrides.get(typeString), () -> attemptPhysicsModPatch_2);
+        return Objects.requireNonNullElse(entityPhysicsModPatchOverrides.get(typeString), attemptPhysicsModPatch_2);
     }
 
     public VanillaModelRenderMode getVanillaHologramModeFor(EMFEntity entity) {
+        if (entityVanillaHologramOverrides.isEmpty()) return vanillaModelHologramRenderMode_2;
         String typeString = getTypeString(entity);
         if (typeString == null) return vanillaModelHologramRenderMode_2;
-        return Objects.requireNonNullElseGet(entityVanillaHologramOverrides.get(typeString), () -> vanillaModelHologramRenderMode_2);
+        return Objects.requireNonNullElse(entityVanillaHologramOverrides.get(typeString), vanillaModelHologramRenderMode_2);
     }
 
     private static @Nullable String getTypeString(final EMFEntity entity) {
@@ -566,6 +568,10 @@ public class EMFConfig extends TConfig {
         @Override
         public String toString() {
             return Component.translatable(text).getString();
+        }
+
+        public boolean allowsRegularDraw() {
+            return this == NORMAL || this == LINES_AND_TEXTURE || this == LINES_AND_TEXTURE_FLASH;
         }
     }
 

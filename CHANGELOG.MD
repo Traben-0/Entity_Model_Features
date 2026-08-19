@@ -1,9 +1,13 @@
 
 [?]
 - fixed several model exporting issues, including missing parts, wrong rotations, and rabbit/axolotl legs on 26.1+
+- fixed vex items not matching animated arm positions
+- improved item attachment handling
+- fixed debug outline rendering not outlining everything
 - fixed 26.2 neoforge iris compatibility not working causing excess animation during the shadow pass
 - fixed first person arm rendering with sleeves even when turned off in the settings
 - fixed first person arm animations with some other mods hand rendering
+- fixed several issues relating to layered or held models desyncing with or breaking the base model e.g. held tridents possibly breaking the player model
 - added new boolean animation variables `is_player_first_person`, `is_player_third_person`, `is_player_third_person_reversed`
 
 [3.2.4]

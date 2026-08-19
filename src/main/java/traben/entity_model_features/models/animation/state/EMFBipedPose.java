@@ -11,7 +11,7 @@ public class EMFBipedPose {
     private final PosePart rightArm;
     private final PosePart leftLeg;
     private final PosePart rightLeg;
-    public final PosePart root;
+    private final PosePart root;
 
     public boolean applyToSubmit = false;
 

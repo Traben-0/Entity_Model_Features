@@ -141,8 +141,9 @@ public class EMFPartData {
                 }
             }
 
-            if (!attachments.isEmpty() && (attachments.containsKey("left_handheld_item") || attachments.containsKey("right_handheld_item"))) {
-                jem.hasAttachments = true;
+            if (!attachments.isEmpty()) {
+                if (attachments.containsKey("left_handheld_item")) jem.hasAttachmentsLeft = true;
+                if (attachments.containsKey("right_handheld_item")) jem.hasAttachmentsRight = true;
             }
 
             if (translate == null) translate = new float[]{0, 0, 0};

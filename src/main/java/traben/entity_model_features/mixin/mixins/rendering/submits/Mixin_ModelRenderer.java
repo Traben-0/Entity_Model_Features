@@ -74,17 +74,6 @@ public class Mixin_ModelRenderer {
         }
     }
 
-
-    //#if MC >= 26.2
-    //$$ @Inject(method = "prepareModel", at = @At(value = "TAIL"))
-    //$$ private void emf$endRender(final CallbackInfo ci) {
-    //$$     var state = EMFState.state();
-    //$$     if (state != null && state.isFirstPersonHand()) {
-    //$$         ETFState.unMount();
-    //$$     }
-    //$$ }
-    //#endif
-
 }
 //#else
 //$$ @Mixin(traben.entity_texture_features.mixin.CancelTarget.class)

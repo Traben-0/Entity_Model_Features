@@ -24,6 +24,7 @@ import traben.entity_texture_features.ETFApi;
 import traben.entity_texture_features.features.property_reading.PropertiesRandomProvider;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import static traben.entity_model_features.EMFManager.getJemDataWithDirectory;
 
@@ -45,11 +46,15 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public boolean containsCustomAnims = false;
     private long lastMobCountAnimatedOn = 0;
     private boolean hasRemovedTopLevelJemTextureFromChildren = false;
-    private boolean hasArmItemOverrides = false;
+
+    protected final Set<Integer> hasRightArmItemOverrides = new HashSet<>();
+    protected final Set<Integer> hasLeftArmItemOverrides = new HashSet<>();
+    protected final Map<Integer, Consumer<PoseStack>> leftArmPositioners = new HashMap<>();
+    protected final Map<Integer, Consumer<PoseStack>> rightArmPositioners = new HashMap<>();
 
     public boolean isMainModel = false;
 
-    private Set<String> registeredSet = new HashSet<>();
+    private final Set<String> registeredSet = new HashSet<>();
 
     private final HashMap<Integer, Runnable> animations = new HashMap<>();
     @Nullable
@@ -158,11 +163,10 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
     //root only
-    public void addVariantOfJem(EMFJemData jemData, int variant) {
+    public void addAndSetVariantOfJem(EMFJemData jemData, int variant) {
         if (EMF.config().getConfig().logModelCreationData)
             EMFUtils.log(" > " + jemData.getMobModelIDInfo().getfileName() + ", constructing variant #" + variant);
 
-        if (jemData.hasAttachments) this.hasArmItemOverrides = true;
 
         Map<String, EMFModelPartCustom> newEmfParts = new HashMap<>();
         for (EMFPartData part : jemData.models) {
@@ -201,6 +205,17 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
         }
         allKnownStateVariants.putIfAbsent(variant, allKnownStateVariants.get(0).copy());
+
+        setVariantStateTo(variant);
+
+        if (jemData.hasAttachmentsLeft) {
+            this.hasLeftArmItemOverrides.add(variant);
+            this.leftArmPositioners.put(variant, getArmPositioner(true));
+        }
+        if (jemData.hasAttachmentsRight) {
+            this.hasRightArmItemOverrides.add(variant);
+            this.rightArmPositioners.put(variant, getArmPositioner(false));
+        }
     }
 
     public void discoverAndInitVariants(String fallbackPropertiesName) {
@@ -257,8 +272,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                         EMFJemData jemDataVariant = canUseVariant ? getJemDataWithDirectory(variantDirectoryContext, modelName) : null;
 
                         if (jemDataVariant != null) {
-                            addVariantOfJem(jemDataVariant, variant);
-                            setVariantStateTo(variant);
+                            addAndSetVariantOfJem(jemDataVariant, variant);
                             EMFManager.getInstance().setupAnimationsFromJemToModel(jemDataVariant, this, variant);
                             containsCustomModel = true;
                         } else {
@@ -324,11 +338,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public void triggerManualAnimation(PoseStack pose) {
         if (animation != null) animation.run();
-        checkArmOverrides(pose);
-    }
-
-    public void checkArmOverrides(PoseStack pose) {
-        if (hasArmItemOverrides) processArmItemOverrides(pose);
     }
 
     public ModelPart getVanillaFormatRoot() {

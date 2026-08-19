@@ -144,16 +144,7 @@ public class EMF {
         ETFSubmitData.DATA_OUT.add((data, vanilla)->{
             // Replaces logic for model part submits that now wrap in simple models
             if (vanilla.model().root() instanceof EMFModelPartVanilla partVanilla && partVanilla.getRoot() != partVanilla) {
-                EMFManager.getInstance().entityRenderCount++;
-
-                if (partVanilla.isPlayerArm) {
-                    if (Minecraft.getInstance().player != null) {
-                        EMFState.modelVariationIgnoresVisibility = true;
-                        var state = EMFEntityRenderState.manualPlayerState();
-                        if (state != null) ETFState.mount(state);
-                    }
-                    EMFState.state().setIsFirstPersonHand(true);
-                }
+                EMFManager.getInstance().entityRenderCount++; // TODO still needed?
             }
         });
         //#endif

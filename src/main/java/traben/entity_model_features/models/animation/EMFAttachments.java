@@ -21,16 +21,7 @@ public class EMFAttachments {
         this.right = right;
     }
 
-    public void setAttachment(PoseStack entry) {
-        entry.pushPose();
+    public void translate(PoseStack entry) {
         entry.translate(x / 16, y / 16, z / 16);
-        var copyOnly = entry.last();
-        //#if MC>=12105
-        this.pose = copyOnly.copy();
-        //#else
-        //$$ this.pose = new PoseStack.Pose(new Matrix4f(copyOnly.pose()), new Matrix3f(copyOnly.normal()));
-        //#endif
-
-        entry.popPose();
     }
 }

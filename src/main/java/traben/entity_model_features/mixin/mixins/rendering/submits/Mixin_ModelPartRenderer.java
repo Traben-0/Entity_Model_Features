@@ -28,9 +28,15 @@ public class Mixin_ModelPartRenderer {
             if (Minecraft.getInstance().player != null) {
                 EMFState.modelVariationIgnoresVisibility = true;
                 var state = EMFEntityRenderState.manualPlayerState();
-                if (state != null) ETFState.mount(state);
+                if (state != null) {
+                    state.setIsFirstPersonHand(true);
+                    ETFState.mount(state);
+                }
+            } else {
+                var state = EMFState.state();
+                if (state != null) state.setIsFirstPersonHand(true);
             }
-            if (EMFState.state() != null) EMFState.state().setIsFirstPersonHand(true);
+
         }
     }
 

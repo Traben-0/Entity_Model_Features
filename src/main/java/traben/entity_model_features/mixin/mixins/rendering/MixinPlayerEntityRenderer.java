@@ -96,10 +96,9 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
     @Inject(method = "renderHand", at = @At(value = "HEAD"))
     private void emf$setHandAnimState(CallbackInfo ci) {
         // Before visibility checks
-        var state = (EMFEntityRenderState) ((HoldsETFRenderState)emf$renderState()).etf$getState();
-        ETFState.mount(state);
-        state.setManualPlayerState(true);
+        var state = EMFEntityRenderState.manualPlayerState();
         state.setIsFirstPersonHand(true);
+        ETFState.mount(state);
     }
 
     @Inject(method = "renderHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModelPart(Lnet/minecraft/client/model/geom/ModelPart;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderType;IILnet/minecraft/client/renderer/texture/TextureAtlasSprite;)V"))

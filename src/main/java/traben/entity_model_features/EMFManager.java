@@ -52,7 +52,6 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import static traben.entity_model_features.models.animation.math.expression_tree.MathExpressionParser.NULL_EXPRESSION;
-import static traben.entity_model_features.models.animation.math.expression_tree.MathValue.FALSE;
 
 
 public class EMFManager {//singleton for data holding and resetting needs
@@ -279,7 +278,6 @@ public class EMFManager {//singleton for data holding and resetting needs
                         || currentSpecifiedModelLoading.startsWith("emf$") //key to not override
                         ? originalLayerName : currentSpecifiedModelLoading);
 
-
         try {
             EMFManager.lastCreatedRootModelPart = null;
             boolean printing = (EMF.config().getConfig().logModelCreationData);
@@ -297,7 +295,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         //#else
                         //$$ getLayer()
                         //#endif
-            );
+                );
                 originalLayerName = originalLayerName + "_" + layer.
                         //#if MC >= 12102
                         layer()
@@ -390,6 +388,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                     lastUndeadHorse = filename;
                 }
 
+                mobNameForFileAndMap.resetCacheID();
+
                 if (!skipSwitch) {
                     //vanilla model
                     switch (originalLayerName) {
@@ -411,9 +411,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                         //#endif
                         //#if MC>=12109
                         case "villager_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager");
-                        case "villager_no_hat_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager_baby").addFallbackModel("villager");
+                        case "villager_baby_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager_baby").addFallbackModel("villager");
                         case "zombie_villager_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager");
-                        case "zombie_villager_no_hat_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager_baby").addFallbackModel("zombie_villager");
+                        case "zombie_villager_baby_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager_baby").addFallbackModel("zombie_villager");
                         //#endif
                         //#if MC >= 12105
                         case "cow" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_cow");
@@ -429,8 +429,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "evoker" -> mobNameForFileAndMap.addFallbackModel("evocation_illager");
                         case "evoker_fangs" -> mobNameForFileAndMap.addFallbackModel("evocation_fangs");
                         case "vindicator" -> mobNameForFileAndMap.addFallbackModel("vindication_illager");
-                        case "bed_foot" -> mobNameForFileAndMap.setBoth("bed_foot").addFallbackModel("bed");
-                        case "bed_head" -> mobNameForFileAndMap.setBoth("bed_head").addFallbackModel("bed");
+                        case "bed_foot" -> mobNameForFileAndMap.setBoth("bed_foot").addFallbackModel("bed").resetCacheID();
+                        case "bed_head" -> mobNameForFileAndMap.setBoth("bed_head").addFallbackModel("bed").resetCacheID();
                         case "book" -> {
                             if (currentSpecifiedModelLoading.equals("enchanting_book")) {
                                 mobNameForFileAndMap.setBoth("enchanting_book", "book")
@@ -611,12 +611,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             }
 
             //cache the layers for the model
-//            if(!isBaby) {
-                cache_LayersByModelName.put(mobNameForFileAndMap, layer);
-                mobNameForFileAndMap.forEachFallback((fallBack) -> cache_LayersByModelName.putIfAbsent(fallBack, layer));
-//            }
-
-
+            cache_LayersByModelName.put(mobNameForFileAndMap, layer);
+            mobNameForFileAndMap.forEachFallback((fallBack) -> cache_LayersByModelName.putIfAbsent(fallBack, layer));
 
 
 
@@ -682,8 +678,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                     EMFModelPartRoot emfRoot = new EMFModelPartRoot(finalMapData, Objects.requireNonNullElseGet(directoryContextBaseAndVariant.getLeft(), directoryContextBaseAndVariant::getRight), root, optifinePartNames, new HashMap<>());
                     if (jemData != null) {
-                        emfRoot.addVariantOfJem(jemData, 1);
-                        emfRoot.setVariantStateTo(1);
+                        emfRoot.addAndSetVariantOfJem(jemData, 1);
                         setupAnimationsFromJemToModel(jemData, emfRoot, 1);
                         emfRoot.containsCustomModel = true;
                         if (hasVariants) {
@@ -828,7 +823,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             root.children = newChildren; // mutable
         }
         mobNameForFileAndMap.addFallbackModel(mobNameForFileAndMap.namespace, mobNameForFileAndMap.getfileName());
-        mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading + "_" + thisSide);
+        mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading + "_" + thisSide)
+                .resetCacheID();
     }
 
     public void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {

@@ -19,6 +19,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 //#if MC < 12002
 //$$ import org.joml.Matrix3f;
@@ -134,23 +135,19 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
     @Override
-    public void processArmItemOverrides(PoseStack matrices) {
+    protected @Nullable Consumer<PoseStack> getArmPositioner(boolean left) {
         if (attachments != null) {
             for (EMFAttachments attachment : attachments) {
-                matrices.pushPose();
-                this.translateAndRotate(matrices);
-                attachment.setAttachment(matrices);
-                matrices.popPose();
-
-                var state = EMFState.state();
-                if (state != null) {
-                    if (attachment.right) state.setRightArmOverride(attachment);
-                    else state.setLeftArmOverride(attachment);
+                if (attachment.right != left) {
+                    // End deep search here
+                    return poseStack -> {
+                        translateAndRotate(poseStack);
+                        attachment.translate(poseStack);
+                    };
                 }
             }
-        } else {
-            super.processArmItemOverrides(matrices);
         }
+        return super.getArmPositioner(left);
     }
 
     @Override
@@ -161,9 +158,6 @@ public class EMFModelPartCustom extends EMFModelPart {
                        //$$ float red, float green, float blue, float alpha
                        //#endif
     ) {
-        //#if MC < 12109
-        //$$ processArmItemOverrides(matrices);
-        //#endif
 
         super.render(matrices, vertices, light, overlay,
                 //#if MC >= 12100
@@ -176,7 +170,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     @Override
     protected float[] debugBoxColor() {
-        return new float[]{1f, 1f, 1f};
+        return EMFState.isLayerPhase ? new float[]{0f, 0f, 1f} : new float[]{1f, 1f, 1f};
     }
 
 

@@ -6,6 +6,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.CubeVoxelShape;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
@@ -14,6 +15,7 @@ import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.math.EMFMath;
 import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.utils.IEMFCuboidDataSupplier;
 import traben.entity_texture_features.ETF;
 import traben.entity_texture_features.features.state.ETFState;
 import traben.entity_texture_features.features.texture_handlers.ETFTexture;
@@ -32,6 +34,7 @@ import net.minecraft.util.ARGB;
 //#endif
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
@@ -67,11 +70,20 @@ public abstract class EMFModelPart extends ModelPart {
         this.root = root;
     }
 
-    public void processArmItemOverrides(PoseStack matrices) {
-        matrices.pushPose();
-        translateAndRotate(matrices);
-        children.values().forEach(v -> ((EMFModelPart) v).processArmItemOverrides(matrices));
-        matrices.popPose();
+    protected @Nullable Consumer<PoseStack> getArmPositioner(boolean left) {
+        for (ModelPart p : children.values()) {
+            if (p instanceof EMFModelPart part) {
+                var subConsumer = part.getArmPositioner(left); // Only a part with the correct attachment will end this deep search
+                if (subConsumer != null) {
+                    return (stack) -> {
+                        // Add this 'parent' to the cumulative stack transformation started by the child, and send it up the chain
+                        this.translateAndRotate(stack);
+                        subConsumer.accept(stack);
+                    };
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -83,8 +95,22 @@ public abstract class EMFModelPart extends ModelPart {
                        //#endif
     ) {
         try {
+            if (ETFState.currentModelPartDepth != 1) {
+                renderWithTextureOverride(matrices, vertices, light, overlay,
+                        //#if MC >= 12100
+                        k
+                        //#else
+                        //$$ red, green, blue, alpha
+                        //#endif
+                );
+                return;
+            }
+
+            // This is the top level render
+
             var choice = EMF.config().getConfig().getRenderModeFor(EMFState.state());
-            //normal render
+
+            // Normal render
             if (choice == EMFConfig.RenderModeChoice.NORMAL) {
                 renderWithTextureOverride(matrices, vertices, light, overlay,
                         //#if MC >= 12100
@@ -92,12 +118,13 @@ public abstract class EMFModelPart extends ModelPart {
                         //#else
                         //$$ red, green, blue, alpha
                         //#endif
-            );
+                );
                 return;
             }
 
-            //debug choice chosen
-            //check if only render debug when hovered
+            // We want debug rendering but can we?
+
+            // Check if only render debug when hovered
             if (EMF.config().getConfig().onlyDebugRenderOnHover && !EMFMath.isClientHovered()) {
                 renderWithTextureOverride(matrices, vertices, light, overlay,
                         //#if MC >= 12100
@@ -109,7 +136,18 @@ public abstract class EMFModelPart extends ModelPart {
                 return;
             }
 
-            //else render debug
+            // Now lets debug render
+
+            if (choice.allowsRegularDraw()) {
+                renderWithTextureOverride(matrices, vertices, light, overlay,
+                        //#if MC >= 12100
+                        k
+                        //#else
+                        //$$ red, green, blue, alpha
+                        //#endif
+                );
+            }
+
             switch (choice) {
                 case GREEN ->
                         renderDebugTinted(matrices, vertices, light, overlay,
@@ -123,36 +161,22 @@ public abstract class EMFModelPart extends ModelPart {
                     if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
                         URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
                         if (provider != null)
-                            renderBoxes(matrices, provider.getBuffer(lines()));
+                            renderBoxes(matrices, provider.getBuffer(lines()), 1f);
                     }
                 }
                 case LINES_AND_TEXTURE -> {
-                    renderWithTextureOverride(matrices, vertices, light, overlay,
-                            //#if MC >= 12100
-                            k
-                            //#else
-                            //$$ red, green, blue, alpha
-                            //#endif
-                    );
                     if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
                         URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
                         if (provider != null)
-                            renderBoxesNoChildren(matrices, provider.getBuffer(lines()), 1f);
+                            renderBoxes(matrices, provider.getBuffer(lines()), 1f);
                     }
                 }
                 case LINES_AND_TEXTURE_FLASH -> {
-                    renderWithTextureOverride(matrices, vertices, light, overlay,
-                            //#if MC >= 12100
-                            k
-                            //#else
-                            //$$ red, green, blue, alpha
-                            //#endif
-                    );
                     if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
                         URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
                         if (provider != null) {
                             float flash = (Mth.sin(System.currentTimeMillis() / 1000f) + 1) / 2f;
-                            renderBoxesNoChildren(matrices, provider.getBuffer(lines()), flash);
+                            renderBoxes(matrices, provider.getBuffer(lines()), flash);
                         }
                     }
                 }
@@ -471,7 +495,7 @@ public abstract class EMFModelPart extends ModelPart {
         }
     }
 
-    public void renderBoxes(PoseStack matrices, VertexConsumer vertices) {
+    public void renderBoxes(PoseStack matrices, VertexConsumer vertices, float alpha) {
         if (this.visible) {
             if (!cubes.isEmpty() || !children.isEmpty()) {
                 matrices.pushPose();
@@ -479,21 +503,30 @@ public abstract class EMFModelPart extends ModelPart {
                 if (!this.skipDraw) {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
+
+                        var adds = ((IEMFCuboidDataSupplier) cuboid).emf$getSizeAdd();
+                        if (adds != null) {
+                            if (adds[0] != 0 || adds[1] != 0 || adds[2] != 0) {
+                                box = box.inflate(adds[0] / 16, adds[1] / 16, adds[2] / 16);
+                            }
+                        }
+                        box = box.inflate(0.0001);
+
                         var col = debugBoxColor();
-                        //#if MC >=12111
-                        //$$ EMFUtils.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
-                        //#elseif MC >=12109
-                        ShapeRenderer.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
-                        //#elseif MC >=12102
-                        //$$ ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
+                        //#if MC >= 12111
+                        //$$ EMFUtils.renderLineBox(matrices.last(), vertices, box, col[0], col[1], col[2], alpha);
+                        //#elseif MC >= 12109
+                        ShapeRenderer.renderLineBox(matrices.last(), vertices, box, col[0], col[1], col[2], alpha);
+                        //#elseif MC >= 12102
+                        //$$ ShapeRenderer.renderLineBox(matrices, vertices, box, col[0], col[1], col[2], alpha);
                         //#else
-                        //$$ LevelRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
+                        //$$ LevelRenderer.renderLineBox(matrices, vertices, box, col[0], col[1], col[2], alpha);
                         //#endif
                     }
                 }
                 for (ModelPart modelPart : children.values()) {
                     if (modelPart instanceof EMFModelPart emf)
-                        emf.renderBoxes(matrices, vertices);
+                        emf.renderBoxes(matrices, vertices, alpha);
                 }
                 matrices.popPose();
             }
@@ -501,31 +534,6 @@ public abstract class EMFModelPart extends ModelPart {
     }
 
     protected abstract float[] debugBoxColor();
-
-    public void renderBoxesNoChildren(PoseStack matrices, VertexConsumer vertices, float alpha) {
-        if (this.visible) {
-            if (!cubes.isEmpty() || !children.isEmpty()) {
-                matrices.pushPose();
-                this.translateAndRotate(matrices);
-                if (!this.skipDraw) {
-                    for (Cube cuboid : cubes) {
-                        AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
-                        var col = debugBoxColor();
-                        //#if MC >=12111
-                        //$$ EMFUtils.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
-                        //#elseif MC >=12109
-                        ShapeRenderer.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
-                        //#elseif MC >=12102
-                        //$$ ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
-                        //#else
-                        //$$ LevelRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
-                        //#endif
-                    }
-                }
-                matrices.popPose();
-            }
-        }
-    }
 
     //required for sodium pre 0.5.4
     // overrides to circumvent sodium optimizations that mess with custom uv quad creation and swapping out cuboids
