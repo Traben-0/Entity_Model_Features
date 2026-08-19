@@ -24,12 +24,16 @@ public class MixinModelPart$Cuboid implements IEMFCuboidDataSupplier {
     @Unique
     private int[] emf$textureXY = null;
 
+    @Unique
+    private boolean emf$mirror = false;
+
     @Inject(method = "<init>",
             at = @At(value = "TAIL"))
     private void emf$injectAnnouncerCube(final int u, final int v, final float x, final float y, final float z, final float sizeX, final float sizeY, final float sizeZ, final float extraX, final float extraY, final float extraZ, final boolean mirror, final float textureWidth, final float textureHeight, final Set<?> set, final CallbackInfo ci) {
         emf$textureUV = new int[]{u, v};
         emf$sizeAdd = new float[]{extraX, extraY, extraZ};
         emf$textureXY = new int[]{(int) textureWidth, (int) textureHeight};
+        emf$mirror = mirror;
     }
 
     @Override
@@ -45,5 +49,10 @@ public class MixinModelPart$Cuboid implements IEMFCuboidDataSupplier {
     @Override
     public float[] emf$getSizeAdd() {
         return emf$sizeAdd;
+    }
+
+    @Override
+    public boolean emf$getMirror() {
+        return emf$mirror;
     }
 }

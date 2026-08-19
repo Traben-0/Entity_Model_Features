@@ -1738,12 +1738,14 @@ public class EMFModelMappings {
                         cube.maxY - cube.minY,
                         cube.maxZ - cube.minZ};
                 // can be different from part
-                thisTextureSize = thisTextureSize == null ? ((IEMFCuboidDataSupplier) cube).emf$getTextureXY() : thisTextureSize;
 
-                var uv = ((IEMFCuboidDataSupplier) cube).emf$getTextureUV();
+                IEMFCuboidDataSupplier cubeData = (IEMFCuboidDataSupplier) cube;
+                thisTextureSize = thisTextureSize == null ? cubeData.emf$getTextureXY() : thisTextureSize;
+
+                var uv = cubeData.emf$getTextureUV();
                 addArrayProperty(boxPrinter, "textureOffset", uv[0], uv[1]);
 
-                var adds = ((IEMFCuboidDataSupplier) cube).emf$getSizeAdd();
+                var adds = cubeData.emf$getSizeAdd();
                 if (adds != null) {
                     if (adds[0] == adds[1] && adds[0] == adds[2]) {
                         if (adds[0] != 0) boxPrinter.addProperty("sizeAdd", adds[0]);
@@ -1752,6 +1754,10 @@ public class EMFModelMappings {
                         if (adds[1] != 0) boxPrinter.addProperty("sizeAddY", adds[1]);
                         if (adds[2] != 0) boxPrinter.addProperty("sizeAddZ", adds[2]);
                     }
+                }
+
+                if (cubeData.emf$getMirror()) {
+                    partPrinter.addProperty("mirrorTexture", "u");
                 }
 
                 // invert x and y

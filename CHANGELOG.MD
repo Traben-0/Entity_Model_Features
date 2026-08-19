@@ -1,7 +1,7 @@
 
 [?]
-- fixed several model exporting issues, including missing parts, wrong rotations, and rabbit/axolotl legs on 26.1+
-- fixed vex items not matching animated arm positions
+- fixed several model exporting issues, including missing parts, wrong rotations, missing mirrored uvs, and rabbit/axolotl legs on 26.1+
+- fixed vex & allay items not matching animated arm positions
 - improved item attachment handling
 - fixed debug outline rendering not outlining everything
 - fixed 26.2 neoforge iris compatibility not working causing excess animation during the shadow pass
