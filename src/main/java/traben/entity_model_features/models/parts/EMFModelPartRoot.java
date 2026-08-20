@@ -302,36 +302,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     }
 
 
-    public void tryRenderVanillaRootNormally(PoseStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
-        if (vanillaRoot != null) {
-            matrixStack.pushPose();
-            //noinspection deprecation
-            if (EMF.config().getConfig().getVanillaHologramModeFor(EMFState.state().emfEntity()) == EMFConfig.VanillaModelRenderMode.OFFSET) {
-                matrixStack.translate(1, 0, 0);
-            }
-            vanillaRoot.render(matrixStack, vertexConsumer, light, overlay
-                    //#if MC >= 12100
-                    //#else
-                    //$$ , 1f, 1f, 1f, 1f
-                    //#endif
-            );
-            matrixStack.popPose();
-        }
-    }
-
-//    public void tryRenderVanillaFormatRoot(PoseStack matrixStack, VertexConsumer vertexConsumer, int light, int overlay) {
-//        if (EMF.config().getConfig().getPhysicsModModeFor(EMFAnimationEntityContext.getEMFEntity()) == EMFConfig.PhysicsModCompatChoice.VANILLA) {
-//            if (vanillaRoot != null) {
-//                vanillaRoot.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
-//            }
-//        } else {
-//            ModelPart vanillaFormat = getVanillaFormatRoot();
-//            if (vanillaFormat != null) {
-//                vanillaFormat.render(matrixStack, vertexConsumer, light, overlay #if MC >= MC_21  #else , 1f, 1f, 1f, 1f #endif);
-//            }
-//        }
-//    }
-
     public boolean hasAnimation(){
         return animation != null;
     }
@@ -339,14 +309,6 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public void triggerManualAnimation(PoseStack pose) {
         if (animation != null) animation.run();
     }
-
-    public ModelPart getVanillaFormatRoot() {
-        if (!vanillaFormatModelPartOfEachState.containsKey(currentModelVariant)) {
-            vanillaFormatModelPartOfEachState.put(currentModelVariant, getVanillaModelPartsOfCurrentState());
-        }
-        return vanillaFormatModelPartOfEachState.get(currentModelVariant);
-    }
-
 
     @Override
     public void setVariantStateTo(int newVariant) {

@@ -85,56 +85,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     //#endif
 
 
-
-    //#if MC > 26.2
-    //$$ dont forget this
-    //#elseif MC < 12109
-    //$$ @Inject(method =
-            //#if MC >= 12102
-            //$$ "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            //#else
-            //$$ "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            //#endif
-    //$$         at = @At(value = "INVOKE",
-                    //#if MC >= 12100
-                    //$$ target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;III)V"
-                    //#else
-                    //$$ target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V"
-                    //#endif
-    //$$                 , shift = At.Shift.BEFORE))
-    //$$
-        //#if MC >= 12102
-        //$$     private void emf$Animate(final S livingEntityRenderState, final PoseStack matrixStack, final MultiBufferSource vertexConsumerProvider, final int i, final CallbackInfo ci) {
-        //$$         var emf = EMFState.state();
-        //$$         if(!(emf != null && emf.emfEntity() instanceof LivingEntity livingEntity)) {
-        //$$             return;
-        //$$         }
-        //$$
-        //#else
-        //$$     private void emf$Animate(T livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, CallbackInfo ci) {
-        //#endif
-    //$$
-    //$$     //EMFManager.getInstance().preRenderEMFActions(emf$ModelId,livingEntity, vertexConsumerProvider, o, n, l, k, m);
-    //$$     if (((IEMFModel) model).emf$isEMFModel()) {
-    //$$
-    //$$         EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
-    //$$         if (root != null) {
-    //$$             if (EMF.config().getConfig().getVanillaHologramModeFor((EMFEntity) livingEntity) != EMFConfig.VanillaModelRenderMode.OFF) {
-    //$$                 root.tryRenderVanillaRootNormally(matrixStack, vertexConsumerProvider.getBuffer(
-    //$$                         RenderType.entityTranslucent(getTextureLocation(
-                                    //#if MC >= 12102
-                                    //$$ livingEntityRenderState
-                                    //#else
-                                    //$$ livingEntity
-                                    //#endif
-    //$$                         ))), i, OverlayTexture.NO_OVERLAY);
-    //$$             }
-    //$$         }
-    //$$     }
-    //$$ }
-    //#endif
-
-
     @ModifyExpressionValue(method = "getRenderType", at = @At(value = "INVOKE",
             //#if MC >= 12102
             target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;getTextureLocation(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)Lnet/minecraft/resources/ResourceLocation;"

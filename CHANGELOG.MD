@@ -1,6 +1,7 @@
 
 [?]
 - fixed several model exporting issues, including missing parts, wrong rotations, missing mirrored uvs, and rabbit/axolotl legs on 26.1+
+- fixed block entity models breaking in the latest versions
 - fixed vex & allay items not matching animated arm positions
 - improved item attachment handling
 - fixed debug outline rendering not outlining everything
