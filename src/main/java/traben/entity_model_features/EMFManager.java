@@ -91,7 +91,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     public UUID entityForDebugPrint = null;
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
-    public String currentSpecifiedModelLoading = "";
+    public final ThreadLocal<String> currentSpecifiedModelLoading = ThreadLocal.withInitial(() -> "");
     public BlockEntityType<?> currentBlockEntityTypeLoading = null;
     private boolean traderLlamaHappened = false;
 
@@ -109,7 +109,6 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     private EMFManager() {
         IS_PHYSICS_MOD_INSTALLED = ETF.isThisModLoaded("physicsmod");
-//        IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
         IS_EBE_INSTALLED = ETF.isThisModLoaded("enhancedblockentities");
         lastModelRuleOfEntity = new ETFLruCache.UUIDInteger();
         lastModelRuleOfEntity.defaultReturnValue(0);
@@ -249,6 +248,8 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public ModelPart injectIntoModelRootGetter(final ModelLayerLocation layer, final ModelPart root) {
+        final String currentSpecifiedModelLoading = this.currentSpecifiedModelLoading.get();
+
         var allowedCEM = EMF.config().getConfig().allowedCEM;
         if (!allowedCEM.isOn()) return root;
 
@@ -488,7 +489,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                             if (currentSpecifiedModelLoading.startsWith("emf$boat$")) {
                                 String type = currentSpecifiedModelLoading.substring(9);
                                 mobNameForFileAndMap.setBoth(type + "_boat_patch", "boat_patch").addFallbackModel("boat_patch").resetCacheID();
-                                currentSpecifiedModelLoading = "";
+                                this.currentSpecifiedModelLoading.set("");
                             } else {
                                 mobNameForFileAndMap.setBoth("boat_patch");
                             }
@@ -812,7 +813,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         String thisSide = isRight ? "right" : "left";
         String otherSide = isRight ? "left" : "right";
 
-        mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading + "_large", "double_chest_" + thisSide);
+        mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading.get() + "_large", "double_chest_" + thisSide);
         if (EMF.config().getConfig().doubleChestAnimFix) {
             if (printing)
                 EMFUtils.log("injecting empty " + otherSide + " side parts into 'double chest' for animation purposes");
@@ -823,7 +824,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             root.children = newChildren; // mutable
         }
         mobNameForFileAndMap.addFallbackModel(mobNameForFileAndMap.namespace, mobNameForFileAndMap.getfileName());
-        mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading + "_" + thisSide)
+        mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading.get() + "_" + thisSide)
                 .resetCacheID();
     }
 

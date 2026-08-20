@@ -95,7 +95,7 @@ public abstract class EMFModelPart extends ModelPart {
                        //#endif
     ) {
         try {
-            if (ETFState.currentModelPartDepth != 1) {
+            if (ETFState.currentModelPartDepth != 0) {
                 renderWithTextureOverride(matrices, vertices, light, overlay,
                         //#if MC >= 12100
                         k
@@ -149,14 +149,6 @@ public abstract class EMFModelPart extends ModelPart {
             }
 
             switch (choice) {
-                case GREEN ->
-                        renderDebugTinted(matrices, vertices, light, overlay,
-                                //#if MC >= 12100
-                                k
-                                //#else
-                                //$$ red, green, blue, alpha
-                                //#endif
-                        );
                 case LINES ->{
                     if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
                         URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();

@@ -47,7 +47,7 @@ public class Mixin_SpecialModelRenderers_SetCurrentSpecifiedModel {
             , at = @At(value = "RETURN"))
     private static void emf$clearMarker(CallbackInfoReturnable<Map<Block, SpecialModelRenderer<?>>> cir) {
         if (EMF.testForForgeLoadingError()) return;
-        EMFManager.getInstance().currentSpecifiedModelLoading = "";
+        EMFManager.getInstance().currentSpecifiedModelLoading.set("");
         EMFManager.getInstance().currentBlockEntityTypeLoading = null;
         if (EMF.config().getConfig().logModelCreationData || EMF.config().getConfig().automaticModelExporting)
             EMFUtils.log("Identified SPECIAL block entity renderers: " + emf$renderers);
@@ -80,31 +80,31 @@ public class Mixin_SpecialModelRenderers_SetCurrentSpecifiedModel {
 
         // TODO DONT FORGET TO REPLICATE CHANGES IN REGULAR RENDERERS
         if (state.is(Blocks.ENCHANTING_TABLE))
-            EMFManager.getInstance().currentSpecifiedModelLoading = "enchanting_book";
+            EMFManager.getInstance().currentSpecifiedModelLoading.set("enchanting_book");
         else if (state.is(Blocks.LECTERN))
-            EMFManager.getInstance().currentSpecifiedModelLoading = "lectern_book";
+            EMFManager.getInstance().currentSpecifiedModelLoading.set("lectern_book");
         else if (state.is(Blocks.CHEST))
-            EMFManager.getInstance().currentSpecifiedModelLoading = "chest";
+            EMFManager.getInstance().currentSpecifiedModelLoading.set("chest");
         else if (state.is(Blocks.ENDER_CHEST))
-            EMFManager.getInstance().currentSpecifiedModelLoading = "ender_chest";
+            EMFManager.getInstance().currentSpecifiedModelLoading.set("ender_chest");
         else if (state.is(Blocks.TRAPPED_CHEST))
-            EMFManager.getInstance().currentSpecifiedModelLoading = "trapped_chest";
+            EMFManager.getInstance().currentSpecifiedModelLoading.set("trapped_chest");
         else {
             try {
                 ResourceLocation id = BuiltInRegistries.BLOCK.wrapAsHolder(state.getBlock()).unwrapKey().get().location();
 
                 if (id.getNamespace().equals("minecraft")) {
-                    EMFManager.getInstance().currentSpecifiedModelLoading = id.getPath();
+                    EMFManager.getInstance().currentSpecifiedModelLoading.set(id.getPath());
                 } else {
-                    EMFManager.getInstance().currentSpecifiedModelLoading = id.getNamespace() + ":" + id.getPath();
+                    EMFManager.getInstance().currentSpecifiedModelLoading.set(id.getNamespace() + ":" + id.getPath());
                 }
             } catch (Exception e) {
-                EMFManager.getInstance().currentSpecifiedModelLoading = state.toString();
+                EMFManager.getInstance().currentSpecifiedModelLoading.set(state.toString());
             }
         }
-        emf$renderers.add(EMFManager.getInstance().currentSpecifiedModelLoading);
+        emf$renderers.add(EMFManager.getInstance().currentSpecifiedModelLoading.get());
         if (EMF.config().getConfig().logModelCreationData)
-            EMFUtils.log("Seeing SPECIAL block entity renderer init for: " + EMFManager.getInstance().currentSpecifiedModelLoading);
+            EMFUtils.log("Seeing SPECIAL block entity renderer init for: " + EMFManager.getInstance().currentSpecifiedModelLoading.get());
     }
 
 }

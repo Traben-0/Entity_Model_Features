@@ -552,7 +552,6 @@ public class EMFConfig extends TConfig {
 
     public enum RenderModeChoice {
         NORMAL("entity_model_features.config.render.normal"),
-        GREEN("entity_model_features.config.render.green"),
         LINES_AND_TEXTURE("entity_model_features.config.render.lines_texture"),
         LINES_AND_TEXTURE_FLASH("entity_model_features.config.render.lines_texture_flash"),
         LINES("entity_model_features.config.render.lines"),
