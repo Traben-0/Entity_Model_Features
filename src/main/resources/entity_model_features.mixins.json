@@ -10,6 +10,7 @@
     "MixinCapeModels",
     "MixinEntity",
     "MixinEntityModelLoader",
+    "MixinEntityRenderer",
     "MixinGameRenderer",
     "MixinModel",
     "MixinModelPart",

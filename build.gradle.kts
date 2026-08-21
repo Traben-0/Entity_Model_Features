@@ -316,7 +316,7 @@ private fun changelog(): String? {
         }
     }
 
-    if (sb.isEmpty()) null
+    if (sb.isEmpty()) return null
 
     return sb.toString()
 }

@@ -140,7 +140,12 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     boolean onShoulder();
     void setOnShoulder(boolean onShoulder);
 
-
+    default boolean needsToModifyShadow() {
+        return !Float.isNaN(shadowSize())
+                || !Float.isNaN(shadowOpacity())
+                || !Float.isNaN(shadowX())
+                || !Float.isNaN(shadowZ());
+    }
 
 
     boolean skipModelVariate();
