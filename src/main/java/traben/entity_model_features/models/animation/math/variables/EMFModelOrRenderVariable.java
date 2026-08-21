@@ -163,12 +163,14 @@ public enum EMFModelOrRenderVariable {
     RENDER_shadow_size() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setShadowSize(value);
+            var state = EMFState.state();
+            if (state != null) state.setShadowSize(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().shadowSize() : 0;
+            var state = EMFState.state();
+            return state != null ? state.shadowSize() : 0;
         }
 
         @Override
@@ -179,12 +181,14 @@ public enum EMFModelOrRenderVariable {
     RENDER_SHADOW_OPACITY() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setShadowOpacity(value);
+            var state = EMFState.state();
+            if (state != null) state.setShadowOpacity(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().shadowOpacity() : 0;
+            var state = EMFState.state();
+            return state != null ? state.shadowOpacity() : 0;
         }
 
         @Override
@@ -195,12 +199,14 @@ public enum EMFModelOrRenderVariable {
     RENDER_SHADOW_X() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setShadowX(value);
+            var state = EMFState.state();
+            if (state != null) state.setShadowX(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().shadowX() : 0;
+            var state = EMFState.state();
+            return state != null ? state.shadowX() : 0;
         }
 
         @Override
@@ -211,12 +217,14 @@ public enum EMFModelOrRenderVariable {
     RENDER_SHADOW_Z() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setShadowZ(value);
+            var state = EMFState.state();
+            if (state != null) state.setShadowZ(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().shadowZ() : 0;
+            var state = EMFState.state();
+            return state != null ? state.shadowZ() : 0;
         }
 
         @Override
@@ -224,63 +232,178 @@ public enum EMFModelOrRenderVariable {
             return true;
         }
     },
+
     RENDER_LEASH_X() {
-        @Override
-        public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setLeashX(value);
-        }
-
-        @Override
-        public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().leashX() : 0;
-        }
-
-        @Override
-        public boolean isRenderVariable() {
-            return true;
-        }
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_x", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_x", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
     },
     RENDER_LEASH_Y() {
-        @Override
-        public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setLeashY(value);
-        }
-
-        @Override
-        public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().leashY() : 0;
-        }
-
-        @Override
-        public boolean isRenderVariable() {
-            return true;
-        }
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_y", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_y", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
     },
     RENDER_LEASH_Z() {
-        @Override
-        public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setLeashZ(value);
-        }
-
-        @Override
-        public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().leashZ() : 0;
-        }
-
-        @Override
-        public boolean isRenderVariable() {
-            return true;
-        }
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_z", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_z", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
     },
+
+    RENDER_LEASH_X_1() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_x_1", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_x_1", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_LEASH_Y_1() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_y_1", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_y_1", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_LEASH_Z_1() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_z_1", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_z_1", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+
+    RENDER_LEASH_X_2() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_x_2", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_x_2", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_LEASH_Y_2() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_y_2", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_y_2", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_LEASH_Z_2() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_z_2", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_z_2", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+
+    RENDER_LEASH_X_3() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_x_3", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_x_3", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_LEASH_Y_3() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_y_3", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_y_3", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_LEASH_Z_3() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_z_3", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_z_3", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+
+    RENDER_LEASH_X_4() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_x_4", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_x_4", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_LEASH_Y_4() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_y_4", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_y_4", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_LEASH_Z_4() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_offset_z_4", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_offset_z_4", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+
+    RENDER_HOLDER_LEASH_X() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_x", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_x", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_HOLDER_LEASH_Y() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_y", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_y", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_HOLDER_LEASH_Z() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_z", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_z", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+
+    RENDER_HOLDER_LEASH_X_1() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_x_1", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_x_1", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_HOLDER_LEASH_Y_1() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_y_1", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_y_1", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_HOLDER_LEASH_Z_1() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_z_1", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_z_1", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+
+    RENDER_HOLDER_LEASH_X_2() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_x_2", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_x_2", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_HOLDER_LEASH_Y_2() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_y_2", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_y_2", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_HOLDER_LEASH_Z_2() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_z_2", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_z_2", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+
+    RENDER_HOLDER_LEASH_X_3() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_x_3", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_x_3", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_HOLDER_LEASH_Y_3() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_y_3", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_y_3", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_HOLDER_LEASH_Z_3() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_z_3", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_z_3", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+
+    RENDER_HOLDER_LEASH_X_4() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_x_4", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_x_4", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_HOLDER_LEASH_Y_4() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_y_4", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_y_4", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+    RENDER_HOLDER_LEASH_Z_4() {
+        @Override public void setValue(EMFModelPart ignored, float value) {var state = EMFState.state();if (state != null) state.variableMap().put("render.leash_holder_offset_z_4", value);}
+        @Override public float getValue(ModelPart ignored) {var state = EMFState.state();return state != null ? state.variableMap().getOrDefault("render.leash_holder_offset_z_4", 0f) : 0;}
+        @Override public boolean isRenderVariable() {return true;}
+    },
+
     RENDER_FIRE_X() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setFireX(value);
+            var state = EMFState.state();
+            if (state != null) state.setFireX(value);
         }
 
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().fireX() : 0;
+            var state = EMFState.state();
+            return state != null ? state.fireX() : 0;
         }
 
         @Override
@@ -291,11 +414,13 @@ public enum EMFModelOrRenderVariable {
     RENDER_FIRE_Y() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setFireY(value);
+            var state = EMFState.state();
+            if (state != null) state.setFireY(value);
         }
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().fireY() : 0;
+            var state = EMFState.state();
+            return state != null ? state.fireY() : 0;
         }
         @Override
         public boolean isRenderVariable() {
@@ -305,11 +430,13 @@ public enum EMFModelOrRenderVariable {
     RENDER_FIRE_Z() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setFireZ(value);
+            var state = EMFState.state();
+            if (state != null) state.setFireZ(value);
         }
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().fireZ() : 0;
+            var state = EMFState.state();
+            return state != null ? state.fireZ() : 0;
         }
         @Override
         public boolean isRenderVariable() {
@@ -319,11 +446,13 @@ public enum EMFModelOrRenderVariable {
     RENDER_FIRE_SCALE() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setFireScale(value);
+            var state = EMFState.state();
+            if (state != null) state.setFireScale(value);
         }
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().fireScale() : 0;
+            var state = EMFState.state();
+            return state != null ? state.fireScale() : 0;
         }
         @Override
         public boolean isRenderVariable() {
@@ -333,11 +462,13 @@ public enum EMFModelOrRenderVariable {
     RENDER_FIRE_HEIGHT() {
         @Override
         public void setValue(EMFModelPart ignored, float value) {
-            if (EMFState.state() != null) EMFState.state().setFireHeight(value);
+            var state = EMFState.state();
+            if (state != null) state.setFireHeight(value);
         }
         @Override
         public float getValue(ModelPart ignored) {
-            return EMFState.state() != null ? EMFState.state().fireHeight() : 0;
+            var state = EMFState.state();
+            return state != null ? state.fireHeight() : 0;
         }
         @Override
         public boolean isRenderVariable() {
@@ -355,9 +486,40 @@ public enum EMFModelOrRenderVariable {
             case "render.shadow_opacity" -> RENDER_SHADOW_OPACITY;
             case "render.shadow_offset_x" -> RENDER_SHADOW_X;
             case "render.shadow_offset_z" -> RENDER_SHADOW_Z;
+
             case "render.leash_offset_x" -> RENDER_LEASH_X;
             case "render.leash_offset_y" -> RENDER_LEASH_Y;
             case "render.leash_offset_z" -> RENDER_LEASH_Z;
+            case "render.leash_offset_x_1" -> RENDER_LEASH_X_1;
+            case "render.leash_offset_y_1" -> RENDER_LEASH_Y_1;
+            case "render.leash_offset_z_1" -> RENDER_LEASH_Z_1;
+            case "render.leash_offset_x_2" -> RENDER_LEASH_X_2;
+            case "render.leash_offset_y_2" -> RENDER_LEASH_Y_2;
+            case "render.leash_offset_z_2" -> RENDER_LEASH_Z_2;
+            case "render.leash_offset_x_3" -> RENDER_LEASH_X_3;
+            case "render.leash_offset_y_3" -> RENDER_LEASH_Y_3;
+            case "render.leash_offset_z_3" -> RENDER_LEASH_Z_3;
+            case "render.leash_offset_x_4" -> RENDER_LEASH_X_4;
+            case "render.leash_offset_y_4" -> RENDER_LEASH_Y_4;
+            case "render.leash_offset_z_4" -> RENDER_LEASH_Z_4;
+
+
+            case "render.leash_holder_offset_x" -> RENDER_HOLDER_LEASH_X;
+            case "render.leash_holder_offset_y" -> RENDER_HOLDER_LEASH_Y;
+            case "render.leash_holder_offset_z" -> RENDER_HOLDER_LEASH_Z;
+            case "render.leash_holder_offset_x_1" -> RENDER_HOLDER_LEASH_X_1;
+            case "render.leash_holder_offset_y_1" -> RENDER_HOLDER_LEASH_Y_1;
+            case "render.leash_holder_offset_z_1" -> RENDER_HOLDER_LEASH_Z_1;
+            case "render.leash_holder_offset_x_2" -> RENDER_HOLDER_LEASH_X_2;
+            case "render.leash_holder_offset_y_2" -> RENDER_HOLDER_LEASH_Y_2;
+            case "render.leash_holder_offset_z_2" -> RENDER_HOLDER_LEASH_Z_2;
+            case "render.leash_holder_offset_x_3" -> RENDER_HOLDER_LEASH_X_3;
+            case "render.leash_holder_offset_y_3" -> RENDER_HOLDER_LEASH_Y_3;
+            case "render.leash_holder_offset_z_3" -> RENDER_HOLDER_LEASH_Z_3;
+            case "render.leash_holder_offset_x_4" -> RENDER_HOLDER_LEASH_X_4;
+            case "render.leash_holder_offset_y_4" -> RENDER_HOLDER_LEASH_Y_4;
+            case "render.leash_holder_offset_z_4" -> RENDER_HOLDER_LEASH_Z_4;
+
             case "render.fire_x" -> RENDER_FIRE_X;
             case "render.fire_y" -> RENDER_FIRE_Y;
             case "render.fire_z" -> RENDER_FIRE_Z;

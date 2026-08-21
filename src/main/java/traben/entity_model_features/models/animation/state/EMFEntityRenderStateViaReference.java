@@ -100,18 +100,6 @@ public class EMFEntityRenderStateViaReference extends ETFEntityRenderStateViaRef
     @Override public float shadowOpacity() { return shadowOpacity; }
     @Override public void setShadowOpacity(float shadowOpacity) { this.shadowOpacity = shadowOpacity; }
 
-    float leashX = Float.NaN;
-    @Override public float leashX() { return leashX; }
-    @Override public void setLeashX(float leashX) { this.leashX = leashX; }
-
-    float leashY = Float.NaN;
-    @Override public float leashY() { return leashY; }
-    @Override public void setLeashY(float leashY) { this.leashY = leashY; }
-
-    float leashZ = Float.NaN;
-    @Override public float leashZ() { return leashZ; }
-    @Override public void setLeashZ(float leashZ) { this.leashZ = leashZ; }
-
     float shadowX = Float.NaN;
     @Override public float shadowX() { return shadowX; }
     @Override public void setShadowX(float shadowX) { this.shadowX = shadowX; }

@@ -1,6 +1,7 @@
 package traben.entity_model_features.mixin.mixins;
 
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -10,7 +11,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.state.EMFState;
@@ -124,20 +124,20 @@ public abstract class MixinEntity implements EMFEntity {
 
     @Shadow public abstract boolean isInWaterOrRain();
 
-    //#if MC >= 12106
-    @Inject(method = "getRopeHoldPosition", at = @At("RETURN"))
-    //#else
-    //$$ @Inject(method = "getLeashOffset()Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"))
+    //#if MC < 1.21
+    //$$ @ModifyReturnValue(method = "getLeashOffset()Lnet/minecraft/world/phys/Vec3;", at = @At("RETURN"))
+    //$$ private Vec3 emf$leash(Vec3 vec) {
+    //$$     var map = emf$getVariableMap();
+    //$$     var x = map.getOrDefault("render.leash_offset_x", 0.0f);
+    //$$     var y = map.getOrDefault("render.leash_offset_y", 0.0f);
+    //$$     var z = map.getOrDefault("render.leash_offset_z", 0.0f);
+    //$$
+    //$$     if (x != 0 || y != 0 || z != 0) {
+    //$$         return vec.add(x, y, z);
+    //$$     }
+    //$$     return vec;
+    //$$ }
     //#endif
-    private void emf$leashwither(CallbackInfoReturnable<Vec3> cir) {
-        var state = EMFState.state();
-        if (state == null) return;
-        //return new Vec3d(0.0, (double)this.getStandingEyeHeight(), (double)(this.getWidth() * 0.4F));
-        if (state.leashX() != 0 || state.leashY() != 0 || state.leashZ() != 0) {
-            Vec3 vec = cir.getReturnValue();
-            vec.add(state.leashX(), state.leashY(), state.leashZ());
-        }
-    }
 
     @Override
     public double emf$prevX() {

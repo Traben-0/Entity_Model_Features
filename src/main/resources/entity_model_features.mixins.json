@@ -34,6 +34,7 @@
     "rendering.MixinEntityRenderDispatcher",
     "rendering.MixinEntityRenderers",
     "rendering.MixinItemFrameEntityRenderer",
+    "rendering.MixinLeashOffsets",
     "rendering.MixinLivingEntityRenderer",
     "rendering.MixinPlayerEntityRenderer",
     "rendering.arrows.MixinArrowRenderer",

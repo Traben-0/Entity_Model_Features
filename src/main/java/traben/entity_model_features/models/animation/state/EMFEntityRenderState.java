@@ -109,15 +109,6 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     float shadowOpacity();
     void setShadowOpacity(float shadowOpacity);
 
-    float leashX();
-    void setLeashX(float leashX);
-
-    float leashY();
-    void setLeashY(float leashY);
-
-    float leashZ();
-    void setLeashZ(float leashZ);
-
     float shadowX();
     void setShadowX(float shadowX);
 

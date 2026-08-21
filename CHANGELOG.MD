@@ -3,10 +3,15 @@
 - fixed several model exporting issues, including missing parts, wrong rotations, missing mirrored uvs, and rabbit/axolotl legs on 26.1+
 - fixed block entity models breaking in the latest versions
 - fixed vex & allay items not matching animated arm positions
-- fixed custom shadow position, size, and opacity for models & animations not working
+- fixed `render.shadow_size`, `render.shadow_opacity`, `render.shadow_offset_x`, `render.shadow_offset_z`
 - added `render.fire_x`, `render.fire_y`, `render.fire_z` animation variables for controlling the fire rendering position on entities
 - added `render.fire_scale`, `render.fire_height` animation variables for controlling the fire rendering scale and height on entities
-- improved item attachment handling
+- fixed `render.leash_offset_x`, `render.leash_offset_y`, `render.leash_offset_z` 
+- added `render.leash_holder_offset_x`, `render.leash_holder_offset_y`, `render.leash_holder_offset_z` which do the same as above but affect the holding entity instead of the leashed entity
+- added `render.<LEASH_OFFSET_TYPE>_1`, `render.<LEASH_OFFSET_TYPE>_2`, `render.<LEASH_OFFSET_TYPE>_3` , `render.<LEASH_OFFSET_TYPE>_4`
+  - these can apply to any of the x,y,z or holder and normal leash offset values and allows you to modify the quad leash offsets used by ghasts and boats, and any other entity that uses a quad leash connection
+  - Note: if the _1 .. _4 variants aren't used then the regular x,y,z offset can be used instead applied to all 4 positions
+- improved and fixed item attachment handling
 - fixed debug outline rendering not outlining everything
 - fixed 26.2 neoforge iris compatibility not working causing excess animation during the shadow pass
 - fixed first person arm rendering with sleeves even when turned off in the settings
