@@ -136,6 +136,24 @@ public class EMFEntityRenderStateViaReference extends ETFEntityRenderStateViaRef
     @Override public float headPitch() { return headPitch; }
     @Override public void setHeadPitch(float headPitch) { this.headPitch = headPitch; }
 
+    float fireX = Float.NaN;
+    @Override public float fireX() { return fireX; }
+    @Override public void setFireX(float fireX) { this.fireX = fireX; }
+    float fireY = Float.NaN;
+    @Override public float fireY() { return fireY; }
+    @Override public void setFireY(float fireY) { this.fireY = fireY; }
+    float fireZ = Float.NaN;
+    @Override public float fireZ() { return fireZ; }
+    @Override public void setFireZ(float fireZ) { this.fireZ = fireZ; }
+    float fireWidth = Float.NaN;
+    @Override public float fireScale() { return fireWidth; }
+    @Override public void setFireScale(float fireWidth) { this.fireWidth = fireWidth; }
+    float fireHeight = Float.NaN;
+    @Override public float fireHeight() { return fireHeight; }
+    @Override public void setFireHeight(float fireHeight) { this.fireHeight = fireHeight; }
+
+
+
 
     @Override
     public String toString() {

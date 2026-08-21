@@ -4,6 +4,8 @@
 - fixed block entity models breaking in the latest versions
 - fixed vex & allay items not matching animated arm positions
 - fixed custom shadow position, size, and opacity for models & animations not working
+- added `render.fire_x`, `render.fire_y`, `render.fire_z` animation variables for controlling the fire rendering position on entities
+- added `render.fire_scale`, `render.fire_height` animation variables for controlling the fire rendering scale and height on entities
 - improved item attachment handling
 - fixed debug outline rendering not outlining everything
 - fixed 26.2 neoforge iris compatibility not working causing excess animation during the shadow pass

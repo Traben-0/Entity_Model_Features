@@ -56,7 +56,8 @@
     "rendering.model.MixinWolfEntityModel",
     "rendering.submits.Mixin_HumanoidArmorLayer_AddBaseModelPoseRef",
     "rendering.submits.Mixin_ModelPartRenderer",
-    "rendering.submits.Mixin_ModelRenderer"
+    "rendering.submits.Mixin_ModelRenderer",
+    "rendering.submits.MixinFlameFeatureRenderer"
   ],
   "mixins": [
   ],

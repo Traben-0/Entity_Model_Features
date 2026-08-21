@@ -20,23 +20,12 @@ import traben.entity_texture_features.features.state.ETFState;
 //$$ import net.minecraft.world.entity.Entity;
 //$$ import traben.entity_texture_features.features.state.ETFEntityRenderState;
 //$$ import traben.entity_texture_features.utils.ETFEntity;
+//#else
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
 //#endif
 
 @Mixin(EntityRenderDispatcher.class)
 public abstract class MixinEntityRenderDispatcher {
-
-
-    private static final String SHADOW_RENDER_ETF =
-            //#if MC >= 12109
-            "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitShadow(Lcom/mojang/blaze3d/vertex/PoseStack;FLjava/util/List;)V"
-            //#elseif MC >= 12105
-            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FLnet/minecraft/world/level/LevelReader;F)V"
-            //#elseif MC >= 12102
-            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FFLnet/minecraft/world/level/LevelReader;F)V"
-            //#else
-            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;FFLnet/minecraft/world/level/LevelReader;F)V"
-            //#endif
-            ;
 
     private static final String RENDER_ETF =
             //#if MC >= 12109
@@ -77,6 +66,19 @@ public abstract class MixinEntityRenderDispatcher {
     //$$
     //#endif
 
+    //region shadow modification
+
+    private static final String SHADOW_RENDER_ETF =
+            //#if MC >= 12109
+            "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitShadow(Lcom/mojang/blaze3d/vertex/PoseStack;FLjava/util/List;)V"
+            //#elseif MC >= 12105
+            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FLnet/minecraft/world/level/LevelReader;F)V"
+            //#elseif MC >= 12102
+            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/entity/state/EntityRenderState;FFLnet/minecraft/world/level/LevelReader;F)V"
+            //#else
+            //$$ "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;renderShadow(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/Entity;FFLnet/minecraft/world/level/LevelReader;F)V"
+            //#endif
+            ;
 
     //#if MC >= 1.21.9
     @Inject(method = RENDER_ETF, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderer;submit(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
@@ -224,4 +226,67 @@ public abstract class MixinEntityRenderDispatcher {
     //$$ }
     //#endif
 
+    //endregion
+
+    //region flame modification
+
+    //#if MC >= 1.21.2 && MC < 1.21.9
+    //$$ @ModifyExpressionValue(method = "renderFlame", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/state/EntityRenderState;boundingBoxWidth:F", opcode = Opcodes.GETFIELD))
+    //$$ private float width(float original, @Local EntityRenderState vanilla, @Local PoseStack pose) {
+    //$$     var state = EMFEntityRenderState.from(vanilla);
+    //$$     if (state == null) return original;
+    //$$
+    //$$     if (state.needsToModifyFire()) {
+    //$$         pose.translate(
+    //$$                 Float.isNaN(state.fireX()) ? 0 : state.fireX(),
+    //$$                 Float.isNaN(state.fireY()) ? 0 : state.fireY(),
+    //$$                 Float.isNaN(state.fireZ()) ? 0 : state.fireZ()
+    //$$         );
+    //$$
+    //$$         if (!Float.isNaN(state.fireScale())) {
+    //$$             return state.fireScale();
+    //$$         }
+    //$$     }
+    //$$     return original;
+    //$$ }
+    //$$
+    //$$ @ModifyExpressionValue(method = "renderFlame", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/state/EntityRenderState;boundingBoxHeight:F", opcode = Opcodes.GETFIELD))
+    //$$ private float height(float original, @Local EntityRenderState vanilla) {
+    //$$     var state = EMFEntityRenderState.from(vanilla);
+    //$$     if (state != null && !Float.isNaN(state.fireHeight())) {
+    //$$         return state.fireHeight();
+    //$$     }
+    //$$     return original;
+    //$$ }
+    //#elseif MC < 1.21.2
+    //$$ @ModifyExpressionValue(method = "renderFlame", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getBbWidth()F"))
+    //$$ private float width(float original, @Local PoseStack pose) {
+    //$$     var state = EMFState.state();
+    //$$     if (state == null) return original;
+    //$$
+    //$$     if (state.needsToModifyFire()) {
+    //$$         pose.translate(
+    //$$                 Float.isNaN(state.fireX()) ? 0 : state.fireX(),
+    //$$                 Float.isNaN(state.fireY()) ? 0 : state.fireY(),
+    //$$                 Float.isNaN(state.fireZ()) ? 0 : state.fireZ()
+    //$$         );
+    //$$
+    //$$         if (!Float.isNaN(state.fireScale())) {
+    //$$             return state.fireScale();
+    //$$         }
+    //$$     }
+    //$$     return original;
+    //$$ }
+    //$$
+    //$$ @ModifyExpressionValue(method = "renderFlame", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getBbHeight()F"))
+    //$$ private float height(float original) {
+    //$$     var state = EMFState.state();
+    //$$     if (state != null && !Float.isNaN(state.fireHeight())) {
+    //$$         return state.fireHeight();
+    //$$     }
+    //$$     return original;
+    //$$ }
+    //#endif
+
+    //endregion
 }

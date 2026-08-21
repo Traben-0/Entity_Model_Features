@@ -272,6 +272,78 @@ public enum EMFModelOrRenderVariable {
             return true;
         }
     },
+    RENDER_FIRE_X() {
+        @Override
+        public void setValue(EMFModelPart ignored, float value) {
+            if (EMFState.state() != null) EMFState.state().setFireX(value);
+        }
+
+        @Override
+        public float getValue(ModelPart ignored) {
+            return EMFState.state() != null ? EMFState.state().fireX() : 0;
+        }
+
+        @Override
+        public boolean isRenderVariable() {
+            return true;
+        }
+    },
+    RENDER_FIRE_Y() {
+        @Override
+        public void setValue(EMFModelPart ignored, float value) {
+            if (EMFState.state() != null) EMFState.state().setFireY(value);
+        }
+        @Override
+        public float getValue(ModelPart ignored) {
+            return EMFState.state() != null ? EMFState.state().fireY() : 0;
+        }
+        @Override
+        public boolean isRenderVariable() {
+            return true;
+        }
+    },
+    RENDER_FIRE_Z() {
+        @Override
+        public void setValue(EMFModelPart ignored, float value) {
+            if (EMFState.state() != null) EMFState.state().setFireZ(value);
+        }
+        @Override
+        public float getValue(ModelPart ignored) {
+            return EMFState.state() != null ? EMFState.state().fireZ() : 0;
+        }
+        @Override
+        public boolean isRenderVariable() {
+            return true;
+        }
+    },
+    RENDER_FIRE_SCALE() {
+        @Override
+        public void setValue(EMFModelPart ignored, float value) {
+            if (EMFState.state() != null) EMFState.state().setFireScale(value);
+        }
+        @Override
+        public float getValue(ModelPart ignored) {
+            return EMFState.state() != null ? EMFState.state().fireScale() : 0;
+        }
+        @Override
+        public boolean isRenderVariable() {
+            return true;
+        }
+    },
+    RENDER_FIRE_HEIGHT() {
+        @Override
+        public void setValue(EMFModelPart ignored, float value) {
+            if (EMFState.state() != null) EMFState.state().setFireHeight(value);
+        }
+        @Override
+        public float getValue(ModelPart ignored) {
+            return EMFState.state() != null ? EMFState.state().fireHeight() : 0;
+        }
+        @Override
+        public boolean isRenderVariable() {
+            return true;
+        }
+    }
     ;
 
 
@@ -286,6 +358,11 @@ public enum EMFModelOrRenderVariable {
             case "render.leash_offset_x" -> RENDER_LEASH_X;
             case "render.leash_offset_y" -> RENDER_LEASH_Y;
             case "render.leash_offset_z" -> RENDER_LEASH_Z;
+            case "render.fire_x" -> RENDER_FIRE_X;
+            case "render.fire_y" -> RENDER_FIRE_Y;
+            case "render.fire_z" -> RENDER_FIRE_Z;
+            case "render.fire_scale" -> RENDER_FIRE_SCALE;
+            case "render.fire_height" -> RENDER_FIRE_HEIGHT;
             default -> null;
         };
     }

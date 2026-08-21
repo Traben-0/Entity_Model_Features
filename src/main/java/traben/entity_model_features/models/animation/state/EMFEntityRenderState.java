@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.IEMFModel;
-import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.models.animation.math.EMFMath;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.utils.EMFEntity;
@@ -145,6 +144,26 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
                 || !Float.isNaN(shadowOpacity())
                 || !Float.isNaN(shadowX())
                 || !Float.isNaN(shadowZ());
+    }
+
+    float fireX();
+    void setFireX(float fireX);
+    float fireY();
+    void setFireY(float fireY);
+    float fireZ();
+    void setFireZ(float fireZ);
+
+    float fireHeight();
+    void setFireHeight(float fireHeightScale);
+    float fireScale();
+    void setFireScale(float fireWidthScale);
+
+    default boolean needsToModifyFire() {
+        return !Float.isNaN(fireScale())
+                || !Float.isNaN(fireHeight())
+                || !Float.isNaN(fireX())
+                || !Float.isNaN(fireY())
+                || !Float.isNaN(fireZ());
     }
 
 
