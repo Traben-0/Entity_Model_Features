@@ -333,7 +333,8 @@ public final class VariableRegistry {
         } catch (Exception e) {
             if (printing()) EMFUtils.logError("Error finding variable: [" + variableName + "] in animation [" + context.animKey + "] of model [" + context.modelName + "]. EMF will treat the variable as zero.");
         }
-        return variableName.startsWith("is_") ? MathConstant.FALSE_CONST : MathConstant.ZERO_CONST;
+        return new MathVariable(variableName, isNegative,
+                variableName.startsWith("is_") ? MathConstant.FALSE_CONST.getResultSupplier() : MathConstant.ZERO_CONST.getResultSupplier());
     }
 
     private boolean printing() {

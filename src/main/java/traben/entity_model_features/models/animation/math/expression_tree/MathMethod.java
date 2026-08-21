@@ -40,14 +40,20 @@ public abstract class MathMethod extends MathValue implements MathComponent {
     protected @Nullable ResultSupplier supplier = null;
     protected final @NotNull List<String> rawArgs;
     protected final @NotNull List<MathComponent> parsedArgs;
+    protected final @NotNull List<Integer> stringArgs;
 
     protected MathMethod(boolean isNegative, AnimSetupContext context, @NotNull List<String> args) throws EMFMathException {
         this(isNegative, context, args, -1);
     }
 
     protected MathMethod(boolean isNegative, AnimSetupContext context, @NotNull List<String> args, int customArgCount) throws EMFMathException {
+        this(isNegative, context, args, customArgCount, List.of());
+    }
+
+    protected MathMethod(boolean isNegative, AnimSetupContext context, @NotNull List<String> args, int customArgCount, List<Integer> stringArgs) throws EMFMathException {
         super(isNegative);
         rawArgs = args;
+        this.stringArgs = stringArgs;
         boolean correctArgCount = customArgCount != -1
                 ? customArgCount == args.size()
                 : hasCorrectArgCount(args.size());
@@ -207,7 +213,7 @@ public abstract class MathMethod extends MathValue implements MathComponent {
     public abstract void asmVisitInner(MethodVisitor mv, ASMVariableHandler varNames) throws EMFMathException;
 
     protected boolean isRawStringArg(int index) {
-        return false;
+        return stringArgs.contains(index);
     }
 
     protected abstract boolean hasCorrectArgCount(int argCount);
