@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.animation.EMFAnimationHandler;
+import traben.entity_model_features.models.animation.EMFAttachment;
 import traben.entity_model_features.models.animation.math.EMFMath;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.animation.state.EMFState;
@@ -47,10 +48,19 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     private long lastMobCountAnimatedOn = 0;
     private boolean hasRemovedTopLevelJemTextureFromChildren = false;
 
-    protected final Set<Integer> hasRightArmItemOverrides = new HashSet<>();
-    protected final Set<Integer> hasLeftArmItemOverrides = new HashSet<>();
     protected final Map<Integer, Consumer<PoseStack>> leftArmPositioners = new HashMap<>();
     protected final Map<Integer, Consumer<PoseStack>> rightArmPositioners = new HashMap<>();
+    // Separate as far less likely to be used and also non optifine format so likely to change separately
+    protected final Map<EMFAttachment.Type, Map<Integer, Consumer<PoseStack>>> otherPositioners = new HashMap<>();
+
+    public Consumer<PoseStack> getPositionerForAttachment(EMFAttachment.Type type) {
+        if (type.isHumanoidHand()) {
+            return type == EMFAttachment.Type.RIGHT_HAND
+                    ? rightArmPositioners.get(currentModelVariant)
+                    : leftArmPositioners.get(currentModelVariant);
+        }
+        return otherPositioners.get(type).get(currentModelVariant);
+    }
 
     public boolean isMainModel = false;
 
@@ -209,12 +219,19 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         setVariantStateTo(variant);
 
         if (jemData.hasAttachmentsLeft) {
-            this.hasLeftArmItemOverrides.add(variant);
-            this.leftArmPositioners.put(variant, getArmPositioner(true));
+            this.leftArmPositioners.put(variant, getArmPositioner(EMFAttachment.Type.LEFT_HAND));
         }
         if (jemData.hasAttachmentsRight) {
-            this.hasRightArmItemOverrides.add(variant);
-            this.rightArmPositioners.put(variant, getArmPositioner(false));
+            this.rightArmPositioners.put(variant, getArmPositioner(EMFAttachment.Type.RIGHT_HAND));
+        }
+        if (jemData.hasAttachmentsOther) {
+            for (EMFAttachment.Type type : EMFAttachment.Type.NON_HANDS) {
+                var positioner = getArmPositioner(type);
+                if (positioner != null) {
+                    this.otherPositioners.computeIfAbsent(type, t -> new HashMap<>())
+                            .put(variant, positioner);
+                }
+            }
         }
     }
 

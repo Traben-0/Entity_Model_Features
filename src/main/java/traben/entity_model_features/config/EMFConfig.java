@@ -131,6 +131,9 @@ public class EMFConfig extends TConfig {
     public boolean exportRotations = false;
     public boolean asmMaths = true;
     public boolean logASM = false;
+    //#if MC >= 26.2
+    //$$ public boolean sulfurCubeBlockAnimatesByDefault = false;
+    //#endif
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -143,7 +146,10 @@ public class EMFConfig extends TConfig {
                                         () -> allowEBEModConfigModify, value -> allowEBEModConfigModify = value, true),
                                 new TConfigEntryBoolean("entity_model_features.config.double_chest_fix", "entity_model_features.config.double_chest_fix.tooltip",
                                         () -> doubleChestAnimFix, value -> doubleChestAnimFix = value, true)
-
+                                //#if MC >= 26.2
+                                //$$ , new TConfigEntryBoolean("entity_model_features.config.sulfur_cube_block", "entity_model_features.config.sulfur_cube_block.tooltip",
+                                //$$         () -> sulfurCubeBlockAnimatesByDefault, value -> sulfurCubeBlockAnimatesByDefault = value, true)
+                                //#endif
                         ),
                         new TConfigEntryCategory("entity_model_features.config.player_settings").add(
                                 new TConfigEntryBoolean("entity_model_features.config.prevent_hand", "entity_model_features.config.prevent_hand.tooltip",

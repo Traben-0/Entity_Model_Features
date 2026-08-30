@@ -12,6 +12,15 @@
   - these can apply to any of the x,y,z or holder and normal leash offset values and allows you to modify the quad leash offsets used by ghasts and boats, and any other entity that uses a quad leash connection
   - Note: if the _1 .. _4 variants aren't used then the regular x,y,z offset can be used instead applied to all 4 positions
 - improved and fixed item attachment handling
+- added new item/block attachment points for models:
+  - `head_item` (Almost all humanoid models with a head armor slot, including player)
+  - `sulfur_cube_block` (sulfur_cube internal block) (This one is special as it will be active by default, toggleable in settings)
+  - `enderman_block`
+  - `villager_item`
+  - `witch_item`
+  - `panda_item`
+  - `dolphin_item`
+  - `fox_item`
 - fixed debug outline rendering not outlining everything
 - fixed 26.2 neoforge iris compatibility not working causing excess animation during the shadow pass
 - fixed first person arm rendering with sleeves even when turned off in the settings

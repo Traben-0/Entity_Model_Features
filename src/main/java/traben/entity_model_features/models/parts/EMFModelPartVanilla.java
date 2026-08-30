@@ -2,7 +2,9 @@ package traben.entity_model_features.models.parts;
 
 
 import net.minecraft.client.model.geom.ModelPart;
+import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.models.animation.EMFAttachment;
 import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -61,31 +63,33 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
             // Held item rendering runs this to translate for hand positioning, but we might have attachment points set in any arbitrary part at any depth
             // To account for this on the first call to this method during that layer call we will run that stack through
             // the root's positioner
+            // Then prevent subsequent calls to (now) irrelevant vanilla parts
+
+            // Already done the once only transform
+            if (EMFState.hasDoneArmOverride == Boolean.TRUE) return;
+            // Already failed the once only transform
+            if (EMFState.hasDoneArmOverride == Boolean.FALSE) {
+                super.translateAndRotate(poseStack);
+                return;
+            }
+
             var root = getRoot();
             boolean leftArm = EMFState.isInLeftHand == Boolean.TRUE;
-            if ((leftArm && root.hasLeftArmItemOverrides.contains(currentModelVariant))
-                    || (!leftArm && root.hasRightArmItemOverrides.contains(currentModelVariant))) {
-                // Already done the once only transform
-                if (EMFState.hasDoneArmOverride == Boolean.TRUE) return;
-                // Already failed the once only transform
-                if (EMFState.hasDoneArmOverride == Boolean.FALSE) {
-                    super.translateAndRotate(poseStack);
-                    return;
-                }
-
-                Consumer<PoseStack> positioner = leftArm
-                        ? root.leftArmPositioners.get(currentModelVariant)
-                        : root.rightArmPositioners.get(currentModelVariant);
-
-                if (positioner != null) {
+            @Nullable Consumer<PoseStack> positioner = leftArm
+                    ? root.leftArmPositioners.get(currentModelVariant)
+                    : root.rightArmPositioners.get(currentModelVariant);
+            if (positioner != null) {
+                try {
                     EMFState.isInHandItemLayerTransform = false; // Very likely to recurse into this method
                     positioner.accept(poseStack);
                     EMFState.isInHandItemLayerTransform = true;
                     EMFState.hasDoneArmOverride = Boolean.TRUE;
-                } else {
+                } catch (Exception e) {
                     EMFState.hasDoneArmOverride = Boolean.FALSE;
                 }
                 return;
+            } else {
+                EMFState.hasDoneArmOverride = Boolean.FALSE;
             }
         }
 

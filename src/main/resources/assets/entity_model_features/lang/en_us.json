@@ -1,4 +1,6 @@
 {
+  "entity_model_features.config.sulfur_cube_block": "Sulfur Cube block default animation",
+  "entity_model_features.config.sulfur_cube_block.tooltip": "Will automatically make Sulfur Cube internal blocks animate by default, this is equivalent to having a 'sulfur_cube_block' attachment in the model's 'cube' part with offset 0,0,0.",
   "entity_model_features.config.logASM": "Log compiled math state",
   "entity_model_features.config.asmmaths.logASM": "Will cause log spam, you probably don't need this unless the dev asked you to provide a log with this.",
   "entity_model_features.config.asmmaths": "Compiled animation math",

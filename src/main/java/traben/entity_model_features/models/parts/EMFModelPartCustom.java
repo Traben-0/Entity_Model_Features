@@ -8,12 +8,10 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.mixins.accessor.CuboidAccessor;
-import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
-import traben.entity_model_features.models.animation.EMFAttachments;
+import traben.entity_model_features.models.animation.EMFAttachment;
 import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
-import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -35,7 +33,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     private final float defaultScale;
 
-    private final @Nullable List<EMFAttachments> attachments;
+    private final @Nullable List<EMFAttachment> attachments;
 
     /// Note `supplementaries` mixin's to this
     public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id, EMFModelPartRoot root) {//,//float[] parentalTransforms) {
@@ -135,10 +133,10 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
     @Override
-    protected @Nullable Consumer<PoseStack> getArmPositioner(boolean left) {
+    protected @Nullable Consumer<PoseStack> getArmPositioner(EMFAttachment.Type type) {
         if (attachments != null) {
-            for (EMFAttachments attachment : attachments) {
-                if (attachment.right != left) {
+            for (EMFAttachment attachment : attachments) {
+                if (attachment.type == type) {
                     // End deep search here
                     return poseStack -> {
                         translateAndRotate(poseStack);
@@ -147,7 +145,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                 }
             }
         }
-        return super.getArmPositioner(left);
+        return super.getArmPositioner(type);
     }
 
     @Override

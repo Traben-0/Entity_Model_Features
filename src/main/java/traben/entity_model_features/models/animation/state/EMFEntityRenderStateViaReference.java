@@ -4,8 +4,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
-import traben.entity_model_features.models.animation.EMFAttachments;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_texture_features.features.state.ETFEntityRenderStateViaReference;
 

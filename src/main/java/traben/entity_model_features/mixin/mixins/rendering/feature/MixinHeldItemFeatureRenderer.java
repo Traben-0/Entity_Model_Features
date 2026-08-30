@@ -1,27 +1,15 @@
 package traben.entity_model_features.mixin.mixins.rendering.feature;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.Share;
-import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.world.entity.HumanoidArm;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.animation.EMFAttachments;
-import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.animation.state.EMFState;
-import traben.entity_texture_features.features.state.HoldsETFRenderState;
 
 //#if MC>=12109
-import traben.entity_model_features.models.IEMFModel;
-import com.llamalad7.mixinextras.injector.ModifyReceiver;
-import net.minecraft.client.renderer.entity.state.EntityRenderState;
 //#endif
 
 //#if MC >= 12104
