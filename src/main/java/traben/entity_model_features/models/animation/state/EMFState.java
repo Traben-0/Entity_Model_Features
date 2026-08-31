@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.EMFAnimationApi;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
 import traben.entity_model_features.models.EMFModelMappings;
@@ -41,6 +42,7 @@ public abstract class EMFState {
         return state != null ? state.emfEntity() : null;
     }
 
+    public static final List<EMFAnimationApi.EMFAnimationHook> animationHooks = new ArrayList<>();
 
     public static void clear() {
         frameCounter = 0;

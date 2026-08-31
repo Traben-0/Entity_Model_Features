@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
-import traben.entity_model_features.config.EMFConfig;
+import traben.entity_model_features.EMFAnimationApi;
 import traben.entity_model_features.models.animation.EMFAnimationHandler;
 import traben.entity_model_features.models.animation.EMFAttachment;
 import traben.entity_model_features.models.animation.math.EMFMath;
@@ -100,6 +100,11 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public Collection<EMFModelPartVanilla> getAllVanillaPartsEMF() {
         return allVanillaParts.values();
+    }
+
+    @SuppressWarnings("unused") // Requested by third party
+    public Map<String, EMFModelPartVanilla> getAllVanillaPartsByNameEMF() {
+        return allVanillaParts;
     }
 
 
@@ -345,14 +350,26 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
             if (lastMobCountAnimatedOn != EMFManager.getInstance().entityRenderCount) {
                 lastMobCountAnimatedOn = EMFManager.getInstance().entityRenderCount;
 
-                //noinspection deprecation
                 var state = EMFState.state();
                 if (state != null && state.isFirstPersonHand() && EMF.config().getConfig().preventFirstPersonHandAnimating)
                     return;
 
+                var partsPaused = EMFAnimationPauseHandler.getEntityPartsAnimPaused();
                 try {
-                    //noinspection deprecation
-                    animationHandler.animate(EMFAnimationPauseHandler.getEntityPartsAnimPaused());
+                    boolean cancel = false;
+
+                    for (EMFAnimationApi.EMFAnimationHook animationHook : EMFState.animationHooks) {
+                        boolean wantsCancellation = !animationHook.onAnimationStart(
+                                new EMFAnimationApi.EMFAnimationHook.AnimationContext(state, this, null, partsPaused, animationHandler),
+                                cancel
+                        );
+                        if (wantsCancellation) cancel = true;
+                    }
+
+                    if (!cancel) animationHandler.animate(partsPaused);
+
+                    boolean finalCancel = cancel;
+                    EMFState.animationHooks.forEach(hook -> hook.onAnimationEnd(new EMFAnimationApi.EMFAnimationHook.AnimationContext(state, this, null, partsPaused,  animationHandler), finalCancel));
                 } catch (Throwable e) {
                     EMFUtils.logError("Error in animation for model [" + modelName.getfileName() + "].");
                     //noinspection CallToPrintStackTrace
@@ -361,6 +378,8 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     animations.remove(variant);
                     animation = null;
                     containsCustomAnims = false;
+
+                    EMFState.animationHooks.forEach(hook -> hook.onAnimationEnd(new EMFAnimationApi.EMFAnimationHook.AnimationContext(state, this, e, partsPaused,  animationHandler), false));
                 }
             }
         };

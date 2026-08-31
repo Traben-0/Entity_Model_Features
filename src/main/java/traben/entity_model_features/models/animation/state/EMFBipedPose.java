@@ -2,6 +2,7 @@ package traben.entity_model_features.models.animation.state;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
+import traben.entity_model_features.EMFAnimationApi;
 
 public class EMFBipedPose {
 
@@ -30,15 +31,26 @@ public class EMFBipedPose {
     }
 
     public void applyTo(HumanoidModel<?> model) {
-        head.applyTo(model.head);
-        body.applyTo(model.body);
-        leftArm.applyTo(model.leftArm);
-        rightArm.applyTo(model.rightArm);
-        leftLeg.applyTo(model.leftLeg);
-        rightLeg.applyTo(model.rightLeg);
-        //#if MC >= 1.21.2
-        root.applyTo(model.root());
-        //#endif
+        boolean cancel = false;
+        for (EMFAnimationApi.EMFAnimationHook animationHook : EMFState.animationHooks) {
+            boolean wantsToCancel = !animationHook.onBipedPoseCopyStart(this, model, cancel);
+            if (wantsToCancel) cancel = true;
+        }
+
+        if (!cancel) {
+            head.applyTo(model.head);
+            body.applyTo(model.body);
+            leftArm.applyTo(model.leftArm);
+            rightArm.applyTo(model.rightArm);
+            leftLeg.applyTo(model.leftLeg);
+            rightLeg.applyTo(model.rightLeg);
+            //#if MC >= 1.21.2
+            root.applyTo(model.root());
+            //#endif
+        }
+
+        boolean finalCancel = cancel;
+        EMFState.animationHooks.forEach(hook -> hook.onBipedPoseCopyEnd(this, model, finalCancel));
     }
 
     private static class PosePart {

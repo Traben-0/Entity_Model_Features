@@ -27,6 +27,8 @@
 - fixed first person arm animations with some other mods hand rendering
 - fixed several issues relating to layered or held models desyncing with or breaking the base model e.g. held tridents possibly breaking the player model
 - added new boolean animation variables `is_player_first_person`, `is_player_third_person`, `is_player_third_person_reversed`
+- added animation hooks to the `EMFAnimationAPI` to allow other mods to act before and after EMF animation, and even cancel it
+- bumped `EMFAnimationAPI` version to 10
 
 [3.2.4]
 - added stinger part to baby bee models
