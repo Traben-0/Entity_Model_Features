@@ -30,7 +30,6 @@ import java.util.function.Consumer;
 import static traben.entity_model_features.EMFManager.getJemDataWithDirectory;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import traben.entity_texture_features.utils.ETFLruCache;
 
 
@@ -319,19 +318,13 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         }
     }
 
-
     public void setVariant1ToVanilla0() {
         allKnownStateVariants.put(1, allKnownStateVariants.get(0));
         allVanillaParts.forEach((k, child) -> child.allKnownStateVariants.put(1, child.allKnownStateVariants.get(0)));
     }
 
-
     public boolean hasAnimation(){
         return animation != null;
-    }
-
-    public void triggerManualAnimation(PoseStack pose) {
-        if (animation != null) animation.run();
     }
 
     @Override
@@ -342,6 +335,12 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
 
     public void animate() {
         if (animation != null && !EMFAnimationPauseHandler.shouldAnimationsPause(EMFState.state())) {
+            animation.run();
+        }
+    }
+
+    public void animateNoPause() {
+        if (animation != null) {
             animation.run();
         }
     }

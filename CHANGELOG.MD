@@ -29,6 +29,8 @@
 - added new boolean animation variables `is_player_first_person`, `is_player_third_person`, `is_player_third_person_reversed`
 - added animation hooks to the `EMFAnimationAPI` to allow other mods to act before and after EMF animation, and even cancel it
 - bumped `EMFAnimationAPI` version to 10
+- fixed Essential mod emote's pausing player animations
+- fixed Essential mod cosmetics not animating properly with first person hand animations
 
 [3.2.4]
 - added stinger part to baby bee models
