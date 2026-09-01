@@ -59,7 +59,9 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
                     ? rightArmPositioners.get(currentModelVariant)
                     : leftArmPositioners.get(currentModelVariant);
         }
-        return otherPositioners.get(type).get(currentModelVariant);
+        var ofType = otherPositioners.get(type);
+        if (ofType == null) return null;
+        return ofType.get(currentModelVariant);
     }
 
     public boolean isMainModel = false;

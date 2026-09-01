@@ -156,17 +156,17 @@ public abstract class EMFMath {
         var emfEntity = state.entity();
         // yBodyRotO/yBodyRot oscillate between ticks while inventory is open, skip the lerp in gui
         if (isInGui()) {
-            return (emfEntity instanceof LivingEntity alive) ?
-                    (float) Math.toRadians(alive.yBodyRot) :
-                    emfEntity instanceof Entity entity ?
-                            (float) Math.toRadians(entity.getYRot())
-                            : 0;
+            return (emfEntity instanceof LivingEntity alive)
+                    ? (float) Math.toRadians(alive.yBodyRot)
+                    : (emfEntity instanceof Entity entity
+                        ? (float) Math.toRadians(entity.getYRot())
+                        : 0);
         }
-        return (emfEntity instanceof LivingEntity alive) ?
-                (float) Math.toRadians(Mth.rotLerp(getTickDelta(), alive.yBodyRotO, alive.yBodyRot)) :
-                emfEntity instanceof Entity entity ?
-                        (float) Math.toRadians(Mth.rotLerp(getTickDelta(), entity.yRotO, entity.yRot))
-                        : 0;
+        return (emfEntity instanceof LivingEntity alive)
+                ? (float) Math.toRadians(Mth.rotLerp(getTickDelta(), alive.yBodyRotO, alive.yBodyRot))
+                : (emfEntity instanceof Entity entity
+                    ? (float) Math.toRadians(Mth.rotLerp(getTickDelta(), entity.yRotO, entity.yRot))
+                    : 0);
     }
     //endregion
 
@@ -226,12 +226,6 @@ public abstract class EMFMath {
         return state.headYaw();
     }
 
-    public static void setHeadYaw(float headYaw) {
-        var state = emfState();
-        if (state != null) {
-            state.setHeadYaw(headYaw);
-        }
-    }
 
     public static float getHeadPitch() {
         var state = emfState();
@@ -243,16 +237,9 @@ public abstract class EMFMath {
         return state.headPitch();
     }
 
-    public static void setHeadPitch(float headPitch) {
-        var state = emfState();
-        if (state != null) {
-            state.setHeadPitch(headPitch);
-        }
-    }
-
     private static void doHeadValues() {
         var state = emfState();
-        if (state instanceof LivingEntity livingEntity) {
+        if (state.emfEntity() instanceof LivingEntity livingEntity) {
             float h = Mth.rotLerp(getTickDelta(), livingEntity.yBodyRotO, livingEntity.yBodyRot);
             float j = Mth.rotLerp(getTickDelta(), livingEntity.yHeadRotO, livingEntity.yHeadRot);
             float k = j - h;
@@ -281,7 +268,7 @@ public abstract class EMFMath {
             if (
                 //#if MC >= 12109
                 // duplicate check of now non-static method
-                    livingEntity.getCustomName() != null && LivingEntityRenderer.isUpsideDownName(livingEntity.getCustomName().getString() )
+                    livingEntity.getCustomName() != null && LivingEntityRenderer.isUpsideDownName(livingEntity.getCustomName().getString())
                 //#else
                 //$$ LivingEntityRenderer.isEntityUpsideDown(livingEntity)
                 //#endif
@@ -297,10 +284,8 @@ public abstract class EMFMath {
                 state.setHeadYaw(k);
             }
         } else {
-            if (state != null) {
-                state.setHeadPitch(0);
-                state.setHeadYaw(0);
-            }
+            state.setHeadPitch(0);
+            state.setHeadYaw(0);
         }
     }
     //endregion
@@ -315,13 +300,6 @@ public abstract class EMFMath {
         return state.limbAngle();
     }
 
-    public static void setLimbAngle(float limbAngle) {
-        var state = emfState();
-        if (state != null) {
-            state.setLimbAngle(limbAngle);
-        }
-    }
-
     public static float getLimbDistance() {//limb_speed
         var state = emfState();
         if (state == null) return 0;
@@ -329,13 +307,6 @@ public abstract class EMFMath {
             doLimbValues(state);
         }
         return state.limbDistance() == Float.MIN_VALUE ? 0 : state.limbDistance();
-    }
-
-    public static void setLimbDistance(float limbDistance) {
-        var state = emfState();
-        if (state != null) {
-            state.setLimbDistance(limbDistance);
-        }
     }
 
     private static void doLimbValues(@NotNull EMFEntityRenderState state) {
