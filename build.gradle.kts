@@ -322,6 +322,8 @@ private fun changelog(): String? {
 }
 
 publishMods {
+    dryRun.set(mcVersion != 1_21_00)
+
     val changes = changelog()
     if (changes == null) {
         println("No changelog entry found at top, assuming development build")

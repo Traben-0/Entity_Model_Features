@@ -88,7 +88,7 @@ public class MixinBlockEntityWithoutLevelRenderer {
 //$$     @Inject(method = "renderByItem",
 //$$             at = @At(value = "INVOKE",
 //$$                     target =
-                    //#if MC > 1.21
+                    //#if MC >= 1.21
                     //$$ "Lnet/minecraft/client/renderer/blockentity/SkullBlockRenderer;getRenderType(Lnet/minecraft/world/level/block/SkullBlock$Type;Lnet/minecraft/world/item/component/ResolvableProfile;)Lnet/minecraft/client/renderer/RenderType;",
                     //#else
                     //$$ "Lnet/minecraft/client/renderer/blockentity/SkullBlockRenderer;getRenderType(Lnet/minecraft/world/level/block/SkullBlock$Type;Lcom/mojang/authlib/GameProfile;)Lnet/minecraft/client/renderer/RenderType;",

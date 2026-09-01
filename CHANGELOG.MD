@@ -1,4 +1,7 @@
 
+[3.3.1]
+- fixed a crash on MC 1.21.1
+
 [3.3]
 - fixed several model exporting issues, including missing parts, wrong rotations, missing mirrored uvs, and rabbit/axolotl legs on 26.1+
 - fixed block entity models breaking in the latest versions
