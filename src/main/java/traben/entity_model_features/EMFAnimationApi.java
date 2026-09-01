@@ -1,19 +1,26 @@
 package traben.entity_model_features;
 
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.apache.commons.lang3.function.TriFunction;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.IEMFModel;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.EMFAnimationHandler;
 import traben.entity_model_features.models.animation.math.asm.ASMVisitable;
 import traben.entity_model_features.models.animation.math.methods.MethodRegistry;
 import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
 import traben.entity_model_features.models.animation.math.variables.factories.UniqueVariableFactory;
+import traben.entity_model_features.models.animation.state.EMFBipedPose;
+import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartCustom;
+import traben.entity_model_features.models.parts.EMFModelPartRoot;
+import traben.entity_model_features.utils.EMFAnimationPauseHandler;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -44,7 +51,7 @@ public interface EMFAnimationApi {
      */
     @SuppressWarnings("SameReturnValue")
     static int getApiVersion() {
-        return 9;
+        return 10;
     }
 
     /**
@@ -54,7 +61,8 @@ public interface EMFAnimationApi {
      * @return the currently rendered entity
      */
     static @Nullable EMFEntity getCurrentEntity() {
-        return EMFAnimationEntityContext.getEMFEntity();
+        var state = EMFState.state();
+        return state != null ? state.emfEntity() : null;
     }
 
     /**
@@ -190,6 +198,17 @@ public interface EMFAnimationApi {
         return (EMFEntity) blockEntity;
     }
 
+    /**
+     * @param hook the animation hook object to register, see {@link EMFAnimationHook}.
+     * @return true if valid inputs were supplied.
+     */
+    static boolean registerAnimationHook(EMFAnimationHook hook) throws Exception {
+        if (hook == null) {
+            throw paramFail("null animation hook");
+        }
+        EMFState.animationHooks.add(hook);
+        return true;
+    }
 
     /**
      * @param shouldPause The function to consider if a given entity should be paused rather that triggering it via uuid.
@@ -201,7 +220,7 @@ public interface EMFAnimationApi {
         if (shouldPause == null) {
             throw paramFail("null pause condition");
         }
-        EMFAnimationEntityContext.pauseListeners.add(shouldPause);
+        EMFAnimationPauseHandler.pauseListeners.add(shouldPause);
         return true;
     }
 
@@ -213,7 +232,7 @@ public interface EMFAnimationApi {
         if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
             return false;
         }
-        EMFAnimationEntityContext.entitiesPaused.add(entityOrBlockEntity.etf$getUuid());
+        EMFAnimationPauseHandler.entitiesPaused.add(entityOrBlockEntity.etf$getUuid());
         return true;
     }
 
@@ -225,8 +244,8 @@ public interface EMFAnimationApi {
         if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
             return false;
         }
-        EMFAnimationEntityContext.entitiesPaused.remove(entityOrBlockEntity.etf$getUuid());
-        EMFAnimationEntityContext.entitiesPausedParts.remove(entityOrBlockEntity.etf$getUuid());
+        EMFAnimationPauseHandler.entitiesPaused.remove(entityOrBlockEntity.etf$getUuid());
+        EMFAnimationPauseHandler.entitiesPausedParts.remove(entityOrBlockEntity.etf$getUuid());
         return true;
     }
 
@@ -240,7 +259,7 @@ public interface EMFAnimationApi {
                 || parts == null || parts.length == 0) {
             return false;
         }
-        EMFAnimationEntityContext.entitiesPausedParts.put(entityOrBlockEntity.etf$getUuid(), parts);
+        EMFAnimationPauseHandler.entitiesPausedParts.put(entityOrBlockEntity.etf$getUuid(), parts);
         return true;
     }
 
@@ -254,7 +273,7 @@ public interface EMFAnimationApi {
         if (shouldUseVanillaModel == null) {
             throw paramFail("null vanilla model condition");
         }
-        EMFAnimationEntityContext.forceVanillaModelListeners.add(shouldUseVanillaModel);
+        EMFState.forceVanillaModelListeners.add(shouldUseVanillaModel);
         return true;
     }
 
@@ -266,7 +285,7 @@ public interface EMFAnimationApi {
         if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
             return false;
         }
-        EMFAnimationEntityContext.entitiesToForceVanillaModel.add(entityOrBlockEntity.etf$getUuid());
+        EMFState.entitiesToForceVanillaModel.add(entityOrBlockEntity.etf$getUuid());
         return true;
     }
 
@@ -278,7 +297,7 @@ public interface EMFAnimationApi {
         if (entityOrBlockEntity == null || entityOrBlockEntity.etf$getUuid() == null) {
             return false;
         }
-        EMFAnimationEntityContext.entitiesToForceVanillaModel.remove(entityOrBlockEntity.etf$getUuid());
+        EMFState.entitiesToForceVanillaModel.remove(entityOrBlockEntity.etf$getUuid());
         return true;
     }
 
@@ -426,5 +445,42 @@ public interface EMFAnimationApi {
     private static Exception paramFail(String message) {
         EMFUtils.logError("EMF Animation API: " + message);
         return new InvalidParameterException("EMF Animation API: " + message);
+    }
+
+    /**
+     * Animation hook interface for receiving callbacks at the start and end of animations.
+     */
+    abstract class EMFAnimationHook {
+        /**
+         * @return true if you want to allow this animation, all hooks will still run as normal either way,
+         * but if any hook returns false, the animation will be canceled and not run.
+         */
+        public boolean onAnimationStart(AnimationContext context, boolean isCancelledByHook) { return true; }
+        public void onAnimationEnd(AnimationContext context, boolean wasCancelledByHook) {}
+
+        // Hooks for the simple biped pose copying that EMF does for humanoid models that get disconnected by the 1.21.9+
+        // submit process e.g. armor. But also reapplies on repeated player model animation calls that frame e.g. by Essential mod cosmetics.
+        /**
+         * @return true if you want to allow this pose copy
+         */
+        public boolean onBipedPoseCopyStart(EMFBipedPose pose, HumanoidModel<?> model, boolean isCancelledByHook) { return true; }
+        public void onBipedPoseCopyEnd(EMFBipedPose pose, HumanoidModel<?> model, boolean wasCancelledByHook) {}
+
+        /**
+         * Intended to give the hooks an unchanging method description when api changes are needed.
+         * values in AnimationContext may become expanded or deprecated in the future.
+         */
+        public record AnimationContext(
+                @Nullable EMFEntityRenderState activeState, // Nullability is unlikely but technically possible
+                @NotNull EMFModelPartRoot animatingModelRoot,
+                @Nullable Throwable error, // Note, an error here will also mean that this animation is being removed from future execution
+                @Nullable ModelPart[] partsRequestedToPauseThisAnimation,
+
+                // Make sure you understand this object before messing with it, it's not intended for your use but is exposed here if you need it.
+                // This is the animation execution object that the hooks wrap around, it is conceptually final, but actual implementation varies.
+                // Provides access to the raw animation line data that it was built with.
+                @NotNull EMFAnimationHandler animationHandler
+        ){
+        }
     }
 }

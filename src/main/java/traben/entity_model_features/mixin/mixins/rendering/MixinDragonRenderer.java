@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMFManager;
-import traben.entity_texture_features.features.ETFRenderContext;
+import traben.entity_texture_features.features.state.ETFState;
 
 @Mixin(EnderDragonRenderer.class)
 public abstract class MixinDragonRenderer {
@@ -52,7 +52,7 @@ public abstract class MixinDragonRenderer {
                                     //#endif
 //$$                                     ))
 //$$     private void emf$allowMultiPartRender(final CallbackInfo ci) {
-//$$         ETFRenderContext.startSpecialRenderOverlayPhase();
+//$$         ETFState.startSpecialRenderOverlayPhase();
 //$$     }
 //$$
 //$$     @Inject(method =
@@ -78,7 +78,7 @@ public abstract class MixinDragonRenderer {
                             //#endif
 //$$                             ))
 //$$     private void emf$allowMultiPartRender2(final CallbackInfo ci) {
-//$$         ETFRenderContext.endSpecialRenderOverlayPhase();
+//$$         ETFState.endSpecialRenderOverlayPhase();
 //$$     }
 //$$
 //$$

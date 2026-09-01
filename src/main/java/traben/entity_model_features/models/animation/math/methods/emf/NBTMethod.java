@@ -2,12 +2,12 @@ package traben.entity_model_features.models.animation.math.methods.emf;
 
 import org.objectweb.asm.MethodVisitor;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.*;
 import traben.entity_model_features.models.animation.math.asm.ASMHelper;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 import traben.entity_model_features.models.animation.math.expression_tree.MathMethod;
 import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.features.property_reading.properties.optifine_properties.NBTProperty;
 
@@ -36,8 +36,8 @@ public class NBTMethod extends MathMethod {
             throw new EMFMathException("nbt() animation function did not parse: nbt("+nbtKey+" "+nbtQuery+"), please check your syntax.");
         }
         setSupplierAndOptimize(() -> {
-                    if (EMFAnimationEntityContext.getEMFEntity() == null) return MathValue.FALSE;
-                    return MathValue.fromBoolean(propertyTester.testEntity(EMFAnimationEntityContext.getEmfState(), false));
+                    if (EMFState.state() == null) return MathValue.FALSE;
+                    return MathValue.fromBoolean(propertyTester.testEntity(EMFState.state(), false));
                 }
         );
     }
@@ -67,9 +67,9 @@ public class NBTMethod extends MathMethod {
             return v;
         });
 
-        if (propertyTester == NULL || EMFAnimationEntityContext.getEMFEntity() == null) return false;
+        if (propertyTester == NULL || EMFState.state() == null) return false;
 
-        var v = propertyTester.testEntity(EMFAnimationEntityContext.getEmfState(), false);
+        var v = propertyTester.testEntity(EMFState.state(), false);
         return v;
 
     }

@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFState;
 
 @Mixin(VillagerModel.class)
 public abstract class MixinVillagerModel {
@@ -19,7 +19,8 @@ public abstract class MixinVillagerModel {
         //#endif
             , at = @At(value = "HEAD"))
     private void emf$assertLayerFactory(final CallbackInfo ci) {
-        EMFAnimationEntityContext.setLayerFactory(
+        if (EMFState.state() != null)
+            EMFState.state().setLayerFactory(
                 //#if MC>= 12111
                 //$$ net.minecraft.client.renderer.rendertype.RenderTypes
                 //#else

@@ -47,6 +47,14 @@
 # right_handheld_item      allay, armor_stand, drowned, evoker, giant, husk, illusioner, piglin, piglin_brute, pillager, skeleton, stray, vex, vindicator,
 #                          wither_skeleton, zombie, zombie_villager, zombified_piglin
 @                          player
+@ head_item                Almost all humanoid models with a head armor slot, including player
+@ sulfur_cube_block        sulfur_cube (internal block)
+@ enderman_block           enderman
+@ villager_item            villager, wandering_trader (held trade items, milk, invis potion, etc)
+@ witch_item               witch (potion)
+@ panda_item               panda
+@ dolphin_item             dolphin
+@ fox_item                 fox
 #
 # Note: This is not a valid JSON format and it should only be used as a reference  
 ######################################################################

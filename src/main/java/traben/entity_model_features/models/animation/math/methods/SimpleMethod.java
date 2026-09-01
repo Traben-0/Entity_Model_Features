@@ -12,6 +12,7 @@ import traben.entity_model_features.models.animation.math.asm.ASMVisitable;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class SimpleMethod extends MathMethod {
             Method staticMethod,
             @Nullable ASMVisitable asmCompiler
     ) throws EMFMathException {
-        super(isNegative, context, args, getParameterCount(staticMethod));
+        super(isNegative, context, args, getParameterCount(staticMethod), getStringArgs(staticMethod));
         this.staticMethod = staticMethod;
         boolean isBoolean = staticMethod.getReturnType().equals(boolean.class) || staticMethod.getReturnType().equals(Boolean.class);
         this.asmCompiler = asmCompiler;
@@ -83,7 +84,7 @@ public class SimpleMethod extends MathMethod {
         for (int i = 0; i < parsedArgs.size(); i++) {
             var arg = parsedArgs.get(i);
             if (arg == null) {
-                mv.visitLdcInsn(rawArgs.get(i)); // String
+                mv.visitLdcInsn((String) rawArgs.get(i)); // String
             } else {
                 if (params[i] == boolean.class) {
                     vars.scopeBool();
@@ -105,6 +106,16 @@ public class SimpleMethod extends MathMethod {
 
     private static int getParameterCount(Method method) {
         return method.getParameterCount();
+    }
+
+    private static List<Integer> getStringArgs(Method method) {
+        var list = new ArrayList<Integer>();
+        for (int i = 0; i < method.getParameterTypes().length; i++) {
+            if (method.getParameterTypes()[i] == String.class) {
+                list.add(i);
+            }
+        }
+        return list;
     }
 
     @Override

@@ -3,36 +3,28 @@ package traben.entity_model_features.mixin.mixins.rendering;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.Share;
-import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+//#if MC < 26.2
+//#endif
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.EMF;
-import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.models.animation.state.EMFBipedPose;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
-import traben.entity_model_features.models.animation.state.EMFSubmitData;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModel;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.EMFManager;
-import traben.entity_model_features.utils.EMFEntity;
+import traben.entity_model_features.utils.EMFAnimationPauseHandler;
 
 //#if MC >= 12102
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
@@ -62,15 +54,22 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         super(ctx);
     }
 
-    //#if MC >= 12109
+    //#if MC > 26.2
+    //$$ todo check that they still use this.model and not the getter
+    //#elseif MC >= 12109
     @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/model/EntityModel;setupAnim(Ljava/lang/Object;)V",
                     shift = At.Shift.AFTER))
-    private void falseAnimation(CallbackInfo ci, @Local(argsOnly = true) PoseStack pose, @Local(argsOnly = true) S renderState) {
+    private void falseAnimation(CallbackInfo ci, @Local(argsOnly = true) S renderState) {
         // animate so that dependant layers can read the positions (only applies if they set their matrix prior to submission)
-        IEMFModel model = (IEMFModel) getModel();
+        IEMFModel model = (IEMFModel) this.model;
         if (model.emf$isEMFModel() && model.emf$getEMFRootModel().hasAnimation()) {
-            model.emf$getEMFRootModel().triggerManualAnimation(pose);
+
+            if (EMFAnimationPauseHandler.shouldAnimationsPause(EMFEntityRenderState.from(renderState)))
+                return;
+
+            model.emf$getEMFRootModel().animateNoPause();
+
             // Store the biped pose in the render state for use by layers that need it.
             if (getModel() instanceof HumanoidModel<?> humanoidModel) {
                 var state = (EMFEntityRenderState) ((HoldsETFRenderState) renderState).etf$getState();
@@ -79,73 +78,6 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
 
         }
     }
-    //#else
-    //#if MC >= 1.21.2
-    //$$ @ModifyExpressionValue(method = "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-    //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;shouldRenderLayers(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;)Z"))
-    //$$ private boolean armOverrides(boolean original, @Local PoseStack pose) {
-    //$$     if (original) {
-    //#else
-    //$$ @ModifyExpressionValue(method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-    //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isSpectator()Z"))
-    //$$ private boolean armOverrides(boolean original, @Local PoseStack pose) {
-    //$$     if (!original) {
-    //#endif
-    //$$         // check arm overrides
-    //$$         IEMFModel model = (IEMFModel) getModel();
-    //$$         if (model.emf$isEMFModel()) model.emf$getEMFRootModel().checkArmOverrides(pose);
-    //$$     }
-    //$$     return original;
-    //$$ }
-    //#endif
-
-
-
-    //#if MC > 26.1
-    //$$ dont forget this
-    //#elseif MC < 12109
-    //$$ @Inject(method =
-            //#if MC >= 12102
-            //$$ "render(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            //#else
-            //$$ "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            //#endif
-    //$$         at = @At(value = "INVOKE",
-                    //#if MC >= 12100
-                    //$$ target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;III)V"
-                    //#else
-                    //$$ target = "Lnet/minecraft/client/model/EntityModel;renderToBuffer(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;IIFFFF)V"
-                    //#endif
-    //$$                 , shift = At.Shift.BEFORE))
-    //$$
-        //#if MC >= 12102
-        //$$     private void emf$Animate(final S livingEntityRenderState, final PoseStack matrixStack, final MultiBufferSource vertexConsumerProvider, final int i, final CallbackInfo ci) {
-        //$$         if(!(EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity livingEntity)) {
-        //$$             return;
-        //$$         }
-        //$$
-        //#else
-        //$$     private void emf$Animate(T livingEntity, float f, float g, PoseStack matrixStack, MultiBufferSource vertexConsumerProvider, int i, CallbackInfo ci) {
-        //#endif
-    //$$
-    //$$     //EMFManager.getInstance().preRenderEMFActions(emf$ModelId,livingEntity, vertexConsumerProvider, o, n, l, k, m);
-    //$$     if (((IEMFModel) model).emf$isEMFModel()) {
-    //$$
-    //$$         EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
-    //$$         if (root != null) {
-    //$$             if (EMF.config().getConfig().getVanillaHologramModeFor((EMFEntity) livingEntity) != EMFConfig.VanillaModelRenderMode.OFF) {
-    //$$                 root.tryRenderVanillaRootNormally(matrixStack, vertexConsumerProvider.getBuffer(
-    //$$                         RenderType.entityTranslucent(getTextureLocation(
-                                    //#if MC >= 12102
-                                    //$$ livingEntityRenderState
-                                    //#else
-                                    //$$ livingEntity
-                                    //#endif
-    //$$                         ))), i, OverlayTexture.NO_OVERLAY);
-    //$$             }
-    //$$         }
-    //$$     }
-    //$$ }
     //#endif
 
 
@@ -181,11 +113,9 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
 
 
     @Inject(method = RENDER, at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
-    private void emf$grabEntity(CallbackInfo ci, @Share("iteration") LocalRef<EMFAnimationEntityContext.IterationContext> emf$heldIteration) {
-        emf$heldIteration.set(EMFAnimationEntityContext.getIterationContext());
-        EMFSubmitData.AWAITING_isLayerModelPhase = true;
-        EMFAnimationEntityContext.setLayerPhase();
-        EMFSubmitData.AWAITING_isMainModelPhase = false;
+    private void emf$grabEntity(CallbackInfo ci) {
+        EMFState.isLayerPhase = true;
+        EMFState.isMainPhase = false;
         //#if MC < 1.21.9
         //$$ // Set whatever model we used as the main one, handled by submits in 1.21.9+
         //$$ if (getModel() instanceof IEMFModel emf && emf.emf$isEMFModel()) {
@@ -195,28 +125,23 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     }
 
     @Inject(method = RENDER, at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
-    private void emf$eachFeatureLoop(CallbackInfo ci, @Share("iteration") LocalRef<EMFAnimationEntityContext.IterationContext> emf$heldIteration) {
-        if (emf$heldIteration.get() != null && EMFManager.getInstance().entityRenderCount != emf$heldIteration.get().entityRenderCount()) {
-            EMFAnimationEntityContext.setIterationContext(emf$heldIteration.get());
-        }
+    private void emf$eachFeatureLoop(CallbackInfo ci) {
         //todo needed for stray bogged drowned outer layers in 1.21.2+
         //check its needed for 1.21.1
         EMFManager.getInstance().entityRenderCount++;
-        EMFSubmitData.AWAITING_isLayerModelPhase = true;
-        EMFAnimationEntityContext.setLayerPhase();
+        EMFState.isLayerPhase = true;
     }
 
     @Inject(method = RENDER, at = @At("HEAD"))
     private void emf$preRender(CallbackInfo ci) {
-        EMFSubmitData.AWAITING_isLayerModelPhase = false;
-        EMFSubmitData.AWAITING_isMainModelPhase = true;
+        EMFState.isLayerPhase = false;
+        EMFState.isMainPhase = true;
     }
 
     @Inject(method = RENDER, at = @At("TAIL"))
     private void emf$postRender(CallbackInfo ci) {
-        EMFSubmitData.AWAITING_isLayerModelPhase = false;
-        EMFSubmitData.AWAITING_isMainModelPhase = false;
-        EMFAnimationEntityContext.unsetLayerPhase();
+        EMFState.isLayerPhase = false;
+        EMFState.isMainPhase = false;
     }
 
 }

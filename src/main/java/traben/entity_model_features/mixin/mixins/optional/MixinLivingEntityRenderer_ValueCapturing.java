@@ -9,6 +9,7 @@ import traben.entity_texture_features.mixin.CancelTarget;
 public abstract class MixinLivingEntityRenderer_ValueCapturing{}
 //#else
 //$$ import org.spongepowered.asm.mixin.injection.At;
+//$$ import traben.entity_model_features.models.animation.state.EMFState;
 //$$ import org.spongepowered.asm.mixin.injection.ModifyArg;
 //$$ import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 //$$ import net.minecraft.client.model.EntityModel;
@@ -31,7 +32,10 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing{}
 //$$             index = 1, require = 0
 //$$     )
 //$$     private float emf$getLimbAngle(float limbAngle) {
-//$$         EMFAnimationEntityContext.setLimbAngle(limbAngle);
+//$$         var state = EMFState.state();
+//$$         if (state != null) {
+//$$             state.setLimbAngle(limbAngle);
+//$$         }
 //$$         return limbAngle;
 //$$     }
 //$$     @ModifyArg(
@@ -40,7 +44,10 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing{}
 //$$             index = 2, require = 0
 //$$     )
 //$$     private float emf$getLimbDistance(float limbDistance) {
-//$$         EMFAnimationEntityContext.setLimbDistance(limbDistance);
+//$$         var state = EMFState.state();
+//$$         if (state != null) {
+//$$             state.setLimbDistance(limbDistance);
+//$$         }
 //$$         return limbDistance;
 //$$     }
 //$$     @ModifyArg(
@@ -49,10 +56,13 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing{}
 //$$             index = 4, require = 0
 //$$     )
 //$$     private float emf$getHeadYaw(float headYaw) {
-//$$         if (headYaw >= 180 || headYaw < -180) {
-//$$             EMFAnimationEntityContext.setHeadYaw(Mth.wrapDegrees(headYaw));
-//$$         } else {
-//$$             EMFAnimationEntityContext.setHeadYaw(headYaw);
+//$$         var state = EMFState.state();
+//$$         if (state != null) {
+//$$             if (headYaw >= 180 || headYaw < -180) {
+//$$                 state.setHeadYaw(Mth.wrapDegrees(headYaw));
+//$$             } else {
+//$$                 state.setHeadYaw(headYaw);
+//$$             }
 //$$         }
 //$$         return headYaw;
 //$$     }
@@ -62,7 +72,10 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing{}
 //$$             index = 5, require = 0
 //$$     )
 //$$     private float emf$getHeadPitch(float headPitch) {
-//$$         EMFAnimationEntityContext.setHeadPitch(headPitch);
+//$$         var state = EMFState.state();
+//$$         if (state != null) {
+//$$             state.setHeadPitch(headPitch);
+//$$         }
 //$$         return headPitch;
 //$$     }
 //$$ }

@@ -46,6 +46,7 @@ base.archivesName.set("entity_model_features-$modVersion-${project.name}")
 
 val manuallyAccessTransform = mcVersion >= 26_00_00 && platform.isNeoForge
 val accessWidener = "entity_model_features_" + when {
+    mcVersion >= 26_02_00 -> 15
     mcVersion >= 26_01_00 -> 14
     mcVersion >= 1_21_11 -> 13
     mcVersion >= 1_21_09 -> 12
@@ -97,14 +98,13 @@ dependencies {
     fun modImpl(modPrefix: String, vararg versions: Pair<Int, String?>): Boolean {
         for ((versionMC, versionMod) in versions) {
             if (platform.mcVersion >= versionMC) {
-                if (versionMod != null) {
+                return if (versionMod != null) {
                     modImplementation("$modPrefix$versionMod") {
                         exclude("net.fabricmc.fabric-api")
                         isTransitive = true
                     }
-                    return true
-                }
-                break
+                    true
+                } else false
             }
         }
         return false
@@ -136,7 +136,8 @@ dependencies {
 
     "IRIS" setVar (
             modImpl("maven.modrinth:iris:",
-                26_01_00 to ver("4cGUAiJ6", null, null),
+                26_02_00 to ver("3uIIps8q", null, "1.11.2+26.2-neoforge"),
+                26_01_00 to ver("MwcLS51S", null, "YEGDGnJM"),
                 //1_21_11 to ver("TSXvi2yD", null,  "t3ruzodq"), //"k9tHcfnb"), //todo why does this break
                 1_21_06 to ver("l77DAK6U", null,  "t3ruzodq"), //"xA5cxBvz"), // same here
                 1_21_05 to ver("U6evbjd0", null,  "t3ruzodq"), //"KAopiPos"),
@@ -154,6 +155,7 @@ dependencies {
     if (platform.isFabric) {
         modImpl(
             "maven.modrinth:modmenu:",
+            26_02_00 to "TLnEHUyx",
             26_01_00 to "XIDyVLo7",
             1_21_05 to "R7uVB42W",
             1_21_02 to "PcJvQYqu",
@@ -314,7 +316,7 @@ private fun changelog(): String? {
         }
     }
 
-    if (sb.isEmpty()) null
+    if (sb.isEmpty()) return null
 
     return sb.toString()
 }

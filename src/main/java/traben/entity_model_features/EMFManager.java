@@ -23,16 +23,17 @@ import traben.entity_model_features.models.animation.math.asm.ASMParser;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
 import traben.entity_model_features.models.animation.math.methods.emf.NBTMethod;
 import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.IEMFModelNameContainer;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
 import traben.entity_model_features.models.jem_objects.EMFJemData;
 import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.utils.EMFResourceCaching;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.utils.UEntityTypes;
 import traben.entity_texture_features.ETF;
 import traben.entity_texture_features.utils.ETFLruCache;
 
@@ -51,7 +52,6 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import static traben.entity_model_features.models.animation.math.expression_tree.MathExpressionParser.NULL_EXPRESSION;
-import static traben.entity_model_features.models.animation.math.expression_tree.MathValue.FALSE;
 
 
 public class EMFManager {//singleton for data holding and resetting needs
@@ -59,14 +59,16 @@ public class EMFManager {//singleton for data holding and resetting needs
 
 
     private static final Map<BlockEntityType<?>, String> EBETypes = Map.of(
-            BlockEntityType.BED, "bed",
-            BlockEntityType.CHEST, "chest",
-            BlockEntityType.TRAPPED_CHEST, "chest",
-            BlockEntityType.ENDER_CHEST, "chest",
-            BlockEntityType.SHULKER_BOX, "shulker_box",
-            BlockEntityType.BELL, "bell",
-            BlockEntityType.SIGN, "sign",
-            BlockEntityType.DECORATED_POT, "decorated_pot");
+            //#if MC < 26.2
+            UEntityTypes.BED, "bed",
+            //#endif
+            UEntityTypes.CHEST, "chest",
+            UEntityTypes.TRAPPED_CHEST, "chest",
+            UEntityTypes.ENDER_CHEST, "chest",
+            UEntityTypes.SHULKER_BOX, "shulker_box",
+            UEntityTypes.BELL, "bell",
+            UEntityTypes.SIGN, "sign",
+            UEntityTypes.DECORATED_POT, "decorated_pot");
 
     public static EMFModelPartRoot lastCreatedRootModelPart = null;
     private static EMFManager self = null;
@@ -89,7 +91,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     public UUID entityForDebugPrint = null;
     public long entityRenderCount = 0;
     public boolean isAnimationValidationPhase = false;
-    public String currentSpecifiedModelLoading = "";
+    public final ThreadLocal<String> currentSpecifiedModelLoading = ThreadLocal.withInitial(() -> "");
     public BlockEntityType<?> currentBlockEntityTypeLoading = null;
     private boolean traderLlamaHappened = false;
 
@@ -106,9 +108,7 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     private EMFManager() {
-        EMFAnimationEntityContext.globalReset();
         IS_PHYSICS_MOD_INSTALLED = ETF.isThisModLoaded("physicsmod");
-//        IS_IRIS_INSTALLED = EMFVersionDifferenceManager.isThisModLoaded("iris") || EMFVersionDifferenceManager.isThisModLoaded("oculus");
         IS_EBE_INSTALLED = ETF.isThisModLoaded("enhancedblockentities");
         lastModelRuleOfEntity = new ETFLruCache.UUIDInteger();
         lastModelRuleOfEntity.defaultReturnValue(0);
@@ -134,6 +134,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         NBTMethod.CACHE.clear();
         GlobalVariableFactory.clear();
         self = new EMFManager();
+        EMFState.clear();
     }
 
     @Nullable
@@ -214,7 +215,8 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         mobNameForFileAndMap.setMapIdAndAddFallbackModel(jem);
         String type = mobNameForFileAndMap.getfileName().split("/")[1];
-        mobNameForFileAndMap.setFileName(type + "_" + jem);
+        mobNameForFileAndMap.setFileName(type + "_" + jem)
+                .resetCacheID();
     }
 
     public boolean wasEBEModified() {
@@ -246,6 +248,8 @@ public class EMFManager {//singleton for data holding and resetting needs
     }
 
     public ModelPart injectIntoModelRootGetter(final ModelLayerLocation layer, final ModelPart root) {
+        final String currentSpecifiedModelLoading = this.currentSpecifiedModelLoading.get();
+
         var allowedCEM = EMF.config().getConfig().allowedCEM;
         if (!allowedCEM.isOn()) return root;
 
@@ -275,7 +279,6 @@ public class EMFManager {//singleton for data holding and resetting needs
                         || currentSpecifiedModelLoading.startsWith("emf$") //key to not override
                         ? originalLayerName : currentSpecifiedModelLoading);
 
-
         try {
             EMFManager.lastCreatedRootModelPart = null;
             boolean printing = (EMF.config().getConfig().logModelCreationData);
@@ -293,7 +296,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         //#else
                         //$$ getLayer()
                         //#endif
-            );
+                );
                 originalLayerName = originalLayerName + "_" + layer.
                         //#if MC >= 12102
                         layer()
@@ -386,6 +389,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                     lastUndeadHorse = filename;
                 }
 
+                mobNameForFileAndMap.resetCacheID();
+
                 if (!skipSwitch) {
                     //vanilla model
                     switch (originalLayerName) {
@@ -402,14 +407,14 @@ public class EMFManager {//singleton for data holding and resetting needs
                         //#if MC>=12111
                         //$$ case "camel" -> {
                         //$$     if (currentSpecifiedModelLoading.equals("camel_husk"))
-                        //$$         mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("camel_husk");
+                        //$$         mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("camel_husk").resetCacheID();
                         //$$ }
                         //#endif
                         //#if MC>=12109
                         case "villager_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager");
-                        case "villager_no_hat_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager_baby").addFallbackModel("villager");
+                        case "villager_baby_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager_baby").addFallbackModel("villager");
                         case "zombie_villager_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager");
-                        case "zombie_villager_no_hat_baby" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager_baby").addFallbackModel("zombie_villager");
+                        case "zombie_villager_baby_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager_baby").addFallbackModel("zombie_villager");
                         //#endif
                         //#if MC >= 12105
                         case "cow" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_cow");
@@ -425,13 +430,17 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "evoker" -> mobNameForFileAndMap.addFallbackModel("evocation_illager");
                         case "evoker_fangs" -> mobNameForFileAndMap.addFallbackModel("evocation_fangs");
                         case "vindicator" -> mobNameForFileAndMap.addFallbackModel("vindication_illager");
-                        case "bed_foot" -> mobNameForFileAndMap.setBoth("bed_foot").addFallbackModel("bed");
-                        case "bed_head" -> mobNameForFileAndMap.setBoth("bed_head").addFallbackModel("bed");
+                        case "bed_foot" -> mobNameForFileAndMap.setBoth("bed_foot").addFallbackModel("bed").resetCacheID();
+                        case "bed_head" -> mobNameForFileAndMap.setBoth("bed_head").addFallbackModel("bed").resetCacheID();
                         case "book" -> {
                             if (currentSpecifiedModelLoading.equals("enchanting_book")) {
-                                mobNameForFileAndMap.setBoth("enchanting_book", "book").addFallbackModel("book");
+                                mobNameForFileAndMap.setBoth("enchanting_book", "book")
+                                        .addFallbackModel("book")
+                                        .resetCacheID();
                             } else {/* if(currentSpecifiedModelLoading.equals("lectern_book"))*/
-                                mobNameForFileAndMap.setBoth("lectern_book", "book").addFallbackModel("book");
+                                mobNameForFileAndMap.setBoth("lectern_book", "book")
+                                        .addFallbackModel("book")
+                                        .resetCacheID();
                             }
                         }
                         case "salmon_small", "salmon_large" -> mobNameForFileAndMap.addFallbackModel("salmon");
@@ -439,7 +448,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "creaking_transient" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("creaking");
                         case "chest" -> mobNameForFileAndMap.setBoth(
                                 currentSpecifiedModelLoading != null && !currentSpecifiedModelLoading.isBlank()
-                                        ? currentSpecifiedModelLoading : "chest", "chest");
+                                        ? currentSpecifiedModelLoading : "chest", "chest")
+                                    .resetCacheID();
                         case "conduit_cage" -> mobNameForFileAndMap.setBoth("conduit_cage").addFallbackModel("conduit");
                         case "conduit_eye" -> mobNameForFileAndMap.setBoth("conduit_eye").addFallbackModel("conduit");
                         case "conduit_shell" ->
@@ -458,9 +468,9 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "leash_knot" -> mobNameForFileAndMap.setBoth("lead_knot");
                         case "llama", "llama_baby" -> traderLlamaHappened = false;
                         case "llama_decor" ->
-                                mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor");
+                                mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_decor" : "llama_decor").resetCacheID();
                         case "llama_baby_decor" ->
-                                mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_baby_decor" : "llama_baby_decor");
+                                mobNameForFileAndMap.setBoth(traderLlamaHappened ? "trader_llama_baby_decor" : "llama_baby_decor").resetCacheID();
                         case "chest_minecart", "command_block_minecart", "spawner_minecart", "tnt_minecart",
                              "furnace_minecart", "hopper_minecart" ->
                                 mobNameForFileAndMap.setMapIdAndAddFallbackModel("minecart");
@@ -469,16 +479,17 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "player_slim" -> mobNameForFileAndMap.addFallbackModel("player");
                         case "arrow" -> {
                             if (currentSpecifiedModelLoading.equals("spectral_arrow")) {
-                                mobNameForFileAndMap.setBoth("spectral_arrow");
-                                mobNameForFileAndMap.addFallbackModel("arrow");
+                                mobNameForFileAndMap.setBoth("spectral_arrow")
+                                        .resetCacheID()
+                                        .addFallbackModel("arrow");
                             }
 
                         }
                         case "boat_water_patch" -> {
                             if (currentSpecifiedModelLoading.startsWith("emf$boat$")) {
                                 String type = currentSpecifiedModelLoading.substring(9);
-                                mobNameForFileAndMap.setBoth(type + "_boat_patch", "boat_patch").addFallbackModel("boat_patch");
-                                currentSpecifiedModelLoading = "";
+                                mobNameForFileAndMap.setBoth(type + "_boat_patch", "boat_patch").addFallbackModel("boat_patch").resetCacheID();
+                                this.currentSpecifiedModelLoading.set("");
                             } else {
                                 mobNameForFileAndMap.setBoth("boat_patch");
                             }
@@ -488,7 +499,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "pufferfish_small" -> mobNameForFileAndMap.setBoth("puffer_fish_small");
                         case "shulker" -> {
                             if (currentSpecifiedModelLoading.equals("shulker_box")) {
-                                mobNameForFileAndMap.setBoth("shulker_box");
+                                mobNameForFileAndMap.setBoth("shulker_box").resetCacheID();
                             }
                         }
                         case "skeleton_skull" -> mobNameForFileAndMap.setBoth("head_skeleton");
@@ -505,13 +516,13 @@ public class EMFManager {//singleton for data holding and resetting needs
                         case "undead_horse_armor" -> {
                             if (lastUndeadHorse != null) {
                                 mobNameForFileAndMap.pushNewMainModelAndMapIdAddingOldAsFallback(
-                                        lastUndeadHorse.replaceAll("_baby", "") + "_armor");
+                                        lastUndeadHorse.replaceAll("_baby", "") + "_armor").resetCacheID();
                             }
                         }
                         case "undead_horse_baby_armor" -> {
                             if (lastUndeadHorse != null) {
                                 mobNameForFileAndMap.pushNewMainModelAndMapIdAddingOldAsFallback(
-                                        lastUndeadHorse.replaceAll("_baby", "") + "_baby_armor");
+                                        lastUndeadHorse.replaceAll("_baby", "") + "_baby_armor").resetCacheID();
                             }
                         }
                         default -> {
@@ -530,16 +541,19 @@ public class EMFManager {//singleton for data holding and resetting needs
                                         if (originalLayerName.startsWith("sign/standing/")) {
                                             sign += "_sign";
                                             mobNameForFileAndMap.setFileName(sign)
-                                                    .setMapIdAndAddFallbackModel("sign");
+                                                    .setMapIdAndAddFallbackModel("sign")
+                                                    .resetCacheID();
                                         } else if (originalLayerName.startsWith("sign/wall/")) {
                                             sign += "_wall_sign";
                                             mobNameForFileAndMap.setFileName(sign)
                                                     .setMapIdAndAddFallbackModel("wall_sign")
-                                                    .setMapIdAndAddFallbackModel("sign");
+                                                    .setMapIdAndAddFallbackModel("sign")
+                                                    .resetCacheID();
                                         } else {
                                             sign += "_hanging_sign";
                                             mobNameForFileAndMap.setFileName(sign)
-                                                    .setMapIdAndAddFallbackModel("hanging_sign");
+                                                    .setMapIdAndAddFallbackModel("hanging_sign")
+                                                    .resetCacheID();
                                         }
                                     }
                                     default -> {
@@ -547,7 +561,8 @@ public class EMFManager {//singleton for data holding and resetting needs
                                         if (EMF.config().getConfig().automaticModelExporting)
                                             EMFUtils.log("EMF unknown modifiable block entity model identified during loading: " + currentSpecifiedModelLoading + ".jem");
                                         mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading)
-                                                .setMapIdAndAddFallbackModel(currentSpecifiedModelLoading, originalLayerName);
+                                                .setMapIdAndAddFallbackModel(currentSpecifiedModelLoading, originalLayerName)
+                                                .resetCacheID();
                                     }
                                 }
                             } else if (originalLayerName.contains("/") && layer.
@@ -582,7 +597,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             ///jem name and fallbacks are final and correct from here and there are no blank fallbacks
             if (mobNameForFileAndMap.getfileName().isBlank()){
                 if(mobNameForFileAndMap.hasFallbackModels()){
-                    mobNameForFileAndMap = mobNameForFileAndMap.getNextFallbackModel();
+                    mobNameForFileAndMap = mobNameForFileAndMap.getNextFallbackModel(0);
                 } else if(!originalLayerName.isBlank()){
                     mobNameForFileAndMap.setFileName(originalLayerName);
                 } else {
@@ -597,12 +612,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             }
 
             //cache the layers for the model
-//            if(!isBaby) {
-                cache_LayersByModelName.put(mobNameForFileAndMap, layer);
-                mobNameForFileAndMap.forEachFallback((fallBack) -> cache_LayersByModelName.put(fallBack, layer));
-//            }
-
-
+            cache_LayersByModelName.put(mobNameForFileAndMap, layer);
+            mobNameForFileAndMap.forEachFallback((fallBack) -> cache_LayersByModelName.putIfAbsent(fallBack, layer));
 
 
 
@@ -668,8 +679,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
                     EMFModelPartRoot emfRoot = new EMFModelPartRoot(finalMapData, Objects.requireNonNullElseGet(directoryContextBaseAndVariant.getLeft(), directoryContextBaseAndVariant::getRight), root, optifinePartNames, new HashMap<>());
                     if (jemData != null) {
-                        emfRoot.addVariantOfJem(jemData, 1);
-                        emfRoot.setVariantStateTo(1);
+                        emfRoot.addAndSetVariantOfJem(jemData, 1);
                         setupAnimationsFromJemToModel(jemData, emfRoot, 1);
                         emfRoot.containsCustomModel = true;
                         if (hasVariants) {
@@ -735,11 +745,13 @@ public class EMFManager {//singleton for data holding and resetting needs
         if (EMF.config().getConfig().showReloadErrorToast && !loadingExceptions.isEmpty()){
             try {
                 var toastManager = Minecraft.getInstance()
-                //#if MC >= 12102
-                        .getToastManager();
-                //#else
-                //$$    .getToasts();
-                //#endif
+                    //#if MC >= 26.2
+                    //$$ .gui.toastManager();
+                    //#elseif MC >= 12102
+                    .getToastManager();
+                    //#else
+                    //$$.getToasts();
+                    //#endif
                 SystemToast.add(toastManager,
                         //#if MC > 12002
                         SystemToast.SystemToastId.PERIODIC_NOTIFICATION
@@ -801,7 +813,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         String thisSide = isRight ? "right" : "left";
         String otherSide = isRight ? "left" : "right";
 
-        mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading + "_large", "double_chest_" + thisSide);
+        mobNameForFileAndMap.setBoth(currentSpecifiedModelLoading.get() + "_large", "double_chest_" + thisSide);
         if (EMF.config().getConfig().doubleChestAnimFix) {
             if (printing)
                 EMFUtils.log("injecting empty " + otherSide + " side parts into 'double chest' for animation purposes");
@@ -812,7 +824,8 @@ public class EMFManager {//singleton for data holding and resetting needs
             root.children = newChildren; // mutable
         }
         mobNameForFileAndMap.addFallbackModel(mobNameForFileAndMap.namespace, mobNameForFileAndMap.getfileName());
-        mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading + "_" + thisSide);
+        mobNameForFileAndMap.setFileName(currentSpecifiedModelLoading.get() + "_" + thisSide)
+                .resetCacheID();
     }
 
     public void setupAnimationsFromJemToModel(EMFJemData jemData, EMFModelPartRoot emfRootPart, int variantNum) {

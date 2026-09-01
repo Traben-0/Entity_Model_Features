@@ -2,7 +2,7 @@ package traben.entity_model_features.models.animation.math.variables.factories;
 
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.math.EMFMath;
 import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 
 import java.util.function.BooleanSupplier;
@@ -13,9 +13,9 @@ public class ModelVariableFactory extends UniqueVariableFactory {
     @Override
     public MathValue.ResultSupplier getSupplierOrNull(final String variableKey, AnimSetupContext context) {
         if (variableKey.startsWith("varb")) {
-            return () -> EMFAnimationEntityContext.getEntityVariable(variableKey, FALSE);
+            return () -> EMFMath.getEntityVariable(variableKey, FALSE);
         } else {
-            return () -> EMFAnimationEntityContext.getEntityVariable(variableKey, 0);
+            return () -> EMFMath.getEntityVariable(variableKey, 0);
         }
 
     }

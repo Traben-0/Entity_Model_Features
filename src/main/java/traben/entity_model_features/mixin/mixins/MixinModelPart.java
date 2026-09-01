@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.IEMFModelNameContainer;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.IEMFTextureSizeSupplier;
 import traben.entity_model_features.models.EMFModel_ID;
 
@@ -40,7 +40,7 @@ public class MixinModelPart implements IEMFModelNameContainer, IEMFTextureSizeSu
                                          //$$ float red, float green, float blue, float alpha
                                          //#endif
             , final CallbackInfo ci) {
-        if (EMFAnimationEntityContext.doAnnounceModels() && emf$modelInfo != null) {
+        if (EMFState.announceModels && emf$modelInfo != null) {
             EMFManager.getInstance().modelsAnnounced.add(emf$modelInfo);
         }
     }

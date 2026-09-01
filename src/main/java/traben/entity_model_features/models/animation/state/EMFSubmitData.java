@@ -2,37 +2,34 @@ package traben.entity_model_features.models.animation.state;
 
 import org.jetbrains.annotations.Nullable;
 
-public class EMFSubmitData {
-
-    public EMFEntityRenderState backupState = null;
-
-    public int modelVariant = -1;
-
-    public EMFBipedPose bipedPose = null;
-
-    public boolean onShoulder = false;
-    public boolean isMainModelPhase = false;
-    public boolean isLayerModelPhase = false;
-
-
-    /**
-     * These fields are used as a sort of "thread local" for passing data easily into new submit instances
-     */
-    public static EMFEntityRenderState AWAITING_backupState = null;
-    public static EMFBipedPose AWAITING_bipedPose = null;
-
-    public static boolean AWAITING_isMainModelPhase = false;
-    public static boolean AWAITING_isLayerModelPhase = false;
-
-
-    //#if MC >= 1.21.9
-    @Nullable
-    public static EMFSubmitData from(net.minecraft.client.renderer.SubmitNodeStorage.ModelSubmit<?> modelSubmit) {
-        //noinspection ConstantValue
-        return ((Object) modelSubmit) instanceof EMFSubmitExtension emf
-                ? ((EMFSubmitExtension) (Object) modelSubmit).emf$getData()
-                : null;
-    }
-    //#endif
-
-}
+//public class EMFSubmitData {
+//
+//////    public EMFEntityRenderState backupState = null;
+////
+////    public int modelVariant = -1;
+////
+////    public EMFBipedPose bipedPose = null;
+////
+////
+////
+////    public static EMFBipedPose AWAITING_bipedPose = null;
+////
+////
+////
+////    //#if MC >= 1.21.9
+////    @Nullable
+////    public static EMFSubmitData from(//TODO whole functionality to be moved upstream to ETF in refactor for proper render states
+////            //#if MC >= 26.2
+////            //$$ net.minecraft.client.renderer.feature.ModelFeatureRenderer.Submit<?> modelSubmit
+////            //#else
+////            net.minecraft.client.renderer.SubmitNodeStorage.ModelSubmit<?> modelSubmit
+////            //#endif
+////    ) {
+////        //noinspection ConstantValue
+////        return ((Object) modelSubmit) instanceof EMFSubmitExtension emf
+////                ? ((EMFSubmitExtension) (Object) modelSubmit).emf$getData()
+////                : null;
+////    }
+////    //#endif
+//
+//}

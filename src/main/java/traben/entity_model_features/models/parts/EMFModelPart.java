@@ -1,21 +1,24 @@
 package traben.entity_model_features.models.parts;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.CubeVoxelShape;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.models.animation.EMFAttachment;
+import traben.entity_model_features.models.animation.math.EMFMath;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.utils.IEMFCuboidDataSupplier;
 import traben.entity_texture_features.ETF;
-import traben.entity_texture_features.features.ETFRenderContext;
+import traben.entity_texture_features.features.state.ETFState;
 import traben.entity_texture_features.features.texture_handlers.ETFTexture;
 import traben.entity_texture_features.utils.ETFUtils2;
 import traben.entity_texture_features.utils.ETFVertexConsumer;
@@ -32,16 +35,18 @@ import net.minecraft.util.ARGB;
 //#endif
 
 import java.util.*;
+import java.util.function.Consumer;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.AABB;
 
-import static traben.entity_model_features.EMF.EYES_FEATURE_LIGHT_VALUE;
+import static traben.entity_texture_features.ETF.EYES_FEATURE_LIGHT_VALUE;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import traben.entity_texture_features.utils.URenderTypeToVertexConsumer;
 
 public abstract class EMFModelPart extends ModelPart {
     public ResourceLocation textureOverride;
@@ -66,11 +71,20 @@ public abstract class EMFModelPart extends ModelPart {
         this.root = root;
     }
 
-    public void processArmItemOverrides(PoseStack matrices) {
-        matrices.pushPose();
-        translateAndRotate(matrices);
-        children.values().forEach(v -> ((EMFModelPart) v).processArmItemOverrides(matrices));
-        matrices.popPose();
+    protected @Nullable Consumer<PoseStack> getArmPositioner(EMFAttachment.Type type) {
+        for (ModelPart p : children.values()) {
+            if (p instanceof EMFModelPart part) {
+                var subConsumer = part.getArmPositioner(type); // Only a part with the correct attachment will end this deep search
+                if (subConsumer != null) {
+                    return (stack) -> {
+                        // Add this 'parent' to the cumulative stack transformation started by the child, and send it up the chain
+                        this.translateAndRotate(stack);
+                        subConsumer.accept(stack);
+                    };
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -82,22 +96,7 @@ public abstract class EMFModelPart extends ModelPart {
                        //#endif
     ) {
         try {
-            var choice = EMF.config().getConfig().getRenderModeFor(EMFAnimationEntityContext.getEMFEntity());
-            //normal render
-            if (choice == EMFConfig.RenderModeChoice.NORMAL) {
-                renderWithTextureOverride(matrices, vertices, light, overlay,
-                        //#if MC >= 12100
-                        k
-                        //#else
-                        //$$ red, green, blue, alpha
-                        //#endif
-            );
-                return;
-            }
-
-            //debug choice chosen
-            //check if only render debug when hovered
-            if (EMF.config().getConfig().onlyDebugRenderOnHover && !EMFAnimationEntityContext.isClientHovered()) {
+            if (ETFState.currentModelPartDepth != 0) {
                 renderWithTextureOverride(matrices, vertices, light, overlay,
                         //#if MC >= 12100
                         k
@@ -108,38 +107,71 @@ public abstract class EMFModelPart extends ModelPart {
                 return;
             }
 
-            //else render debug
+            // This is the top level render
+
+            var choice = EMF.config().getConfig().getRenderModeFor(EMFState.state());
+
+            // Normal render
+            if (choice == EMFConfig.RenderModeChoice.NORMAL) {
+                renderWithTextureOverride(matrices, vertices, light, overlay,
+                        //#if MC >= 12100
+                        k
+                        //#else
+                        //$$ red, green, blue, alpha
+                        //#endif
+                );
+                return;
+            }
+
+            // We want debug rendering but can we?
+
+            // Check if only render debug when hovered
+            if (EMF.config().getConfig().onlyDebugRenderOnHover && !EMFMath.isClientHovered()) {
+                renderWithTextureOverride(matrices, vertices, light, overlay,
+                        //#if MC >= 12100
+                        k
+                        //#else
+                        //$$ red, green, blue, alpha
+                        //#endif
+                );
+                return;
+            }
+
+            // Now lets debug render
+
+            if (choice.allowsRegularDraw()) {
+                renderWithTextureOverride(matrices, vertices, light, overlay,
+                        //#if MC >= 12100
+                        k
+                        //#else
+                        //$$ red, green, blue, alpha
+                        //#endif
+                );
+            }
+
             switch (choice) {
-                case GREEN ->
-                        renderDebugTinted(matrices, vertices, light, overlay,
-                                //#if MC >= 12100
-                                k
-                                //#else
-                                //$$ red, green, blue, alpha
-                                //#endif
-                        );
-                case LINES ->
-                        renderBoxes(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(lines()));
+                case LINES ->{
+                    if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
+                        URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
+                        if (provider != null)
+                            renderBoxes(matrices, provider.getBuffer(lines()), 1f);
+                    }
+                }
                 case LINES_AND_TEXTURE -> {
-                    renderWithTextureOverride(matrices, vertices, light, overlay,
-                            //#if MC >= 12100
-                            k
-                            //#else
-                            //$$ red, green, blue, alpha
-                            //#endif
-                    );
-                    renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(lines()), 1f);
+                    if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
+                        URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
+                        if (provider != null)
+                            renderBoxes(matrices, provider.getBuffer(lines()), 1f);
+                    }
                 }
                 case LINES_AND_TEXTURE_FLASH -> {
-                    renderWithTextureOverride(matrices, vertices, light, overlay,
-                            //#if MC >= 12100
-                            k
-                            //#else
-                            //$$ red, green, blue, alpha
-                            //#endif
-                    );
-                    float flash = (Mth.sin(System.currentTimeMillis() / 1000f) + 1) / 2f;
-                    renderBoxesNoChildren(matrices, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(lines()), flash);
+                    if (vertices instanceof ETFVertexConsumer etfVertexConsumer) {
+                        URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
+                        if (provider != null) {
+                            float flash = (Mth.sin(System.currentTimeMillis() / 1000f) + 1) / 2f;
+                            renderBoxes(matrices, provider.getBuffer(lines()), flash);
+                        }
+                    }
                 }
                 case NONE -> {
                 }
@@ -193,7 +225,7 @@ public abstract class EMFModelPart extends ModelPart {
                                    //$$ float red, float green, float blue, float alpha
                                    //#endif
     ) {
-        if (textureOverride == null || (EMFAnimationEntityContext.isLayerPhase() && getRoot().isMainModel)) {
+        if (textureOverride == null || (EMFState.isLayerPhase && getRoot().isMainModel)) {
             // || lastTextureOverride == EMFManager.getInstance().entityRenderCount // prevents texture overrides carrying over into feature renderers that reuse the base model
             //normal vertex consumer
             renderLikeETF(matrices, vertices, light, overlay,
@@ -204,7 +236,7 @@ public abstract class EMFModelPart extends ModelPart {
                     //#endif
             );
         } else if (light != EYES_FEATURE_LIGHT_VALUE // this is only the case for EyesFeatureRenderer
-                && !ETFRenderContext.isIsInSpecialRenderOverlayPhase() //do not allow new etf emissive rendering here
+                && !ETFState.isIsInSpecialRenderOverlayPhase() //do not allow new etf emissive rendering here
                 //&& vertices instanceof ETFVertexConsumer etfVertexConsumer
         ) { //can restore to previous render layer
 
@@ -212,7 +244,8 @@ public abstract class EMFModelPart extends ModelPart {
             // fixed weird bug with certain texture overrides rendering in first person as though from the sun's POV
             // downside is incorrect shadows for some model parts :/
             //todo triple check it is only block entities, I so far cannot recreate the bug for regular mobs
-            if ((EMFAnimationEntityContext.getEMFEntity() != null && EMFAnimationEntityContext.getEMFEntity().etf$isBlockEntity())
+            var state = EMFState.state();
+            if ((state != null && state.isBlockEntity())
                     && ETF.IRIS_DETECTED && IrisShadowPassDetection.getInstance().inShadowPass()) {
                 //skip texture override
                 renderLikeETF(matrices, vertices, light, overlay,
@@ -242,7 +275,7 @@ public abstract class EMFModelPart extends ModelPart {
                 RenderType originalLayer = etfVertexConsumer.etf$getRenderLayer();
                 if (originalLayer == null) return;
 
-                MultiBufferSource provider = etfVertexConsumer.etf$getProvider();
+                URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
                 if (provider == null) return;
                 renderTextureOverrideWithoutReset(provider, matrices, light, overlay,
                         //#if MC >= 12100
@@ -256,7 +289,19 @@ public abstract class EMFModelPart extends ModelPart {
                 provider.getBuffer(originalLayer);
             }else{
                 //could be a sprite originally, if so lets ignore trying to reset the texture at all to its original
-                MultiBufferSource provider = Minecraft.getInstance().renderBuffers().bufferSource();
+                //#if MC >= 26.2
+                //$$ URenderTypeToVertexConsumer provider = new URenderTypeToVertexConsumer(null) {
+                //$$     @Override
+                //$$     public VertexConsumer getBuffer(RenderType type) {
+                //$$         //TODO probably wrong investigate further
+                //$$         var draw = Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().appendDraw(
+                //$$                 type.format(), com.mojang.blaze3d.PrimitiveTopology.QUADS);
+                //$$         return Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().getVertexBuilder(draw);
+                //$$     }
+                //$$ };
+                //#else
+                URenderTypeToVertexConsumer provider = new URenderTypeToVertexConsumer(Minecraft.getInstance().renderBuffers().bufferSource());
+                //#endif
                 renderTextureOverrideWithoutReset(provider, matrices, light, overlay,
                         //#if MC >= 12100
                         k
@@ -269,7 +314,7 @@ public abstract class EMFModelPart extends ModelPart {
         //else cancel out render
     }
 
-    private void renderTextureOverrideWithoutReset(MultiBufferSource provider, PoseStack matrices, int light, int overlay,
+    private void renderTextureOverrideWithoutReset(URenderTypeToVertexConsumer provider, PoseStack matrices, int light, int overlay,
                                                    //#if MC >= 12100
                                                    final int k
                                                    //#else
@@ -278,7 +323,7 @@ public abstract class EMFModelPart extends ModelPart {
     ){
 
 //        lastTextureOverride = EMFManager.getInstance().entityRenderCount;
-        RenderType layerModified = EMFAnimationEntityContext.getLayerFromRecentFactoryOrETFOverrideOrTranslucent(textureOverride);
+        RenderType layerModified = EMFState.getLayerFromRecentFactoryOrETFOverrideOrTranslucent(textureOverride);
         VertexConsumer newConsumer = provider.getBuffer(layerModified);
 
         renderLikeVanilla(matrices, newConsumer, light, overlay,
@@ -348,9 +393,13 @@ public abstract class EMFModelPart extends ModelPart {
             testBuilding = (BufferBuilder) vertices;
         } else if (vertices instanceof SpriteCoordinateExpander sprite && sprite.delegate instanceof BufferBuilder) {
             testBuilding = (BufferBuilder) sprite.delegate;
-        }else if (vertices instanceof VertexMultiConsumer.Double dub && dub.second instanceof BufferBuilder) {
+        }else
+        //#if MC < 26.2
+        if (vertices instanceof com.mojang.blaze3d.vertex.VertexMultiConsumer.Double dub && dub.second instanceof BufferBuilder) {
             testBuilding = (BufferBuilder) dub.second;
-        }else{
+        } else
+        //#endif
+        {
             //exit early if not a buffer builder
             return vertices;
         }
@@ -360,12 +409,11 @@ public abstract class EMFModelPart extends ModelPart {
             if (testBuilding instanceof ETFVertexConsumer etf
                     && etf.etf$getRenderLayer() != null
                     && etf.etf$getProvider() != null){
-                boolean allowed = ETFRenderContext.isAllowedToRenderLayerTextureModify();
-                ETFRenderContext.preventRenderLayerTextureModify();
+                ETFState.pushRenderLayerModifyState(false);
 
                 vertices = etf.etf$getProvider().getBuffer(etf.etf$getRenderLayer());
 
-                if (allowed) ETFRenderContext.allowRenderLayerTextureModify();
+                ETFState.popRenderLayerModifyState();
             }else {
                 return null;
             }
@@ -391,7 +439,7 @@ public abstract class EMFModelPart extends ModelPart {
         //#endif
 
         //etf ModelPartMixin copy
-        ETFRenderContext.incrementCurrentModelPartDepth();
+        ETFState.currentModelPartDepth++;
 
         renderLikeVanilla(matrices, vertices, light, overlay,
                 //#if MC >= 12100
@@ -402,16 +450,16 @@ public abstract class EMFModelPart extends ModelPart {
         );
 
         //etf ModelPartMixin copy
-        if (ETFRenderContext.getCurrentModelPartDepth() != 1) {
-            ETFRenderContext.decrementCurrentModelPartDepth();
+        if (ETFState.currentModelPartDepth != 1) {
+            ETFState.currentModelPartDepth--;
         } else {
             //top level model so try special rendering
-            if (ETFRenderContext.isCurrentlyRenderingEntity()
+            if (ETFState.isStateActive()
                     && vertices instanceof ETFVertexConsumer etfVertexConsumer) {
                 ETFTexture texture = etfVertexConsumer.etf$getETFTexture();
                 //is etf texture not null and does it special render?
                 if (texture != null && (texture.isEmissive() || texture.isEnchanted())) {
-                    MultiBufferSource provider = etfVertexConsumer.etf$getProvider();
+                    URenderTypeToVertexConsumer provider = etfVertexConsumer.etf$getProvider();
                     //very important this is captured before doing the special renders as they can potentially modify
                     //the same ETFVertexConsumer down stream
                     RenderType layer = etfVertexConsumer.etf$getRenderLayer();
@@ -436,11 +484,11 @@ public abstract class EMFModelPart extends ModelPart {
                 }
             }
             //ensure model count is reset
-            ETFRenderContext.resetCurrentModelPartDepth();
+            ETFState.currentModelPartDepth = 0;
         }
     }
 
-    public void renderBoxes(PoseStack matrices, VertexConsumer vertices) {
+    public void renderBoxes(PoseStack matrices, VertexConsumer vertices, float alpha) {
         if (this.visible) {
             if (!cubes.isEmpty() || !children.isEmpty()) {
                 matrices.pushPose();
@@ -448,21 +496,30 @@ public abstract class EMFModelPart extends ModelPart {
                 if (!this.skipDraw) {
                     for (Cube cuboid : cubes) {
                         AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
+
+                        var adds = ((IEMFCuboidDataSupplier) cuboid).emf$getSizeAdd();
+                        if (adds != null) {
+                            if (adds[0] != 0 || adds[1] != 0 || adds[2] != 0) {
+                                box = box.inflate(adds[0] / 16, adds[1] / 16, adds[2] / 16);
+                            }
+                        }
+                        box = box.inflate(0.0001);
+
                         var col = debugBoxColor();
-                        //#if MC >=12111
-                        //$$ EMFUtils.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
-                        //#elseif MC >=12109
-                        ShapeRenderer.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
-                        //#elseif MC >=12102
-                        //$$ ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
+                        //#if MC >= 12111
+                        //$$ EMFUtils.renderLineBox(matrices.last(), vertices, box, col[0], col[1], col[2], alpha);
+                        //#elseif MC >= 12109
+                        ShapeRenderer.renderLineBox(matrices.last(), vertices, box, col[0], col[1], col[2], alpha);
+                        //#elseif MC >= 12102
+                        //$$ ShapeRenderer.renderLineBox(matrices, vertices, box, col[0], col[1], col[2], alpha);
                         //#else
-                        //$$ LevelRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], 1.0F);
+                        //$$ LevelRenderer.renderLineBox(matrices, vertices, box, col[0], col[1], col[2], alpha);
                         //#endif
                     }
                 }
                 for (ModelPart modelPart : children.values()) {
                     if (modelPart instanceof EMFModelPart emf)
-                        emf.renderBoxes(matrices, vertices);
+                        emf.renderBoxes(matrices, vertices, alpha);
                 }
                 matrices.popPose();
             }
@@ -470,31 +527,6 @@ public abstract class EMFModelPart extends ModelPart {
     }
 
     protected abstract float[] debugBoxColor();
-
-    public void renderBoxesNoChildren(PoseStack matrices, VertexConsumer vertices, float alpha) {
-        if (this.visible) {
-            if (!cubes.isEmpty() || !children.isEmpty()) {
-                matrices.pushPose();
-                this.translateAndRotate(matrices);
-                if (!this.skipDraw) {
-                    for (Cube cuboid : cubes) {
-                        AABB box = new AABB(cuboid.minX / 16, cuboid.minY / 16, cuboid.minZ / 16, cuboid.maxX / 16, cuboid.maxY / 16, cuboid.maxZ / 16);
-                        var col = debugBoxColor();
-                        //#if MC >=12111
-                        //$$ EMFUtils.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
-                        //#elseif MC >=12109
-                        ShapeRenderer.renderLineBox(matrices.last(), vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
-                        //#elseif MC >=12102
-                        //$$ ShapeRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
-                        //#else
-                        //$$ LevelRenderer.renderLineBox(matrices, vertices, box.inflate(0.0001), col[0], col[1], col[2], alpha);
-                        //#endif
-                    }
-                }
-                matrices.popPose();
-            }
-        }
-    }
 
     //required for sodium pre 0.5.4
     // overrides to circumvent sodium optimizations that mess with custom uv quad creation and swapping out cuboids

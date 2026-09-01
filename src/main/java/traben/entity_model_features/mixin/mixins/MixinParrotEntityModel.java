@@ -14,9 +14,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
-import traben.entity_model_features.models.animation.state.EMFSubmitData;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFEntity;
 
 //#if MC >= 12102
@@ -26,6 +25,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.client.Minecraft;
 import traben.entity_model_features.utils.EMFUtils;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
+import traben.entity_texture_features.utils.UEntityTypes;
 
 @Mixin(ParrotOnShoulderLayer.class)
 public class MixinParrotEntityModel {
@@ -50,21 +50,12 @@ public class MixinParrotEntityModel {
 
     @Inject(method = RENDER_METHOD, at = @At("HEAD"))
     private void emf$parrot1(final CallbackInfo ci) {
-        try{
-            var entity = (EMFEntity) EntityType.PARROT.create(Minecraft.getInstance().level, EntitySpawnReason.COMMAND);
-            if (entity != null) {
-                EMFAnimationEntityContext.setCurrentEntityIteration((EMFEntityRenderState) ETFEntityRenderState.forEntity(entity));
-                EMFSubmitData.AWAITING_backupState = EMFAnimationEntityContext.getEmfState();
-            }
-                }catch (Exception ignored){
-        }
-        EMFAnimationEntityContext.setCurrentEntityOnShoulder(true);
+        EMFState.isInShoulderMethod = true;
     }
 
     @Inject(method = RENDER_METHOD, at = @At("TAIL"))
     private void emf$parrot2(final CallbackInfo ci) {
-        EMFAnimationEntityContext.setCurrentEntityOnShoulder(false);
-        EMFSubmitData.AWAITING_backupState = null;
+        EMFState.isInShoulderMethod = false;
     }
 }
 
@@ -73,11 +64,11 @@ public class MixinParrotEntityModel {
 //$$ public class MixinParrotEntityModel {
 //$$     @Inject(method = "renderOnShoulder", at = @At("HEAD"))
 //$$     private void emf$parrot1(PoseStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float limbAngle, float limbDistance, float headYaw, float headPitch, int danceAngle, CallbackInfo ci) {
-//$$         EMFAnimationEntityContext.setCurrentEntityOnShoulder(true);
+//$$         EMFState.isInShoulderMethod = true;
 //$$     }
 //$$     @Inject(method = "renderOnShoulder", at = @At("TAIL"))
 //$$     private void emf$parrot2(PoseStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float limbAngle, float limbDistance, float headYaw, float headPitch, int danceAngle, CallbackInfo ci) {
-//$$         EMFAnimationEntityContext.setCurrentEntityOnShoulder(false);
+//$$         EMFState.isInShoulderMethod = false;
 //$$     }
 //$$ }
 //#endif

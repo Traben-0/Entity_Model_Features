@@ -8,17 +8,16 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.mixin.mixins.accessor.CuboidAccessor;
-import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
-import traben.entity_model_features.models.animation.EMFAttachments;
+import traben.entity_model_features.models.animation.EMFAttachment;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.models.jem_objects.EMFBoxData;
 import traben.entity_model_features.models.jem_objects.EMFPartData;
-import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 //#if MC < 12002
 //$$ import org.joml.Matrix3f;
@@ -34,7 +33,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     private final float defaultScale;
 
-    private final @Nullable List<EMFAttachments> attachments;
+    private final @Nullable List<EMFAttachment> attachments;
 
     /// Note `supplementaries` mixin's to this
     public EMFModelPartCustom(EMFPartData emfPartData, int variant, @Nullable String part, String id, EMFModelPartRoot root) {//,//float[] parentalTransforms) {
@@ -134,23 +133,19 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
     @Override
-    public void processArmItemOverrides(PoseStack matrices) {
+    protected @Nullable Consumer<PoseStack> getArmPositioner(EMFAttachment.Type type) {
         if (attachments != null) {
-            for (EMFAttachments attachment : attachments) {
-                matrices.pushPose();
-                this.translateAndRotate(matrices);
-                attachment.setAttachment(matrices);
-                matrices.popPose();
-
-                var state = EMFAnimationEntityContext.getEmfState();
-                if (state != null) {
-                    if (attachment.right) state.setRightArmOverride(attachment);
-                    else state.setLeftArmOverride(attachment);
+            for (EMFAttachment attachment : attachments) {
+                if (attachment.type == type) {
+                    // End deep search here
+                    return poseStack -> {
+                        translateAndRotate(poseStack);
+                        attachment.translate(poseStack);
+                    };
                 }
             }
-        } else {
-            super.processArmItemOverrides(matrices);
         }
+        return super.getArmPositioner(type);
     }
 
     @Override
@@ -161,9 +156,6 @@ public class EMFModelPartCustom extends EMFModelPart {
                        //$$ float red, float green, float blue, float alpha
                        //#endif
     ) {
-        //#if MC < 12109
-        //$$ processArmItemOverrides(matrices);
-        //#endif
 
         super.render(matrices, vertices, light, overlay,
                 //#if MC >= 12100
@@ -176,7 +168,7 @@ public class EMFModelPartCustom extends EMFModelPart {
 
     @Override
     protected float[] debugBoxColor() {
-        return new float[]{1f, 1f, 1f};
+        return EMFState.isLayerPhase ? new float[]{0f, 0f, 1f} : new float[]{1f, 1f, 1f};
     }
 
 
@@ -188,7 +180,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                                    //$$ float red, float green, float blue, float alpha
                                    //#endif
     ) {
-        if (textureOverride != null && (EMFAnimationEntityContext.isLayerPhase() && getRoot().isMainModel)){
+        if (textureOverride != null && (EMFState.isLayerPhase && getRoot().isMainModel)){
             //do not render if this is a custom part with a texture override and are rendering a feature overlay
             //custom parts with texture overrides are explicitly stating they will not be used in feature layers
             return;

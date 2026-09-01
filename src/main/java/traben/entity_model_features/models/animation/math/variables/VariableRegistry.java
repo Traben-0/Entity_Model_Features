@@ -5,13 +5,14 @@ import net.minecraft.client.CameraType;
 import net.minecraft.util.Mth;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.models.animation.AnimSetupContext;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.math.EMFMath;
 import traben.entity_model_features.models.animation.math.expression_tree.MathComponent;
 import traben.entity_model_features.models.animation.math.expression_tree.MathConstant;
 import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 import traben.entity_model_features.models.animation.math.expression_tree.MathVariable;
 import traben.entity_model_features.models.animation.math.variables.factories.*;
 import traben.entity_model_features.EMFManager;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
@@ -100,107 +101,110 @@ public final class VariableRegistry {
 
 
         //simple floats
-        registerSimpleFloatVariable("limb_swing", EMFAnimationEntityContext::getLimbAngle);
-        registerSimpleFloatVariable("frame_time", EMFAnimationEntityContext::getFrameTime);
-        registerSimpleFloatVariable("limb_speed", EMFAnimationEntityContext::getLimbDistance);
-        registerSimpleFloatVariable("age", EMFAnimationEntityContext::getAge);
-        registerSimpleFloatVariable("head_pitch", EMFAnimationEntityContext::getHeadPitch);
-        registerSimpleFloatVariable("head_yaw", EMFAnimationEntityContext::getHeadYaw);
-        registerSimpleFloatVariable("swing_progress", EMFAnimationEntityContext::getSwingProgress);
-        registerSimpleFloatVariable("hurt_time", EMFAnimationEntityContext::getHurtTime);
-        registerSimpleFloatVariable("dimension", EMFAnimationEntityContext::getDimension);
-        registerSimpleFloatVariable("time", EMFAnimationEntityContext::getTime);
-        registerSimpleFloatVariable("player_pos_x", emfTranslationKey("player_pos"), EMFAnimationEntityContext::getPlayerX);
-        registerSimpleFloatVariable("player_pos_y", emfTranslationKey("player_pos"), EMFAnimationEntityContext::getPlayerY);
-        registerSimpleFloatVariable("player_pos_z", emfTranslationKey("player_pos"), EMFAnimationEntityContext::getPlayerZ);
-        registerSimpleFloatVariable("pos_x", emfTranslationKey("pos"), EMFAnimationEntityContext::getEntityX);
-        registerSimpleFloatVariable("pos_y", emfTranslationKey("pos"), EMFAnimationEntityContext::getEntityY);
-        registerSimpleFloatVariable("pos_z", emfTranslationKey("pos"), EMFAnimationEntityContext::getEntityZ);
-        registerSimpleFloatVariable("player_rot_x", emfTranslationKey("player_rot"), EMFAnimationEntityContext::getPlayerRX);
-        registerSimpleFloatVariable("player_rot_y", emfTranslationKey("player_rot"), EMFAnimationEntityContext::getPlayerRY);
-        registerSimpleFloatVariable("rot_x", emfTranslationKey("rot"), EMFAnimationEntityContext::getEntityRX);
-        registerSimpleFloatVariable("rot_y", emfTranslationKey("rot"), EMFAnimationEntityContext::getEntityRY);
-        registerSimpleFloatVariable("health", EMFAnimationEntityContext::getHealth);
-        registerSimpleFloatVariable("death_time", EMFAnimationEntityContext::getDeathTime);
-        registerSimpleFloatVariable("anger_time", EMFAnimationEntityContext::getAngerTime);
-        registerSimpleFloatVariable("max_health", EMFAnimationEntityContext::getMaxHealth);
-        registerSimpleFloatVariable("id", EMFAnimationEntityContext::getId);
-        registerSimpleFloatVariable("day_time", EMFAnimationEntityContext::getDayTime);
-        registerSimpleFloatVariable("day_count", EMFAnimationEntityContext::getDayCount);
-        registerSimpleFloatVariable("rule_index", EMFAnimationEntityContext::getRuleIndex);
-        registerSimpleFloatVariable("anger_time_start", EMFAnimationEntityContext::getAngerTimeStart);
-        registerSimpleFloatVariable("move_forward", EMFAnimationEntityContext::getMoveForward);
-        registerSimpleFloatVariable("move_strafing", EMFAnimationEntityContext::getMoveStrafe);
-        registerSimpleFloatVariable("height_above_ground", EMFAnimationEntityContext::getHeightAboveGround);
-        registerSimpleFloatVariable("fluid_depth", EMFAnimationEntityContext::getFluidDepth);
-        registerSimpleFloatVariable("fluid_depth_down", EMFAnimationEntityContext::getFluidDepthDown);
-        registerSimpleFloatVariable("fluid_depth_up", EMFAnimationEntityContext::getFluidDepthUp);
+        registerSimpleFloatVariable("limb_swing", EMFMath::getLimbAngle);
+        registerSimpleFloatVariable("frame_time", EMFMath::getFrameTime);
+        registerSimpleFloatVariable("limb_speed", EMFMath::getLimbDistance);
+        registerSimpleFloatVariable("age", EMFMath::getAge);
+        registerSimpleFloatVariable("head_pitch", EMFMath::getHeadPitch);
+        registerSimpleFloatVariable("head_yaw", EMFMath::getHeadYaw);
+        registerSimpleFloatVariable("swing_progress", EMFMath::getSwingProgress);
+        registerSimpleFloatVariable("hurt_time", EMFMath::getHurtTime);
+        registerSimpleFloatVariable("dimension", EMFMath::getDimension);
+        registerSimpleFloatVariable("time", ()-> EMFMath.getTime(EMFState.state()));
+        registerSimpleFloatVariable("player_pos_x", emfTranslationKey("player_pos"), EMFMath::getPlayerX);
+        registerSimpleFloatVariable("player_pos_y", emfTranslationKey("player_pos"), EMFMath::getPlayerY);
+        registerSimpleFloatVariable("player_pos_z", emfTranslationKey("player_pos"), EMFMath::getPlayerZ);
+        registerSimpleFloatVariable("pos_x", emfTranslationKey("pos"), EMFMath::getEntityX);
+        registerSimpleFloatVariable("pos_y", emfTranslationKey("pos"), EMFMath::getEntityY);
+        registerSimpleFloatVariable("pos_z", emfTranslationKey("pos"), EMFMath::getEntityZ);
+        registerSimpleFloatVariable("player_rot_x", emfTranslationKey("player_rot"), EMFMath::getPlayerRX);
+        registerSimpleFloatVariable("player_rot_y", emfTranslationKey("player_rot"), EMFMath::getPlayerRY);
+        registerSimpleFloatVariable("rot_x", emfTranslationKey("rot"), EMFMath::getEntityRX);
+        registerSimpleFloatVariable("rot_y", emfTranslationKey("rot"), EMFMath::getEntityRY);
+        registerSimpleFloatVariable("health", EMFMath::getHealth);
+        registerSimpleFloatVariable("death_time", EMFMath::getDeathTime);
+        registerSimpleFloatVariable("anger_time", EMFMath::getAngerTime);
+        registerSimpleFloatVariable("max_health", EMFMath::getMaxHealth);
+        registerSimpleFloatVariable("id", EMFMath::getId);
+        registerSimpleFloatVariable("day_time", EMFMath::getDayTime);
+        registerSimpleFloatVariable("day_count", EMFMath::getDayCount);
+        registerSimpleFloatVariable("rule_index", EMFMath::getRuleIndex);
+        registerSimpleFloatVariable("anger_time_start", EMFMath::getAngerTimeStart);
+        registerSimpleFloatVariable("move_forward", EMFMath::getMoveForward);
+        registerSimpleFloatVariable("move_strafing", EMFMath::getMoveStrafe);
+        registerSimpleFloatVariable("height_above_ground", EMFMath::getHeightAboveGround);
+        registerSimpleFloatVariable("fluid_depth", EMFMath::getFluidDepth);
+        registerSimpleFloatVariable("fluid_depth_down", EMFMath::getFluidDepthDown);
+        registerSimpleFloatVariable("fluid_depth_up", EMFMath::getFluidDepthUp);
         registerSimpleFloatVariable("nan", () -> EMFManager.getInstance().isAnimationValidationPhase ? 0 : Float.NaN);
         registerSimpleFloatVariable("distance", () -> {
-            if (EMFAnimationEntityContext.getEMFEntity() == null) return 0;
-            return EMFAnimationEntityContext.getEMFEntity().etf$distanceTo(Minecraft.getInstance().player);
+            if (EMFState.emfEntity() == null) return 0;
+            return EMFState.emfEntity().etf$distanceTo(Minecraft.getInstance().player);
         });
-        registerSimpleFloatVariable("frame_counter", EMFAnimationEntityContext::getFrameCounter);
+        registerSimpleFloatVariable("frame_counter", EMFState::getFrameCounter);
 
 
         //simple booleans
-        registerSimpleBoolVariable("is_hovered", EMFAnimationEntityContext::isClientHovered);
+        registerSimpleBoolVariable("is_hovered", EMFMath::isClientHovered);
         registerSimpleBoolVariable("is_paused", () -> Minecraft.getInstance().isPaused());
-        registerSimpleBoolVariable("is_first_person_hand", () -> EMFAnimationEntityContext.isFirstPersonHand);
-        registerSimpleBoolVariable("is_right_handed", () -> {
-            if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
-            return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity entity && entity.getMainArm() == HumanoidArm.RIGHT;
+        registerSimpleBoolVariable("is_first_person_hand", () -> {
+            var state = EMFState.state();
+            return state != null && state.isFirstPersonHand();
         });
-        registerSimpleBoolVariable("is_swinging_right_arm", () -> EMFAnimationEntityContext.isSwingingArm(true));
-        registerSimpleBoolVariable("is_swinging_left_arm", () -> EMFAnimationEntityContext.isSwingingArm(false));
-        registerSimpleBoolVariable("is_holding_item_right", () -> EMFAnimationEntityContext.isHoldingItem(true));
-        registerSimpleBoolVariable("is_holding_item_left", () -> EMFAnimationEntityContext.isHoldingItem(false));
-        registerSimpleBoolVariable("is_using_item", EMFAnimationEntityContext::isUsingItem);
+        registerSimpleBoolVariable("is_right_handed", () -> {
+            if (EMFState.emfEntity() == null) return false;
+            return EMFState.emfEntity() instanceof LivingEntity entity && entity.getMainArm() == HumanoidArm.RIGHT;
+        });
+        registerSimpleBoolVariable("is_swinging_right_arm", () -> EMFMath.isSwingingArm(true));
+        registerSimpleBoolVariable("is_swinging_left_arm", () -> EMFMath.isSwingingArm(false));
+        registerSimpleBoolVariable("is_holding_item_right", () -> EMFMath.isHoldingItem(true));
+        registerSimpleBoolVariable("is_holding_item_left", () -> EMFMath.isHoldingItem(false));
+        registerSimpleBoolVariable("is_using_item", EMFMath::isUsingItem);
         registerSimpleBoolVariable("is_swimming", () -> {
-            if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
-            return EMFAnimationEntityContext.getEMFEntity() instanceof Entity entity && entity.isSwimming();
+            if (EMFState.emfEntity() == null) return false;
+            return EMFState.emfEntity() instanceof Entity entity && entity.isSwimming();
         });
 
         registerSimpleBoolVariable("is_gliding", () -> {
-            if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
-            return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity entity && entity.isFallFlying();
+            if (EMFState.emfEntity() == null) return false;
+            return EMFState.emfEntity() instanceof LivingEntity entity && entity.isFallFlying();
 
         });
 
 
         registerSimpleBoolVariable("is_blocking", () -> {
-            if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
-            return EMFAnimationEntityContext.getEMFEntity() instanceof LivingEntity livingEntity && livingEntity.isBlocking();
+            if (EMFState.emfEntity() == null) return false;
+            return EMFState.emfEntity() instanceof LivingEntity livingEntity && livingEntity.isBlocking();
         });
         registerSimpleBoolVariable("is_crawling", () -> {
-            if (EMFAnimationEntityContext.getEMFEntity() == null) return false;
-            return EMFAnimationEntityContext.getEMFEntity() instanceof Entity entity && entity.isVisuallyCrawling();
+            if (EMFState.emfEntity() == null) return false;
+            return EMFState.emfEntity() instanceof Entity entity && entity.isVisuallyCrawling();
         });
-        registerSimpleBoolVariable("is_climbing", EMFAnimationEntityContext::isClimbing);
-        registerSimpleBoolVariable("is_child", EMFAnimationEntityContext::isChild);
-        registerSimpleBoolVariable("is_in_water", EMFAnimationEntityContext::isInWater);
-        registerSimpleBoolVariable("is_riding", EMFAnimationEntityContext::isRiding);
-        registerSimpleBoolVariable("is_on_ground", EMFAnimationEntityContext::isOnGround);
-        registerSimpleBoolVariable("is_burning", EMFAnimationEntityContext::isBurning);
-        registerSimpleBoolVariable("is_alive", EMFAnimationEntityContext::isAlive);
-        registerSimpleBoolVariable("is_glowing", EMFAnimationEntityContext::isGlowing);
-        registerSimpleBoolVariable("is_aggressive", EMFAnimationEntityContext::isAggressive);
-        registerSimpleBoolVariable("is_hurt", EMFAnimationEntityContext::isHurt);
-        registerSimpleBoolVariable("is_in_hand", EMFAnimationEntityContext::isInHand);
-        registerSimpleBoolVariable("is_in_item_frame", EMFAnimationEntityContext::isInItemFrame);
-        registerSimpleBoolVariable("is_in_ground", EMFAnimationEntityContext::isInGround);
-        registerSimpleBoolVariable("is_in_gui", EMFAnimationEntityContext::isInGui);
-        registerSimpleBoolVariable("is_in_lava", EMFAnimationEntityContext::isInLava);
-        registerSimpleBoolVariable("is_invisible", EMFAnimationEntityContext::isInvisible);
-        registerSimpleBoolVariable("is_on_head", EMFAnimationEntityContext::isOnHead);
-        registerSimpleBoolVariable("is_on_shoulder", EMFAnimationEntityContext::isOnShoulder);
-        registerSimpleBoolVariable("is_ridden", EMFAnimationEntityContext::isRidden);
-        registerSimpleBoolVariable("is_sitting", EMFAnimationEntityContext::isSitting);
-        registerSimpleBoolVariable("is_sneaking", EMFAnimationEntityContext::isSneaking);
-        registerSimpleBoolVariable("is_sprinting", EMFAnimationEntityContext::isSprinting);
-        registerSimpleBoolVariable("is_tamed", EMFAnimationEntityContext::isTamed);
-        registerSimpleBoolVariable("is_wet", EMFAnimationEntityContext::isWet);
-        registerSimpleBoolVariable("is_jumping", EMFAnimationEntityContext::isJumping);
+        registerSimpleBoolVariable("is_climbing", EMFMath::isClimbing);
+        registerSimpleBoolVariable("is_child", EMFMath::isChild);
+        registerSimpleBoolVariable("is_in_water", EMFMath::isInWater);
+        registerSimpleBoolVariable("is_riding", EMFMath::isRiding);
+        registerSimpleBoolVariable("is_on_ground", EMFMath::isOnGround);
+        registerSimpleBoolVariable("is_burning", EMFMath::isBurning);
+        registerSimpleBoolVariable("is_alive", EMFMath::isAlive);
+        registerSimpleBoolVariable("is_glowing", EMFMath::isGlowing);
+        registerSimpleBoolVariable("is_aggressive", EMFMath::isAggressive);
+        registerSimpleBoolVariable("is_hurt", EMFMath::isHurt);
+        registerSimpleBoolVariable("is_in_hand", EMFMath::isInHand);
+        registerSimpleBoolVariable("is_in_item_frame", EMFMath::isInItemFrame);
+        registerSimpleBoolVariable("is_in_ground", EMFMath::isInGround);
+        registerSimpleBoolVariable("is_in_gui", EMFMath::isInGui);
+        registerSimpleBoolVariable("is_in_lava", EMFMath::isInLava);
+        registerSimpleBoolVariable("is_invisible", EMFMath::isInvisible);
+        registerSimpleBoolVariable("is_on_head", EMFMath::isOnHead);
+        registerSimpleBoolVariable("is_on_shoulder", EMFMath::isOnShoulder);
+        registerSimpleBoolVariable("is_ridden", EMFMath::isRidden);
+        registerSimpleBoolVariable("is_sitting", EMFMath::isSitting);
+        registerSimpleBoolVariable("is_sneaking", EMFMath::isSneaking);
+        registerSimpleBoolVariable("is_sprinting", EMFMath::isSprinting);
+        registerSimpleBoolVariable("is_tamed", EMFMath::isTamed);
+        registerSimpleBoolVariable("is_wet", EMFMath::isWet);
+        registerSimpleBoolVariable("is_jumping", EMFMath::isJumping);
         registerSimpleBoolVariable("is_player_first_person", ()-> Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON);
         registerSimpleBoolVariable("is_player_third_person", ()-> Minecraft.getInstance().options.getCameraType() == CameraType.THIRD_PERSON_BACK);
         registerSimpleBoolVariable("is_player_third_person_reversed", ()-> Minecraft.getInstance().options.getCameraType() == CameraType.THIRD_PERSON_FRONT);
@@ -329,7 +333,8 @@ public final class VariableRegistry {
         } catch (Exception e) {
             if (printing()) EMFUtils.logError("Error finding variable: [" + variableName + "] in animation [" + context.animKey + "] of model [" + context.modelName + "]. EMF will treat the variable as zero.");
         }
-        return variableName.startsWith("is_") ? MathConstant.FALSE_CONST : MathConstant.ZERO_CONST;
+        return new MathVariable(variableName, isNegative,
+                variableName.startsWith("is_") ? MathConstant.FALSE_CONST.getResultSupplier() : MathConstant.ZERO_CONST.getResultSupplier());
     }
 
     private boolean printing() {

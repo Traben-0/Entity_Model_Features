@@ -1,6 +1,36 @@
 
-[?]
+[3.3]
+- fixed several model exporting issues, including missing parts, wrong rotations, missing mirrored uvs, and rabbit/axolotl legs on 26.1+
+- fixed block entity models breaking in the latest versions
+- fixed vex & allay items not matching animated arm positions
+- fixed `render.shadow_size`, `render.shadow_opacity`, `render.shadow_offset_x`, `render.shadow_offset_z`
+- added `render.fire_x`, `render.fire_y`, `render.fire_z` animation variables for controlling the fire rendering position on entities
+- added `render.fire_scale`, `render.fire_height` animation variables for controlling the fire rendering scale and height on entities
+- fixed `render.leash_offset_x`, `render.leash_offset_y`, `render.leash_offset_z` 
+- added `render.leash_holder_offset_x`, `render.leash_holder_offset_y`, `render.leash_holder_offset_z` which do the same as above but affect the holding entity instead of the leashed entity
+- added `render.<LEASH_OFFSET_TYPE>_1`, `render.<LEASH_OFFSET_TYPE>_2`, `render.<LEASH_OFFSET_TYPE>_3` , `render.<LEASH_OFFSET_TYPE>_4`
+  - these can apply to any of the x,y,z or holder and normal leash offset values and allows you to modify the quad leash offsets used by ghasts and boats, and any other entity that uses a quad leash connection
+  - Note: if the _1 .. _4 variants aren't used then the regular x,y,z offset can be used instead applied to all 4 positions
+- improved and fixed item attachment handling
+- added new item/block attachment points for models:
+  - `head_item` (Almost all humanoid models with a head armor slot, including player)
+  - `sulfur_cube_block` (sulfur_cube internal block) (This one is special as it will be active by default, toggleable in settings)
+  - `enderman_block`
+  - `villager_item`
+  - `witch_item`
+  - `panda_item`
+  - `dolphin_item`
+  - `fox_item`
+- fixed debug outline rendering not outlining everything
+- fixed 26.2 neoforge iris compatibility not working causing excess animation during the shadow pass
+- fixed first person arm rendering with sleeves even when turned off in the settings
+- fixed first person arm animations with some other mods hand rendering
+- fixed several issues relating to layered or held models desyncing with or breaking the base model e.g. held tridents possibly breaking the player model
 - added new boolean animation variables `is_player_first_person`, `is_player_third_person`, `is_player_third_person_reversed`
+- added animation hooks to the `EMFAnimationAPI` to allow other mods to act before and after EMF animation, and even cancel it
+- bumped `EMFAnimationAPI` version to 10
+- fixed Essential mod emote's pausing player animations
+- fixed Essential mod cosmetics not animating properly with first person hand animations
 
 [3.2.4]
 - added stinger part to baby bee models

@@ -71,6 +71,12 @@
 #   render.shadow_opacity                                               - How transparent the shadow is
 #   render.shadow_offset_x, render.shadow_offset_z                      - The location of the shadow
 #   render.leash_offset_x, render.leash_offset_y, render.leash_offset_z - The position of the point the leash attaches to
+@   render.leash_holder_offset_x, render.leash_holder_offset_y,
+@   render.leash_holder_offset_z                                        - The position of the point the leash attaches to for the holding entity
+@   render.<LEASH_OFFSET_TYPE>_1, render.<LEASH_OFFSET_TYPE>_2,
+@   render.<LEASH_OFFSET_TYPE>_3 , render.<LEASH_OFFSET_TYPE>_4         - The 4 corner positions of leashes when on happy ghast and boats (fallback to the leash_offset_x/y/zif not present)
+@   render.fire_x, render.fire_y, render.fire_z                         - The position of the fire effect
+@   render.fire_scale, render.fire_height                               - The scale and height of the fire effect
 # 
 # Expressions
 #
@@ -163,6 +169,9 @@
 @   is_holding_item_left    - If an item is held in the entities left hand slot
 @   is_paused               - If the game is paused
 @   is_hovered              - If the entity is being looked at and within normal reach of the player
+@   is_player_first_person  - If the player is in first person view
+@   is_player_third_person  - If the player is in third person view
+@   is_player_third_person_reversed - If the player is in reversed third person view
 #
 # Operators
 #   +, -, *, /, %

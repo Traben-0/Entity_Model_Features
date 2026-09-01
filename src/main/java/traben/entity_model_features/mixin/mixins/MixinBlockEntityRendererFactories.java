@@ -19,6 +19,7 @@ import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.utils.UEntityTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class MixinBlockEntityRendererFactories {
     @Inject(method = "createEntityRenderers", at = @At(value = "RETURN"))
     private static void emf$clearMarker(final BlockEntityRendererProvider.Context args, final CallbackInfoReturnable<Map<BlockEntityType<?>, BlockEntityRenderer>> cir) {
         if (EMF.testForForgeLoadingError()) return;
-        EMFManager.getInstance().currentSpecifiedModelLoading = "";
+        EMFManager.getInstance().currentSpecifiedModelLoading.set("");
         EMFManager.getInstance().currentBlockEntityTypeLoading = null;
         if (EMF.config().getConfig().logModelCreationData || EMF.config().getConfig().automaticModelExporting)
             EMFUtils.log("Identified block entity renderers: " + emf$renderers);
@@ -50,16 +51,16 @@ public class MixinBlockEntityRendererFactories {
                 EMFManager.getInstance().currentBlockEntityTypeLoading = type;
 
                 // TODO DONT FORGET TO REPLICATE CHANGES IN SPECIAL RENDERERS
-                if (BlockEntityType.ENCHANTING_TABLE.equals(type))
-                    EMFManager.getInstance().currentSpecifiedModelLoading = "enchanting_book";
-                else if (BlockEntityType.LECTERN.equals(type))
-                    EMFManager.getInstance().currentSpecifiedModelLoading = "lectern_book";
-                else if (BlockEntityType.CHEST.equals(type))
-                    EMFManager.getInstance().currentSpecifiedModelLoading = "chest";
-                else if (BlockEntityType.ENDER_CHEST.equals(type))
-                    EMFManager.getInstance().currentSpecifiedModelLoading = "ender_chest";
-                else if (BlockEntityType.TRAPPED_CHEST.equals(type))
-                    EMFManager.getInstance().currentSpecifiedModelLoading = "trapped_chest";
+                if (UEntityTypes.ENCHANTING_TABLE.equals(type))
+                    EMFManager.getInstance().currentSpecifiedModelLoading.set("enchanting_book");
+                else if (UEntityTypes.LECTERN.equals(type))
+                    EMFManager.getInstance().currentSpecifiedModelLoading.set("lectern_book");
+                else if (UEntityTypes.CHEST.equals(type))
+                    EMFManager.getInstance().currentSpecifiedModelLoading.set("chest");
+                else if (UEntityTypes.ENDER_CHEST.equals(type))
+                    EMFManager.getInstance().currentSpecifiedModelLoading.set("ender_chest");
+                else if (UEntityTypes.TRAPPED_CHEST.equals(type))
+                    EMFManager.getInstance().currentSpecifiedModelLoading.set("trapped_chest");
                 //#if MC >= 12002
                 //todo did deprecation start in 1.21.2?
                 else if (type.builtInRegistryHolder() != null && type.builtInRegistryHolder().unwrapKey().isPresent()) {
@@ -69,14 +70,14 @@ public class MixinBlockEntityRendererFactories {
                 //$$     ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getResourceKey(type).get().location();
                 //#endif
                     if (id.getNamespace().equals("minecraft")) {
-                        EMFManager.getInstance().currentSpecifiedModelLoading = id.getPath();
+                        EMFManager.getInstance().currentSpecifiedModelLoading.set(id.getPath());
                     } else {
-                        EMFManager.getInstance().currentSpecifiedModelLoading = id.getNamespace() + ":" + id.getPath();
+                        EMFManager.getInstance().currentSpecifiedModelLoading.set(id.getNamespace() + ":" + id.getPath());
                     }
                 }
-                emf$renderers.add(EMFManager.getInstance().currentSpecifiedModelLoading);
+                emf$renderers.add(EMFManager.getInstance().currentSpecifiedModelLoading.get());
                 if (EMF.config().getConfig().logModelCreationData)
-                    EMFUtils.log("Seeing block entity renderer init for: " + EMFManager.getInstance().currentSpecifiedModelLoading);
+                    EMFUtils.log("Seeing block entity renderer init for: " + EMFManager.getInstance().currentSpecifiedModelLoading.get());
 
                 // og code
                 action.accept(type, idk);

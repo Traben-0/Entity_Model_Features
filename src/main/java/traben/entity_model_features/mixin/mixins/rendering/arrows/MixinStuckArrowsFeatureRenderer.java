@@ -5,7 +5,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
+//#if MC < 26.2
 import net.minecraft.client.renderer.MultiBufferSource;
+//#endif
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.StuckInBodyLayer;
@@ -29,7 +31,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.models.IEMFModel;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -94,7 +96,7 @@ public abstract class MixinStuckArrowsFeatureRenderer
             //$$ final PoseStack poseStack, final MultiBufferSource buffer, final int packedLight, final T livingEntity, final float limbSwing, final float limbSwingAmount, final float partialTicks, final float ageInTicks, final float netHeadYaw, final float headPitch, final CallbackInfo ci
             //#endif
     ) {
-        EMFAnimationEntityContext.is_in_ground_override = true;
+        EMFState.isInGroundOverride = true;
         if(((IEMFModel)this.getParentModel()).emf$isEMFModel()){
             ci.cancel();
 
@@ -120,7 +122,7 @@ public abstract class MixinStuckArrowsFeatureRenderer
                     poseStack.pushPose();
                     Pair<ModelPart,Runnable> modelPart = emf$bestFromListMutable(new ArrayList<>(root.getAllVanillaPartsEMF()), partRand, poseStack, true);
                     if (modelPart == null) {
-                        EMFAnimationEntityContext.is_in_ground_override = false;
+                        EMFState.isInGroundOverride = false;
                         poseStack.popPose();
                         return;
                     }
@@ -173,7 +175,7 @@ public abstract class MixinStuckArrowsFeatureRenderer
 
     @Inject(method = RENDER_METHOD, at = @At(value = "RETURN"))
     private void emf$end(CallbackInfo ci) {
-        EMFAnimationEntityContext.is_in_ground_override = false;
+        EMFState.isInGroundOverride = false;
     }
 
 

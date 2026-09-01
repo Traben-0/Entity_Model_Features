@@ -8,4 +8,6 @@ public interface IEMFCuboidDataSupplier {
     int[] emf$getTextureXY();
 
     float[] emf$getSizeAdd();
+
+    boolean emf$getMirror();
 }

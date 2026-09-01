@@ -3,7 +3,7 @@ package traben.entity_model_features.models.parts;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.jetbrains.annotations.NotNull;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         public EMFModelState get(Object k) {
             var val = super.get(k);
             if (val == null) {
-                EMFUtils.logWarn("EMFModelState variant with key " + k + " does not exist in part [" + toStringShort() + "], returning copy of 0");
+                EMFUtils.logWarn("EMFModelState variant with key " + k + " does not exist in part [" + toStringShort() + "], returning copy of 0. State is :" + EMFState.state());
                 val = get(0).copy();
                 put((Integer) k, val);
             }
@@ -108,8 +108,10 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
         //$$ zScale = newState.zScale();
         //#endif
 
-        visible = newState.visible();
-        skipDraw = newState.hidden();
+        if (!EMFState.modelVariationIgnoresVisibility) {
+            visible = newState.visible();
+            skipDraw = newState.hidden();
+        }
         textureOverride = newState.texture();
     }
 

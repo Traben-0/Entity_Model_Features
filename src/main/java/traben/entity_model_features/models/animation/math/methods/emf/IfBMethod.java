@@ -1,7 +1,7 @@
 package traben.entity_model_features.models.animation.math.methods.emf;
 
-import net.minecraft.util.Tuple;
 import org.objectweb.asm.MethodVisitor;
+import oshi.util.tuples.Pair;
 import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.models.animation.math.expression_tree.MathComponent;
@@ -35,7 +35,7 @@ public class IfBMethod extends MathMethod {
                     , parsedArgs);
         } else {
 
-            List<Tuple<MathComponent, MathComponent>> ifSets = new ArrayList<>();
+            List<Pair<MathComponent, MathComponent>> ifSets = new ArrayList<>();
             var lastElse = parsedArgs.get(parsedArgs.size() - 1);
 
             for (int i = 0; i < parsedArgs.size() - 1; i += 2) {
@@ -44,7 +44,7 @@ public class IfBMethod extends MathMethod {
 
                 if (!condition.isConstant()) {
                     MathValue.toBoolean(condition.getResult()); // Validate boolean
-                    ifSets.add(new Tuple<>(condition, result));
+                    ifSets.add(new Pair<>(condition, result));
                 } else if (MathValue.toBoolean(condition.getResult())) {
                     lastElse = result;
                     break;
@@ -56,7 +56,7 @@ public class IfBMethod extends MathMethod {
 
             final MathComponent finalElse = lastElse;
             setSupplierAndOptimize(() -> {
-                for (Tuple<MathComponent, MathComponent> ifSet : ifSets) {
+                for (Pair<MathComponent, MathComponent> ifSet : ifSets) {
                     if (MathValue.toBoolean(ifSet.getA().getResult())) {
                         return ifSet.getB().getResult();
                     }

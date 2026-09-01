@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFException;
+import traben.entity_model_features.models.animation.EMFAttachment;
 import traben.entity_model_features.utils.EMFDirectoryHandler;
 import traben.entity_model_features.models.EMFModelMappings;
 import traben.entity_model_features.utils.EMFResourceCaching;
@@ -28,7 +29,9 @@ public class EMFJemData {
     public transient EMFDirectoryHandler directoryContext = null;
     private transient EMFModel_ID mobModelIDInfo = null;
     private transient ResourceLocation customTexture = null;
-    public transient boolean hasAttachments = false;
+    public transient boolean hasAttachmentsLeft = false;
+    public transient boolean hasAttachmentsRight = false;
+    public transient boolean hasAttachmentsOther = false;
 
     public LinkedHashMap<String, List<LinkedHashMap<String, String>>> getAllTopLevelAnimationsByVanillaPartName() {
         return allTopLevelAnimationsByVanillaPartName;
@@ -144,6 +147,21 @@ public class EMFJemData {
             for (EMFPartData model : models) {
                 model.prepare(textureSize, this);
             }
+
+            //#if MC >= 26.2
+            //$$ if (mobModelIDInfo.getfileName().equals("sulfur_cube_inner")
+            //$$         && !hasAttachmentsOther
+            //$$         && EMF.config().getConfig().sulfurCubeBlockAnimatesByDefault
+            //$$ ) {
+            //$$     for (EMFPartData model : models) {
+            //$$         if (model.part.equals("cube")) {
+            //$$             this.hasAttachmentsOther = true;
+            //$$             model.attachments.put(EMFAttachment.Type.SULFUR_CUBE.id, new float[]{0, 0, 0});
+            //$$         }
+            //$$     }
+            //$$ }
+            //#endif
+
 
             if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("originalModels #= " + models.size());

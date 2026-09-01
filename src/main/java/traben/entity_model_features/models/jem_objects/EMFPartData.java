@@ -1,14 +1,13 @@
 package traben.entity_model_features.models.jem_objects;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
-import traben.entity_model_features.models.animation.EMFAttachments;
+import traben.entity_model_features.models.animation.EMFAttachment;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.*;
-import java.util.function.Consumer;
+
 import net.minecraft.resources.ResourceLocation;
 
 @SuppressWarnings("CanBeFinal")
@@ -97,8 +96,8 @@ public class EMFPartData {
             this.baseId = jpmModel.baseId;//todo i'm not sure what this does yet, it probably should be defined outside the jpm and thus not copied here
     }
 
-    public List<EMFAttachments> getAttachments() {
-        var list = new ArrayList<EMFAttachments>();
+    public List<EMFAttachment> getAttachments() {
+        var list = new ArrayList<EMFAttachment>();
         boolean invX = invertAxis.contains("x");
         boolean invY = invertAxis.contains("y");
         boolean invZ = invertAxis.contains("z");
@@ -108,16 +107,17 @@ public class EMFPartData {
             float[] floats = entry.getValue();
             if (floats != null && floats.length == 3) {
                 try {
-                    EMFAttachments attachment = switch (s) {
-                        case "left_handheld_item", "right_handheld_item" -> new EMFAttachments(
+                    EMFAttachment.Type type = EMFAttachment.Type.of(s);
+                    if (type != null) {
+                        list.add(new EMFAttachment(
                                 floats[0] * (invX ? -1 : 1),
                                 floats[1] * (invY ? -1 : 1),
                                 floats[2] * (invZ ? -1 : 1),
-                                s.startsWith("right")
-                        );
-                        default -> throw new IllegalArgumentException("Unknown attachment point: " + s);
-                    };
-                    list.add(attachment);
+                                type
+                        ));
+                    } else {
+                        throw new IllegalArgumentException("Unknown attachment point: " + s);
+                    }
                 } catch (IllegalArgumentException e) {
                     EMFUtils.log("Unknown attachment point: " + s);
                 }
@@ -130,19 +130,31 @@ public class EMFPartData {
         try {
             this.id = "EMF_" + (this.id.isBlank() ? hashCode() : this.id);
 
+            boolean print = EMF.config().getConfig().logModelCreationData;
+
             //check if we need to load a .jpm into this object
             if (!model.isEmpty()) {
-                if (EMF.config().getConfig().logModelCreationData) EMFUtils.log("Loading model part from jpm: " + model + " into part: " + id);
+                if (print) EMFUtils.log("Loading model part from jpm: " + model + " into part: " + id);
                 ResourceLocation res = jem.validateResourcePathAndExists(model, "jpm");
-                if (EMF.config().getConfig().logModelCreationData) EMFUtils.log(">> resolved to: " + res);
+                if (print) EMFUtils.log(">> resolved to: " + res);
                 if (res  != null) {
                     Optional.ofNullable(EMFUtils.readModelPart(res))
                             .ifPresent(this::copyFrom);
                 }
             }
 
-            if (!attachments.isEmpty() && (attachments.containsKey("left_handheld_item") || attachments.containsKey("right_handheld_item"))) {
-                jem.hasAttachments = true;
+            if (!attachments.isEmpty()) {
+                for (String attachment : attachments.keySet()) {
+                    if (attachment.equals(EMFAttachment.Type.LEFT_HAND.id)) {
+                        jem.hasAttachmentsLeft = true;
+                    } else if (attachment.equals(EMFAttachment.Type.RIGHT_HAND.id)) {
+                        jem.hasAttachmentsRight = true;
+                    } else if (EMFAttachment.Type.of(attachment) != null) {
+                        jem.hasAttachmentsOther = true;
+                    } else {
+                        if (print) EMFUtils.logWarn("Unknown attachment point: " + attachment);
+                    }
+                }
             }
 
             if (translate == null) translate = new float[]{0, 0, 0};

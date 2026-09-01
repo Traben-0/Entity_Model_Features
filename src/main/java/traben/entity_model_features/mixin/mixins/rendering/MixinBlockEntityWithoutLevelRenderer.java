@@ -2,18 +2,20 @@ package traben.entity_model_features.mixin.mixins.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+//#if MC < 26.2
 import net.minecraft.client.renderer.MultiBufferSource;
+//#endif
 import net.minecraft.client.renderer.RenderType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
-import traben.entity_texture_features.features.ETFRenderContext;
+import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_texture_features.features.state.ETFEntityRenderState;
+import traben.entity_texture_features.features.state.ETFState;
 import traben.entity_texture_features.utils.ETFEntity;
 
 //#if MC >=12104
@@ -42,20 +44,21 @@ public class MixinBlockEntityWithoutLevelRenderer {
     //$$ private static final String RENDER = "render";
     //#endif
 
-    @Inject(method = RENDER,
-            at = @At(value = "INVOKE",
-                    target =
-                            //#if MC >= 26.1
-                            //$$ "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V"
-                            //#elseif MC >= 12109
-                            "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V"
-                            //#else
-                            //$$ "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;render(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIZ)V"
-                            //#endif
-                    , shift = At.Shift.BEFORE))
+    //#if MC >= 26.1
+    //$$ private static final String TARGET = "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V";
+    //#elseif MC >= 12109
+    private static final String TARGET = "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V";
+    //#else
+    //$$ private static final String TARGET = "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;render(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIZ)V";
+    //#endif
+
+    @Inject(method = RENDER, at = @At(value = "INVOKE", target = TARGET))
     private void emf$setRenderFactory(CallbackInfo ci) {
-        if (specialRenderer instanceof SkullSpecialRenderer) {
-            EMFAnimationEntityContext.setLayerFactory(
+        EMFManager.getInstance().entityRenderCount++;
+        setPlayerEntity();
+
+        if (specialRenderer instanceof SkullSpecialRenderer && EMFState.state() != null) {
+            EMFState.state().setLayerFactory(
                     //#if MC >= 26.1
                     //$$ RenderTypes::entityCutoutZOffset
                     //#elseif MC>= 12111
@@ -65,15 +68,12 @@ public class MixinBlockEntityWithoutLevelRenderer {
                     //#endif
             );
         }
-
-        EMFManager.getInstance().entityRenderCount++;
-        setPlayerEntity();
     }
 
 
-    @Inject(method = RENDER, at = @At(value = "RETURN"))
+    @Inject(method = RENDER, at = @At(value = "INVOKE", target = TARGET, shift = At.Shift.AFTER))
     private void emf$reset(final CallbackInfo ci) {
-        EMFAnimationEntityContext.reset();
+        unSetPlayerEntity();
     }
 
 //#else
@@ -87,10 +87,15 @@ public class MixinBlockEntityWithoutLevelRenderer {
 //$$
 //$$     @Inject(method = "renderByItem",
 //$$             at = @At(value = "INVOKE",
-//$$                     target = "Lnet/minecraft/client/renderer/blockentity/SkullBlockRenderer;renderSkull(Lnet/minecraft/core/Direction;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/model/SkullModelBase;Lnet/minecraft/client/renderer/RenderType;)V",
+//$$                     target =
+                    //#if MC > 1.21
+                    //$$ "Lnet/minecraft/client/renderer/blockentity/SkullBlockRenderer;getRenderType(Lnet/minecraft/world/level/block/SkullBlock$Type;Lnet/minecraft/world/item/component/ResolvableProfile;)Lnet/minecraft/client/renderer/RenderType;",
+                    //#else
+                    //$$ "Lnet/minecraft/client/renderer/blockentity/SkullBlockRenderer;getRenderType(Lnet/minecraft/world/level/block/SkullBlock$Type;Lcom/mojang/authlib/GameProfile;)Lnet/minecraft/client/renderer/RenderType;",
+                    //#endif
 //$$                     shift = At.Shift.BEFORE))
 //$$     private void emf$setRenderFactory(final ItemStack itemStack, final ItemDisplayContext itemDisplayContext, final PoseStack poseStack, final MultiBufferSource multiBufferSource, final int i, final int j, final CallbackInfo ci) {
-//$$         EMFAnimationEntityContext.setLayerFactory(RenderType::entityCutoutNoCullZOffset);
+//$$         if (EMFState.state() != null) EMFState.state().setLayerFactory(RenderType::entityCutoutNoCullZOffset);
 //$$         EMFManager.getInstance().entityRenderCount++;
 //$$         setPlayerEntity();
 //$$     }
@@ -114,7 +119,7 @@ public class MixinBlockEntityWithoutLevelRenderer {
 //$$
 //$$     @Inject(method = "renderByItem", at = @At(value = "RETURN"))
 //$$     private void emf$reset(final CallbackInfo ci) {
-//$$         EMFAnimationEntityContext.reset();
+//$$         unSetPlayerEntity();
 //$$     }
 //$$
 //$$
@@ -122,10 +127,17 @@ public class MixinBlockEntityWithoutLevelRenderer {
 
     @Unique
     private void setPlayerEntity() {
-        if (Minecraft.getInstance().player == null) return;
-        ETFEntityRenderState state = ETFEntityRenderState.forEntity( (ETFEntity) Minecraft.getInstance().player);
-        // ETFRenderContext.setCurrentEntity(state); // todo was this a mistake? Should this be EMF only? ignoring for now during rewrite
-        EMFAnimationEntityContext.setCurrentEntityNoIteration((EMFEntityRenderState) state);
+        var state = EMFEntityRenderState.manualPlayerState();
+        ETFState.mount(state);
+    }
+
+    @Unique
+    private void unSetPlayerEntity() {
+        //#if MC < 1.21.4
+        //$$ var state = EMFState.state();
+        //$$ if (state != null && state.isManualPlayerState())
+        //#endif
+            ETFState.unMount();
     }
 }
 
