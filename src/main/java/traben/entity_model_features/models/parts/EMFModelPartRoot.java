@@ -4,6 +4,7 @@ package traben.entity_model_features.models.parts;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.EMF;
@@ -333,12 +334,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         animation = animations.get(newVariant);
     }
 
+    @ApiStatus.Internal // EMF animation api exposes an alternative
     public void animate() {
         if (animation != null && !EMFAnimationPauseHandler.shouldAnimationsPause(EMFState.state())) {
             animation.run();
         }
     }
 
+    @ApiStatus.Internal // EMF animation api exposes an alternative
     public void animateNoPause() {
         if (animation != null) {
             animation.run();

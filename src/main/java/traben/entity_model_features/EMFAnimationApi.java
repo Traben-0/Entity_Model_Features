@@ -33,6 +33,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.minecraft.util.valueproviders.SampledFloat;
+import traben.entity_texture_features.ETFApi;
+import traben.entity_texture_features.features.state.ETFEntityRenderState;
+import traben.entity_texture_features.features.state.ETFState;
 
 /**
  * The main API for registering custom animation math expressions and variables.
@@ -51,7 +54,7 @@ public interface EMFAnimationApi {
      */
     @SuppressWarnings("SameReturnValue")
     static int getApiVersion() {
-        return 10;
+        return 11;
     }
 
     /**
@@ -207,6 +210,74 @@ public interface EMFAnimationApi {
             throw paramFail("null animation hook");
         }
         EMFState.animationHooks.add(hook);
+        return true;
+    }
+
+    /**
+     * Animates the supplied model with the animation state of the supplied entity or block entity.
+     *
+     * Note: API animation hooks WILL run on this animation, and may cancel it silently.
+     *
+     * @param entityOrBlockEntity The entity or block entity to animate the model for.
+     * @param model The vanilla model to try animate.
+     * @param ignorePauseConditions If true, the animation will be forced to run even if the animation would otherwise be paused, e.g. API pause listeners.
+     * @return true if valid inputs were supplied and the model can and did animate without error.
+     */
+    static boolean animateModelForEntity(EMFEntity entityOrBlockEntity, EntityModel<?> model, boolean ignorePauseConditions) {
+        if (entityOrBlockEntity == null || !isModelAnimatedByEMF(model)) {
+            return false;
+        }
+        return animateModelForEntity(entityOrBlockEntity, ((IEMFModel) model).emf$getEMFRootModel(), ignorePauseConditions);
+    }
+
+    /**
+     * Animates the supplied model with the animation state of the supplied entity or block entity.
+     *
+     * Note: API animation hooks WILL run on this animation, and may cancel it silently.
+     *
+     * @param entityOrBlockEntity The entity or block entity to animate the model for.
+     * @param emfModelPartRoot The EMF root part of the model to try animate.
+     * @param ignorePauseConditions If true, the animation will be forced to run even if the animation would otherwise be paused, e.g. API pause listeners.
+     * @return true if valid inputs were supplied and the model can and did animate without error.
+     */
+    static boolean animateModelForEntity(EMFEntity entityOrBlockEntity, EMFModelPartRoot emfModelPartRoot, boolean ignorePauseConditions) {
+        if (entityOrBlockEntity == null || emfModelPartRoot == null || !emfModelPartRoot.hasAnimation()) {
+            return false;
+        }
+        var state = ETFApi.stateOfEntityOrEntityState(entityOrBlockEntity);
+        if (state == null) return false;
+
+        return animateModelForState(state, emfModelPartRoot, ignorePauseConditions);
+    }
+
+    /**
+     * Animates the supplied model with the animation state supplied.
+     *
+     * Note: API animation hooks WILL run on this animation, and may cancel it silently.
+     *
+     * @param state The EMF or ETF entity render state of the entity.
+     * @param emfModelPartRoot The EMF root part of the model to try animate.
+     * @param ignorePauseConditions If true, the animation will be forced to run even if the animation would otherwise be paused, e.g. API pause listeners.
+     * @return true if valid inputs were supplied and the model can and did animate without error.
+     */
+    private static boolean animateModelForState(ETFEntityRenderState state, EMFModelPartRoot emfModelPartRoot, boolean ignorePauseConditions) {
+        if (state == null || emfModelPartRoot == null || !emfModelPartRoot.hasAnimation()) {
+            return false;
+        }
+
+        ETFState.mount(state);
+        try {
+            if (ignorePauseConditions) {
+                emfModelPartRoot.animateNoPause();
+            } else {
+                emfModelPartRoot.animate();
+            }
+        } catch (Exception e) {
+            return false;
+        } finally {
+            ETFState.unMount();
+        }
+
         return true;
     }
 

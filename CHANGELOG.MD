@@ -1,4 +1,8 @@
 
+[3.3.2]
+- added API methods to manually trigger animations for specific Entities or EntityStates
+- bumped api version to 11
+
 [3.3.1]
 - fixed a crash on MC 1.21.1
 

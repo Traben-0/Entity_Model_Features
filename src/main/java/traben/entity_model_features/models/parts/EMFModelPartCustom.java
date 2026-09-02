@@ -149,24 +149,6 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
     @Override
-    public void render(PoseStack matrices, VertexConsumer vertices, int light, int overlay,
-                       //#if MC >= 12100
-                       final int k
-                       //#else
-                       //$$ float red, float green, float blue, float alpha
-                       //#endif
-    ) {
-
-        super.render(matrices, vertices, light, overlay,
-                //#if MC >= 12100
-                k
-                //#else
-                //$$ red, green, blue, alpha
-                //#endif
-        );
-    }
-
-    @Override
     protected float[] debugBoxColor() {
         return EMFState.isLayerPhase ? new float[]{0f, 0f, 1f} : new float[]{1f, 1f, 1f};
     }
