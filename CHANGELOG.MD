@@ -1,4 +1,8 @@
 
+[3.3.3]
+- fixed a crash on 1.21.3-4
+- added more api methods for the manual animation triggers and further documentation on their usage
+
 [3.3.2]
 - added API methods to manually trigger animations for specific Entities or EntityStates
 - bumped api version to 11

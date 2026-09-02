@@ -139,7 +139,11 @@ public abstract class MixinEntityRenderDispatcher {
     //$$     return original;
     //$$ }
     //$$
+    //#if MC >= 1.21.4
     //$$ @ModifyExpressionValue(method = RENDER_ETF, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderer;getShadowStrength(Lnet/minecraft/client/renderer/entity/state/EntityRenderState;)F"))
+    //#else
+    //$$ @ModifyExpressionValue(method = RENDER_ETF, at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/entity/EntityRenderer;shadowStrength:F", opcode = Opcodes.GETFIELD))
+    //#endif
     //$$ private float strength(float original) {
     //$$     var state = EMFState.state();
     //$$     if (state != null && !Float.isNaN(state.shadowOpacity())) {
@@ -150,7 +154,7 @@ public abstract class MixinEntityRenderDispatcher {
     //$$
     //$$ @Inject(method = RENDER_ETF, at = @At(value = "INVOKE", target = SHADOW_RENDER_ETF))
     //$$ private <S extends net.minecraft.client.renderer.entity.state.EntityRenderState>
-    //$$ void preShadow(CallbackInfo ci, @Local PoseStack poseStack, @Local(argsOnly = true) S ogState) {
+    //$$ void preShadow(CallbackInfo ci, @Local PoseStack poseStack, @Local S ogState) {
     //$$     var state = EMFEntityRenderState.from(ogState);
     //$$     if (state == null || !state.needsToModifyShadow()) return;
     //$$
@@ -164,7 +168,7 @@ public abstract class MixinEntityRenderDispatcher {
     //$$
     //$$ @Inject(method = RENDER_ETF, at = @At(value = "INVOKE", target = SHADOW_RENDER_ETF, shift = At.Shift.AFTER))
     //$$ private <S extends net.minecraft.client.renderer.entity.state.EntityRenderState>
-    //$$ void postShadow(CallbackInfo ci, @Local PoseStack poseStack, @Local(argsOnly = true) S ogState) {
+    //$$ void postShadow(CallbackInfo ci, @Local PoseStack poseStack, @Local S ogState) {
     //$$     var state = EMFEntityRenderState.from(ogState);
     //$$     if (state == null || !state.needsToModifyShadow()) return;
     //$$

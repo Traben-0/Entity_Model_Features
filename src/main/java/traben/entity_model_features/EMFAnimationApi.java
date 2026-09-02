@@ -215,11 +215,16 @@ public interface EMFAnimationApi {
 
     /**
      * Animates the supplied model with the animation state of the supplied entity or block entity.
-     *
+     * <p>
      * Note: API animation hooks WILL run on this animation, and may cancel it silently.
+     * <p>
+     * Note: The setting EMFConfig.resetPlayerModelEachRender_v2 will reset any model animated with a player backed render
+     *       state at the start of the setup for this animation. Use an animation hook to apply any transforms you need to apply
+     *       before the animation, yet after this reset.
+     *       (or if you really need to, copy the inner method impl and run what transforms you need after the ETFState.mount() call)
      *
      * @param entityOrBlockEntity The entity or block entity to animate the model for.
-     * @param model The vanilla model to try animate.
+     * @param model The vanilla model to try animate. (it is up to you to run the vanilla animation on this first if needed, or not if that's what you need)
      * @param ignorePauseConditions If true, the animation will be forced to run even if the animation would otherwise be paused, e.g. API pause listeners.
      * @return true if valid inputs were supplied and the model can and did animate without error.
      */
@@ -232,11 +237,16 @@ public interface EMFAnimationApi {
 
     /**
      * Animates the supplied model with the animation state of the supplied entity or block entity.
-     *
+     * <p>
      * Note: API animation hooks WILL run on this animation, and may cancel it silently.
+     * <p>
+     * Note: The setting EMFConfig.resetPlayerModelEachRender_v2 will reset any model animated with a player backed render
+     *       state at the start of the setup for this animation. Use an animation hook to apply any transforms you need to apply
+     *       before the animation, yet after this reset.
+     *       (or if you really need to, copy the inner method impl and run what transforms you need after the ETFState.mount() call)
      *
      * @param entityOrBlockEntity The entity or block entity to animate the model for.
-     * @param emfModelPartRoot The EMF root part of the model to try animate.
+     * @param emfModelPartRoot The EMF root part of the model to try animate. (it is up to you to run the vanilla animation on the containing model first if needed, or not if that's what you need)
      * @param ignorePauseConditions If true, the animation will be forced to run even if the animation would otherwise be paused, e.g. API pause listeners.
      * @return true if valid inputs were supplied and the model can and did animate without error.
      */
@@ -253,30 +263,40 @@ public interface EMFAnimationApi {
     //#if MC >= 1.21.2
     /**
      * Animates the supplied model with the animation state supplied.
-     *
+     * <p>
      * Note: API animation hooks WILL run on this animation, and may cancel it silently.
+     * <p>
+     * Note: The setting EMFConfig.resetPlayerModelEachRender_v2 will reset any model animated with a player backed render
+     *       state at the start of the setup for this animation. Use an animation hook to apply any transforms you need to apply
+     *       before the animation, yet after this reset.
+     *       (or if you really need to, copy the inner method impl and run what transforms you need after the ETFState.mount() call)
      *
      * @param state The vanilla entity render state of the entity. (may not resolve into an EMF state if not constructed correctly via the renderer object)
-     * @param emfModelPartRoot The EMF root part of the model to try animate.
+     * @param emfModelPartRoot The EMF root part of the model to try animate. (it is up to you to run the vanilla animation on the containing model first if needed, or not if that's what you need)
      * @param ignorePauseConditions If true, the animation will be forced to run even if the animation would otherwise be paused, e.g. API pause listeners.
      * @return true if valid inputs were supplied and the model can and did animate without error.
      */
-    private static boolean animateModelForState(net.minecraft.client.renderer.entity.state.EntityRenderState state, EMFModelPartRoot emfModelPartRoot, boolean ignorePauseConditions) {
+    static boolean animateModelForState(net.minecraft.client.renderer.entity.state.EntityRenderState state, EMFModelPartRoot emfModelPartRoot, boolean ignorePauseConditions) {
         return animateModelForState(EMFEntityRenderState.from(state), emfModelPartRoot, ignorePauseConditions);
     }
     //#endif
 
     /**
      * Animates the supplied model with the animation state supplied.
-     *
+     * <p>
      * Note: API animation hooks WILL run on this animation, and may cancel it silently.
+     * <p>
+     * Note: The setting EMFConfig.resetPlayerModelEachRender_v2 will reset any model animated with a player backed render
+     *       state at the start of the setup for this animation. Use an animation hook to apply any transforms you need to apply
+     *       before the animation, yet after this reset.
+     *       (or if you really need to, copy this method impl and run what transforms you need after the ETFState.mount() call)
      *
      * @param state The EMF or ETF entity render state of the entity.
-     * @param emfModelPartRoot The EMF root part of the model to try animate.
+     * @param emfModelPartRoot The EMF root part of the model to try animate. (it is up to you to run the vanilla animation on the containing model first if needed, or not if that's what you need)
      * @param ignorePauseConditions If true, the animation will be forced to run even if the animation would otherwise be paused, e.g. API pause listeners.
      * @return true if valid inputs were supplied and the model can and did animate without error.
      */
-    private static boolean animateModelForState(ETFEntityRenderState state, EMFModelPartRoot emfModelPartRoot, boolean ignorePauseConditions) {
+    static boolean animateModelForState(ETFEntityRenderState state, EMFModelPartRoot emfModelPartRoot, boolean ignorePauseConditions) {
         if (state == null || emfModelPartRoot == null || !emfModelPartRoot.hasAnimation()) {
             return false;
         }
