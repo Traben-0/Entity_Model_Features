@@ -250,6 +250,22 @@ public interface EMFAnimationApi {
         return animateModelForState(state, emfModelPartRoot, ignorePauseConditions);
     }
 
+    //#if MC >= 1.21.2
+    /**
+     * Animates the supplied model with the animation state supplied.
+     *
+     * Note: API animation hooks WILL run on this animation, and may cancel it silently.
+     *
+     * @param state The vanilla entity render state of the entity. (may not resolve into an EMF state if not constructed correctly via the renderer object)
+     * @param emfModelPartRoot The EMF root part of the model to try animate.
+     * @param ignorePauseConditions If true, the animation will be forced to run even if the animation would otherwise be paused, e.g. API pause listeners.
+     * @return true if valid inputs were supplied and the model can and did animate without error.
+     */
+    private static boolean animateModelForState(net.minecraft.client.renderer.entity.state.EntityRenderState state, EMFModelPartRoot emfModelPartRoot, boolean ignorePauseConditions) {
+        return animateModelForState(EMFEntityRenderState.from(state), emfModelPartRoot, ignorePauseConditions);
+    }
+    //#endif
+
     /**
      * Animates the supplied model with the animation state supplied.
      *
