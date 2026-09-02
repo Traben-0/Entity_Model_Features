@@ -32,6 +32,7 @@ import static traben.entity_model_features.models.animation.math.EMFMath.WRAP_CO
 
 public abstract class EMFState {
 
+    @Nullable
     public static EMFEntityRenderState state() {
         return (EMFEntityRenderState) ETFState.state();
     }

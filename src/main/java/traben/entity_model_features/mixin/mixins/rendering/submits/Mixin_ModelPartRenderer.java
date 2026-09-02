@@ -42,9 +42,10 @@ public class Mixin_ModelPartRenderer {
 
     @Inject(method = "render", at = @At(value = "TAIL"))
     private void emf$endRender(final CallbackInfo ci) {
-            if (EMFState.state().isManualPlayerState()) {
-                ETFState.unMount();
-            }
+        var state = EMFState.state();
+        if (state != null && state.isManualPlayerState()) {
+            ETFState.unMount();
+        }
     }
 
 }
