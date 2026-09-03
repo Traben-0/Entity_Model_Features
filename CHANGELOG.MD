@@ -1,4 +1,8 @@
 
+[3.3.5]
+- fixed v3.3.4 breaking layer models when multiple of an entity type is present
+- fixed baby sheep wool undercoat model fallbacks breaking in < 26.1
+
 [3.3.4]
 - fixed certain held entities re-triggering the `reset player pose` setting e.g. holding a trident breaking other player held item positions
 - fixed broken model texture overrides on some older versions

@@ -504,8 +504,15 @@ public class EMFManager {//singleton for data holding and resetting needs
                         }
                         case "skeleton_skull" -> mobNameForFileAndMap.setBoth("head_skeleton");
                         case "sheep_fur" -> mobNameForFileAndMap.setBoth("sheep_wool");//old vanilla name
-                        case "sheep_wool_undercoat", "sheep_baby_wool_undercoat" ->
+                        case "sheep_wool_undercoat", "sheep_baby_wool_undercoat" -> {
                             mobNameForFileAndMap.addFallbackModel(originalLayerName.replace("_wool_undercoat", ""));
+                            //#if MC < 26.1
+                            if (originalLayerName.equals("sheep_baby_wool_undercoat")) {
+                                mobNameForFileAndMap.addFallbackModel("sheep_wool_undercoat");
+                                mobNameForFileAndMap.addFallbackModel("sheep");
+                            }
+                            //#endif
+                        }
                         case "trader_llama", "trader_llama_baby" -> traderLlamaHappened = true;
                         case "tropical_fish_large" -> mobNameForFileAndMap.setBoth("tropical_fish_b");
                         case "tropical_fish_large_pattern" -> mobNameForFileAndMap.setBoth("tropical_fish_pattern_b");

@@ -220,8 +220,8 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     default void activate(boolean inMount) {
         ETFEntityRenderState.super.activate(inMount);
 
+        EMFManager.getInstance().entityRenderCount++;
         if (inMount && !EMFState.isLayerPhase) {
-            EMFManager.getInstance().entityRenderCount++;
 
             if (EMFState.isInShoulderMethod) setOnShoulder(true);
 
