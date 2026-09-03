@@ -11,7 +11,6 @@ public abstract class MixinLivingEntityRenderer_ValueCapturing{}
 //$$ import org.spongepowered.asm.mixin.injection.At;
 //$$ import traben.entity_model_features.models.animation.state.EMFState;
 //$$ import org.spongepowered.asm.mixin.injection.ModifyArg;
-//$$ import traben.entity_model_features.models.animation.EMFAnimationEntityContext;
 //$$ import net.minecraft.client.model.EntityModel;
 //$$ import net.minecraft.client.renderer.entity.EntityRenderer;
 //$$ import net.minecraft.client.renderer.entity.EntityRendererProvider;
