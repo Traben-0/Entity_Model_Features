@@ -1,4 +1,10 @@
 
+[3.3.4]
+- removed deprecated class being targeted by older mixins e.g. emote craft / Essential
+- updated emote craft emote pausing support in EMF
+- updated Essential emote pausing support in EMF
+- fixed a crash with older emote craft versions
+
 [3.3.3]
 - fixed a crash on 1.21.3-4
 - added more api methods for the manual animation triggers and further documentation on their usage

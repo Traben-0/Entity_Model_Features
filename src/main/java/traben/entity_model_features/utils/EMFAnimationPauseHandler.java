@@ -1,6 +1,7 @@
 package traben.entity_model_features.utils;
 
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
@@ -17,10 +18,6 @@ import java.util.function.Function;
 
 public abstract class EMFAnimationPauseHandler {
 
-    private static boolean checkedIfIEmotePlayerExists = false;
-    private static Class<?> iEmotePlayerEntityType = null;
-    private static Method isPlayingEmoteMethod = null;
-
     public static HashMap<UUID, ModelPart[]> entitiesPausedParts = new HashMap<>();
     public static Set<UUID> entitiesPaused = new HashSet<>();
     public static List<Function<EMFEntity, Boolean>> pauseListeners = new ArrayList<>();
@@ -33,8 +30,7 @@ public abstract class EMFAnimationPauseHandler {
         if (entity != null) {
             if (isPlayerEmoting_KosmX_mod(entity)) return true;
 
-            //noinspection deprecation
-            if (traben.entity_model_features.models.animation.EMFAnimationEntityContext.isEntityAnimPaused()) return true;
+            if (isPlayerEmoting_Essential(entity)) return true;
 
             for (Function<EMFEntity, Boolean> pauseListener : pauseListeners) {
                 try {
@@ -47,6 +43,11 @@ public abstract class EMFAnimationPauseHandler {
     }
 
     //region KosmX emote mod compat
+
+    private static boolean checkedIfIEmotePlayerExists = false;
+    private static Class<?> iEmotePlayerEntityType = null;
+    private static Method isPlayingEmoteMethod = null;
+
     private static boolean isPlayerEmoting_KosmX_mod(EMFEntity entity) {
         if (!(entity instanceof Player player)) return false;
 
@@ -65,10 +66,16 @@ public abstract class EMFAnimationPauseHandler {
         checkedIfIEmotePlayerExists = true;
 
         try {
-            // Tries to get the IEmotePlayerEntity interface in order to access the isPlayingEmote() method
-            // https://github.com/KosmX/emotes/blob/1.20.1/executor/src/main/java/io/github/kosmx/emotes/executor/emotePlayer/IEmotePlayerEntity.java
-            // This type should always be found if EmoteCraft mod doesn't change it too much and the mod is actually loaded obv
-            iEmotePlayerEntityType = Class.forName("io.github.kosmx.emotes.executor.emotePlayer.IEmotePlayerEntity");
+            try {
+                // Tries to get the IEmotePlayerEntity interface in order to access the isPlayingEmote() method
+                // https://github.com/KosmX/emotes/blob/1.20.1/executor/src/main/java/io/github/kosmx/emotes/executor/emotePlayer/IEmotePlayerEntity.java
+                // This type should always be found if EmoteCraft mod doesn't change it too much and the mod is actually loaded obv
+                iEmotePlayerEntityType = Class.forName("io.github.kosmx.emotes.executor.emotePlayer.IEmotePlayerEntity");
+            } catch (ClassNotFoundException ignored) {
+                // 1.21.4+
+                // https://github.com/KosmX/emotes/blob/1.21.11/minecraft/archCommon/src/main/java/io/github/kosmx/emotes/main/mixinFunctions/IPlayerEntity.java
+                iEmotePlayerEntityType = Class.forName("io.github.kosmx.emotes.main.mixinFunctions.IPlayerEntity");
+            }
         } catch (ClassNotFoundException ignored) {
             iEmotePlayerEntityType = null;
         }
@@ -92,6 +99,27 @@ public abstract class EMFAnimationPauseHandler {
     }
     //endregion
 
+    //region Essential mod compat
+    private static boolean skipEssential = false;
+    private static Method essentialIsPoseModifiedMethod = null;
+
+    static boolean isPlayerEmoting_Essential(EMFEntity entity) {
+        if (skipEssential) return false;
+        if (entity == null) return false;
+        if (!(entity instanceof AbstractClientPlayer)) return false;
+
+        try {
+            if (essentialIsPoseModifiedMethod == null) {
+                essentialIsPoseModifiedMethod = Class.forName("gg.essential.mixins.impl.client.entity.AbstractClientPlayerExt").getMethod("isPoseModified");
+            }
+
+            return (boolean) essentialIsPoseModifiedMethod.invoke(entity);
+        } catch (Throwable ignored) {
+            skipEssential = true; // Expected if Essential isn't present, or ever changes
+            return false;
+        }
+    }
+    //endregion
 
     public static @Nullable ModelPart[] getEntityPartsAnimPaused() {
         var state = EMFState.state();
