@@ -148,6 +148,23 @@ public class EMFJemData {
                 model.prepare(textureSize, this);
             }
 
+            // Collect overall texture override if all models have the same one
+            if (customTexture == null && !models.isEmpty()) {
+                ResourceLocation found = models.getFirst().getCustomTexture();
+                if (found != null) {
+                    boolean allMatch = true;
+                    for (EMFPartData model : models) {
+                        if (!found.equals(model.getCustomTexture())) {
+                            allMatch = false;
+                            break;
+                        }
+                    }
+                    if (allMatch) {
+                        customTexture = found;
+                    }
+                }
+            }
+
             //#if MC >= 26.2
             //$$ if (mobModelIDInfo.getfileName().equals("sulfur_cube_inner")
             //$$         && !hasAttachmentsOther

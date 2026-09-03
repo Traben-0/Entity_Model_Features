@@ -46,7 +46,7 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
     public boolean containsCustomModel = false;
     public boolean containsCustomAnims = false;
     private long lastMobCountAnimatedOn = 0;
-    private boolean hasRemovedTopLevelJemTextureFromChildren = false;
+    private final Set<Integer> hasRemovedTopLevelJemTextureFromChildren = new HashSet<>();
 
     protected final Map<Integer, Consumer<PoseStack>> leftArmPositioners = new HashMap<>();
     protected final Map<Integer, Consumer<PoseStack>> rightArmPositioners = new HashMap<>();
@@ -397,20 +397,28 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
      *
      * @return the top level jem texture
      */
+    @Nullable
     public ResourceLocation getTopLevelJemTexture() {
-        if (hasRemovedTopLevelJemTextureFromChildren)
-            return jemLevelOverride;
-        hasRemovedTopLevelJemTextureFromChildren = true;
-        jemLevelOverride = textureOverride;
+        int variant = currentModelVariant;
+        if (hasRemovedTopLevelJemTextureFromChildren.contains(variant))
+            return jemLevelOverride.get(variant);
+        hasRemovedTopLevelJemTextureFromChildren.add(variant);
+
+        var override = textureOverride; // Store as 'this' is inside allVanillaParts and will be cleared
+        jemLevelOverride.put(variant, override);
         if (textureOverride != null) {
             allVanillaParts.values().forEach((emf) -> {
-                if (emf.textureOverride.equals(textureOverride)) emf.textureOverride = null;
+                if (emf.textureOverride.equals(override)) {
+                    emf.textureOverride = null;
+                    emf.allKnownStateVariants.computeIfPresent(variant,
+                            (k, v) -> v.copyWithoutTexture());
+                }
             });
         }
-        return jemLevelOverride;
+        return jemLevelOverride.get(variant);
     }
 
-    private ResourceLocation jemLevelOverride = null;
+    private final Map<Integer, ResourceLocation> jemLevelOverride = new HashMap<>();
 
     public void resetVanillaPartsToDefaults(){
         this.resetState();

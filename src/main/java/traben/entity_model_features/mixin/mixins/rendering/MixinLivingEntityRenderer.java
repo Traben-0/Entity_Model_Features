@@ -89,10 +89,11 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
             //#endif
     ))
     private ResourceLocation emf$getTextureRedirect(final ResourceLocation original){
-
+        // Internal texture overrides are really hacky, if it can be set once here, do that instead
         if (((IEMFModel) model).emf$isEMFModel()) {
             EMFModelPartRoot root = ((IEMFModel) model).emf$getEMFRootModel();
             if (root != null) {
+                // Will strip away redundant internal texture overrides to simplify for applying here only
                 ResourceLocation texture = root.getTopLevelJemTexture();
                 if (texture != null)
                     return texture;

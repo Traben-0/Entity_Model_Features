@@ -165,12 +165,21 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
             //$$ )
             //#endif
 
-     {
-         public EMFModelState copy() {
-             return copy(visible());
-         }
+    {
+
+        public EMFModelState copyWithoutTexture() {
+            return copy(visible(), false);
+        }
+
+        public EMFModelState copy() {
+             return copy(visible(), true);
+        }
 
         public EMFModelState copy(boolean visibleOverride) {
+            return copy(visibleOverride, true);
+        }
+
+        public EMFModelState copy(boolean visibleOverride, boolean keepTexture) {
             PartPose trans = defaultTransform();
             return new EMFModelState(
                     //#if MC >= 12102
@@ -188,7 +197,7 @@ public abstract class EMFModelPartWithState extends EMFModelPart {
 
                     visibleOverride,
                     hidden(),
-                    texture()
+                    keepTexture ? texture() : null
             );
         }
     }

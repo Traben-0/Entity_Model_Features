@@ -1,9 +1,10 @@
 
 [3.3.4]
-- fixed certain held entities re-triggering the reset player pose setting e.g. holding a trident breaking other player held item positions
-- removed deprecated class being targeted by older mixins e.g. emote craft / Essential
+- fixed certain held entities re-triggering the `reset player pose` setting e.g. holding a trident breaking other player held item positions
+- fixed broken model texture overrides on some older versions
+- removed a deprecated class that was frequently being targeted by other mod mixins
 - updated emote craft emote pausing support in EMF
-- updated Essential emote pausing support in EMF
+- updated Essential emote pausing support into EMF
 - fixed a crash with older emote craft versions
 
 [3.3.3]
