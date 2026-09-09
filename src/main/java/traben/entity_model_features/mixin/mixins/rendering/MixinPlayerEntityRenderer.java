@@ -45,7 +45,7 @@ import org.spongepowered.asm.mixin.Unique;
 
 
 //#if MC >= 12109
-@Mixin(AvatarRenderer.class)
+@Mixin(value = AvatarRenderer.class, priority = 1100) // priority ensures the first person hand state wraps ETF's submits properly
 public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar & ClientAvatarEntity>
         extends LivingEntityRenderer<AvatarlikeEntity, AvatarRenderState, PlayerModel> {
 
@@ -101,7 +101,13 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
         ETFState.mount(state);
     }
 
-    @Inject(method = "renderHand", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModelPart(Lnet/minecraft/client/model/geom/ModelPart;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderType;IILnet/minecraft/client/renderer/texture/TextureAtlasSprite;)V"))
+    @Inject(method = "renderHand", at = @At(value = "INVOKE", target =
+            //#if MC >= 26.3
+            //$$ "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModelPart(Lnet/minecraft/client/model/geom/ModelPart;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IILnet/minecraft/client/renderer/texture/UvMapping;)V"
+            //#else
+            "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModelPart(Lnet/minecraft/client/model/geom/ModelPart;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/RenderType;IILnet/minecraft/client/renderer/texture/TextureAtlasSprite;)V"
+            //#endif
+    ))
     private void emf$setHandAnims(CallbackInfo ci, @Local(argsOnly = true) ModelPart modelPart) {
         // flag this for later submit render
         if (modelPart instanceof EMFModelPartVanilla vanilla) {

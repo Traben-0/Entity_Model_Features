@@ -562,6 +562,9 @@ public class EMFConfig extends TConfig {
 
         @Override
         public void render(final GuiGraphics context, final int mouseX, final int mouseY) {
+            //#if MC >= 26.2
+            //$$ return;
+            //#else
             if (canRender()) {
                 Screen screen = UScreen.currentScreen();
                 if (screen == null) return;
@@ -597,12 +600,7 @@ public class EMFConfig extends TConfig {
                 matrixStack.pushPose();
                 matrixStack.scale(-1.0F, -1.0F, 1.0F);
                 matrixStack.translate(0.0F, -1.501F, 0.0F);
-                //#if MC >= 26.2
-                //$$ //TODO definitely wrong
-                //$$ var draw = Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().appendDraw(
-                //$$         RenderTypes.lines().format(), com.mojang.blaze3d.PrimitiveTopology.LINES);
-                //$$ var buffer = Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().getVertexBuilder(draw);
-                //#else
+
                 var buffer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(
                         //#if MC >= 12111
                         //$$ RenderTypes.lines()
@@ -610,7 +608,6 @@ public class EMFConfig extends TConfig {
                         RenderType.lines()
                         //#endif
                 );
-                //#endif
                 //who knows what mods might do smdh
                 //noinspection ConstantValue
                 if (buffer != null) {
@@ -618,6 +615,7 @@ public class EMFConfig extends TConfig {
                 }
                 matrixStack.popPose();
             }
+            //#endif
         }
 
         private void renderBoxes(PoseStack matrices, VertexConsumer vertices, ModelPart modelPart) {

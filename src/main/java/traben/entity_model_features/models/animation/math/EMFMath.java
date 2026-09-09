@@ -20,7 +20,6 @@ import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.animal.camel.Camel;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Blaze;
-import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.monster.SpellcasterIllager;
 import net.minecraft.world.entity.monster.Vex;
@@ -428,7 +427,13 @@ public abstract class EMFMath {
         if (state == null) return false;
         var emfEntity = state.emfEntity();
 
-        if (emfEntity instanceof final EnderMan enderman) {
+        if (emfEntity instanceof
+                //#if MC >= 26.3
+                //$$ net.minecraft.world.entity.monster.Enderman
+                //#else
+                net.minecraft.world.entity.monster.EnderMan
+                //#endif
+                        enderman) {
             return enderman.isCreepy();
         }
         if (emfEntity instanceof final Blaze blaze) {
@@ -774,7 +779,13 @@ public abstract class EMFMath {
 
     public static float getSwingProgress() {
         if (isInGui()) return 0;
-        return emfEntity() instanceof LivingEntity alive ? alive.getAttackAnim(getTickDelta()) : 0;
+        return emfEntity() instanceof LivingEntity alive ? alive.
+                //#if MC >= 26.3
+                //$$ getSwingAnimation
+                //#else
+                getAttackAnim
+                //#endif
+                        (getTickDelta()) : 0;
     }
 
 

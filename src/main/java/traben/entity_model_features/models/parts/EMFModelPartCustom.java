@@ -133,7 +133,7 @@ public class EMFModelPartCustom extends EMFModelPart {
     }
 
     @Override
-    protected @Nullable Consumer<PoseStack> getArmPositioner(EMFAttachment.Type type) {
+    protected @Nullable Consumer<PoseStack> getAttachmentPositioner(EMFAttachment.Type type) {
         if (attachments != null) {
             for (EMFAttachment attachment : attachments) {
                 if (attachment.type == type) {
@@ -145,7 +145,7 @@ public class EMFModelPartCustom extends EMFModelPart {
                 }
             }
         }
-        return super.getArmPositioner(type);
+        return super.getAttachmentPositioner(type);
     }
 
     @Override
