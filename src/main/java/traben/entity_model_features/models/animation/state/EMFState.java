@@ -48,6 +48,10 @@ public abstract class EMFState {
     public static void clear() {
         frameCounter = 0;
         ETFState.clear();
+        clearFrame();
+    }
+
+    private static void clearFrame() {
         isLayerPhase = false;
         isMainPhase = false;
         isInShoulderMethod = false;
@@ -78,6 +82,8 @@ public abstract class EMFState {
 
 
     public static void incFrameCount(){
+        clearFrame();
+
         //not 100% certain if the shadow pass passes through this method, I highly doubt it but just in case
         if(IrisShadowPassDetection.getInstance().inShadowPass()) return;
 

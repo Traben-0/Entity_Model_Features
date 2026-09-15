@@ -56,43 +56,6 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
 //#endif
 
 
-    //#if MC >= 12102
-
-        //#if MC >= 12109
-        @Shadow public abstract <AvatarlikeEntity extends Avatar & ClientAvatarEntity> void extractRenderState(final AvatarlikeEntity avatar, final AvatarRenderState avatarRenderState, final float f);
-        //#else
-        //$$ @Shadow public abstract void extractRenderState(final AbstractClientPlayer abstractClientPlayer, final PlayerRenderState playerRenderState, final float f);
-        //#endif
-
-
-    @Shadow
-    public abstract
-        //#if MC >= 12109
-        AvatarRenderState
-        //#else
-        //$$ PlayerRenderState
-        //#endif
-    createRenderState();
-
-
-    @Unique
-    private
-        //#if MC >= 12109
-        AvatarRenderState
-        //#else
-        //$$ PlayerRenderState
-        //#endif
-    emf$renderState(){
-        var state = createRenderState();
-        extractRenderState(Minecraft.getInstance().player, state, EMFMath.getTickDelta());
-        return state;
-    }
-    //#endif
-
-
-
-
-    //#if MC >= 12109
     @Inject(method = "renderHand", at = @At(value = "HEAD"))
     private void emf$setHandAnimState(CallbackInfo ci) {
         // Before visibility checks
@@ -100,7 +63,7 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
         state.setIsFirstPersonHand(true);
         ETFState.mount(state);
     }
-
+    //#if MC >= 12109
     @Inject(method = "renderHand", at = @At(value = "INVOKE", target =
             //#if MC >= 26.3
             //$$ "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModelPart(Lnet/minecraft/client/model/geom/ModelPart;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IILnet/minecraft/client/renderer/texture/UvMapping;)V"
@@ -117,25 +80,12 @@ public abstract class MixinPlayerEntityRenderer<AvatarlikeEntity extends Avatar 
         }
 
     }
-    //#else
-    //$$ @Inject(method = "renderHand", at = @At(value = "HEAD"))
-    //$$ private void emf$setHand(CallbackInfo ci
-    //$$ ) {
-        //#if MC >= 12102
-        //$$ var state = (EMFEntityRenderState) ((HoldsETFRenderState)emf$renderState()).etf$getState();
-        //#else
-        //$$ var state = (EMFEntityRenderState) ETFEntityRenderState.forEntity((ETFEntity) Minecraft.getInstance().player);
-        //#endif
-    //$$     ETFState.mount(state);
-    //$$     state.setManualPlayerState(true);
-    //$$     state.setIsFirstPersonHand(true);
-    //$$     //EMFAnimationEntityContext.isFirstPersonHand = true; // moot in 1.21.9+ as despite the method name this is actually a submit
-    //$$ }
     //#endif
 
     @Inject(method = "renderHand", at = @At(value = "RETURN"))
     private void emf$unsetHand(final CallbackInfo ci) {
-        if (EMFState.state() == null || !EMFState.state().isManualPlayerState()) return;
+        var state = EMFState.state();
+        if (state == null || !state.isManualPlayerState()) return;
         ETFState.unMount();
     }
 
