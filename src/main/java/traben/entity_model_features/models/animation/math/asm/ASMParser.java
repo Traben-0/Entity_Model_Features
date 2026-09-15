@@ -1,9 +1,13 @@
 package traben.entity_model_features.models.animation.math.asm;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.*;
 import traben.entity_model_features.EMF;
+import traben.entity_model_features.EMFException;
+import traben.entity_model_features.models.animation.AnimSetupContext;
 import traben.entity_model_features.models.animation.EMFAnimationHandler;
+import traben.entity_model_features.models.animation.math.expression_tree.MathComponent;
 import traben.entity_model_features.models.animation.math.expression_tree.OldEMFAnimationHandler;
 import traben.entity_model_features.utils.EMFUtils;
 
@@ -11,7 +15,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Pattern;
 
@@ -26,7 +32,80 @@ public class ASMParser {
         void execute(float[] floats, boolean[] bools) throws Throwable;
     }
 
-    public static ASMExecutor compileOrNull(OldEMFAnimationHandler animHandler, ASMVariableHandler varNames) {
+    /**
+     * @return may be either an ASMAnimationHandler or a MultiASMAnimationHandler, or null if the compilation failed
+     */
+    public static EMFAnimationHandler getOrNull(OldEMFAnimationHandler oldAnimationHandler, AnimSetupContext context) {
+        try {
+            var varHandler = new ASMVariableHandler();
+            var executor = ASMParser.compileOrNull(oldAnimationHandler.oldAnimLines, varHandler);
+            if (executor == null) {
+                return null;
+            }
+            // Vast majority of animations should be this
+            return new ASMAnimationHandler(executor, context, -1).complete(varHandler, context);
+        } catch (NeedToSplitAnimationsException e) {
+            // These animations are simply too large to be compiled into one method, we will recursively split them into smaller line counts and compile those instead
+            var list = splitAndGetOrNull(context, oldAnimationHandler.oldAnimLines, oldAnimationHandler.modelName, 2);
+            if (list == null) return null;
+            return new MultiASMAnimationHandler(oldAnimationHandler.modelName, oldAnimationHandler.lines(), list.toArray(new ASMAnimationHandler[0]));
+        }
+    }
+
+    private static @Nullable List<ASMAnimationHandler> splitAndGetOrNull(AnimSetupContext context, LinkedHashMap<EMFAnimationHandler.AnimLineData, MathComponent> lines, String name, int splits) {
+        if (lines.size() < splits) {
+            //TODO I could consider a solution to this but tbh, anyone that wrote a single line this long and complex
+            //     should be taken out back and executed. Just split up your lines
+            EMFUtils.logError("ASMAnimationHandler failed to compile animation for " + name +
+                    " due to the lines being extremely long, Please consider breaking up your animation lines more");
+            return null;
+        }
+
+        var splitSize = (int) Math.ceil((double) lines.size() / splits);
+        List<LinkedHashMap<EMFAnimationHandler.AnimLineData, MathComponent>> splitList = new ArrayList<>(splits);
+
+        var iterator = lines.entrySet().iterator();
+        while (iterator.hasNext()) {
+            LinkedHashMap<EMFAnimationHandler.AnimLineData, MathComponent> map = new LinkedHashMap<>();
+            for (int i = 0; i < splitSize && iterator.hasNext(); i++) {
+                var entry = iterator.next();
+                map.put(entry.getKey(), entry.getValue());
+            }
+            if (!map.isEmpty()) splitList.add(map);
+        }
+
+        try {
+            // Share varHandler across them all.
+            // This is un-optimal but if we are to make a separate var handler for each chunk then the optimizations within each
+            // ASMAnimationHandler would need to account for values that are marked unused actually being used by another.
+            // Doing this is simpler and should represent the better run-time optimization outcome.
+            var varHandler = new ASMVariableHandler();
+
+            var list = new ArrayList<ASMAnimationHandler>(splitList.size());
+            int index = 0;
+            for (var split : splitList) {
+                if (split.isEmpty()) continue;
+
+                var executor = ASMParser.compileOrNull(split, varHandler);
+                if (executor == null) {
+                    return null;
+                }
+                list.add(new ASMAnimationHandler(executor, context, index++));
+            }
+            for (var handler : list) {
+                handler.complete(varHandler, context);
+            }
+            return list.isEmpty() ? null : list;
+        } catch (NeedToSplitAnimationsException e) {
+            if (splits > 32) { // Should be overkill
+                EMFUtils.logError("ASMAnimationHandler failed to compile animation for " + name + " due to too being extremely large");
+                return null;
+            }
+            return splitAndGetOrNull(context, lines, name, splits * 2);
+        }
+    }
+
+    private static ASMExecutor compileOrNull(LinkedHashMap<EMFAnimationHandler.AnimLineData, MathComponent> lines, ASMVariableHandler varNames) throws NeedToSplitAnimationsException {
         try {
             var className = "traben.asm_generated.EMF_ASM_Parsed_" + id.incrementAndGet();
             var cw = setupClass(className);
@@ -41,10 +120,9 @@ public class ASMParser {
 
             mv.visitCode();
 
-            for (int i = 0; i < animHandler.lines().size(); i++) {
-                var line = animHandler.lines().get(i);
-                var oldAnim = animHandler.oldAnimLines.get(line);
-
+            for (var entry : lines.entrySet()) {
+                var line = entry.getKey();
+                var oldAnim = entry.getValue();
                 assert oldAnim != null;
 
                 varNames.scope(line.isBoolean);
@@ -83,13 +161,13 @@ public class ASMParser {
                 try {
                     mh.invokeExact(f, b);
                 } catch (Throwable e) {
-                    EMFUtils.logError(" Math error: " + animHandler + " = " + e.getMessage());
+                    EMFUtils.logError(" Math error: " + e.getMessage());
                     e.printStackTrace();
                     throw e;
                 }
             };
         } catch (Throwable e) {
-            handleParseException(animHandler, e);
+            handleParseException(lines, e);
             return null;
         }
 
@@ -113,7 +191,12 @@ public class ASMParser {
         return cw;
     }
 
-    private static void handleParseException(EMFAnimationHandler expression, Throwable e) {
+    private static void handleParseException(LinkedHashMap<EMFAnimationHandler.AnimLineData, MathComponent> lines, Throwable e) throws NeedToSplitAnimationsException {
+        if (e instanceof MethodTooLargeException) {
+            // Probably redundant but I can picture possibly needing other reasons to run the split algorithm
+            throw new NeedToSplitAnimationsException();
+        }
+
         EMFUtils.logError("Failure parsing ASM:");
 
         StringWriter sw = new StringWriter();
@@ -140,7 +223,7 @@ public class ASMParser {
 
         if (EMF.config().getConfig().logModelCreationData) {
             StringBuilder sb = new StringBuilder("Animations:\n");
-            for (var it : expression.lines()) {
+            for (var it : lines.keySet()) {
                 sb.append("  - ").append(it.animKey).append(" : ").append(it.expression).append('\n');
             }
             EMFUtils.logWarn(sb.toString());
@@ -159,4 +242,9 @@ public class ASMParser {
     private static final Pattern P_INT_TO_FLOAT =
             Pattern.compile("Reason:.*Type integer .* is not assignable to float", Pattern.DOTALL);
 
+    public static class NeedToSplitAnimationsException extends EMFException {
+        public NeedToSplitAnimationsException() {
+            super("ASMParser: ASM code is too large to be valid. We will split up the anims and try again.");
+        }
+    }
 }

@@ -886,7 +886,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         if (oldAnimationHandler.lines().isEmpty()) return;
 
-        ASMAnimationHandler asmHandler = null;
+        EMFAnimationHandler asmHandler = null;
         isAnimationValidationPhase = true;
         try {
             Iterator<EMFAnimationHandler.AnimLineData> animMapIterate = oldAnimationHandler.lines().iterator();
@@ -909,14 +909,12 @@ public class EMFManager {//singleton for data holding and resetting needs
             // All animations have passed through the binary expression tree system and been validated, now ready for asm if we are using it
 
             if (EMF.config().getConfig().asmMaths) {
-                var varHandler = new ASMVariableHandler();
-                var executor = ASMParser.compileOrNull(oldAnimationHandler, varHandler);
-                if (executor == null) {
+                asmHandler = ASMParser.getOrNull(oldAnimationHandler, context);
+                if (asmHandler == null) {
                     EMFUtils.logError("ASM animation was invalid: for model [" + oldAnimationHandler.modelName + "]");
                     isAnimationValidationPhase = false;
                     return;
                 }
-                asmHandler = new ASMAnimationHandler(executor, varHandler, context);
             }
         } finally {
             isAnimationValidationPhase = false;

@@ -10,6 +10,7 @@ import traben.entity_model_features.models.animation.math.EMFMath;
 import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 import traben.entity_model_features.models.animation.math.variables.VariableRegistry;
 import traben.entity_model_features.models.animation.math.variables.factories.GlobalVariableFactory;
+import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFLODHandler;
 import traben.entity_model_features.utils.EMFUtils;
@@ -28,7 +29,7 @@ import static traben.entity_model_features.models.animation.math.expression_tree
 public class ASMAnimationHandler extends EMFAnimationHandler {
 
     private final ASMParser.ASMExecutor compiledAnimationExecutor;
-    private final ASMVariableHandler asmVariableHandler;
+    private ASMVariableHandler asmVariableHandler;
     private final boolean logsASM = EMF.config().getConfig().logASM;
     private Supplier<AnimVars> varSupplier = null;
     private VarConsumer varConsumer = null;
@@ -36,39 +37,55 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
     private final boolean lod = EMF.config().getConfig().animationLODDistance != 0;
     private final ETFLruCache<UUID, AnimVars> lastResultsPerEntity = lod ? new ETFLruCache<>() : null;
 
-    public ASMAnimationHandler(ASMParser.ASMExecutor compiledAnimationExecutor, ASMVariableHandler asmVariableHandler, AnimSetupContext animSetupContext) {
+    public final int delegateIndex;
+
+    public ASMAnimationHandler(ASMParser.ASMExecutor compiledAnimationExecutor, AnimSetupContext animSetupContext, int delegateIndex) {
         super(animSetupContext.oldAnimationHandler.modelName, animSetupContext.oldAnimationHandler.lines());
         this.compiledAnimationExecutor = compiledAnimationExecutor;
-        this.asmVariableHandler = asmVariableHandler;
-        this.varSupplier = buildVarSupplier(asmVariableHandler, animSetupContext);
+        this.delegateIndex = delegateIndex;
     }
 
+    // Needs to be deferred in the case of MultiASMAnimationHandler
+    public ASMAnimationHandler complete(ASMVariableHandler asmVariableHandler, AnimSetupContext animSetupContext) {
+        this.asmVariableHandler = asmVariableHandler;
+        this.varSupplier = buildVarSupplier(asmVariableHandler, animSetupContext);
+        return this;
+    }
 
     @Override
     protected void animateInner(ModelPart[] pausedParts) throws Throwable {
-        //noinspection deprecation
         var state = EMFState.state();
-        //noinspection deprecation
         if (lod && EMFLODHandler.isLODSkippingThisFrame(modelName)) {
             if (state != null) {
-                AnimVars vars = lastResultsPerEntity.get(state.uuid());
-                if (vars != null) {
-                    varConsumer.accept(vars, false);
+                if (canLODPause(state)) {
+                    animateInnerLOD(state);
                     return;
                 }
             }
         }
+        animateInnerNoLOD(state);
+    }
 
+    boolean canLODPause(@NotNull EMFEntityRenderState state) {
+        return lastResultsPerEntity.containsKey(state.uuid());
+    }
+
+    void animateInnerLOD(EMFEntityRenderState state) {
+        AnimVars vars = lastResultsPerEntity.get(state.uuid());
+        if (vars != null) {
+            varConsumer.accept(vars, false);
+        }
+    }
+
+    void animateInnerNoLOD(EMFEntityRenderState state) throws Throwable {
         AnimVars vars = varSupplier.get();
         if (logsASM) asmLog(asmVariableHandler, vars, "Start ASM anim with variable state:");
-
         compiledAnimationExecutor.execute(vars.floats(), vars.bools());
 
         varConsumer.accept(vars, true);
         if (lod && state != null) lastResultsPerEntity.put(state.uuid(), vars);
 
         if (logsASM) asmLog(asmVariableHandler, vars, "End ASM anim with variable state:");
-
     }
 
     @Override
@@ -95,8 +112,11 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
             if (!asmVariableHandler.isWriteVarName(varName))
                 continue;
             var line = getLine(varName);
+            if (line == null)
+                continue;
             int index = line.asmIndex;
-            if (index == -1) continue;
+            if (index == -1)
+                continue;
             String key = line.animKey;
             FloatConsumerAsm consumer = null;
             if (line.isVar) {
@@ -106,9 +126,7 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
                     };
                 } else {
                     consumer = (array, doVar) -> {
-                        if (doVar)
-                            //noinspection deprecation
-                            EMFMath.setEntityVariable(key, array[index]);
+                        if (doVar) EMFMath.setEntityVariable(key, array[index]);
                     };
                 }
             } else if (line.applier != null) {
@@ -143,8 +161,11 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
             if (!asmVariableHandler.isWriteVarName(varName))
                 continue;
             var line = getLine(varName);
+            if (line == null)
+                continue;
             int index = line.asmIndex;
-            if (index == -1) continue;
+            if (index == -1)
+                continue;
             String key = line.animKey;
             BoolConsumerAsm consumer = null;
             if (line.isVar) {
@@ -154,9 +175,7 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
                     };
                 } else {
                     consumer = (array, doVar) -> {
-                        if (doVar)
-                            //noinspection deprecation
-                            EMFMath.setEntityVariable(key, array[index] ? TRUE : FALSE);
+                        if (doVar) EMFMath.setEntityVariable(key, array[index] ? TRUE : FALSE);
                     };
                 }
             } else if (line.applier != null) {
@@ -179,7 +198,7 @@ public class ASMAnimationHandler extends EMFAnimationHandler {
         return bools;
     }
 
-    private  Supplier<AnimVars> buildVarSupplier(
+    private Supplier<AnimVars> buildVarSupplier(
             ASMVariableHandler asmVariableHandler,
             AnimSetupContext context
     ) {

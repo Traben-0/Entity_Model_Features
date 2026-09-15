@@ -1,4 +1,7 @@
 
+[?]
+- fixed an issue where ASM compiled maths had an upper limit on animation size (`MethodTooLargeException`)
+
 [3.3.5]
 - fixed v3.3.4 breaking layer models when multiple of an entity type is present
 - fixed baby sheep wool undercoat model fallbacks breaking in < 26.1
