@@ -2,6 +2,7 @@ package traben.entity_model_features.config;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.client.model.geom.ModelLayers;
 //#if MC >= 12102 && MC < 26.2
 import net.minecraft.client.renderer.ShapeRenderer;
@@ -274,13 +275,14 @@ public class EMFConfig extends TConfig {
         category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.models_text", 200, TConfigEntryText.TextAlignment.LEFT));
 
         var map = new HashMap<>(EMFManager.getInstance().cache_LayersByModelName);
-        map.put(new EMFModel_ID("wolf_collar"), ModelLayers.WOLF);
+        var collar = new EMFModel_ID("wolf_collar");
+        map.put(collar.getCacheID(), Pair.of(collar, ModelLayers.WOLF));
 
-        map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
-            var mapData = entry.getKey();
+        map.values().stream().sorted(Comparator.comparing(Pair::first)).forEach(entry -> {
+            var mapData = entry.first();
             if (mapData.toString().startsWith("_")) return;
 
-            var layer = entry.getValue();
+            var layer = entry.second();
             if (layer != null) {
                 var vanilla = Minecraft.getInstance().getEntityModels().roots.get(layer);
                 if (vanilla != null) {

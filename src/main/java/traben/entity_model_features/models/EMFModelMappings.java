@@ -1542,10 +1542,10 @@ public class EMFModelMappings {
             return UNKNOWN_MODEL_MAP_CACHE.get(id);
 
         //find unmodified model
-        var layer = EMFManager.getInstance().cache_LayersByModelName.get(mobId);
+        var layer = EMFManager.getInstance().cache_LayersByModelName.get(mobId.getCacheID());
         if(layer != null){
             var unModifiedModel = ((IEMFUnmodifiedLayerRootGetter) Minecraft.getInstance().getEntityModels())
-                    .emf$getUnmodifiedRoots().get(layer);
+                    .emf$getUnmodifiedRoots().get(layer.second());
             if (unModifiedModel != null) {
                 originalModel = unModifiedModel.bakeRoot();
             }

@@ -2,6 +2,7 @@
 [3.3.6]
 - fixed an issue where ASM compiled maths had an upper limit on animation size (`MethodTooLargeException`)
 - fixed an issue where the first model variated of each frame could break
+- fixed villager model exports
 - updated to 26.3
 
 [3.3.5]
