@@ -34,7 +34,13 @@ public abstract class MixinSulfurCubeInnerLayer_BlockOffset { }
 //$$     private SulfurCubeModel normalModel;
 //$$
 //$$     @Inject(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/SulfurCubeRenderState;FF)V",
-//$$             at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionfc;)V"))
+//$$             at = @At(value = "INVOKE", target =
+            //#if MC >= 26.3
+            //$$ "Lcom/mojang/blaze3d/vertex/PoseStack;rotateDegrees(Lcom/mojang/math/Axis;F)V"
+            //#else
+            //$$ "Lcom/mojang/blaze3d/vertex/PoseStack;mulPose(Lorg/joml/Quaternionfc;)V"
+            //#endif
+//$$             ))
 //$$     private void offsetBlock(CallbackInfo ci, @Local(argsOnly = true) PoseStack poseStack, @Local(argsOnly = true) SulfurCubeRenderState vanilla) {
 //$$         var model = (IEMFModel) (vanilla.isBaby ? smallModel : normalModel);
 //$$         if (model.emf$isEMFModel()) {

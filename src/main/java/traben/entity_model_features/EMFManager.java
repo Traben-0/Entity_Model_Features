@@ -2,6 +2,7 @@ package traben.entity_model_features;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 
 import net.minecraft.network.chat.Component;
@@ -83,7 +84,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public final Map<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForVariation = new ConcurrentHashMap<>();
     public final Map<String, EMFJemData> cache_JemDataByFileName = new HashMap<>();
-    public final Map<EMFModel_ID, ModelLayerLocation> cache_LayersByModelName = new ConcurrentHashMap<>();
+    public final Map<String, Pair<EMFModel_ID, ModelLayerLocation>> cache_LayersByModelName = new ConcurrentHashMap<>();
     public final Set<String> EBE_JEMS_FOUND_LAST = new HashSet<>();
     private final Map<ModelLayerLocation, Integer> amountOfLayerAttempts = new ConcurrentHashMap<>();
     private final Set<String> EBE_JEMS_FOUND = new HashSet<>();
@@ -411,10 +412,10 @@ public class EMFManager {//singleton for data holding and resetting needs
                         //$$ }
                         //#endif
                         //#if MC>=12109
-                        case "villager_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager");
-                        case "villager_baby_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager_baby").addFallbackModel("villager");
-                        case "zombie_villager_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager");
-                        case "zombie_villager_baby_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager_baby").addFallbackModel("zombie_villager");
+                        case "villager_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager").resetCacheID();
+                        case "villager_baby_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("villager_baby").addFallbackModel("villager").resetCacheID();
+                        case "zombie_villager_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager").resetCacheID();
+                        case "zombie_villager_baby_no_hat" -> mobNameForFileAndMap.setMapIdAndAddFallbackModel("zombie_villager_baby").addFallbackModel("zombie_villager").resetCacheID();
                         //#endif
                         //#if MC >= 12105
                         case "cow" -> mobNameForFileAndMap.pushNewMainModelAddingOldAsFallback("temperate_cow");
@@ -619,8 +620,11 @@ public class EMFManager {//singleton for data holding and resetting needs
             }
 
             //cache the layers for the model
-            cache_LayersByModelName.put(mobNameForFileAndMap, layer);
-            mobNameForFileAndMap.forEachFallback((fallBack) -> cache_LayersByModelName.putIfAbsent(fallBack, layer));
+
+            if (mobNameForFileAndMap == null) return root;
+
+            cache_LayersByModelName.put(mobNameForFileAndMap.getCacheID(), Pair.of(mobNameForFileAndMap, layer));
+            //todo broke af mobNameForFileAndMap.forEachFallback((fallBack) -> cache_LayersByModelName.putIfAbsent(fallBack.getCacheID(), Pair.of(fallBack, layer)));
 
 
 
@@ -886,7 +890,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
         if (oldAnimationHandler.lines().isEmpty()) return;
 
-        ASMAnimationHandler asmHandler = null;
+        EMFAnimationHandler asmHandler = null;
         isAnimationValidationPhase = true;
         try {
             Iterator<EMFAnimationHandler.AnimLineData> animMapIterate = oldAnimationHandler.lines().iterator();
@@ -909,14 +913,12 @@ public class EMFManager {//singleton for data holding and resetting needs
             // All animations have passed through the binary expression tree system and been validated, now ready for asm if we are using it
 
             if (EMF.config().getConfig().asmMaths) {
-                var varHandler = new ASMVariableHandler();
-                var executor = ASMParser.compileOrNull(oldAnimationHandler, varHandler);
-                if (executor == null) {
+                asmHandler = ASMParser.getOrNull(oldAnimationHandler, context);
+                if (asmHandler == null) {
                     EMFUtils.logError("ASM animation was invalid: for model [" + oldAnimationHandler.modelName + "]");
                     isAnimationValidationPhase = false;
                     return;
                 }
-                asmHandler = new ASMAnimationHandler(executor, varHandler, context);
             }
         } finally {
             isAnimationValidationPhase = false;

@@ -46,6 +46,7 @@ base.archivesName.set("entity_model_features-$modVersion-${project.name}")
 
 val manuallyAccessTransform = mcVersion >= 26_00_00 && platform.isNeoForge
 val accessWidener = "entity_model_features_" + when {
+    mcVersion >= 26_03_00 -> 16
     mcVersion >= 26_02_00 -> 15
     mcVersion >= 26_01_00 -> 14
     mcVersion >= 1_21_11 -> 13

@@ -1,4 +1,10 @@
 
+[3.3.6]
+- fixed an issue where ASM compiled maths had an upper limit on animation size (`MethodTooLargeException`)
+- fixed an issue where the first model variated of each frame could break
+- fixed villager model exports
+- updated to 26.3
+
 [3.3.5]
 - fixed v3.3.4 breaking layer models when multiple of an entity type is present
 - fixed baby sheep wool undercoat model fallbacks breaking in < 26.1

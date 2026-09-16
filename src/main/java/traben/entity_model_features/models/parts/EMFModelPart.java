@@ -3,15 +3,10 @@ package traben.entity_model_features.models.parts;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import net.minecraft.client.renderer.*;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
-import net.minecraft.world.phys.shapes.CubeVoxelShape;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.config.EMFConfig;
 import traben.entity_model_features.mod_compat.IrisShadowPassDetection;
-import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.EMFAttachment;
 import traben.entity_model_features.models.animation.math.EMFMath;
 import traben.entity_model_features.models.animation.state.EMFState;
@@ -71,10 +66,10 @@ public abstract class EMFModelPart extends ModelPart {
         this.root = root;
     }
 
-    protected @Nullable Consumer<PoseStack> getArmPositioner(EMFAttachment.Type type) {
+    protected @Nullable Consumer<PoseStack> getAttachmentPositioner(EMFAttachment.Type type) {
         for (ModelPart p : children.values()) {
             if (p instanceof EMFModelPart part) {
-                var subConsumer = part.getArmPositioner(type); // Only a part with the correct attachment will end this deep search
+                var subConsumer = part.getAttachmentPositioner(type); // Only a part with the correct attachment will end this deep search
                 if (subConsumer != null) {
                     return (stack) -> {
                         // Add this 'parent' to the cumulative stack transformation started by the child, and send it up the chain
@@ -295,7 +290,13 @@ public abstract class EMFModelPart extends ModelPart {
                 //$$     public VertexConsumer getBuffer(RenderType type) {
                 //$$         //TODO probably wrong investigate further
                 //$$         var draw = Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().appendDraw(
-                //$$                 type.format(), com.mojang.blaze3d.PrimitiveTopology.QUADS);
+                //$$                 type.format(),
+                                //#if MC >= 26.3
+                                //$$ com.mojang.renderpearl.api.pipeline.PrimitiveTopology.QUADS
+                                //#else
+                                //$$ com.mojang.blaze3d.PrimitiveTopology.QUADS
+                                //#endif
+                //$$                 );
                 //$$         return Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().getVertexBuilder(draw);
                 //$$     }
                 //$$ };

@@ -226,14 +226,14 @@ public class EMFModelPartRoot extends EMFModelPartVanilla {
         setVariantStateTo(variant);
 
         if (jemData.hasAttachmentsLeft) {
-            this.leftArmPositioners.put(variant, getArmPositioner(EMFAttachment.Type.LEFT_HAND));
+            this.leftArmPositioners.put(variant, getAttachmentPositioner(EMFAttachment.Type.LEFT_HAND));
         }
         if (jemData.hasAttachmentsRight) {
-            this.rightArmPositioners.put(variant, getArmPositioner(EMFAttachment.Type.RIGHT_HAND));
+            this.rightArmPositioners.put(variant, getAttachmentPositioner(EMFAttachment.Type.RIGHT_HAND));
         }
         if (jemData.hasAttachmentsOther) {
             for (EMFAttachment.Type type : EMFAttachment.Type.NON_HANDS) {
-                var positioner = getArmPositioner(type);
+                var positioner = getAttachmentPositioner(type);
                 if (positioner != null) {
                     this.otherPositioners.computeIfAbsent(type, t -> new HashMap<>())
                             .put(variant, positioner);

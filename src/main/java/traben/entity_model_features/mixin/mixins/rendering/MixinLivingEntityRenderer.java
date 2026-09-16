@@ -54,7 +54,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         super(ctx);
     }
 
-    //#if MC > 26.2
+    //#if MC > 26.3
     //$$ todo check that they still use this.model and not the getter
     //#elseif MC >= 12109
     @Inject(method = "submit(Lnet/minecraft/client/renderer/entity/state/LivingEntityRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",

@@ -2,6 +2,7 @@ package traben.entity_model_features.config;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.client.model.geom.ModelLayers;
 //#if MC >= 12102 && MC < 26.2
 import net.minecraft.client.renderer.ShapeRenderer;
@@ -274,13 +275,14 @@ public class EMFConfig extends TConfig {
         category.addAll(TConfigEntryText.fromLongOrMultilineTranslation("entity_model_features.config.models_text", 200, TConfigEntryText.TextAlignment.LEFT));
 
         var map = new HashMap<>(EMFManager.getInstance().cache_LayersByModelName);
-        map.put(new EMFModel_ID("wolf_collar"), ModelLayers.WOLF);
+        var collar = new EMFModel_ID("wolf_collar");
+        map.put(collar.getCacheID(), Pair.of(collar, ModelLayers.WOLF));
 
-        map.entrySet().stream().sorted(Map.Entry.comparingByKey()).forEach(entry -> {
-            var mapData = entry.getKey();
+        map.values().stream().sorted(Comparator.comparing(Pair::first)).forEach(entry -> {
+            var mapData = entry.first();
             if (mapData.toString().startsWith("_")) return;
 
-            var layer = entry.getValue();
+            var layer = entry.second();
             if (layer != null) {
                 var vanilla = Minecraft.getInstance().getEntityModels().roots.get(layer);
                 if (vanilla != null) {
@@ -562,6 +564,9 @@ public class EMFConfig extends TConfig {
 
         @Override
         public void render(final GuiGraphics context, final int mouseX, final int mouseY) {
+            //#if MC >= 26.2
+            //$$ return;
+            //#else
             if (canRender()) {
                 Screen screen = UScreen.currentScreen();
                 if (screen == null) return;
@@ -597,12 +602,7 @@ public class EMFConfig extends TConfig {
                 matrixStack.pushPose();
                 matrixStack.scale(-1.0F, -1.0F, 1.0F);
                 matrixStack.translate(0.0F, -1.501F, 0.0F);
-                //#if MC >= 26.2
-                //$$ //TODO definitely wrong
-                //$$ var draw = Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().appendDraw(
-                //$$         RenderTypes.lines().format(), com.mojang.blaze3d.PrimitiveTopology.LINES);
-                //$$ var buffer = Minecraft.getInstance().gameRenderer.renderBuffers().stagedVertexBuffer().getVertexBuilder(draw);
-                //#else
+
                 var buffer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(
                         //#if MC >= 12111
                         //$$ RenderTypes.lines()
@@ -610,7 +610,6 @@ public class EMFConfig extends TConfig {
                         RenderType.lines()
                         //#endif
                 );
-                //#endif
                 //who knows what mods might do smdh
                 //noinspection ConstantValue
                 if (buffer != null) {
@@ -618,6 +617,7 @@ public class EMFConfig extends TConfig {
                 }
                 matrixStack.popPose();
             }
+            //#endif
         }
 
         private void renderBoxes(PoseStack matrices, VertexConsumer vertices, ModelPart modelPart) {

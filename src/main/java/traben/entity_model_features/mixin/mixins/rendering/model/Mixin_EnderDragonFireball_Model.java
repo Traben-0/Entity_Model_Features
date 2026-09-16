@@ -95,7 +95,10 @@ public abstract class Mixin_EnderDragonFireball_Model {
                                //#endif
     ) {
         if (fireball != null) {
-            //#if MC >= 1.21.9
+            //#if MC >= 26.3
+            //$$ submitNodeCollector.submitModel(fireball, entityRenderState, poseStack,
+            //$$         RENDER_TYPE, entityRenderState.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+            //#elseif MC >= 1.21.9
             submitNodeCollector.submitModel(fireball, entityRenderState, poseStack,
                     RENDER_TYPE, entityRenderState.lightCoords, OverlayTexture.NO_OVERLAY,
                     -1, null, 0, null);

@@ -60,7 +60,7 @@ MixinHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityM
         EMFState.hasDoneArmOverride = null;
     }
 
-    @Inject(method = RENDER_ARM, at = @At(value = "INVOKE", target =TRANSLATE, shift = At.Shift.AFTER))
+    @Inject(method = RENDER_ARM, at = @At(value = "INVOKE", target = TRANSLATE, shift = At.Shift.AFTER))
     private void emf$transform2(final CallbackInfo ci) {
         EMFState.isInHandItemLayerTransform = false;
     }

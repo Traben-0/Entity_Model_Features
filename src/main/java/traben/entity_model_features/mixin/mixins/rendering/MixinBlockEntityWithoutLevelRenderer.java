@@ -44,15 +44,15 @@ public class MixinBlockEntityWithoutLevelRenderer {
     //$$ private static final String RENDER = "render";
     //#endif
 
-    //#if MC >= 26.1
-    //$$ private static final String TARGET = "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V";
-    //#elseif MC >= 12109
-    private static final String TARGET = "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V";
-    //#else
-    //$$ private static final String TARGET = "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;render(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIZ)V";
-    //#endif
+//    //#if MC >= 26.1
+//    //$$ private static final String TARGET = "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V";
+//    //#elseif MC >= 12109
+//    private static final String TARGET = "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;submit(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIZI)V";
+//    //#else
+//    //$$ private static final String TARGET = "Lnet/minecraft/client/renderer/special/SpecialModelRenderer;render(Ljava/lang/Object;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IIZ)V";
+//    //#endif
 
-    @Inject(method = RENDER, at = @At(value = "INVOKE", target = TARGET))
+    @Inject(method = RENDER, at = @At(value = "HEAD"))
     private void emf$setRenderFactory(CallbackInfo ci) {
         EMFManager.getInstance().entityRenderCount++;
         setPlayerEntity();
@@ -71,7 +71,7 @@ public class MixinBlockEntityWithoutLevelRenderer {
     }
 
 
-    @Inject(method = RENDER, at = @At(value = "INVOKE", target = TARGET, shift = At.Shift.AFTER))
+    @Inject(method = RENDER, at = @At(value = "TAIL"))
     private void emf$reset(final CallbackInfo ci) {
         unSetPlayerEntity();
     }
@@ -128,15 +128,14 @@ public class MixinBlockEntityWithoutLevelRenderer {
     @Unique
     private void setPlayerEntity() {
         var state = EMFEntityRenderState.manualPlayerState();
-        ETFState.mount(state);
+        if (state != null)
+            ETFState.mount(state);
     }
 
     @Unique
     private void unSetPlayerEntity() {
-        //#if MC < 1.21.4
-        //$$ var state = EMFState.state();
-        //$$ if (state != null && state.isManualPlayerState())
-        //#endif
+        var state = EMFState.state();
+        if (state != null && state.isManualPlayerState())
             ETFState.unMount();
     }
 }
