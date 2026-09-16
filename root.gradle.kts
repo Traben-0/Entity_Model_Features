@@ -56,7 +56,7 @@ preprocess {
     // next, then remap the main project to this and set the current to old
     //current.connectToVersion(12109, forge = false, neoforge = false)
 
-    null.connectToVersion(26_03_00, forge = false, neoforge = false)
+    null.connectToVersion(26_03_00, forge = false, neoforge = true)
         .connectToVersion(26_02_00, forge = false, neoforge = true)
         .connectToVersion(26_01_00, forge = false, neoforge = true)
         .connectToVersion(1_21_11)
