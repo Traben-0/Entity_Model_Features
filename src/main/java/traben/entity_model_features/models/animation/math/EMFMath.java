@@ -799,9 +799,17 @@ public abstract class EMFMath {
     }
 
     public static float getFrameTime() {
-        if (Minecraft.getInstance().isPaused()) return 0;
+        // People frequently divide by this so returning 0 is asking for issues, just gonna send a billionth and call it a day
+        if (Minecraft.getInstance().isPaused()) return 0.000000001f;
         //#if MC > 12002
-        if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.tickRateManager().isFrozen()) return 0;
+        if (Minecraft.getInstance().level != null && Minecraft.getInstance().level.tickRateManager().isFrozen()) {
+            var emf = emfState();
+            if (emf == null || emf.isBlockEntity() || !(emf.emfEntity() instanceof Entity entity)) {
+                return 0.000000001f;
+            } else {
+                if (Minecraft.getInstance().level.tickRateManager().isEntityFrozen(entity)) return 0.000000001f;
+            }
+        }
         //#endif
 
         //#if MC >= 12100

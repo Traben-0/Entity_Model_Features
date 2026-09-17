@@ -1,4 +1,8 @@
 
+[3.3.7]
+- fixed a texture override issue when the model doesn't declare all parts or uses attach=true and every part declared the same texture override
+- 
+
 [3.3.6]
 - fixed an issue where ASM compiled maths had an upper limit on animation size (`MethodTooLargeException`)
 - fixed an issue where the first model variated of each frame could break
