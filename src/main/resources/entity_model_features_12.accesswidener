@@ -44,3 +44,5 @@ accessible method net/minecraft/client/renderer/entity/LivingEntityRenderer isUp
 accessible method net/minecraft/client/renderer/entity/EntityRenderer extractShadow (Lnet/minecraft/client/renderer/entity/state/EntityRenderState;Lnet/minecraft/client/Minecraft;Lnet/minecraft/world/level/Level;)V
 accessible field net/minecraft/client/renderer/entity/EntityRenderer shadowRadius F
 accessible field net/minecraft/client/renderer/entity/EntityRenderer shadowStrength F
+
+accessible method net/minecraft/world/entity/projectile/AbstractArrow isInGround ()Z

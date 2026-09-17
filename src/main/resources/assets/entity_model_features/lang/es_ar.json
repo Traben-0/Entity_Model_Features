@@ -290,5 +290,5 @@
   "entity_model_features.config.allowed_cem.known_only": "Solo conocidos (principalmente Vanilla / OptiFine)",
   "entity_model_features.config.allowed_cem.unknown_only": "Solo desconocidos (principalmente de mods)",
   "entity_model_features.config.export_rotations": "Exportar rotaciones",
-  "entity_model_features.config.export_rotations.tooltip": "Los modelos .jem exportados no deberían incluir los valores de rotación, ya que los heredan de las partes vanilla.\nSin embargo, algunos editores de modelos pueden preferir tener esos valores incluidos.\nEsta opción los va a incluir en los archivos .jem exportados.",
+  "entity_model_features.config.export_rotations.tooltip": "Los modelos .jem exportados no deberían incluir los valores de rotación, ya que los heredan de las partes vanilla.\nSin embargo, algunos editores de modelos pueden preferir tener esos valores incluidos.\nEsta opción los va a incluir en los archivos .jem exportados."
 }

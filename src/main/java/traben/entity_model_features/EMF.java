@@ -133,6 +133,7 @@ public class EMF {
 
             data.data.put("isMainModelPhase", EMFState.isMainPhase);
             data.data.put("isLayerModelPhase", EMFState.isLayerPhase);
+            data.data.put("statics", EMFState.captureStatics());
 
             EMFModelPartRoot emfRoot = vanilla.model().root() instanceof EMFModelPartRoot ? (EMFModelPartRoot) vanilla.model().root() : null;
             if (emfRoot != null) {

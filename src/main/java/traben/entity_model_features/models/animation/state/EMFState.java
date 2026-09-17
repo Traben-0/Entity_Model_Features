@@ -48,24 +48,27 @@ public abstract class EMFState {
     public static void clear() {
         frameCounter = 0;
         ETFState.clear();
-        clearFrame();
+        clearFrameStatics();
     }
 
-    private static void clearFrame() {
-        isLayerPhase = false;
-        isMainPhase = false;
-        isInShoulderMethod = false;
-        isInGui = false;
-        modelVariationIgnoresVisibility = false;
-        isInGroundOverride = false;
-        isOnHead = false;
-        isInHand = false;
-        isInLeftHand = null;
-        isInItemFrame = false;
-        isInHandItemLayerTransform = false;
-        hasDoneArmOverride = null;
+    public static void incFrameCount(){
+        clearFrameStatics();
+
+        //not 100% certain if the shadow pass passes through this method, I highly doubt it but just in case
+        if(IrisShadowPassDetection.getInstance().inShadowPass()) return;
+
+        float inc = frameCounter + 1;
+        //reset counter after exceeding floating point precision cutoff
+        frameCounter = inc >= WRAP_CONST ? 0 : inc;
     }
 
+    public static float getFrameCounter(){
+        return frameCounter;
+    }
+
+
+
+    //region statics
     public static float frameCounter = 0;
     public static boolean isLayerPhase = false;
     public static boolean isMainPhase = false;
@@ -80,22 +83,52 @@ public abstract class EMFState {
     public static boolean isInItemFrame = false;
     public static boolean modelVariationIgnoresVisibility = false;
 
-
-    public static void incFrameCount(){
-        clearFrame();
-
-        //not 100% certain if the shadow pass passes through this method, I highly doubt it but just in case
-        if(IrisShadowPassDetection.getInstance().inShadowPass()) return;
-
-        float inc = frameCounter + 1;
-        //reset counter after exceeding floating point precision cutoff
-        frameCounter = inc >= WRAP_CONST ? 0 : inc;
+    public static void clearFrameStatics() {
+        isLayerPhase = false;
+        isMainPhase = false;
+        isInShoulderMethod = false;
+        isInGui = false;
+        modelVariationIgnoresVisibility = false;
+        isInGroundOverride = false;
+        isOnHead = false;
+        isInHand = false;
+        isInLeftHand = null;
+        isInItemFrame = false;
+        isInHandItemLayerTransform = false;
+        hasDoneArmOverride = null;
     }
 
-    public static float getFrameCounter(){
-        return frameCounter;
+    //region static snapshotting
+    public static EMFStateStaticSnapshot captureStatics() {
+        return new EMFStateStaticSnapshot(
+                EMFState.isInShoulderMethod,
+                EMFState.isInGui,
+                EMFState.isInGroundOverride,
+                EMFState.isOnHead,
+                EMFState.isInHand,
+                EMFState.isInItemFrame
+        );
     }
 
+    public record EMFStateStaticSnapshot(
+            boolean isInShoulderMethod,
+            boolean isInGui,
+            boolean isInGroundOverride,
+            boolean isOnHead,
+            boolean isInHand,
+            boolean isInItemFrame
+    ) {
+        public void restoreStatics() {
+            EMFState.isInShoulderMethod = this.isInShoulderMethod;
+            EMFState.isInGui = this.isInGui;
+            EMFState.isInGroundOverride = this.isInGroundOverride;
+            EMFState.isOnHead = this.isOnHead;
+            EMFState.isInHand = this.isInHand;
+            EMFState.isInItemFrame = this.isInItemFrame;
+        }
+    }
+    //endregion
+    //endregion
 
     //region debug chat anouncement
 

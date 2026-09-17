@@ -1,7 +1,10 @@
 
 [3.3.7]
 - fixed a texture override issue when the model doesn't declare all parts or uses attach=true and every part declared the same texture override
-- 
+- fixed several issues where third party mixins cancelling certain renders would mess up the animation values of following renders (also need to update ETF for the full fix)
+- fixed `is_in_ground` not working for arrows and tridents on the floor (previously only worked on walls or ceilings)
+- fixed `is_in_hand`, `is_in_gui`, `is_in_item_frame`, `is_on_head`, `is_in_ground` (for arrow stuck in entity), breaking on 1.21.9+
+- fixed an issue with the Spanish Argentina localization file
 
 [3.3.6]
 - fixed an issue where ASM compiled maths had an upper limit on animation size (`MethodTooLargeException`)

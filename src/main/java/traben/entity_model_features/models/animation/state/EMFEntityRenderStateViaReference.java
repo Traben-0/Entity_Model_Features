@@ -90,6 +90,14 @@ public class EMFEntityRenderStateViaReference extends ETFEntityRenderStateViaRef
     @Override public boolean skipModelVariate() { return skipModelVariate; }
     @Override public void setSkipModelVariate(boolean value) { skipModelVariate = value; }
 
+    boolean isSubmit = false;
+    @Override public boolean isSubmit() {return isSubmit;}
+    @Override public void setSubmit(boolean set) {isSubmit = set;}
+
+    EMFState.EMFStateStaticSnapshot snapshot = null;
+    @Override public EMFState.EMFStateStaticSnapshot getEMFStateSnapshot() {return snapshot;}
+    @Override public void setEMFStateSnapshot(EMFState.EMFStateStaticSnapshot snapshot) {this.snapshot = snapshot;}
+
     float shadowSize = Float.NaN;
     @Override public float shadowSize() { return shadowSize; }
     @Override public void setShadowSize(float shadowSize) { this.shadowSize = shadowSize; }

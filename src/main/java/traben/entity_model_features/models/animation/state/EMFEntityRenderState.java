@@ -161,6 +161,12 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     boolean skipModelVariate();
     void setSkipModelVariate(boolean value);
 
+    boolean isSubmit();
+    void setSubmit(boolean set);
+
+    EMFState.EMFStateStaticSnapshot getEMFStateSnapshot();
+    void setEMFStateSnapshot(EMFState.EMFStateStaticSnapshot snapshot);
+
     //#if MC >= 1.21.9
     @Override
     default void preSubmitActivate(ETFSubmitData submitData,
@@ -171,6 +177,9 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
                                    //#endif
     ) {
         ETFEntityRenderState.super.preSubmitActivate(submitData, vanillaSubmit);
+
+        EMFState.clearFrameStatics();
+        setSubmit(true);
 
         // The specific submit might have more precise changes that multiple submits using the same state might need to
         // be different, consider that here
@@ -191,6 +200,7 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
             if (!isFirstPersonHand()) setBipedPose((EMFBipedPose) submitData.data.get("bipedPose"));
         }
 
+        //noinspection unchecked
         setLayerFactory(vanillaSubmit.model().renderType);
 
         if (vanillaSubmit.state() instanceof net.minecraft.client.renderer.entity.state.ItemFrameRenderState) {
@@ -210,6 +220,11 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
                     EMFState.isLayerPhase = true;
                 }
             }
+
+            var snapshot = (EMFState.EMFStateStaticSnapshot) submitData.data.get("statics");
+            if (snapshot != null) {
+                snapshot.restoreStatics();
+            }
         }
 
 
@@ -219,6 +234,11 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     @Override
     default void activate(boolean inMount) {
         ETFEntityRenderState.super.activate(inMount);
+
+        if (!isSubmit()) {
+            if (inMount) setEMFStateSnapshot(EMFState.captureStatics());
+            else if (getEMFStateSnapshot() != null) getEMFStateSnapshot().restoreStatics();
+        }
 
         EMFManager.getInstance().entityRenderCount++;
         if (inMount && !EMFState.isLayerPhase) {
@@ -310,10 +330,23 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     default void deactivate(boolean inMount) {
         ETFEntityRenderState.super.deactivate(inMount);
         EMFState.modelVariationIgnoresVisibility = false;
-        EMFState.isInItemFrame = false;
 
         if (!inMount) {
             setSkipModelVariate(false);
+        }
+
+        if (isSubmit()) {
+            setSubmit(false);
+            EMFState.clearFrameStatics();
+        } else {
+            if (!inMount) {
+                var snapshot = getEMFStateSnapshot();
+                if (snapshot != null) {
+                    snapshot.restoreStatics();
+                }
+                setEMFStateSnapshot(null);
+            }
+
         }
     }
 

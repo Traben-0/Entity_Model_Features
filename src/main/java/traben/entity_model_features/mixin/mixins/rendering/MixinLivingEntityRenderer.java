@@ -3,10 +3,11 @@ package traben.entity_model_features.mixin.mixins.rendering;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import traben.entity_texture_features.features.state.ETFState;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
-//#if MC < 26.2
-//#endif
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -114,7 +115,7 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
 
 
     @Inject(method = RENDER, at = @At(value = "INVOKE", target = "Ljava/util/List;iterator()Ljava/util/Iterator;"))
-    private void emf$grabEntity(CallbackInfo ci) {
+    private void emf$grabEntity(CallbackInfo ci, @Share("stateCaptureStatic") LocalRef<EMFState.EMFStateStaticSnapshot> stateCaptureStatic) {
         EMFState.isLayerPhase = true;
         EMFState.isMainPhase = false;
         //#if MC < 1.21.9
@@ -123,14 +124,22 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
         //$$     emf.emf$getEMFRootModel().isMainModel = true;
         //$$ }
         //#endif
+
+        // Backup just in case state doesn't change but the statics do and get cancelled without reset
+        stateCaptureStatic.set(EMFState.captureStatics());
     }
 
     @Inject(method = RENDER, at = @At(value = "INVOKE", target = "Ljava/util/Iterator;next()Ljava/lang/Object;"))
-    private void emf$eachFeatureLoop(CallbackInfo ci) {
+    private void emf$eachFeatureLoop(CallbackInfo ci, @Share("stateCaptureStatic") LocalRef<EMFState.EMFStateStaticSnapshot> stateCaptureStatic) {
         //todo needed for stray bogged drowned outer layers in 1.21.2+
         //check its needed for 1.21.1
         EMFManager.getInstance().entityRenderCount++;
         EMFState.isLayerPhase = true;
+
+        // Assert state each call in case things got cancelled and couldn't be undone
+        if (stateCaptureStatic.get() != null) {
+            stateCaptureStatic.get().restoreStatics();
+        }
     }
 
     @Inject(method = RENDER, at = @At("HEAD"))
@@ -140,9 +149,12 @@ public abstract class MixinLivingEntityRenderer<T extends LivingEntity, S extend
     }
 
     @Inject(method = RENDER, at = @At("TAIL"))
-    private void emf$postRender(CallbackInfo ci) {
+    private void emf$postRender(CallbackInfo ci, @Share("stateCaptureStatic") LocalRef<EMFState.EMFStateStaticSnapshot> stateCaptureStatic) {
         EMFState.isLayerPhase = false;
         EMFState.isMainPhase = false;
+        if (stateCaptureStatic.get() != null) {
+            stateCaptureStatic.get().restoreStatics();
+        }
     }
 
 }

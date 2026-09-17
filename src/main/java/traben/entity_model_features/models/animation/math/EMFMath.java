@@ -24,6 +24,7 @@ import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.monster.SpellcasterIllager;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.monster.Vindicator;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
@@ -474,7 +475,16 @@ public abstract class EMFMath {
 
 
     public static boolean isInGround() {
-        return EMFState.isInGroundOverride || emfEntity() instanceof Projectile proj && proj.isInWall();
+        if (EMFState.isInGroundOverride) return true;
+        var entity = emfEntity();
+        return (entity instanceof Projectile proj && proj.isInWall())
+                || (entity instanceof AbstractArrow arrow &&
+                        //#if MC >= 12102
+                        arrow.isInGround()
+                        //#else
+                        //$$ arrow.inGround
+                        //#endif
+                    );
     }
 
 
