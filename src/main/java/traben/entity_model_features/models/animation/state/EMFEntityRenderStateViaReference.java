@@ -82,10 +82,6 @@ public class EMFEntityRenderStateViaReference extends ETFEntityRenderStateViaRef
     @Override public boolean isFirstPersonHand() { return isFirstPersonHand; }
     @Override public void setIsFirstPersonHand(boolean isFirst) { this.isFirstPersonHand = isFirst; }
 
-    boolean onShoulder = false;
-    @Override public boolean onShoulder() { return onShoulder; }
-    @Override public void setOnShoulder(boolean onShoulder) { this.onShoulder = onShoulder; }
-
     boolean skipModelVariate = false;
     @Override public boolean skipModelVariate() { return skipModelVariate; }
     @Override public void setSkipModelVariate(boolean value) { skipModelVariate = value; }

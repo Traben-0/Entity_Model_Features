@@ -39,7 +39,6 @@ public class EMFAttachment {
             @Override
             void translateForType(PoseStack pose, EMFAttachment attachment) {
                 pose.translate(0, -0.5f, 0); // Make it so pack makers can treat 0,0,0 as origin
-
                 super.translateForType(pose, attachment);
             }
         },
@@ -48,7 +47,26 @@ public class EMFAttachment {
         WITCH("witch_item"), // Overrides the 'root > head > nose' position copying part of the vanilla positioning
         PANDA("panda_item"), // Applies an extra transform alongside the vanilla one
         DOLPHIN("dolphin_item"), // Applies an extra transform alongside the vanilla one
-        FOX("fox_item") // Overrides the 'head' position copying part of the vanilla positioning
+        FOX("fox_item"), // Overrides the 'head' position copying part of the vanilla positioning
+        PARROT_LEFT("parrot_left") {
+            @Override
+            void translateForType(PoseStack pose, EMFAttachment attachment) {
+                pose.translate(0.4f, -1.5f * 2, 0); // Make it so pack makers can treat 0,0,0 as origin
+                super.translateForType(pose, attachment);
+            }
+        },
+        PARROT_RIGHT("parrot_right") {
+            @Override
+            void translateForType(PoseStack pose, EMFAttachment attachment) {
+                pose.translate(-0.4f, -1.5f * 2, 0); // Make it so pack makers can treat 0,0,0 as origin
+                super.translateForType(pose, attachment);
+            }
+        },
+
+
+        /** Only for internal use, should be set by EMF only */
+        PARROT_LEFT_AUTO("parrot_left_auto"),
+        PARROT_RIGHT_AUTO("parrot_right_auto")
         ;
 
         public final String id;

@@ -127,9 +127,6 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
     float headPitch();
     void setHeadPitch(float headPitch);
 
-    boolean onShoulder();
-    void setOnShoulder(boolean onShoulder);
-
     default boolean needsToModifyShadow() {
         return !Float.isNaN(shadowSize())
                 || !Float.isNaN(shadowOpacity())
@@ -209,7 +206,6 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
 
         EMFState.isLayerPhase = false;
         if (submitData != null) {
-            setOnShoulder(submitData.data.get("onShoulder") == Boolean.TRUE);
 
             if (vanillaSubmit.model() instanceof IEMFModel emfModel && emfModel.emf$isEMFModel()) {
                 if (submitData.data.get("isMainModelPhase") == Boolean.TRUE) {
@@ -242,8 +238,6 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
 
         EMFManager.getInstance().entityRenderCount++;
         if (inMount && !EMFState.isLayerPhase) {
-
-            if (EMFState.isInShoulderMethod) setOnShoulder(true);
 
             //#if MC >= 12102
             if (vanillaState() instanceof net.minecraft.client.renderer.entity.state.LivingEntityRenderState livingEntityRenderState) {
@@ -290,8 +284,6 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
                                 //#endif
                                 ::entitySolid);
             }
-
-            setOnShoulder(false);
 
             //perform variant checking for this entity types models
             //this is the only way to keep it generic and also before the entity is rendered and affect al its models

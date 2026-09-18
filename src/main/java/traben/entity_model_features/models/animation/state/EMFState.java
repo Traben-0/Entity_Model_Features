@@ -73,6 +73,7 @@ public abstract class EMFState {
     public static boolean isLayerPhase = false;
     public static boolean isMainPhase = false;
     public static boolean isInShoulderMethod = false;
+    public static boolean isLeftShoulder = false;
     public static boolean isInGui = false;
     public static boolean isInGroundOverride = false;
     public static boolean isOnHead = false;
@@ -87,6 +88,7 @@ public abstract class EMFState {
         isLayerPhase = false;
         isMainPhase = false;
         isInShoulderMethod = false;
+        isLeftShoulder = false;
         isInGui = false;
         modelVariationIgnoresVisibility = false;
         isInGroundOverride = false;
@@ -102,6 +104,7 @@ public abstract class EMFState {
     public static EMFStateStaticSnapshot captureStatics() {
         return new EMFStateStaticSnapshot(
                 EMFState.isInShoulderMethod,
+                EMFState.isLeftShoulder,
                 EMFState.isInGui,
                 EMFState.isInGroundOverride,
                 EMFState.isOnHead,
@@ -112,6 +115,7 @@ public abstract class EMFState {
 
     public record EMFStateStaticSnapshot(
             boolean isInShoulderMethod,
+            boolean isLeftShoulder,
             boolean isInGui,
             boolean isInGroundOverride,
             boolean isOnHead,
@@ -120,6 +124,7 @@ public abstract class EMFState {
     ) {
         public void restoreStatics() {
             EMFState.isInShoulderMethod = this.isInShoulderMethod;
+            EMFState.isLeftShoulder = this.isLeftShoulder;
             EMFState.isInGui = this.isInGui;
             EMFState.isInGroundOverride = this.isInGroundOverride;
             EMFState.isOnHead = this.isOnHead;

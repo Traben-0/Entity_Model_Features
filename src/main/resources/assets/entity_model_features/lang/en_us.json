@@ -1,4 +1,6 @@
 {
+  "entity_model_features.config.parrot_shoulder_animate": "Parrot shoulder follows player animations",
+  "entity_model_features.config.parrot_shoulder_animate.tooltip": "Will automatically make parrot shoulder position follow the animated player position by default, this is not equivalent to the `parrot_left` and `parrot_right` attachment points as these will not rotate.",
   "entity_model_features.config.sulfur_cube_block": "Sulfur Cube block default animation",
   "entity_model_features.config.sulfur_cube_block.tooltip": "Will automatically make Sulfur Cube internal blocks animate by default, this is equivalent to having a 'sulfur_cube_block' attachment in the model's 'cube' part with offset 0,0,0.",
   "entity_model_features.config.logASM": "Log compiled math state",

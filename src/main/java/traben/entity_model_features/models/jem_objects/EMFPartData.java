@@ -145,14 +145,23 @@ public class EMFPartData {
 
             if (!attachments.isEmpty()) {
                 for (String attachment : attachments.keySet()) {
-                    if (attachment.equals(EMFAttachment.Type.LEFT_HAND.id)) {
-                        jem.hasAttachmentsLeft = true;
-                    } else if (attachment.equals(EMFAttachment.Type.RIGHT_HAND.id)) {
-                        jem.hasAttachmentsRight = true;
-                    } else if (EMFAttachment.Type.of(attachment) != null) {
-                        jem.hasAttachmentsOther = true;
-                    } else {
+                    var type = EMFAttachment.Type.of(attachment);
+                    if (type == null) {
                         if (print) EMFUtils.logWarn("Unknown attachment point: " + attachment);
+                        continue;
+                    }
+
+                    if (type == EMFAttachment.Type.LEFT_HAND) {
+                        jem.hasAttachmentsLeft = true;
+                    } else if (type == EMFAttachment.Type.RIGHT_HAND) {
+                        jem.hasAttachmentsRight = true;
+                    } else {
+                        jem.hasAttachmentsOther = true;
+                        if (type == EMFAttachment.Type.SULFUR_CUBE)
+                            jem.hasAttachmentsSulfur = true;
+                        if (type == EMFAttachment.Type.PARROT_RIGHT || type == EMFAttachment.Type.PARROT_LEFT)
+                            jem.hasAttachmentsParrot = true;
+
                     }
                 }
             }

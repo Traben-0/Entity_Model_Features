@@ -2,6 +2,7 @@ package traben.entity_model_features.mixin.mixins;
 
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.ParrotModel;
@@ -43,14 +44,15 @@ public class MixinParrotEntityModel {
 
 
     //#if MC >= 12109
-    private static final String RENDER_METHOD = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V";
+    private static final String RENDER_METHOD = "submitOnShoulder";
     //#else
     //$$ private static final String RENDER_METHOD = "renderOnShoulder";
     //#endif
 
     @Inject(method = RENDER_METHOD, at = @At("HEAD"))
-    private void emf$parrot1(final CallbackInfo ci) {
+    private void emf$parrot1(final CallbackInfo ci, @Local(argsOnly = true) boolean isLeft) {
         EMFState.isInShoulderMethod = true;
+        EMFState.isLeftShoulder = isLeft;
     }
 
     @Inject(method = RENDER_METHOD, at = @At("TAIL"))

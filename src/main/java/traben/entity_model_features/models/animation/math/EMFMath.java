@@ -529,11 +529,6 @@ public abstract class EMFMath {
         return state != null && state.isInvisible();
     }
 
-
-    public static boolean isOnShoulder() {
-        var state = emfState();
-        return state != null && state.onShoulder();
-    }
     public static boolean isRidden() {
         var state = emfState();
         return state != null && state.hasPassengers();
@@ -709,9 +704,12 @@ public abstract class EMFMath {
 
     public static float getId() {
         var state = emfState();
-        return state == null || isOnShoulder()
+        return state == null
                 ? 0
-                : Math.abs(state.optifineId()) % WRAP_CONST;
+                : (isOnShoulder()
+                    ? (EMFState.isLeftShoulder ? 0 : 1)
+                    : Math.abs(state.optifineId()) % WRAP_CONST
+                );
     }
 
     public static float getHurtTime() {
@@ -840,6 +838,9 @@ public abstract class EMFMath {
 
 
     //region state passthrough
+    public static boolean isOnShoulder() {
+        return EMFState.isInShoulderMethod;
+    }
     public static boolean isInGui() {
         return EMFState.isInGui;
     }

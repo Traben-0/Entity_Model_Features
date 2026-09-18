@@ -32,6 +32,8 @@ public class EMFJemData {
     public transient boolean hasAttachmentsLeft = false;
     public transient boolean hasAttachmentsRight = false;
     public transient boolean hasAttachmentsOther = false;
+    transient boolean hasAttachmentsParrot = false;
+    transient boolean hasAttachmentsSulfur = false;
 
     public LinkedHashMap<String, List<LinkedHashMap<String, String>>> getAllTopLevelAnimationsByVanillaPartName() {
         return allTopLevelAnimationsByVanillaPartName;
@@ -167,8 +169,8 @@ public class EMFJemData {
 //            }
 
             //#if MC >= 26.2
-            //$$ if (mobModelIDInfo.getfileName().equals("sulfur_cube_inner")
-            //$$         && !hasAttachmentsOther
+            //$$ if (mobModelIDInfo.getfileName().startsWith("sulfur_cube_inner")
+            //$$         && !hasAttachmentsSulfur
             //$$         && EMF.config().getConfig().sulfurCubeBlockAnimatesByDefault
             //$$ ) {
             //$$     for (EMFPartData model : models) {
@@ -179,7 +181,22 @@ public class EMFJemData {
             //$$     }
             //$$ }
             //#endif
-
+            if (mobModelIDInfo.getfileName().startsWith("player")
+                    && !hasAttachmentsParrot
+                    && EMF.config().getConfig().parrotShoulderPositionAnimatesByDefault
+            ) {
+                for (EMFPartData model : models) {
+                    if (model.part.equals("right_arm") || model.part.equals("left_arm")) {
+                        this.hasAttachmentsOther = true;
+                        model.attachments.put(
+                                model.part.equals("right_arm")
+                                    ? EMFAttachment.Type.PARROT_RIGHT_AUTO.id
+                                    : EMFAttachment.Type.PARROT_LEFT_AUTO.id
+                                , new float[]{0, 0, 0}
+                        );
+                    }
+                }
+            }
 
             if (EMF.config().getConfig().logModelCreationData)
                 EMFUtils.log("originalModels #= " + models.size());

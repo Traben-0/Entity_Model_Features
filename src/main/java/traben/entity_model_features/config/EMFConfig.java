@@ -133,8 +133,9 @@ public class EMFConfig extends TConfig {
     public boolean asmMaths = true;
     public boolean logASM = false;
     //#if MC >= 26.2
-    //$$ public boolean sulfurCubeBlockAnimatesByDefault = false;
+    //$$ public boolean sulfurCubeBlockAnimatesByDefault = true;
     //#endif
+    public boolean parrotShoulderPositionAnimatesByDefault = true;
 
     @Override
     public TConfigEntryCategory getGUIOptions() {
@@ -151,6 +152,8 @@ public class EMFConfig extends TConfig {
                                 //$$ , new TConfigEntryBoolean("entity_model_features.config.sulfur_cube_block", "entity_model_features.config.sulfur_cube_block.tooltip",
                                 //$$         () -> sulfurCubeBlockAnimatesByDefault, value -> sulfurCubeBlockAnimatesByDefault = value, true)
                                 //#endif
+                                , new TConfigEntryBoolean("entity_model_features.config.parrot_shoulder_animate", "entity_model_features.config.parrot_shoulder_animate.tooltip",
+                                        () -> parrotShoulderPositionAnimatesByDefault, value -> parrotShoulderPositionAnimatesByDefault = value, true)
                         ),
                         new TConfigEntryCategory("entity_model_features.config.player_settings").add(
                                 new TConfigEntryBoolean("entity_model_features.config.prevent_hand", "entity_model_features.config.prevent_hand.tooltip",
