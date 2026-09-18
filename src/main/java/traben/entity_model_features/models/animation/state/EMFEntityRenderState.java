@@ -237,7 +237,7 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
         }
 
         EMFManager.getInstance().entityRenderCount++;
-        if (inMount && !EMFState.isLayerPhase) {
+        if (inMount && (!EMFState.isLayerPhase || EMFState.isInShoulderMethod)) {
 
             //#if MC >= 12102
             if (vanillaState() instanceof net.minecraft.client.renderer.entity.state.LivingEntityRenderState livingEntityRenderState) {

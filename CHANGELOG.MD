@@ -4,6 +4,7 @@
 - added attachment points for `parrot_left` & `parrot_right` to allow manually controlling the position of shoulder parrots on the player model (supports animation)
 - added an option to have parrots adjust their position automatically to match custom player model animations (ignores rotation and uses the vanilla offsets, but will move to match the player shoulder position from animations, is disabled if the parrot offsets are used, or via the settings)
 - parrots on the left shoulder will now return `0` for the animation variable `id`, and `1` for the right shoulder
+- fixed `head_yaw` and `head_pitch` for shoulder parrots (also need ETF update to work)
 
 [3.3.7]
 - fixed a texture override issue when the model doesn't declare all parts or uses attach=true and every part declared the same texture override
