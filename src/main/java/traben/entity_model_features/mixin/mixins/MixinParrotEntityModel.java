@@ -3,8 +3,6 @@ package traben.entity_model_features.mixin.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.ParrotModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -15,18 +13,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFManager;
-import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.animation.state.EMFState;
-import traben.entity_model_features.utils.EMFEntity;
 
-//#if MC >= 12102
 import net.minecraft.client.renderer.entity.layers.ParrotOnShoulderLayer;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.client.Minecraft;
 import traben.entity_model_features.utils.EMFUtils;
-import traben.entity_texture_features.features.state.ETFEntityRenderState;
-import traben.entity_texture_features.utils.UEntityTypes;
 
 @Mixin(ParrotOnShoulderLayer.class)
 public class MixinParrotEntityModel {
@@ -45,8 +35,10 @@ public class MixinParrotEntityModel {
 
     //#if MC >= 12109
     private static final String RENDER_METHOD = "submitOnShoulder";
-    //#else
+    //#elseif MC > 1.21.2
     //$$ private static final String RENDER_METHOD = "renderOnShoulder";
+    //#else
+    //$$ private static final String RENDER_METHOD = "method_17958";
     //#endif
 
     @Inject(method = RENDER_METHOD, at = @At("HEAD"))
@@ -61,19 +53,6 @@ public class MixinParrotEntityModel {
     }
 }
 
-//#else
-//$$ @Mixin(ParrotModel.class)
-//$$ public class MixinParrotEntityModel {
-//$$     @Inject(method = "renderOnShoulder", at = @At("HEAD"))
-//$$     private void emf$parrot1(PoseStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float limbAngle, float limbDistance, float headYaw, float headPitch, int danceAngle, CallbackInfo ci) {
-//$$         EMFState.isInShoulderMethod = true;
-//$$     }
-//$$     @Inject(method = "renderOnShoulder", at = @At("TAIL"))
-//$$     private void emf$parrot2(PoseStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float limbAngle, float limbDistance, float headYaw, float headPitch, int danceAngle, CallbackInfo ci) {
-//$$         EMFState.isInShoulderMethod = false;
-//$$     }
-//$$ }
-//#endif
 
 
 

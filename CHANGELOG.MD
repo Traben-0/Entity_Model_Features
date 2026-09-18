@@ -1,4 +1,7 @@
 
+[3.3.9]
+- fixed a launch issue with 1.21.1 && 1.20.1 introduced in v3.3.8
+
 [3.3.8]
 - fixed `is_on_shoulder` not working on 1.21.9+
 - added attachment points for `parrot_left` & `parrot_right` to allow manually controlling the position of shoulder parrots on the player model (supports animation)

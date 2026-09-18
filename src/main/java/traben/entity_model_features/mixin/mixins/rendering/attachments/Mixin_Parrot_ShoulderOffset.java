@@ -21,8 +21,10 @@ public abstract class Mixin_Parrot_ShoulderOffset extends RenderLayer {
 
     //#if MC >= 12109
     private static final String RENDER_METHOD = "submitOnShoulder";
-    //#else
+    //#elseif MC > 1.21.2
     //$$ private static final String RENDER_METHOD = "renderOnShoulder";
+    //#else
+    //$$ private static final String RENDER_METHOD = "method_17958";
     //#endif
 
 
