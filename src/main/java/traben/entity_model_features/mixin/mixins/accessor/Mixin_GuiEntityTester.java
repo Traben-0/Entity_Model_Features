@@ -8,13 +8,14 @@ import traben.entity_model_features.models.animation.state.EMFState;
 
 //#if MC >= 12106
 import net.minecraft.client.gui.render.GuiRenderer;
+import traben.entity_texture_features.utils.UScreen;
 
 @Mixin(GuiRenderer.class)
 public class Mixin_GuiEntityTester {
     @Inject(method = "render",
         at = @At("HEAD"))
     private void etf$beforeRenderToTexture(final CallbackInfo ci) {
-        EMFState.isInGui = true;
+        EMFState.isInGui = UScreen.currentScreen() != null;
     }
 
     @Inject(method = "render",
