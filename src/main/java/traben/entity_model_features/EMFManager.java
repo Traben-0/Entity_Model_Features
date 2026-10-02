@@ -84,6 +84,7 @@ public class EMFManager {//singleton for data holding and resetting needs
 
     public final Map<String, Set<EMFModelPartRoot>> rootPartsPerEntityTypeForVariation = new ConcurrentHashMap<>();
     public final Map<String, EMFJemData> cache_JemDataByFileName = new HashMap<>();
+    public boolean anyJemLoaded = false;
     public final Map<String, Pair<EMFModel_ID, ModelLayerLocation>> cache_LayersByModelName = new ConcurrentHashMap<>();
     public final Set<String> EBE_JEMS_FOUND_LAST = new HashSet<>();
     private final Map<ModelLayerLocation, Integer> amountOfLayerAttempts = new ConcurrentHashMap<>();
@@ -162,6 +163,7 @@ public class EMFManager {//singleton for data holding and resetting needs
             EMFJemData jem = gson.fromJson(reader, EMFJemData.class);
             reader.close();
             jem.prepare(jemDirectory, mobModelIDInfo);
+            EMFManager.getInstance().anyJemLoaded = true;
             if (mobModelIDInfo.areBothSame())
                 EMFManager.getInstance().cache_JemDataByFileName.put(pathOfJem, jem);
             return jem;

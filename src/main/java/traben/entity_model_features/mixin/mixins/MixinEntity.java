@@ -268,9 +268,12 @@ public abstract class MixinEntity implements EMFEntity {
         );
     }
 
+    @Unique private String emf$typeString = null;
+
     @Override
     public String emf$getTypeString() {
-        return getType().toString();
+        if (emf$typeString == null) emf$typeString = getType().toString();
+        return emf$typeString;
     }
 
     @Unique private int varHash = 0;

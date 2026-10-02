@@ -152,9 +152,12 @@ public abstract class MixinBlockEntity implements EMFEntity {
         return new Vec3(0, 0, 0);
     }
 
+    @Unique private String emf$typeString = null;
+
     @Override
     public String emf$getTypeString() {
-        return getType().toString();
+        if (emf$typeString == null) emf$typeString = getType().toString();
+        return emf$typeString;
     }
 
     @Unique private int varHash = 0;

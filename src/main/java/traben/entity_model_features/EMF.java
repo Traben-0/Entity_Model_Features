@@ -10,6 +10,7 @@ import traben.entity_model_features.mod_compat.PALCompat;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.animation.state.EMFEntityRenderStateViaReference;
 import traben.entity_model_features.models.animation.state.EMFState;
+import traben.entity_model_features.models.IEMFModel;
 import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import traben.entity_model_features.propeties.*;
@@ -129,10 +130,13 @@ public class EMF {
                 }
             }
 
-            data.data.put("isMainModelPhase", EMFState.isMainPhase);
-            data.data.put("isLayerModelPhase", EMFState.isLayerPhase);
+            if (vanilla.model() instanceof IEMFModel emfModel && emfModel.emf$isEMFModel()) { // phases are only read for EMF models
+                if (EMFState.isMainPhase) data.data.put("isMainModelPhase", true);
+                if (EMFState.isLayerPhase) data.data.put("isLayerModelPhase", true);
+            }
 
-            data.data.put("statics", EMFState.captureStatics());
+            var statics = EMFState.captureStatics();
+            if (!statics.isDefault()) data.data.put("statics", statics);
 
             EMFModelPartRoot emfRoot = vanilla.model().root() instanceof EMFModelPartRoot ? (EMFModelPartRoot) vanilla.model().root() : null;
             if (emfRoot != null) {

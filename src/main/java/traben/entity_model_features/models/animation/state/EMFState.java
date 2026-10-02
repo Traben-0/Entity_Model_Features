@@ -101,16 +101,30 @@ public abstract class EMFState {
     }
 
     //region static snapshotting
+    private static final EMFStateStaticSnapshot[] SNAPSHOTS = new EMFStateStaticSnapshot[128];
+
     public static EMFStateStaticSnapshot captureStatics() {
-        return new EMFStateStaticSnapshot(
-                EMFState.isInShoulderMethod,
-                EMFState.isLeftShoulder,
-                EMFState.isInGui,
-                EMFState.isInGroundOverride,
-                EMFState.isOnHead,
-                EMFState.isInHand,
-                EMFState.isInItemFrame
-        );
+        int key = (EMFState.isInShoulderMethod ? 1 : 0)
+                | (EMFState.isLeftShoulder ? 2 : 0)
+                | (EMFState.isInGui ? 4 : 0)
+                | (EMFState.isInGroundOverride ? 8 : 0)
+                | (EMFState.isOnHead ? 16 : 0)
+                | (EMFState.isInHand ? 32 : 0)
+                | (EMFState.isInItemFrame ? 64 : 0);
+        var snapshot = SNAPSHOTS[key];
+        if (snapshot == null) {
+            snapshot = new EMFStateStaticSnapshot(
+                    EMFState.isInShoulderMethod,
+                    EMFState.isLeftShoulder,
+                    EMFState.isInGui,
+                    EMFState.isInGroundOverride,
+                    EMFState.isOnHead,
+                    EMFState.isInHand,
+                    EMFState.isInItemFrame
+            );
+            SNAPSHOTS[key] = snapshot;
+        }
+        return snapshot;
     }
 
     public record EMFStateStaticSnapshot(
@@ -122,6 +136,10 @@ public abstract class EMFState {
             boolean isInHand,
             boolean isInItemFrame
     ) {
+        public boolean isDefault() {
+            return this == SNAPSHOTS[0];
+        }
+
         public void restoreStatics() {
             EMFState.isInShoulderMethod = this.isInShoulderMethod;
             EMFState.isLeftShoulder = this.isLeftShoulder;
