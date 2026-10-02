@@ -1,3 +1,6 @@
+[3.3.10]
+- fixed `is_in_item_frame` always being false for item frame submits on 1.21.9+
+
 
 [3.3.9]
 - fixed a launch issue with 1.21.1 && 1.20.1 introduced in v3.3.8

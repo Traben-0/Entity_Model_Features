@@ -43,7 +43,7 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
         //#if MC >= 1.21.2
         // Attempt to capture the full render state
         EMFEntityRenderState state = null;
-        try {
+        if (EMFManager.getInstance().anyJemLoaded) try {
             EntityRenderer<LocalPlayer, net.minecraft.client.renderer.entity.state.EntityRenderState> renderer =
                     (EntityRenderer<LocalPlayer, net.minecraft.client.renderer.entity.state.EntityRenderState>)
                             Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(Minecraft.getInstance().player);
@@ -200,10 +200,6 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
         //noinspection unchecked
         setLayerFactory(vanillaSubmit.model().renderType);
 
-        if (vanillaSubmit.state() instanceof net.minecraft.client.renderer.entity.state.ItemFrameRenderState) {
-            EMFState.isInItemFrame = true;
-        }
-
         EMFState.isLayerPhase = false;
         if (submitData != null) {
 
@@ -223,6 +219,9 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
             }
         }
 
+        if (vanillaSubmit.state() instanceof net.minecraft.client.renderer.entity.state.ItemFrameRenderState) {
+            EMFState.isInItemFrame = true;
+        }
 
     }
     //#endif
