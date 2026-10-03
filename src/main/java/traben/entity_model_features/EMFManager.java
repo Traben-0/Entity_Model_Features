@@ -850,6 +850,7 @@ public class EMFManager {//singleton for data holding and resetting needs
         allPartsBySingleAndFullHeirachicalId.putAll(emfRootPart.getAllChildPartsAsAnimationMap("", variantNum, EMFModelMappings.getMapOf(emfRootPart.modelName, null)));
 
         OldEMFAnimationHandler oldAnimationHandler = new OldEMFAnimationHandler(jemData.directoryContext.getFileNameWithType());
+        var context = new AnimSetupContext(jemData.directoryContext.getFileNameWithType(), oldAnimationHandler, allPartsBySingleAndFullHeirachicalId);
 
         if (printing) {
             EMFUtils.log(" > finalAnimationsForModel =");
@@ -878,7 +879,7 @@ public class EMFManager {//singleton for data holding and resetting needs
                     EMFModelOrRenderVariable thisVariable = EMFModelOrRenderVariable.get(modelVariable);
                     if (thisVariable == null) thisVariable = EMFModelOrRenderVariable.getRenderVariable(animKey);
 
-                    EMFModelPart thisPart = "render".equals(modelId) ? null : getModelFromHierarchicalId(modelId, allPartsBySingleAndFullHeirachicalId);
+                    EMFModelPart thisPart = "render".equals(modelId) ? null : context.getModelFromHierarchicalId(modelId);
 
                     oldAnimationHandler.addAnimLineData(new EMFAnimationHandler.AnimLineData(
                             animKey,
@@ -896,7 +897,6 @@ public class EMFManager {//singleton for data holding and resetting needs
         isAnimationValidationPhase = true;
         try {
             Iterator<EMFAnimationHandler.AnimLineData> animMapIterate = oldAnimationHandler.lines().iterator();
-            var context = new AnimSetupContext(jemData.directoryContext.getFileNameWithType(), oldAnimationHandler, allPartsBySingleAndFullHeirachicalId);
 
             while (animMapIterate.hasNext()) {
                 var line = animMapIterate.next();
