@@ -3,6 +3,7 @@
 - fixed some issues with animated gui entities such as paper doll mods
 - optimized animation loading code should speed up resource reload and first game load with large animations
 - fixed cubes being missing when model forced to vanilla, or attach=true
+- fixed mixin crash on 1.21.9-10
 
 [3.3.9]
 - fixed a launch issue with 1.21.1 && 1.20.1 introduced in v3.3.8
