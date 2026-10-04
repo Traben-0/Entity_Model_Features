@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import traben.entity_texture_features.utils.ETFEntity;
+import traben.entity_texture_features.utils.UScreen;
 
 public interface EMFEntityRenderState extends ETFEntityRenderState {
 
@@ -240,7 +241,7 @@ public interface EMFEntityRenderState extends ETFEntityRenderState {
 
             //#if MC >= 12102
             if (vanillaState() instanceof net.minecraft.client.renderer.entity.state.LivingEntityRenderState livingEntityRenderState) {
-                if (EMFState.isInGui) {
+                if (EMFState.isInGui && UScreen.currentScreen() != null) {
                     // entity isn't actually walking in the gui, zero these out so animations don't jitter
                     setLimbAngle(0);
                     setLimbDistance(0);

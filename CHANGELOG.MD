@@ -1,8 +1,8 @@
 [3.3.10]
 - fixed `is_in_item_frame` always being false for item frame submits on 1.21.9+
+- fixed some issues with animated gui entities such as paper doll mods
 - optimized animation loading code should speed up resource reload and first game load with large animations
-- fixed cubes being missing when model forced to vanilla, or attach=true 
-
+- fixed cubes being missing when model forced to vanilla, or attach=true
 
 [3.3.9]
 - fixed a launch issue with 1.21.1 && 1.20.1 introduced in v3.3.8

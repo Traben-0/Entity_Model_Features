@@ -324,7 +324,7 @@ private fun changelog(): String? {
 
 publishMods {
     // for specific version releases
-    dryRun.set(mcVersion >= 1_21_02)
+    //dryRun.set(mcVersion >= 1_21_02)
 
     val changes = changelog()
     if (changes == null) {

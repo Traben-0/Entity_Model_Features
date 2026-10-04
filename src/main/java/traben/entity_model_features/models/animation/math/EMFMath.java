@@ -38,6 +38,7 @@ import traben.entity_model_features.mixin.mixins.accessor.MinecraftClientAccesso
 import traben.entity_model_features.models.animation.state.EMFEntityRenderState;
 import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFEntity;
+import traben.entity_texture_features.utils.UScreen;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -173,7 +174,7 @@ public abstract class EMFMath {
     //region move methods
     public static float getMoveForward() {
         var state = emfState();
-        if (state == null || isInGui()) return 0;
+        if (state == null || isInGuiAndScreen()) return 0;
         double lookDir = Math.toRadians(90 - state.yaw());
         //float speed = entity.horizontalSpeed;
         Vec3 velocity = state.emfVelocity();
@@ -192,7 +193,7 @@ public abstract class EMFMath {
 
     public static float getMoveStrafe() {
         var state = emfState();
-        if (state == null || isInGui()) return 0;
+        if (state == null || isInGuiAndScreen()) return 0;
         double lookDir = Math.toRadians(90 - state.yaw());
         //float speed = entity.horizontalSpeed;
         Vec3 velocity = state.emfVelocity();
@@ -220,7 +221,7 @@ public abstract class EMFMath {
         var state = emfState();
         if (state == null) return 0;
         if (Float.isNaN(state.headYaw())) {
-            if (isInGui()) return 0;
+            if (isInGuiAndScreen()) return 0;
             doHeadValues();
         }
         return state.headYaw();
@@ -231,7 +232,7 @@ public abstract class EMFMath {
         var state = emfState();
         if (state == null) return 0;
         if (Float.isNaN(state.headPitch())) {
-            if (isInGui()) return 0;
+            if (isInGuiAndScreen()) return 0;
             doHeadValues();
         }
         return state.headPitch();
@@ -786,7 +787,7 @@ public abstract class EMFMath {
     }
 
     public static float getSwingProgress() {
-        if (isInGui()) return 0;
+        if (isInGuiAndScreen()) return 0;
         return emfEntity() instanceof LivingEntity alive ? alive.
                 //#if MC >= 26.3
                 //$$ getSwingAnimation
@@ -843,6 +844,11 @@ public abstract class EMFMath {
     }
     public static boolean isInGui() {
         return EMFState.isInGui;
+    }
+    public static boolean isInGuiAndScreen() {
+        // Imperfect solution as should instead wrap the screen extract and pass that state through properly,
+        // but thats a lot of effort for a minor behaviour change for gui entities in screen backgrounds e.g. hud models when inventory open
+        return EMFState.isInGui && UScreen.currentScreen() != null;
     }
     public static boolean isInHand() {
         return EMFState.isInHand;
