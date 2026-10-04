@@ -47,6 +47,7 @@ public class EMFModelPartVanilla extends EMFModelPartWithState {
             allVanillaParts.put(child.getKey(), vanilla);
         }
         vanillaChildren = this.children;
+        this.cubes = vanillaPart.cubes;
         allKnownStateVariants.put(0, getCurrentState());
 
     }
