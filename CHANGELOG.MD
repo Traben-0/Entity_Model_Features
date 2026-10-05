@@ -1,3 +1,8 @@
+
+[3.3.11]
+- fixed `keyframeloop()` not working with compiled maths
+- reduced some log spam for a minor but common model issue
+
 [3.3.10]
 - fixed `is_in_item_frame` always being false for item frame submits on 1.21.9+
 - fixed some issues with animated gui entities such as paper doll mods
