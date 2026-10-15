@@ -9,6 +9,7 @@ import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.List;
 
+//TODO likely redundant now due to ASMParser.CHUNK_INSNS but harmless to keep for now
 public class MultiASMAnimationHandler extends EMFAnimationHandler {
 
     private final boolean logsASM = EMF.config().getConfig().logASM;

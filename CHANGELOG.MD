@@ -1,4 +1,7 @@
 
+[3.3.12]
+- Several optimizations to ASM animations, resulting in a notable fps increase with larger animations. Thanks to Wyvest on GitHub
+
 [3.3.11]
 - fixed `keyframeloop()` not working with compiled maths
 - reduced some log spam for a minor but common model issue
