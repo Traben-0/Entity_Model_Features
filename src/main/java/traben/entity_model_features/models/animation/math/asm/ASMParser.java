@@ -3,6 +3,7 @@ package traben.entity_model_features.models.animation.math.asm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.*;
+import org.objectweb.asm.tree.MethodNode;
 import traben.entity_model_features.EMF;
 import traben.entity_model_features.EMFException;
 import traben.entity_model_features.models.animation.AnimSetupContext;
@@ -27,6 +28,8 @@ import static org.objectweb.asm.Opcodes.*;
 public class ASMParser {
 
     private static final AtomicLong id = new AtomicLong();
+
+    private static final int CHUNK_INSNS = 2500;
 
     public interface ASMExecutor {
         void execute(float[] floats, boolean[] bools) throws Throwable;
@@ -120,16 +123,33 @@ public class ASMParser {
 
             mv.visitCode();
 
+            var internalName = className.replace('.', '/');
+            var chunks = new ArrayList<MethodNode>();
+            MethodNode chunk = null;
             for (var entry : lines.entrySet()) {
                 var line = entry.getKey();
                 var oldAnim = entry.getValue();
                 assert oldAnim != null;
 
+                if (chunk == null || chunk.instructions.size() > CHUNK_INSNS) {
+                    chunk = new MethodNode(ACC_PRIVATE | ACC_STATIC, "eval" + chunks.size(), "([F[Z)V", null, null);
+                    chunks.add(chunk);
+                }
                 varNames.scope(line.isBoolean);
-                oldAnim.asmVisit(mv, varNames); // Leaves result on stack
-                line.asmIndex = varNames.asmStoreVar(mv, line.animKey); // Store result and empty stack
+                oldAnim.asmVisit(chunk, varNames); // Leaves result on stack
+                line.asmIndex = varNames.asmStoreVar(chunk, line.animKey); // Store result and empty stack
                 varNames.scopePop();
                 varNames.verifyEndOfParse();
+            }
+
+            for (var c : chunks) {
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitVarInsn(ALOAD, 1);
+                mv.visitMethodInsn(INVOKESTATIC, internalName, c.name, c.desc, false);
+                c.visitInsn(RETURN);
+                c.visitMaxs(0, 0);
+                c.visitEnd();
+                c.accept(cw);
             }
 
             mv.visitInsn(RETURN);

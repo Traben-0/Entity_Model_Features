@@ -1,8 +1,11 @@
 package traben.entity_model_features.models.animation.math.expression_tree;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import traben.entity_model_features.models.animation.math.EMFMathException;
 import traben.entity_model_features.models.animation.math.asm.ASMVariableHandler;
+
+import static org.objectweb.asm.Opcodes.*;
 
 public class MathBinaryExpressionComponent extends MathValue implements MathComponent {
 
@@ -56,9 +59,20 @@ public class MathBinaryExpressionComponent extends MathValue implements MathComp
         vars.scope(overrideScopeToBool || action.isScopeBool());
 
         first.asmVisit(mv, vars);
-        second.asmVisit(mv, vars);
-
-        action.asmVisit(mv, vars);
+        if (action == MathOperator.AND || action == MathOperator.OR) {
+            boolean and = action == MathOperator.AND;
+            var skip = new Label();
+            var end = new Label();
+            mv.visitJumpInsn(and ? IFEQ : IFNE, skip);
+            second.asmVisit(mv, vars);
+            mv.visitJumpInsn(GOTO, end);
+            mv.visitLabel(skip);
+            mv.visitInsn(and ? ICONST_0 : ICONST_1);
+            mv.visitLabel(end);
+        } else {
+            second.asmVisit(mv, vars);
+            action.asmVisit(mv, vars);
+        }
         vars.scopePop();
     }
 
