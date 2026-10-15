@@ -7,7 +7,6 @@ import traben.entity_model_features.models.parts.EMFModelPart;
 import traben.entity_model_features.models.animation.math.expression_tree.MathConstant;
 import traben.entity_model_features.models.animation.math.expression_tree.MathValue;
 import traben.entity_model_features.models.animation.math.variables.EMFModelOrRenderVariable;
-import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.utils.EMFUtils;
 
 import java.util.function.BooleanSupplier;
@@ -18,7 +17,7 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
         String[] split = variableKey.split("\\.");//todo only works with one split point
         String partName = split[0];
         EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
-        EMFModelPart part = EMFManager.getModelFromHierarchicalId(partName, context.allPartsBySingleAndFullHeirachicalId);
+        EMFModelPart part = context.getModelFromHierarchicalId(partName);
         if (partVariable != null) {
             if (part != null) {
                 return () -> partVariable.getValue(part);
@@ -46,7 +45,7 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
         String[] split = variableKey.split("\\.");
         String partName = split[0];
         EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
-        EMFModelPart part = EMFManager.getModelFromHierarchicalId(partName, context.allPartsBySingleAndFullHeirachicalId);
+        EMFModelPart part = context.getModelFromHierarchicalId(partName);
         if (partVariable != null && partVariable.isBoolean()) {
             if (part != null) {
                 return switch (partVariable) {
@@ -68,7 +67,7 @@ public class ModelPartVariableFactory extends UniqueVariableFactory {
         String[] split = variableKey.split("\\.");
         String partName = split[0];
         EMFModelOrRenderVariable partVariable = EMFModelOrRenderVariable.get(split[1]);
-        EMFModelPart part = EMFManager.getModelFromHierarchicalId(partName, context.allPartsBySingleAndFullHeirachicalId);
+        EMFModelPart part = context.getModelFromHierarchicalId(partName);
         if (partVariable != null && !partVariable.isBoolean()) {
             if (part != null) {
                 return switch (partVariable) {

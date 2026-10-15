@@ -69,7 +69,7 @@ public final class MethodRegistry {
 
             registerAndWrapMethodFactory("nbt", NBTMethod::new);
             registerAndWrapMethodFactory("keyframe", KeyframeMethod::new);
-            registerAndWrapMethodFactory("keyframeloop", KeyframeloopMethod::new);
+            registerAndWrapMethodFactory("keyframeloop", KeyframeLoopMethod::new);
             registerHelperMethodFactory("wrapdeg");
             registerHelperMethodFactory("wraprad");
             registerHelperMethodFactory("degdiff");

@@ -44,22 +44,22 @@ public abstract class Mixin_Fox_BlockOffset extends RenderLayer {
 //    }
 
     //#if MC >= 26.3
-
-    @WrapWithCondition(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/FoxRenderState;FF)V",
-            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;rotate(Lcom/mojang/math/Axis;F)V", ordinal = 0))
-    private boolean offsetBlock3(PoseStack instance, Axis axis, float v, @Share("cancelRestOfHead") LocalBooleanRef cancelRestOfHead) {
-        return !cancelRestOfHead.get();
-    }
-    @WrapWithCondition(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/FoxRenderState;FF)V",
-            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;rotateDegrees(Lcom/mojang/math/Axis;F)V", ordinal = 0))
-    private boolean offsetBlock4(PoseStack instance, Axis axis, float v, @Share("cancelRestOfHead") LocalBooleanRef cancelRestOfHead) {
-        return !cancelRestOfHead.get();
-    }
-    @WrapWithCondition(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/FoxRenderState;FF)V",
-            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;rotateDegrees(Lcom/mojang/math/Axis;F)V", ordinal = 1))
-    private boolean offsetBlock5(PoseStack instance, Axis axis, float v, @Share("cancelRestOfHead") LocalBooleanRef cancelRestOfHead) {
-        return !cancelRestOfHead.get();
-    }
+    //$$
+    //$$ @WrapWithCondition(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/FoxRenderState;FF)V",
+    //$$         at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;rotate(Lcom/mojang/math/Axis;F)V", ordinal = 0))
+    //$$ private boolean offsetBlock3(PoseStack instance, Axis axis, float v, @Share("cancelRestOfHead") LocalBooleanRef cancelRestOfHead) {
+    //$$     return !cancelRestOfHead.get();
+    //$$ }
+    //$$ @WrapWithCondition(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/FoxRenderState;FF)V",
+    //$$         at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;rotateDegrees(Lcom/mojang/math/Axis;F)V", ordinal = 0))
+    //$$ private boolean offsetBlock4(PoseStack instance, Axis axis, float v, @Share("cancelRestOfHead") LocalBooleanRef cancelRestOfHead) {
+    //$$     return !cancelRestOfHead.get();
+    //$$ }
+    //$$ @WrapWithCondition(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/FoxRenderState;FF)V",
+    //$$         at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;rotateDegrees(Lcom/mojang/math/Axis;F)V", ordinal = 1))
+    //$$ private boolean offsetBlock5(PoseStack instance, Axis axis, float v, @Share("cancelRestOfHead") LocalBooleanRef cancelRestOfHead) {
+    //$$     return !cancelRestOfHead.get();
+    //$$ }
     //#else
 
     //#if MC > 1.21.4

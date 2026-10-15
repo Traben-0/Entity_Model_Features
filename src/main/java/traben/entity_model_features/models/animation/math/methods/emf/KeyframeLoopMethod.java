@@ -19,10 +19,10 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEWARRAY;
 import static org.objectweb.asm.Opcodes.T_FLOAT;
 
-public class KeyframeloopMethod extends MathMethod {
+public class KeyframeLoopMethod extends MathMethod {
 
 
-    public KeyframeloopMethod(final List<String> args, final boolean isNegative, AnimSetupContext context) throws EMFMathException {
+    public KeyframeLoopMethod(final List<String> args, final boolean isNegative, AnimSetupContext context) throws EMFMathException {
         super(isNegative, context, args);
 
 
@@ -72,7 +72,7 @@ public class KeyframeloopMethod extends MathMethod {
     }
 
     @SuppressWarnings("unused")
-    public static float keyFrameLoopStatic(float deltaRaw, float... frameArray) {
+    public static float keyFrameLoopStatic(float deltaRaw, float[] frameArray) {
         int deltaFloor = Mth.floor(deltaRaw);
         int frameCount = frameArray.length;
 

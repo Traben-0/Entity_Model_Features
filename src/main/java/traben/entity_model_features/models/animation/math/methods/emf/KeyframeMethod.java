@@ -80,7 +80,7 @@ public class KeyframeMethod extends MathMethod {
     }
 
     @SuppressWarnings("unused")
-    public static float keyFrameStatic(float deltaRaw, float... frameArray) {
+    public static float keyFrameStatic(float deltaRaw, float[] frameArray) {
         int deltaFloor = Mth.floor(deltaRaw);
         int frameEnd = frameArray.length - 1;
 

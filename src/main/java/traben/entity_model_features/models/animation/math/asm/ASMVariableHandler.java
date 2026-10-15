@@ -4,8 +4,10 @@ import org.objectweb.asm.MethodVisitor;
 import traben.entity_model_features.models.animation.math.EMFMathException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
@@ -24,6 +26,11 @@ public class ASMVariableHandler {
     private final Stack<Boolean> booleanScopeStack = new Stack<>();
     private final List<String> floatVarList = new ArrayList<>();
     private final List<String> boolVarList = new ArrayList<>();
+    // Index of each name in the lists above, kept in step by getAndAssignVarIndex() so the lists never need searching
+    private final Map<String, Integer> floatVarIndexes = new HashMap<>();
+    private final Map<String, Integer> boolVarIndexes = new HashMap<>();
+    // True once a name has been added to both lists, verifyEndOfParse() reports it
+    private boolean hasVarInBothLists = false;
     private final Set<String> readVarNames = new HashSet<>();
     private final Set<String> writeVarNames = new HashSet<>();
 
@@ -58,7 +65,7 @@ public class ASMVariableHandler {
         if (localVarIndex != 1)
             throw new EMFMathException("ASMVariableHandler verifyEndOfParse issue: local variable index is not reset, probably an EMF issue.");
 
-        if (floatVarList.stream().anyMatch(boolVarList::contains))
+        if (hasVarInBothLists)
             throw new EMFMathException("ASMVariableHandler verifyEndOfParse issue: a variable was used both as a number and a boolean somewhere, this is not allowed.");
     }
 
@@ -82,11 +89,17 @@ public class ASMVariableHandler {
         if (reading) readVarNames.add(varName);
         if (!reading) writeVarNames.add(varName);
 
-        var list = (booleanScopeStack.peek() ? boolVarList : floatVarList);
-        if (list.contains(varName)) {
-            return list.indexOf(varName);
+        boolean isBoolean = booleanScopeStack.peek();
+        var list = isBoolean ? boolVarList : floatVarList;
+        var indexes = isBoolean ? boolVarIndexes : floatVarIndexes;
+
+        Integer index = indexes.get(varName);
+        if (index != null) {
+            return index;
         } else {
             list.add(varName);
+            indexes.put(varName, list.size() - 1);
+            if ((isBoolean ? floatVarIndexes : boolVarIndexes).containsKey(varName)) hasVarInBothLists = true;
             return list.size() - 1;
         }
     }

@@ -27,6 +27,8 @@ public abstract class MixinEntity implements EMFEntity {
     private final Map<String, Float> emf$variableMap = new Object2FloatOpenHashMap<>();
     @Unique
     private @Nullable Map<String, Float> emf$variableMapGuiCopy = null;
+    @Unique
+    private @Nullable Map<String, Float> emf$variableMapGuiCopyFirstPerson = null;
 
 
     @Shadow
@@ -285,6 +287,16 @@ public abstract class MixinEntity implements EMFEntity {
             varHash = managerHash;
             emf$variableMap.clear();
             emf$variableMapGuiCopy = null;
+            emf$variableMapGuiCopyFirstPerson = null;
+        }
+
+        // Create separate variable instances for both gui and first person hand contexts
+        var state = EMFState.state();
+        if (state != null && state.isFirstPersonHand()) {
+            // First person hand variables can mess up other gui rendering entities, specifically known to break
+            // paper doll renderers arm animations as they may have at some point read the first person values
+            if (emf$variableMapGuiCopyFirstPerson == null) emf$variableMapGuiCopyFirstPerson = new Object2FloatOpenHashMap<>(emf$variableMap);
+            return emf$variableMapGuiCopyFirstPerson;
         }
 
         if (EMFState.isInGui) {
@@ -292,6 +304,7 @@ public abstract class MixinEntity implements EMFEntity {
             if (emf$variableMapGuiCopy == null) emf$variableMapGuiCopy = new Object2FloatOpenHashMap<>(emf$variableMap);
             return emf$variableMapGuiCopy;
         }
+
         return emf$variableMap;
     }
 }

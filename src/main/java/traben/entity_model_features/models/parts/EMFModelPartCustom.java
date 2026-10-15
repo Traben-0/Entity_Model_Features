@@ -441,6 +441,7 @@ public class EMFModelPartCustom extends EMFModelPart {
         //$$     //copy of vanilla compile() required to be overridden in sodium 0.6
         //$$     Matrix4f matrix4f = pose.pose();
         //$$     Matrix3f matrix3f = pose.normal();
+        //$$     Vector4f vector4f = new Vector4f();
         //$$
         //$$     for (Polygon polygon : this.polygons) {
         //$$         Vector3f vector3f = matrix3f.transform(new Vector3f(polygon.normal));
@@ -453,7 +454,7 @@ public class EMFModelPartCustom extends EMFModelPart {
         //$$             float o = vertex.pos.x() / 16.0F;
         //$$             float p = vertex.pos.y() / 16.0F;
         //$$             float q = vertex.pos.z() / 16.0F;
-        //$$             Vector4f vector4f = matrix4f.transform(new Vector4f(o, p, q, 1.0F));
+        //$$             matrix4f.transform(vector4f.set(o, p, q, 1.0F));
         //$$             vertexConsumer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), f, g, h, k, vertex.u, vertex.v, j, i, l, m, n);
         //$$         }
         //$$     }

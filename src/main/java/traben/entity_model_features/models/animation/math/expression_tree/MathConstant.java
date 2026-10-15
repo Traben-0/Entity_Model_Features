@@ -25,7 +25,6 @@ public class MathConstant extends MathValue implements MathComponent {
 
     @Override
     public ResultSupplier getResultSupplier() {
-        EMFUtils.logError("EMF math constant called supplier: this shouldn't happen!");
         return this::getResult;
     }
 
