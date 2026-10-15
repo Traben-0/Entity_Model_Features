@@ -2,6 +2,7 @@ package traben.entity_model_features.mixin.mixins;
 
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -16,7 +17,6 @@ import traben.entity_model_features.EMFManager;
 import traben.entity_model_features.models.animation.state.EMFState;
 import traben.entity_model_features.utils.EMFEntity;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +24,7 @@ import java.util.Map;
 public abstract class MixinEntity implements EMFEntity {
 
     @Unique
-    private final Map<String, Float> emf$variableMap = new HashMap<>();
+    private final Map<String, Float> emf$variableMap = new Object2FloatOpenHashMap<>();
     @Unique
     private @Nullable Map<String, Float> emf$variableMapGuiCopy = null;
     @Unique
@@ -295,12 +295,13 @@ public abstract class MixinEntity implements EMFEntity {
         if (state != null && state.isFirstPersonHand()) {
             // First person hand variables can mess up other gui rendering entities, specifically known to break
             // paper doll renderers arm animations as they may have at some point read the first person values
-            if (emf$variableMapGuiCopyFirstPerson == null) emf$variableMapGuiCopyFirstPerson = new HashMap<>(emf$variableMap);
+            if (emf$variableMapGuiCopyFirstPerson == null) emf$variableMapGuiCopyFirstPerson = new Object2FloatOpenHashMap<>(emf$variableMap);
             return emf$variableMapGuiCopyFirstPerson;
         }
 
         if (EMFState.isInGui) {
-            if (emf$variableMapGuiCopy == null) emf$variableMapGuiCopy = new HashMap<>(emf$variableMap);
+            // Copy the initial variable state but allow the gui to now change these separately
+            if (emf$variableMapGuiCopy == null) emf$variableMapGuiCopy = new Object2FloatOpenHashMap<>(emf$variableMap);
             return emf$variableMapGuiCopy;
         }
 

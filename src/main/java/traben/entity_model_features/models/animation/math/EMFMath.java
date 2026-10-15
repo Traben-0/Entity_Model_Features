@@ -1,5 +1,6 @@
 package traben.entity_model_features.models.animation.math;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.core.BlockPos;
@@ -89,13 +90,15 @@ public abstract class EMFMath {
     public static void setEntityVariable(String variable, float value) {
         var state = emfState();
         if (state != null) {
-            state.variableMap().put(variable, value);
+            if (state.variableMap() instanceof Object2FloatMap<String> map) map.put(variable, value);
+            else state.variableMap().put(variable, value);
         }
     }
 
     public static float getEntityVariable(String variable, float defaultValue) {
         var state = emfState();
         if (state == null) return defaultValue;
+        if (state.variableMap() instanceof Object2FloatMap<String> map) return map.getOrDefault(variable, defaultValue);
         return state.variableMap().getOrDefault(variable, defaultValue);
     }
 
