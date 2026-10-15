@@ -13,10 +13,12 @@ import java.util.function.Function;
 public class EMFEntityRenderStateViaReference extends ETFEntityRenderStateViaReference implements EMFEntityRenderState {
 
     private final EMFEntity emfEntity;
+    private final String typeString;
 
     public EMFEntityRenderStateViaReference(EMFEntity emfEntity) {
         super(emfEntity);
         this.emfEntity = emfEntity;
+        this.typeString = emfEntity.emf$getTypeString();
     }
 
     @Override @Deprecated public EMFEntity emfEntity() { return emfEntity; }
@@ -54,7 +56,7 @@ public class EMFEntityRenderStateViaReference extends ETFEntityRenderStateViaRef
 
     @Override public Vec3 emfVelocity() { return emfEntity.emf$getVelocity(); }
 
-    @Override public String typeString() { return emfEntity.emf$getTypeString(); }
+    @Override public String typeString() { return typeString; }
 
     @Override public Map<String, Float> variableMap() {
         return emfEntity.emf$getVariableMap();
