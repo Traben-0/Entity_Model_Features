@@ -171,7 +171,7 @@
   "entity_model_features.config.variable_explanation.day_time": "当前昼夜时间(tick 0-24000)",
   "entity_model_features.config.variable_explanation.death_time": "实体死亡时间(tick 0-20递增)",
   "entity_model_features.config.variable_explanation.dimension": "当前维度\n主世界:0 下界:-1 末地:1",
-  "entity_model_features.config.variable_explanation.distance": "实体与客户端玩家的距离(格)\n\n虽然distance变量是为便利添加的，但在OptiFine中可通过以下代码实现相同效果：\n\"var.distance\": \"sqrt(pow(pos_x -player_pos_x, 2) + pow(pos_y - player_pos_y, 2) + pow(pos_z - player_pos_z, 2))\"",
+  "entity_model_features.config.variable_explanation.distance": "实体与客户端玩家的距离(方块)\n\n虽然distance变量是为便利添加的，但在OptiFine中可通过以下代码实现相同效果：\n\"var.distance\": \"sqrt(pow(pos_x -player_pos_x, 2) + pow(pos_y - player_pos_y, 2) + pow(pos_z - player_pos_z, 2))\"",
   "entity_model_features.config.variable_explanation.e": "欧拉常数\n2.718281.....",
   "entity_model_features.config.variable_explanation.entity_variable": "实体变量格式为\"var.<名称>\"(浮点)或\"varb.<名称>\"(布尔)\n\n名称可为任意字符串，如\"var.xyz\"、\"var.last_rx\"等\n\n变量附着于渲染实体，默认值0或false\n\n用于在帧间存储动画数据",
   "entity_model_features.config.variable_explanation.entity_variable.title": "实体变量",
