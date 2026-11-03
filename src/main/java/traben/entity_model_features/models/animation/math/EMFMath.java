@@ -683,7 +683,7 @@ public abstract class EMFMath {
 
         //clear anger info if anger is over
         if (angerTime <= 0) {
-            knownHighestAngerTimeByUUID.put(state.uuid(), 0);
+            knownHighestAngerTimeByUUID.remove(state.uuid());
             return 0;
         }
 
