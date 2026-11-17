@@ -5,6 +5,12 @@ package traben.entity_model_features.utils;
 //$$ import net.minecraft.world.level.block.entity.BlockEntityTypes;
 //#endif
 
+//#if MC < 12002
+//$$ import net.minecraft.core.registries.BuiltInRegistries;
+//#endif
+
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
@@ -49,4 +55,62 @@ public abstract class UEntityTypes {
     //$$ public static EntityType<?> CAMEL_HUSK = EntityType.CAMEL_HUSK;
     //#endif
     //#endif
+
+    public static String getSpecifiedModel(BlockEntityType<?> type){
+        // TODO DONT FORGET TO REPLICATE CHANGES IN SPECIAL RENDERERS
+        if (UEntityTypes.ENCHANTING_TABLE.equals(type))
+            return "enchanting_book";
+        else if (UEntityTypes.LECTERN.equals(type))
+            return "lectern_book";
+        else if (UEntityTypes.CHEST.equals(type))
+            return "chest";
+        else if (UEntityTypes.ENDER_CHEST.equals(type))
+            return "ender_chest";
+        else if (UEntityTypes.TRAPPED_CHEST.equals(type))
+            return "trapped_chest";
+            //#if MC >= 12002
+            //todo did deprecation start in 1.21.2?
+        else if (type.builtInRegistryHolder() != null && type.builtInRegistryHolder().unwrapKey().isPresent()) {
+            ResourceLocation id = type.builtInRegistryHolder().unwrapKey().get().location();
+            //#else
+            //$$ else if (BuiltInRegistries.BLOCK_ENTITY_TYPE.getResourceKey(type).isPresent()) {
+            //$$     ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getResourceKey(type).get().location();
+            //#endif
+            if (id.getNamespace().equals("minecraft")) {
+                return id.getPath();
+            } else {
+                return id.getNamespace() + ":" + id.getPath();
+            }
+        }
+        return "";
+    }
+
+    public static String getSpecifiedModel(EntityType<?> type){
+        //#if MC == 12103
+        //$$ if (type.equals(EntityType.CREAKING_TRANSIENT)) {
+        //$$     return "creaking_transient";
+        //$$ } else
+        //#endif
+        if(type.equals(UEntityTypes.SPECTRAL_ARROW)) {
+            return "spectral_arrow";
+        }else if (type.equals(UEntityTypes.BREEZE_WIND_CHARGE)) {
+            return "breeze_wind_charge";
+        }else if (type
+                //#if MC >= 26.1
+                //$$ .builtInRegistryHolder()
+                //#endif
+                .is(EntityTypeTags.BOAT)) {
+            //entity.minecraft.dark_oak_boat
+            return "emf$boat$" //key to not override
+                    + type.getDescriptionId()
+                    .replaceAll("entity.minecraft.","")
+                    .replaceAll("(_boat|_raft|_chest_boat)$","");
+        }
+        //#if MC >= 12111
+        //$$  else if (type.equals(UEntityTypes.CAMEL_HUSK)) {
+        //$$           return "camel_husk";
+        //$$       }
+        //#endif
+        return "";
+    }
 }

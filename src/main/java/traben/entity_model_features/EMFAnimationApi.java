@@ -1,10 +1,14 @@
 package traben.entity_model_features;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.entity.EntityType;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +27,7 @@ import traben.entity_model_features.models.parts.EMFModelPartRoot;
 import traben.entity_model_features.utils.EMFAnimationPauseHandler;
 import traben.entity_model_features.utils.EMFEntity;
 import traben.entity_model_features.utils.EMFUtils;
+import traben.entity_model_features.utils.UEntityTypes;
 
 import java.lang.reflect.Method;
 import java.security.InvalidParameterException;
@@ -315,6 +320,46 @@ public interface EMFAnimationApi {
         }
 
         return true;
+    }
+
+    /**
+     * Bakes a model part for the specified block entity type, temporarily configuring
+     * the EMF manager loading state during the baking process.
+     * <p>
+     * Note: This method sets the current block entity type and specified model loading
+     * state in the {@link EMFManager} before baking the layer via Minecraft's entity models,
+     * and clears them immediately afterward.
+     *
+     * @param layerLocation The model layer location of the model to bake.
+     * @param type The block entity type associated with the model being loaded.
+     * @return The baked {@link ModelPart} instance.
+     */
+    static ModelPart bakeLayer(ModelLayerLocation layerLocation, BlockEntityType<?> type) {
+        EMFManager.getInstance().currentBlockEntityTypeLoading = type;
+        EMFManager.getInstance().currentSpecifiedModelLoading.set(UEntityTypes.getSpecifiedModel(type));
+        ModelPart modelPart = Minecraft.getInstance().getEntityModels().bakeLayer(layerLocation);
+        EMFManager.getInstance().currentBlockEntityTypeLoading = null;
+        EMFManager.getInstance().currentSpecifiedModelLoading.set("");
+        return modelPart;
+    }
+
+    /**
+     * Bakes a model part for the specified entity type, temporarily configuring
+     * the EMF manager loading state during the baking process.
+     * <p>
+     * Note: This method sets the current specified model loading
+     * state in the {@link EMFManager} before baking the layer via Minecraft's entity models,
+     * and clears them immediately afterward.
+     *
+     * @param layerLocation The model layer location of the model to bake.
+     * @param type The entity type associated with the model being loaded.
+     * @return The baked {@link ModelPart} instance.
+     */
+    static ModelPart bakeLayer(ModelLayerLocation layerLocation, EntityType<?> type) {
+        EMFManager.getInstance().currentSpecifiedModelLoading.set(UEntityTypes.getSpecifiedModel(type));
+        ModelPart modelPart = Minecraft.getInstance().getEntityModels().bakeLayer(layerLocation);
+        EMFManager.getInstance().currentSpecifiedModelLoading.set("");
+        return modelPart;
     }
 
     /**
