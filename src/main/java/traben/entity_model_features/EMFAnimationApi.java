@@ -334,7 +334,7 @@ public interface EMFAnimationApi {
      * @param type The block entity type associated with the model being loaded.
      * @return The baked {@link ModelPart} instance.
      */
-    static ModelPart bakeModel(ModelLayerLocation layerLocation, BlockEntityType<?> type) {
+    static ModelPart bakeLayer(ModelLayerLocation layerLocation, BlockEntityType<?> type) {
         EMFManager.getInstance().currentBlockEntityTypeLoading = type;
         EMFManager.getInstance().currentSpecifiedModelLoading.set(UEntityTypes.getSpecifiedModel(type));
         ModelPart modelPart = Minecraft.getInstance().getEntityModels().bakeLayer(layerLocation);
@@ -355,7 +355,7 @@ public interface EMFAnimationApi {
      * @param type The entity type associated with the model being loaded.
      * @return The baked {@link ModelPart} instance.
      */
-    static ModelPart bakeModel(ModelLayerLocation layerLocation, EntityType<?> type) {
+    static ModelPart bakeLayer(ModelLayerLocation layerLocation, EntityType<?> type) {
         EMFManager.getInstance().currentSpecifiedModelLoading.set(UEntityTypes.getSpecifiedModel(type));
         ModelPart modelPart = Minecraft.getInstance().getEntityModels().bakeLayer(layerLocation);
         EMFManager.getInstance().currentSpecifiedModelLoading.set("");
