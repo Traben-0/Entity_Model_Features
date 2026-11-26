@@ -94,24 +94,24 @@ public class KeyframeLoopMethod extends MathMethod {
     public void asmVisitInner(MethodVisitor mv, ASMVariableHandler vars) throws EMFMathException {
         vars.scopeFloat();
 
-        int size = parsedArgs.size();
+        int frameCount = parsedArgs.size() - 1;
 
         // ---- push deltaRaw first ----
         parsedArgs.get(0).asmVisit(mv, vars); // -> float
 
-        // ---- create float[size] ----
-        mv.visitLdcInsn(size);
+        // ---- create float[frameCount] ----
+        mv.visitLdcInsn(frameCount);
         mv.visitIntInsn(NEWARRAY, T_FLOAT);
         // stack: float[]
 
         // ---- fill array ----
-        for (int i = 1; i < size; i++) {
+        for (int i = 0; i < frameCount; i++) {
 
             mv.visitInsn(DUP); // arrayref
             mv.visitLdcInsn(i); // index
 
             // push value
-            parsedArgs.get(i).asmVisit(mv, vars); // float
+            parsedArgs.get(i + 1).asmVisit(mv, vars); // float
 
             mv.visitInsn(FASTORE);
         }
