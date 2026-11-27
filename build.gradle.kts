@@ -97,10 +97,25 @@ dependencies {
     //region MOD DEPENDENCIES
 
     fun modImpl(modPrefix: String, vararg versions: Pair<Int, String?>): Boolean {
-        for ((versionMC, versionMod) in versions) {
+        for ((versionMC, implVersionMod) in versions) {
             if (platform.mcVersion >= versionMC) {
-                return if (versionMod != null) {
-                    modImplementation("$modPrefix$versionMod") {
+                return if (implVersionMod != null) {
+                    modImplementation("$modPrefix$implVersionMod") {
+                        exclude("net.fabricmc.fabric-api")
+                        isTransitive = true
+                    }
+                    true
+                } else false
+            }
+        }
+        return false
+    }
+
+    fun modComp(modPrefix: String, vararg versions: Pair<Int, String?>): Boolean {
+        for ((versionMC, compVersionMod) in versions) {
+            if (platform.mcVersion >= versionMC) {
+                return if (compVersionMod != null) {
+                    compileOnly("$modPrefix$compVersionMod") {
                         exclude("net.fabricmc.fabric-api")
                         isTransitive = true
                     }
@@ -177,6 +192,16 @@ dependencies {
             compileOnly("com.zigythebird.playeranim:PlayerAnimationLibCore:1.0.14+mc.1.21.1")
         }
     }
+
+    modComp("maven.modrinth:real-camera:",
+        26_03_00 to ver ("ROhlZqcT" , null, "UlS34FcA"),
+        26_02_00 to ver("FawEpnhn", null, "wfgL3JCe"),
+        26_01_00 to ver("8iDFFsGL", null, "tPhOLg40"),
+        1_21_04 to ver("ERGbfBFO", null, "j9j0EChP"),
+        1_21_02 to ver("ERGbfBFO", null, "j9j0EChP"),
+        1_21_00 to ver("ERGbfBFO", null, "j9j0EChP"),
+        1_20_01 to ver("GtVt9wyh", "zxrGLIlw", null),
+    )
 
     //endregion
 
