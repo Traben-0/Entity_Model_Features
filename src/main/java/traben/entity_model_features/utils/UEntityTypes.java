@@ -68,14 +68,14 @@ public abstract class UEntityTypes {
             return "ender_chest";
         else if (UEntityTypes.TRAPPED_CHEST.equals(type))
             return "trapped_chest";
-            //#if MC >= 12002
-            //todo did deprecation start in 1.21.2?
+        //#if MC >= 12002
+        //todo did deprecation start in 1.21.2?
         else if (type.builtInRegistryHolder() != null && type.builtInRegistryHolder().unwrapKey().isPresent()) {
             ResourceLocation id = type.builtInRegistryHolder().unwrapKey().get().location();
-            //#else
-            //$$ else if (BuiltInRegistries.BLOCK_ENTITY_TYPE.getResourceKey(type).isPresent()) {
-            //$$     ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getResourceKey(type).get().location();
-            //#endif
+        //#else
+        //$$ else if (BuiltInRegistries.BLOCK_ENTITY_TYPE.getResourceKey(type).isPresent()) {
+        //$$     ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getResourceKey(type).get().location();
+        //#endif
             if (id.getNamespace().equals("minecraft")) {
                 return id.getPath();
             } else {
@@ -86,7 +86,8 @@ public abstract class UEntityTypes {
     }
 
     public static String getSpecifiedModel(EntityType<?> type){
-        //#if MC == 12103
+        //#if MC >= 1.21.2
+        //#if MC == 1.21.3
         //$$ if (type.equals(EntityType.CREAKING_TRANSIENT)) {
         //$$     return "creaking_transient";
         //$$ } else
@@ -106,10 +107,11 @@ public abstract class UEntityTypes {
                     .replaceAll("entity.minecraft.","")
                     .replaceAll("(_boat|_raft|_chest_boat)$","");
         }
-        //#if MC >= 12111
+        //#if MC >= 1.21.11
         //$$  else if (type.equals(UEntityTypes.CAMEL_HUSK)) {
         //$$           return "camel_husk";
         //$$       }
+        //#endif
         //#endif
         return "";
     }
